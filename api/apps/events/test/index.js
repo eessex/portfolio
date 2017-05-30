@@ -70,7 +70,7 @@ describe('Events', () => {
 
     it('it should GET an event by id', (done) => {
       let event = new Event({ title: 'Cool Event' });
-      event.save((err, book) => {
+      event.save((err, event) => {
         chai.request(server)
         .get('/api/events/' + event.id)
         .send(event)

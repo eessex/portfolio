@@ -5,7 +5,7 @@ var EventSchema = new Schema({
   title: String,
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
-  published: { type: Boolean, default: false },
+  published: { type: Boolean, default: false }
 });
 
 EventSchema.pre('save', next => {

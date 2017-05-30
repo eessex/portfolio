@@ -6,17 +6,17 @@ var Page = require('../../models/page');
 
 pages.route('/')
   // create page
-  .post(function(req, res) {
+  .post( (req, res) => {
     var page = new Page();
-    page.name = req.body.name;
-    page.save(function(err) {
+    page.title = req.body.title;
+    page.save( (err, page) => {
       if (err)
         res.send(err);
-      res.json({ message: 'Page created' });
+      res.json({ message: 'Page created', page });
     });
   })
   // all pages
-  .get(function(req, res) {
+  .get( (req, res) => {
     Page.find(function(err, pages) {
       if (err)
         res.send(err);
@@ -26,11 +26,31 @@ pages.route('/')
 
 pages.route('/:page_id')
   // single page
-  .get(function(req, res) {
-    Page.findById(req.params.page_id, function(err, page) {
+  .get( (req, res) => {
+    Page.findById(req.params.page_id, (err, page) => {
       if (err)
         res.send(err);
       res.json(page);
+    });
+  })
+  .put( (req, res) => {
+    Page.findById(req.params.page_id, (err, page) => {
+      if(err)
+        res.send(err);
+      Object.assign(page, req.body).save((err, page) => {
+        if(err)
+          res.send(err);
+        res.json({ message: 'Page updated', page });
+      });
+    });
+  })
+  .delete( (req, res) => {
+    Page.remove({
+      _id: req.params.page_id
+    }, function(err, page) {
+      if (err)
+        res.send(err);
+      res.json({ message: 'Page deleted' });
     });
   });
 

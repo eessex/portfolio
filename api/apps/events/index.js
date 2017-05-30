@@ -6,17 +6,17 @@ var Event = require('../../models/event');
 
 events.route('/')
   // create event
-  .post(function(req, res) {
+  .post( (req, res) => {
     var event = new Event();
-    event.name = req.body.name;
-    event.save(function(err) {
+    event.title = req.body.title;
+    event.save( (err, event) => {
       if (err)
         res.send(err);
-      res.json({ message: 'Event created' });
+      res.json({ message: 'Event created', event });
     });
   })
   // all events
-  .get(function(req, res) {
+  .get( (req, res) => {
     Event.find(function(err, events) {
       if (err)
         res.send(err);
@@ -26,14 +26,25 @@ events.route('/')
 
 events.route('/:event_id')
   // single event
-  .get(function(req, res) {
-    Event.findById(req.params.event_id, function(err, event) {
+  .get( (req, res) => {
+    Event.findById(req.params.event_id, (err, event) => {
       if (err)
         res.send(err);
       res.json(event);
     });
   })
- .delete(function(req, res) {
+  .put( (req, res) => {
+    Event.findById(req.params.event_id, (err, event) => {
+      if(err)
+        res.send(err);
+      Object.assign(event, req.body).save((err, event) => {
+        if(err)
+          res.send(err);
+        res.json({ message: 'Event updated', event });
+      });
+    });
+  })
+  .delete( (req, res) => {
     Event.remove({
       _id: req.params.event_id
     }, function(err, event) {

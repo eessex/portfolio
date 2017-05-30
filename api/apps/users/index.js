@@ -6,17 +6,20 @@ var User = require('../../models/user');
 
 users.route('/')
   // create user
-  .post(function(req, res) {
+  .post( (req, res) => {
     var user = new User();
-    user.name = req.body.name;
-    user.save(function(err) {
+    user.name_first = req.body.name_first;
+    user.name_last = req.body.name_last;
+    user.email = req.body.email;
+    user.password = req.body.password;
+    user.save( (err, user) => {
       if (err)
         res.send(err);
-      res.json({ message: 'User created' });
+      res.json({ message: 'User created', user });
     });
   })
   // all users
-  .get(function(req, res) {
+  .get( (req, res) => {
     User.find(function(err, users) {
       if (err)
         res.send(err);
@@ -26,11 +29,31 @@ users.route('/')
 
 users.route('/:user_id')
   // single user
-  .get(function(req, res) {
-    User.findById(req.params.user_id, function(err, user) {
+  .get( (req, res) => {
+    User.findById(req.params.user_id, (err, user) => {
       if (err)
         res.send(err);
       res.json(user);
+    });
+  })
+  .put( (req, res) => {
+    User.findById(req.params.user_id, (err, user) => {
+      if(err)
+        res.send(err);
+      Object.assign(user, req.body).save((err, user) => {
+        if(err)
+          res.send(err);
+        res.json({ message: 'User updated', user });
+      });
+    });
+  })
+  .delete( (req, res) => {
+    User.remove({
+      _id: req.params.user_id
+    }, function(err, user) {
+      if (err)
+        res.send(err);
+      res.json({ message: 'User deleted' });
     });
   });
 

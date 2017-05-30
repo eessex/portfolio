@@ -2,6 +2,8 @@ var express = require('express');
 var users = express.Router();
 var User = require('../../models/user');
 
+// for /api/users/
+
 users.route('/')
   // create user
   .post(function(req, res) {

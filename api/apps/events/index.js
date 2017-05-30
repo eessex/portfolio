@@ -2,6 +2,8 @@ var express = require('express');
 var events = express.Router();
 var Event = require('../../models/event');
 
+// for /api/events/
+
 events.route('/')
   // create event
   .post(function(req, res) {

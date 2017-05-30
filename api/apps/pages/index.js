@@ -2,6 +2,8 @@ var express = require('express');
 var pages = express.Router();
 var Page = require('../../models/page');
 
+// for /api/pages/
+
 pages.route('/')
   // create page
   .post(function(req, res) {

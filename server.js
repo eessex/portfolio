@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 var logger = require('morgan');
 
 var app = express();
-mongoose.connect('mongodb://localhost/events-list_api');
+mongoose.connect('mongodb://localhost/portforlio');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -15,7 +15,7 @@ var port = process.env.PORT || 3000;
 var router = express.Router();
 
 router.get('/', function(req, res) {
-  res.json({ message: "Here's the api" });
+  res.json({ message: "Portfolio app" });
 });
 
 app.use('/api', require('./api/apps'));

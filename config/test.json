@@ -1,5 +1,0 @@
-{
-	"DBHost": "portfolio_test",
-	"port": 5000,
-	"NODE_ENV": "test"
-}

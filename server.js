@@ -2,15 +2,15 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var logger = require('morgan');
-var config = require('config');
+require('dotenv').load();
 
 var app = express();
 
-mongoose.connect('mongodb://localhost/' + config.DBHost);
+mongoose.connect('mongodb://localhost/' + process.env.MONGO_DB);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 
-if(config.util.getEnv('NODE_ENV') !== 'test') {
+if(process.env.NODE_ENV !== 'test') {
   app.use(logger('dev')); //TODO- combined for prod
 }
 

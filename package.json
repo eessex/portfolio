@@ -15,6 +15,7 @@
     "mocha": "^3.4.2"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "mocha -- api/apps/**/test/*.js"
   }
 }

@@ -9,7 +9,7 @@
 !/log/.keep
 /tmp
 .DS_Store
-yar-error.log
+yarn-error.log
 
 # Ignore node packages
 /node_modules

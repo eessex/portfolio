@@ -8,8 +8,7 @@ pages.route('/')
   // create page
   .post( (req, res) => {
     var page = new Page();
-    page.title = req.body.title;
-    page.save( (err, page) => {
+    Object.assign(page, req.body).save((err, page) => {
       if (err)
         res.send(err);
       res.json({ message: 'Page created', page });

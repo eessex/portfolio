@@ -8,11 +8,7 @@ users.route('/')
   // create user
   .post( (req, res) => {
     var user = new User();
-    user.name_first = req.body.name_first;
-    user.name_last = req.body.name_last;
-    user.email = req.body.email;
-    user.password = req.body.password;
-    user.save( (err, user) => {
+    Object.assign(user, req.body).save((err, user) => {
       if (err)
         res.send(err);
       res.json({ message: 'User created', user });

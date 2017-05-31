@@ -1,5 +1,4 @@
 process.env.NODE_ENV = 'test';
-process.env.PORT = 5000
 
 var mongoose = require('mongoose');
 var User = require('../../../models/user');

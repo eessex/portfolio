@@ -10,14 +10,16 @@ mongoose.connect('mongodb://localhost/' + process.env.MONGO_DB);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 
-if(process.env.NODE_ENV !== 'test') {
+if(process.env.NODE_ENV === 'test') {
+	var port = 5000;
+} else {
+	var port = process.env.PORT || 3000;
   app.use(logger('dev')); //TODO- combined for prod
 }
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-var port = process.env.PORT || 3000;
 var router = express.Router();
 
 router.get('/', function(req, res) {

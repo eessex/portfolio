@@ -21,7 +21,7 @@ app.use(function(req, res, next) {
 });
 
 
-if(process.env.NODE_ENV === 'test') {
+if (process.env.NODE_ENV === 'test') {
   var port = 5000;
 } else {
   var port = process.env.PORT || 3000;

@@ -3,7 +3,6 @@ var path = require('path');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var logger = require('morgan');
-var middleware = require('./client/middleware');
 require('dotenv').load();
 
 var app = express();
@@ -20,7 +19,6 @@ app.use(function(req, res, next) {
   next();
 });
 
-
 if (process.env.NODE_ENV === 'test') {
   var port = 5000;
 } else {
@@ -35,10 +33,7 @@ var publicPath = express.static(path.join(__dirname, '/dist'));
 
 app.use('/dist', publicPath);
 app.use('/api', require('./api/apps'));
-
-app.use('/events', middleware);
-app.use('/pages', middleware);
-app.use('/', middleware);
+app.use('*', require('./client/middleware'));
 
 app.listen(port);
 console.log('Listening on port ' + port);

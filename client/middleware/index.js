@@ -3,7 +3,7 @@ var path = require('path');
 var middleware = express.Router();
 
 middleware.get('/', function(req, res) {
-  res.sendFile(path.join(__dirname, '../client/index.html'))
+  res.sendFile(path.join(__dirname, '../index.html'))
 });
 
 module.exports = middleware;

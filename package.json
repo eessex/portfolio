@@ -35,6 +35,6 @@
   },
   "scripts": {
     "start": "babel-node server.js",
-    "test": "mocha -- api/apps/**/test/*.js"
+    "test": "mocha -- api/apps/**/test/*.js **/test/*.js"
   }
 }

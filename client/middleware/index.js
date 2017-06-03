@@ -1,5 +1,6 @@
 var express = require('express');
 var path = require('path');
+
 var middleware = express.Router();
 
 middleware.get('/', function(req, res) {

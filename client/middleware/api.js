@@ -9,7 +9,6 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   const handleResponse = (data) => {
     dispatch({ type: action.payload.next.SUCCESS, payload: data })
   };
-
   fetch(BASE_URL + action.payload.url)
     .then(response => response.json())
     .then(handleResponse)

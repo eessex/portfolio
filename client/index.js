@@ -7,12 +7,10 @@ import store from './store';
 import { fetchEvents } from './actions/events';
 
 store.subscribe(() => {
-  console.log(store.getState());
+  console.log('App loaded.');
 });
-store.dispatch(fetchEvents());
-window.store = store;
 
-console.log('App loaded.');
+window.store = store;
 
 render(
       <Provider store={store}>

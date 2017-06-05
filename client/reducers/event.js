@@ -1,24 +1,24 @@
-import { FETCH_EVENTS } from '../actions';
+import { FETCH_EVENT } from '../actions';
 
 const initialState = {
   loading: false,
-  list: []
+  event: {}
 };
 
-const eventsReducer = (state = initialState, action) => {
+const eventReducer = (state = initialState, action) => {
   switch (action.type) {
-    case FETCH_EVENTS.PENDING:
+    case FETCH_EVENT.PENDING:
       return Object.assign({}, state, {
         loading: true
       });
 
-    case FETCH_EVENTS.SUCCESS:
+    case FETCH_EVENT.SUCCESS:
       return Object.assign({}, state, {
         loading: false,
-        list: action.payload
+        event: action.payload
       });
 
-    case FETCH_EVENTS.ERROR:
+    case FETCH_EVENT.ERROR:
       return Object.assign({}, state, {
         loading: false
       });
@@ -28,4 +28,4 @@ const eventsReducer = (state = initialState, action) => {
   }
 }
 
-export default eventsReducer;
+export default eventReducer;

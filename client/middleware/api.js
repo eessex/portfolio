@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const BASE_URL = location.href.indexOf('localhost') > 0 ? 'http://localhost:3000/api' : '/api';
 
 const apiMiddleware = ({ dispatch }) => next => action => {
@@ -6,12 +8,14 @@ const apiMiddleware = ({ dispatch }) => next => action => {
     return next(action);
   }
 
-  const handleResponse = (data) => {
-    dispatch({ type: action.payload.next.SUCCESS, payload: data })
+  const handleResponse = (res) => {
+    dispatch({ type: action.payload.next.SUCCESS, payload: res.data })
   };
-  fetch(BASE_URL + action.payload.url)
-    .then(response => response.json())
+  axios.get(BASE_URL + action.payload.url)
     .then(handleResponse)
+    .catch(error =>
+      dispatch({ type: action.payload.next.ERROR, payload: error })
+    );
 
   dispatch({ type: action.payload.next.PENDING });
 

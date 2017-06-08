@@ -7,9 +7,17 @@ require('dotenv').load();
 
 var app = express();
 
-mongoose.connect('mongodb://localhost/' + process.env.MONGO_DB);
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
+if (process.env.NODE_ENV === 'test') {
+  var port = 5000;
+  var db = 'portfolio_test';
+  console.log('starting tests')
+} else {
+  var port = process.env.PORT || 3000;
+  var db = process.env.MONGO_DB;
+  app.use(logger('dev')); //TODO- combined for prod
+}
+
+mongoose.connect('mongodb://localhost/' + db);
 
 app.use(function(req, res, next) {
   // res.header("Access-Control-Allow-Origin", "*");
@@ -18,13 +26,6 @@ app.use(function(req, res, next) {
   // res.header("Access-Control-Allow-Credentials", "true");
   next();
 });
-
-if (process.env.NODE_ENV === 'test') {
-  var port = 5000;
-} else {
-  var port = process.env.PORT || 3000;
-  app.use(logger('dev')); //TODO- combined for prod
-}
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

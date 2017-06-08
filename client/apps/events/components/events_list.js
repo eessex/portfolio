@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import EventTeaser from '../../event/components/event_teaser.js'
 
 class EventsList extends Component {
   constructor(props) {
@@ -9,7 +10,9 @@ class EventsList extends Component {
   render() {
     const listItems = this.props.events.map( (event, i) =>
       <li className='events-list__item' key={i}>
-        <Link to={"/events/" + event._id}>{event.title}</Link>
+        <Link to={"/events/" + event._id}>
+          <EventTeaser event={event} />
+        </Link>
       </li>
     );
 

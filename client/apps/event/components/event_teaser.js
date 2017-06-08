@@ -9,7 +9,7 @@ class EventTeaser extends Component {
     const { event } = this.props;
     return (
       <div className='event-teaser'>
-        <div className='event-teaser__header'>{event.title}</div>
+        <div className='event-teaser__header'>{event.title || event._id}</div>
       </div>
     );
   }

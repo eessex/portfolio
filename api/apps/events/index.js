@@ -40,15 +40,12 @@ events.route('/:event_id')
     });
   })
   .put( (req, res) => {
-    console.log(req.params.event_id)
     Event.findById(req.params.event_id, (err, event) => {
       if(err)
         res.send(err);
-      console.log(event)
       Object.assign(event, req.body).save((err, event) => {
         if(err)
           res.send(err);
-        console.log(event)
         res.json({ message: 'Event updated', event });
       });
     });

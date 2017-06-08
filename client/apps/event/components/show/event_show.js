@@ -8,8 +8,8 @@ class EventShow extends Component {
   render() {
     const { event } = this.props;
     return (
-      <div className='event-show'>
-        <div className='event-show__header'>{event.title}</div>
+      <div className='event--show'>
+        <div className='event--show__header'>{event.title}</div>
       </div>
     );
   }

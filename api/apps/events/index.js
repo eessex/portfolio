@@ -10,7 +10,7 @@ events.route('/')
     var event = new Event();
     Object.assign(event, req.body).save((err, event) => {
       if (err)
-        res.status(500).send(err);
+        res.status(400).send(err);
       res.json({ message: 'Event created', event });
     });
   })
@@ -23,22 +23,32 @@ events.route('/')
     });
   });
 
+events.route('/new')
+  // new event
+  .get( (req, res) => {
+      var event = new Event
+      res.json(event);
+  });
+
 events.route('/:event_id')
   // single event
   .get( (req, res) => {
     Event.findById(req.params.event_id, (err, event) => {
       if (err)
-        res.status(500).send(err);
+        res.status(400).send(err);
       res.json(event);
     });
   })
   .put( (req, res) => {
+    console.log(req.params.event_id)
     Event.findById(req.params.event_id, (err, event) => {
       if(err)
         res.send(err);
+      console.log(event)
       Object.assign(event, req.body).save((err, event) => {
         if(err)
           res.send(err);
+        console.log(event)
         res.json({ message: 'Event updated', event });
       });
     });

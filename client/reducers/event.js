@@ -1,8 +1,9 @@
-import { FETCH_EVENT } from '../actions';
+import { FETCH_EVENT, UPDATE_EVENT } from '../actions';
 
 const initialState = {
   loading: false,
-  event: {}
+  event: {},
+  error: null
 };
 
 const eventReducer = (state = initialState, action) => {
@@ -19,6 +20,23 @@ const eventReducer = (state = initialState, action) => {
       });
 
     case FETCH_EVENT.ERROR:
+      return Object.assign({}, state, {
+        loading: false
+      });
+
+    case UPDATE_EVENT.PENDING:
+      return Object.assign({}, state, {
+        loading: true
+      });
+
+    case UPDATE_EVENT.SUCCESS:
+      debugger
+      return Object.assign({}, state, {
+        loading: false,
+        event: action.payload.data
+      });
+
+    case UPDATE_EVENT.ERROR:
       return Object.assign({}, state, {
         loading: false
       });

@@ -35,6 +35,7 @@ describe('event reducer', () => {
     expect(
       eventReducer(undefined, {})
     ).toEqual({
+      error: null,
       event: {},
       loading: false
     })

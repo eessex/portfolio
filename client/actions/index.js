@@ -6,5 +6,9 @@ const asyncActionType = (type) => ({
 
 export const API = 'API';
 
+// events
 export const FETCH_EVENTS = asyncActionType('FETCH_EVENTS');
+
+// event
 export const FETCH_EVENT = asyncActionType('FETCH_EVENT');
+export const UPDATE_EVENT = asyncActionType('UPDATE_EVENT');

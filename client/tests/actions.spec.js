@@ -9,6 +9,7 @@ describe('actions', () => {
       var expectedAction = {
         type: types.API,
         payload: {
+          method: 'get',
           url: '/events',
           next: types.FETCH_EVENTS
         }
@@ -18,10 +19,11 @@ describe('actions', () => {
   })
 
   describe('Event', () => {
-    it('should create an action to fetch all events', () => {
+    it('should create an action to fetch a single event', () => {
       var expectedAction = {
         type: types.API,
         payload: {
+          method: 'get',
           id: '123',
           url: '/events/123',
           next: types.FETCH_EVENT

@@ -9,7 +9,7 @@ var EventSchema = new Schema({
 });
 
 EventSchema.pre('save', next => {
-  now = new Date();
+  var now = new Date();
   if(!this.created_at) {
     this.created_at = now;
   }

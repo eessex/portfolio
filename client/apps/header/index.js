@@ -7,6 +7,7 @@ export default class Header extends Component {
       <nav className='header'>
         <Link to="/">Home</Link>
         <Link to="/events">Events</Link>
+        <Link to="/events/new">New</Link>
         <Link to="/pages">Pages</Link>
       </nav>
     );

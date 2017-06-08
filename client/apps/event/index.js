@@ -2,14 +2,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {bindActionCreators} from 'redux';
 import * as Actions from '../../actions/event';
-import EventShow from './components/event_show.js'
+import EventContainer from './components/event_container.js'
 
 class Event extends Component {
 
-	componentWillMount() {
-		this.props.actions.fetchEvent(this.props.match.params.id)
-	}
-
+  componentWillMount() {
+    this.props.actions.fetchEvent(this.props.match.params.id)
+  }
 
   render() {
     const { event, loading } = this.props.event;
@@ -20,9 +19,12 @@ class Event extends Component {
         </div>
       );
     } else {
+      if (this.props.match.params.id == 'new') {
+        var isNew = true
+      }
       return (
         <div className='events'>
-          <EventShow event={event}/>
+          <EventContainer event={event} isNew={isNew} actions={this.props.actions} />
         </div>
       );
     }

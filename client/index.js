@@ -4,10 +4,9 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import Routes from './routes';
 import store from './store';
-import { fetchEvents } from './actions/events';
 
 store.subscribe(() => {
-  console.log('App loaded.');
+  console.log('Store updated.');
 });
 
 window.store = store;

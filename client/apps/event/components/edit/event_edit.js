@@ -4,7 +4,7 @@ class EventEdit extends Component {
   constructor(props) {
     super(props);
 
-    this.saveEvent = this.saveEvent.bind(this);
+    this.firstSaveEvent = this.firstSaveEvent.bind(this);
 
     this.state = {
       event: this.props.event
@@ -14,7 +14,7 @@ class EventEdit extends Component {
   firstSaveEvent() {
     console.log('clicked save')
     this.props.actions.updateEvent(this.state.event)
-    // this.props.history.push('/events/' + this.state.event._id)
+    this.props.history.push('/events/' + this.state.event._id)
   }
 
   render() {

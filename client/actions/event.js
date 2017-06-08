@@ -19,7 +19,7 @@ export const createEvent = (event) => {
     payload: {
       method: 'put',
       data: event,
-      url: '/events'
+      url: '/events',
       next: CREATE_EVENT
     }
   }

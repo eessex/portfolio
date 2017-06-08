@@ -10,6 +10,7 @@
 /tmp
 .DS_Store
 yarn-error.log
+/dist
 
 # Ignore node packages
 /node_modules

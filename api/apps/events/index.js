@@ -10,7 +10,7 @@ events.route('/')
     var event = new Event();
     Object.assign(event, req.body).save((err, event) => {
       if (err)
-        res.send(err);
+        res.status(500).send(err);
       res.json({ message: 'Event created', event });
     });
   })
@@ -28,7 +28,7 @@ events.route('/:event_id')
   .get( (req, res) => {
     Event.findById(req.params.event_id, (err, event) => {
       if (err)
-        res.send(err);
+        res.status(500).send(err);
       res.json(event);
     });
   })

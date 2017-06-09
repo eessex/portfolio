@@ -8,6 +8,7 @@ events.route('/')
   // create event
   .post( (req, res) => {
     var event = new Event();
+    console.log(event)
     Object.assign(event, req.body).save((err, event) => {
       if (err)
         res.status(400).send(err);

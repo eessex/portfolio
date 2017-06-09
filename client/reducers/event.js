@@ -30,7 +30,6 @@ const eventReducer = (state = initialState, action) => {
       });
 
     case UPDATE_EVENT.SUCCESS:
-      debugger
       return Object.assign({}, state, {
         loading: false,
         event: action.payload.data
@@ -47,7 +46,6 @@ const eventReducer = (state = initialState, action) => {
       });
 
     case CREATE_EVENT.SUCCESS:
-      debugger
       return Object.assign({}, state, {
         loading: false,
         event: action.payload.data

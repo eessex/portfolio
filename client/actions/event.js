@@ -13,11 +13,10 @@ export const fetchEvent = (id) => {
 }
 
 export const createEvent = (event) => {
-  debugger
   return {
     type: API,
     payload: {
-      method: 'put',
+      method: 'post',
       data: event,
       url: '/events',
       next: CREATE_EVENT
@@ -26,7 +25,6 @@ export const createEvent = (event) => {
 }
 
 export const updateEvent = (event) => {
-  debugger
   return {
     type: API,
     payload: {

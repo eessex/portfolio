@@ -7,7 +7,9 @@ import EventContainer from './components/event_container.js'
 class Event extends Component {
 
   componentWillMount() {
-    this.props.actions.fetchEvent(this.props.match.params.id)
+    // if (this.props.match.params.id != 'new') {
+      this.props.actions.fetchEvent(this.props.match.params.id)
+    // }
   }
 
   render() {

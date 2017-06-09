@@ -5,20 +5,34 @@ class EventEdit extends Component {
     super(props);
 
     this.firstSaveEvent = this.firstSaveEvent.bind(this);
+    this.saveEvent = this.saveEvent.bind(this);
+    this.onChange = this.onChange.bind(this);
 
     this.state = {
       event: this.props.event
     };
   }
 
+  onChange(e) {
+    event = this.state.event
+    event[e.target.name] = e.target.value
+    this.setState(event)
+  }
+
   firstSaveEvent() {
     console.log('clicked save')
-    this.props.actions.updateEvent(this.state.event)
-    this.props.history.push('/events/' + this.state.event._id)
+    this.props.actions.createEvent(this.state.event)
+    window.location.replace('/events/' + this.state.event._id)
+  }
+
+  saveEvent() {
+    debugger
   }
 
   render() {
-    const { event, isNew } = this.props;
+    const { isNew } = this.props;
+    const { event } = this.state;
+    var saveButton = isNew ? this.firstSaveEvent : this.saveEvent
     return (
       <div className='event--edit'>
         <div className='event--edit__header'>New Event</div>
@@ -26,8 +40,9 @@ class EventEdit extends Component {
           name='title'
           required
           defaultValue={event.title}
-          placeholder='hi Event Title' />
-        <button onClick={this.firstSaveEvent}>Save</button>
+          onChange={this.onChange}
+          placeholder='Title' />
+        <button onClick={saveButton}>Save</button>
       </div>
     );
   }

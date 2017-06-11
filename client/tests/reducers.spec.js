@@ -37,7 +37,8 @@ describe('event reducer', () => {
     ).toEqual({
       error: null,
       event: {},
-      loading: false
+      loading: false,
+      saving: null
     })
   })
 
@@ -55,6 +56,56 @@ describe('event reducer', () => {
     ).toEqual({
     	event: {id: '123'},
     	loading: false
+    })
+  })
+
+  it('should handle CREATE_EVENT', () => {
+    expect(
+      eventReducer([], {
+        type: types.CREATE_EVENT.PENDING,
+      })
+    ).toEqual({saving: true})
+    expect(
+      eventReducer([], {
+        type: types.CREATE_EVENT.SUCCESS,
+        payload: {data: {id: '123'}}
+      })
+    ).toEqual({
+      event: {id: '123'},
+      saving: false
+    })
+  })
+
+  it('should handle UPDATE_EVENT', () => {
+    expect(
+      eventReducer([], {
+        type: types.UPDATE_EVENT.PENDING,
+      })
+    ).toEqual({saving: true})
+    expect(
+      eventReducer([], {
+        type: types.UPDATE_EVENT.SUCCESS,
+        payload: {data: {id: '123'}}
+      })
+    ).toEqual({
+      event: {id: '123'},
+      saving: false
+    })
+  })
+
+  it('should handle DELETE_EVENT', () => {
+    expect(
+      eventReducer([], {
+        type: types.DELETE_EVENT.PENDING,
+      })
+    ).toEqual({loading: true})
+    expect(
+      eventReducer([], {
+        type: types.DELETE_EVENT.SUCCESS,
+        payload: {data: {id: '123'}}
+      })
+    ).toEqual({
+      loading: false
     })
   })
 })

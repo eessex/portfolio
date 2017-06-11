@@ -9,7 +9,6 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   }
 
   const handleResponse = (res) => {
-    console.log(res)
     dispatch({ type: action.payload.next.SUCCESS, payload: res.data })
   };
 
@@ -35,6 +34,14 @@ const apiMiddleware = ({ dispatch }) => next => action => {
 
   if (action.payload.method == ('put')) {
     axios.put(BASE_URL + action.payload.url, action.payload.data)
+      .then(handleResponse)
+      .catch(error =>
+        console.log(error)
+      );
+  }
+
+  if (action.payload.method == ('delete')) {
+    axios.delete(BASE_URL + action.payload.url, action.payload.data)
       .then(handleResponse)
       .catch(error =>
         console.log(error)

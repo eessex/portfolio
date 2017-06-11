@@ -1,4 +1,4 @@
-export { default as Header } from './header';
+export { default as Header } from './components/header';
 export { default as Events } from './events';
 export { default as Event } from './event';
 export { default as Pages } from './pages';

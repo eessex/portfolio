@@ -21,6 +21,7 @@
     "babel-preset-stage-2": "^6.24.1",
     "chai": "^4.0.0",
     "chai-http": "^3.0.0",
+    "concurrently": "^3.4.0",
     "enzyme": "^2.8.2",
     "express": "^4.15.3",
     "html-webpack-plugin": "^2.28.0",
@@ -39,8 +40,10 @@
     "webpack-dev-server": "^2.4.5"
   },
   "scripts": {
-    "start": "babel-node server.js",
-    "test": "jest --  **/tests/*.spec.js **/tests/**/*.spec.js && mocha -- api/apps/**/test/*.js",
+    "start": "node server.js",
+    "webpack-watch": "webpack -w",
+    "dev": "concurrent --kill-others \"yarn webpack-watch\" \"yarn start\"",
+    "test": "NODE_ENV=test jest -- && mocha -- api/apps/**/test/*.js",
     "test:watch": "test -- --watch"
   }
 }

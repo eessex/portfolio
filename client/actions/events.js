@@ -4,6 +4,7 @@ export const fetchEvents = () => {
   return {
     type: API,
     payload: {
+    	method: 'get',
       url: '/events',
       next: FETCH_EVENTS
     }

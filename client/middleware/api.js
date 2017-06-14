@@ -11,11 +11,42 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   const handleResponse = (res) => {
     dispatch({ type: action.payload.next.SUCCESS, payload: res.data })
   };
-  axios.get(BASE_URL + action.payload.url)
-    .then(handleResponse)
-    .catch(error =>
-      dispatch({ type: action.payload.next.ERROR, payload: error })
-    );
+
+  const handleError = (error) => {
+    console.log(error)
+    dispatch({ type: action.payload.next.ERROR, payload: error })
+  };
+
+  if (action.payload.method == 'get') {
+    axios.get(BASE_URL + action.payload.url)
+      .then(handleResponse)
+      .catch(error =>
+        console.log(error)
+      );
+  }
+  if (action.payload.method == ('post')) {
+    axios.post(BASE_URL + action.payload.url, action.payload.data)
+      .then(handleResponse)
+      .catch(error =>
+        console.log(error)
+      );
+  }
+
+  if (action.payload.method == ('put')) {
+    axios.put(BASE_URL + action.payload.url, action.payload.data)
+      .then(handleResponse)
+      .catch(error =>
+        console.log(error)
+      );
+  }
+
+  if (action.payload.method == ('delete')) {
+    axios.delete(BASE_URL + action.payload.url, action.payload.data)
+      .then(handleResponse)
+      .catch(error =>
+        console.log(error)
+      );
+  }
 
   dispatch({ type: action.payload.next.PENDING });
 

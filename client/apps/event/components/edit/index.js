@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import TextInput from '../../../components/forms/text_input.js'
-import EditNav from './nav.js'
+import TextInput from '../../../components/forms/text_input.js';
+import EditNav from './nav.js';
+import { extend } from 'underscore';
 
 class EventEdit extends Component {
   constructor(props) {
@@ -8,7 +9,6 @@ class EventEdit extends Component {
 
     this.onChange = this.onChange.bind(this);
     this.saveEvent = this.saveEvent.bind(this);
-    this.firstSaveEvent = this.firstSaveEvent.bind(this);
     this.deleteEvent = this.deleteEvent.bind(this);
 
     this.state = {
@@ -19,22 +19,16 @@ class EventEdit extends Component {
     };
   }
 
-  firstSaveEvent() {
-    this.props.actions.createEvent(this.state.event)
-    window.location.replace('/events/' + this.state.event._id)
-  }
-
   saveEvent() {
     if (this.state.event.published) {
       this.setState({needSave: true});
     } else {
-      this.setState({isSaving: true})
-      if (this.props.isNew) {
-        this.firstSaveEvent(this.state.event)
+      if (!this.state.event._id && this.props.event._id) {
+       var newEvent = extend(this.props.event, this.state.event)
+      this.props.actions.updateEvent(newEvent)
       } else {
         this.props.actions.updateEvent(this.state.event)
       }
-      this.setState({isSaving: false})
     }
   }
 
@@ -56,7 +50,6 @@ class EventEdit extends Component {
       <div className='event--edit'>
         <EditNav
           event={event}
-          isNew={this.props.isNew}
           isSaving={isSaving}
           needSave={needSave}
           saveEvent={this.saveEvent}

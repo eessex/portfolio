@@ -1,4 +1,4 @@
-import { API, FETCH_EVENT, UPDATE_EVENT, CREATE_EVENT, DELETE_EVENT } from '../actions';
+import { API, FETCH_EVENT, UPDATE_EVENT, CREATE_EVENT, DELETE_EVENT, RESET_EVENT } from '../actions';
 
 export const fetchEvent = (id) => {
   return {
@@ -12,12 +12,12 @@ export const fetchEvent = (id) => {
   }
 }
 
-export const createEvent = (event) => {
+export const createEvent = () => {
   return {
     type: API,
     payload: {
       method: 'post',
-      data: event,
+      data: {},
       url: '/events',
       next: CREATE_EVENT
     }
@@ -45,5 +45,11 @@ export const deleteEvent = (event) => {
       url: '/events/' + event._id,
       next: DELETE_EVENT
     }
+  }
+}
+
+export const resetEvent = () => {
+  return {
+    type: RESET_EVENT
   }
 }

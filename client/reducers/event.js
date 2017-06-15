@@ -1,4 +1,4 @@
-import { FETCH_EVENT, UPDATE_EVENT, CREATE_EVENT, DELETE_EVENT } from '../actions';
+import { FETCH_EVENT, UPDATE_EVENT, CREATE_EVENT, DELETE_EVENT, RESET_EVENT } from '../actions';
 
 const initialState = {
   loading: false,
@@ -33,7 +33,7 @@ const eventReducer = (state = initialState, action) => {
     case UPDATE_EVENT.SUCCESS:
       return Object.assign({}, state, {
         saving: false,
-        event: action.payload.data
+        event: action.payload.event
       });
 
     case UPDATE_EVENT.ERROR:
@@ -49,7 +49,7 @@ const eventReducer = (state = initialState, action) => {
     case CREATE_EVENT.SUCCESS:
       return Object.assign({}, state, {
         saving: false,
-        event: action.payload.data
+        event: action.payload.event
       });
 
     case CREATE_EVENT.ERROR:
@@ -72,6 +72,12 @@ const eventReducer = (state = initialState, action) => {
     case DELETE_EVENT.ERROR:
       return Object.assign({}, state, {
         loading: false
+      });
+
+    case RESET_EVENT:
+      return Object.assign({}, state, {
+        loading: false,
+        event: {}
       });
 
     default:

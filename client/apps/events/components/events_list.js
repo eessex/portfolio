@@ -9,17 +9,17 @@ class EventsList extends Component {
 
   render() {
     const listItems = this.props.events.map( (event, i) =>
-      <li className='events-list__item' key={i}>
+      <div className='events-list__item' key={i}>
         <Link to={"/events/" + event._id}>
-          <EventTeaser event={event} />
+          <EventTeaser event={event} admin={true}/>
         </Link>
-      </li>
+      </div>
     );
 
     return (
       <div className='events-list'>
         <div className='events-list__header'>Events List</div>
-        <ul className='events-list__list'>{listItems}</ul>
+        <div className='events-list__list'>{listItems}</div>
       </div>
     );
   }

@@ -6,11 +6,12 @@ var Event = require('../../models/event');
 
 events.route('/')
   // create event
-  .post( (req, res) => {
+  .post( (req, res, next) => {
     var event = new Event();
     Object.assign(event, req.body).save((err, event) => {
       if (err)
-        res.status(400).send(err);
+        console.log(err)
+        next(err);
       res.json({ message: 'Event created', event });
     });
   })

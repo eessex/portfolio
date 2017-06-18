@@ -68,7 +68,7 @@ describe('event reducer', () => {
     expect(
       eventReducer([], {
         type: types.CREATE_EVENT.SUCCESS,
-        payload: {data: {id: '123'}}
+        payload: {event: {id: '123'}}
       })
     ).toEqual({
       event: {id: '123'},
@@ -85,7 +85,7 @@ describe('event reducer', () => {
     expect(
       eventReducer([], {
         type: types.UPDATE_EVENT.SUCCESS,
-        payload: {data: {id: '123'}}
+        payload: {event: {id: '123'}}
       })
     ).toEqual({
       event: {id: '123'},

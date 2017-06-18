@@ -15,7 +15,7 @@ class TextInput extends Component {
     if (label && label.length > 0) {
       return <label>{label}</label>
     } else if (label) {
-      return <label>{name}</label>
+      return <label>{this.props.name}</label>
     }
   }
 

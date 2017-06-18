@@ -2,12 +2,20 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {bindActionCreators} from 'redux';
 import * as Actions from '../../actions/event';
-import EventContainer from './components/edit/index.js'
+import Edit from './components/edit/index.js'
 
 class Event extends Component {
 
   componentWillMount() {
-    this.props.actions.fetchEvent(this.props.match.params.id)
+    if (this.props.match.params.id == 'new') {
+      this.props.actions.createEvent()
+    } else {
+      this.props.actions.fetchEvent(this.props.match.params.id)
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.actions.resetEvent()
   }
 
   render() {
@@ -19,14 +27,10 @@ class Event extends Component {
         </div>
       );
     } else {
-      if (this.props.match.params.id == 'new') {
-        var isNew = true
-      }
       return (
         <div className='events'>
           <Edit
             event={event}
-            isNew={isNew}
             loading={loading}
             saving={saving}
             actions={this.props.actions} />

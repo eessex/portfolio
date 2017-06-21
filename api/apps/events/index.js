@@ -6,12 +6,11 @@ var Event = require('../../models/event');
 
 events.route('/')
   // create event
-  .post( (req, res, next) => {
+  .post( (req, res) => {
     var event = new Event();
     Object.assign(event, req.body).save((err, event) => {
       if (err)
-        console.log(err)
-        next(err);
+        return res.status(400).send(err);
       res.json({ message: 'Event created', event });
     });
   })
@@ -36,7 +35,7 @@ events.route('/:event_id')
   .get( (req, res) => {
     Event.findById(req.params.event_id, (err, event) => {
       if (err)
-        res.status(400).send(err);
+        return res.status(400).send(err);
       res.json(event);
     });
   })
@@ -46,7 +45,7 @@ events.route('/:event_id')
         res.send(err);
       Object.assign(event, req.body).save((err, event) => {
         if(err)
-          res.send(err);
+          return res.status(400).send(err);
         res.json({ message: 'Event updated', event });
       });
     });
@@ -56,7 +55,7 @@ events.route('/:event_id')
       _id: req.params.event_id
     }, function(err, event) {
       if (err)
-        res.send(err);
+        return res.status(400).send(err);
       res.json({ message: 'Event deleted' });
     });
   });

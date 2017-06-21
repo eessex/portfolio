@@ -6,6 +6,7 @@ import EditNav from './nav.js';
 import TextInput from '../../../components/forms/text_input.js';
 import DateInput from '../../../components/forms/date_input.js';
 import CheckboxInput from '../../../components/forms/checkbox_input.js';
+import ValidationError from '../../../components/forms/validation_error.js';
 
 class EventEdit extends Component {
   constructor(props) {
@@ -18,20 +19,18 @@ class EventEdit extends Component {
 
     this.state = {
       event: this.props.event,
-      hasEndDate: false,
-      isSaving: false,
-      needSave: false,
-      link: ''
+      hasEndDate: this.props.event.end_date ? true : false,
+      needSave: false
     };
   }
 
-  saveEvent() {
-    if (!this.state.event._id && this.props.event._id) {
-      var newEvent = extend(this.props.event, this.state.event)
-      this.props.actions.updateEvent(newEvent)
-     } else {
-      this.props.actions.updateEvent(this.state.event)
+  saveEvent(event, needSave=false) {
+    if (this.props.event.published) {
+      needSave = true
+    } else {
+      this.props.actions.updateEvent(event)
     }
+    this.setState({event: event, needSave: needSave})
   }
 
   deleteEvent() {
@@ -40,21 +39,26 @@ class EventEdit extends Component {
   }
 
   onChange(key, value) {
-    event = this.state.event
-    event[key] = value
-    var needSave = false
-    if (this.props.event.published) {
-      needSave = true
-    }
-    this.setState({event: event, needSave: needSave})
-    this.saveEvent() //dont save if published
+    var newEvent = extend(this.props.event, this.state.event)
+    newEvent[key] = value
+    this.saveEvent(newEvent)
   }
+
+
 
   toggleEndDate() {
     if (this.state.hasEndDate) {
       this.onChange('end_date', null)
     }
     this.setState({hasEndDate: !this.state.hasEndDate})
+  }
+
+  renderError() {
+    if (this.props.error) {
+      if (this.props.error.name == 'ValidationError') {
+        return <ValidationError errors={this.props.error.errors} />
+      }
+    }
   }
 
   renderEndDate(event) {
@@ -76,19 +80,22 @@ class EventEdit extends Component {
   }
 
   render() {
-    const { saving } = this.props;
-    const { event, isSaving, needSave } = this.state;
+    const { saving, error } = this.props;
+    const { event, needSave } = this.state;
 
     return (
       <div className='event--edit' style={ saving ? {background: 'cornsilk'} : null}>
 
         <EditNav
           event={event}
-          isSaving={isSaving}
+          error={error}
+          isSaving={saving}
           needSave={needSave}
           saveEvent={this.saveEvent}
           deleteEvent={this.deleteEvent}
           onChange={this.onChange} />
+
+        {this.renderError(error)}
 
         <section className='event--edit__form'>
 

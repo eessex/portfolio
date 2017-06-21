@@ -5,10 +5,15 @@ class EventNav extends Component {
     super(props);
 
     this.onPublish = this.onPublish.bind(this);
+    this.saveEvent = this.saveEvent.bind(this);
   }
 
   onPublish() {
     this.props.onChange('published', !this.props.event.published)
+  }
+
+  saveEvent() {
+    this.props.saveEvent(this.props.event)
   }
 
   renderPublished(event) {
@@ -46,7 +51,7 @@ class EventNav extends Component {
           Delete
         </button>
         <button
-          onClick={this.props.saveEvent}
+          onClick={this.saveEvent}
           className={need + saving}
           style={save}>
           Save

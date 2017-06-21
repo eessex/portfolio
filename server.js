@@ -36,6 +36,11 @@ app.use('/dist', publicPath);
 app.use('/api', require('./api/apps'));
 app.use('*', require('./client/middleware'));
 
+app.use(function(err, req, res, next) {
+  console.log(err)
+  next(err);
+});
+
 app.listen(port);
 console.log('Listening on port ' + port);
 

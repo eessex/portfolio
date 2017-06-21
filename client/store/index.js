@@ -5,5 +5,5 @@ import logMiddleware from '../middleware/log';
 
 export default createStore(
   rootReducer,
-  applyMiddleware(logMiddleware, apiMiddleware)
+  applyMiddleware(apiMiddleware)
 );

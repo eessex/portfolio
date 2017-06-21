@@ -19,7 +19,7 @@ class Event extends Component {
   }
 
   render() {
-    const { event, loading, saving } = this.props.event;
+    const { event, error, loading, saving } = this.props.event;
     if (loading) {
       return (
         <div className='events'>
@@ -31,6 +31,7 @@ class Event extends Component {
         <div className='events'>
           <Edit
             event={event}
+            error={error}
             loading={loading}
             saving={saving}
             actions={this.props.actions} />

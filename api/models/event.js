@@ -4,9 +4,9 @@ var Schema = mongoose.Schema;
 var EventSchema = new Schema({
   title: String,
   venue: String,
-  start_date: { type: Date, default: Date.now },
+  start_date: { type: Date, default: Date.now, required: true },
   end_date: { type: Date, default: Date.now },
-  all_day: { type: Boolean, default: false },
+  all_day: { type: Boolean, default: false},
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
   published: { type: Boolean, default: false }

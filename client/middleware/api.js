@@ -13,22 +13,21 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   };
 
   const handleError = (error) => {
-    console.log(error)
-    dispatch({ type: action.payload.next.ERROR, payload: error })
+    dispatch({ type: action.payload.next.ERROR, payload: error.response })
   };
 
   if (action.payload.method == 'get') {
     axios.get(BASE_URL + action.payload.url)
       .then(handleResponse)
       .catch(error =>
-        console.log(error)
+        handleError(error)
       );
   }
   if (action.payload.method == ('post')) {
     axios.post(BASE_URL + action.payload.url, action.payload.data)
       .then(handleResponse)
       .catch(error =>
-        console.log(error)
+        handleError(error)
       );
   }
 
@@ -36,7 +35,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
     axios.put(BASE_URL + action.payload.url, action.payload.data)
       .then(handleResponse)
       .catch(error =>
-        console.log(error)
+        handleError(error)
       );
   }
 
@@ -44,7 +43,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
     axios.delete(BASE_URL + action.payload.url, action.payload.data)
       .then(handleResponse)
       .catch(error =>
-        console.log(error)
+        handleError(error)
       );
   }
 

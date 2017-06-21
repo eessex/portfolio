@@ -35,10 +35,9 @@ describe('event reducer', () => {
     expect(
       eventReducer(undefined, {})
     ).toEqual({
-      error: null,
       event: {},
       loading: false,
-      saving: null
+      saving: false
     })
   })
 
@@ -72,7 +71,8 @@ describe('event reducer', () => {
       })
     ).toEqual({
       event: {id: '123'},
-      saving: false
+      saving: false,
+      error: null
     })
   })
 
@@ -89,7 +89,8 @@ describe('event reducer', () => {
       })
     ).toEqual({
       event: {id: '123'},
-      saving: false
+      saving: false,
+      error: null
     })
   })
 
@@ -105,7 +106,7 @@ describe('event reducer', () => {
         payload: {data: {id: '123'}}
       })
     ).toEqual({
-      loading: false
+      loading: true
     })
   })
 })

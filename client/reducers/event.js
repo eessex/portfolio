@@ -72,8 +72,7 @@ const eventReducer = (state = initialState, action) => {
 
     case DELETE_EVENT.SUCCESS:
       return Object.assign({}, state, {
-        loading: true,
-        event: state.event
+        loading: true
       });
 
     case DELETE_EVENT.ERROR:

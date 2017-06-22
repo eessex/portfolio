@@ -22,13 +22,13 @@ class Event extends Component {
     const { event, error, loading, saving } = this.props.event;
     if (loading) {
       return (
-        <div className='events'>
+        <div className='event'>
           <div>Loading ...</div>
         </div>
       );
     } else {
       return (
-        <div className='events'>
+        <div className='event'>
           <Edit
             event={event}
             error={error}

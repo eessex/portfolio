@@ -6,6 +6,10 @@ const asyncActionType = (type) => ({
 
 export const API = 'API';
 
+// user
+export const LOGIN_USER = asyncActionType('LOGIN_USER');
+export const LOGOUT_USER = 'LOGOUT_USER';
+
 // events
 export const FETCH_EVENTS = asyncActionType('FETCH_EVENTS');
 

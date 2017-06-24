@@ -27,16 +27,19 @@ class Header extends Component {
 
   adminNav() {
     if (this.props.user.isAuthenticated) {
-      return <AdminNav actions={this.props.actions} />
+      return <AdminNav actions={this.props.actions} onClick={this.toggleNav} />
     }
   }
 
   nav() {
     if (this.state.open) {
       return (
-        <div style={styles.menu}>
-          <Nav />
-          {this.adminNav()}
+        <div>
+          <div style={styles.menu}>
+            <Nav onClick={this.toggleNav} />
+            {this.adminNav()}
+          </div>
+          <div style={styles.modal} onClick={this.toggleNav}></div>
         </div>
       )
     }
@@ -45,7 +48,7 @@ class Header extends Component {
   render() {
     return (
       <nav className='header' style={styles.header}>
-        <Link to="/">Home</Link>
+        <h2 style={{margin: 0}}><Link to="/">Home</Link></h2>
         <div className='header--right' style={styles.headerRight}>
           <IconMenu onClick={this.toggleNav} open={this.state.open}/>
           {this.nav()}
@@ -71,7 +74,8 @@ export default connect(
 const styles = {
   header: {
     display: 'flex',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    padding: '10px 20px'
   },
   headerRight: {
     minWidth: 30,
@@ -79,9 +83,18 @@ const styles = {
   },
   menu: {
     position: 'fixed',
-    right: 5,
+    right: 15,
+    top: 5,
     border: '1px solid',
     padding: '5px 45px 10px 12px',
-    top: 5
+    background: 'white',
+    zIndex: 1
+  },
+  modal: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0
   }
 }

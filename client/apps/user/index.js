@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {bindActionCreators} from 'redux';
 import * as Actions from '../../actions/user';
 import Login from './login.js';
+import Events from '../events';
 
 class User extends Component {
   render() {
@@ -23,7 +24,7 @@ class User extends Component {
       );
     } else {
       return (
-        <div>This is a homepage</div>
+        <Events />
       )
     }
   }

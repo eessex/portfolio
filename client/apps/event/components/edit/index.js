@@ -25,13 +25,15 @@ class EventEdit extends Component {
   }
 
   saveEvent(event, needSave=false) {
-    if (this.props.event.published) {
-      needSave = true
-    } else {
+    if (this.props.event.published != event.published || !this.props.event.published) {
       this.props.actions.updateEvent(event)
+    } else {
+      needSave = true
     }
     this.setState({event: event, needSave: needSave})
   }
+
+
 
   deleteEvent() {
     this.props.actions.deleteEvent(this.state.event)
@@ -39,7 +41,7 @@ class EventEdit extends Component {
   }
 
   onChange(key, value) {
-    var newEvent = extend(this.props.event, this.state.event)
+    var newEvent = Object.assign({}, this.props.event, this.state.event);
     newEvent[key] = value
     this.saveEvent(newEvent)
   }

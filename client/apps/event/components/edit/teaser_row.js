@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 const moment = require('moment');
 
-class EventTeaser extends Component {
+export default class EditTeaserRow extends Component {
   constructor(props) {
     super(props);
   }
 
   renderPublished(event) {
-    if (this.props.admin) {
-      if (!event.published)
+    if (!event.published) {
       return 'draft'
     } else {
       return 'published'
@@ -28,8 +27,6 @@ class EventTeaser extends Component {
     );
   }
 }
-
-export default EventTeaser;
 
 const styles = {
   header: {

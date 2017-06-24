@@ -16,7 +16,7 @@ events.route('/')
   })
   // all events
   .get( (req, res) => {
-    Event.find(function(err, events) {
+    Event.find(req.query, function(err, events) {
       if (err)
         res.send(err);
       res.json(events);

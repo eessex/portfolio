@@ -16,7 +16,8 @@ export default class IconMenu extends Component {
   render() {
     return (
       <div
-        style={{width: 30, height: 30, position: 'absolute', right: 10, zIndex: '5'}}
+        className='icon--container'
+        style={styles.container}
         onClick={this.props.onClick ? this.props.onClick : null}>
         <svg viewBox="0 0 100 100">
           <path style={this.getSyles('first')} d="M5 13h90v14H5z"/>
@@ -29,6 +30,12 @@ export default class IconMenu extends Component {
 }
 
 const styles= {
+  container: {
+    width: 30,
+    height: 30,
+    position: 'absolute',
+    zIndex: '5'
+  },
   closed: {
     first: {
       transition: 'all 500'

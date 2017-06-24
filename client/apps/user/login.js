@@ -28,6 +28,7 @@ class Login extends Component {
         <input
           ref='password'
           placeholder='password'
+          type='password'
           required />
         <button onClick={this.onSubmit}>Submit</button>
         </form>

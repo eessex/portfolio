@@ -8,13 +8,18 @@ export default class AdminNav extends Component {
   }
 
   logOut() {
+    this.props.onClick()
     this.props.actions.logoutUser()
   }
 
   render() {
     return (
       <nav className='header--menu' style={styles.menu}>
-        <Link to="/events/new">New</Link>
+        <Link
+          to="/events/new"
+          onClick={this.props.onClick}>
+            New
+        </Link>
         <Link to="/" onClick={this.logOut}>Log Out</Link>
       </nav>
     );

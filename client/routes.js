@@ -6,12 +6,13 @@ const Routes = (props) => (
   <div>
     <Header />
     <div style={{padding: 20}}>
-	    <Route exact path='/' component={User} />
-	    <Route exact path='/events' component={Events}/>
-	    <Route path='/events/:id' component={Event}/>
-	    <Route exact path='/pages' component={Pages}/>
-	  </div>
-	 </div>
+      <Route exact path='/' component={Events} />
+      <Route exact path='/events' component={Events}/>
+      <Route path='/events/:id' component={Event}/>
+      <Route exact path='/login' component={User}/>
+      <Route exact path='/pages' component={Pages}/>
+    </div>
+   </div>
 );
 
 export default Routes;

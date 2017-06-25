@@ -13,7 +13,6 @@ class Events extends Component {
     }
   }
 
-
   componentWillMount() {
     var query = this.state.query
     if (!this.props.user.isAuthenticated) {

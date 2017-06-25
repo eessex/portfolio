@@ -5,28 +5,20 @@ import * as Actions from '../../actions/user';
 import Login from './login.js';
 import Events from '../events';
 
+
 class User extends Component {
+
   render() {
-    const { user, loading, isAuthenticated } = this.props.user;
+    const { isAuthenticated, error } = this.props.user;
     const { actions } = this.props;
-    if (loading) {
-      return (
-        <div className='events'>
-          <div>Loading ...</div>
-        </div>
-      );
-    } else if (!isAuthenticated) {
-      return (
-        <div className='user'>
-          <Login
-            actions={actions} />
-        </div>
-      );
-    } else {
-      return (
-        <Events />
-      )
-    }
+    return (
+      <div className='user'>
+        <Login
+          isAuthenticated={isAuthenticated}
+          error={error}
+          actions={actions} />
+      </div>
+    );
   }
 }
 

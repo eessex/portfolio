@@ -26,9 +26,18 @@ users.route('/')
 users.route('/session/create')
   .post( (req, res) => {
     User.findOne({ email: req.body.email }, function(err, user) {
-      if (err)
+      if (err) {
         return res.send(err);
-      res.json(user); //sets user authenticated in store
+      } else if (!user) {
+        return res.send(400, { error: 'User not found' });
+      } else {
+      // test password match
+        user.comparePassword(req.body.password, function(err, isMatch) {
+          if (!isMatch)
+            return res.send(400, { error: 'Incorrect password' })
+          return res.json(user); //sets user authenticated in store
+        });
+      }
     })
   })
 

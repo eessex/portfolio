@@ -8,6 +8,18 @@ class Login extends Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
+  componentDidMount() {
+    if (this.props.isAuthenticated) {
+      window.location.replace('/')
+    }
+  }
+
+  componentWillUnmount() {
+    if (!this.props.isAuthenticated) {
+      this.props.actions.logoutUser()
+    }
+  }
+
   onSubmit(e) {
   	var creds = {
   		email: this.refs.email.value,
@@ -16,10 +28,17 @@ class Login extends Component {
   	this.props.actions.loginUser(creds)
   }
 
+  renderError() {
+    if (this.props.error) {
+      return <div>{this.props.error}</div>
+    }
+  }
+
   render() {
     return (
       <div className='user--login'>
         <h1>Log In</h1>
+        {this.renderError()}
         <form onSubmit={this.onSubmit}>
         <input
           ref='email'

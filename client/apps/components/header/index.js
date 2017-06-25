@@ -13,12 +13,7 @@ class Header extends Component {
     this.state = {
       open: false
     }
-    this.logOut = this.logOut.bind(this);
     this.toggleNav = this.toggleNav.bind(this);
-  }
-
-  logOut() {
-    this.props.actions.logoutUser()
   }
 
   toggleNav() {
@@ -28,6 +23,8 @@ class Header extends Component {
   adminNav() {
     if (this.props.user.isAuthenticated) {
       return <AdminNav actions={this.props.actions} onClick={this.toggleNav} />
+    } else {
+      return <Link to="/login" onClick={this.toggleNav}>Log In</Link>
     }
   }
 

@@ -10,6 +10,7 @@ export default class AdminNav extends Component {
   logOut() {
     this.props.onClick()
     this.props.actions.logoutUser()
+    window.location.replace('/')
   }
 
   render() {

@@ -9,25 +9,28 @@ const userReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOGIN_USER.PENDING:
       return Object.assign({}, state, {
-        loading: true
+        loading: false
       });
 
     case LOGIN_USER.SUCCESS:
       return Object.assign({}, state, {
         loading: false,
-        isAuthenticated: true
+        isAuthenticated: true,
+        error: null
       });
 
     case LOGIN_USER.ERROR:
       return Object.assign({}, state, {
         loading: false,
-        isAuthenticated: false
+        isAuthenticated: false,
+        error: action.payload.data.error
       });
 
     case LOGOUT_USER:
       return Object.assign({}, state, {
         loading: false,
-        isAuthenticated: false
+        isAuthenticated: false,
+        error: null
       });
 
     default:

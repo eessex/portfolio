@@ -3,7 +3,7 @@ import axios from 'axios';
 const BASE_URL = location.href.indexOf('localhost') > 0 ? 'http://localhost:3000/api' : '/api';
 
 const apiMiddleware = ({ dispatch }) => next => action => {
-
+  console.log('in here')
   if (action.type !== 'API') {
     return next(action);
   }
@@ -17,7 +17,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   };
 
   if (action.payload.method == 'get') {
-    axios.get(BASE_URL + action.payload.url, action.payload.params)
+    axios.get(BASE_URL + action.payload.url, {params: action.payload.query})
       .then(handleResponse)
       .catch(error =>
         handleError(error)

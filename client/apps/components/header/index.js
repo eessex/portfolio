@@ -7,7 +7,7 @@ import Nav from './nav';
 import AdminNav from './admin_nav';
 import IconMenu from '../icons/icon_menu'
 
-class Header extends Component {
+export class Header extends Component {
   constructor(props) {
     super(props);
     this.state = {

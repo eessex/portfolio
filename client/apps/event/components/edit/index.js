@@ -4,9 +4,11 @@ const moment = require('moment');
 
 import EditNav from './nav.js';
 import TextInput from '../../../components/forms/text_input.js';
+import RichText from '../../../components/forms/rich_text';
 import DateInput from '../../../components/forms/date_input.js';
 import CheckboxInput from '../../../components/forms/checkbox_input.js';
 import ValidationError from '../../../components/forms/validation_error.js';
+
 
 class EventEdit extends Component {
   constructor(props) {
@@ -43,8 +45,6 @@ class EventEdit extends Component {
     newEvent[key] = value
     this.saveEvent(newEvent)
   }
-
-
 
   toggleEndDate() {
     if (this.state.hasEndDate) {
@@ -118,6 +118,9 @@ class EventEdit extends Component {
             name='all_day'
             value={event.all_day || false}
             onChange={this.onChange} />
+
+          <RichText
+            placeholder='Event description' />
 
         </section>
 

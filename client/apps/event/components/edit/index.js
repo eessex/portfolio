@@ -25,15 +25,13 @@ class EventEdit extends Component {
   }
 
   saveEvent(event, needSave=false) {
-    if (this.props.event.published != event.published || !this.props.event.published) {
-      this.props.actions.updateEvent(event)
-    } else {
+    if (this.props.event.published) {
       needSave = true
+    } else {
+      this.props.actions.updateEvent(event)
     }
     this.setState({event: event, needSave: needSave})
   }
-
-
 
   deleteEvent() {
     this.props.actions.deleteEvent(this.state.event)

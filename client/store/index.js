@@ -8,9 +8,6 @@ const persistedState = loadState()
 
 export default createStore(
   rootReducer,
-<<<<<<< HEAD
   persistedState,
-=======
->>>>>>> 719e91f8e1fe1624afe10a3d3334686fd923ce04
   applyMiddleware(apiMiddleware)
 );

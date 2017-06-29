@@ -31,9 +31,6 @@ class Event extends Component {
     } else if (isAuthenticated) {
       return (
         <div className='event'>
-    } else {
-      return (
-        <div className='events'>
           <Edit
             event={event}
             error={error}

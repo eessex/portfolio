@@ -68,7 +68,7 @@ class RichText extends Component {
         newEditorState.getSelection(),
         entityKey
       ),
-      showURLInput: false,
+      showUrlInput: false,
       urlValue: '',
     }, () => {
       setTimeout(() => this.refs.editor.focus(), 0);

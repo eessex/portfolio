@@ -24,10 +24,20 @@ class RichText extends Component {
       showUrlInput: false,
       urlValue: ''
     };
-    this.focus = () => this.refs.editor.focus()
+    this.focus = () => this.refs.editor.focus();
     this.onChange = (editorState) => this.setState({editorState});
     this.promptForLink = this.promptForLink.bind(this);
     this.confirmLink = this.confirmLink.bind(this);
+    this.handleKeyCommand = this.handleKeyCommand.bind(this);
+  }
+
+  handleKeyCommand(command) {
+    const newState = RichUtils.handleKeyCommand(this.state.editorState, command);
+    if (newState) {
+      this.onChange(newState);
+      return 'handled';
+    }
+    return 'not-handled';
   }
 
   promptForLink() {
@@ -101,6 +111,7 @@ class RichText extends Component {
             ref='editor'
             placeholder={this.props.placeholder}
             editorState={this.state.editorState}
+            handleKeyCommand={this.handleKeyCommand}
             onChange={this.onChange} />
         </div>
       </div>

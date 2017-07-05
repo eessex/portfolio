@@ -7,6 +7,7 @@ import { Editor,
          RichUtils } from 'draft-js';
 import { findLinkEntities, Link } from './util'
 import UrlInput from './url_input'
+require('./index.scss');
 
 class RichText extends Component {
   constructor(props) {
@@ -62,7 +63,6 @@ class RichText extends Component {
   }
 
   confirmLink(url) {
-    debugger
     const {editorState, urlValue} = this.state;
     const contentState = editorState.getCurrentContent();
     const contentStateWithEntity = contentState.createEntity(
@@ -105,8 +105,7 @@ class RichText extends Component {
         {this.renderMenu()}
         {this.renderLinkInput()}
         <div className='rich-text--editor'
-          onClick={this.focus}
-          style={{border: '1px solid'}}>
+          onClick={this.focus}>
           <Editor
             ref='editor'
             placeholder={this.props.placeholder}

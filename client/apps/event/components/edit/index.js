@@ -8,7 +8,7 @@ import RichText from '../../../components/forms/rich_text';
 import DateInput from '../../../components/forms/date_input.js';
 import CheckboxInput from '../../../components/forms/checkbox_input.js';
 import ValidationError from '../../../components/forms/validation_error.js';
-
+require('./index.scss');
 
 class EventEdit extends Component {
   constructor(props) {
@@ -120,6 +120,8 @@ class EventEdit extends Component {
             onChange={this.onChange} />
 
           <RichText
+            onChange={this.onChange}
+            html={event.description}
             placeholder='Event description' />
 
         </section>

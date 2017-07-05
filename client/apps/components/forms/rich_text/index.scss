@@ -1,0 +1,11 @@
+.rich-text {
+	&--editor {
+		position: relative;
+		border: 1px solid #eee;
+	}
+	.public-DraftEditorPlaceholder-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+	}
+}

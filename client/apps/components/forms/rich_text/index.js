@@ -2,34 +2,86 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Editor,
          EditorState,
+         Entity,
          CompositeDecorator,
          ContentState,
          RichUtils } from 'draft-js';
+import { convertFromHTML, convertToHTML } from 'draft-convert'
 import { findLinkEntities, Link } from './util'
 import UrlInput from './url_input'
 require('./index.scss');
+
+const decorator = new CompositeDecorator([
+  {
+    strategy: findLinkEntities,
+    component: Link,
+  },
+]);
 
 class RichText extends Component {
   constructor(props) {
     super(props);
 
-    const decorator = new CompositeDecorator([
-      {
-        strategy: findLinkEntities,
-        component: Link,
-      },
-    ]);
-
     this.state = {
       editorState: EditorState.createEmpty(decorator),
+      html: this.props.html || null,
       showUrlInput: false,
       urlValue: ''
     };
+
     this.focus = () => this.refs.editor.focus();
-    this.onChange = (editorState) => this.setState({editorState});
+    this.onChange = this.onChange.bind(this);
     this.promptForLink = this.promptForLink.bind(this);
     this.confirmLink = this.confirmLink.bind(this);
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
+    this.inputToHtml = this.inputToHtml.bind(this);
+    this.inputFromHTML = this.inputFromHTML.bind(this);
+  }
+
+  componentDidMount() {
+    if (this.props.html) {
+     const editorState = this.inputFromHTML(this.props.html)
+      this.setState({
+        editorState
+      })
+    }
+  }
+
+  inputToHtml(editorState) {
+    const html = convertToHTML({
+      entityToHTML: (entity, originalText) => {
+        if (entity.type === 'LINK') {
+          return <a href={entity.data.url}>{originalText}</a>
+        }
+        return originalText
+      }
+    })(editorState.getCurrentContent())
+    return html
+  }
+
+  inputFromHTML(html) {
+    const blocksFromHTML = convertFromHTML({
+      htmlToEntity: (nodeName, node) => {
+        if (nodeName === 'a') {
+          return Entity.create(
+            'LINK',
+            'MUTABLE',
+            {url: node.href}
+          )
+        }
+      }
+    })(html)
+    const editorState = EditorState.createWithContent(blocksFromHTML, decorator)
+    return editorState
+  }
+
+  onChange(editorState){
+    const html = this.inputToHtml(editorState)
+    this.setState({
+      editorState,
+      html
+    })
+    this.props.onChange('description', html)
   }
 
   handleKeyCommand(command) {

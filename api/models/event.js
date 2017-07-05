@@ -7,6 +7,7 @@ var EventSchema = new Schema({
   start_date: { type: Date, default: Date.now, required: true },
   end_date: { type: Date, default: Date.now },
   all_day: { type: Boolean, default: false},
+  description: String,
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
   published: { type: Boolean, default: false }

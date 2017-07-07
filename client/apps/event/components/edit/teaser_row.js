@@ -30,7 +30,9 @@ export default class EditTeaserRow extends Component {
 
 const styles = {
   header: {
-    display: 'flex'
+    display: 'flex',
+    paddingLeft: 20,
+    paddingRight: 20
   },
   date: {
     flex: 1

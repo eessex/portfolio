@@ -24,7 +24,7 @@ class Event extends Component {
     const { event, error, loading, saving } = this.props.event;
     if (loading) {
       return (
-        <div className='event'>
+        <div className='loading'>
           <div>Loading ...</div>
         </div>
       );

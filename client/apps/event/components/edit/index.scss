@@ -1,6 +1,23 @@
 .event--edit {
-	nav {
-		position: absolute;
-		right: 0;
-	}
+  nav {
+    position: fixed;
+    right: 5em;
+    top: 15px;
+  }
+  &--date {
+    position: relative;
+  }
+  input[name='title'] {
+    font-size: xx-large;
+    font-weight: 700;
+    border: none;
+  }
+  input[type='date'],
+  input[type='time'] {
+    font-size: inherit;
+    font-family: 'helvetica neue', 'helvetica', 'arial', 'sans-serif';
+  }
+  .public-DraftStyleDefault-block {
+    margin: 10px 0;
+  }
 }

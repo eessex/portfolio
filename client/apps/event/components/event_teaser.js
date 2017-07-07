@@ -33,7 +33,8 @@ export default EventTeaser;
 
 const styles = {
   header: {
-    display: 'flex'
+    display: 'flex',
+    paddingLeft: 20
   },
   date: {
     flex: 1

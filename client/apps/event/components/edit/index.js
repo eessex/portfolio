@@ -3,6 +3,7 @@ import { extend } from 'underscore';
 const moment = require('moment');
 
 import EditNav from './nav.js';
+import EventDate from '../show/event_date.js';
 import TextInput from '../../../components/forms/text_input.js';
 import RichText from '../../../components/forms/rich_text';
 import DateInput from '../../../components/forms/date_input.js';
@@ -18,11 +19,13 @@ class EventEdit extends Component {
     this.saveEvent = this.saveEvent.bind(this);
     this.deleteEvent = this.deleteEvent.bind(this);
     this.toggleEndDate = this.toggleEndDate.bind(this);
+    this.toggleEditDate = this.toggleEditDate.bind(this);
 
     this.state = {
       event: this.props.event,
       hasEndDate: this.props.event.end_date ? true : false,
-      needSave: false
+      needSave: false,
+      editDates: false
     };
   }
 
@@ -32,7 +35,7 @@ class EventEdit extends Component {
     } else {
       this.props.actions.updateEvent(event)
     }
-    this.setState({event: event, needSave: needSave})
+    this.setState({event, needSave})
   }
 
   deleteEvent() {
@@ -61,6 +64,10 @@ class EventEdit extends Component {
     }
   }
 
+  toggleEditDate() {
+    this.setState({editDates: !this.state.editDates})
+  }
+
   renderEndDate(event) {
     if (event.end_date || this.state.hasEndDate) {
       return (
@@ -68,14 +75,50 @@ class EventEdit extends Component {
           <DateInput
             name='end_date'
             label
-            value={event.end_date || moment(new Date).add(1, 'days')}
+            value={event.end_date || null}
             allDay={event.all_day || false}
             onChange={this.onChange} />
-          <div onClick={this.toggleEndDate}>- Hide End Date</div>
+          <div onClick={this.toggleEndDate}>- Remove End Date</div>
         </div>
       )
     } else {
       return <div onClick={this.toggleEndDate}>+ Add End Date</div>
+    }
+  }
+
+  renderDateInputs(event) {
+    if (this.state.editDates) {
+      return (
+        <div
+          className='event--edit__date-input'
+          style={{
+            border: '1px solid',
+            position: 'absolute',
+            background: 'white',
+            zIndex: 1
+          }}>
+          <DateInput
+            name='start_date'
+            label
+            value={event.start_date || new Date}
+            required={true}
+            allDay={event.all_day || false}
+            onChange={this.onChange} />
+          {this.renderEndDate(event)}
+          <CheckboxInput
+            label
+            name='all_day'
+            value={event.all_day || false}
+            onChange={this.onChange} />
+          <button className='save' onClick={this.toggleEditDate}>Save</button>
+        </div>
+      )
+    }
+  }
+
+  renderDateEdit() {
+    if (!this.state.editDates) {
+      return <button className='edit' onClick={this.toggleEditDate}>Edit</button>
     }
   }
 
@@ -97,7 +140,7 @@ class EventEdit extends Component {
 
         {this.renderError(error)}
 
-        <section className='event--edit__form'>
+        <section className='event--edit__form' style={{padding: 20}}>
 
           <TextInput
             name='title'
@@ -105,19 +148,11 @@ class EventEdit extends Component {
             required={true}
             onChange={this.onChange} />
 
-          <DateInput
-            name='start_date'
-            label
-            value={event.start_date || new Date}
-            required={true}
-            allDay={event.all_day || false}
-            onChange={this.onChange} />
-          {this.renderEndDate(event)}
-          <CheckboxInput
-            label
-            name='all_day'
-            value={event.all_day || false}
-            onChange={this.onChange} />
+          <div className='event--edit__date'>
+            <EventDate event={event} />
+            {this.renderDateEdit()}
+            {this.renderDateInputs(event)}
+          </div>
 
           <RichText
             onChange={this.onChange}

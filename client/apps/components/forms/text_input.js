@@ -31,6 +31,7 @@ class TextInput extends Component {
         <input
           required={required || false}
           placeholder={name}
+          name={name}
           defaultValue={value}
           onKeyUp={this.onKeyUp} />
       </div>

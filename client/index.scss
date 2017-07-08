@@ -8,10 +8,6 @@ a {
   text-decoration: underline;
 }
 
-.loading {
-  padding: 20px;
-}
-
 p {
   margin: 10px 0;
   min-height: .5em;
@@ -19,6 +15,14 @@ p {
 
 h4 {
   margin: 0;
+}
+
+input:focus {
+	outline: none;
+}
+
+.loading {
+  padding: 20px;
 }
 
 .modal__bg {

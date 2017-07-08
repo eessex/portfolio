@@ -45,16 +45,10 @@ export default class EventDate extends Component {
   render() {
     const { event } = this.props;
     return (
-      <h4 style={styles.date}>
+      <h4>
         {this.startDateFormat(event)}
         {this.endDateFormat(event)}
       </h4>
     );
-  }
-}
-
-const styles = {
-  date: {
-    flex: 1
   }
 }

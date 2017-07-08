@@ -26,6 +26,7 @@ class RichText extends Component {
       editorState: EditorState.createEmpty(decorator),
       html: this.props.html || null,
       showUrlInput: false,
+      showMenu: false,
       urlValue: ''
     };
 
@@ -36,6 +37,7 @@ class RichText extends Component {
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
     this.inputToHtml = this.inputToHtml.bind(this);
     this.inputFromHTML = this.inputFromHTML.bind(this);
+    this.checkSelection = this.checkSelection.bind(this);
   }
 
   componentDidMount() {
@@ -148,7 +150,17 @@ class RichText extends Component {
   }
 
   renderMenu() {
-    return <button onClick={this.promptForLink}>Link</button>
+    if (this.state.showMenu) {
+      return <button onClick={this.promptForLink}>Link</button>
+    }
+  }
+
+  checkSelection() {
+    if (!this.state.editorState.getSelection().isCollapsed()) {
+      this.setState({showMenu: true})
+    } else {
+      this.setState({showMenu: false})
+    }
   }
 
   render() {
@@ -157,7 +169,9 @@ class RichText extends Component {
         {this.renderMenu()}
         {this.renderLinkInput()}
         <div className='rich-text--editor'
-          onClick={this.focus}>
+          onClick={this.focus}
+          onKeyUp={this.checkSelection}
+          onMouseUp={this.checkSelection}>
           <Editor
             ref='editor'
             placeholder={this.props.placeholder}

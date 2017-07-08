@@ -78,25 +78,16 @@ class EventEdit extends Component {
             value={event.end_date || null}
             allDay={event.all_day || false}
             onChange={this.onChange} />
-          <div onClick={this.toggleEndDate}>- Remove End Date</div>
         </div>
       )
-    } else {
-      return <div onClick={this.toggleEndDate}>+ Add End Date</div>
     }
   }
 
   renderDateInputs(event) {
+    const actionFlex = this.props.event.published ? 'space-between' : 'flex-end'
     if (this.state.editDates) {
       return (
-        <div
-          className='event--edit__date-input'
-          style={{
-            border: '1px solid',
-            position: 'absolute',
-            background: 'white',
-            zIndex: 1
-          }}>
+        <div className='event--edit__date-input'>
           <DateInput
             name='start_date'
             label
@@ -105,14 +96,34 @@ class EventEdit extends Component {
             allDay={event.all_day || false}
             onChange={this.onChange} />
           {this.renderEndDate(event)}
-          <CheckboxInput
-            label
-            name='all_day'
-            value={event.all_day || false}
-            onChange={this.onChange} />
-          <button className='save' onClick={this.toggleEditDate}>Save</button>
+          <div className='actions' style={{justifyContent: actionFlex}}>
+            {this.renderDateSave()}
+            <div className='actions--toggle'>
+              <CheckboxInput
+                label='Hide End Date'
+                name='end_date'
+                value={!this.state.hasEndDate}
+                onChange={this.toggleEndDate} />
+              <CheckboxInput
+                label='Hide Time'
+                name='all_day'
+                value={event.all_day || false}
+                onChange={this.onChange} />
+              </div>
+          </div>
         </div>
       )
+    }
+  }
+
+  renderModal() {
+    if (this.state.editDates) {
+      return <div className='modal__bg' onClick={this.toggleEditDate}></div>
+    }
+  }
+  renderDateSave() {
+    if (this.props.event.published) {
+      return <button className='save' onClick={this.saveEvent}>Save</button>
     }
   }
 
@@ -141,17 +152,19 @@ class EventEdit extends Component {
         {this.renderError(error)}
 
         <section className='event--edit__form' style={{padding: 20}}>
+          <div className='event--show__header'>
+            <TextInput
+              name='title'
+              value={event.title || ''}
+              required={true}
+              onChange={this.onChange} />
 
-          <TextInput
-            name='title'
-            value={event.title || ''}
-            required={true}
-            onChange={this.onChange} />
-
-          <div className='event--edit__date'>
-            <EventDate event={event} />
-            {this.renderDateEdit()}
-            {this.renderDateInputs(event)}
+            <div className='event--edit__date'>
+              <EventDate event={event} />
+              {this.renderDateEdit()}
+              {this.renderDateInputs(event)}
+              {this.renderModal()}
+            </div>
           </div>
 
           <RichText

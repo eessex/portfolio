@@ -27,7 +27,7 @@ class EventsList extends Component {
 
     return (
       <div className='events-list'>
-        <div className='events-list__header' style={{padding: 20}}>Events List</div>
+        <div className='events-list__header' style={{paddingLeft: 20, paddingRight: 20, paddingTop: '2em', paddingBottom: '2em'}}>Events List</div>
         <div className='events-list__list'>{listItems}</div>
       </div>
     );

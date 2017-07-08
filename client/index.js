@@ -8,7 +8,7 @@ import { saveState } from './localstorage'
 require('./index.scss');
 
 store.subscribe(() => {
-	saveState({user: store.getState().user})
+  saveState({user: store.getState().user})
   console.log('Store updated.');
 });
 

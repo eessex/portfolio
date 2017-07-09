@@ -2,8 +2,11 @@ import React from 'react'
 import { shallow } from 'enzyme'
 import Header from '../../../apps/components/header'
 
+
+const props = {store: { getState: () => {} } }
+
 function setup() {
-  const enzymeWrapper = shallow(<Header />)
+  const enzymeWrapper = shallow(<Header {...props}/>)
   return {
     enzymeWrapper
   }
@@ -13,6 +16,8 @@ describe('Header', () => {
   it('should render self and menu links', () => {
     const { enzymeWrapper } = setup()
     var children = enzymeWrapper.find('.header').children().nodes
+
+    console.log(enzymeWrapper.html())
 
     expect(enzymeWrapper.find('.header').children().length).toBe(4)
 

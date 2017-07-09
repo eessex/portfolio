@@ -1,0 +1,24 @@
+.events-list {
+	nav {
+		button {
+			position: absolute;
+			right: 5em;
+			top: 10px;
+		}
+	}
+	&__header {
+		padding: 2em 20px;
+	}
+	&__item {
+		a {
+			border-top: 1px solid;
+			width: 100%;
+			display: block;
+			padding: 10px 20px;
+			text-decoration: none;
+		}
+		&:last-child a {
+			border-bottom: 1px solid;
+		}
+	}
+}

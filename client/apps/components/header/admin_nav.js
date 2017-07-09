@@ -16,11 +16,6 @@ export default class AdminNav extends Component {
   render() {
     return (
       <nav className='header--menu' style={styles.menu}>
-        <Link
-          to="/events/new"
-          onClick={this.props.onClick}>
-            New
-        </Link>
         <Link to="/" onClick={this.logOut}>Log Out</Link>
       </nav>
     );

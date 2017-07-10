@@ -21,9 +21,7 @@ export default class EventTeaserRow extends Component {
 
 const styles = {
   header: {
-    display: 'flex',
-    paddingLeft: 20,
-    paddingRight: 20
+    display: 'flex'
   },
   date: {
     flex: 1

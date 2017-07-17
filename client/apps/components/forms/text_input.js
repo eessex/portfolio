@@ -8,6 +8,7 @@ class TextInput extends Component {
   }
 
   onKeyUp(e) {
+    debugger
     this.props.onChange(this.props.name, e.target.value)
   }
 
@@ -17,6 +18,11 @@ class TextInput extends Component {
     } else if (label) {
       return <label>{this.props.name}</label>
     }
+  }
+
+  renderPlaceholder(name) {
+    name = name.replace(/-/g, ' ').replace(/_/g, ' ')
+    return name
   }
 
   render() {
@@ -30,7 +36,7 @@ class TextInput extends Component {
         {this.renderLabel(label)}
         <input
           required={required || false}
-          placeholder={name}
+          placeholder={this.renderPlaceholder(name)}
           name={name}
           defaultValue={value}
           onKeyUp={this.onKeyUp} />

@@ -16,7 +16,7 @@ events.route('/')
   })
   // all events
   .get( (req, res) => {
-    Event.find(req.query, function(err, events) {
+    Event.find(req.query).sort({start_date: 'desc'}).exec(function(err, events) {
       if (err)
         res.send(err);
       res.json(events);
@@ -42,7 +42,7 @@ events.route('/:event_id')
   .put( (req, res) => {
     Event.findById(req.params.event_id, (err, event) => {
       if(err)
-        res.send(err);
+        return res.status(400).send(err);
       Object.assign(event, req.body).save((err, event) => {
         if(err)
           return res.status(400).send(err);

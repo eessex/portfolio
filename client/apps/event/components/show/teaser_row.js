@@ -6,6 +6,13 @@ export default class EventTeaserRow extends Component {
     super(props);
   }
 
+  renderVenue(event) {
+    if (event.venue && event.venue.name.length) {
+      const venue = event.venue.name
+    }
+    return venue
+  }
+
   render() {
     const { event } = this.props;
     return (
@@ -13,6 +20,7 @@ export default class EventTeaserRow extends Component {
         <div className='event-teaser__header' style={styles.header}>
           <h4 style={styles.date}>{moment(event.start_date).format('MMM DD, YYYY - h:mma')}</h4>
           <h4 style={styles.title}>{event.title || 'Missing title'}</h4>
+          <h4>{this.renderVenue(event)}</h4>
         </div>
       </div>
     );

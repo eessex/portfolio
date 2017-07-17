@@ -6,14 +6,18 @@
   nav {
     position: fixed;
     right: 5em;
-    top: 15px;
+    top: 10px;
   }
   &__date {
     position: relative;
     display: flex;
     justify-content: flex-start;
+    align-items: center;
+    min-height: 1.5em;
     button {
       margin-left: 10px;
+      font-size: .75em;
+      padding: 4px 10px;
     }
   }
   &__date-input {
@@ -57,6 +61,14 @@
       top: -17.5px;
       left: 5px;
       z-index: 1;
+    }
+  }
+  &__venue input {
+    font-size: inherit;
+    font-family: 'helvetica neue', 'helvetica', 'arial', 'sans-serif';
+    border: none;
+    &::placeholder {
+      text-transform: capitalize;
     }
   }
   input[name='title'] {

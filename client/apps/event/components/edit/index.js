@@ -16,6 +16,7 @@ class EventEdit extends Component {
     super(props);
 
     this.onChange = this.onChange.bind(this);
+    this.onChangeVenue = this.onChangeVenue.bind(this);
     this.saveEvent = this.saveEvent.bind(this);
     this.deleteEvent = this.deleteEvent.bind(this);
     this.toggleEndDate = this.toggleEndDate.bind(this);
@@ -25,7 +26,8 @@ class EventEdit extends Component {
       event: this.props.event,
       hasEndDate: this.props.event.end_date ? true : false,
       needSave: false,
-      editDates: false
+      editDates: false,
+      venue: this.props.event.venue ? this.props.event.venue : { name: '', address: ''}
     };
   }
 
@@ -47,6 +49,14 @@ class EventEdit extends Component {
     var newEvent = Object.assign({}, this.props.event, this.state.event);
     newEvent[key] = value
     this.saveEvent(newEvent)
+  }
+
+  onChangeVenue(key, value) {
+    const venue = this.state.venue
+    const keys = key.split('-')
+    venue[keys[1]] = value
+    this.setState({ venue })
+    this.onChange('venue', venue)
   }
 
   toggleEndDate() {
@@ -164,6 +174,17 @@ class EventEdit extends Component {
               {this.renderDateEdit()}
               {this.renderDateInputs(event)}
               {this.renderModal()}
+            </div>
+
+            <div className='event--edit__venue'>
+              <TextInput
+                name='venue-name'
+                value={event.venue ? event.venue.name : ''}
+                onChange={this.onChangeVenue} />
+              <TextInput
+                name='venue-address'
+                value={event.venue ? event.venue.address : ''}
+                onChange={this.onChangeVenue} />
             </div>
           </div>
 

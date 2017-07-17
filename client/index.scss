@@ -33,6 +33,12 @@ button {
   cursor: pointer;
 }
 
+nav {
+  button {
+    margin-left: .5em;
+  }
+}
+
 .loading {
   padding: 20px;
 }

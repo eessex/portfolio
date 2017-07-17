@@ -3,7 +3,10 @@ var Schema = mongoose.Schema;
 
 var EventSchema = new Schema({
   title: String,
-  venue: String,
+  venue: {
+    name: { type: String, default: '' },
+    address: { type: String, default: '' },
+  },
   start_date: { type: Date, default: Date.now, required: true },
   end_date: { type: Date, default: Date.now },
   all_day: { type: Boolean, default: false},

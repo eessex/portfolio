@@ -5,7 +5,10 @@
 		right: 5em;
 	}
 	&__header {
-		padding: 2em 20px;
+		padding: 2em 20px 1em 20px;
+	}
+	&__list {
+		margin-bottom: 1em;
 	}
 	&__item {
 		a {

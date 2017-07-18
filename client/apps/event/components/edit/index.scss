@@ -71,10 +71,11 @@
       text-transform: capitalize;
     }
   }
-  input[name='title'] {
+  textarea[name='title'] {
     font-size: xx-large;
     font-weight: 700;
     border: none;
+    width: 100%;
   }
   input[type='date'],
   input[type='time'] {

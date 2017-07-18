@@ -20,8 +20,14 @@ h4 {
   margin: 0;
 }
 
-input:focus {
+input:focus,
+textarea:focus {
 	outline: none;
+}
+input::placeholder,
+textarea::placeholder,
+.public-DraftEditorPlaceholder-inner {
+  color: gray;
 }
 
 button {
@@ -50,4 +56,9 @@ nav {
 	top: 0;
 	bottom: 0;
 	z-index: 1
+}
+
+.container {
+  max-width: 680px;
+  width: 100%;
 }

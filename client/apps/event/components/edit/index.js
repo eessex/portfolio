@@ -18,6 +18,7 @@ class EventEdit extends Component {
     this.onChange = this.onChange.bind(this);
     this.onChangeVenue = this.onChangeVenue.bind(this);
     this.saveEvent = this.saveEvent.bind(this);
+    this.maybeSaveEvent = this.maybeSaveEvent.bind(this);
     this.deleteEvent = this.deleteEvent.bind(this);
     this.toggleEndDate = this.toggleEndDate.bind(this);
     this.toggleEditDate = this.toggleEditDate.bind(this);
@@ -31,13 +32,18 @@ class EventEdit extends Component {
     };
   }
 
-  saveEvent(event, needSave=false) {
-    if (this.props.event.published) {
+  maybeSaveEvent(event, needSave=false) {
+    if (event.published) {
       needSave = true
     } else {
       this.props.actions.updateEvent(event)
     }
     this.setState({event, needSave})
+  }
+
+  saveEvent(event) {
+    this.props.actions.updateEvent(event)
+    this.setState({event, needSave: false})
   }
 
   deleteEvent() {
@@ -48,7 +54,7 @@ class EventEdit extends Component {
   onChange(key, value) {
     var newEvent = Object.assign({}, this.props.event, this.state.event);
     newEvent[key] = value
-    this.saveEvent(newEvent)
+    this.maybeSaveEvent(newEvent)
   }
 
   onChangeVenue(key, value) {
@@ -133,7 +139,7 @@ class EventEdit extends Component {
   }
   renderDateSave() {
     if (this.props.event.published) {
-      return <button className='save' onClick={this.saveEvent}>Save</button>
+      return <button className='save' onClick={this.maybeSaveEvent}>Save</button>
     }
   }
 
@@ -162,11 +168,12 @@ class EventEdit extends Component {
         {this.renderError(error)}
 
         <section className='event--edit__form' style={{padding: 20}}>
-          <div className='event--show__header'>
+          <div className='event--show__header container'>
             <TextInput
               name='title'
               value={event.title || ''}
               required={true}
+              textarea={true}
               onChange={this.onChange} />
 
             <div className='event--edit__date'>
@@ -187,12 +194,12 @@ class EventEdit extends Component {
                 onChange={this.onChangeVenue} />
             </div>
           </div>
-
-          <RichText
-            onChange={this.onChange}
-            html={event.description}
-            placeholder='Event description' />
-
+          <div className='event--edit__description container'>
+            <RichText
+              onChange={this.onChange}
+              html={event.description}
+              placeholder='Event description' />
+          </div>
         </section>
 
       </div>

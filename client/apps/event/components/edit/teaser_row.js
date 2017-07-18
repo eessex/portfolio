@@ -6,18 +6,10 @@ export default class EditTeaserRow extends Component {
     super(props);
   }
 
-  renderPublished(event) {
-    if (!event.published) {
-      return 'draft'
-    } else {
-      return 'published'
-    }
-  }
   renderVenue(event) {
-    debugger
     if (event.venue) {
       if (event.venue.name.length) {
-        return event.venue.name
+        return '@ ' + event.venue.name
       }
     }
   }
@@ -25,12 +17,11 @@ export default class EditTeaserRow extends Component {
   render() {
     const { event } = this.props;
     return (
-      <div className='event-teaser'>
+      <div className='event-teaser' style={{opacity: event.published ? 1 : .45}}>
         <div className='event-teaser__header' style={styles.header}>
           <h4 style={styles.date}>{moment(event.start_date).format('MMM DD, YYYY - h:mma')}</h4>
           <h4 style={styles.title}>{event.title || 'Missing title'}</h4>
-          <h4>{this.renderVenue(event)}</h4>
-          <h4 style={styles.date}>{this.renderPublished(event)}</h4>
+          <h4 style={styles.venue}>{this.renderVenue(event)}</h4>
         </div>
       </div>
     );
@@ -46,5 +37,8 @@ const styles = {
   },
   title: {
     flex: 4
+  },
+  venue: {
+    flex: 1
   }
 }

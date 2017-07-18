@@ -8,7 +8,6 @@ class TextInput extends Component {
   }
 
   onKeyUp(e) {
-    debugger
     this.props.onChange(this.props.name, e.target.value)
   }
 
@@ -25,8 +24,31 @@ class TextInput extends Component {
     return name
   }
 
+  renderInput() {
+    const { name, value, required, textarea } = this.props
+    if (textarea) {
+      return (
+        <textarea
+          required={required || false}
+          placeholder={this.renderPlaceholder(name)}
+          name={name}
+          defaultValue={value}
+          onKeyUp={this.onKeyUp} />
+      )
+    } else {
+      return (
+        <input
+          required={required || false}
+          placeholder={this.renderPlaceholder(name)}
+          name={name}
+          defaultValue={value}
+          onKeyUp={this.onKeyUp} />
+      )
+    }
+  }
+
   render() {
-    const { name, value, required, label } = this.props
+    const { required, label } = this.props
 
     var group = label ? ' input-group' : ''
     var req = required ? ' req' : ''
@@ -34,12 +56,7 @@ class TextInput extends Component {
     return (
       <div className={'input--text' + req + group}>
         {this.renderLabel(label)}
-        <input
-          required={required || false}
-          placeholder={this.renderPlaceholder(name)}
-          name={name}
-          defaultValue={value}
-          onKeyUp={this.onKeyUp} />
+        {this.renderInput()}
       </div>
     );
   }

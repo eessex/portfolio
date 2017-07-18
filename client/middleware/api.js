@@ -8,12 +8,10 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   }
 
   const handleResponse = (res) => {
-    debugger
     dispatch({ type: action.payload.next.SUCCESS, payload: res.data })
   };
 
   const handleError = (error) => {
-    debugger
     dispatch({ type: action.payload.next.ERROR, payload: error.response })
   };
 
@@ -33,7 +31,6 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   }
 
   if (action.payload.method == ('put')) {
-    debugger
     axios.put(BASE_URL + action.payload.url, action.payload.data)
       .then(handleResponse)
       .catch(error =>

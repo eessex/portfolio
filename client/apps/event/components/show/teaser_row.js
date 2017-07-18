@@ -7,8 +7,9 @@ export default class EventTeaserRow extends Component {
   }
 
   renderVenue(event) {
+    var venue = ''
     if (event.venue && event.venue.name.length) {
-      const venue = event.venue.name
+      venue = event.venue.name
     }
     return venue
   }

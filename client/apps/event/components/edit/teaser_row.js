@@ -11,6 +11,8 @@ export default class EditTeaserRow extends Component {
       if (event.venue.name.length) {
         return '@ ' + event.venue.name
       }
+    } else {
+      return null
     }
   }
 

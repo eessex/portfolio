@@ -48,6 +48,12 @@ class EventsList extends Component {
     return listItems
   }
 
+  renderUpcomingLabel(events) {
+    if (events.length) {
+      return <div className='events-list__header'>Upcoming Events</div>
+    }
+  }
+
   render() {
     const { events } = this.props
     const upcomingEvents = this.sortByDate(events).upcomingEvents
@@ -58,7 +64,7 @@ class EventsList extends Component {
           <Link to="/events/new"><button>New Event</button></Link>
         </nav>
         <div className='events-list--upcoming'>
-          <div className='events-list__header'>Upcoming Events</div>
+          {this.renderUpcomingLabel(upcomingEvents)}
           <div className='events-list__list'>
             {this.renderList(upcomingEvents)}
           </div>

@@ -6,6 +6,7 @@
   "dependencies": {
     "axios": "^0.16.2",
     "body-parser": "^1.17.2",
+    "css-loader": "^0.28.4",
     "dotenv": "^4.0.0",
     "draft-convert": "^1.4.7",
     "draft-js": "^0.10.1",

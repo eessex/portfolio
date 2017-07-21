@@ -48,9 +48,19 @@ class EventsList extends Component {
     return listItems
   }
 
-  renderUpcomingLabel(events) {
+  renderLabel(events, label) {
     if (events.length) {
-      return <div className='events-list__header'>Upcoming Events</div>
+      return <div className='events-list__header'>{label} Events</div>
+    }
+  }
+
+  renderMenu() {
+    if (this.props.isAuthenticated) {
+      return (
+        <nav>
+          <Link to="/events/new"><button>New Event</button></Link>
+        </nav>
+      )
     }
   }
 
@@ -60,17 +70,15 @@ class EventsList extends Component {
     const pastEvents = this.sortByDate(events).pastEvents
     return (
       <div className='events-list'>
-        <nav>
-          <Link to="/events/new"><button>New Event</button></Link>
-        </nav>
+        {this.renderMenu()}
         <div className='events-list--upcoming'>
-          {this.renderUpcomingLabel(upcomingEvents)}
+          {this.renderLabel(upcomingEvents, 'Upcoming')}
           <div className='events-list__list'>
             {this.renderList(upcomingEvents)}
           </div>
         </div>
         <div className='events-list--past'>
-          <div className='events-list__header'>Past Events</div>
+          {this.renderLabel(upcomingEvents, 'Past')}
           <div className='events-list__list'>
             {this.renderList(pastEvents)}
           </div>

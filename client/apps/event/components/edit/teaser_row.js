@@ -38,7 +38,7 @@ const styles = {
     flex: 1
   },
   title: {
-    flex: 4
+    flex: 2
   },
   venue: {
     flex: 1

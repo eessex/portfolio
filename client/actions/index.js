@@ -7,6 +7,7 @@ const asyncActionType = (type) => ({
 export const API = 'API';
 
 // user
+export const CREATE_USER = asyncActionType('CREATE_USER');
 export const LOGIN_USER = asyncActionType('LOGIN_USER');
 export const LOGOUT_USER = 'LOGOUT_USER';
 

@@ -17,6 +17,7 @@
 			display: block;
 			padding: 10px 20px;
 			text-decoration: none;
+			max-width: calc(100% - 40px);
 		}
 		&:last-child a {
 			border-bottom: 1px solid;

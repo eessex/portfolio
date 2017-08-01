@@ -13,7 +13,13 @@ var EventSchema = new Schema({
   description: String,
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
-  published: { type: Boolean, default: false }
+  published: { type: Boolean, default: false },
+  links: [
+    {
+      title: { type: String },
+      url: { type: String },
+    }
+  ]
 });
 
 EventSchema.pre('save', function(next) {

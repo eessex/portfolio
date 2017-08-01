@@ -9,7 +9,7 @@ export default class EventTeaserRow extends Component {
   renderVenue(event) {
     var venue = ''
     if (event.venue && event.venue.name.length) {
-      venue = event.venue.name
+      venue = '@ ' + event.venue.name
     }
     return venue
   }
@@ -21,7 +21,7 @@ export default class EventTeaserRow extends Component {
         <div className='event-teaser__header' style={styles.header}>
           <h4 style={styles.date}>{moment(event.start_date).format('MMM DD, YYYY - h:mma')}</h4>
           <h4 style={styles.title}>{event.title || 'Missing title'}</h4>
-          <h4>{this.renderVenue(event)}</h4>
+          <h4 style={styles.venue}>{this.renderVenue(event)}</h4>
         </div>
       </div>
     );
@@ -36,6 +36,9 @@ const styles = {
     flex: 1
   },
   title: {
-    flex: 4
+    flex: 2
+  },
+  venue: {
+    flex: 1
   }
 }

@@ -5,7 +5,19 @@ class EventShow extends Component {
   constructor(props) {
     super(props);
   }
-
+  renderVenue(event) {
+    var venue = ''
+    var address = ''
+    if (event.venue) {
+      if (event.venue.name.length) {
+        venue = 'at ' + event.venue.name
+      }
+      if (event.venue.address.length) {
+        address = ': ' + event.venue.address
+      }
+    }
+    return venue + address
+  }
   render() {
     const { event } = this.props;
     return (
@@ -15,6 +27,7 @@ class EventShow extends Component {
           <h4 className='event--show__date'>
             {moment(event.start_date).format('MMM DD, YYYY - h:mma')}
           </h4>
+          <p>{this.renderVenue(event)}</p>
         </div>
         <div
           className='event--show__description container'

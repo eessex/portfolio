@@ -22,13 +22,19 @@ class EventEdit extends Component {
     this.deleteEvent = this.deleteEvent.bind(this);
     this.toggleEndDate = this.toggleEndDate.bind(this);
     this.toggleEditDate = this.toggleEditDate.bind(this);
+    this.onChangeLink = this.onChangeLink.bind(this);
+    this.onCreateLink = this.onCreateLink.bind(this);
+    this.setEditLink = this.setEditLink.bind(this);
 
     this.state = {
       event: this.props.event,
       hasEndDate: this.props.event.end_date ? true : false,
       needSave: false,
       editDates: false,
-      venue: this.props.event.venue ? this.props.event.venue : { name: '', address: ''}
+      venue: this.props.event.venue ? this.props.event.venue : { name: '', address: ''},
+      link: { title: '', url: ''},
+      links: this.props.event.links ? this.props.event.links : [],
+      editLink: null,
     };
   }
 
@@ -65,11 +71,33 @@ class EventEdit extends Component {
     this.onChange('venue', venue)
   }
 
+  onChangeLink(key, value, index) {
+    const links = this.state.links
+    const link = index ? links[index] : this.state.link
+    const keys = key.split('-')
+    link[keys[1]] = value
+    if (index) {
+      links[index] = link
+      this.onChange('links', links)
+    } else {
+      this.setState({ link })
+    }
+  }
+
+  onCreateLink() {
+    const link = this.state.link
+    const links = this.state.links
+    links.push(link)
+    this.onChange('links', links)
+    this.setState({ link: { title: '', url: ''} })
+    this.forceUpdate()
+  }
+
   toggleEndDate() {
     if (this.state.hasEndDate) {
       this.onChange('end_date', null)
     }
-    this.setState({hasEndDate: !this.state.hasEndDate})
+    this.setState({ asEndDate: !this.state.hasEndDate })
   }
 
   renderError() {
@@ -82,6 +110,10 @@ class EventEdit extends Component {
 
   toggleEditDate() {
     this.setState({editDates: !this.state.editDates})
+  }
+  setEditLink(e) {
+    const index = parseInt(e.target.name.replace('edit-', ''))
+    this.setState({editLink: index})
   }
 
   renderEndDate(event) {
@@ -142,16 +174,60 @@ class EventEdit extends Component {
       return <button className='save' onClick={this.maybeSaveEvent}>Save</button>
     }
   }
-
   renderDateEdit() {
     if (!this.state.editDates) {
       return <button className='edit' onClick={this.toggleEditDate}>Edit</button>
     }
   }
+  renderLinkSave() {
+    return <button className='save' onClick={this.onCreateLink}>Save</button>
+  }
+  renderLinkActions(link, index) {
+    if (this.state.editLink != index) {
+      return <button className='edit' name={'edit-' + index} onClick={this.setEditLink}>Edit</button>
+    } else {
+      return this.renderLinkEdit(link, index)
+    }
+  }
+  renderSavedLinks(links) {
+    const listItems =  links.map( (link, index) => this.renderSavedLink(link, index) )
+    return (
+      <div className='event--edit__links'>
+        <h5>Links</h5>
+        {listItems}
+      </div>
+    )
+  }
+
+  renderSavedLink(link, index) {
+    return (
+      <div className='event--edit__link-preview' key={'link-' + index}>
+        <a href={link.url}>{link.title}</a>
+        {this.renderLinkActions(link, index)}
+      </div>
+    )
+  }
+
+  renderLinkEdit(link, index) {
+    return (
+      <div className='event--edit__link-edit'>
+        <TextInput
+          name='link-title'
+          key={index || 'new-link'}
+          value={link ? link.title : this.state.link.title}
+          onChange={this.onChangeLink} />
+        <TextInput
+          name='link-url'
+          value={link ? link.url : this.state.link.url}
+          onChange={this.onChangeLink} />
+        {this.renderLinkSave(index || 'new-link')}
+      </div>
+    )
+  }
 
   render() {
     const { saving, error } = this.props;
-    const { event, needSave } = this.state;
+    const { event, needSave, link, links } = this.state;
 
     return (
       <div className='event--edit' style={ saving ? {background: 'cornsilk'} : null}>
@@ -200,6 +276,8 @@ class EventEdit extends Component {
               html={event.description}
               placeholder='Event description' />
           </div>
+          {this.renderSavedLinks(links)}
+          {this.renderLinkEdit()}
         </section>
 
       </div>

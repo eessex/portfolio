@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Route } from 'react-router-dom';
-import { Header, Events, Event, Pages, User, Error } from './apps';
+import { Error, Event, Events, Header, Pages, Settings, User } from './apps';
 
 const Routes = (props) => (
   <div>
@@ -12,6 +12,7 @@ const Routes = (props) => (
       <Route exact path='/login' component={User}/>
       <Route exact path='/new/user' component={User}/>
       <Route exact path='/pages' component={Pages}/>
+      <Route exact path='/settings' component={Settings}/>
     </main>
    </div>
 );

@@ -41,7 +41,7 @@ describe('Settings', () => {
       .end((err, res) => {
         res.should.have.status(200);
         res.body.should.be.a('object');
-        res.body.setting.title.should.eql('A New Setting');
+        res.body.settings.title.should.eql('A New Setting');
         done();
       });
     });
@@ -55,11 +55,10 @@ describe('Settings', () => {
       .send(setting)
       .end((err, res) => {
         var date = moment().format('YYYY-MM-DD');
-        var created_at = moment(res.body.setting.created_at).format('YYYY-MM-DD');
-        var updated_at = moment(res.body.setting.updated_at).format('YYYY-MM-DD');
+        var created_at = moment(res.body.settings.created_at).format('YYYY-MM-DD');
+        var updated_at = moment(res.body.settings.updated_at).format('YYYY-MM-DD');
         created_at.should.eql(date);
         updated_at.should.eql(date);
-        res.body.setting.published.should.not.be.ok;
         done();
       });
     });

@@ -43,6 +43,7 @@ class Header extends Component {
   }
 
   render() {
+    const { settings } = this.props;
     return (
       <nav className='header' style={styles.header}>
         <h2 style={{margin: 0}}><Link to="/">Home</Link></h2>

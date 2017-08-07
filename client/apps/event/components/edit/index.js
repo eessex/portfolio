@@ -202,7 +202,7 @@ class EventEdit extends Component {
   renderSavedLink(link, index) {
     return (
       <div className='event--edit__link-preview' key={'link-' + index}>
-        <a href={link.url}>{link.title}</a>
+        <a href={link.url}>{link.title || link.url}</a>
         {this.renderLinkActions(link, index)}
       </div>
     )

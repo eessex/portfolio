@@ -5,10 +5,12 @@ import { Provider } from 'react-redux';
 import Routes from './routes';
 import store from './store';
 import { saveState } from './localstorage'
+import { fetchSettings } from './actions/settings'
 require('./index.scss');
 
 store.subscribe(() => {
   saveState({user: store.getState().user})
+  saveState({settings: fetchSettings().settings})
   console.log('Store updated.');
 });
 

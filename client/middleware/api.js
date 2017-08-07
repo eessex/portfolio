@@ -31,6 +31,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   }
 
   if (action.payload.method == ('put')) {
+    debugger
     axios.put(BASE_URL + action.payload.url, action.payload.data)
       .then(handleResponse)
       .catch(error =>

@@ -1,7 +1,7 @@
-import { FETCH_SETTINGS, UPDATE_SETTINGS, RESET_SETTINGS } from '../actions';
+import { FETCH_SETTINGS, CREATE_SETTINGS, UPDATE_SETTINGS, RESET_SETTINGS } from '../actions';
 
 const initialState = {
-  settings: {},
+  settings: [],
   loading: false,
   saving: false
 };
@@ -16,7 +16,7 @@ const settingsReducer = (state = initialState, action) => {
     case FETCH_SETTINGS.SUCCESS:
       return Object.assign({}, state, {
         loading: false,
-        setting: action.payload
+        settings: action.payload[0]
       });
 
     case FETCH_SETTINGS.ERROR:
@@ -24,16 +24,36 @@ const settingsReducer = (state = initialState, action) => {
         loading: false
       });
 
+    case CREATE_SETTINGS.PENDING:
+      return Object.assign({}, state, {
+        saving: true,
+        settings: state.settings[0]
+      });
+
+    case CREATE_SETTINGS.SUCCESS:
+      return Object.assign({}, state, {
+        saving: false,
+        settings: action.payload.settings[0],
+        error: null
+      });
+
+    case CREATE_SETTINGS.ERROR:
+      return Object.assign({}, state, {
+        saving: false,
+        error: action.payload.data,
+        settings: state.settings
+      });
+
     case UPDATE_SETTINGS.PENDING:
       return Object.assign({}, state, {
         saving: true,
-        setting: state.setting
+        settings: state.settings
       });
 
     case UPDATE_SETTINGS.SUCCESS:
       return Object.assign({}, state, {
         saving: false,
-        setting: action.payload.setting,
+        settings: action.payload.settings,
         error: null
       });
 
@@ -41,13 +61,13 @@ const settingsReducer = (state = initialState, action) => {
       return Object.assign({}, state, {
         saving: false,
         error: action.payload.data,
-        setting: state.setting
+        settings: state.settings
       });
 
     case RESET_SETTINGS:
       return Object.assign({}, state, {
         loading: false,
-        setting: state.setting
+        settings: state.settings
       });
 
     default:

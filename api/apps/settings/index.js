@@ -8,7 +8,9 @@ settings.route('/')
   // create setting
   .post( (req, res) => {
     var settings = new Settings();
+    console.log(req.body)
     Object.assign(settings, req.body).save((err, settings) => {
+      console.log(settings)
       if (err)
         return res.status(400).send(err);
       res.json({ message: 'Settings created', settings });
@@ -22,8 +24,11 @@ settings.route('/')
       res.json(settings);
     });
   })
+
+settings.route('/:settings_id')
+  // update settings
   .put( (req, res) => {
-    Settings.findById(req.params.setting_id, (err, settings) => {
+    Settings.findById(req.params.settings_id, (err, settings) => {
       if(err)
         return res.status(400).send(err);
       Object.assign(settings, req.body).save((err, settings) => {
@@ -32,6 +37,5 @@ settings.route('/')
         res.json({ message: 'Settings updated', settings });
       });
     });
-  })
-
+  });
 module.exports = settings;

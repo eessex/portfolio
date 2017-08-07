@@ -22,13 +22,4 @@ var EventSchema = new Schema({
   ]
 });
 
-EventSchema.pre('save', function(next) {
-  var now = new Date();
-  if(!this.created_at) {
-    this.created_at = now;
-  }
-  this.updated_at = now;
-  next();
-});
-
 module.exports = mongoose.model('Event', EventSchema);

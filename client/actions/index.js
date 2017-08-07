@@ -17,6 +17,7 @@ export const RESET_EVENT = 'RESET_EVENT';
 
 // settings
 export const FETCH_SETTINGS = asyncActionType('FETCH_SETTINGS');
+export const CREATE_SETTINGS = asyncActionType('CREATE_SETTINGS');
 export const UPDATE_SETTINGS = asyncActionType('UPDATE_SETTINGS');
 export const RESET_SETTINGS = 'RESET_SETTINGS';
 

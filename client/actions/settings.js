@@ -1,4 +1,4 @@
-import { API, FETCH_SETTINGS, UPDATE_SETTINGS, RESET_SETTINGS } from '../actions';
+import { API, FETCH_SETTINGS, CREATE_SETTINGS, UPDATE_SETTINGS, RESET_SETTINGS } from '../actions';
 
 export const fetchSettings = () => {
   return {
@@ -11,13 +11,26 @@ export const fetchSettings = () => {
   }
 }
 
+export const createSettings = (settings) => {
+  return {
+    type: API,
+    payload: {
+      method: 'post',
+      data: settings,
+      url: '/settings',
+      next: CREATE_SETTINGS
+    }
+  }
+}
+
 export const updateSettings = (settings) => {
+  debugger
   return {
     type: API,
     payload: {
       method: 'put',
       data: settings,
-      url: '/settings',
+      url: '/settings/' + settings._id,
       next: UPDATE_SETTINGS
     }
   }

@@ -24,7 +24,6 @@ export const createSettings = (settings) => {
 }
 
 export const updateSettings = (settings) => {
-  debugger
   return {
     type: API,
     payload: {

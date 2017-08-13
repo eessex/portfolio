@@ -35,6 +35,7 @@ users.route('/session/create')
         user.comparePassword(req.body.password, function(err, isMatch) {
           if (!isMatch)
             return res.send(400, { error: 'Incorrect password' })
+          console.log('password matches')
           return res.json(user); //sets user authenticated in store
         });
       }

@@ -16,7 +16,6 @@ class SettingsInfo extends Component {
   }
 
   onChange(key, value) {
-    debugger
     var newSettings = Object.assign({}, this.props.settings, this.state.settings);
     newSettings[key] = value
     this.props.actions.updateSettings(newSettings)

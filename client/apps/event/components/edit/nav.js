@@ -9,7 +9,9 @@ class EventNav extends Component {
   }
 
   onPublish() {
-    this.props.onChange('published', !this.props.event.published)
+    const newEvent = this.props.event
+    newEvent.published = !newEvent.published
+    this.props.saveEvent(newEvent)
   }
 
   saveEvent() {

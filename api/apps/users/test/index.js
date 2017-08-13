@@ -34,7 +34,9 @@ describe('Users', () => {
   it('can save a user', (done) => {
     var user = {
       name_first: 'Dolly',
-      name_last: 'Parton'
+      name_last: 'Parton',
+      email: 'user@email.com',
+      password: 'asdf123'
     }
     chai.request(server)
       .post('/api/users')
@@ -43,6 +45,24 @@ describe('Users', () => {
         res.should.have.status(200);
         res.body.should.be.a('object');
         res.body.user.name_first.should.eql('Dolly');
+        res.body.user.password.should.not.eql('asdf123');
+        res.body.user.password.should.be > 7
+        done();
+      });
+    });
+
+  it('requires a unique email', (done) => {
+    var user = {
+      name_first: 'Jonny',
+      name_last: 'Parton',
+      email: 'user@email.com',
+      password: 'password'
+    }
+    chai.request(server)
+      .post('/api/users')
+      .send(user)
+      .end((err, res) => {
+        res.should.not.have.status(200);
         done();
       });
     });
@@ -50,7 +70,9 @@ describe('Users', () => {
   it('adds an updated_at and created_at field by default', (done) => {
     var user = {
       name_first: 'Dolly',
-      name_last: 'Parton'
+      name_last: 'Parton',
+      email: 'user@email.com',
+      password: 'asdf123'
     }
     chai.request(server)
       .post('/api/users')
@@ -66,12 +88,37 @@ describe('Users', () => {
     });
   });
 
+describe('POST /api/users/sessions/create', () => {
+  it('can verify a user login', (done) => {
+    let user = new User({
+      name_first: 'Dolly',
+      name_last: 'Parton',
+      email: 'user@email.com',
+      password: 'asdf123'
+    })
+    user.save((err, user) => {
+      chai.request(server)
+      .post('/api/users/sessions/create')
+      .send({email: 'user@email.com', password: 'asdf123'})
+      .end((err, res) => {
+        // console.log(user)
+        // res.should.have.status(200);
+        // res.body.should.be.a('object');
+        // res.body.should.have.property('message').eql('User deleted');
+        done();
+      });
+    });
+  });
+});
+
   describe('GET /api/users/:user_id ', () => {
 
     it('it should GET a user by id', (done) => {
       let user = new User({
-	      name_first: 'Dolly',
-	      name_last: 'Parton'
+        name_first: 'Dolly',
+        name_last: 'Parton',
+        email: 'user@email.com',
+        password: 'asdf123'
 	    });
       user.save((err, user) => {
         chai.request(server)
@@ -91,8 +138,10 @@ describe('Users', () => {
   describe('PUT /api/users/:user_id', () => {
     it('it should UPDATE a user by id', (done) => {
       let user = new User({
-	      name_first: 'Dolly',
-	      name_last: 'Parton'
+        name_first: 'Dolly',
+        name_last: 'Parton',
+        email: 'user@email.com',
+        password: 'asdf123'
 	    })
       user.save((err, user) => {
         chai.request(server)
@@ -111,7 +160,12 @@ describe('Users', () => {
 
   describe('DELETE /api/users/:user_id user', () => {
     it('it should DELETE an user by id', (done) => {
-      let user = new User({title: 'New User'})
+      let user = new User({
+        name_first: 'Dolly',
+        name_last: 'Parton',
+        email: 'user@email.com',
+        password: 'asdf123'
+      })
       user.save((err, user) => {
         chai.request(server)
         .delete('/api/users/' + user.id)

@@ -3,26 +3,43 @@ import { connect } from 'react-redux';
 import {bindActionCreators} from 'redux';
 import * as Actions from '../../actions/events';
 import EventsList from './components/events_list.js'
+require('./index.scss');
 
 class Events extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      query: {}
+    }
+  }
 
   componentWillMount() {
-    this.props.actions.fetchEvents()
+    var query = this.state.query
+    if (!this.props.user.isAuthenticated) {
+      query = {published: true}
+    }
+    this.setState({query: query})
+    this.props.actions.fetchEvents(query)
   }
 
   render() {
+    const { isAuthenticated } = this.props.user;
     const { list, loading } = this.props.events;
     const { actions } = this.props;
     if (loading) {
       return (
-        <div className='events'>
+        <div className='loading'>
           <div>Loading ...</div>
         </div>
       );
     } else {
       return (
         <div className='events'>
-          <EventsList events={list} actions={actions} />
+          <EventsList
+            events={list}
+            actions={actions}
+            isAuthenticated={isAuthenticated} />
         </div>
       );
     }

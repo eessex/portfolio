@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {bindActionCreators} from 'redux';
 import * as Actions from '../../actions/event';
-import Edit from './components/edit/index.js'
+import Edit from './components/edit'
+import Show from './components/show'
 
 class Event extends Component {
 
@@ -19,16 +20,17 @@ class Event extends Component {
   }
 
   render() {
+    const { isAuthenticated } = this.props.user;
     const { event, error, loading, saving } = this.props.event;
     if (loading) {
       return (
-        <div className='events'>
+        <div className='loading'>
           <div>Loading ...</div>
         </div>
       );
-    } else {
+    } else if (isAuthenticated) {
       return (
-        <div className='events'>
+        <div className='event'>
           <Edit
             event={event}
             error={error}
@@ -37,6 +39,14 @@ class Event extends Component {
             actions={this.props.actions} />
         </div>
       );
+    } else {
+      return (
+        <div className='event'>
+          <Show
+            event={event}
+            loading={loading} />
+        </div>
+      )
     }
   }
 }

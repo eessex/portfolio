@@ -1,0 +1,64 @@
+body {
+  margin: 0;
+  font-family: 'helvetica neue', 'helvetica', 'arial', 'sans-serif'
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+  &:hover {
+    color: darkblue;
+  }
+}
+
+p {
+  margin: 10px 0;
+  min-height: .5em;
+}
+
+h4 {
+  margin: 0;
+}
+
+input:focus,
+textarea:focus {
+	outline: none;
+}
+input::placeholder,
+textarea::placeholder,
+.public-DraftEditorPlaceholder-inner {
+  color: gray;
+}
+
+button {
+  font-size: .85em;
+  border: 1px solid;
+  background: white;
+  padding: 6px 12px;
+  color: inherit;
+  cursor: pointer;
+}
+
+nav {
+  button {
+    margin-left: .5em;
+  }
+}
+
+.loading {
+  padding: 20px;
+}
+
+.modal__bg {
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 1
+}
+
+.container {
+  max-width: 680px;
+  width: 100%;
+}

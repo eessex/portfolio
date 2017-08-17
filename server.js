@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === 'test') {
   console.log('starting tests')
 } else {
   var port = process.env.PORT || 3000;
-  var db = process.env.MONGO_DB;
+  var db = process.env.MONGODB_URI;
   app.use(logger('dev')); //TODO- combined for prod
 }
 

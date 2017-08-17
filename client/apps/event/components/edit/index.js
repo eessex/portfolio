@@ -90,7 +90,6 @@ class EventEdit extends Component {
     links.push(link)
     this.onChange('links', links)
     this.setState({ link: { title: '', url: ''} })
-    this.forceUpdate()
   }
 
   toggleEndDate() {

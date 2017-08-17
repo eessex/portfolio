@@ -1,7 +1,7 @@
 import { FETCH_SETTINGS, CREATE_SETTINGS, UPDATE_SETTINGS, RESET_SETTINGS } from '../actions';
 
 const initialState = {
-  settings: [],
+  settings: {},
   loading: false,
   saving: false
 };

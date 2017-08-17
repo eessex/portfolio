@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import {bindActionCreators} from 'redux';
-import * as Actions from '../../../actions/user';
-import { Link } from 'react-router-dom';
-import Nav from './nav';
-import AdminNav from './admin_nav';
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+import * as Actions from '../../../actions/user'
+import { Link } from 'react-router-dom'
+import Nav from './nav'
+import AdminNav from './admin_nav'
 import IconMenu from '../icons/icon_menu'
 
 class Header extends Component {
@@ -43,10 +43,12 @@ class Header extends Component {
   }
 
   render() {
-    const { settings } = this.props;
+    const { settings } = this.props.settings;
+    console.log(process.env)
+    const pageTitle = settings.title || "Home"
     return (
       <nav className='header' style={styles.header}>
-        <h2 style={{margin: 0}}><Link to="/">Home</Link></h2>
+        <h2 style={{margin: 0}}><Link to="/">{pageTitle}</Link></h2>
         <div className='header--right' style={styles.headerRight}>
           <IconMenu onClick={this.toggleNav} open={this.state.open}/>
           {this.nav()}

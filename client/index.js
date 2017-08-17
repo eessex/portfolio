@@ -10,10 +10,9 @@ require('./index.scss');
 
 store.subscribe(() => {
   saveState({user: store.getState().user})
-  console.log(store.getState().user)
-  // saveState({settings: fetchSettings().settings})
-  // console.log('Store updated.');
 });
+
+store.dispatch(fetchSettings())
 
 window.store = store;
 

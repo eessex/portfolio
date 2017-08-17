@@ -1,6 +1,6 @@
-const path = require('path');
-const htmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const path = require('path')
+const htmlWebpackPlugin = require('html-webpack-plugin')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 const htmlWebpackPluginConfig = new htmlWebpackPlugin({
   template: './client/index.html',

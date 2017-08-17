@@ -10,7 +10,7 @@ class DateInput extends Component {
 
   onKeyUp(e) {
     var date = this.refs.date.value
-    var time = this.refs.time.value
+    var time = this.refs.time ? this.refs.time.value : ''
     var newDate = moment(date + ' ' + time).toISOString()
     this.props.onChange(this.props.name, newDate)
   }

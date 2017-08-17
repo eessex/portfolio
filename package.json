@@ -50,7 +50,9 @@
     "webpack-dev-server": "^2.4.5"
   },
   "scripts": {
-    "start": "yarn install && webpack && node server.js",
+    "prod": "NODE_ENV=production node server.js",
+    "postinstall": "webpack",
+    "start": "node server.js",
     "webpack-watch": "webpack -w",
     "dev": "concurrent --kill-others \"yarn webpack-watch\" \"node server.js\"",
     "test": "NODE_ENV=test jest -- && mocha -- api/apps/**/test/*.js",

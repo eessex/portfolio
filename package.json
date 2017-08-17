@@ -5,8 +5,6 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.16.2",
-    "body-parser": "^1.17.2",
-    "css-loader": "^0.28.4",
     "dotenv": "^4.0.0",
     "draft-convert": "^1.4.7",
     "draft-js": "^0.10.1",
@@ -30,9 +28,11 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "bcrypt": "^1.0.2",
+    "body-parser": "^1.17.2",
     "chai": "^4.0.0",
     "chai-http": "^3.0.0",
     "concurrently": "^3.4.0",
+    "css-loader": "^0.28.4",
     "enzyme": "^2.8.2",
     "express": "^4.15.3",
     "extract-text-webpack-plugin": "^2.1.2",
@@ -50,9 +50,9 @@
     "webpack-dev-server": "^2.4.5"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "yarn install && webpack && node server.js",
     "webpack-watch": "webpack -w",
-    "dev": "concurrent --kill-others \"yarn webpack-watch\" \"yarn start\"",
+    "dev": "concurrent --kill-others \"yarn webpack-watch\" \"node server.js\"",
     "test": "NODE_ENV=test jest -- && mocha -- api/apps/**/test/*.js",
     "test:watch": "test -- --watch"
   }

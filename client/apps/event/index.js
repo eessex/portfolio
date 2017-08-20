@@ -4,6 +4,7 @@ import {bindActionCreators} from 'redux';
 import * as Actions from '../../actions/event';
 import Edit from './components/edit'
 import Show from './components/show'
+require('./index.scss');
 
 class Event extends Component {
 
@@ -24,13 +25,13 @@ class Event extends Component {
     const { event, error, loading, saving } = this.props.event;
     if (loading) {
       return (
-        <div className='loading'>
+        <div className='loading container'>
           <div>Loading ...</div>
         </div>
       );
     } else if (isAuthenticated) {
       return (
-        <div className='event'>
+        <div className='event container'>
           <Edit
             event={event}
             error={error}
@@ -41,7 +42,7 @@ class Event extends Component {
       );
     } else {
       return (
-        <div className='event'>
+        <div className='event container'>
           <Show
             event={event}
             loading={loading} />

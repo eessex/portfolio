@@ -242,7 +242,7 @@ class EventEdit extends Component {
 
         {this.renderError(error)}
 
-        <section className='event--edit__form container'>
+        <section className='event--edit__form'>
           <div className='event--show__header'>
             <TextInput
               name='title'

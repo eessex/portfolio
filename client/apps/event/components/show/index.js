@@ -5,6 +5,7 @@ class EventShow extends Component {
   constructor(props) {
     super(props);
   }
+
   renderVenue(event) {
     var venue = ''
     var address = ''
@@ -18,11 +19,25 @@ class EventShow extends Component {
     }
     return venue + address
   }
+
+  renderLinks(event) {
+    if (event.links) {
+      const listItems =  event.links.map( (link, i) =>
+      <div className='event--show__link' key={i}>
+        <a href={link.url}>
+          {link.title ? link.title : link.url}
+        </a>
+      </div>
+    )
+    return <div className='event--show__links'>{listItems}</div>
+    }
+  }
+
   render() {
     const { event } = this.props;
     return (
-      <div className='event--show' style={{paddingLeft: 20, paddingRight: 20, marginTop: '1em'}}>
-        <div className='event--show__header container'>
+      <div className='event--show'>
+        <div className='event--show__header'>
           <h1 style={{margin: 0}}>{event.title}</h1>
           <h4 className='event--show__date'>
             {moment(event.start_date).format('MMM DD, YYYY - h:mma')}
@@ -30,8 +45,9 @@ class EventShow extends Component {
           <p>{this.renderVenue(event)}</p>
         </div>
         <div
-          className='event--show__description container'
+          className='event--show__description'
           dangerouslySetInnerHTML={{__html: event.description}} />
+        {this.renderLinks(event)}
       </div>
     );
   }

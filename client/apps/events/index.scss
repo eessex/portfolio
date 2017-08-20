@@ -1,26 +1,26 @@
 .events-list {
-	nav {
-		position: absolute;
-		top: 10px;
-		right: 5em;
-	}
-	&__header {
-		padding: 2em 20px 1em 20px;
-	}
-	&__list {
-		margin-bottom: 1em;
-	}
-	&__item {
-		a {
-			border-top: 1px solid;
-			width: 100%;
-			display: block;
-			padding: 10px 20px;
-			text-decoration: none;
-			max-width: calc(100% - 40px);
-		}
-		&:last-child a {
-			border-bottom: 1px solid;
-		}
-	}
+  nav {
+    position: absolute;
+    top: 10px;
+    right: 5em;
+  }
+  &__header {
+    padding: 2em 20px 1em 20px;
+  }
+  &__list {
+    margin-bottom: 1em;
+  }
+  &__item {
+    a {
+      border-top: 1px solid;
+      width: 100%;
+      display: block;
+      padding: 10px 20px;
+      text-decoration: none;
+      max-width: calc(100% - 40px);
+    }
+    &:last-child a {
+      border-bottom: 1px solid;
+    }
+  }
 }

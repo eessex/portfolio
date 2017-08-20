@@ -6,7 +6,8 @@ const webpack = require('webpack')
 const htmlWebpackPluginConfig = new htmlWebpackPlugin({
   template: './client/index.html',
   filename: 'index.html',
-  inject: 'body'
+  inject: 'body',
+  title: 'Eve Essex'
 })
 
 module.exports = {

@@ -242,8 +242,8 @@ class EventEdit extends Component {
 
         {this.renderError(error)}
 
-        <section className='event--edit__form' style={{padding: 20}}>
-          <div className='event--show__header container'>
+        <section className='event--edit__form container'>
+          <div className='event--show__header'>
             <TextInput
               name='title'
               value={event.title || ''}
@@ -269,7 +269,7 @@ class EventEdit extends Component {
                 onChange={this.onChangeVenue} />
             </div>
           </div>
-          <div className='event--edit__description container'>
+          <div className='event--edit__description'>
             <RichText
               onChange={this.onChange}
               html={event.description}

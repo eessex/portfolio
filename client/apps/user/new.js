@@ -8,12 +8,6 @@ class NewUser extends Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
-  componentDidMount() {
-    if (this.props.isAuthenticated) {
-      window.location.replace('/')
-    }
-  }
-
   componentWillUnmount() {
     if (!this.props.isAuthenticated) {
       this.props.actions.logoutUser()
@@ -57,7 +51,7 @@ class NewUser extends Component {
         <input
           ref='password_confirm'
           placeholder='confirm password'
-          type='password_confirm'
+          type='password'
           required />
         <button onClick={this.onSubmit}>Submit</button>
         </form>

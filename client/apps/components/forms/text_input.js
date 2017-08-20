@@ -20,7 +20,11 @@ class TextInput extends Component {
   }
 
   renderPlaceholder(name) {
-    name = name.replace(/-/g, ' ').replace(/_/g, ' ')
+    if (this.props.placeholder) {
+      name = this.props.placeholder
+    } else {
+      name = name.replace(/-/g, ' ').replace(/_/g, ' ')
+    }
     return name
   }
 

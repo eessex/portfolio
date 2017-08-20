@@ -54,12 +54,9 @@
     "webpack-dev-server": "^2.4.5"
   },
   "scripts": {
-    "prod": "NODE_ENV=production node server.js",
     "heroku-postbuild": "webpack -p --config ./webpack.config.js --progress",
     "start": "node server.js",
-    "webpack-watch": "webpack -w",
     "dev": "concurrent --kill-others \"yarn webpack-watch\" \"node server.js\"",
-    "test": "NODE_ENV=test jest -- && mocha -- api/apps/**/test/*.js",
-    "test:watch": "test -- --watch"
+    "test": "NODE_ENV=test jest -- && mocha -- api/apps/**/test/*.js"
   }
 }

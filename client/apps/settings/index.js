@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {bindActionCreators} from 'redux';
 import * as Actions from '../../actions/settings';
-import SettingsInfo from './components/page_info'
+import SiteDescription from './components/site_description'
 
 class Settings extends Component {
 
@@ -23,8 +23,8 @@ class Settings extends Component {
     } else {
       return (
         <div className='settings container'>
-          <p>Settings App</p>
-          <SettingsInfo
+          <h3>Site Settings</h3>
+          <SiteDescription
             settings={settings}
             actions={this.props.actions} />
         </div>

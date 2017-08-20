@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import TextInput from '../../components/forms/text_input.js'
+import TextInput from '../../../components/forms/text_input.js'
+require('./index.scss');
 
 class SettingsInfo extends Component {
   constructor(props) {
@@ -25,15 +26,16 @@ class SettingsInfo extends Component {
   render() {
     const { settings } = this.state;
     return (
-      <div className='settings--info'>
+      <div className='settings--site-description'>
         <TextInput
-          label='Page Title'
+          label='Site Title'
           name='title'
           value={settings ? settings.title : this.props.settings.title}
           onChange={this.onChange} />
         <TextInput
-          label='Search Description'
+          label='Site Description'
           name='description'
+          placeholder='Appears in search results. Limited to 200 characters.'
           textarea={true}
           value={settings ? settings.description : this.props.settings.description}
           onChange={this.onChange} />

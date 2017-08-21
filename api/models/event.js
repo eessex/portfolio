@@ -6,6 +6,9 @@ var EventSchema = new Schema({
   venue: {
     name: { type: String, default: '' },
     address: { type: String, default: '' },
+    city: { type: String, default: '' },
+    state: { type: String, default: '' },
+    country: { type: String, default: '' },
   },
   start_date: { type: Date, default: Date.now, required: true },
   end_date: { type: Date, default: Date.now },

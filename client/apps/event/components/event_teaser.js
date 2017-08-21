@@ -19,10 +19,10 @@ class EventTeaser extends Component {
     const { event } = this.props;
     return (
       <div className='event-teaser'>
-        <div className='event-teaser__header' style={styles.header}>
-          <h4 style={styles.date}>{moment(event.start_date).format('MMM DD, YYYY - h:mma')}</h4>
-          <h4 style={styles.title}>{event.title || 'Missing title'}</h4>
-          <h4 style={styles.date}>{this.renderPublished(event)}</h4>
+        <div className='event-teaser__header'>
+          <h4>{moment(event.start_date).format('MMM DD, YYYY - h:mma')}</h4>
+          <h4>{event.title || 'Missing title'}</h4>
+          <h4>{this.renderPublished(event)}</h4>
         </div>
       </div>
     );
@@ -30,15 +30,3 @@ class EventTeaser extends Component {
 }
 
 export default EventTeaser;
-
-const styles = {
-  header: {
-    display: 'flex'
-  },
-  date: {
-    flex: 1
-  },
-  title: {
-    flex: 4
-  }
-}

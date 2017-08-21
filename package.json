@@ -54,9 +54,10 @@
     "webpack-dev-server": "^2.4.5"
   },
   "scripts": {
+    "dev": "concurrent --kill-others \"yarn webpack-watch\" \"node server.js\"",
     "heroku-postbuild": "webpack -p --config ./webpack.config.js --progress",
     "start": "node server.js",
-    "dev": "concurrent --kill-others \"yarn webpack-watch\" \"node server.js\"",
-    "test": "NODE_ENV=test jest -- && mocha -- api/apps/**/test/*.js"
+    "test": "NODE_ENV=test jest -- && mocha -- api/apps/**/test/*.js",
+    "webpack-watch": "webpack -w"
   }
 }

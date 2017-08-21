@@ -24,7 +24,7 @@ class EventShow extends Component {
     if (event.links) {
       const listItems =  event.links.map( (link, i) =>
       <div className='event--show__link' key={i}>
-        <a href={link.url}>
+        <a href={link.url} target='_blank'>
           {link.title ? link.title : link.url}
         </a>
       </div>

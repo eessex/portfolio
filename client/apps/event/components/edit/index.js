@@ -7,6 +7,7 @@ import EventDate from '../show/event_date.js';
 import TextInput from '../../../components/forms/text_input.js';
 import RichText from '../../../components/forms/rich_text';
 import DateInput from '../../../components/forms/date_input.js';
+import FileInput from '../../../components/forms/file_input.js';
 import CheckboxInput from '../../../components/forms/checkbox_input.js';
 import ValidationError from '../../../components/forms/validation_error.js';
 require('./index.scss');
@@ -32,6 +33,8 @@ class EventEdit extends Component {
       needSave: false,
       editDates: false,
       venue: this.props.event.venue ? this.props.event.venue : { name: '', address: ''},
+      image: { title: '', url: ''},
+      images: this.props.event.images ? this.props.event.images : [],
       link: { title: '', url: ''},
       links: this.props.event.links ? this.props.event.links : [],
       editLink: null,
@@ -225,7 +228,7 @@ class EventEdit extends Component {
   }
 
   render() {
-    const { saving, error } = this.props;
+    const { saving, error, actions } = this.props;
     const { event, needSave, link, links } = this.state;
 
     return (
@@ -249,6 +252,11 @@ class EventEdit extends Component {
               value={event.title || ''}
               required={true}
               textarea={true}
+              onChange={this.onChange} />
+            <FileInput
+              name='image'
+              accept="image/jpeg, image/png"
+              actions={actions}
               onChange={this.onChange} />
 
             <div className='event--edit__date'>

@@ -21,6 +21,12 @@ export const CREATE_SETTINGS = asyncActionType('CREATE_SETTINGS');
 export const UPDATE_SETTINGS = asyncActionType('UPDATE_SETTINGS');
 export const RESET_SETTINGS = 'RESET_SETTINGS';
 
+// upload
+export const FETCH_SIGNATURE = asyncActionType('FETCH_SIGNATURE');
+export const CREATE_SIGNATURE = asyncActionType('CREATE_SIGNATURE');
+export const UPDATE_SIGNATURE = asyncActionType('UPDATE_SIGNATURE');
+export const RESET_SIGNATURE = 'RESET_SIGNATURE';
+
 // user
 export const CREATE_USER = asyncActionType('CREATE_USER');
 export const LOGIN_USER = asyncActionType('LOGIN_USER');

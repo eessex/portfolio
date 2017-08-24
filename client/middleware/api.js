@@ -8,14 +8,17 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   }
 
   const handleResponse = (res) => {
+    debugger
     dispatch({ type: action.payload.next.SUCCESS, payload: res.data })
   };
 
   const handleError = (error) => {
+    debugger
     dispatch({ type: action.payload.next.ERROR, payload: error.response })
   };
 
   if (action.payload.method == 'get') {
+    debugger
     axios.get(BASE_URL + action.payload.url, {params: action.payload.query})
       .then(handleResponse)
       .catch(error =>

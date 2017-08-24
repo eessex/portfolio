@@ -18,8 +18,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   };
 
   if (action.payload.method == 'get') {
-    debugger
-    axios.get(BASE_URL + action.payload.url, {params: action.payload.query})
+    axios.get(BASE_URL + action.payload.url, {params: action.payload.data})
       .then(handleResponse)
       .catch(error =>
         handleError(error)
@@ -32,7 +31,6 @@ const apiMiddleware = ({ dispatch }) => next => action => {
         handleError(error)
       );
   }
-
   if (action.payload.method == ('put')) {
     axios.put(BASE_URL + action.payload.url, action.payload.data)
       .then(handleResponse)
@@ -40,7 +38,6 @@ const apiMiddleware = ({ dispatch }) => next => action => {
         handleError(error)
       );
   }
-
   if (action.payload.method == ('delete')) {
     axios.delete(BASE_URL + action.payload.url, action.payload.data)
       .then(handleResponse)
@@ -48,9 +45,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
         handleError(error)
       );
   }
-
   dispatch({ type: action.payload.next.PENDING });
-
 };
 
 export default apiMiddleware;

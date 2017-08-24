@@ -1,7 +1,7 @@
 import { FETCH_SIGNATURE } from '../actions';
 
 const initialState = {
-  signature: {},
+  upload: {},
   loading: false,
   saving: false
 };
@@ -9,17 +9,20 @@ const initialState = {
 const uploadReducer = (state = initialState, action) => {
   switch (action.type) {
     case FETCH_SIGNATURE.PENDING:
+      debugger
       return Object.assign({}, state, {
         loading: true
       });
 
     case FETCH_SIGNATURE.SUCCESS:
+      debugger
       return Object.assign({}, state, {
         loading: false,
-        signature: action.payload[0]
+        upload: action.payload
       });
 
     case FETCH_SIGNATURE.ERROR:
+      debugger
       return Object.assign({}, state, {
         loading: false
       });

@@ -1,5 +1,3 @@
-// <input type="file" id="file-input">
-
 import React, { Component } from 'react';
 import { fetchSignature } from '../../../actions/upload'
 
@@ -12,18 +10,14 @@ class FileInput extends Component {
   }
 
   onChange(e) {
-  	debugger
-    const sig = fetchSignature()
+    window.store.dispatch(fetchSignature(e.target.files[0]))
     debugger
-    // this.props.actions.fetchSignature()
     // this.props.onChange(this.props.name, e.target.value)
   }
 
   renderLabel(label) {
-    if (label && label.length > 0) {
-      return <label>{label}</label>
-    } else if (label) {
-      return <label>{this.props.name}</label>
+    if (label) {
+      return <label>{label.length > 0 ? label : this.props.name}</label>
     }
   }
 

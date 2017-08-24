@@ -1,18 +1,14 @@
 import { API, FETCH_SIGNATURE } from '../actions';
 
-export const fetchSignature = () => {
+export const fetchSignature = (file) => {
+	debugger
   return {
     type: API,
     payload: {
-      method: 'get',
+      method: 'post',
       url: '/uploads',
+      data: {fileName: file.name, fileType: file.type},
       next: FETCH_SIGNATURE
     }
   }
 }
-
-// export const resetSignature = () => {
-//   return {
-//     type: RESET_SIGNATURE
-//   }
-// }

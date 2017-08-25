@@ -16,7 +16,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   };
 
   if (action.payload.method == 'get') {
-    axios.get(BASE_URL + action.payload.url, {params: action.payload.data})
+    axios.get(BASE_URL + action.payload.url, {params: action.payload.query})
       .then(handleResponse)
       .catch(error =>
         handleError(error)

@@ -8,12 +8,10 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   }
 
   const handleResponse = (res) => {
-    debugger
     dispatch({ type: action.payload.next.SUCCESS, payload: res.data })
   };
 
   const handleError = (error) => {
-    debugger
     dispatch({ type: action.payload.next.ERROR, payload: error.response })
   };
 

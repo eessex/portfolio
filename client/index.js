@@ -10,7 +10,6 @@ require('./styles/index.scss');
 
 store.subscribe(() => {
   saveState({user: store.getState().user})
-  saveState({signature: store.getState().upload})
 });
 
 store.dispatch(fetchSettings())

@@ -1,4 +1,4 @@
-import { FETCH_SIGNATURE } from '../actions';
+import { FETCH_UPLOAD, RESET_UPLOAD } from '../actions';
 
 const initialState = {
   upload: {},
@@ -8,23 +8,26 @@ const initialState = {
 
 const uploadReducer = (state = initialState, action) => {
   switch (action.type) {
-    case FETCH_SIGNATURE.PENDING:
+    case FETCH_UPLOAD.PENDING:
       debugger
       return Object.assign({}, state, {
         loading: true
       });
 
-    case FETCH_SIGNATURE.SUCCESS:
+    case FETCH_UPLOAD.SUCCESS:
       debugger
       return Object.assign({}, state, {
         loading: false,
         upload: action.payload
       });
 
-    case FETCH_SIGNATURE.ERROR:
+    case FETCH_UPLOAD.ERROR:
       debugger
       return Object.assign({}, state, {
         loading: false
       });
+    case RESET_UPLOAD:
+      debugger
+      return initialState
   }
 }

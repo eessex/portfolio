@@ -8,11 +8,13 @@ const initialState = {
 const userReducer = (state = initialState, action) => {
   switch (action.type) {
     case CREATE_USER.PENDING:
+    debugger
       return Object.assign({}, state, {
         loading: false
       });
 
     case CREATE_USER.SUCCESS:
+      debugger
       return Object.assign({}, state, {
         loading: false,
         isAuthenticated: true,
@@ -20,6 +22,7 @@ const userReducer = (state = initialState, action) => {
       });
 
     case CREATE_USER.ERROR:
+      debugger
       return Object.assign({}, state, {
         loading: false,
         isAuthenticated: false,
@@ -32,6 +35,7 @@ const userReducer = (state = initialState, action) => {
       });
 
     case LOGIN_USER.SUCCESS:
+      debugger
       return Object.assign({}, state, {
         loading: false,
         isAuthenticated: true,

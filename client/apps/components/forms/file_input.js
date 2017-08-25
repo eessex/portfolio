@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { fetchSignature } from '../../../actions/upload'
+// import { fetchUpload } from '../../../actions/upload'
 
 
 class FileInput extends Component {
@@ -10,7 +10,7 @@ class FileInput extends Component {
   }
 
   onChange(e) {
-    window.store.dispatch(fetchSignature(e.target.files[0]))
+    // fetchUpload(e.target.files[0])
     debugger
     // this.props.onChange(this.props.name, e.target.value)
   }

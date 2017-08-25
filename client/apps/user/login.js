@@ -10,13 +10,14 @@ class Login extends Component {
 
   componentDidMount() {
     if (this.props.isAuthenticated) {
+      debugger
       window.location.replace('/')
     }
   }
 
   componentWillUnmount() {
     if (!this.props.isAuthenticated) {
-      this.props.actions.logoutUser()
+      // this.props.actions.logoutUser()
     }
   }
 
@@ -26,6 +27,7 @@ class Login extends Component {
   		password: this.refs.password.value
   	}
   	this.props.actions.loginUser(creds)
+    // console.log(signed);
   }
 
   renderError() {

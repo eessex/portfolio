@@ -29,13 +29,15 @@ class TextInput extends Component {
   }
 
   renderInput() {
-    const { name, value, required, textarea } = this.props
+    const { name, value, required, textarea, maxLength, size } = this.props
     if (textarea) {
       return (
         <textarea
           required={required || false}
           placeholder={this.renderPlaceholder(name)}
           name={name}
+          size={size}
+          maxLength={maxLength}
           defaultValue={value}
           onKeyUp={this.onKeyUp} />
       )
@@ -45,6 +47,8 @@ class TextInput extends Component {
           required={required || false}
           placeholder={this.renderPlaceholder(name)}
           name={name}
+          size={size}
+          maxLength={maxLength}
           defaultValue={value}
           onKeyUp={this.onKeyUp} />
       )

@@ -59,13 +59,64 @@
       z-index: 1;
     }
   }
-  &__venue input {
-    font-size: inherit;
-    font-family: 'helvetica neue', 'helvetica', 'arial', 'sans-serif';
-    border: none;
-    width: 100%;
-    &::placeholder {
-      text-transform: capitalize;
+  &__venue {
+    position: relative;
+  }
+  &__venue-input {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 1px solid;
+    z-index: 2;
+    padding: 10px;
+    top: 1.75em;
+    &::before {
+      content: '.';
+      color: transparent;
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 16px solid white;
+      position: absolute;
+      top: -16px;
+      left: 7px;
+      z-index: 2;
+    }
+    &::after {
+      content: '.';
+      color: transparent;
+      width: 0;
+      height: 0;
+      border-left: 17px solid transparent;
+      border-right: 17px solid transparent;
+      border-bottom: 17px solid black;
+      position: absolute;
+      top: -17.5px;
+      left: 5px;
+      z-index: 1;
+    }
+    .field-group {
+      display: flex;
+      div[class*='input--'] {
+        &:first-child {
+          flex: 1;
+          margin-right: 12px;
+        }
+        &:nth-child(2) {
+          margin-right: 5px;
+        }
+      }
+    }
+    input, select {
+      font-size: inherit;
+      font-family: 'helvetica neue', 'helvetica', 'arial', 'sans-serif';
+      width: 100%;
+      margin-bottom: 5px;
+      &::placeholder {
+        text-transform: capitalize;
+      }
     }
   }
   textarea[name='title'] {

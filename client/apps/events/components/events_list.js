@@ -38,7 +38,7 @@ class EventsList extends Component {
   }
 
   renderList(events) {
-    const listItems =  events.map( (event, i) =>
+    const listItems = events.map((event, i) =>
       <div className='events-list__item' key={i}>
         <Link to={"/events/" + event._id}>
           {this.getComponent(event)}

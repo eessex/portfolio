@@ -45,7 +45,7 @@ export default class EventDate extends Component {
   render() {
     const { event } = this.props;
     return (
-      <h4>
+      <h4 onClick={this.props.onClick}>
         {this.startDateFormat(event)}
         {this.endDateFormat(event)}
       </h4>

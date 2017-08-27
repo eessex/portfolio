@@ -2,14 +2,13 @@ import React, { Component } from 'react';
 import { extend } from 'underscore';
 const moment = require('moment');
 
-import CheckboxInput from '../../../components/forms/checkbox_input.js'
-import DateInput from '../../../components/forms/date_input.js'
 import EditNav from './nav.js'
 import EditDate from './components/edit_date.js'
 import EventDate from '../show/components/date.jsx'
 import EditVenue from './components/edit_venue.js'
 import EventVenue from '../show/components/venue.jsx'
-import EditLink from './components/edit_link.js'
+import EditLink from './components/link.jsx'
+import EditLinks from './components/links.jsx'
 import RichText from '../../../components/forms/rich_text'
 import TextInput from '../../../components/forms/text_input.js'
 import ValidationError from '../../../components/forms/validation_error.js'
@@ -30,7 +29,6 @@ class EventEdit extends Component {
     this.toggleEditLink = this.toggleEditLink.bind(this);
     this.onChangeLink = this.onChangeLink.bind(this);
     this.onCreateLink = this.onCreateLink.bind(this);
-    this.setEditLink = this.setEditLink.bind(this);
 
     this.state = {
       event: this.props.event,
@@ -45,9 +43,7 @@ class EventEdit extends Component {
         city: null,
         state: null,
         country: null},
-      link: { title: '', url: ''},
-      links: this.props.event.links ? this.props.event.links : [],
-      editLink: null,
+      link: { title: '', url: ''}
     };
   }
 
@@ -84,22 +80,16 @@ class EventEdit extends Component {
     this.onChange('venue', venue)
   }
 
-  onChangeLink(key, value, index) {
-    const links = this.state.links
-    const link = index || index === 0 ? links[index] : this.state.link
+  onChangeLink(key, value) {
+    const link = this.state.link
     const keys = key.split('-')
     link[keys[1]] = value
-    if (index) {
-      links[index] = link
-      this.onChange('links', links)
-    } else {
-      this.setState({ link })
-    }
+    this.setState({ link })
   }
 
   onCreateLink() {
     const link = this.state.link
-    const links = this.state.links
+    const links = this.state.event.links || []
     links.push(link)
     this.onChange('links', links)
     this.setState({ link: { title: '', url: ''}, editLink: false })
@@ -127,12 +117,7 @@ class EventEdit extends Component {
     this.setState({editVenue: !this.state.editVenue})
   }
   toggleEditLink() {
-    const editLink = this.state.editLink || (this.state.editLink === 0) ? false : 'new'
-    this.setState({editLink})
-  }
-  setEditLink(e) {
-    const index = parseInt(e.target.name.replace('edit-', ''))
-    this.setState({editLink: index})
+    this.setState({editLink: !this.state.editLink})
   }
 
   renderDateInputs(event) {
@@ -159,11 +144,11 @@ class EventEdit extends Component {
     }
   }
 
-  renderLinkInput(link, onSave, index) {
+  renderLinkInput(link, index) {
     return (
       <div className='event--edit__link-input'>
         <EditLink link={link} onChange={this.onChangeLink} index={index} />
-        <button className='save' onClick={onSave}>Save</button>
+        <button className='save' onClick={this.onCreateLink}>Save</button>
       </div>
     )
   }
@@ -178,31 +163,6 @@ class EventEdit extends Component {
     if (this.state.editLink) {
       return <div className='modal__bg' onClick={this.toggleEditLink}></div>
     }
-  }
-  renderLinkActions(link, index) {
-    if (this.state.editLink === index) {
-      return this.renderLinkInput(link, this.toggleEditLink, index)
-    } else {
-      return <button className='edit' name={'edit-' + index} onClick={this.setEditLink}>Edit</button>
-    }
-  }
-  renderSavedLinks(links) {
-    const listItems =  links.map( (link, index) => this.renderSavedLink(link, index) )
-    return (
-      <div className='event--edit__links'>
-        {listItems}
-      </div>
-    )
-  }
-
-  renderSavedLink(link, index) {
-    return (
-      <div className='event--edit__link' key={index}>
-        <a href={link.url}>{link.title || link.url}</a>
-        {this.renderLinkActions(link, index)}
-        {this.renderModal()}
-      </div>
-    )
   }
 
   render() {
@@ -233,7 +193,12 @@ class EventEdit extends Component {
               onChange={this.onChange} />
 
             <div className='event--edit__date'>
-              <EventDate event={event} onClick={this.toggleEditDate} />
+              <EventDate
+                event={event}
+                onClick={this.toggleEditDate}
+                hasEndDate={this.state.hasEndDate}
+                toggleEditDate={this.toggleEditDate}
+                editDates={this.state.editDates}/>
               {this.renderDateInputs(event)}
               {this.renderModal()}
             </div>
@@ -249,21 +214,26 @@ class EventEdit extends Component {
               {this.renderModal()}
             </div>
           </div>
+
           <div className='event--edit__description'>
             <RichText
               onChange={this.onChange}
               html={event.description}
               placeholder='Event description' />
           </div>
+
           <br/>
-          {this.renderSavedLinks(links)}
+
+          <EditLinks links={event.links || []} onChange={this.onChange} />
+
           <div className='event--edit__link'>
             <p
               className='event--edit__placeholder'
               onClick={this.toggleEditLink}>Add Link +</p>
-            {this.state.editLink === 'new' && this.renderLinkInput(link, this.onCreateLink)}
+            {this.state.editLink && this.renderLinkInput(link)}
             {this.renderModal()}
           </div>
+
           <p>Images coming soon</p>
         </section>
 

@@ -22,8 +22,7 @@ export default class EditDate extends Component {
     }
   }
 
-  render() {
-    const { event, hasEndDate } = this.props
+  renderDateInputs(event, hasEndDate) {
     const actionFlex = event.published ? 'space-between' : 'flex-end'
     return (
       <div className='edit-date'>
@@ -49,6 +48,15 @@ export default class EditDate extends Component {
               onChange={this.props.onChange} />
             </div>
         </div>
+      </div>
+    )
+  }
+
+  render() {
+    const { event, hasEndDate } = this.props
+    return (
+      <div className='edit-date'>
+        {this.renderDateInputs(event, hasEndDate)}
       </div>
     )
   }

@@ -1,25 +1,26 @@
-import React, { Component } from 'react';
-import TextInput from '../../../../components/forms/text_input.js';
+import React, { Component } from 'react'
+import TextInput from '../../../../components/forms/text_input.js'
 
 export default class EditLink extends Component {
   constructor(props) {
-    super(props);
+    super(props)
   }
 
   render() {
-  	const { link } = this.props
+  	const { link, index } = this.props
     return (
-      <div className='event--edit__link-edit'>
+      <div className='edit-link'>
         <TextInput
           name='link-title'
           value={link.title}
-          onChange={this.props.onChangeLink} />
+          index={index}
+          onChange={this.props.onChange} />
         <TextInput
           name='link-url'
           value={link.url}
-          onChange={this.props.onChangeLink} />
+          index={index}
+          onChange={this.props.onChange} />
       </div>
     )
   }
 }
-// {this.renderLinkSave(index || 'new-link')}

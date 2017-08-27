@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import {bindActionCreators} from 'redux';
-import * as Actions from '../../actions/event';
+import { connect } from 'react-redux'
+import {bindActionCreators} from 'redux'
+import * as Actions from '../../actions/event'
 import Edit from './components/edit'
 import Show from './components/show'
-require('./index.scss');
+require('./index.scss')
 
 class Event extends Component {
 
@@ -21,8 +21,8 @@ class Event extends Component {
   }
 
   render() {
-    const { isAuthenticated } = this.props.user;
-    const { event, error, loading, saving } = this.props.event;
+    const { isAuthenticated } = this.props.user
+    const { event, error, loading, saving } = this.props.event
     if (loading) {
       return (
         <div className='loading container'>

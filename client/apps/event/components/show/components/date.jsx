@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-const moment = require('moment');
+import React, { Component } from 'react'
+const moment = require('moment')
 
 export default class EventDate extends Component {
   constructor(props) {
-    super(props);
+    super(props)
   }
 
   endDateFormat(event) {
@@ -43,12 +43,12 @@ export default class EventDate extends Component {
   }
 
   render() {
-    const { event } = this.props;
+    const { event } = this.props
     return (
       <h4 onClick={this.props.onClick}>
         {this.startDateFormat(event)}
         {this.endDateFormat(event)}
       </h4>
-    );
+    )
   }
 }

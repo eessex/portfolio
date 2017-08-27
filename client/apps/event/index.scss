@@ -1,4 +1,8 @@
 .event--show {
+  h1 {
+    margin: 0;
+    padding-bottom: .75em;
+  }
   &__header {
     margin-bottom: 2em;
   }
@@ -17,4 +21,8 @@
       flex: 4;
     }
   }
+}
+
+.event-venue {
+  padding: .5em 0;
 }

@@ -1,23 +1,10 @@
-import React, { Component } from 'react';
-const moment = require('moment');
+import React, { Component } from 'react'
+import EventDate from '../show/components/date.jsx'
+import EventVenue from '../show/components/venue.jsx'
 
-class EventShow extends Component {
+export default class EventShow extends Component {
   constructor(props) {
-    super(props);
-  }
-
-  renderVenue(event) {
-    var venue = ''
-    var address = ''
-    if (event.venue) {
-      if (event.venue.name.length) {
-        venue = 'at ' + event.venue.name
-      }
-      if (event.venue.address.length) {
-        address = ': ' + event.venue.address
-      }
-    }
-    return venue + address
+    super(props)
   }
 
   renderLinks(event) {
@@ -34,23 +21,19 @@ class EventShow extends Component {
   }
 
   render() {
-    const { event } = this.props;
+    const { event } = this.props
     return (
       <div className='event--show'>
         <div className='event--show__header'>
-          <h1 style={{margin: 0}}>{event.title}</h1>
-          <h4 className='event--show__date'>
-            {moment(event.start_date).format('MMM DD, YYYY - h:mma')}
-          </h4>
-          <p>{this.renderVenue(event)}</p>
+          <h1>{event.title}</h1>
+          <EventDate event={event} />
+          <EventVenue venue={event.venue} />
         </div>
         <div
           className='event--show__description'
           dangerouslySetInnerHTML={{__html: event.description}} />
         {this.renderLinks(event)}
       </div>
-    );
+    )
   }
 }
-
-export default EventShow;

@@ -2,17 +2,17 @@ import React, { Component } from 'react';
 import { extend } from 'underscore';
 const moment = require('moment');
 
-import CheckboxInput from '../../../components/forms/checkbox_input.js';
-import DateInput from '../../../components/forms/date_input.js';
-import EditNav from './nav.js';
-import EditDate from './components/edit_date.js';
-import EventDate from '../show/event_date.js';
-import EditVenue from './components/edit_venue.js';
-import EventVenue from '../show/event_venue.js';
-import EditLink from './components/edit_link.js';
-import RichText from '../../../components/forms/rich_text';
-import TextInput from '../../../components/forms/text_input.js';
-import ValidationError from '../../../components/forms/validation_error.js';
+import CheckboxInput from '../../../components/forms/checkbox_input.js'
+import DateInput from '../../../components/forms/date_input.js'
+import EditNav from './nav.js'
+import EditDate from './components/edit_date.js'
+import EventDate from '../show/components/date.jsx'
+import EditVenue from './components/edit_venue.js'
+import EventVenue from '../show/components/venue.jsx'
+import EditLink from './components/edit_link.js'
+import RichText from '../../../components/forms/rich_text'
+import TextInput from '../../../components/forms/text_input.js'
+import ValidationError from '../../../components/forms/validation_error.js'
 require('./index.scss');
 
 class EventEdit extends Component {
@@ -27,6 +27,7 @@ class EventEdit extends Component {
     this.toggleEndDate = this.toggleEndDate.bind(this);
     this.toggleEditDate = this.toggleEditDate.bind(this);
     this.toggleEditVenue = this.toggleEditVenue.bind(this);
+    this.toggleEditLink = this.toggleEditLink.bind(this);
     this.onChangeLink = this.onChangeLink.bind(this);
     this.onCreateLink = this.onCreateLink.bind(this);
     this.setEditLink = this.setEditLink.bind(this);
@@ -37,6 +38,7 @@ class EventEdit extends Component {
       needSave: false,
       editDates: false,
       editVenue: false,
+      editLink: false,
       venue: this.props.event.venue ? this.props.event.venue : {
         name: null,
         address: null,
@@ -84,7 +86,7 @@ class EventEdit extends Component {
 
   onChangeLink(key, value, index) {
     const links = this.state.links
-    const link = index ? links[index] : this.state.link
+    const link = index || index === 0 ? links[index] : this.state.link
     const keys = key.split('-')
     link[keys[1]] = value
     if (index) {
@@ -100,7 +102,7 @@ class EventEdit extends Component {
     const links = this.state.links
     links.push(link)
     this.onChange('links', links)
-    this.setState({ link: { title: '', url: ''} })
+    this.setState({ link: { title: '', url: ''}, editLink: false })
   }
 
   toggleEndDate() {
@@ -124,24 +126,13 @@ class EventEdit extends Component {
   toggleEditVenue() {
     this.setState({editVenue: !this.state.editVenue})
   }
+  toggleEditLink() {
+    const editLink = this.state.editLink || (this.state.editLink === 0) ? false : 'new'
+    this.setState({editLink})
+  }
   setEditLink(e) {
     const index = parseInt(e.target.name.replace('edit-', ''))
     this.setState({editLink: index})
-  }
-
-  renderEndDate(event) {
-    if (event.end_date || this.state.hasEndDate) {
-      return (
-        <div className='end-date'>
-          <DateInput
-            name='end_date'
-            label
-            value={event.end_date || null}
-            allDay={event.all_day || false}
-            onChange={this.onChange} />
-        </div>
-      )
-    }
   }
 
   renderDateInputs(event) {
@@ -168,6 +159,15 @@ class EventEdit extends Component {
     }
   }
 
+  renderLinkInput(link, onSave, index) {
+    return (
+      <div className='event--edit__link-input'>
+        <EditLink link={link} onChange={this.onChangeLink} index={index} />
+        <button className='save' onClick={onSave}>Save</button>
+      </div>
+    )
+  }
+
   renderModal() {
     if (this.state.editDates) {
       return <div className='modal__bg' onClick={this.toggleEditDate}></div>
@@ -175,16 +175,15 @@ class EventEdit extends Component {
     if (this.state.editVenue) {
       return <div className='modal__bg' onClick={this.toggleEditVenue}></div>
     }
-  }
-  renderLinkSave() {
-    return <button className='save' onClick={this.onCreateLink}>Save</button>
+    if (this.state.editLink) {
+      return <div className='modal__bg' onClick={this.toggleEditLink}></div>
+    }
   }
   renderLinkActions(link, index) {
-    if (this.state.editLink != index) {
-      return <button className='edit' name={'edit-' + index} onClick={this.setEditLink}>Edit</button>
+    if (this.state.editLink === index) {
+      return this.renderLinkInput(link, this.toggleEditLink, index)
     } else {
-      return <EditLink link={link} />
-      // return this.renderLinkEdit(link, index)
+      return <button className='edit' name={'edit-' + index} onClick={this.setEditLink}>Edit</button>
     }
   }
   renderSavedLinks(links) {
@@ -198,26 +197,10 @@ class EventEdit extends Component {
 
   renderSavedLink(link, index) {
     return (
-      <div className='event--edit__link-preview'>
+      <div className='event--edit__link' key={index}>
         <a href={link.url}>{link.title || link.url}</a>
         {this.renderLinkActions(link, index)}
-      </div>
-    )
-  }
-
-  renderLinkEdit(link, index) {
-    return (
-      <div className='event--edit__link-edit'>
-        <TextInput
-          name='link-title'
-          key={index || 'new-link'}
-          value={link ? link.title : this.state.link.title}
-          onChange={this.onChangeLink} />
-        <TextInput
-          name='link-url'
-          value={link ? link.url : this.state.link.url}
-          onChange={this.onChangeLink} />
-        {this.renderLinkSave(index || 'new-link')}
+        {this.renderModal()}
       </div>
     )
   }
@@ -273,13 +256,20 @@ class EventEdit extends Component {
               placeholder='Event description' />
           </div>
           <br/>
-          <p>Links coming soon</p>
+          {this.renderSavedLinks(links)}
+          <div className='event--edit__link'>
+            <p
+              className='event--edit__placeholder'
+              onClick={this.toggleEditLink}>Add Link +</p>
+            {this.state.editLink === 'new' && this.renderLinkInput(link, this.onCreateLink)}
+            {this.renderModal()}
+          </div>
           <p>Images coming soon</p>
         </section>
 
       </div>
-    );
+    )
   }
 }
-          // {this.renderSavedLinks(links)}
-export default EventEdit;
+
+export default EventEdit

@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
 export default class EventVenue extends Component {
   constructor(props) {
-    super(props);
+    super(props)
   }
   render() {
     const { venue } = this.props
@@ -18,6 +18,6 @@ export default class EventVenue extends Component {
           </h4>
         }
       </div>
-    );
+    )
   }
 }

@@ -8,7 +8,11 @@ class TextInput extends Component {
   }
 
   onKeyUp(e) {
-    this.props.onChange(this.props.name, e.target.value)
+    if (this.props.index || this.props.index === 0) {
+      this.props.onChange(this.props.name, e.target.value, this.props.index)
+    } else {
+      this.props.onChange(this.props.name, e.target.value)
+    }
   }
 
   renderLabel(label) {

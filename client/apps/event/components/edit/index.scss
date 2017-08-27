@@ -17,12 +17,6 @@
     }
   }
   &__date-input {
-    border: 1px solid;
-    position: absolute;
-    background: white;
-    z-index: 2;
-    padding: 10px;
-    top: 1.75em;
     .actions {
       margin-top: 10px;
       display: flex;
@@ -32,71 +26,9 @@
     .actions--toggle {
       display: flex;
     }
-    &::before {
-      content: '.';
-      color: transparent;
-      width: 0;
-      height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-bottom: 16px solid white;
-      position: absolute;
-      top: -16px;
-      left: 7px;
-      z-index: 2;
-    }
-    &::after {
-      content: '.';
-      color: transparent;
-      width: 0;
-      height: 0;
-      border-left: 17px solid transparent;
-      border-right: 17px solid transparent;
-      border-bottom: 17px solid black;
-      position: absolute;
-      top: -17.5px;
-      left: 5px;
-      z-index: 1;
-    }
-  }
-  &__venue {
-    position: relative;
   }
   &__venue-input {
-    position: absolute;
-    display: flex;
     flex-direction: column;
-    background: white;
-    border: 1px solid;
-    z-index: 2;
-    padding: 10px;
-    top: 1.75em;
-    &::before {
-      content: '.';
-      color: transparent;
-      width: 0;
-      height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-bottom: 16px solid white;
-      position: absolute;
-      top: -16px;
-      left: 7px;
-      z-index: 2;
-    }
-    &::after {
-      content: '.';
-      color: transparent;
-      width: 0;
-      height: 0;
-      border-left: 17px solid transparent;
-      border-right: 17px solid transparent;
-      border-bottom: 17px solid black;
-      position: absolute;
-      top: -17.5px;
-      left: 5px;
-      z-index: 1;
-    }
     .field-group {
       display: flex;
       div[class*='input--'] {
@@ -118,6 +50,9 @@
         text-transform: capitalize;
       }
     }
+  }
+  &__placeholder {
+    opacity: .5;
   }
   textarea[name='title'] {
     font-size: xx-large;
@@ -142,7 +77,46 @@
   .input--check {
     margin-left: 1em;
   }
-  .public-DraftStyleDefault-block {
-    margin: 10px 0;
+
+  &__link,
+  &__date,
+  &__venue {
+    position: relative;
+  }
+  &__link-input,
+  &__date-input,
+  &__venue-input {
+    border: 1px solid;
+    position: absolute;
+    background: white;
+    z-index: 2;
+    padding: 10px;
+    top: 1.75em;
+    &::before {
+      content: '.';
+      color: transparent;
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 16px solid white;
+      position: absolute;
+      top: -16px;
+      left: 7px;
+      z-index: 2;
+    }
+    &::after {
+      content: '.';
+      color: transparent;
+      width: 0;
+      height: 0;
+      border-left: 17px solid transparent;
+      border-right: 17px solid transparent;
+      border-bottom: 17px solid black;
+      position: absolute;
+      top: -17.5px;
+      left: 5px;
+      z-index: 1;
+    }
   }
 }

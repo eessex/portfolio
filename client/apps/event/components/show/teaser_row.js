@@ -10,6 +10,8 @@ export default class EventTeaserRow extends Component {
     var venue = ''
     if (event.venue && event.venue.name.length) {
       venue = '@ ' + event.venue.name
+    } else if (event.venue && event.venue.address.length && event.venue.city.length) {
+      venue = '@ ' + event.venue.address + ', ' + event.venue.city
     }
     return venue
   }

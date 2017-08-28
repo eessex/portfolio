@@ -10,7 +10,7 @@ export default class Nav extends Component {
     return (
       <nav className='header--menu' style={styles.menu}>
         <Link to="/events" onClick={this.props.onClick}>Events</Link>
-        <Link to="/pages" onClick={this.props.onClick}>Pages</Link>
+        <Link to="/about" onClick={this.props.onClick}>About</Link>
       </nav>
     );
   }

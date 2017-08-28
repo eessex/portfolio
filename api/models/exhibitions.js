@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var EventSchema = new Schema({
+var ExhibitionSchema = new Schema({
   title: String,
   venue: {
     name: { type: String, default: '' },
@@ -10,26 +10,24 @@ var EventSchema = new Schema({
     state: { type: String, default: '' },
     country: { type: String, default: '' },
   },
-  start_date: { type: Date, default: Date.now },
+  start_date: { type: Date, default: Date.now, required: true },
   end_date: { type: Date, default: Date.now },
-  all_day: { type: Boolean, default: false },
   description: String,
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
   published: { type: Boolean, default: false },
-  links: [
+  images: [
     {
       title: { type: String },
       url: { type: String },
     }
   ],
-  images: [
+  links: [
     {
       title: { type: String },
       url: { type: String },
-      aspect: { type: Number }
     }
   ]
 });
 
-module.exports = mongoose.model('Event', EventSchema);
+module.exports = mongoose.model('Exhibition', ExhibitionSchema);

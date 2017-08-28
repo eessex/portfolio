@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-const moment = require('moment');
+import React, { Component } from 'react'
+const moment = require('moment')
 
 class EventTeaser extends Component {
   constructor(props) {
-    super(props);
+    super(props)
   }
 
   renderPublished(event) {

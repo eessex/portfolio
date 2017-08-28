@@ -3,6 +3,22 @@ body {
   font-family: 'helvetica neue', 'helvetica', 'arial', 'sans-serif'
 }
 
+main {
+  margin-top: 3.25em;
+  padding-top: 1.5em;
+}
+
+nav.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  background: rgba(255,255,255,.85);
+}
+
 a {
   color: blue;
   text-decoration: underline;
@@ -11,9 +27,9 @@ a {
   }
 }
 
-p {
-  margin: 10px 0;
-  min-height: .5em;
+p, .public-DraftStyleDefault-block {
+  padding: .75em 0;
+  margin: 0;
 }
 
 h4 {
@@ -22,7 +38,7 @@ h4 {
 
 input:focus,
 textarea:focus {
-	outline: none;
+  outline: none;
 }
 input::placeholder,
 textarea::placeholder,
@@ -50,12 +66,12 @@ nav {
 }
 
 .modal__bg {
-	position: fixed;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-	z-index: 1
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1
 }
 
 .container {

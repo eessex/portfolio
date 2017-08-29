@@ -31,7 +31,7 @@ class Event extends Component {
       );
     } else if (isAuthenticated) {
       return (
-        <div className='event container'>
+        <div className='event'>
           <Edit
             event={event}
             error={error}
@@ -42,7 +42,7 @@ class Event extends Component {
       );
     } else {
       return (
-        <div className='event container'>
+        <div className='event'>
           <Show
             event={event}
             loading={loading} />

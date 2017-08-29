@@ -1,7 +1,10 @@
-.event--show {
-  h1 {
-    margin: 0;
-    padding-bottom: .75em;
+.event {
+  &__image {
+    max-width: 40vw;
+    margin: 0 1em;
+  }
+  &__body {
+    margin-bottom: 2em;
   }
   &__header {
     margin-bottom: 2em;
@@ -9,6 +12,18 @@
   &__description {
     margin-bottom: 2em;
   }
+}
+
+.event--show {
+  display: flex;
+  h1 {
+    margin: 0;
+    padding-bottom: .75em;
+  }
+}
+
+.event--edit__form {
+  display: flex;
 }
 
 .event-teaser {

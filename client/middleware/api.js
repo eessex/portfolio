@@ -15,7 +15,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
       window.location.pathname = ''
     }
     if (action.payload.next.SUCCESS === 'FETCH_UPLOAD_SUCCESS') {
-      action.payload.cb(action.payload.file, res.data)
+      action.payload.cb(action.payload.file, res.data, action.payload.onSuccess)
     }
   }
 

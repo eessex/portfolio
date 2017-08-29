@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import EditNav from './nav.js'
 import EditDate from './components/edit_date.js'
 import EventDate from '../show/components/date.jsx'
+import EventImage from '../show/components/image.jsx'
 import EditVenue from './components/edit_venue.js'
 import EventVenue from '../show/components/venue.jsx'
 import EditLink from './components/link.jsx'
@@ -11,23 +12,24 @@ import FileInput from '../../../components/forms/file_input.js'
 import RichText from '../../../components/forms/rich_text'
 import TextInput from '../../../components/forms/text_input.js'
 import ValidationError from '../../../components/forms/validation_error.js'
-require('./index.scss');
+require('./index.scss')
 
 class EventEdit extends Component {
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.onChange = this.onChange.bind(this);
-    this.onChangeVenue = this.onChangeVenue.bind(this);
-    this.saveEvent = this.saveEvent.bind(this);
-    this.maybeSaveEvent = this.maybeSaveEvent.bind(this);
-    this.deleteEvent = this.deleteEvent.bind(this);
-    this.toggleEndDate = this.toggleEndDate.bind(this);
-    this.toggleEditDate = this.toggleEditDate.bind(this);
-    this.toggleEditVenue = this.toggleEditVenue.bind(this);
-    this.toggleEditLink = this.toggleEditLink.bind(this);
-    this.onChangeLink = this.onChangeLink.bind(this);
-    this.onCreateLink = this.onCreateLink.bind(this);
+    this.onChange = this.onChange.bind(this)
+    this.onChangeVenue = this.onChangeVenue.bind(this)
+    this.saveEvent = this.saveEvent.bind(this)
+    this.maybeSaveEvent = this.maybeSaveEvent.bind(this)
+    this.deleteEvent = this.deleteEvent.bind(this)
+    this.toggleEndDate = this.toggleEndDate.bind(this)
+    this.toggleEditDate = this.toggleEditDate.bind(this)
+    this.toggleEditVenue = this.toggleEditVenue.bind(this)
+    this.toggleEditLink = this.toggleEditLink.bind(this)
+    this.onChangeLink = this.onChangeLink.bind(this)
+    this.onChangeImageUrl = this.onChangeImageUrl.bind(this)
+    this.onCreateLink = this.onCreateLink.bind(this)
 
     this.state = {
       event: this.props.event,
@@ -42,8 +44,9 @@ class EventEdit extends Component {
         city: null,
         state: null,
         country: null},
-      link: { title: '', url: ''}
-    };
+      link: { title: '', url: ''},
+      image: { title: '', url: '', aspect: null }
+    }
   }
 
   maybeSaveEvent(event, needSave=false) {
@@ -66,7 +69,7 @@ class EventEdit extends Component {
   }
 
   onChange(key, value) {
-    var newEvent = Object.assign({}, this.props.event, this.state.event);
+    var newEvent = Object.assign({}, this.props.event, this.state.event)
     newEvent[key] = value
     this.maybeSaveEvent(newEvent)
   }
@@ -77,6 +80,15 @@ class EventEdit extends Component {
     venue[keys[1]] = value
     this.setState({ venue })
     this.onChange('venue', venue)
+  }
+
+  onChangeImageUrl(key, value) {
+    const image = this.state.image
+    const keys = key.split('-')
+    image[keys[1]] = value
+    const images = this.state.event.images
+    images.push(image)
+    this.onChange('images', images)
   }
 
   onChangeLink(key, value) {
@@ -164,9 +176,15 @@ class EventEdit extends Component {
     }
   }
 
+  renderCoverImage(images) {
+    if (images[0]) {
+      return <EventImage image={images[0]} />
+    }
+  }
+
   render() {
-    const { saving, error, actions, upload } = this.props;
-    const { event, venue, needSave, link, links } = this.state;
+    const { saving, error, actions, upload } = this.props
+    const { event, venue, needSave, link, links } = this.state
 
     return (
       <div className='event--edit' style={ saving ? {background: 'cornsilk'} : null}>
@@ -183,66 +201,66 @@ class EventEdit extends Component {
         {this.renderError(error)}
 
         <section className='event--edit__form'>
-          <div className='event--show__header'>
-            <TextInput
-              name='title'
-              value={event.title || ''}
-              required={true}
-              textarea={true}
-              onChange={this.onChange} />
-
-            <div className='event--edit__image'>
+          <div className='event__image'>
+            {this.renderCoverImage(event.images || [])}
             <FileInput
-              name='image'
+              name='image-url'
               accept="image/jpeg, image/png"
               actions={actions}
               upload={upload}
-              onChange={this.onChange} />
+              onChange={this.onChangeImageUrl} />
+          </div>
+          <div className='event__body container'>
+            <div className='event--show__header'>
+              <TextInput
+                name='title'
+                value={event.title || ''}
+                required={true}
+                textarea={true}
+                onChange={this.onChange} />
+
+              <div className='event--edit__date'>
+                <EventDate
+                  event={event}
+                  onClick={this.toggleEditDate}
+                  hasEndDate={this.state.hasEndDate}
+                  toggleEditDate={this.toggleEditDate}
+                  editDates={this.state.editDates}/>
+                {this.renderDateInputs(event)}
+                {this.renderModal()}
+              </div>
+
+              <div className='event--edit__venue'>
+                {event.venue && (event.venue.name || event.venue.address) ?
+                  <EventVenue venue={venue} onClick={this.toggleEditVenue} />
+                  :
+                  <h4
+                    className='event--edit__placeholder'
+                    onClick={this.toggleEditVenue}>Add Venue +</h4>}
+                {this.renderVenueInputs(event)}
+                {this.renderModal()}
+              </div>
             </div>
 
-            <div className='event--edit__date'>
-              <EventDate
-                event={event}
-                onClick={this.toggleEditDate}
-                hasEndDate={this.state.hasEndDate}
-                toggleEditDate={this.toggleEditDate}
-                editDates={this.state.editDates}/>
-              {this.renderDateInputs(event)}
+            <div className='event--edit__description'>
+              <RichText
+                onChange={this.onChange}
+                html={event.description}
+                placeholder='Event description' />
+            </div>
+
+            <br/>
+
+            <EditLinks links={event.links || []} onChange={this.onChange} />
+
+            <div className='event--edit__link'>
+              <p
+                className='event--edit__placeholder'
+                onClick={this.toggleEditLink}>Add Link +</p>
+              {this.state.editLink && this.renderLinkInput(link)}
               {this.renderModal()}
             </div>
-
-            <div className='event--edit__venue'>
-              {event.venue && (event.venue.name || event.venue.address) ?
-                <EventVenue venue={venue} onClick={this.toggleEditVenue} />
-                :
-                <h4
-                  className='event--edit__placeholder'
-                  onClick={this.toggleEditVenue}>Add Venue +</h4>}
-              {this.renderVenueInputs(event)}
-              {this.renderModal()}
-            </div>
           </div>
-
-          <div className='event--edit__description'>
-            <RichText
-              onChange={this.onChange}
-              html={event.description}
-              placeholder='Event description' />
-          </div>
-
-          <br/>
-
-          <EditLinks links={event.links || []} onChange={this.onChange} />
-
-          <div className='event--edit__link'>
-            <p
-              className='event--edit__placeholder'
-              onClick={this.toggleEditLink}>Add Link +</p>
-            {this.state.editLink && this.renderLinkInput(link)}
-            {this.renderModal()}
-          </div>
-
-          <p>Images coming soon</p>
         </section>
 
       </div>

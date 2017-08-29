@@ -12,7 +12,7 @@ export const fetchEvent = (id) => {
   }
 }
 
-export const fetchUpload = (file, data, cb) => {
+export const fetchUpload = (file, data, cb, onSuccess) => {
   return {
     type: API,
     payload: {
@@ -21,7 +21,8 @@ export const fetchUpload = (file, data, cb) => {
       data: {fileName: file.name, fileType: file.type},
       next: FETCH_UPLOAD,
       cb: cb,
-      file: data
+      onSuccess: onSuccess,
+      file: file
     }
   }
 }

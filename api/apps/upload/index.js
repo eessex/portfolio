@@ -2,12 +2,13 @@ var express = require('express')
 var upload = express.Router()
 var aws = require('aws-sdk')
 var S3_BUCKET = process.env.S3_BUCKET
-aws.config.region = 'eu-west-1'
+aws.config.region = 'us-east-1'
 
 upload.route('/')
-  // all settings
   .post( (req, res) => {
-    var s3 = new aws.S3()
+    var s3 = new aws.S3({
+        signatureVersion: 'v4'
+    })
     var s3Params = {
       Bucket: S3_BUCKET,
       Key: req.body.fileName,

@@ -1,18 +1,28 @@
 import React, { Component } from 'react';
-// import { fetchUpload } from '../../../actions/upload'
+import axios from 'axios'
 
 
 class FileInput extends Component {
   constructor(props) {
     super(props);
-
-    this.onChange = this.onChange.bind(this);
+    this.fetchSignature = this.fetchSignature.bind(this)
   }
 
-  onChange(e) {
-    // fetchUpload(e.target.files[0])
+  uploadFile(data, signature) {
+    axios.put(signature.signedRequest, data)
+      .then(res =>
+        this.onChange(res)
+      ).catch(error =>
+        console.log(error)
+      )
+  }
+  onChange(file) {
     debugger
-    // this.props.onChange(this.props.name, e.target.value)
+    // this.props.onChange(key, value)
+  }
+
+  fetchSignature(e) {
+    this.props.actions.fetchUpload(e.target.files[0], e.target.value, this.uploadFile)
   }
 
   renderLabel(label) {
@@ -30,9 +40,10 @@ class FileInput extends Component {
       <div className={'input--check' + group}>
         {this.renderLabel(label)}
         <input
+          ref='file'
           type='file'
           accept={accept}
-          onChange={this.onChange} />
+          onChange={this.fetchSignature} />
       </div>
     );
   }

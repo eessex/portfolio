@@ -1,9 +1,10 @@
-import { FETCH_EVENT, UPDATE_EVENT, CREATE_EVENT, DELETE_EVENT, RESET_EVENT } from '../actions';
+import { FETCH_EVENT, UPDATE_EVENT, CREATE_EVENT, DELETE_EVENT, RESET_EVENT, FETCH_UPLOAD, RESET_UPLOAD } from '../actions';
 
 const initialState = {
   event: {},
   loading: false,
-  saving: false
+  saving: false,
+  upload: {}
 };
 
 const eventReducer = (state = initialState, action) => {
@@ -86,6 +87,24 @@ const eventReducer = (state = initialState, action) => {
         loading: false,
         event: state.event
       });
+
+    case FETCH_UPLOAD.PENDING:
+      return Object.assign({}, state, {
+        loading: true
+      });
+
+    case FETCH_UPLOAD.SUCCESS:
+      return Object.assign({}, state, {
+        loading: false,
+        upload: action.payload
+      });
+
+    case FETCH_UPLOAD.ERROR:
+      return Object.assign({}, state, {
+        loading: false
+      });
+    case RESET_UPLOAD:
+      return initialState
 
     default:
       return state;

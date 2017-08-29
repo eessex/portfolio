@@ -14,6 +14,9 @@ const apiMiddleware = ({ dispatch }) => next => action => {
     if (action.payload.next.SUCCESS === 'LOGIN_USER_SUCCESS') {
       window.location.pathname = ''
     }
+    if (action.payload.next.SUCCESS === 'FETCH_UPLOAD_SUCCESS') {
+      action.payload.cb(action.payload.file, res.data)
+    }
   }
 
   const handleError = (error) => {

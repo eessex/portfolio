@@ -10,7 +10,6 @@ class Login extends Component {
 
   componentDidMount() {
     if (this.props.isAuthenticated) {
-      debugger
       window.location.replace('/')
     }
   }

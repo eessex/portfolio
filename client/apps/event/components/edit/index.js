@@ -165,7 +165,7 @@ class EventEdit extends Component {
   }
 
   render() {
-    const { saving, error, actions } = this.props;
+    const { saving, error, actions, upload } = this.props;
     const { event, venue, needSave, link, links } = this.state;
 
     return (
@@ -196,6 +196,7 @@ class EventEdit extends Component {
               name='image'
               accept="image/jpeg, image/png"
               actions={actions}
+              upload={upload}
               onChange={this.onChange} />
             </div>
 

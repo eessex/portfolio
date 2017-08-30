@@ -14,6 +14,9 @@ const apiMiddleware = ({ dispatch }) => next => action => {
     if (action.payload.next.SUCCESS === 'LOGIN_USER_SUCCESS') {
       window.location.pathname = ''
     }
+    if (action.payload.next.SUCCESS === 'FETCH_UPLOAD_SUCCESS') {
+      action.payload.cb(action.payload.file, res.data, action.payload.onSuccess)
+    }
   }
 
   const handleError = (error) => {
@@ -34,7 +37,6 @@ const apiMiddleware = ({ dispatch }) => next => action => {
         handleError(error)
       )
   }
-
   if (action.payload.method == ('put')) {
     axios.put(BASE_URL + action.payload.url, action.payload.data)
       .then(handleResponse)
@@ -42,7 +44,6 @@ const apiMiddleware = ({ dispatch }) => next => action => {
         handleError(error)
       )
   }
-
   if (action.payload.method == ('delete')) {
     axios.delete(BASE_URL + action.payload.url, action.payload.data)
       .then(handleResponse)
@@ -50,9 +51,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
         handleError(error)
       )
   }
-
   dispatch({ type: action.payload.next.PENDING });
-
 };
 
 export default apiMiddleware;

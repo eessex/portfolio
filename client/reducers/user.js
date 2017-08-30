@@ -13,6 +13,7 @@ const userReducer = (state = initialState, action) => {
       });
 
     case CREATE_USER.SUCCESS:
+
       return Object.assign({}, state, {
         loading: false,
         isAuthenticated: true,
@@ -20,6 +21,7 @@ const userReducer = (state = initialState, action) => {
       });
 
     case CREATE_USER.ERROR:
+
       return Object.assign({}, state, {
         loading: false,
         isAuthenticated: false,
@@ -32,6 +34,7 @@ const userReducer = (state = initialState, action) => {
       });
 
     case LOGIN_USER.SUCCESS:
+
       return Object.assign({}, state, {
         loading: false,
         isAuthenticated: true,

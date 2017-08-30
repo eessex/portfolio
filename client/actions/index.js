@@ -21,6 +21,10 @@ export const CREATE_SETTINGS = asyncActionType('CREATE_SETTINGS');
 export const UPDATE_SETTINGS = asyncActionType('UPDATE_SETTINGS');
 export const RESET_SETTINGS = 'RESET_SETTINGS';
 
+// upload
+export const FETCH_UPLOAD = asyncActionType('FETCH_UPLOAD');
+export const RESET_UPLOAD = 'RESET_UPLOAD';
+
 // user
 export const CREATE_USER = asyncActionType('CREATE_USER');
 export const LOGIN_USER = asyncActionType('LOGIN_USER');

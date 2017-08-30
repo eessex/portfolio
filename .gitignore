@@ -11,6 +11,7 @@
 .DS_Store
 yarn-error.log
 /dist
+rootkey.csv
 
 # Ignore node packages
 /node_modules

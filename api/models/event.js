@@ -22,6 +22,13 @@ var EventSchema = new Schema({
       title: { type: String },
       url: { type: String },
     }
+  ],
+  images: [
+    {
+      title: { type: String },
+      url: { type: String },
+      aspect: { type: Number }
+    }
   ]
 });
 

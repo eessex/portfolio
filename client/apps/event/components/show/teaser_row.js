@@ -1,23 +1,24 @@
-import React, { Component } from 'react';
-const moment = require('moment');
+import React, { Component } from 'react'
+const moment = require('moment')
 
 export default class EventTeaserRow extends Component {
   constructor(props) {
-    super(props);
+    super(props)
   }
 
   renderVenue(event) {
-    var venue = ''
+    let venue
+    const city = event.venue.city.length ? ', ' + event.venue.city : ''
     if (event.venue && event.venue.name.length) {
-      venue = '@ ' + event.venue.name
-    } else if (event.venue && event.venue.address.length && event.venue.city.length) {
-      venue = '@ ' + event.venue.address + ', ' + event.venue.city
+      venue = '@ ' + event.venue.name + city
+    } else if (event.venue && event.venue.address.length) {
+      venue = '@ ' + event.venue.address + city
     }
     return venue
   }
 
   render() {
-    const { event } = this.props;
+    const { event } = this.props
     return (
       <div className='event-teaser'>
         <div className='event-teaser__header' style={styles.header}>
@@ -26,7 +27,7 @@ export default class EventTeaserRow extends Component {
           <h4 style={styles.venue}>{this.renderVenue(event)}</h4>
         </div>
       </div>
-    );
+    )
   }
 }
 

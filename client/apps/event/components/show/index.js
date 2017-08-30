@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import EventDate from '../show/components/date.jsx'
+import EventImage from './components/image.jsx'
 import EventVenue from '../show/components/venue.jsx'
 
 export default class EventShow extends Component {
@@ -24,15 +25,20 @@ export default class EventShow extends Component {
     const { event } = this.props
     return (
       <div className='event--show'>
-        <div className='event--show__header'>
-          <h1>{event.title}</h1>
-          <EventDate event={event} />
-          <EventVenue venue={event.venue} />
+        {event.images && event.images[0] ?
+          <div className='event__image'><EventImage image={event.images[0]} /></div> : null
+        }
+        <div className='event__body container'>
+          <div className='event__header'>
+            <h1>{event.title}</h1>
+            <EventDate event={event} />
+            <EventVenue venue={event.venue} />
+          </div>
+          <div
+            className='event__description'
+            dangerouslySetInnerHTML={{__html: event.description}} />
+          {this.renderLinks(event)}
         </div>
-        <div
-          className='event--show__description'
-          dangerouslySetInnerHTML={{__html: event.description}} />
-        {this.renderLinks(event)}
       </div>
     )
   }

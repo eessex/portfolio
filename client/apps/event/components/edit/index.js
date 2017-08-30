@@ -18,19 +18,6 @@ class EventEdit extends Component {
   constructor(props) {
     super(props)
 
-    this.onChange = this.onChange.bind(this)
-    this.onChangeVenue = this.onChangeVenue.bind(this)
-    this.saveEvent = this.saveEvent.bind(this)
-    this.maybeSaveEvent = this.maybeSaveEvent.bind(this)
-    this.deleteEvent = this.deleteEvent.bind(this)
-    this.toggleEndDate = this.toggleEndDate.bind(this)
-    this.toggleEditDate = this.toggleEditDate.bind(this)
-    this.toggleEditVenue = this.toggleEditVenue.bind(this)
-    this.toggleEditLink = this.toggleEditLink.bind(this)
-    this.onChangeLink = this.onChangeLink.bind(this)
-    this.onChangeImageUrl = this.onChangeImageUrl.bind(this)
-    this.onCreateLink = this.onCreateLink.bind(this)
-
     this.state = {
       event: this.props.event,
       hasEndDate: this.props.event.end_date ? true : false,
@@ -49,7 +36,7 @@ class EventEdit extends Component {
     }
   }
 
-  maybeSaveEvent(event, needSave=false) {
+  maybeSaveEvent = (event, needSave=false) => {
     if (event.published) {
       needSave = true
     } else {
@@ -58,23 +45,23 @@ class EventEdit extends Component {
     this.setState({event, needSave})
   }
 
-  saveEvent(event) {
+  saveEvent = (event) => {
     this.props.actions.updateEvent(event)
     this.setState({event, needSave: false})
   }
 
-  deleteEvent() {
+  deleteEvent = () => {
     this.props.actions.deleteEvent(this.state.event)
     window.location.replace('/events/')
   }
 
-  onChange(key, value) {
+  onChange = (key, value) => {
     var newEvent = Object.assign({}, this.props.event, this.state.event)
     newEvent[key] = value
     this.maybeSaveEvent(newEvent)
   }
 
-  onChangeVenue(key, value) {
+  onChangeVenue = (key, value) => {
     const venue = this.state.venue
     const keys = key.split('-')
     venue[keys[1]] = value
@@ -82,7 +69,7 @@ class EventEdit extends Component {
     this.onChange('venue', venue)
   }
 
-  onChangeImageUrl(key, value) {
+  onChangeImageUrl = (key, value) => {
     const image = this.state.image
     const keys = key.split('-')
     image[keys[1]] = value
@@ -91,14 +78,21 @@ class EventEdit extends Component {
     this.onChange('images', images)
   }
 
-  onChangeLink(key, value) {
+  onRemoveImage = (e) => {
+    const images = this.state.event.images
+    images.splice(e.target.name, 1)
+    this.onChange('images', images)
+  }
+
+
+  onChangeLink = (key, value) => {
     const link = this.state.link
     const keys = key.split('-')
     link[keys[1]] = value
     this.setState({ link })
   }
 
-  onCreateLink() {
+  onCreateLink = () => {
     const link = this.state.link
     const links = this.state.event.links || []
     links.push(link)
@@ -106,28 +100,19 @@ class EventEdit extends Component {
     this.setState({ link: { title: '', url: ''}, editLink: false })
   }
 
-  toggleEndDate() {
+  toggleEndDate = () => {
     if (this.state.hasEndDate) {
       this.onChange('end_date', null)
     }
     this.setState({ hasEndDate: !this.state.hasEndDate })
   }
-
-  renderError() {
-    if (this.props.error) {
-      if (this.props.error.name == 'ValidationError') {
-        return <ValidationError errors={this.props.error.errors} />
-      }
-    }
-  }
-
-  toggleEditDate() {
+  toggleEditDate = () => {
     this.setState({editDates: !this.state.editDates})
   }
-  toggleEditVenue() {
+  toggleEditVenue = () => {
     this.setState({editVenue: !this.state.editVenue})
   }
-  toggleEditLink() {
+  toggleEditLink = () => {
     this.setState({editLink: !this.state.editLink})
   }
 
@@ -164,6 +149,14 @@ class EventEdit extends Component {
     )
   }
 
+  renderError() {
+    if (this.props.error) {
+      if (this.props.error.name == 'ValidationError') {
+        return <ValidationError errors={this.props.error.errors} />
+      }
+    }
+  }
+
   renderModal() {
     if (this.state.editDates) {
       return <div className='modal__bg' onClick={this.toggleEditDate}></div>
@@ -177,8 +170,22 @@ class EventEdit extends Component {
   }
 
   renderCoverImage(images) {
-    if (images[0]) {
-      return <EventImage image={images[0]} />
+    if (images[0] || this.state.image.url) {
+      return (
+        <div>
+          <EventImage image={images[0] || this.state.image} />
+          <button className='remove--image' onClick={this.onRemoveImage} name='0'>X</button>
+        </div>
+      )
+    } else {
+      return (
+        <FileInput
+          name='image-url'
+          accept="image/jpeg, image/png"
+          actions={this.props.actions}
+          upload={this.props.upload}
+          onChange={this.onChangeImageUrl} />
+      )
     }
   }
 
@@ -203,12 +210,6 @@ class EventEdit extends Component {
         <section className='event--edit__form'>
           <div className='event__image'>
             {this.renderCoverImage(event.images || [])}
-            <FileInput
-              name='image-url'
-              accept="image/jpeg, image/png"
-              actions={actions}
-              upload={upload}
-              onChange={this.onChangeImageUrl} />
           </div>
           <div className='event__body container'>
             <div className='event--show__header'>

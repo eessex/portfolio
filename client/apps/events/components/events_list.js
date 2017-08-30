@@ -50,7 +50,7 @@ class EventsList extends Component {
 
   renderLabel(events, label) {
     if (events.length) {
-      return <div className='events-list__header'>{label} Events</div>
+      return <h5 className='events-list__header'>{label} Events</h5>
     }
   }
 

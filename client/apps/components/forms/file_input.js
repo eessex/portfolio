@@ -46,7 +46,7 @@ class FileInput extends Component {
     const { name, value, label, accept } = this.props
     const group = label ? ' input-group' : ''
     return (
-      <div className={'input--check' + group}>
+      <div className={'input--file' + group}>
         {this.renderLabel(label)}
         <input
           ref='file'

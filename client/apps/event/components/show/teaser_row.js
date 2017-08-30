@@ -7,11 +7,13 @@ export default class EventTeaserRow extends Component {
   }
 
   renderVenue(event) {
-    var venue = ''
-    if (event.venue && event.venue.name.length) {
-      venue = '@ ' + event.venue.name
-    } else if (event.venue && event.venue.address.length && event.venue.city.length) {
-      venue = '@ ' + event.venue.address + ', ' + event.venue.city
+    let venue
+    const name = event.venue.name.length ? event.venue.name : ''
+    const city = event.venue.city.length ? ', ' + event.venue.city : ''
+    if (event.venue && name.length) {
+      venue = '@ ' + name + city
+    } else if (event.venue && event.venue.address.length) {
+      venue = '@ ' + event.venue.address + city
     }
     return venue
   }

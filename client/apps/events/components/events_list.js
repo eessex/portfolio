@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import moment from 'moment';
+import React, { Component } from 'react'
+import { Link } from 'react-router-dom'
+import moment from 'moment'
 import EventTeaserRow from '../../event/components/show/teaser_row.js'
 import EditTeaserRow from '../../event/components/edit/teaser_row.js'
 
 class EventsList extends Component {
   constructor(props) {
-    super(props);
+    super(props)
 
     this.state = {
       filter: null
@@ -44,7 +44,7 @@ class EventsList extends Component {
           {this.getComponent(event)}
         </Link>
       </div>
-    );
+    )
     return listItems
   }
 
@@ -84,8 +84,8 @@ class EventsList extends Component {
           </div>
         </div>
       </div>
-    );
+    )
   }
 }
 
-export default EventsList;
+export default EventsList

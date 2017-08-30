@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
-import TextInput from '../components/forms/text_input.js';
+import React, { Component } from 'react'
+import TextInput from '../components/forms/text_input.js'
 
 class Login extends Component {
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.onSubmit = this.onSubmit.bind(this);
+    this.onSubmit = this.onSubmit.bind(this)
   }
 
   componentDidMount() {
@@ -14,11 +14,11 @@ class Login extends Component {
     }
   }
 
-  componentWillUnmount() {
-    if (!this.props.isAuthenticated) {
-      // this.props.actions.logoutUser()
-    }
-  }
+  // componentWillUnmount() {
+  //   if (!this.props.isAuthenticated) {
+  //     // this.props.actions.logoutUser()
+  //   }
+  // }
 
   onSubmit(e) {
   	var creds = {
@@ -26,7 +26,6 @@ class Login extends Component {
   		password: this.refs.password.value
   	}
   	this.props.actions.loginUser(creds)
-    // console.log(signed);
   }
 
   renderError() {
@@ -53,7 +52,7 @@ class Login extends Component {
         <button onClick={this.onSubmit}>Submit</button>
         </form>
       </div>
-    );
+    )
   }
 }
-export default Login;
+export default Login

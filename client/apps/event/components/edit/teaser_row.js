@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-const moment = require('moment');
+import React, { Component } from 'react'
+const moment = require('moment')
 
 export default class EditTeaserRow extends Component {
   constructor(props) {
-    super(props);
+    super(props)
   }
 
   renderVenue(event) {
@@ -19,7 +19,7 @@ export default class EditTeaserRow extends Component {
   }
 
   render() {
-    const { event } = this.props;
+    const { event } = this.props
     return (
       <div className='event-teaser' style={{opacity: event.published ? 1 : .45}}>
         <div className='event-teaser__header' style={styles.header}>
@@ -28,7 +28,7 @@ export default class EditTeaserRow extends Component {
           <h4 style={styles.venue}>{this.renderVenue(event)}</h4>
         </div>
       </div>
-    );
+    )
   }
 }
 

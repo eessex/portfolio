@@ -58,7 +58,10 @@ class EventEdit extends Component {
   onChange = (key, value) => {
     var newEvent = Object.assign({}, this.props.event, this.state.event)
     newEvent[key] = value
-    this.maybeSaveEvent(newEvent)
+    if (key === 'images') {
+      this.props.actions.updateEvent(newEvent)
+    }
+      this.maybeSaveEvent(newEvent)
   }
 
   onChangeVenue = (key, value) => {
@@ -76,6 +79,7 @@ class EventEdit extends Component {
     const images = this.state.event.images
     images.push(image)
     this.onChange('images', images)
+    this.setState({image})
   }
 
   onRemoveImage = (e) => {
@@ -194,7 +198,7 @@ class EventEdit extends Component {
     const { event, venue, needSave, link, links } = this.state
 
     return (
-      <div className='event--edit' style={ saving ? {background: 'cornsilk'} : null}>
+      <div className='event--edit'>
 
         <EditNav
           event={event}

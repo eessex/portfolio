@@ -11,7 +11,8 @@
 .DS_Store
 yarn-error.log
 /dist
-rootkey.csv
+eve-rootkey.csv
+kayla-rootkey.csv
 
 # Ignore node packages
 /node_modules

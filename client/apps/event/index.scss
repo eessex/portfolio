@@ -2,6 +2,7 @@
   &__image {
     max-width: 40vw;
     margin: 0 1em;
+    min-width: 300px;
   }
   &__body {
     margin-bottom: 2em;
@@ -11,6 +12,18 @@
   }
   &__description {
     margin-bottom: 2em;
+  }
+  @media screen and (max-width: 800px) {
+    .event__image {
+      min-width: 100%;
+      max-width: calc(100% -2em);
+      img {
+        max-height: 77vh;
+        max-width: 100%;
+        width: auto;
+        height: auto;
+      }
+    }
   }
 }
 
@@ -24,6 +37,9 @@
 
 .event--edit__form {
   display: flex;
+  @media screen and (max-width: 800px) {
+    flex-direction: column;
+  }
 }
 
 .event-teaser {

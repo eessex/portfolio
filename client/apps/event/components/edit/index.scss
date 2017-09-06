@@ -127,4 +127,13 @@
       z-index: 1;
     }
   }
+  &__link {
+    button {
+      margin-left: 10px;
+      font-size: 75%;
+    }
+  }
+  &__link-input button {
+    margin: 0;
+  }
 }

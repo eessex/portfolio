@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-
 import EditNav from './nav.js'
 import EditDate from './components/edit_date.js'
 import EventDate from '../show/components/date.jsx'
@@ -173,6 +172,17 @@ class EventEdit extends Component {
     }
   }
 
+  renderImageUpload() {
+    return (
+      <FileInput
+        name='image-url'
+        accept="image/jpeg, image/png"
+        actions={this.props.actions}
+        upload={this.props.upload}
+        onChange={this.onChangeImageUrl} />
+    )
+  }
+
   renderCoverImage(images) {
     if (images[0] || this.state.image.url) {
       return (
@@ -182,14 +192,27 @@ class EventEdit extends Component {
         </div>
       )
     } else {
-      return (
-        <FileInput
-          name='image-url'
-          accept="image/jpeg, image/png"
-          actions={this.props.actions}
-          upload={this.props.upload}
-          onChange={this.onChangeImageUrl} />
+      return this.renderImageUpload()
+    }
+  }
+
+  renderAllImages(images) {
+    if (images.length > 1) {
+      const afterFirst = images.shift()
+      const listItems = images.map((image, i) =>
+        <div className='event-images__item' key={i}>
+          <EventImage image={images[i]} />
+          <button className='remove--image' onClick={this.onRemoveImage} name={i}>X</button>
+        </div>
       )
+      return (
+        <div className='event-images'>
+          <div className='event-images__list'>{listItems}</div>
+          {this.renderImageUpload()}
+        </div>
+      )
+    } else {
+      return <div>{this.renderImageUpload()}</div>
     }
   }
 
@@ -214,6 +237,7 @@ class EventEdit extends Component {
         <section className='event--edit__form'>
           <div className='event__image'>
             {this.renderCoverImage(event.images || [])}
+            {this.renderAllImages(event.images || [])}
           </div>
           <div className='event__body container'>
             <div className='event--show__header'>

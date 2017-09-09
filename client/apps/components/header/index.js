@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import FontAwesome from 'react-fontawesome'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as Actions from '../../../actions/user'
@@ -6,17 +7,18 @@ import { Link } from 'react-router-dom'
 import Nav from './nav'
 import AdminNav from './admin_nav'
 import IconMenu from '../icons/icon_menu'
+require('./index.scss')
 
 class Header extends Component {
   constructor(props) {
-    super(props);
+    super(props)
+
     this.state = {
       open: false
     }
-    this.toggleNav = this.toggleNav.bind(this);
   }
 
-  toggleNav() {
+  toggleNav = () => {
     this.setState({open: !this.state.open})
   }
 
@@ -32,69 +34,40 @@ class Header extends Component {
     if (this.state.open) {
       return (
         <div>
-          <div style={styles.menu}>
+          <div className='header__menu'>
             <Nav onClick={this.toggleNav} />
             {this.adminNav()}
           </div>
-          <div style={styles.modal} onClick={this.toggleNav}></div>
+          <div className='header__modal' onClick={this.toggleNav}></div>
         </div>
       )
     }
   }
 
   render() {
-    const { settings } = this.props.settings;
-    console.log(process.env)
+    const { settings } = this.props.settings
     const pageTitle = settings.title || "Home"
     return (
-      <nav className='header' style={styles.header}>
-        <h2 style={{margin: 0}}><Link to="/">{pageTitle}</Link></h2>
-        <div className='header--right' style={styles.headerRight}>
+      <nav className='header'>
+        <h2><Link to="/">{pageTitle}</Link></h2>
+        <div className='header__right'>
           <IconMenu onClick={this.toggleNav} open={this.state.open}/>
           {this.nav()}
         </div>
       </nav>
-    );
+    )
   }
 }
 
 const mapStateToProps = (state) => ({
   ...state
-});
+})
 
 const mapDispatchToProps = (dispatch) => ({
   actions: bindActionCreators(Actions, dispatch)
-});
+})
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Header);
-
-const styles = {
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    padding: '10px 20px'
-  },
-  headerRight: {
-    minWidth: 30,
-    minHeight: 30
-  },
-  menu: {
-    position: 'fixed',
-    right: 15,
-    top: 5,
-    border: '1px solid',
-    padding: '5px 45px 10px 12px',
-    background: 'white',
-    zIndex: 1
-  },
-  modal: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0
-  }
-}
+)(Header)

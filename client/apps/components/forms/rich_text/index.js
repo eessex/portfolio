@@ -151,7 +151,11 @@ class RichText extends Component {
 
   renderMenu() {
     if (this.state.showMenu) {
-      return <button onClick={this.promptForLink}>Link</button>
+      return (
+        <div>
+          <button onClick={this.promptForLink}>Link</button>
+        </div>
+      )
     }
   }
 

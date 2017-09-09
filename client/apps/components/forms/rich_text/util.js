@@ -1,31 +1,24 @@
-import React from 'react';
-import { ContentState,
-         Editor,
-         EditorState } from 'draft-js'
+import React from 'react'
 
-const findLinkEntities = (contentBlock, callback, contentState) => {
+export const findLinkEntities = (contentBlock, callback, contentState) => {
   contentBlock.findEntityRanges(
     (character) => {
-      const entityKey = character.getEntity();
+      const entityKey = character.getEntity()
       return (
         entityKey !== null &&
         contentState.getEntity(entityKey).getType() === 'LINK'
-      );
+      )
     },
     callback
-  );
+  )
 }
 
-const Link = (props) => {
-  const {url} = props.contentState.getEntity(props.entityKey).getData();
+export const Link = (props) => {
+  const { children, contentState, entityKey } = props
+  const { url, className } = contentState.getEntity(entityKey).getData()
   return (
     <a href={url}>
-      {props.children}
+      {children}
     </a>
-  );
-};
-
-module.exports = {
-  Link: Link,
-  findLinkEntities: findLinkEntities
+  )
 }

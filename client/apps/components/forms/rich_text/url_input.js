@@ -1,17 +1,17 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
-class UrlInput extends Component {
+export default class UrlInput extends Component {
   constructor(props) {
-    super(props);
-    this.onSubmit = this.onSubmit.bind(this);
+    super(props)
   }
 
-  onSubmit(e) {
+  onSubmit = (e) => {
     e.preventDefault()
   	this.props.confirmLink(this.refs.url.value)
   }
 
   render() {
+    const { name, url } = this.props
     return (
       <form
       	onSubmit={this.onSubmit}
@@ -19,11 +19,9 @@ class UrlInput extends Component {
         <input
           placeholder={name}
           ref='url'
-          defaultValue={this.props.url || ''} />
+          defaultValue={url || ''} />
         <button>Save</button>
       </form>
-    );
+    )
   }
 }
-
-export default UrlInput;

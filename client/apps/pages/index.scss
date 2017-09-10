@@ -1,6 +1,18 @@
 .about {
-  padding: 2em 20px;
+  padding: 1em 20px;
   &__description {
     max-width: 750px;
+  }
+  &__social {
+    font-size: 90%;
+    margin: 1em 0;
+    a {
+      margin-right: 1em;
+      text-decoration: none;
+      color: black;
+    }
+    .fa {
+      margin-right: 5px;
+    }
   }
 }

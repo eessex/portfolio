@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import FontAwesome from 'react-fontawesome'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as Actions from '../../../actions/user'
@@ -47,8 +46,9 @@ class Header extends Component {
   render() {
     const { settings } = this.props.settings
     const pageTitle = settings.title || "Home"
+    const openClass = this.state.open ? ' open' : ''
     return (
-      <nav className='header'>
+      <nav className={'header' + openClass}>
         <h2><Link to="/">{pageTitle}</Link></h2>
         <div className='header__right'>
           <IconMenu onClick={this.toggleNav} open={this.state.open}/>

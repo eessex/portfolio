@@ -3,6 +3,9 @@ var Schema = mongoose.Schema;
 
 var PageSchema = new Schema({
   title: String,
+  description: String,
+  slug: String,
+  images: Array, default: [],
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
   published: { type: Boolean, default: false }

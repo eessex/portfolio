@@ -8,6 +8,7 @@ import EventVenue from '../show/components/venue.jsx'
 import EditLink from './components/link.jsx'
 import EditLinks from './components/links.jsx'
 import FileInput from '../../../components/forms/file_input.js'
+import FontAwesome from 'react-fontawesome'
 import RichText from '../../../components/forms/rich_text'
 import TextInput from '../../../components/forms/text_input.js'
 import ValidationError from '../../../components/forms/validation_error.js'
@@ -60,7 +61,7 @@ class EventEdit extends Component {
     if (key === 'images') {
       this.props.actions.updateEvent(newEvent)
     }
-      this.maybeSaveEvent(newEvent)
+    this.maybeSaveEvent(newEvent)
   }
 
   onChangeVenue = (key, value) => {
@@ -75,10 +76,10 @@ class EventEdit extends Component {
     const image = this.state.image
     const keys = key.split('-')
     image[keys[1]] = value
-    const images = this.state.event.images
+    const event = Object.assign({}, this.state.event)
+    const images = event.images
     images.push(image)
     this.onChange('images', images)
-    this.setState({image})
   }
 
   onRemoveImage = (e) => {
@@ -172,39 +173,54 @@ class EventEdit extends Component {
     }
   }
 
-  renderImageUpload() {
-    return (
-      <FileInput
-        name='image-url'
-        accept="image/jpeg, image/png"
-        actions={this.props.actions}
-        upload={this.props.upload}
-        onChange={this.onChangeImageUrl} />
-    )
+  uploadProgress() {
+      return(
+        <FontAwesome
+          className='file-uploading'
+          name='circle-o-notch'
+          size='2x'
+          spin />
+      )
   }
 
-  renderCoverImage(images) {
-    if (images[0] || this.state.image.url) {
-      return (
-        <div>
-          <EventImage image={images[0] || this.state.image} />
-          <button className='remove--image' onClick={this.onRemoveImage} name='0'>X</button>
-        </div>
-      )
+  renderImageUpload() {
+    if (this.props.uploading) {
+      this.uploadProgress()
     } else {
-      return this.renderImageUpload()
+      return (
+        <FileInput
+          name='image-url'
+          accept="image/jpeg, image/png"
+          actions={this.props.actions}
+          upload={this.props.upload}
+          onChange={this.onChangeImageUrl} />
+      )
     }
   }
 
-  renderAllImages(images) {
-    if (images.length > 1) {
-      const afterFirst = images.shift()
-      const listItems = images.map((image, i) =>
-        <div className='event-images__item' key={i}>
-          <EventImage image={images[i]} />
-          <button className='remove--image' onClick={this.onRemoveImage} name={i}>X</button>
-        </div>
+  renderCoverImage(images) {
+    if (images[0]) {
+      return (
+        this.renderSingleImage(images[0], 0, this.onRemoveImage)
       )
+    }
+  }
+
+  renderSingleImage(image, i, onRemove) {
+    return (
+      <div className='event-images__item' key={i}>
+        <EventImage image={image} />
+        <button className='remove--image' onClick={onRemove} name={i}>X</button>
+      </div>
+    )
+  }
+
+  renderAllImages(images) {
+    if (images.length) {
+      const listItems = images.map((image, i) => {
+        if (i === 0) { return false }
+        return this.renderSingleImage(image, i, this.onRemoveImage)
+      })
       return (
         <div className='event-images'>
           <div className='event-images__list'>{listItems}</div>
@@ -217,7 +233,7 @@ class EventEdit extends Component {
   }
 
   render() {
-    const { saving, error, actions, upload } = this.props
+    const { saving, error, actions, uploading } = this.props
     const { event, venue, needSave, link, links } = this.state
 
     return (

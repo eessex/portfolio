@@ -3,6 +3,7 @@ import { FETCH_EVENT, UPDATE_EVENT, CREATE_EVENT, DELETE_EVENT, RESET_EVENT, FET
 const initialState = {
   event: {},
   loading: false,
+  uploading: false,
   saving: false,
   upload: {}
 };
@@ -85,23 +86,24 @@ const eventReducer = (state = initialState, action) => {
     case RESET_EVENT:
       return Object.assign({}, state, {
         loading: false,
+        uploading: false,
         event: state.event
       });
 
     case FETCH_UPLOAD.PENDING:
       return Object.assign({}, state, {
-        loading: true
+        uploading: true
       });
 
     case FETCH_UPLOAD.SUCCESS:
       return Object.assign({}, state, {
-        loading: false,
+        uploading: false,
         upload: action.payload
       });
 
     case FETCH_UPLOAD.ERROR:
       return Object.assign({}, state, {
-        loading: false
+        uploading: false
       });
     case RESET_UPLOAD:
       return initialState

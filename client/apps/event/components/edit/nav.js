@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
 class EventNav extends Component {
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.onPublish = this.onPublish.bind(this);
-    this.saveEvent = this.saveEvent.bind(this);
+    this.onPublish = this.onPublish.bind(this)
+    this.saveEvent = this.saveEvent.bind(this)
   }
 
   onPublish() {
@@ -35,7 +35,7 @@ class EventNav extends Component {
   }
 
   render() {
-    const { needSave, isSaving, event } = this.props;
+    const { needSave, isSaving, event } = this.props
     var need = needSave ? ' attention' : ''
     var saving = isSaving ? ' saving' : ''
     var save = null
@@ -60,11 +60,11 @@ class EventNav extends Component {
         </button>
         {this.renderPublished(event)}
       </nav>
-    );
+    )
   }
 }
 
-export default EventNav;
+export default EventNav
 
 const styles = {
   attention: {

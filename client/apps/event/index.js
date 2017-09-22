@@ -22,7 +22,7 @@ class Event extends Component {
 
   render() {
     const { isAuthenticated } = this.props.user
-    const { event, error, loading, saving } = this.props.event
+    const { event, error, loading, saving, uploading } = this.props.event
     if (loading) {
       return (
         <div className='loading container'>
@@ -36,6 +36,7 @@ class Event extends Component {
             event={event}
             error={error}
             loading={loading}
+            uploading={uploading}
             saving={saving}
             actions={this.props.actions} />
         </div>

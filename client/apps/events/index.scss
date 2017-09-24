@@ -8,6 +8,9 @@
   &__header {
     padding: 2em 20px 1em 20px;
     margin: 0;
+    &:first-child {
+      padding-top: 0;
+    }
   }
   &__list {
     margin-bottom: 1em;
@@ -23,6 +26,32 @@
     }
     &:last-child a {
       border-bottom: 1px solid;
+    }
+  }
+}
+
+.events-grid {
+  &__list {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 20px 20px 20px;
+  }
+  &__item {
+    flex: 1;
+    margin-right: 40px;
+    margin-bottom: 40px;
+    min-width: 300px;
+    a {
+      text-decoration: none;
+    }
+    h2 {
+      margin-bottom: .5em;
+      margin-top: 0;
+    }
+    .event-teaser {
+      &__header {
+        flex-direction: column;
+      }
     }
   }
 }

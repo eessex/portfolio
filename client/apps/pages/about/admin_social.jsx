@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 const _ = require('lodash')
 
-export default class Social extends Component {
+export default class AdminSocial extends Component {
   constructor(props) {
     super(props)
   }

@@ -90,7 +90,7 @@ class EventsList extends Component {
     return (
       <div className='events-list'>
         {this.renderMenu()}
-        { upcomingEvents.legnth &&
+        { upcomingEvents.length &&
           <div className='events-list--upcoming'>
             {this.renderLabel(upcomingEvents, 'Upcoming')}
             <div className='events-grid__list' style={{flexDirection: gridFlex}}>

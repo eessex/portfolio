@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import AboutSocial from './social.jsx'
+import Social from './social.jsx'
+import AdminSocial from './admin_social.jsx'
 import RichText from '../../components/forms/rich_text/index.js'
 
 class About extends Component {
@@ -40,7 +41,12 @@ class About extends Component {
           this.renderDescription(settings)
         }
         <div className='about__social'>
-          <AboutSocial social={settings.about.social} />
+          { isAuthenticated
+            ?
+            <AdminSocial social={settings.about.social} />
+            :
+            <Social social={settings.about.social} />
+          }
         </div>
       </div>
     )

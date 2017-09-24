@@ -11,6 +11,12 @@ nav.header {
   &.open {
     z-index: 1000;
   }
+  h4 {
+    margin-bottom: .25em;
+    &:nth-last-child {
+      margin-bottom: 0;
+    }
+  }
   a {
     color: black;
     text-decoration: none;

@@ -25,7 +25,7 @@ class Header extends Component {
     if (this.props.user.isAuthenticated) {
       return <AdminNav actions={this.props.actions} onClick={this.toggleNav} />
     } else {
-      return <Link to="/login" onClick={this.toggleNav}>Log In</Link>
+      return <h4><Link to="/login" onClick={this.toggleNav}>Log In</Link></h4>
     }
   }
 

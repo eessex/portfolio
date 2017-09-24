@@ -1,7 +1,10 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import moment from 'moment'
+const _ = require('lodash')
+
 import EventTeaserRow from '../../event/components/show/teaser_row.js'
+import EventTeaserGrid from '../../event/components/show/teaser_grid.js'
 import EditTeaserRow from '../../event/components/edit/teaser_row.js'
 
 class EventsList extends Component {
@@ -48,6 +51,18 @@ class EventsList extends Component {
     return listItems
   }
 
+  renderGrid(events) {
+    const listItems = events.map((event, i) =>
+      <div className='events-grid__item' key={i}>
+        <Link to={"/events/" + event._id}>
+          <EventTeaserGrid event={event} />
+        </Link>
+      </div>
+    )
+    return listItems
+
+  }
+
   renderLabel(events, label) {
     if (events.length) {
       return <h5 className='events-list__header'>{label} Events</h5>
@@ -68,13 +83,17 @@ class EventsList extends Component {
     const { events } = this.props
     const upcomingEvents = this.sortByDate(events).upcomingEvents
     const pastEvents = this.sortByDate(events).pastEvents
+
+    const hasImages = _.flatten(_.map(upcomingEvents, 'images'))
+    const gridFlex = hasImages.length ? 'row' : 'column'
+
     return (
       <div className='events-list'>
         {this.renderMenu()}
         <div className='events-list--upcoming'>
           {this.renderLabel(upcomingEvents, 'Upcoming')}
-          <div className='events-list__list'>
-            {this.renderList(upcomingEvents)}
+          <div className='events-grid__list' style={{flexDirection: gridFlex}}>
+            {this.renderGrid(upcomingEvents)}
           </div>
         </div>
         <div className='events-list--past'>

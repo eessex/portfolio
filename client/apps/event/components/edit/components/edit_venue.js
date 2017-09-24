@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
-import SelectInput from '../../../../components/forms/select_input.js';
-import TextInput from '../../../../components/forms/text_input.js';
+import React, { Component } from 'react'
+import SelectInput from '../../../../components/forms/select_input.js'
+import TextInput from '../../../../components/forms/text_input.js'
 
 export default class EditVenue extends Component {
   constructor(props) {
-    super(props);
+    super(props)
   }
   render() {
     const { event } = this.props

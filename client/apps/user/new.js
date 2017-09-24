@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
-import TextInput from '../components/forms/text_input.js';
+import React, { Component } from 'react'
+import TextInput from '../components/forms/text_input.js'
 
 class NewUser extends Component {
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.onSubmit = this.onSubmit.bind(this);
+    this.onSubmit = this.onSubmit.bind(this)
   }
 
   componentWillUnmount() {
@@ -24,7 +24,6 @@ class NewUser extends Component {
     } else {
       alert("Passwords do not match!")
     }
-
   }
 
   renderError() {
@@ -56,7 +55,7 @@ class NewUser extends Component {
         <button onClick={this.onSubmit}>Submit</button>
         </form>
       </div>
-    );
+    )
   }
 }
-export default NewUser;
+export default NewUser

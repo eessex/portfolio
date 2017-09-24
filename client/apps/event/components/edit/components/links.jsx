@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import EditLink from './link.jsx'
+import FontAwesome from 'react-fontawesome'
 
 export default class EditLinks extends Component {
   constructor(props) {
@@ -8,18 +9,9 @@ export default class EditLinks extends Component {
     this.state = {
       editLink: null
     }
-
-    this.setEditLink = this.setEditLink.bind(this)
-    this.toggleEditLink = this.toggleEditLink.bind(this)
-    this.onChangeLink = this.onChangeLink.bind(this)
   }
 
-  setEditLink(e) {
-    const editLink = parseInt(e.target.name.replace('edit-', ''))
-    this.setState({ editLink })
-  }
-
-  toggleEditLink() {
+  toggleEditLink = () => {
     const links = this.props.links
     const link = links[this.state.editLink]
     if (link.url) {
@@ -32,12 +24,18 @@ export default class EditLinks extends Component {
     }
   }
 
-  onChangeLink(key, value, index) {
+  onChangeLink = (key, value, index) => {
     const links = this.props.links
     const link = links[index]
     const keys = key.split('-')
     link[keys[1]] = value
     links[index] = link
+    this.props.onChange('links', links)
+  }
+
+  removeLink = (index) => {
+    const links = this.props.links
+    links.splice(index, 1)
     this.props.onChange('links', links)
   }
 
@@ -54,7 +52,20 @@ export default class EditLinks extends Component {
     if (this.state.editLink === index) {
       return this.renderLinkInput(link, this.toggleEditLink, index)
     } else {
-      return <button className='edit' name={'edit-' + index} onClick={this.setEditLink}>Edit</button>
+      return (
+        <div>
+          <button
+            className='link-edit'
+            onClick={() => this.setState({ editLink: index })}>
+            <FontAwesome name='pencil' />
+          </button>
+          <button
+            className='link-remove'
+            onClick={() => this.removeLink(index)}>
+            <FontAwesome name='times' />
+          </button>
+        </div>
+      )
     }
   }
 

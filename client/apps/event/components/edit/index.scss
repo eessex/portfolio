@@ -129,12 +129,26 @@
     }
   }
   &__link {
+    display: flex;
     button {
-      margin-left: 10px;
+      margin-left: 5px;
       font-size: 75%;
+      padding: 0px 2px;
+      opacity: .5;
+      border: none;
+      transition: all .3s;
+      &:hover {
+        opacity: 1;
+      }
+      &.link-remove:hover {
+        color: red;
+      }
     }
   }
   &__link-input button {
     margin: 0;
+  }
+  .rich-text .public-DraftEditorPlaceholder-root {
+    top: .75em;
   }
 }

@@ -19,7 +19,7 @@ window.store = store
 render(
       <Provider store={store}>
         <Router>
-          <Routes />
+          <Routes store={store} />
         </Router>
       </Provider>
       , document.getElementById('app')

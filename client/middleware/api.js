@@ -3,7 +3,7 @@ const BASE_URL = location.href.indexOf('localhost') > 0 ? 'http://localhost:3000
 
 const apiMiddleware = ({ dispatch }) => next => action => {
   if (action.type !== 'API') {
-    return next(action);
+    return next(action)
   }
 
   const handleResponse = (res) => {
@@ -51,7 +51,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
         handleError(error)
       )
   }
-  dispatch({ type: action.payload.next.PENDING });
-};
+  dispatch({ type: action.payload.next.PENDING })
+}
 
-export default apiMiddleware;
+export default apiMiddleware

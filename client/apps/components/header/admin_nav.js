@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import React, { Component } from 'react'
+import { Link } from 'react-router-dom'
 
 export default class AdminNav extends Component {
   constructor(props) {
-    super(props);
-    this.logOut = this.logOut.bind(this);
+    super(props)
+    this.logOut = this.logOut.bind(this)
   }
 
   logOut() {
@@ -16,9 +16,9 @@ export default class AdminNav extends Component {
   render() {
     return (
       <nav className='header--menu' style={styles.menu}>
-        <Link to="/" onClick={this.logOut}>Log Out</Link>
+        <h4><Link to="/" onClick={this.logOut}>Log Out</Link></h4>
       </nav>
-    );
+    )
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {bindActionCreators} from 'redux'
 import * as Actions from '../../actions/event'
@@ -28,7 +28,7 @@ class Event extends Component {
         <div className='loading container'>
           <div>Loading ...</div>
         </div>
-      );
+      )
     } else if (isAuthenticated) {
       return (
         <div className='event'>
@@ -40,7 +40,7 @@ class Event extends Component {
             saving={saving}
             actions={this.props.actions} />
         </div>
-      );
+      )
     } else {
       return (
         <div className='event'>
@@ -54,13 +54,13 @@ class Event extends Component {
 }
 const mapStateToProps = (state) => ({
   ...state
-});
+})
 
 const mapDispatchToProps = (dispatch) => ({
   actions: bindActionCreators(Actions, dispatch)
-});
+})
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Event);
+)(Event)

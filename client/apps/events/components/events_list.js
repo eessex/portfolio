@@ -85,17 +85,19 @@ class EventsList extends Component {
     const pastEvents = this.sortByDate(events).pastEvents
 
     const hasImages = _.flatten(_.map(upcomingEvents, 'images'))
-    const gridFlex = hasImages.length ? 'row' : 'column'
+    const gridFlex = hasImages.length ? 'row-reverse' : 'column-reverse'
 
     return (
       <div className='events-list'>
         {this.renderMenu()}
-        <div className='events-list--upcoming'>
-          {this.renderLabel(upcomingEvents, 'Upcoming')}
-          <div className='events-grid__list' style={{flexDirection: gridFlex}}>
-            {this.renderGrid(upcomingEvents)}
+        { upcomingEvents.legnth &&
+          <div className='events-list--upcoming'>
+            {this.renderLabel(upcomingEvents, 'Upcoming')}
+            <div className='events-grid__list' style={{flexDirection: gridFlex}}>
+              {this.renderGrid(upcomingEvents)}
+            </div>
           </div>
-        </div>
+        }
         <div className='events-list--past'>
           {this.renderLabel(upcomingEvents, 'Past')}
           <div className='events-list__list'>

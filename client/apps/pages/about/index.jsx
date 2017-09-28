@@ -43,7 +43,7 @@ class About extends Component {
         <div className='about__social'>
           { isAuthenticated
             ?
-            <AdminSocial social={settings.about.social} />
+            <AdminSocial social={settings.about.social} onChange={this.onChange} />
             :
             <Social social={settings.about.social} />
           }

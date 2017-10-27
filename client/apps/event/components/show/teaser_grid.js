@@ -10,9 +10,9 @@ export default class EventTeaserGrid extends Component {
     let venue
     const city = event.venue.city.length ? ', ' + event.venue.city : ''
     if (event.venue && event.venue.name.length) {
-      venue = '@ ' + event.venue.name + city
+      venue = event.venue.name + city
     } else if (event.venue && event.venue.address.length) {
-      venue = '@ ' + event.venue.address + city
+      venue = event.venue.address + city
     }
     return venue
   }

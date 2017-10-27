@@ -11,9 +11,9 @@ export default class EditTeaserRow extends Component {
     const name = event.venue.name.length ? event.venue.name : ''
     const city = event.venue.city.length ? ', ' + event.venue.city : ''
     if (event.venue && name.length) {
-      venue = '@ ' + name + city
+      venue = name + city
     } else if (event.venue && event.venue.address.length) {
-      venue = '@ ' + event.venue.address + city
+      venue = event.venue.address + city
     }
     return venue
   }

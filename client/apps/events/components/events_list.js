@@ -60,7 +60,6 @@ class EventsList extends Component {
       </div>
     )
     return listItems
-
   }
 
   renderLabel(events, label) {

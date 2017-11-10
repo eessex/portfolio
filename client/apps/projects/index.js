@@ -6,30 +6,21 @@ import * as Actions from '../../actions/projects'
 require('./index.scss')
 
 class Projects extends Component {
-  // static fetchData(store) {
-  //   debugger
-  //   return store.dispatch(fetchProjects())
-  // }
-
   constructor(props) {
     super(props)
 
-    this.state = {
-      query: {}
-    }
-  }
+    const isAdmin = props.user.isAuthenticated
+    const query = isAdmin ? {} : {published: true}
+    props.actions.fetchProjects(query)
 
-  componentWillMount() {
-    var query = this.state.query
-    if (!this.props.user.isAuthenticated) {
-      query = {published: true}
+    this.state = {
+      query,
+      isAdmin
     }
-    this.setState({query: query})
-    this.props.actions.fetchProjects(query)
   }
 
   render() {
-    const { isAuthenticated } = this.props.user
+    const { isAdmin } = this.state
     const { settings, loading } = this.props.settings
     const { list } = this.props.projects
     const { actions } = this.props

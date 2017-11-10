@@ -1,37 +1,22 @@
 import React, { Component } from 'react'
+import { PublishButton } from '../../../components/forms/publish_button.js' 
 
-class EventNav extends Component {
+export class Nav extends Component {
   constructor(props) {
     super(props)
 
     this.onPublish = this.onPublish.bind(this)
-    this.saveEvent = this.saveEvent.bind(this)
+    this.saveProject = this.saveProject.bind(this)
   }
 
-  onPublish() {
-    const newEvent = this.props.event
-    newEvent.published = !newEvent.published
-    this.props.saveEvent(newEvent)
+  onPublish = () => {
+    const newProject = this.props.event
+    newProject.published = !newProject.published
+    this.props.saveProject(newProject)
   }
 
-  saveEvent() {
-    this.props.saveEvent(this.props.event)
-  }
-
-  renderPublished(event) {
-    if (!event.published) {
-      return <button
-          className='publish'
-          onClick={this.onPublish}>
-          Publish
-        </button>
-    } else {
-      return <button
-          className='unpublish'
-          onClick={this.onPublish}>
-          Unpublish
-        </button>
-    }
+  saveProject() {
+    this.props.saveProject(this.props.event)
   }
 
   render() {
@@ -49,22 +34,20 @@ class EventNav extends Component {
       <nav>
         <button
           className='delete'
-          onClick={this.props.deleteEvent}>
+          onClick={this.props.deleteProject}>
           Delete
         </button>
         <button
-          onClick={this.saveEvent}
+          onClick={this.saveProject}
           className={need + saving}
           style={save}>
           Save
         </button>
-        {this.renderPublished(event)}
+        <PublishButton onClick={this.saveProject} published={project.published} />
       </nav>
     )
   }
 }
-
-export default EventNav
 
 const styles = {
   attention: {

@@ -20,7 +20,7 @@ const Routes = (props) => (
       <Route exact path='/events' component={Events}/>
       <Route path='/events/:id' component={Event}/>
       <Route exact path='/projects' component={Projects}/>
-      <Route exact path='/projects/:id' component={Projects}/>
+      <Route exact path='/projects/:id' component={Project}/>
       <Route exact path='/login' component={User}/>
       <Route exact path='/new/user' component={User}/>
       <Route exact path='/about' component={Pages}/>

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {bindActionCreators} from 'redux'
 import * as Actions from '../../actions/event'
-import Edit from './components/edit'
+import EventEdit from './components/edit'
 import Show from './components/show'
 require('./index.scss')
 
@@ -32,7 +32,7 @@ class Event extends Component {
     } else if (isAuthenticated) {
       return (
         <div className='event'>
-          <Edit
+          <EventEdit
             event={event}
             error={error}
             loading={loading}

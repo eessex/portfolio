@@ -1,9 +1,9 @@
-import * as Actions from '../../actions/project'
-import Edit from './components/edit'
-import Show from './components/show'
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import * as Actions from '../../actions/project'
+import { ProjectEdit } from './components/edit'
+import Show from './components/show'
 require('./index.scss')
 
 class Project extends Component {
@@ -22,7 +22,14 @@ class Project extends Component {
 
   render() {
     const { isAuthenticated } = this.props.user
-    const { project, error, loading, saving, uploading } = this.props.project
+    const {
+      project,
+      error,
+      loading,
+      saving,
+      uploading
+    } = this.props.project
+
     if (loading) {
       return (
         <div className='loading container'>
@@ -32,12 +39,12 @@ class Project extends Component {
     } else if (isAuthenticated) {
       return (
         <div className='project'>
-          <Edit
+          <ProjectEdit
             project={project}
             error={error}
             loading={loading}
             uploading={uploading}
-            saving={saving}
+            isSaving={saving}
             actions={this.props.actions} />
         </div>
       )

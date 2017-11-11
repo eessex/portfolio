@@ -42,16 +42,17 @@ export class PlainText extends React.Component {
   }
 
   render () {
+    const { className, name, placeholder } = this.props
     return (
       <div
-        className='plain-text'
-        name={this.props.name}
+        className={'plain-text ' + className}
+        name={name}
         onClick={this.focus}>
         <Editor
           ref='editor'
           editorState={this.state.editorState}
-          placeholder={this.props.placeholder || 'Start Typing...'}
-          handleReturn={this.handleReturn}
+          placeholder={placeholder || 'Start Typing...'}
+          handleReturn={() => 'handled'}
           onChange={this.onChange}
           spellcheck />
       </div>

@@ -1,10 +1,10 @@
 {
   "name": "portfolio",
-  "version": "0.0.1",
+  "version": "1.2.1",
   "engines": {
-    "node": "7.10.1",
+    "node": "8.4.1",
     "npm": "4.2.0",
-    "yarn": "0.27.x"
+    "yarn": "1.2.1"
   },
   "main": "server.js",
   "license": "MIT",

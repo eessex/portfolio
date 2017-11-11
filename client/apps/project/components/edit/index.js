@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { PublishButton } from '../../../components/forms/publish_button.js'
 import { SaveButton } from '../../../components/forms/buttons/save.js'
 import { PlainText } from '../../../components/forms/rich_text/plain_text.js'
+import RichText from '../../../components/forms/rich_text/index.js'
 require('./index.scss')
 
 export class ProjectEdit extends Component {
@@ -17,6 +18,7 @@ export class ProjectEdit extends Component {
   onChange = (key, value) => {
     const project = this.state.project
     project[key] = value
+    debugger
     this.setState({ project, isSaved: false })
     this.maybeSaveProject(project, key === 'published')
   }
@@ -37,19 +39,29 @@ export class ProjectEdit extends Component {
     const { updateProject } = this.props.actions
     return (
       <div className='ProjectEdit'>
-        <SaveButton
-          isSaved={isSaved}
-          isSaving={isSaving}
-          onClick={() => maybeSaveProject(project, true)}
-        />
-        <PublishButton
-          published={project.published}
-          onClick={() => this.onChange('published', !project.published)}
-        />
+
+        <nav>
+          <PublishButton
+            published={project.published}
+            onClick={() => this.onChange('published', !project.published)}
+          />
+          <SaveButton
+            isSaved={isSaved}
+            isSaving={isSaving}
+            onClick={() => this.maybeSaveProject(project, true)}
+          />
+        </nav>
+
         <PlainText
           content={project.title}
           placeholder='Project title'
+          className='h1'
           onChange={(value) => this.onChange('title', value)}
+        />
+        <RichText
+          html={project.description}
+          placeholder='Description'
+          onChange={(value) => this.onChange('description', value)}
         />
       </div>
     )

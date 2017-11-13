@@ -2,9 +2,8 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as Actions from '../../actions/project'
-import { ProjectEdit } from './components/edit'
-import Show from './components/show'
-require('./index.scss')
+import { ProjectEdit } from './components/edit/index.jsx'
+import Show from './components/show/index.jsx'
 
 class Project extends Component {
 

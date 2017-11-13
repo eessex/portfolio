@@ -1,0 +1,39 @@
+.ItemsList {
+  margin-bottom: 3em;
+
+  &__header h5 {
+    margin-top: 0;
+  }
+
+  // Table layout - start
+  &.table {
+    .ListItem {
+      .row {
+        border-top: 1px solid;
+        padding: .5em 0;
+      }
+      &:last-child {
+        .row {
+          border-bottom: 1px solid;
+        }
+      }
+    }
+  }
+  // Table layout - end
+}
+
+.ListItem {
+  &[data-published="false"] {
+    opacity: .65;
+  }
+  a {
+    text-decoration: none;
+  }
+  h1, h2, h3, h5 {
+    margin: 0.5em 0;
+  }
+}
+
+.ItemRow {
+  margin-bottom: 1em;
+}

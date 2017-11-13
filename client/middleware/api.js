@@ -11,6 +11,9 @@ const apiMiddleware = ({ dispatch }) => next => action => {
     if (action.payload.next.SUCCESS === 'CREATE_EVENT_SUCCESS') {
       window.location.pathname = '/events/' + res.data.event._id
     }
+    if (action.payload.next.SUCCESS === 'CREATE_PROJECT_SUCCESS') {
+      window.location.pathname = '/projects/' + res.data.project._id
+    }
     if (action.payload.next.SUCCESS === 'LOGIN_USER_SUCCESS') {
       window.location.pathname = ''
     }

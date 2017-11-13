@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import React from 'react'
 
 export const PublishButton = (props) => {
@@ -12,4 +13,9 @@ export const PublishButton = (props) => {
       {action}
     </button>
   )
+}
+
+PublishButton.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  published: PropTypes.bool
 }

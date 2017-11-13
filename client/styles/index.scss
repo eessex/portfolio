@@ -44,9 +44,29 @@ button {
   cursor: pointer;
 }
 
+.AdminNav {
+    position: fixed;
+    top: 10px;
+    right: 4.5em;
+    z-index: 100;
+}
+
 nav {
   button {
     margin-left: .5em;
+    width: 7em;
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+.row {
+  margin-left: 0;
+  margin-right: 0;
+  div[class^="col-"] {
+    padding-left: 20px;
+    padding-right: 20px;
   }
 }
 

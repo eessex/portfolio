@@ -1,16 +1,12 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema
 
 var ProjectSchema = new Schema({
-  title: String,
-  start_date: Date,
-  end_date: Date,
   active: Boolean,
-  embed_urls: [String],
+  created_at: { type: Date, default: Date.now },  
   description: String,
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now },
-  published: { type: Boolean, default: false },
+  embed_urls: [String],
+  end_date: Date,
   images: [
     {
       title: { type: String },
@@ -22,7 +18,11 @@ var ProjectSchema = new Schema({
       title: { type: String },
       url: { type: String },
     }
-  ]
-});
+  ],
+  published: { type: Boolean, default: false },  
+  start_date: Date,  
+  title: String,
+  updated_at: { type: Date, default: Date.now }
+})
 
-module.exports = mongoose.model('Project', ProjectSchema);
+module.exports = mongoose.model('Project', ProjectSchema)

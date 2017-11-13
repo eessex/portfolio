@@ -1,4 +1,4 @@
-import { FETCH_PROJECTS } from '../actions'
+import { FETCH_PROJECTS, CREATE_PROJECT } from '../actions'
 
 const initialState = {
   loading: false,
@@ -21,6 +21,26 @@ const projectsReducer = (state = initialState, action) => {
     case FETCH_PROJECTS.ERROR:
       return Object.assign({}, state, {
         loading: false
+      })
+
+    case CREATE_PROJECT.PENDING:
+      return Object.assign({}, state, {
+        loading: true,
+      })
+
+    case CREATE_PROJECT.SUCCESS:
+      state.list.push(action.payload.project)
+
+      return Object.assign({}, state, {
+        loading: false,
+        list: state.list,
+        error: null
+      })
+
+    case CREATE_PROJECT.ERROR:
+      return Object.assign({}, state, {
+        loading: false,
+        error: action.payload,
       })
 
     default:

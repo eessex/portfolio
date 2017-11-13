@@ -3,11 +3,9 @@ import { connect } from 'react-redux'
 import {bindActionCreators} from 'redux'
 import * as Actions from '../../actions/event'
 import EventEdit from './components/edit'
-import Show from './components/show'
-require('./index.scss')
+import { EventShow }  from './components/show/index.jsx'
 
 class Event extends Component {
-
   componentWillMount() {
     if (this.props.match.params.id == 'new') {
       this.props.actions.createEvent()
@@ -44,7 +42,7 @@ class Event extends Component {
     } else {
       return (
         <div className='event'>
-          <Show
+          <EventShow
             event={event}
             loading={loading} />
         </div>

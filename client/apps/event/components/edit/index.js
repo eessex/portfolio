@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import EditNav from './nav.js'
 import EditDate from './components/edit_date.js'
 import EventDate from '../show/components/date.jsx'
-import EventImage from '../show/components/image.jsx'
 import EditVenue from './components/edit_venue.js'
 import EventVenue from '../show/components/venue.jsx'
 import EditLink from './components/link.jsx'
@@ -12,6 +11,7 @@ import FontAwesome from 'react-fontawesome'
 import RichText from '../../../components/forms/rich_text'
 import TextInput from '../../../components/forms/text_input.js'
 import ValidationError from '../../../components/forms/validation_error.js'
+import { ImageShow } from '../../../components/images/image/image_show.jsx'
 require('./index.scss')
 
 class EventEdit extends Component {
@@ -209,7 +209,7 @@ class EventEdit extends Component {
   renderSingleImage(image, i, onRemove) {
     return (
       <div className='event-images__item' key={i}>
-        <EventImage image={image} />
+        <ImageShow url={image.url} caption={image.caption} title={image.title} />
         <button className='remove--image' onClick={onRemove} name={i}>X</button>
       </div>
     )

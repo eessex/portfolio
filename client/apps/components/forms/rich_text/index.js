@@ -78,19 +78,18 @@ class RichText extends Component {
   }
 
   onChange(editorState){
-    const name = this.props
+    const { name } = this.props
     const html = this.inputToHtml(editorState)
     this.setState({
       editorState,
       html
     })
-    debugger
     if (name) {
       this.props.onChange(name, html)
     } else {
       this.props.onChange(html)
     }
-    }
+  }
 
   handleKeyCommand(command) {
     const newState = RichUtils.handleKeyCommand(this.state.editorState, command);

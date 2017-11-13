@@ -1,7 +1,6 @@
 import {
   FETCH_PROJECT,
   UPDATE_PROJECT,
-  CREATE_PROJECT,
   DELETE_PROJECT,
   RESET_PROJECT,
   FETCH_UPLOAD,
@@ -48,26 +47,6 @@ const projectReducer = (state = initialState, action) => {
       })
 
     case UPDATE_PROJECT.ERROR:
-      return Object.assign({}, state, {
-        saving: false,
-        error: action.payload.data,
-        project: state.project
-      })
-
-    case CREATE_PROJECT.PENDING:
-      return Object.assign({}, state, {
-        saving: true,
-        project: state.project
-      })
-
-    case CREATE_PROJECT.SUCCESS:
-      return Object.assign({}, state, {
-        saving: false,
-        project: action.payload.project,
-        error: null
-      })
-
-    case CREATE_PROJECT.ERROR:
       return Object.assign({}, state, {
         saving: false,
         error: action.payload.data,

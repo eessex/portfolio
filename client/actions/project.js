@@ -1,12 +1,23 @@
 import {
   API,
-  FETCH_PROJECT,
-  UPDATE_PROJECT,
-  CREATE_PROJECT,
   DELETE_PROJECT,
+  FETCH_PROJECT,
+  FETCH_UPLOAD,  
   RESET_PROJECT,
-  FETCH_UPLOAD
+  UPDATE_PROJECT
 } from '../actions'
+
+export const deleteProject = (project) => {
+  return {
+    type: API,
+    payload: {
+      method: 'delete',
+      data: project,
+      url: '/projects/' + project._id,
+      next: DELETE_PROJECT
+    }
+  }
+}
 
 export const fetchProject = (id) => {
   return {
@@ -35,15 +46,9 @@ export const fetchUpload = (file, data, cb, onSuccess) => {
   }
 }
 
-export const createProject = () => {
+export const resetProject = () => {
   return {
-    type: API,
-    payload: {
-      method: 'post',
-      data: {},
-      url: '/projects',
-      next: CREATE_PROJECT
-    }
+    type: RESET_PROJECT
   }
 }
 
@@ -59,20 +64,3 @@ export const updateProject = (project) => {
   }
 }
 
-export const deleteProject = (project) => {
-  return {
-    type: API,
-    payload: {
-      method: 'delete',
-      data: project,
-      url: '/projects/' + project._id,
-      next: DELETE_PROJECT
-    }
-  }
-}
-
-export const resetProject = () => {
-  return {
-    type: RESET_PROJECT
-  }
-}

@@ -1,9 +1,9 @@
-import { ProjectList } from './components/project_list'
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as Actions from '../../actions/projects'
-require('./index.scss')
+import { ItemsList } from '../components/items_list/index.jsx'
+import { NewButton } from '../components/header/components/new_button.jsx'
 
 class Projects extends Component {
   constructor(props) {
@@ -11,7 +11,6 @@ class Projects extends Component {
 
     const isAdmin = props.user.isAuthenticated
     const query = isAdmin ? {} : {published: true}
-    props.actions.fetchProjects(query)
 
     this.state = {
       query,
@@ -19,21 +18,37 @@ class Projects extends Component {
     }
   }
 
+  componentWillMount() {
+    this.props.actions.fetchProjects(this.state.query)
+  }
+
   render() {
+    const { actions } = this.props    
     const { isAdmin } = this.state
-    const { settings, loading } = this.props.settings
+    const { loading } = this.props.settings
     const { list } = this.props.projects
-    const { actions } = this.props
+
     if (loading) {
       return (
         <div className='loading container'>
           <div>Loading ...</div>
         </div>
       )
+
     } else {
       return (
         <div className='projects'>
-          <ProjectList projects={list} />
+          {isAdmin &&
+            <NewButton
+              model='Project'
+              onCreate={actions.createProject}
+            />
+          }
+          <ItemsList
+            title
+            model='projects'
+            list={list}
+          />
         </div>
       )
     }

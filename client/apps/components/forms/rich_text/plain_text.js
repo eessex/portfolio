@@ -1,6 +1,10 @@
-// import PropTypes from 'prop-types'
+import PropTypes from 'prop-types'
 import React from 'react'
-import { ContentState, Editor, EditorState } from 'draft-js'
+import {
+  ContentState,
+  Editor,
+  EditorState
+} from 'draft-js'
 
 export class PlainText extends React.Component {
   constructor (props) {
@@ -43,6 +47,7 @@ export class PlainText extends React.Component {
 
   render () {
     const { className, name, placeholder } = this.props
+
     return (
       <div
         className={'plain-text ' + className}
@@ -60,9 +65,9 @@ export class PlainText extends React.Component {
   }
 }
 
-// PlainText.propTypes = {
-//   content: PropTypes.string,
-//   name: PropTypes.string,
-//   onChange: PropTypes.func.isRequired,
-//   placeholder: PropTypes.string
-// }
+PlainText.propTypes = {
+  content: PropTypes.string,
+  name: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  placeholder: PropTypes.string
+}

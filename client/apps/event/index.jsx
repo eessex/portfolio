@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {bindActionCreators} from 'redux'
 import * as Actions from '../../actions/event'
-import EventEdit from './components/edit'
+import { EventEdit } from './components/edit/index.jsx'
 import { EventShow }  from './components/show/index.jsx'
 
 class Event extends Component {

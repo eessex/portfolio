@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import EditNav from './nav.js'
+import { Col, Row } from 'react-flexbox-grid'
+import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import EditDate from './components/edit_date.js'
 import EventDate from '../show/components/date.jsx'
 import EditVenue from './components/edit_venue.js'
@@ -12,9 +13,10 @@ import RichText from '../../../components/forms/rich_text'
 import TextInput from '../../../components/forms/text_input.js'
 import ValidationError from '../../../components/forms/validation_error.js'
 import { ImageShow } from '../../../components/images/image/image_show.jsx'
+import { PlainText } from '../../../components/forms/rich_text/plain_text.js'
 require('./index.scss')
 
-class EventEdit extends Component {
+export class EventEdit extends Component {
   constructor(props) {
     super(props)
 
@@ -36,24 +38,23 @@ class EventEdit extends Component {
     }
   }
 
-  maybeSaveEvent = (event, needSave=false) => {
-    if (event.published) {
-      needSave = true
-    } else {
+  onChange = (key, value) => {
+    const event = this.state.event
+    event[key] = value
+    this.setState({ event, isSaved: false })
+    this.maybeSaveEvent(event, key === 'published')
+  }
+
+  maybeSaveEvent = (event, forceSave) => {
+    let isSaved = false
+
+    if (forceSave || !event.published) {
       this.props.actions.updateEvent(event)
+      isSaved = true
     }
-    this.setState({event, needSave})
+    this.setState({event, isSaved})
   }
 
-  saveEvent = (event) => {
-    this.props.actions.updateEvent(event)
-    this.setState({event, needSave: false})
-  }
-
-  deleteEvent = () => {
-    this.props.actions.deleteEvent(this.state.event)
-    window.location.replace('/events/')
-  }
 
   onChange = (key, value) => {
     var newEvent = Object.assign({}, this.props.event, this.state.event)
@@ -235,34 +236,35 @@ class EventEdit extends Component {
   render() {
     const { saving, error, actions, uploading } = this.props
     const { event, venue, needSave, link, links } = this.state
+    const { deleteEvent } = this.props.actions
 
     return (
       <div className='event--edit'>
-
-        <EditNav
-          event={event}
-          error={error}
+        <EditNav 
+          deleteitem={() => deleteEvent(event)}
+          isSaved={!needSave}
           isSaving={saving}
-          needSave={needSave}
-          saveEvent={this.saveEvent}
-          deleteEvent={this.deleteEvent}
-          onChange={this.onChange} />
+          item={event}
+          model='events'
+          onPublish={() => this.onChange('published', !event.published || false)}
+          saveItem={() => this.maybeSaveEvent(event, true)}
+        />
 
         {this.renderError(error)}
 
-        <section className='event--edit__form'>
-          <div className='event__image'>
+        <Row className='event--edit__form'>
+          <Col sm={12} md={6} className='event__image'>
             {this.renderCoverImage(event.images || [])}
             {this.renderAllImages(event.images || [])}
-          </div>
-          <div className='event__body container'>
+          </Col>
+          <Col sm={12} md={6} className='event__body container'>
             <div className='event--show__header'>
-              <TextInput
-                name='title'
-                value={event.title || ''}
-                required={true}
-                textarea={true}
-                onChange={this.onChange} />
+              <PlainText
+                content={event.title}
+                placeholder='Event title'
+                className='Event__title h1'
+                onChange={(value) => this.onChange('title', event)}
+              />
 
               <div className='event--edit__date'>
                 <EventDate
@@ -305,12 +307,10 @@ class EventEdit extends Component {
               {this.state.editLink && this.renderLinkInput(link)}
               {this.renderModal()}
             </div>
-          </div>
-        </section>
+          </Col>
+        </Row>
 
       </div>
     )
   }
 }
-
-export default EventEdit

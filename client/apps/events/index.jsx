@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 import * as Actions from '../../actions/events'
 import { ItemsList } from '../components/items_list/index.jsx'
 import { NewButton } from '../components/header/components/new_button.jsx'
-
 import { sortByDate } from '../../utils/index.js' 
 
 class Events extends Component {
@@ -25,10 +24,10 @@ class Events extends Component {
   }
 
   render() {
-    const { actions } = this.props    
+    const { actions, events, settings } = this.props    
     const { isAdmin } = this.state
-    const { loading } = this.props.settings
-    const { list } = this.props.events
+    const { loading } = settings
+    const { list } = events
 
     const upcoming = sortByDate(list, 'start_date').upcoming
     const past = sortByDate(list, 'start_date').past

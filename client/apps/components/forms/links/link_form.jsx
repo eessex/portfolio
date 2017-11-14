@@ -31,7 +31,7 @@ export class LinkForm extends Component {
     const { title, url } = this.state.link
 
     return (
-      <div className='LinkForm'>
+      <div className='LinkForm EditModal'>
         <input
           placeholder='Title'
           defaultValue={title}

@@ -15,8 +15,9 @@ export const ItemsList = (props) => {
   } = props
 
   const layout = props.layout || 'list'
-  const className = ' ItemsList--' + model + (layout ? ' ' + layout : '' )
   const listItems = children ? children : renderListItems(layout, list, model)
+  const layoutClass = layout ? ' ' + layout : ''
+  const className = ' ItemsList--' + model + layoutClass
   const renderedTitle = title.length ? title : capitalize(model)
 
   return(

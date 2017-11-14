@@ -5,7 +5,7 @@ import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
 import RichText from '../../../components/forms/rich_text/index.js'
 
 import { LinkEdit } from '../../../components/forms/links/link_edit.jsx'
-import { EditLinks } from '../../../components/forms/links/edit_links.jsx'
+import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 
 export class ProjectEdit extends Component {
   constructor (props) {
@@ -20,6 +20,7 @@ export class ProjectEdit extends Component {
   onChange = (key, value) => {
     const project = this.state.project
     project[key] = value
+
     this.setState({ project, isSaved: false })
     this.maybeSaveProject(project, key === 'published')
   }
@@ -40,7 +41,7 @@ export class ProjectEdit extends Component {
     const { updateProject, deleteProject } = this.props.actions
 
     const images = project.images || []
-    const links = [{url: 'url', text: 'text'}]
+    const links = project.links || []
 
     return (
       <div className='ProjectEdit Edit'>
@@ -74,10 +75,9 @@ export class ProjectEdit extends Component {
                 className='Project__description'
                 onChange={(value) => this.onChange('description', value)}
               />
-              <EditLinks
+              <EditLinkList
                 links={links}
-                onChange={(value) => console.log('save', value)}
-                onDelete={(value) => console.log('delete', value)}
+                onChange={(value) => this.onChange('links', value)}
               />
             </div>
           </Col>

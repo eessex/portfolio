@@ -12,7 +12,11 @@ export const EventShow = (props) => {
     <Row className='event--show'>
       {image &&
         <Col sm={12} lg={6}>
-          <ImageShow url={image.url} caption={image.caption} title={image.title} />
+          <ImageShow
+            url={image.url}
+            caption={image.caption}
+            title={image.title}
+          />
         </Col>
       }
       <Col sm={12} lg={6} className='event__body container'>

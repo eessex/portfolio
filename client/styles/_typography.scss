@@ -4,8 +4,13 @@ body {
   line-height: 1.2em;
 }
 
-h1, .h1 {
-  
+h1, .h1,
+.h1 {
+  font-size: 2em;
+  margin-top: 0.67em;
+  margin-bottom: 0.67em;
+  font-weight: bold;
+  line-height: 1.2em;
 }
 
 h2, .h2 {
@@ -13,6 +18,7 @@ h2, .h2 {
   margin-top: 0.83em;
   margin-bottom: 0.83em;
   font-weight: bold;
+  line-height: 1.2em;
 }
 
 h3, .h3 {
@@ -20,11 +26,13 @@ h3, .h3 {
   margin-top: 1em;
   margin-bottom: 1em;
   font-weight: bold;
+  line-height: 1.2em;
 }
 
 h4, .h4 {
   margin: 0;
   font-weight: bold;
+  line-height: 1.2em;
 }
 
 h5, .h5 {
@@ -32,4 +40,26 @@ h5, .h5 {
   margin-top: 1.67em;
   margin-bottom: 1.67em;
   font-weight: bold;
+  line-height: 1.2em;
+}
+
+p,
+.p .public-DraftStyleDefault-block,
+.p .public-DraftEditorPlaceholder-root {
+  padding: .75em 0;
+  margin: 0;
+  line-height: 1.2em;
+}
+
+.plain-text {
+  position: relative;
+  .public-DraftEditorPlaceholder-root {
+    position: absolute;
+  }
+}
+
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  // .public-DraftStyleDefault-block {
+  //   margin: 0;
+  // }
 }

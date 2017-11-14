@@ -173,8 +173,9 @@ class RichText extends Component {
   }
 
   render() {
+    const { className, placeholder } = this.props
     return (
-      <div className='rich-text'>
+      <div className={'rich-text ' + className}>
         {this.renderMenu()}
         {this.renderLinkInput()}
         <div className='rich-text--editor'
@@ -183,7 +184,7 @@ class RichText extends Component {
           onMouseUp={this.checkSelection}>
           <Editor
             ref='editor'
-            placeholder={this.props.placeholder}
+            placeholder={placeholder}
             editorState={this.state.editorState}
             handleKeyCommand={this.handleKeyCommand}
             onChange={this.onChange} />
@@ -193,4 +194,4 @@ class RichText extends Component {
   }
 }
 
-export default RichText;
+export default RichText

@@ -55,16 +55,6 @@ export class EventEdit extends Component {
     this.setState({event, isSaved})
   }
 
-
-  onChange = (key, value) => {
-    var newEvent = Object.assign({}, this.props.event, this.state.event)
-    newEvent[key] = value
-    if (key === 'images') {
-      this.props.actions.updateEvent(newEvent)
-    }
-    this.maybeSaveEvent(newEvent)
-  }
-
   onChangeVenue = (key, value) => {
     const venue = this.state.venue
     const keys = key.split('-')
@@ -293,7 +283,9 @@ export class EventEdit extends Component {
               <RichText
                 onChange={this.onChange}
                 html={event.description}
-                placeholder='Event description' />
+                className='p'
+                placeholder='Event description'
+              />
             </div>
 
             <br/>

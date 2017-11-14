@@ -2,8 +2,15 @@ import PropTypes from 'prop-types'
 import React from 'react'
 
 export const ItemGrid = (props) => {
-  const { date, description, image, title, venue } = props
+  const {
+    date,
+    description,
+    image,
+    title,
+    venue
+  } = props
   const hasImage = image && image.url.length
+  const titleClass = hasImage ? ' h3' : ' h1'
 
   return(
     <div className='Item ItemGrid'>
@@ -14,7 +21,9 @@ export const ItemGrid = (props) => {
           width='100%' />
       }
       <div className='Item__body'>
-        {renderTitle(title, hasImage)}
+        <div className={'Item__title' + titleClass}>
+          {title || 'Missing Title'}
+        </div>
         <h5 className='Item__date'>
           {date}
         </h5>
@@ -31,22 +40,6 @@ export const ItemGrid = (props) => {
       </div>
     </div>
   )
-}
-
-function renderTitle (title, large) {
-  if (large) {
-    return (
-      <h3 className='Item__title'>
-        {title || 'Missing Title'}
-      </h3>
-    )
-  } else {
-    return (
-      <h1 className='Item__title'>
-        {title || 'Missing Title'}
-      </h1>
-    )
-  }
 }
 
 ItemGrid.propTypes = {

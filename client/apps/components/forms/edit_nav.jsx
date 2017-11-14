@@ -26,7 +26,7 @@ export const EditNav = (props) => {
         <SaveButton
           isSaved={isSaved}
           isSaving={isSaving}
-          onClick={() => saveItem(project, true)}
+          onClick={() => saveItem(item, true)}
         />
       }
       {deleteitem &&

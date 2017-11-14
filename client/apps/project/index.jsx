@@ -6,13 +6,8 @@ import { ProjectEdit } from './components/edit/index.jsx'
 import Show from './components/show/index.jsx'
 
 class Project extends Component {
-
   componentWillMount() {
-    if (this.props.match.params.id == 'new') {
-      this.props.actions.createProject()
-    } else {
-      this.props.actions.fetchProject(this.props.match.params.id)
-    }
+    this.props.actions.fetchProject(this.props.match.params.id)
   }
 
   componentWillUnmount() {

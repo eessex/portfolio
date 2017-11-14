@@ -20,39 +20,48 @@ export class LinkEdit extends Component {
   }
 
   render () {
-    const { onDelete, index } = this.props
+    const {
+      activeSection,
+      index,
+      onChange,
+      onDelete,
+      toggleEdit
+    } = this.props
     const { title, url } = this.props.link
     const { isEditing } = this.state
 
     return (
       <div className='LinkEdit'>
         <LinkEditContainer className='LinkEdit__item'>
-          <a href={url} target='_blank'>
-            {title ? title : url}
-          </a>
+        {url
+          ? <a href={url} target='_blank'>
+              {title ? title : url}
+            </a>
+          : <span className='placeholder'>http://example.com</span>
+        }
 
           <div className='LinkEdit__actions'>
             <Button
               icon='pencil'
               borderless
-              onClick={this.toggleEdit}
+              onClick={() => toggleEdit ? toggleEdit(index) : this.toggleEdit()}
             />
             <Button
               icon='times'
               borderless
-              onClick={() => onChange({}, index)}
+              onClick={() => onDelete(index)}
             />
           </div>
         </LinkEditContainer>
 
-        {isEditing &&
+        {(isEditing || activeSection) &&
           <div>
-            <Modal onClick={this.toggleEdit} />
             <LinkForm
               title={title}
               url={url}
-              onChange={this.onChange}
+              onChange={onChange}
             />
+            <Modal onClick={() => toggleEdit ? toggleEdit(null) : this.toggleEdit()} />
           </div>
         }
       </div>

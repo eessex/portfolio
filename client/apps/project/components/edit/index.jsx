@@ -1,8 +1,11 @@
 import React, { Component } from 'react'
 import { Row, Col } from 'react-flexbox-grid'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
-import { PlainText } from '../../../components/forms/rich_text/plain_text.js'
+import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
 import RichText from '../../../components/forms/rich_text/index.js'
+
+import { LinkEdit } from '../../../components/forms/links/link_edit.jsx'
+import { EditLinks } from '../../../components/forms/links/edit_links.jsx'
 
 export class ProjectEdit extends Component {
   constructor (props) {
@@ -36,6 +39,9 @@ export class ProjectEdit extends Component {
     const { isSaving } = this.props
     const { updateProject, deleteProject } = this.props.actions
 
+    const images = project.images || []
+    const links = [{url: 'url', text: 'text'}]
+
     return (
       <div className='ProjectEdit Edit'>
         <EditNav 
@@ -49,6 +55,11 @@ export class ProjectEdit extends Component {
         />
 
         <Row className='Edit__body'>
+          {images[0] &&
+            <Col lg={4}>
+              image
+            </Col>
+          }
           <Col lg={7}>
             <div className='ProjectEdit__body'>
               <PlainText
@@ -62,6 +73,11 @@ export class ProjectEdit extends Component {
                 placeholder='Description'
                 className='Project__description'
                 onChange={(value) => this.onChange('description', value)}
+              />
+              <EditLinks
+                links={links}
+                onChange={(value) => console.log('save', value)}
+                onDelete={(value) => console.log('delete', value)}
               />
             </div>
           </Col>

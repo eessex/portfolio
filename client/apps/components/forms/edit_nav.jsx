@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { DeleteButton } from './buttons/delete.jsx' 
-import { PublishButton } from './buttons/publish.jsx' 
+import { Button } from './buttons/button.jsx' 
 import { SaveButton } from './buttons/save.jsx'
 
 export const EditNav = (props) => {
@@ -18,8 +17,8 @@ export const EditNav = (props) => {
   return (
     <nav className='AdminNav AdminNav--Edit'>
       {onPublish &&
-        <PublishButton
-          published={item.published}
+        <Button
+          text={item.published ? 'Unpublish' : 'Publish'}
           onClick={() => onPublish('published', !item.published)}
         />
       }
@@ -31,10 +30,9 @@ export const EditNav = (props) => {
         />
       }
       {deleteitem &&
-        <DeleteButton
-          className='DeleteButton'
+        <Button
           onClick={() => deleteitem(item)}
-          redirectUrl={`/${model}`}
+          text='Delete'
         />
       }
     </nav>

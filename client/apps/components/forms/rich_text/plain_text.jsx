@@ -30,6 +30,7 @@ export class PlainText extends React.Component {
   onChange = (editorState) => {
     this.setState({ editorState })
     const content = editorState.getCurrentContent().getPlainText()
+
     if (this.props.name) {
       this.props.onChange(this.props.name, content)
     } else {

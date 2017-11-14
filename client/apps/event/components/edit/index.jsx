@@ -13,7 +13,7 @@ import RichText from '../../../components/forms/rich_text'
 import TextInput from '../../../components/forms/text_input.js'
 import ValidationError from '../../../components/forms/validation_error.js'
 import { ImageShow } from '../../../components/images/image/image_show.jsx'
-import { PlainText } from '../../../components/forms/rich_text/plain_text.js'
+import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
 require('./index.scss')
 
 export class EventEdit extends Component {
@@ -175,13 +175,13 @@ export class EventEdit extends Component {
   }
 
   uploadProgress() {
-      return(
-        <FontAwesome
-          className='file-uploading'
-          name='circle-o-notch'
-          size='2x'
-          spin />
-      )
+    return(
+      <FontAwesome
+        className='file-uploading'
+        name='circle-o-notch'
+        size='2x'
+        spin />
+    )
   }
 
   renderImageUpload() {
@@ -260,10 +260,10 @@ export class EventEdit extends Component {
           <Col sm={12} md={6} className='event__body container'>
             <div className='event--show__header'>
               <PlainText
-                content={event.title}
+                content={event.title || ''}
                 placeholder='Event title'
                 className='Event__title h1'
-                onChange={(value) => this.onChange('title', event)}
+                onChange={(value) => this.onChange('title', value)}
               />
 
               <div className='event--edit__date'>

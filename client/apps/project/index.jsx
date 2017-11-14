@@ -35,6 +35,7 @@ class Project extends Component {
           <div>Loading ...</div>
         </div>
       )
+
     } else if (isAuthenticated) {
       return (
         <div className='project'>
@@ -47,6 +48,7 @@ class Project extends Component {
             actions={this.props.actions} />
         </div>
       )
+
     } else {
       return (
         <div className='project'>

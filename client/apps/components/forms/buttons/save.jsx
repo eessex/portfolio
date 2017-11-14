@@ -7,7 +7,7 @@ export const SaveButton = (props) => {
 
   return (
     <button
-      className='PublishButton'
+      className='SaveButton'
       data-saving={isSaving}
       data-saved={isSaved}
       onClick={onClick}

@@ -27,7 +27,6 @@ const eventsReducer = (state = initialState, action) => {
       })
 
     case CREATE_EVENT.PENDING:
-      debugger
       return Object.assign({}, state, {
         loading: true
       })
@@ -44,7 +43,7 @@ const eventsReducer = (state = initialState, action) => {
     case CREATE_EVENT.ERROR:
       return Object.assign({}, state, {
         loading: false,
-        error: action.payload.data
+        error: action.payload
       })
 
     default:

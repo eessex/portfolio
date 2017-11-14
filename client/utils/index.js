@@ -20,8 +20,8 @@ export function sortByDate(items, dateField) {
 
 export function formatEventDates (item, format) {
   const { end_date, start_date, all_day } = item
-  let formattedDate
   let formattedStart
+  let formattedEnd
 
   if (end_date) {
     const isUpcoming = dateIsUpcoming(end_date)
@@ -32,7 +32,7 @@ export function formatEventDates (item, format) {
       if (!all_day) {
         // Nov 1, 2017 - 8:00-10:00pm
         formattedEnd = formatEventDate(end_date, false, !isUpcoming, format)
-        startTime =  moment(start_date).format(`-h:mma`)
+        const startTime =  moment(start_date).format(`-h:mma`)
         return formattedEnd + startTime
       } else {
         // Nov 1, 2017

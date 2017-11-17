@@ -32,7 +32,7 @@ export class LinkEdit extends Component {
 
     return (
       <div className='LinkEdit'>
-        <LinkEditContainer className='LinkEdit__item'>
+        <LinkEditContainer className='LinkEdit__item EditModalContainer'>
         {url
           ? <a href={url} target='_blank'>
               {title ? title : url}
@@ -52,18 +52,17 @@ export class LinkEdit extends Component {
               onClick={() => onDelete(index)}
             />
           </div>
-        </LinkEditContainer>
-
-        {(isEditing || activeSection) &&
-          <div>
-            <LinkForm
-              title={title}
-              url={url}
-              onChange={onChange}
-            />
+          {(isEditing || activeSection) &&
+              <LinkForm
+                title={title}
+                url={url}
+                onChange={onChange}
+              />
+          }
+          {(isEditing || activeSection) &&
             <Modal onClick={() => toggleEdit ? toggleEdit(null) : this.toggleEdit()} />
-          </div>
-        }
+          }
+        </LinkEditContainer>
       </div>
     )
   }

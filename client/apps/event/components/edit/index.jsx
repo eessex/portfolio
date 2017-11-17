@@ -1,19 +1,19 @@
+import FontAwesome from 'react-fontawesome'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-flexbox-grid'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
+
 import EditDate from './components/edit_date.js'
 import EventDate from '../show/components/date.jsx'
 import EditVenue from './components/edit_venue.js'
 import EventVenue from '../show/components/venue.jsx'
-import EditLink from './components/link.jsx'
-import EditLinks from './components/links.jsx'
 import FileInput from '../../../components/forms/file_input.js'
-import FontAwesome from 'react-fontawesome'
 import RichText from '../../../components/forms/rich_text'
 import TextInput from '../../../components/forms/text_input.js'
 import ValidationError from '../../../components/forms/validation_error.js'
 import { ImageShow } from '../../../components/images/image/image_show.jsx'
 import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
+import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 require('./index.scss')
 
 export class EventEdit extends Component {
@@ -26,14 +26,12 @@ export class EventEdit extends Component {
       needSave: false,
       editDates: false,
       editVenue: false,
-      editLink: false,
       venue: this.props.event.venue ? this.props.event.venue : {
         name: null,
         address: null,
         city: null,
         state: null,
         country: null},
-      link: { title: '', url: ''},
       image: { title: '', url: '', aspect: null }
     }
   }
@@ -79,22 +77,6 @@ export class EventEdit extends Component {
     this.onChange('images', images)
   }
 
-
-  onChangeLink = (key, value) => {
-    const link = this.state.link
-    const keys = key.split('-')
-    link[keys[1]] = value
-    this.setState({ link })
-  }
-
-  onCreateLink = () => {
-    const link = this.state.link
-    const links = this.state.event.links || []
-    links.push(link)
-    this.onChange('links', links)
-    this.setState({ link: { title: '', url: ''}, editLink: false })
-  }
-
   toggleEndDate = () => {
     if (this.state.hasEndDate) {
       this.onChange('end_date', null)
@@ -106,9 +88,6 @@ export class EventEdit extends Component {
   }
   toggleEditVenue = () => {
     this.setState({editVenue: !this.state.editVenue})
-  }
-  toggleEditLink = () => {
-    this.setState({editLink: !this.state.editLink})
   }
 
   renderDateInputs(event) {
@@ -135,15 +114,6 @@ export class EventEdit extends Component {
     }
   }
 
-  renderLinkInput(link, index) {
-    return (
-      <div className='event--edit__link-input'>
-        <EditLink link={link} onChange={this.onChangeLink} index={index} />
-        <button className='save' onClick={this.onCreateLink}>Save</button>
-      </div>
-    )
-  }
-
   renderError() {
     if (this.props.error) {
       if (this.props.error.name == 'ValidationError') {
@@ -158,9 +128,6 @@ export class EventEdit extends Component {
     }
     if (this.state.editVenue) {
       return <div className='modal__bg' onClick={this.toggleEditVenue}></div>
-    }
-    if (this.state.editLink) {
-      return <div className='modal__bg' onClick={this.toggleEditLink}></div>
     }
   }
 
@@ -225,7 +192,7 @@ export class EventEdit extends Component {
 
   render() {
     const { saving, error, actions, uploading } = this.props
-    const { event, venue, needSave, link, links } = this.state
+    const { event, venue, needSave } = this.state
     const { deleteEvent } = this.props.actions
 
     return (
@@ -287,21 +254,14 @@ export class EventEdit extends Component {
                 placeholder='Event description'
               />
             </div>
-
-            <br/>
-
-            <EditLinks links={event.links || []} onChange={this.onChange} />
-
-            <div className='event--edit__link'>
-              <p
-                className='event--edit__placeholder'
-                onClick={this.toggleEditLink}>Add Link +</p>
-              {this.state.editLink && this.renderLinkInput(link)}
-              {this.renderModal()}
+            <div className='event--edit__links'>
+              <EditLinkList
+                links={event.links || []}
+                onChange={(value) => this.onChange('links', value)}
+              />
             </div>
           </Col>
         </Row>
-
       </div>
     )
   }

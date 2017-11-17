@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
 import { Row, Col } from 'react-flexbox-grid'
+import RichText from '../../../components/forms/rich_text/index.js'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
-import RichText from '../../../components/forms/rich_text/index.js'
-
-import { LinkEdit } from '../../../components/forms/links/link_edit.jsx'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 
 export class ProjectEdit extends Component {

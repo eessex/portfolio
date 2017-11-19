@@ -31,7 +31,6 @@ projects.route('/new')
   projects.route('/:project_id')
   // single project
   .get( (req, res) => {
-    console.log('in get project')
     Project.findById(req.params.project_id, (err, project) => {
       if (err)
         return res.status(400).send(err)

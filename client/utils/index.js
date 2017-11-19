@@ -32,7 +32,7 @@ export function formatEventDates (item, format) {
       if (!all_day) {
         // Nov 1, 2017 - 8:00-10:00pm
         formattedEnd = formatEventDate(end_date, false, !isUpcoming, format)
-        const startTime =  moment(start_date).format(`-h:mma`)
+        const startTime =  moment(start_date).format(` - h:mma`)
         return formattedEnd + startTime
       } else {
         // Nov 1, 2017
@@ -43,9 +43,9 @@ export function formatEventDates (item, format) {
       // Start and end date on different days
       const yearsDoMatch = yearsMatch(start_date, end_date)
       formattedStart = formatEventDate(start_date, true, !yearsDoMatch, format)
-      formattedEnd = formatEventDate(start_date, all_day, !yearsDoMatch, format)
+      formattedEnd = formatEventDate(end_date, all_day, !yearsDoMatch, format)
 
-      return formattedStart + formattedEnd
+      return formattedStart + ' - ' + formattedEnd
     }
   } else {
     // Start date only
@@ -59,7 +59,7 @@ export function formatEventDate (date, allDay, hasYear, format) {
   const getYear = hasYear ? ', YYYY' : ''
 
   if (allDay) {
-    return moment(date).format(`MMM DD${getYear}`)
+    return moment(date).format(`ddd, MMM DD${getYear}`)
   } else {
     return moment(date).format(`ddd, MMM DD${getYear} - h:mma`)
   }

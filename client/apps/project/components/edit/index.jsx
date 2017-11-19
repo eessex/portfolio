@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import { Row, Col } from 'react-flexbox-grid'
-import RichText from '../../../components/forms/rich_text/index.js'
-import { EditNav } from '../../../components/forms/edit_nav.jsx'
-import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
+import { EditImagesList } from '../../../components/forms/images/edit_images_list.jsx'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
+import { EditNav } from '../../../components/forms/edit_nav.jsx'
+import { FileInput } from '../../../components/forms/file_input/index.jsx'
+import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
+import { RichText } from '../../../components/forms/rich_text/index.jsx'
 
 export class ProjectEdit extends Component {
   constructor (props) {
@@ -35,8 +37,8 @@ export class ProjectEdit extends Component {
 
   render () {
     const { project, isSaved } = this.state
-    const { isSaving } = this.props
-    const { updateProject, deleteProject } = this.props.actions
+    const { actions, isSaving } = this.props
+    const { fetchUpload, updateProject, deleteProject } = actions
 
     const images = project.images || []
     const links = project.links || []
@@ -54,12 +56,23 @@ export class ProjectEdit extends Component {
         />
 
         <Row className='Edit__body'>
-          {images[0] &&
-            <Col lg={4}>
-              image
+          {images[0]
+          ?
+            <Col xs={12} lg={4}>
+              <EditImagesList
+                fetchUpload={fetchUpload}
+                images={project.images}
+                onChange={(value) => this.onChange('images', value)}
+              />
             </Col>
+          :
+            <FileInput
+              fetchUpload={fetchUpload}
+              onChange={(image) => this.onChange('images', [image])}
+            />
           }
-          <Col lg={7}>
+
+          <Col xs={12} lg={7}>
             <div className='ProjectEdit__body'>
               <PlainText
                 content={project.title}

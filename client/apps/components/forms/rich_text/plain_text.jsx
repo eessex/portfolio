@@ -1,19 +1,14 @@
 import PropTypes from 'prop-types'
-import React from 'react'
+import React, { Component } from 'react'
 import {
   ContentState,
   Editor,
   EditorState
 } from 'draft-js'
 
-export class PlainText extends React.Component {
-  constructor (props) {
-    super(props)
-
-    const editorState = this.setEditorState()
-    this.state = { editorState }
-  }
-
+export class PlainText extends Component {
+  state = { editorState: this.setEditorState() }
+ 
   setEditorState () {
     if (this.props.content) {
       return this.setStateWithContent()

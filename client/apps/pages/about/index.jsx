@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Social from './social.jsx'
 import AdminSocial from './admin_social.jsx'
-import RichText from '../../components/forms/rich_text/index.js'
+import { RichText } from '../../components/forms/rich_text/index.jsx'
 
 class About extends Component {
   constructor(props) {

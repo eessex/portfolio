@@ -7,13 +7,13 @@ import EditDate from './components/edit_date.js'
 import EventDate from '../show/components/date.jsx'
 import EditVenue from './components/edit_venue.js'
 import EventVenue from '../show/components/venue.jsx'
-import FileInput from '../../../components/forms/file_input.js'
-import RichText from '../../../components/forms/rich_text'
 import TextInput from '../../../components/forms/text_input.js'
 import ValidationError from '../../../components/forms/validation_error.js'
-import { ImageShow } from '../../../components/images/image/image_show.jsx'
-import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
+import { EditImagesList } from '../../../components/forms/images/edit_images_list.jsx'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
+import { FileInput } from '../../../components/forms/file_input/index.jsx'
+import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
+import { RichText } from '../../../components/forms/rich_text/index.jsx'
 require('./index.scss')
 
 export class EventEdit extends Component {
@@ -31,8 +31,8 @@ export class EventEdit extends Component {
         address: null,
         city: null,
         state: null,
-        country: null},
-      image: { title: '', url: '', aspect: null }
+        country: null
+      },
     }
   }
 
@@ -59,22 +59,6 @@ export class EventEdit extends Component {
     venue[keys[1]] = value
     this.setState({ venue })
     this.onChange('venue', venue)
-  }
-
-  onChangeImageUrl = (key, value) => {
-    const image = this.state.image
-    const keys = key.split('-')
-    image[keys[1]] = value
-    const event = Object.assign({}, this.state.event)
-    const images = event.images
-    images.push(image)
-    this.onChange('images', images)
-  }
-
-  onRemoveImage = (e) => {
-    const images = this.state.event.images
-    images.splice(e.target.name, 1)
-    this.onChange('images', images)
   }
 
   toggleEndDate = () => {
@@ -131,63 +115,20 @@ export class EventEdit extends Component {
     }
   }
 
-  uploadProgress() {
-    return(
-      <FontAwesome
-        className='file-uploading'
-        name='circle-o-notch'
-        size='2x'
-        spin />
-    )
-  }
-
-  renderImageUpload() {
-    if (this.props.uploading) {
-      this.uploadProgress()
-    } else {
-      return (
+  renderImages(images) {
+    const { fetchUpload } = this.props
+    return images[0]
+      ?
+        <EditImagesList
+          fetchUpload={fetchUpload}
+          images={images}
+          onChange={(value) => this.onChange('images', value)}
+        />
+      :
         <FileInput
-          name='image-url'
-          accept="image/jpeg, image/png"
-          actions={this.props.actions}
-          upload={this.props.upload}
-          onChange={this.onChangeImageUrl} />
-      )
-    }
-  }
-
-  renderCoverImage(images) {
-    if (images[0]) {
-      return (
-        this.renderSingleImage(images[0], 0, this.onRemoveImage)
-      )
-    }
-  }
-
-  renderSingleImage(image, i, onRemove) {
-    return (
-      <div className='event-images__item' key={i}>
-        <ImageShow url={image.url} caption={image.caption} title={image.title} />
-        <button className='remove--image' onClick={onRemove} name={i}>X</button>
-      </div>
-    )
-  }
-
-  renderAllImages(images) {
-    if (images.length) {
-      const listItems = images.map((image, i) => {
-        if (i === 0) { return false }
-        return this.renderSingleImage(image, i, this.onRemoveImage)
-      })
-      return (
-        <div className='event-images'>
-          <div className='event-images__list'>{listItems}</div>
-          {this.renderImageUpload()}
-        </div>
-      )
-    } else {
-      return <div>{this.renderImageUpload()}</div>
-    }
+          fetchUpload={fetchUpload}
+          onChange={(image) => this.onChange('images', [image])}
+        />
   }
 
   render() {
@@ -210,11 +151,10 @@ export class EventEdit extends Component {
         {this.renderError(error)}
 
         <Row className='event--edit__form'>
-          <Col sm={12} md={6} className='event__image'>
-            {this.renderCoverImage(event.images || [])}
-            {this.renderAllImages(event.images || [])}
+          <Col xs={12} lg={4} className='event__image'>
+            {this.renderImages(event.images || [])}
           </Col>
-          <Col sm={12} md={6} className='event__body container'>
+          <Col xs={12} lg={7} className='event__body container'>
             <div className='event--show__header'>
               <PlainText
                 content={event.title || ''}

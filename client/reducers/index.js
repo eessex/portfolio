@@ -5,7 +5,6 @@ import projectReducer from './project'
 import projectsReducer from './projects'
 import settingsReducer from './settings'
 import userReducer from './user'
-// import uploadReducer from './upload'
 
 const rootReducer = combineReducers({
   event: eventReducer,
@@ -13,7 +12,6 @@ const rootReducer = combineReducers({
   project: projectReducer,
   projects: projectsReducer,
   settings: settingsReducer,
-  // upload: uploadReducer,
   user: userReducer
 });
 

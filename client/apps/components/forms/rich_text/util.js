@@ -1,4 +1,6 @@
+import Immutable from 'immutable'
 import React from 'react'
+import Draft, { CompositeDecorator } from 'draft-js'
 
 export const findLinkEntities = (contentBlock, callback, contentState) => {
   contentBlock.findEntityRanges(
@@ -22,3 +24,17 @@ export const Link = (props) => {
     </a>
   )
 }
+
+export const blockRenderMap = () => {
+  // declare additional HTML elements available to the editor
+  return Immutable.Map({
+    'unstyled': {element: 'p'}
+  })
+}
+
+export const decorator = new CompositeDecorator([
+  {
+    strategy: findLinkEntities,
+    component: Link,
+  }
+])

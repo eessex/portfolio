@@ -6,28 +6,25 @@ import { Modal } from '../../layout/modal.jsx'
 import { LinkForm } from './link_form.jsx'
 
 export class LinkEdit extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
+  state = {
       isEditing: false
-    }
   }
 
   toggleEdit = () => {
-    const { isEditing } = this.state
-    this.setState({ isEditing: !isEditing })
+    const isEditing = !this.state.isEditing
+    this.setState({ isEditing })
   }
 
   render () {
     const {
       activeSection,
       index,
+      link,
       onChange,
       onDelete,
       toggleEdit
     } = this.props
-    const { title, url } = this.props.link
+    const { title, url } = link
     const { isEditing } = this.state
 
     return (

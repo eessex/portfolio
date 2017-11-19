@@ -23,10 +23,10 @@ class Projects extends Component {
   }
 
   render() {
-    const { actions } = this.props    
+    const { actions, projects, settings } = this.props
     const { isAdmin } = this.state
-    const { loading } = this.props.settings
-    const { list } = this.props.projects
+    const { loading } = settings
+    const { list } = projects
 
     if (loading) {
       return (

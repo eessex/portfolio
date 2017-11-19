@@ -6,6 +6,7 @@ import {
   RESET_EVENT,
   UPDATE_EVENT  
 } from '../actions'
+import { getUploadSignature } from './upload.js'
 
 export const fetchEvent = (id) => {
   return {
@@ -19,19 +20,8 @@ export const fetchEvent = (id) => {
   }
 }
 
-export const fetchUpload = (file, data, cb, onSuccess) => {
-  return {
-    type: API,
-    payload: {
-      method: 'post',
-      url: '/upload',
-      data: {fileName: file.name, fileType: file.type},
-      next: FETCH_UPLOAD,
-      cb: cb,
-      onSuccess: onSuccess,
-      file: file
-    }
-  }
+export const fetchUpload = (file, data, cb) => {
+  return getUploadSignature(file, data, cb)
 }
 
 export const updateEvent = (event) => {

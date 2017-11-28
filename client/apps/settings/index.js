@@ -1,11 +1,10 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import {bindActionCreators} from 'redux';
-import * as Actions from '../../actions/settings';
+import React, { Component } from 'react'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import * as Actions from '../../actions/settings'
 import SiteDescription from './components/site_description'
 
 class Settings extends Component {
-
   componentWillMount() {
     this.props.actions.fetchSettings()
   }
@@ -35,13 +34,13 @@ class Settings extends Component {
 
 const mapStateToProps = (state) => ({
   ...state
-});
+})
 
 const mapDispatchToProps = (dispatch) => ({
   actions: bindActionCreators(Actions, dispatch)
-});
+})
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Settings);
+)(Settings)

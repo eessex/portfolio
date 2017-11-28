@@ -1,4 +1,20 @@
-import { API, FETCH_EVENTS } from '../actions';
+import {
+  API,
+  CREATE_EVENT,
+  FETCH_EVENTS
+} from '../actions'
+
+export const createEvent = () => {
+  return {
+    type: API,
+    payload: {
+      method: 'post',
+      data: {},
+      url: '/events',
+      next: CREATE_EVENT
+    }
+  }
+}
 
 export const fetchEvents = (query) => {
   return {
@@ -11,4 +27,3 @@ export const fetchEvents = (query) => {
     }
   }
 }
-

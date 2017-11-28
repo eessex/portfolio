@@ -1,51 +1,54 @@
 import React, { Component } from 'react'
+import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import {bindActionCreators} from 'redux'
-import * as Actions from '../../actions/event'
-import Edit from './components/edit'
-import Show from './components/show'
-require('./index.scss')
+import * as Actions from '../../actions/project'
+import { ProjectEdit } from './components/edit/index.jsx'
+import Show from './components/show/index.jsx'
 
-class Event extends Component {
-
+class Project extends Component {
   componentWillMount() {
-    if (this.props.match.params.id == 'new') {
-      this.props.actions.createEvent()
-    } else {
-      this.props.actions.fetchEvent(this.props.match.params.id)
-    }
+    this.props.actions.fetchProject(this.props.match.params.id)
   }
 
   componentWillUnmount() {
-    this.props.actions.resetEvent()
+    this.props.actions.resetProject()
   }
 
   render() {
     const { isAuthenticated } = this.props.user
-    const { event, error, loading, saving, uploading } = this.props.event
+    const {
+      project,
+      error,
+      loading,
+      saving,
+      uploading
+    } = this.props.project
+
     if (loading) {
       return (
         <div className='loading container'>
           <div>Loading ...</div>
         </div>
       )
+
     } else if (isAuthenticated) {
       return (
-        <div className='event'>
-          <Edit
-            event={event}
+        <div className='project'>
+          <ProjectEdit
+            project={project}
             error={error}
             loading={loading}
             uploading={uploading}
-            saving={saving}
+            isSaving={saving}
             actions={this.props.actions} />
         </div>
       )
+
     } else {
       return (
-        <div className='event'>
+        <div className='project'>
           <Show
-            event={event}
+            project={project}
             loading={loading} />
         </div>
       )
@@ -63,4 +66,4 @@ const mapDispatchToProps = (dispatch) => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Event)
+)(Project)

@@ -4,8 +4,6 @@ import {bindActionCreators} from 'redux';
 import * as Actions from '../../actions/user';
 import Login from './login.js';
 import NewUser from './new.js';
-import Events from '../events';
-
 
 class User extends Component {
   getUserComponent() {

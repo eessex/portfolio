@@ -11,11 +11,14 @@ const apiMiddleware = ({ dispatch }) => next => action => {
     if (action.payload.next.SUCCESS === 'CREATE_EVENT_SUCCESS') {
       window.location.pathname = '/events/' + res.data.event._id
     }
+    if (action.payload.next.SUCCESS === 'CREATE_PROJECT_SUCCESS') {
+      window.location.pathname = '/projects/' + res.data.project._id
+    }
     if (action.payload.next.SUCCESS === 'LOGIN_USER_SUCCESS') {
       window.location.pathname = ''
     }
     if (action.payload.next.SUCCESS === 'FETCH_UPLOAD_SUCCESS') {
-      action.payload.cb(action.payload.file, res.data, action.payload.onSuccess)
+      action.payload.cb(action.payload.file, res.data)
     }
   }
 

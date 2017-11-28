@@ -3,8 +3,8 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as Actions from '../../../actions/user'
 import { Link } from 'react-router-dom'
-import Nav from './nav'
-import AdminNav from './admin_nav'
+import Nav from './components/nav.jsx'
+import AdminNav from './components/admin_nav.jsx'
 import IconMenu from '../icons/icon_menu'
 require('./index.scss')
 

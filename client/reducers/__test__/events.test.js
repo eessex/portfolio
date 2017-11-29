@@ -27,6 +27,7 @@ describe('events reducer', () => {
     	loading: false
     })
   })
+
   it('should handle CREATE_EVENT', () => {
     expect(
       eventsReducer([], {

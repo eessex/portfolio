@@ -36,7 +36,7 @@ const eventsReducer = (state = initialState, action) => {
 
       return Object.assign({}, state, {
         loading: false,
-        list: state.list,        
+        list: state.list,
         error: null
       })
 

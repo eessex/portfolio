@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "engines": {
     "node": "8.4.0",
-    "npm": "4.2.0",
     "yarn": "1.2.1"
   },
   "main": "server.js",
@@ -41,8 +40,6 @@
     "sass-loader": "^6.0.6",
     "style-loader": "^0.18.2",
     "styled-components": "^2.2.3",
-    "underscore.string": "^3.3.4",
-    "url-loader": "^0.5.9",
     "webpack": "^2.6.1"
   },
   "devDependencies": {

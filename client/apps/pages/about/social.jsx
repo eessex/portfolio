@@ -1,20 +1,16 @@
 import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
-const _ = require('lodash')
+import { capitalize } from 'lodash'
 
 export default class Social extends Component {
-  constructor(props) {
-    super(props)
-  }
-
   renderSocial = (social, service) => {
     if (social[service]) {
       return (
         <div>
-        <a target='_blank' href={'https://' + service + '.com/' + social[service]}>
-          <FontAwesome name={service} />
-          {_.capitalize(service)}
-        </a>
+          <a target='_blank' href={'https://' + service + '.com/' + social[service]}>
+            <FontAwesome name={service} />
+            {capitalize(service)}
+          </a>
         </div>
       )
     }

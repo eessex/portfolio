@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
-const _ = require('lodash')
+import { capitalize } from 'lodash'
 
 export default class AdminSocial extends Component {
   constructor(props) {
@@ -30,7 +30,7 @@ export default class AdminSocial extends Component {
         <div className='edit-social' onClick={() => this.toggleEditService(service)}>
           <a className={isPlaceholder}>
             <FontAwesome name={service} />
-            {_.capitalize(service)}
+            {capitalize(service)}
           </a>
           {renderEdit}
         </div>

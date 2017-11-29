@@ -32,10 +32,10 @@ const eventsReducer = (state = initialState, action) => {
       })
 
     case CREATE_EVENT.SUCCESS:
-    state.list.push(action.payload.event)
+      state.list.push(action.payload.event)
 
-    return Object.assign({}, state, {
-      loading: false,
+      return Object.assign({}, state, {
+        loading: false,
         list: state.list,
         error: null
       })

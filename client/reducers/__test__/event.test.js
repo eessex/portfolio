@@ -1,34 +1,5 @@
-import eventsReducer from '../reducers/events'
-import eventReducer from '../reducers/event'
-import * as types from '../actions'
-
-describe('events reducer', () => {
-  it('should return the initial state', () => {
-    expect(
-      eventsReducer(undefined, {})
-    ).toEqual({
-      list: [],
-      loading: false
-    })
-  })
-
-  it('should handle FETCH_EVENTS', () => {
-    expect(
-      eventsReducer([], {
-        type: types.FETCH_EVENTS.PENDING,
-      })
-    ).toEqual({loading: true})
-    expect(
-      eventsReducer([], {
-        type: types.FETCH_EVENTS.SUCCESS,
-        payload: [{id: '123'}]
-      })
-    ).toEqual({
-    	list: [{id: '123'}],
-    	loading: false
-    })
-  })
-})
+import eventReducer from '../event.js'
+import * as types from '../../actions'
 
 describe('event reducer', () => {
   it('should return the initial state', () => {
@@ -37,7 +8,9 @@ describe('event reducer', () => {
     ).toEqual({
       event: {},
       loading: false,
-      saving: false
+      saving: false,
+      upload: {},
+      uploading: false
     })
   })
 
@@ -55,24 +28,6 @@ describe('event reducer', () => {
     ).toEqual({
     	event: {id: '123'},
     	loading: false
-    })
-  })
-
-  it('should handle CREATE_EVENT', () => {
-    expect(
-      eventReducer([], {
-        type: types.CREATE_EVENT.PENDING,
-      })
-    ).toEqual({saving: true})
-    expect(
-      eventReducer([], {
-        type: types.CREATE_EVENT.SUCCESS,
-        payload: {event: {id: '123'}}
-      })
-    ).toEqual({
-      event: {id: '123'},
-      saving: false,
-      error: null
     })
   })
 

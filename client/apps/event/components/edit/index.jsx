@@ -116,7 +116,7 @@ export class EventEdit extends Component {
   }
 
   renderImages(images) {
-    const { fetchUpload } = this.props
+    const { fetchUpload } = this.props.actions
     return images[0]
       ?
         <EditImagesList

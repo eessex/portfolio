@@ -2,11 +2,11 @@ import axios from 'axios'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Button } from'../buttons/button.jsx'
-require('./index.scss')
 
 export class FileInput extends Component {
   static propTypes = {
     accept: PropTypes.string,
+    fetchUpload: PropTypes.func.isRequired,
     hasPreview: PropTypes.bool,
     label: PropTypes.string,
     onChange: PropTypes.func.isRequired,
@@ -14,7 +14,7 @@ export class FileInput extends Component {
   }
 
   state = {
-    isDragOver: true,
+    isDragOver: false,
     loading: false
   }
 
@@ -52,8 +52,8 @@ export class FileInput extends Component {
       ).bind(this)
   }
 
-  toggleDragOver = (isDragover) => {
-    this.setState({ isDragover })
+  toggleDragOver = (isDragOver) => {
+    this.setState({ isDragOver })
   }
 
   fetchSignature = (e) => {
@@ -99,8 +99,8 @@ export class FileInput extends Component {
         <div
           className='FileInput__drag-zone'
           data-drag-over={isDragOver}
-          onDragEnter={() => toggleDragOver(true)}
-          onDragLeave={() => toggleDragOver(false)}
+          onDragEnter={() => this.toggleDragOver(true)}
+          onDragLeave={() => this.toggleDragOver(false)}
           ref={div => {this.fileContainer = div}}
           style={{
             opacity: hasPreview && file.url ? 1 : .7,

@@ -2,7 +2,6 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { Button } from'../buttons/button.jsx'
 import { FileInput } from '../file_input/index.jsx'
-require('./index.scss')
 
 export class EditImagesList extends React.Component {
   static propTypes = {

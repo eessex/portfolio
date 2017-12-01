@@ -4,7 +4,6 @@ import { Row, Col } from 'react-flexbox-grid'
 import { capitalize } from 'lodash'
 import { getDate, getVenue } from '../../../utils/index.js'
 import { ListItem } from './components/list_item.jsx'
-require('./index.scss')
 
 export const ItemsList = (props) => {
   const {

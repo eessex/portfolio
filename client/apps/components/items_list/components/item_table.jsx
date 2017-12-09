@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Col, Row } from 'react-flexbox-grid'
+import { Col, Row } from 'react-styled-flexboxgrid'
 
 export const ItemTable = (props) => {
   const { date, title, venue } = props

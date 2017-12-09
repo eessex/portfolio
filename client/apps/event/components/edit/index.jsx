@@ -1,8 +1,7 @@
 import FontAwesome from 'react-fontawesome'
 import React, { Component } from 'react'
-import { Col, Row } from 'react-flexbox-grid'
+import { Col, Row } from 'react-styled-flexboxgrid'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
-
 import EditDate from './components/edit_date.js'
 import EventDate from '../show/components/date.jsx'
 import EditVenue from './components/edit_venue.js'

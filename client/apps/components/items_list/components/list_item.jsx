@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Col } from 'react-flexbox-grid'
-import { Link } from 'react-router-dom'
+import { Col } from 'react-styled-flexboxgrid'
+// import { Link } from 'react-router-dom'
 import { ItemTable } from './item_table.jsx'
 import { ItemGrid } from './item_grid.jsx'
 
@@ -14,13 +14,13 @@ export const ListItem = (props) => {
         className='ListItem'
         data-published={published}
       >
-        <Link to={slug}>
+        <a href={slug}>
           <ItemTable
             date={date}
             title={title}
             venue={venue}
           />
-        </Link>
+        </a>
       </div>
     )
 
@@ -32,14 +32,14 @@ export const ListItem = (props) => {
         xl={4}
         className='ListItem'
         data-published={published}>
-        <Link to={slug}>
+        <a href={slug}>
           <ItemGrid
             date={date}
             title={title}
             venue={venue}
             image={image}
           />
-        </Link>
+        </a>
       </Col>
     )
 
@@ -49,14 +49,14 @@ export const ListItem = (props) => {
         className='ListItem'
         data-published={published}
       >
-        <Link to={slug}>
+        <a href={slug}>
           <ItemGrid
             date={date}
             title={title}
             venue={venue}
             image={image}
           />
-        </Link>
+        </a>
       </div>
     )
   }

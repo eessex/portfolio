@@ -11,10 +11,9 @@ class Events extends Component {
     super(props)
 
     const isAdmin = props.user.isAuthenticated
-    const query = isAdmin ? {} : {published: true}
+    const query = isAdmin ? {} : { published: true }
 
     this.state = {
-      query,
       isAdmin
     }
   }

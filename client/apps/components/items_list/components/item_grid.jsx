@@ -34,7 +34,7 @@ export const ItemGrid = (props) => {
         }
         {description &&
           <p className='Item__description'>
-            {venue}
+            {description}
           </p>
         }
       </div>

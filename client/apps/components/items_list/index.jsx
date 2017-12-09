@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Row, Col } from 'react-flexbox-grid'
+import { Col, Row } from 'react-styled-flexboxgrid'
 import { capitalize } from 'lodash'
 import { getDate, getVenue } from '../../../utils/index.js'
 import { ListItem } from './components/list_item.jsx'
@@ -17,7 +17,7 @@ export const ItemsList = (props) => {
   const listItems = children ? children : renderListItems(layout, list, model)
   const layoutClass = layout ? ' ' + layout : ''
   const className = ' ItemsList--' + model + layoutClass
-  const renderedTitle = title.length ? title : capitalize(model)
+  const renderedTitle = title && title.length ? title : capitalize(model)
 
   return(
     <div className={'ItemsList' + className}>

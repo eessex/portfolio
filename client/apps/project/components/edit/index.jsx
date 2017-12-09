@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Row, Col } from 'react-flexbox-grid'
+import { Col, Row } from 'react-styled-flexboxgrid'
 import { EditImagesList } from '../../../components/forms/images/edit_images_list.jsx'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'

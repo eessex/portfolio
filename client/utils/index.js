@@ -71,7 +71,7 @@ export function dateIsUpcoming (date) {
 }
 
 export function datesMatch (date1, date2) {
-  return moment(date1).format('MMM DD YYYY') === moment(date2).format('MMM DD YYYY')
+  return moment(date1).format('MMM DD, YYYY') === moment(date2).format('MMM DD, YYYY')
 }
 
 export function yearsMatch (date1, date2) {

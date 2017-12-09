@@ -1,5 +1,5 @@
 import React from 'react'
-import { Col, Row } from 'react-flexbox-grid'
+import { Col, Row } from 'react-styled-flexboxgrid'
 import EventDate from '../show/components/date.jsx'
 import EventVenue from '../show/components/venue.jsx'
 import { ImageShow } from '../../../components/images/image/image_show.jsx'

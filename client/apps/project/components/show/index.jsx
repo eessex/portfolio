@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { ImageShow } from '../../../components/images/image/image_show.jsx'
+import { ImageShow } from '../../../../components/images/image/image_show.jsx'
 
 export default class ProjectShow extends Component {
   renderLinks(project) {

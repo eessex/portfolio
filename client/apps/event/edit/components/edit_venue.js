@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import SelectInput from '../../../components/forms/select_input.js'
-import TextInput from '../../../components/forms/text_input.js'
+import SelectInput from '../../../../components/forms/select_input.js'
+import TextInput from '../../../../components/forms/text_input.js'
 
 export default class EditVenue extends Component {
   constructor(props) {

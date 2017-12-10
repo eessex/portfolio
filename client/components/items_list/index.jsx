@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { capitalize } from 'lodash'
-import { getDate, getVenue } from '../../../utils/index.js'
+import { getDate, getVenue } from '../../utils/index.js'
 import { ListItem } from './components/list_item.jsx'
 
 export const ItemsList = (props) => {

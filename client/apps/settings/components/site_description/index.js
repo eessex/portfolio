@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import TextInput from '../../../components/forms/text_input.js'
+import TextInput from '../../../../components/forms/text_input.js'
 require('./index.scss');
 
 class SettingsInfo extends Component {

@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as Actions from '../../actions/projects'
-import { ItemsList } from '../components/items_list/index.jsx'
-import { NewButton } from '../components/header/components/new_button.jsx'
+import { ItemsList } from '../../components/items_list/index.jsx'
+import { NewButton } from '../../components/header/components/new_button.jsx'
 
 class Projects extends Component {
   constructor(props) {

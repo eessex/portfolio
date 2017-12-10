@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import Social from './social.jsx'
 import AdminSocial from './admin_social.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
+import { LayoutColumn } from '../../../components/layout/column.jsx'
+import { ImageShow } from '../../../components/images/image/image_show.jsx'
 
 class About extends Component {
   constructor(props) {
@@ -32,8 +34,13 @@ class About extends Component {
 
   render() {
     const { settings, isAuthenticated } = this.props
+    const { cover_image } = settings
+
     return (
-      <div className='about__description'>
+      <LayoutColumn className='about__description'>
+        {cover_image &&
+          <ImageShow {...cover_image} />
+        }
         {isAuthenticated
           ?
           this.renderDescriptionInput(settings)
@@ -48,7 +55,7 @@ class About extends Component {
             <Social social={settings.about.social} />
           }
         </div>
-      </div>
+      </LayoutColumn>
     )
   }
 }

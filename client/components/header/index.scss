@@ -1,3 +1,22 @@
+.Header {
+  padding: 20px;
+
+  a {
+    text-decoration: none;
+    color: black;
+    &:hover {
+      color: silver;
+    }
+  }
+  .divider {
+    margin-right: .65em;
+  }
+  h1 {
+    font-size: 3.5em;
+    margin: 0;
+  }
+}
+
 nav.header {
   display: flex;
   justify-content: space-between;
@@ -23,7 +42,7 @@ nav.header {
     text-decoration: none;
   }
   a:hover {
-    color: blue;
+    color: silver;
   }
   h2 {
     margin: 0;

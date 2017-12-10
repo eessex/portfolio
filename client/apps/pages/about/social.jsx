@@ -3,11 +3,14 @@ import FontAwesome from 'react-fontawesome'
 import { capitalize } from 'lodash'
 
 export default class Social extends Component {
-  renderSocial = (social, service) => {
+  renderSocial = (social, service, i) => {
     if (social[service]) {
       return (
-        <div>
-          <a target='_blank' href={'https://' + service + '.com/' + social[service]}>
+        <div key={i}>
+          <a
+            target='_blank'
+            href={'https://' + service + '.com/' + social[service]}
+          >
             <FontAwesome name={service} />
             {capitalize(service)}
           </a>
@@ -19,7 +22,7 @@ export default class Social extends Component {
   renderSocialList = (social) => {
     const services = ['soundcloud', 'facebook', 'instagram', 'twitter']
     const rendered = services.map((service, i) => {
-      return this.renderSocial(social, service)
+      return this.renderSocial(social, service, i)
     })
     return rendered
   }

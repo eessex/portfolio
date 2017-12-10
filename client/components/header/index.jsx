@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import * as Actions from '../../../actions/user'
+import * as Actions from '../../actions/user'
 import { Link } from 'react-router-dom'
 import Nav from './components/nav.jsx'
 import AdminNav from './components/admin_nav.jsx'

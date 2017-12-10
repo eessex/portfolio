@@ -3,12 +3,12 @@ import { mount } from 'enzyme'
 import React from 'react'
 import { ItemsList } from '../index.jsx'
 import { ListItem } from '../components/list_item.jsx'
-import { getDate, getVenue } from '../../../../utils/index.js'
+import { getDate, getVenue } from '../../../utils/index.js'
 import {
   UpcomingEvent,
   PastEvent,
   tomorrow
-} from '../../../../tests/fixtures/events.js'
+} from '../../../tests/fixtures/events.js'
 
 describe('ItemsList', () => {
   let props = {}

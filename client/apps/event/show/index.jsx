@@ -2,7 +2,7 @@ import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { ImageShow } from '../../../components/images/image/image_show.jsx'
 import { Venue } from '../../../components/venue/index.jsx'
-import { getDate } from '../../../../utils/index.js'
+import { getDate } from '../../../utils/index.js'
 
 export const EventShow = (props) => {
   const { event } = props

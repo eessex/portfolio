@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import CheckboxInput from '../../../../components/forms/checkbox_input.js';
-import DateInput from '../../../../components/forms/date_input.js';
+import CheckboxInput from '../../../components/forms/checkbox_input.js';
+import DateInput from '../../../components/forms/date_input.js';
 
 export default class EditDate extends Component {
   constructor(props) {

@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as Actions from '../../actions/project'
 import { ProjectEdit } from './components/edit/index.jsx'
-import Show from './components/show/index.jsx'
+import { ProjectShow } from './components/show.jsx'
 
 class Project extends Component {
   componentWillMount() {
@@ -46,10 +46,8 @@ class Project extends Component {
 
     } else {
       return (
-        <div className='project'>
-          <Show
-            project={project}
-            loading={loading} />
+        <div className='Project'>
+          <ProjectShow project={project} />
         </div>
       )
     }

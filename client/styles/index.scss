@@ -1,6 +1,7 @@
+@import "apps";
+@import "components";
 @import 'forms';
 @import 'typography';
-@import "components";
 
 body {
   margin: 0;
@@ -69,4 +70,8 @@ div[class*="Row-"] {
 
 .placeholder {
   opacity: .5;
+}
+
+div[data-layout='centered'] {
+  text-align: center;
 }

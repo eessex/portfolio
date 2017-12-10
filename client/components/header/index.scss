@@ -4,7 +4,8 @@
   a {
     text-decoration: none;
     color: black;
-    &:hover {
+    &:hover,
+    &[data-active=true] {
       color: silver;
     }
   }
@@ -14,6 +15,16 @@
   h1 {
     font-size: 3.5em;
     margin: 0;
+  }
+
+  &[data-fixed=true] {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    background: white;
+    z-index: 10;
+    border-bottom: 1px solid silver;
   }
 }
 

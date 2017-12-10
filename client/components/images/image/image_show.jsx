@@ -1,14 +1,16 @@
 import PropTypes from 'prop-types'
 import React from 'react'
+import { stripTags } from 'underscore.string'
 
 export const ImageShow = (props) => {
-  const { caption, title, url } = props
+  const { aspect, caption, url } = props
+  const alt = stripTags(caption) || ''
 
   return (
     <div className='ImageShow'>
       <img
         src={url}
-        alt={title || ''}
+        alt={alt}
         width='100%'
       />
       {caption &&

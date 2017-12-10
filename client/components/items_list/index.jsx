@@ -22,15 +22,28 @@ export const ItemsList = (props) => {
   return(
     <div className={'ItemsList' + className}>
       {title &&
-        <Row className='ItemsList__header'>
-          <Col xl>
-            <h6>{renderedTitle}</h6>
-          </Col>
-        </Row>
+        renderTitle(renderedTitle, props.layout)
       }
-      {renderList(layout, listItems)}
+      {renderList(props.layout, listItems)}
     </div>
   )
+}
+
+function renderTitle (title, layout) {
+  if (layout) {
+    <Row className='ItemsList__header'>
+      <Col xl>
+        {title}
+      </Col>
+    </Row>
+
+  } else {
+    return (
+      <div className='ItemsList__header'>
+        {title}
+      </div>
+    )
+  }
 }
 
 function renderList (layout, items) {
@@ -48,11 +61,9 @@ function renderList (layout, items) {
     )
   } else {
     return (
-      <Row className='ItemsList__list'>
-        <Col xl>
-          {items}
-        </Col>
-      </Row>
+      <div className='ItemsList__list'>
+        {items}
+      </div>
     )
   }
 }

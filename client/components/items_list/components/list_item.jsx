@@ -50,12 +50,7 @@ export const ListItem = (props) => {
         data-published={published}
       >
         <a href={slug}>
-          <ItemGrid
-            date={date}
-            title={title}
-            venue={venue}
-            image={image}
-          />
+          <h1>{title}</h1>
         </a>
       </div>
     )

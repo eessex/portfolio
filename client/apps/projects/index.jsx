@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import * as Actions from '../../actions/projects'
 import { ItemsList } from '../../components/items_list/index.jsx'
 import { NewButton } from '../../components/header/components/new_button.jsx'
+import { LayoutColumn } from '../../components/layout/column.jsx'
 
 class Projects extends Component {
   constructor(props) {
@@ -37,7 +38,10 @@ class Projects extends Component {
 
     } else {
       return (
-        <div className='projects'>
+        <LayoutColumn
+          className='Projects'
+          layout='centered'
+        >
           {isAdmin &&
             <NewButton
               model='Project'
@@ -45,11 +49,10 @@ class Projects extends Component {
             />
           }
           <ItemsList
-            title
             model='projects'
             list={list}
           />
-        </div>
+        </LayoutColumn>
       )
     }
   }

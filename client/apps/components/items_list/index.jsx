@@ -24,7 +24,7 @@ export const ItemsList = (props) => {
       {title &&
         <Row className='ItemsList__header'>
           <Col xl>
-            <h5>{renderedTitle}</h5>
+            <h6>{renderedTitle}</h6>
           </Col>
         </Row>
       }

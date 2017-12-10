@@ -1,31 +1,33 @@
 import FontAwesome from 'react-fontawesome'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import EditDate from './components/edit_date.js'
 import EventDate from '../show/components/date.jsx'
 import EditVenue from './components/edit_venue.js'
-import EventVenue from '../show/components/venue.jsx'
 import TextInput from '../../../components/forms/text_input.js'
 import ValidationError from '../../../components/forms/validation_error.js'
 import { EditImagesList } from '../../../components/forms/images/edit_images_list.jsx'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
+import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { FileInput } from '../../../components/forms/file_input/index.jsx'
 import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
+import { Venue } from '../../../components/venue/index.jsx'
 require('./index.scss')
 
 export class EventEdit extends Component {
   constructor(props) {
     super(props)
 
+    const { event } = this.props
+
     this.state = {
-      event: this.props.event,
-      hasEndDate: this.props.event.end_date ? true : false,
+      event: event,
+      hasEndDate: event.end_date ? true : false,
       needSave: false,
       editDates: false,
       editVenue: false,
-      venue: this.props.event.venue ? this.props.event.venue : {
+      venue: event.venue ? event.venue : {
         name: null,
         address: null,
         city: null,
@@ -175,7 +177,7 @@ export class EventEdit extends Component {
 
               <div className='event--edit__venue'>
                 {event.venue && (event.venue.name || event.venue.address) ?
-                  <EventVenue venue={venue} onClick={this.toggleEditVenue} />
+                  <Venue venue={venue} onClick={this.toggleEditVenue} />
                   :
                   <h4
                     className='event--edit__placeholder'
@@ -189,7 +191,6 @@ export class EventEdit extends Component {
               <RichText
                 onChange={this.onChange}
                 html={event.description}
-                className='p'
                 placeholder='Event description'
               />
             </div>

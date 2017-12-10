@@ -1,15 +1,17 @@
 import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import EventDate from '../show/components/date.jsx'
-import EventVenue from '../show/components/venue.jsx'
 import { ImageShow } from '../../../components/images/image/image_show.jsx'
+import { Venue } from '../../../components/venue/index.jsx'
+import { getDate } from '../../../../utils/index.js'
 
 export const EventShow = (props) => {
-  const { description, images, title, venue } = props.event
+  const { event } = props
+  const { description, images, title, venue } = event
   const image = images && images[0]
-  
+  const date = getDate('events', event)
+
   return (
-    <Row className='event--show'>
+    <Row className='EventShow'>
       {image &&
         <Col sm={12} lg={6}>
           <ImageShow
@@ -19,17 +21,21 @@ export const EventShow = (props) => {
           />
         </Col>
       }
-      <Col sm={12} lg={6} className='event__body container'>
-        <div className='event__header'>
+      <Col sm={12} lg={6} className='Event__body'>
+        <div className='Event__header'>
           <h1>{title}</h1>
-          <EventDate event={props.event} />
-          <EventVenue venue={venue} />
+          <h4>{date}</h4>
+          <Venue venue={venue || {}} className='h4' />
         </div>
 
-        <div
-          className='event__description'
-          dangerouslySetInnerHTML={{__html: description}} />
-        {renderLinks(props.event)}
+        {description &&
+          <div
+            className='Event__description'
+            dangerouslySetInnerHTML={{__html: description}}
+          />
+        }
+
+        {renderLinks(event)}
       </Col>
     </Row>
   )

@@ -49,4 +49,4 @@ module.exports = {
     htmlWebpackPluginConfig,
     new ExtractTextPlugin('style.css')
   ]
-};
+}

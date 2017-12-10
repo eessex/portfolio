@@ -5,22 +5,37 @@
     margin-top: 0;
   }
 
-  // Table layout - start
+  a {
+    color: black;
+    &:hover {
+      color: #999;
+    }
+  }
+
+  // Table layout
   &.table {
     .ListItem {
-      .row {
-        border-top: 1px solid;
-        padding: .5em 0;
+      .Item {
+        border-top: 1px solid black;
+        padding: .5em 10px;
       }
       &:last-child {
-        .row {
-          border-bottom: 1px solid;
+        .Item {
+          border-bottom: 1px solid black;
         }
       }
     }
   }
-  // Table layout - end
+
+  // Grid layout
+  &.grid {
+    .Item {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  }
 }
+
 
 .ListItem {
   &[data-published="false"] {
@@ -29,7 +44,7 @@
   a {
     text-decoration: none;
   }
-  h1, h2, h3, h5 {
+  h1, h2, h3, h4, h5 {
     margin: 0.5em 0;
   }
 }

@@ -11,24 +11,6 @@ main {
   padding-top: 1.5em;
 }
 
-a {
-  color: blue;
-  text-decoration: underline;
-  &:hover {
-    color: darkblue;
-  }
-}
-
-input:focus,
-textarea:focus {
-  outline: none;
-}
-input::placeholder,
-textarea::placeholder,
-.public-DraftEditorPlaceholder-inner {
-  color: gray;
-}
-
 button {
   font-size: .85em;
   border: 1px solid;
@@ -63,10 +45,10 @@ nav {
   }
 }
 
-.row {
+div[class*="Row-"] {
   margin-left: 0;
   margin-right: 0;
-  div[class^="col-"] {
+  div[class^="Col-"] {
     padding-left: 20px;
     padding-right: 20px;
   }

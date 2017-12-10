@@ -29,7 +29,7 @@ class Event extends Component {
       )
     } else if (isAuthenticated) {
       return (
-        <div className='event'>
+        <div className='Event'>
           <EventEdit
             event={event}
             error={error}
@@ -41,7 +41,7 @@ class Event extends Component {
       )
     } else {
       return (
-        <div className='event'>
+        <div className='Event'>
           <EventShow
             event={event}
             loading={loading} />

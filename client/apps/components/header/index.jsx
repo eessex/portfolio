@@ -45,6 +45,7 @@ class Header extends Component {
 
   render() {
     const { settings } = this.props.settings
+    const { isAuthenticated } = this.props.user
     const pageTitle = settings.title || "Home"
     const openClass = this.state.open ? ' open' : ''
     return (

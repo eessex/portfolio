@@ -15,9 +15,7 @@ class Settings extends Component {
     const { settings, loading } = this.props.settings;
     if (loading) {
       return (
-        <div className='loading'>
-          <div>Loading ...</div>
-        </div>
+        <div className='Loading' />
       );
     } else {
       return (

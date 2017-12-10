@@ -31,9 +31,7 @@ class Projects extends Component {
 
     if (loading) {
       return (
-        <div className='loading container'>
-          <div>Loading ...</div>
-        </div>
+        <div className='Loading' />
       )
 
     } else {

@@ -3,7 +3,6 @@ import React from 'react'
 import { ProjectHeader } from './header.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
 
-
 export const ProjectShow = (props) => {
     const { title, images, description } = props.project
 

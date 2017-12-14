@@ -35,12 +35,7 @@ button {
     z-index: 100;
 }
 
-.ComingSoon {
-  text-align: center;
-}
-
 .Loading {
-  text-align: center;
   &:after {
     content: '...';
     color: silver;

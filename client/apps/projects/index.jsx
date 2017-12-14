@@ -38,7 +38,7 @@ class Projects extends Component {
       return (
         <LayoutColumn
           className='Projects'
-          layout='centered'
+          label='Projects'
         >
           {isAdmin &&
             <NewButton

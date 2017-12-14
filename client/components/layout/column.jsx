@@ -6,12 +6,30 @@ export const LayoutColumn = (props) => {
   const {
     className,
     children,
+    label,
     layout
   } = props
 
   return (
-    <Row className='LayoutColumn' data-layout={layout || ''}>
-      <Col className={`LayoutColumn__body ${className || ''}`} xs={12} sm={7}>
+    <Row
+      className={`LayoutColumn ${className || ''}`}
+      data-layout={layout || ''}
+    >
+      {label &&
+        <Col
+          className='LayoutColumn__title'
+          xs={12}
+          sm={2}
+        >
+          {label}
+        </Col>
+      }
+      <Col
+        className='LayoutColumn__body'
+        smOffset={!label ? 2 : 0}
+        xs={12}
+        sm={7}
+      >
         {children}
       </Col>
     </Row>

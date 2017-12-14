@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Route } from 'react-router-dom'
 import Waypoint from 'react-waypoint'
+import { Row, Col } from 'react-styled-flexboxgrid'
 import {
   Error,
   Event,
@@ -39,6 +40,12 @@ export default class Routes extends Component {
 
 const ComingSoon = (props) => {
   return (
-    <div className='ComingSoon'>Coming Soon</div>
+    <Row className='ComingSoon'>
+      <Col
+        smOffset={2}
+        xs={12}
+        sm={7}
+      >Coming Soon</Col>
+    </Row>
   )
 }

@@ -51,12 +51,13 @@ class Header extends Component {
 
   headerInner = (isFixed) => {
     const { title, nav } = this.props.settings.settings
+    const { isAuthenticated } = this.props.user
     const hasMenuItems = nav && nav.length > 1
 
     return (
       <div
         className='Header'
-        data-layout='centered'
+        data-layout={isAuthenticated && 'admin'}
         data-fixed={isFixed}
       >
         <h1>
@@ -72,9 +73,6 @@ class Header extends Component {
               data-active={(window.location.pathname).replace('/', '') === navItem}
             >
               {capitalize(navItem)}
-              {hasMenuItems && i !== (nav.length - 1) &&
-                <span className='divider'>,</span>
-              }
             </a>
           )}
         </nav>

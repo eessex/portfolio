@@ -11,7 +11,6 @@ export const ProjectShow = (props) => {
         <ProjectHeader
           title={title}
           coverImage={images && images[0]}
-          layout='centered'
         />
         {description &&
           <div

@@ -37,7 +37,10 @@ class About extends Component {
     const { cover_image } = settings
 
     return (
-      <LayoutColumn className='about__description'>
+      <LayoutColumn
+        label='Info'
+        className='about__description'
+      >
         {cover_image &&
           <ImageShow {...cover_image} />
         }

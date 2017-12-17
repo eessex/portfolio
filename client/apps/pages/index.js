@@ -6,14 +6,11 @@ import About from './about/index.jsx'
 require('./index.scss')
 
 class Pages extends Component {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     const { isAuthenticated } = this.props.user
     const { settings, loading } = this.props.settings
     const { actions } = this.props
+
     if (loading) {
       return (
         <div className='Loading' />

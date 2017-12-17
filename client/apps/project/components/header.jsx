@@ -7,12 +7,12 @@ export const ProjectHeader = (props) => {
 
     return (
       <div className='ProjectHeader' data-layout={layout}>
-        {coverImage && coverImage.url &&
-          <ImageShow {...coverImage} />
-        }
         <div className='h1'>
           {title}
         </div>
+        {coverImage && coverImage.url &&
+          <ImageShow {...coverImage} />
+        }
       </div>
     )
   }

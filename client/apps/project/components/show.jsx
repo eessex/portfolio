@@ -7,7 +7,11 @@ export const ProjectShow = (props) => {
     const { title, images, description } = props.project
 
     return (
-      <LayoutColumn className='ProjectShow'>
+      <LayoutColumn
+        className='ProjectShow'
+        label='Project'
+        labelLink='/projects'
+      >
         <ProjectHeader
           title={title}
           coverImage={images && images[0]}

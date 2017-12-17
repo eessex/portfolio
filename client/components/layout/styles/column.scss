@@ -1,8 +1,13 @@
 .LayoutColumn {
   padding: 0 calc(20px - .5em);
   margin-bottom: 4em;
+
   &__title {
     font-weight: 600;
+    margin-bottom: 1em;
+    a {
+      text-decoration: none;
+    }
   }
   &__body {
     margin: 0 auto;

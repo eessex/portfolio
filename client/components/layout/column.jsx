@@ -7,6 +7,7 @@ export const LayoutColumn = (props) => {
     className,
     children,
     label,
+    labelLink,
     layout
   } = props
 
@@ -21,7 +22,10 @@ export const LayoutColumn = (props) => {
           xs={12}
           sm={2}
         >
-          {label}
+          {labelLink
+           ? <a href={labelLink}>{label}</a>
+           : label
+          }
         </Col>
       }
       <Col

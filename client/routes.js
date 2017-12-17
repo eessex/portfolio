@@ -12,7 +12,7 @@ import {
   Settings,
   User
 } from './apps'
-
+import { ComingSoon } from './components/coming_soon.jsx'
 import Header from './components/header/header.jsx'
 
 
@@ -36,16 +36,4 @@ export default class Routes extends Component {
       </div>
     )
   } 
-}
-
-const ComingSoon = (props) => {
-  return (
-    <Row className='ComingSoon'>
-      <Col
-        smOffset={2}
-        xs={12}
-        sm={7}
-      >Coming Soon</Col>
-    </Row>
-  )
 }

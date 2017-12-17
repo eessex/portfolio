@@ -24,7 +24,11 @@ export const EventShow = (props) => {
     )
   } else {
     return (
-      <LayoutColumn className='EventShow'>
+      <LayoutColumn
+        className='EventShow'
+        label='Event'
+        labelLink='/events'
+      >
         {renderCoverImage(image || {})}
         {renderHeader(event)}
         <div className='Event__body'>

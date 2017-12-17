@@ -12,6 +12,17 @@
     }
   }
 
+  // list layout (text)
+  &.list {
+    .ListItem {
+      &:first-child {
+        h1 {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+
   // Table layout
   &.table {
     .ListItem {
@@ -35,7 +46,6 @@
     }
   }
 }
-
 
 .ListItem {
   &[data-published="false"] {

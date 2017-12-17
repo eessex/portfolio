@@ -21,13 +21,17 @@ export default class AdminSocial extends Component {
     this.props.onChange('social', social)
   }
 
-  renderSocial = (social, service) => {
+  renderSocial = (social, service, i) => {
     const { isEditing } = this.state
     const renderEdit = isEditing === service ? this.renderEditPanel(social, service) : false
     const isPlaceholder = social[service] ? '' : 'placeholder'
 
     return (
-        <div className='edit-social' onClick={() => this.toggleEditService(service)}>
+        <div
+          className='edit-social'
+          onClick={() => this.toggleEditService(service)}
+          key={i}
+        >
           <a className={isPlaceholder}>
             <FontAwesome name={service} />
             {capitalize(service)}
@@ -59,7 +63,7 @@ export default class AdminSocial extends Component {
   renderSocialList = (social) => {
     const services = ['soundcloud', 'facebook', 'instagram', 'twitter']
     const rendered = services.map((service, i) => {
-      return this.renderSocial(social, service)
+      return this.renderSocial(social, service, i)
     })
     return rendered
   }

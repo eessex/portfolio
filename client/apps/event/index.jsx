@@ -23,9 +23,7 @@ class Event extends Component {
     const { event, error, loading, saving, uploading } = this.props.event
     if (loading) {
       return (
-        <div className='loading container'>
-          <div>Loading ...</div>
-        </div>
+        <div className='Loading' />
       )
     } else if (isAuthenticated) {
       return (

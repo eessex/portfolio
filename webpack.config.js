@@ -4,7 +4,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const webpack = require('webpack')
 
 module.exports = {
-  entry: './client/index.js',
+  entry: ['babel-polyfill', './client/index.js'],
   output: {
     filename: './dist/bundle.js'
   },
@@ -14,13 +14,21 @@ module.exports = {
         test: /\.js$/,
         loader: 'babel-loader',
         exclude: /node_modules/,
-        include: [path.join(__dirname, 'client')]
+        include: [path.join(__dirname, 'client')],
+        query: {
+          plugins: ['transform-runtime'],
+          presets: ['env', 'stage-0', 'react'],
+        }
       },
       {
         test: /\.jsx$/,
         loader: 'babel-loader',
         exclude: /node_modules/,
-        include: [path.join(__dirname, 'client')]
+        include: [path.join(__dirname, 'client')],
+        query: {
+          plugins: ['transform-runtime'],
+          presets: ['env', 'stage-0', 'react'],
+        }
       },
       {
         test: /\.scss$/,

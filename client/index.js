@@ -17,10 +17,10 @@ store.dispatch(fetchSettings())
 window.store = store
 
 render(
-      <Provider store={store}>
-        <Router>
-          <Routes store={store} />
-        </Router>
-      </Provider>
-      , document.getElementById('app')
-    )
+  <Provider store={store}>
+    <Router>
+      <Routes store={store} />
+    </Router>
+  </Provider>
+  , document.getElementById('app')
+)

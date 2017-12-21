@@ -45,7 +45,6 @@ class Header extends Component {
     const { navOpen } = this.state
     if (!navOpen) {
       this.setState({ navOpen: true })
-      console.log('set nav open')
     }
   }
 

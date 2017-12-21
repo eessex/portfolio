@@ -3,17 +3,10 @@ const htmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const webpack = require('webpack')
 
-const htmlWebpackPluginConfig = new htmlWebpackPlugin({
-  template: './client/index.html',
-  filename: 'index.html',
-  inject: 'body'
-})
-
 module.exports = {
   entry: './client/index.js',
   output: {
-    path: path.resolve('dist'),
-    filename: 'bundle.js'
+    filename: './dist/bundle.js'
   },
   module: {
     loaders: [
@@ -42,11 +35,19 @@ module.exports = {
           use: ['css-loader'],
           fallback: 'style-loader'
         })
+      },
+      {
+        test: /\.html$/,
+        loader: 'underscore-template-loader'
       }
     ]
   },
   plugins: [
-    htmlWebpackPluginConfig,
-    new ExtractTextPlugin('style.css')
+    new htmlWebpackPlugin({
+      filename: './dist/index.html',
+      title: 'Eve Essex',
+      template: './client/index.html'
+    }),
+    new ExtractTextPlugin('./dist/style.css')
   ]
 }

@@ -24,7 +24,10 @@ export const ItemsList = (props) => {
       {title &&
         renderTitle(renderedTitle, props.layout)
       }
-      {renderList(props.layout, listItems)}
+      {list.length
+        ? renderList(props.layout, listItems)
+        : 'Coming Soon'
+      }
     </div>
   )
 }

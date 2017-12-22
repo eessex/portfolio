@@ -3,6 +3,7 @@ import eventReducer from './event'
 import eventsReducer from './events'
 import projectReducer from './project'
 import projectsReducer from './projects'
+import publicationsReducer from './publications'
 import settingsReducer from './settings'
 import userReducer from './user'
 
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
   events: eventsReducer,
   project: projectReducer,
   projects: projectsReducer,
+  publications: publicationsReducer,
   settings: settingsReducer,
   user: userReducer
 });

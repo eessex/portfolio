@@ -4,13 +4,14 @@ import { ImageShow } from '../../../components/images/image/image_show.jsx'
 
 export const ProjectHeader = (props) => {
     const { title, coverImage, layout } = props
+    const { url } = coverImage || ''
 
     return (
       <div className='ProjectHeader' data-layout={layout}>
         <div className='h1'>
           {title}
         </div>
-        {coverImage && coverImage.url &&
+        {coverImage && url &&
           <ImageShow {...coverImage} />
         }
       </div>
@@ -18,5 +19,6 @@ export const ProjectHeader = (props) => {
   }
 
 ProjectHeader.propTypes = {
+  coverImage: PropTypes.object,
   title: PropTypes.string
 }

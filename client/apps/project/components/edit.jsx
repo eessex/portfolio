@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { EditImagesList } from '../../../../components/forms/images/edit_images_list.jsx'
-import { EditLinkList } from '../../../../components/forms/links/edit_link_list.jsx'
-import { EditNav } from '../../../../components/forms/edit_nav.jsx'
-import { FileInput } from '../../../../components/forms/file_input/index.jsx'
-import { PlainText } from '../../../../components/forms/rich_text/plain_text.jsx'
-import { RichText } from '../../../../components/forms/rich_text/index.jsx'
+import { EditImagesList } from '../../../components/forms/images/edit_images_list.jsx'
+import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
+import { EditNav } from '../../../components/forms/edit_nav.jsx'
+import { FileInput } from '../../../components/forms/file_input/index.jsx'
+import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
+import { RichText } from '../../../components/forms/rich_text/index.jsx'
 
 export class ProjectEdit extends Component {
   constructor (props) {

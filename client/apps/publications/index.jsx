@@ -50,6 +50,7 @@ class Publications extends Component {
           <ItemsList
             model='publications'
             list={list}
+            comingSoon
           />
         </LayoutColumn>
       )

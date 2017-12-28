@@ -43,7 +43,7 @@ app.use('/api', require('./api/apps'))
 app.use('*', require('./client/middleware'))
 
 app.use(function(err, req, res, next) {
-  console.log(err)
+  console.error(err)
   next(err)
 })
 

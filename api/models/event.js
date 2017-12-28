@@ -32,6 +32,7 @@ var EventSchema = new Schema({
     state: String,
     country: String,
   },
+  project_ids: { type: Array, default: [] },
   published: { type: Boolean, default: false }
 })
 

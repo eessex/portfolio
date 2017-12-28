@@ -89,15 +89,17 @@ export function getDate (model, item, format) {
 }
 
 export function getVenue (venue) {
+  const { address, city, country, name } = venue || {}
+
   if (venue) {
-    const city = venue.city.length ? `, ${venue.city}` : ''
-    const country = venue.country ? `, ${venue.country}` : ''
+    const City = city && city.length ? `, ${city}` : ''
+    const Country = country ? `, ${country}` : ''
 
-    if (venue && venue.name.length) {
-      return venue.name + city + country
+    if (venue && name.length) {
+      return name + City + Country
 
-    } else if (venue && venue.address.length) {
-      return venue.address + city + country
+    } else if (venue && address && address.length) {
+      return address + City + Country
     }
   }
 }

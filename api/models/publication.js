@@ -5,12 +5,13 @@ var PublicationSchema = new Schema({
   title: String,
   release_date: { type: Date, default: Date.now, required: true },
   publisher: String,
-  format: ['book', 'record', 'casette'],
+  format: ['book', 'LP', 'casette'],
   embed_url: String,
   description: String,
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
   published: { type: Boolean, default: false },
+  project_ids: { type: Array, default: [] },
   images: [
     {
       title: { type: String },

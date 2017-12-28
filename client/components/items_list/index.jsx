@@ -8,6 +8,7 @@ import { ListItem } from './components/list_item.jsx'
 export const ItemsList = (props) => {
   const {
     children,
+    comingSoon,
     list,
     model,
     title
@@ -24,7 +25,10 @@ export const ItemsList = (props) => {
       {title &&
         renderTitle(renderedTitle, props.layout)
       }
-      {renderList(props.layout, listItems)}
+      {list.length
+        ? renderList(props.layout, listItems)
+        : comingSoon && 'Coming Soon'
+      }
     </div>
   )
 }
@@ -89,6 +93,7 @@ function renderListItems (layout, list, model) {
 }
 
 ItemsList.propTypes = {
+  comingSoon: PropTypes.bool,
   layout: PropTypes.string,
   list: PropTypes.array.isRequired,
   model: PropTypes.string.isRequired,

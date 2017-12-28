@@ -4,6 +4,7 @@ import { EditImagesList } from '../../../components/forms/images/edit_images_lis
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { FileInput } from '../../../components/forms/file_input/index.jsx'
+import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
 
@@ -54,45 +55,43 @@ export class ProjectEdit extends Component {
           onPublish={() => this.onChange('published', !project.published)}
           saveItem={() => this.maybeSaveProject(project, true)}
         />
-
-        <Row className='Edit__body'>
+        <LayoutColumn
+          className='Edit__body'
+          label='Project'
+          labelLink='/projects'
+        >
           {images[0]
           ?
-            <Col xs={12} lg={4}>
-              <EditImagesList
-                fetchUpload={fetchUpload}
-                images={project.images}
-                onChange={(value) => this.onChange('images', value)}
-              />
-            </Col>
+            <EditImagesList
+              fetchUpload={fetchUpload}
+              images={project.images}
+              onChange={(value) => this.onChange('images', value)}
+            />
           :
             <FileInput
               fetchUpload={fetchUpload}
               onChange={(image) => this.onChange('images', [image])}
             />
           }
-
-          <Col xs={12} lg={7}>
-            <div className='ProjectEdit__body'>
-              <PlainText
-                content={project.title}
-                placeholder='Project title'
-                className='Project__title h1'
-                onChange={(value) => this.onChange('title', value)}
-              />
-              <RichText
-                html={project.description}
-                placeholder='Description'
-                className='Project__description'
-                onChange={(value) => this.onChange('description', value)}
-              />
-              <EditLinkList
-                links={links}
-                onChange={(value) => this.onChange('links', value)}
-              />
-            </div>
-          </Col>
-        </Row>
+          <div className='ProjectEdit__body'>
+            <PlainText
+              content={project.title}
+              placeholder='Project title'
+              className='Project__title h1'
+              onChange={(value) => this.onChange('title', value)}
+            />
+            <RichText
+              html={project.description}
+              placeholder='Description'
+              className='Project__description'
+              onChange={(value) => this.onChange('description', value)}
+            />
+            <EditLinkList
+              links={links}
+              onChange={(value) => this.onChange('links', value)}
+            />
+          </div>
+        </LayoutColumn>
       </div>
     )
   }

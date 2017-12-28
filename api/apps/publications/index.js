@@ -28,7 +28,7 @@ publications.route('/new')
     res.json(publication)
   })
 
-  publications.route('/:publication_id')
+publications.route('/:publication_id')
   // single publication
   .get( (req, res) => {
     Publication.findById(req.params.publication_id, (err, publication) => {

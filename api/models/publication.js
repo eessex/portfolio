@@ -11,7 +11,7 @@ var PublicationSchema = new Schema({
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
   published: { type: Boolean, default: false },
-  project_ids: [],
+  project_ids: { type: Array, default: [] },
   images: [
     {
       title: { type: String },

@@ -32,7 +32,7 @@ export const LayoutColumn = (props) => {
         className='LayoutColumn__body'
         smOffset={!label ? 2 : 0}
         xs={12}
-        sm={7}
+        sm={6}
       >
         {children}
       </Col>

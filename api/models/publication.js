@@ -2,10 +2,12 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var PublicationSchema = new Schema({
+  artist: String,
+  compilation: { type: Boolean, default: false },
   title: String,
-  release_date: { type: Date, default: Date.now, required: true },
+  release_date: String,
   publisher: String,
-  format: ['book', 'LP', 'casette'],
+  format: String,
   embed_url: String,
   description: String,
   created_at: { type: Date, default: Date.now },
@@ -24,6 +26,6 @@ var PublicationSchema = new Schema({
       url: { type: String },
     }
   ]
-});
+})
 
-module.exports = mongoose.model('Publication', PublicationSchema);
+module.exports = mongoose.model('Publication', PublicationSchema)

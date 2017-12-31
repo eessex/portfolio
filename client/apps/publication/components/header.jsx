@@ -4,7 +4,13 @@ import { ImageShow } from '../../../components/images/image/image_show.jsx'
 
 export const PublicationHeader = (props) => {
     const { coverImage, publication } = props
-    const { artist, title, layout } = publication
+    const {
+      artist,
+      title,
+      layout,
+      release_date,
+      publisher
+    } = publication
     const { url } = coverImage || ''
 
     return (
@@ -12,6 +18,9 @@ export const PublicationHeader = (props) => {
         <div className='h1'>
           {artist && `${artist}: `}{title}
         </div>
+        {release_date &&
+          formatPublishDate(release_date, publisher)
+        }
         {coverImage && url &&
           <ImageShow {...coverImage} />
         }
@@ -22,4 +31,14 @@ export const PublicationHeader = (props) => {
 PublicationHeader.propTypes = {
   coverImage: PropTypes.object,
   title: PropTypes.string
+}
+
+const formatPublishDate = (date, publisher) => {
+  const formattedDate = date && publisher ? `, ${date}` : date
+
+  return (
+    <div className='h4'>
+      {publisher}{formattedDate}
+    </div>
+  )
 }

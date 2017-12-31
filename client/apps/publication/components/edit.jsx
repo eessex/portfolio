@@ -99,6 +99,12 @@ export class PublicationEdit extends Component {
               className='Publication__publisher p'
               onChange={(value) => this.onChange('publisher', value)}
             />
+            <PlainText
+              content={publication.release_date}
+              placeholder='Release Year'
+              className='Publication__release-date p'
+              onChange={(value) => this.onChange('release_date', value)}
+            />
             <RichText
               html={publication.description}
               placeholder='Description'

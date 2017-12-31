@@ -82,7 +82,9 @@ export function getDate (model, item, format) {
   switch (model) {
     case 'events':
       return formatEventDates(item, format)
-
+    case 'publications':
+    case 'releases':
+      return item.release_date
     default:
       return
   }

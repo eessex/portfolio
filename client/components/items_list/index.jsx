@@ -22,11 +22,11 @@ export const ItemsList = (props) => {
 
   return(
     <div className={'ItemsList' + className}>
-      {title &&
+      {title && layout !== 'grid' &&
         renderTitle(renderedTitle, props.layout)
       }
       {list.length
-        ? renderList(props.layout, listItems)
+        ? renderList(props.layout, listItems, title && renderedTitle)
         : comingSoon && 'Coming Soon'
       }
     </div>
@@ -34,23 +34,24 @@ export const ItemsList = (props) => {
 }
 
 function renderTitle (title, layout) {
-  if (layout) {
-    <Row className='ItemsList__header'>
-      <Col xl>
-        {title}
-      </Col>
-    </Row>
-
+  if (layout && layout!== 'grid') {
+    return (
+      <Row className='ItemsList__header h4'>
+        <Col xl>
+          {title}
+        </Col>
+      </Row>
+    )
   } else {
     return (
-      <div className='ItemsList__header'>
+      <div className='ItemsList__header h4'>
         {title}
       </div>
     )
   }
 }
 
-function renderList (layout, items) {
+function renderList (layout, items, title) {
   if (layout === 'table') {
     return (
       <div className='ItemsList__list'>
@@ -60,6 +61,11 @@ function renderList (layout, items) {
   } else if (layout === 'grid') {
     return (
       <Row className='ItemsList__list'>
+        {title &&
+          <Col xs={12} lg={2}>
+            {renderTitle(title, layout)}
+          </Col>
+        }
         {items}
       </Row>
     )
@@ -80,6 +86,7 @@ function renderListItems (layout, list, model) {
     return (
       <ListItem
         key={i}
+        artist={item.artist}
         date={date}
         image={item.images[0]}
         layout={layout}
@@ -87,6 +94,7 @@ function renderListItems (layout, list, model) {
         title={item.title}
         venue={venue}
         published={item.published}
+        publisher={item.publisher}
       />
     )
   })

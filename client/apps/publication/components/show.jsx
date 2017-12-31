@@ -12,7 +12,7 @@ export const PublicationShow = (props) => {
     <LayoutColumn
       className='PublicationShow'
       label={label}
-      labelLink={`/${label}`}
+      labelLink={`/${label.toLowerCase()}`}
     >
       <PublicationHeader
         publication={publication}

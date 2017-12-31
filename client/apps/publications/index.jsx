@@ -37,9 +37,8 @@ class Publications extends Component {
 
     } else {
       return (
-        <LayoutColumn
+        <div
           className='Publications'
-          label={label}
         >
           {isAdmin &&
             <NewButton
@@ -48,11 +47,12 @@ class Publications extends Component {
             />
           }
           <ItemsList
-            model='publications'
+            model={label.toLowerCase()}
             list={list}
-            comingSoon
+            title={label}
+            layout='table'
           />
-        </LayoutColumn>
+        </div>
       )
     }
   }

@@ -6,7 +6,17 @@ import { ItemTable } from './item_table.jsx'
 import { ItemGrid } from './item_grid.jsx'
 
 export const ListItem = (props) => {
-  const { date, image, layout, slug, title, venue, published } = props
+  const {
+    artist,
+    date,
+    image,
+    layout,
+    slug,
+    title,
+    venue,
+    published,
+    publisher
+  } = props
 
   if (layout === 'table') {
     return (
@@ -16,9 +26,11 @@ export const ListItem = (props) => {
       >
         <a href={slug}>
           <ItemTable
+            artist={artist}
             date={date}
             title={title}
             venue={venue}
+            publisher={publisher}
           />
         </a>
       </div>
@@ -34,9 +46,11 @@ export const ListItem = (props) => {
         data-published={published}>
         <a href={slug}>
           <ItemGrid
+            artist={artist}
             date={date}
             title={title}
             venue={venue}
+            publisher={publisher}
             image={image}
           />
         </a>
@@ -58,6 +72,7 @@ export const ListItem = (props) => {
 }
 
 ListItem.propTypes = {
+  artist: PropTypes.string,
   date: PropTypes.string,
   image: PropTypes.object,
   layout: PropTypes.string,

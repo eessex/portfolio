@@ -20,7 +20,7 @@ export class Social extends Component {
   }
 
   renderSocialList = (social) => {
-    if (social && social.length) {
+    if (social) {
       const services = ['soundcloud', 'facebook', 'instagram', 'twitter']
 
       return services.map((service, i) => {

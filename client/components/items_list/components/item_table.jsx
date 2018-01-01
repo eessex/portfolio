@@ -3,7 +3,7 @@ import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 
 export const ItemTable = (props) => {
-  const { artist, date, title, venue, publisher } = props
+  const { artist, date, format, title, venue, publisher } = props
 
   return (
     <Row className='Item ItemTable'>
@@ -23,10 +23,19 @@ export const ItemTable = (props) => {
           <h4>{venue}</h4>
         </Col>
       }
-      {publisher &&
-        <Col sm={12} lg={3} className='Item__venue'>
-          <h4>{publisher}</h4>
-        </Col>
+      {publisher
+        ? <Col sm={12} lg={3} className='Item__venue'>
+            <h4>
+              {format &&
+                <span className='format'>{format}, </span>
+              }
+              {publisher}
+            </h4>
+          </Col>
+        : format &&
+          <Col sm={12} lg={3} className='Item__venue'>
+            <h4>{format}</h4>
+          </Col>
       }
     </Row>
   )

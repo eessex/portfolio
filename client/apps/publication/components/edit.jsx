@@ -100,6 +100,12 @@ export class PublicationEdit extends Component {
               onChange={(value) => this.onChange('publisher', value)}
             />
             <PlainText
+              content={publication.format}
+              placeholder='Format'
+              className='Publication__format p'
+              onChange={(value) => this.onChange('format', value)}
+            />
+            <PlainText
               content={publication.release_date}
               placeholder='Release Year'
               className='Publication__release-date p'

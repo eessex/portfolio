@@ -10,6 +10,7 @@ export const ListItem = (props) => {
     artist,
     date,
     image,
+    format,
     layout,
     slug,
     title,
@@ -28,6 +29,7 @@ export const ListItem = (props) => {
           <ItemTable
             artist={artist}
             date={date}
+            format={format}
             title={title}
             venue={venue}
             publisher={publisher}

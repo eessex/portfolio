@@ -89,6 +89,7 @@ function renderListItems (layout, list, model) {
         key={i}
         artist={item.artist}
         date={date}
+        format={item.format}
         image={item.images[0]}
         layout={layout}
         slug={`/${model}/${item.slug || item._id}`}

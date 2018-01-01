@@ -5,6 +5,7 @@ import * as Actions from '../../actions/publications'
 import { ItemsList } from '../../components/items_list/index.jsx'
 import { NewButton } from '../../components/header/components/new_button.jsx'
 import { LayoutColumn } from '../../components/layout/column.jsx'
+import { filter } from 'lodash'
 
 class Publications extends Component {
   constructor(props) {
@@ -23,12 +24,21 @@ class Publications extends Component {
     this.props.actions.fetchPublications(this.state.query)
   }
 
+  getReleases = (compilation=false) => {
+    const { list } = this.props.publications
+    let sortedReleases = []
+
+    sortedReleases = filter(list, { compilation: compilation })
+    return sortedReleases
+  }
+
   render() {
     const { actions, match, publications, settings } = this.props
     const { isAdmin } = this.state
     const { loading } = settings
     const { list } = publications
     const label = match.path.replace('/','') === 'publications' ? 'Publications' : 'Releases'
+    const compilations = this.getReleases(true)
 
     if (loading) {
       return (
@@ -48,10 +58,18 @@ class Publications extends Component {
           }
           <ItemsList
             model={label.toLowerCase()}
-            list={list}
+            list={this.getReleases()}
             title={label}
             layout='table'
           />
+          {compilations &&
+            <ItemsList
+              model={label.toLowerCase()}
+              list={compilations}
+              title='Compilations'
+              layout='table'
+            />
+          }
         </div>
       )
     }

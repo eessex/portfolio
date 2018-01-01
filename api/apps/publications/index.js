@@ -14,7 +14,7 @@ publications.route('/')
   })
   // all publications
   .get((req, res) => {
-    Publication.find(req.query).exec(function(err, publications) {
+    Publication.find(req.query).sort({release_date: 'desc', artist: 'asc'}).exec(function(err, publications) {
       if (err)
         res.send(err)
       res.json(publications)

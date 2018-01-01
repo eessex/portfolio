@@ -61,6 +61,7 @@ class Publications extends Component {
             list={this.getReleases()}
             title={label}
             layout='table'
+            className={`Publications__${label.toLowerCase()}`}
           />
           {compilations &&
             <ItemsList
@@ -68,6 +69,7 @@ class Publications extends Component {
               list={compilations}
               title='Compilations'
               layout='table'
+              className='Publications__compilations'
             />
           }
         </div>

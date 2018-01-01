@@ -8,6 +8,7 @@ import { ListItem } from './components/list_item.jsx'
 export const ItemsList = (props) => {
   const {
     children,
+    className,
     comingSoon,
     list,
     model,
@@ -17,11 +18,11 @@ export const ItemsList = (props) => {
   const layout = props.layout || 'list'
   const listItems = children ? children : renderListItems(layout, list, model)
   const layoutClass = layout ? ' ' + layout : ''
-  const className = ' ItemsList--' + model + layoutClass
+  const classModelName = 'ItemsList--' + model + layoutClass
   const renderedTitle = title && title.length ? title : capitalize(model)
 
   return(
-    <div className={'ItemsList' + className}>
+    <div className={`ItemsList ${classModelName} ${className || ''}`}>
       {title && layout !== 'grid' &&
         renderTitle(renderedTitle, props.layout)
       }

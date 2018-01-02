@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Button } from './buttons/button.jsx' 
+import { Button } from './buttons/button.jsx'
 import { SaveButton } from './buttons/save.jsx'
 
 export const EditNav = (props) => {

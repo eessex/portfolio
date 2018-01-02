@@ -9,6 +9,8 @@ import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
 
+import { EditHeader } from './edit/edit_header.jsx'
+
 export class PublicationEdit extends Component {
   static propTypes = {
     actions: PropTypes.any,
@@ -67,69 +69,77 @@ export class PublicationEdit extends Component {
           label={label}
           labelLink={`/${label}`}
         >
-          {images[0]
-          ?
-            <EditImagesList
-              fetchUpload={fetchUpload}
-              images={publication.images}
-              onChange={(value) => this.onChange('images', value)}
-            />
-          :
-            <FileInput
-              fetchUpload={fetchUpload}
-              onChange={(image) => this.onChange('images', [image])}
-            />
-          }
-          <div className='PublicationEdit__body'>
-            <PlainText
-              content={publication.artist}
-              placeholder='Artist'
-              className='Publication__artist h1'
-              onChange={(value) => this.onChange('artist', value)}
-            />
-            <PlainText
-              content={publication.title}
-              placeholder='Publication title'
-              className='Publication__title h1'
-              onChange={(value) => this.onChange('title', value)}
-            />
-            <PlainText
-              content={publication.publisher}
-              placeholder='Publisher/Label'
-              className='Publication__publisher p'
-              onChange={(value) => this.onChange('publisher', value)}
-            />
-            <PlainText
-              content={publication.format}
-              placeholder='Format'
-              className='Publication__format p'
-              onChange={(value) => this.onChange('format', value)}
-            />
-            <PlainText
-              content={publication.release_date}
-              placeholder='Release Year'
-              className='Publication__release-date p'
-              onChange={(value) => this.onChange('release_date', value)}
-            />
-            <RichText
-              html={publication.description}
-              placeholder='Description'
-              className='Publication__description'
-              onChange={(value) => this.onChange('description', value)}
-            />
-            <PlainText
-              content={publication.embed_url}
-              placeholder='Embed URL'
-              className='Publication__embed p'
-              onChange={(value) => this.onChange('embed_url', value)}
-            />
-            <EditLinkList
-              links={links}
-              onChange={(value) => this.onChange('links', value)}
-            />
-          </div>
+          <EditHeader
+            publication={publication}
+            label={label}
+            onChange={this.onChange}
+          />
+
         </LayoutColumn>
       </div>
     )
   }
 }
+
+
+// {images[0]
+//   ?
+//     <EditImagesList
+//       fetchUpload={fetchUpload}
+//       images={publication.images}
+//       onChange={(value) => this.onChange('images', value)}
+//     />
+//   :
+//     <FileInput
+//       fetchUpload={fetchUpload}
+//       onChange={(image) => this.onChange('images', [image])}
+//     />
+//   }
+//   <div className='PublicationEdit__body'>
+//     <PlainText
+//       content={publication.artist}
+//       placeholder='Artist'
+//       className='Publication__artist h1'
+//       onChange={(value) => this.onChange('artist', value)}
+//     />
+//     <PlainText
+//       content={publication.title}
+//       placeholder='Publication title'
+//       className='Publication__title h1'
+//       onChange={(value) => this.onChange('title', value)}
+//     />
+//     <PlainText
+//       content={publication.publisher}
+//       placeholder='Publisher/Label'
+//       className='Publication__publisher p'
+//       onChange={(value) => this.onChange('publisher', value)}
+//     />
+//     <PlainText
+//       content={publication.format}
+//       placeholder='Format'
+//       className='Publication__format p'
+//       onChange={(value) => this.onChange('format', value)}
+//     />
+//     <PlainText
+//       content={publication.release_date}
+//       placeholder='Release Year'
+//       className='Publication__release-date p'
+//       onChange={(value) => this.onChange('release_date', value)}
+//     />
+    // <RichText
+    //   html={publication.description}
+    //   placeholder='Description'
+    //   className='Publication__description'
+    //   onChange={(value) => this.onChange('description', value)}
+    // />
+//     <PlainText
+//       content={publication.embed_url}
+//       placeholder='Embed URL'
+//       className='Publication__embed p'
+//       onChange={(value) => this.onChange('embed_url', value)}
+//     />
+//     <EditLinkList
+//       links={links}
+//       onChange={(value) => this.onChange('links', value)}
+//     />
+//   </div>

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
 const States = [
   '', 'AL', 'AK', 'AS', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL', 'GA', 'HI',
@@ -7,16 +7,7 @@ const States = [
   'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
 ]
 
-class SelectInput extends Component {
-  constructor(props) {
-    super(props);
-
-    this.onChange = this.onChange.bind(this);
-  }
-
-  onChange(e) {
-    this.props.onChange(this.props.name, e.target.value)
-  }
+export class SelectInput extends Component {
 
   renderLabel(label) {
     if (label && label.length > 0) {
@@ -28,6 +19,7 @@ class SelectInput extends Component {
 
   renderOptions(options) {
     if (this.props.states) { options = States }
+
     const renderOptions = options.map((value, i) =>
       <option key={i} value={value}>{value}</option>
     )
@@ -35,13 +27,14 @@ class SelectInput extends Component {
   }
 
   renderInput() {
-    const { name, value, required, options} = this.props
+    const { name, value, required, options, onChange } = this.props
+
     return (
       <select
         required={required || false}
         name={name}
         defaultValue={value}
-        onChange={this.onChange} >
+        onChange={(e) => onChange(name, e.target.value)} >
         {this.renderOptions(options)}
       </select>
     )
@@ -58,8 +51,6 @@ class SelectInput extends Component {
         {this.renderLabel(label)}
         {this.renderInput()}
       </div>
-    );
+    )
   }
 }
-
-export default SelectInput;

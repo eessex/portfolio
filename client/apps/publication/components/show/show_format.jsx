@@ -16,7 +16,7 @@ export class ShowFormat extends Component {
       publisher,
       release_year
     } = item
-    const formattedFormat = (publisher || (release_year && !short)) ? `${format}, ` : format
+    const formattedFormat = format && (publisher || (release_year && !short)) ? `${format}, ` : format
     const formattedPublisher = release_year && !short ? `${publisher}, ` : publisher 
 
     return (

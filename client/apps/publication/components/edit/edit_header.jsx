@@ -10,18 +10,15 @@ import { ShowFormat } from '../show/show_format.jsx'
 export class EditHeader extends Component {
   static propTypes = {
     className: PropTypes.string,
+    isEditing: PropTypes.string,
     label: PropTypes.string,
     publication: PropTypes.object.isRequired,
-    onChange: PropTypes.func.isRequired
-  }
-
-  state = {
-    isEditing: null
+    onChange: PropTypes.func.isRequired,
+    setEditing: PropTypes.func.isRequired
   }
 
   renderInputFields = () => {
-    const { label, publication, onChange } = this.props
-    const { isEditing } = this.state
+    const { isEditing, label, publication, onChange } = this.props
     let inputs
 
     switch (isEditing) {
@@ -50,17 +47,16 @@ export class EditHeader extends Component {
   }
 
   render () {
-    const { className, onChange, publication } = this.props
-    const { isEditing } = this.state
+    const { className, onChange, isEditing, publication, setEditing } = this.props
     const { artist, formats, title } = publication
 
     return (
       <div className={`EditHeader ${className}`}>
         <div className='EditHeader__title h1'>
-          <div className='artist' onClick={() => this.setState({isEditing: 'artist'})}>
+          <div className='artist' onClick={() => setEditing('artist')}>
             {artist ? `${artist}: ` : 'Add Artist'}
           </div>
-          <div className='title' onClick={() => this.setState({isEditing: 'title'})}>
+          <div className='title' onClick={() => setEditing('title')}>
             {title}
           </div>
         </div>
@@ -70,18 +66,19 @@ export class EditHeader extends Component {
             <ShowFormat
               item={format}
               key={index}
-              onClick={() => this.setState({isEditing: 'formats'})}
+              onClick={() => setEditing('formats')}
             />
           )}
 
         {isEditing &&
+        ['artist', 'formats', 'title'].indexOf(isEditing) !== -1 &&
           <div className='editModal'>
             <div className='EditModal__inputs'>
               {this.renderInputFields()}
             </div>
             <Modal
               backgroundColor='rgba(0,0,0,.5)'
-              onClick={() => this.setState({ isEditing: null })}
+              onClick={() => setEditing(null)}
             />
           </div>
         }

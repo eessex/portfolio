@@ -23,9 +23,10 @@ export class PublicationEdit extends Component {
   }
 
   state = {
-      publication: this.props.publication,
-      isSaved: true
-    }
+    publication: this.props.publication,
+    isEditing: null,
+    isSaved: true
+  }
 
   onChange = (key, value) => {
     const publication = this.state.publication
@@ -59,15 +60,17 @@ export class PublicationEdit extends Component {
   }
 
   editHeader = () => {
-    const { publication } = this.state
+    const { publication, isEditing } = this.state
     const { label } = this.props
 
     return (
       <EditHeader
+        isEditing={isEditing}
         publication={publication}
         label={label}
         onChange={this.onChange}
         className='Publication__header'
+        setEditing={(editing) => this.setState({isEditing: editing})}
       />
     )
   }
@@ -101,6 +104,8 @@ export class PublicationEdit extends Component {
           model='publications'
           onPublish={() => this.onChange('published', !publication.published)}
           saveItem={() => this.maybeSavePublication(publication, true)}
+          onClickImage={() => this.setState({isEditing: 'images'})}
+          onClickEmbed={() => this.setState({isEditing: 'embeds'})}
         />
         <LayoutGrid
           body={this.editBody}

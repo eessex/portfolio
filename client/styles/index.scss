@@ -33,6 +33,13 @@ button {
     top: 10px;
     right: 20px;
     z-index: 100;
+    align-items: center;
+    display: flex;
+    &__icon {
+      width: inherit;
+      padding: 2px 12px;
+      font-size: 1.3em;
+    }
 }
 
 .Loading {

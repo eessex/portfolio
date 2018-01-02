@@ -6,17 +6,18 @@ export const Button = (props) => {
   const {
     borderless,
     children,
+    className,
     color,
     icon,
     onClick,
     text
   } = props
-  const className = icon ? ' IconButton' : ''
+  const formatClassName = icon ? ` IconButton ${className}` : className
   const child = text ? text : children
 
   return (
     <button
-      className={'Button' + className}
+      className={'Button' + formatClassName}
       onClick={onClick}
       style={{
         borderWidth: borderless ? '0' : '1px',
@@ -37,6 +38,7 @@ export const Button = (props) => {
 Button.propTypes = {
   borderless: PropTypes.bool,
   children: PropTypes.any,
+  className: PropTypes.string,
   color: PropTypes.string,
   icon: PropTypes.string,
   onClick: PropTypes.func,

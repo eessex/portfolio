@@ -10,12 +10,28 @@ export const EditNav = (props) => {
     isSaving,
     item,
     model,
+    onClickEmbed,
+    onClickImage,
     onPublish,
     saveItem
   } = props
 
   return (
     <nav className='AdminNav AdminNav--Edit'>
+      {onClickImage &&
+        <Button
+          icon='camera'
+          onClick={onClickImage}
+          className='AdminNav__icon'
+        />
+      }
+      {onClickEmbed &&
+        <Button
+          icon='code'
+          onClick={onClickEmbed}
+          className='AdminNav__icon'
+        />
+      }
       {onPublish &&
         <Button
           text={item.published ? 'Unpublish' : 'Publish'}

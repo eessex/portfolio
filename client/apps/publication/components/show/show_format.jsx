@@ -20,9 +20,9 @@ export class ShowFormat extends Component {
     const formattedPublisher = release_year && !short ? `${publisher}, ` : publisher 
 
     return (
-      <div className='ShowFormat' onClick={onClick}>
+      <div className='ShowFormat' onClick={onClick && onClick}>
        {formattedFormat}
-       {formattedPublisher}
+       {publisher && formattedPublisher}
        {!short && release_year}
       </div>
     )

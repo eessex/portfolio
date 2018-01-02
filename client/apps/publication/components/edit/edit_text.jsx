@@ -4,14 +4,14 @@ import { capitalize } from 'underscore.string'
 import { PlainText } from '../../../../components/forms/rich_text/plain_text.jsx'
 
 export const EditText = (props) => {
-  const { className, name, value, onChange } = props
+  const { className, label, name, value, onChange } = props
 
   return (
-    <div className={`Edit${capitalize(name)}`}>
+    <div className={`EditText Edit${capitalize(name)}`}>
       <label>{capitalize(name)}</label>
       <PlainText
         content={value}
-        placeholder={`Publication ${name}`}
+        placeholder={`${capitalize(label.slice(0,-1))} ${name}`}
         className={`Publication__${name} ${className}`}
         onChange={(value) => onChange(name, value)}
       />
@@ -21,6 +21,7 @@ export const EditText = (props) => {
 
 EditText.propTypes = {
   className: PropTypes.string,
+  label: PropTypes.string.isRequired,
   name: PropTypes.string,
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired

@@ -9,6 +9,7 @@ import { ShowFormat } from '../show/show_format.jsx'
 
 export class EditHeader extends Component {
   static propTypes = {
+    className: PropTypes.string,
     label: PropTypes.string,
     publication: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired
@@ -19,45 +20,42 @@ export class EditHeader extends Component {
   }
 
   renderInputFields = () => {
-    const { publication, onChange } = this.props
+    const { label, publication, onChange } = this.props
     const { isEditing } = this.state
     let inputs
 
     switch (isEditing) {
-      case 'artist': {
-        inputs = <EditText
+      case 'title': {
+        return <EditText
           className='h1'
+          label={label}
+          name='title'
+          onChange={onChange}
+          value={publication.title}
+        />
+      }
+      case 'artist': {
+        return <EditText
+          className='h1'
+          label={label}
           name='artist'
           onChange={onChange}
           value={publication.artist}
         />
       }
       case 'formats': {
-        inputs = <EditFormats {...this.props} />
-      }
-      case 'title': {
-        inputs = <EditText
-          className='h1'
-          name='title'
-          onChange={onChange}
-          value={publication.title}
-        />
+        return <EditFormats {...this.props} />
       }
     }
-    return (
-      <div className='EditModal__inputs'>
-        {inputs}
-      </div>
-    )
   }
 
   render () {
-    const { publication, onChange } = this.props
+    const { className, onChange, publication } = this.props
     const { isEditing } = this.state
     const { artist, formats, title } = publication
 
     return (
-      <div className='EditHeader'>
+      <div className={`EditHeader ${className}`}>
         <div className='EditHeader__title h1'>
           <div className='artist' onClick={() => this.setState({isEditing: 'artist'})}>
             {artist ? `${artist}: ` : 'Add Artist'}
@@ -76,17 +74,11 @@ export class EditHeader extends Component {
             />
           )}
 
-        <RichText
-          html={publication.description}
-          placeholder='Description'
-          className='Publication__description'
-          onChange={(value) => this.onChange('description', value)}
-        />
-
-
         {isEditing &&
           <div className='editModal'>
-            {this.renderInputFields()}
+            <div className='EditModal__inputs'>
+              {this.renderInputFields()}
+            </div>
             <Modal
               backgroundColor='rgba(0,0,0,.5)'
               onClick={() => this.setState({ isEditing: null })}

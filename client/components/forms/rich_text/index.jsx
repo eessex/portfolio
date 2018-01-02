@@ -76,17 +76,28 @@ export class RichText extends Component {
   }
 
   onChange = (editorState) => {
-    const { name } = this.props
+    const currentContentState = this.state.editorState.getCurrentContent()
+    const newContentState = editorState.getCurrentContent()
+    let newContent = newContentState.getPlainText()
     const html = this.inputToHtml(editorState)
 
+    if (currentContentState !== newContentState) {
+      // There was a change in the content
+      this.onContentChange(html)
+    }
     this.setState({
       editorState,
       html
     })
+  }
+
+  onContentChange = (html) => {
+    const { name, onChange } = this.props
+
     if (name) {
-      this.props.onChange(name, html)
+      onChange(name, html)
     } else {
-      this.props.onChange(html)
+      onChange(html)
     }
   }
 

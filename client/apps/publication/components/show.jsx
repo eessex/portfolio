@@ -1,35 +1,75 @@
 import PropTypes from 'prop-types'
-import React from 'react'
-import { PublicationHeader } from './header.jsx'
-import { LayoutColumn } from '../../../components/layout/column.jsx'
+import React, { Component } from 'react'
 import { Embed } from '../../../components/embeds/embed_list.jsx'
+import { ImageShow } from '../../../components/images/image/image_show.jsx'
+import { LayoutGrid } from '../../../components/layout/grid.jsx'
+import { PublicationHeader } from './header.jsx'
 
-export const PublicationShow = (props) => {
-  const { publication, label } = props || {}
-  const { title, images, description, embed_url } = publication
+export class PublicationShow extends Component {
+  showFooter = () => {
+    const { publication } = this.props
+    return renderLinks(publication)
+  }
 
-  return (
-    <LayoutColumn
-      className='PublicationShow'
-      label={label}
-      labelLink={`/${label.toLowerCase()}`}
-    >
-      <PublicationHeader
-        publication={publication}
-        coverImage={images && images[0]}
-      />
-      {description &&
+  showBody = () => {
+    const { description } = this.props.publication
+
+    if (description) {
+      return (
         <div
-          className='PublicationShow__body'
+          className='Publication__description'
           dangerouslySetInnerHTML={{__html: description}}
         />
-      }
-      {embed_url &&
-        <Embed item={embed_url} />
-      }
-      {renderLinks(publication)}
-    </LayoutColumn>
-  )
+      )
+    }
+  }
+
+  showHeader = () => {
+    const { publication } = this.props
+
+    return (
+      <PublicationHeader publication={publication} />
+    )
+  }
+
+  showCoverImage = () => {
+    const { publication } = this.props
+    const images = publication.images || []
+
+    if (images.length) {
+      const image = images[0]
+      return (
+        <ImageShow {...image} />
+      )
+    }
+  }
+
+  showMedia = () => {
+    const { embed_url } = this.props.publication
+
+    if (embed_url) {
+      return <Embed item={embed_url} />
+    }
+  }
+
+  render () {
+    const { publication, label } = this.props
+    const { compilation, title, images, description, embed_url } = publication
+    const formattedLabel = compilation ? `${label.slice(0,-1)} : Compilation` : label.slice(0,-1)
+
+    return (
+      <LayoutGrid
+        body={this.showBody}
+        className='PublicationShow'
+        coverImage={images && images[0] && this.showCoverImage}
+        footer={this.showFooter}
+        header={this.showHeader}
+        label={formattedLabel}
+        labelLink={`/${label.toLowerCase()}`}
+        media={embed_url && this.showMedia}
+      />
+    )
+  }
 }
 
 PublicationShow.propTypes = {

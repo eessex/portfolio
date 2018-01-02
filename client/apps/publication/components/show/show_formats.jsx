@@ -6,7 +6,7 @@ export const ShowFormats = (props) => {
   const { items, short, onClick } = props
 
   return (
-    <div className='ShowFormats' data-condensed={short}>
+    <div className='ShowFormats' data-condensed={short} onClick={onClick && onClick}>
       {items.map((item, index) =>
         <ShowFormat
           key={index}

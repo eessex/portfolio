@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { ImageShow } from '../../../components/images/image/image_show.jsx'
-import { ShowFormat } from './show/show_format.jsx'
+import { ShowFormats } from './show/show_formats.jsx'
 
 export const PublicationHeader = (props) => {
     const { coverImage, publication } = props
@@ -27,14 +27,12 @@ export const PublicationHeader = (props) => {
               {artist && `${artist}: `}{title}
             </div>
         }
-        {formats && formats.length &&
-          formats.map((format, index) =>
-            <ShowFormat
-              item={format}
-              key={index}
-              onClick={() => this.setState({isEditing: 'formats'})}
-            />
-          )}
+        {formats &&
+          <ShowFormats
+            items={formats}
+            onClick={() => this.setState({isEditing: 'formats'})}
+          />
+        }
         {coverImage && url &&
           <ImageShow {...coverImage} />
         }
@@ -45,14 +43,4 @@ export const PublicationHeader = (props) => {
 PublicationHeader.propTypes = {
   coverImage: PropTypes.object,
   title: PropTypes.string
-}
-
-const formatPublishDate = (date, publisher) => {
-  const formattedDate = date && publisher ? `, ${date}` : date
-
-  return (
-    <div className='h4'>
-      {publisher}{formattedDate}
-    </div>
-  )
 }

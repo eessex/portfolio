@@ -1,15 +1,15 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { EditImagesList } from '../../../components/forms/images/edit_images_list.jsx'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
-import { FileInput } from '../../../components/forms/file_input/index.jsx'
+import { ImageShow } from '../../../components/images/image/image_show.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
 import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
 
 import { EditHeader } from './edit/edit_header.jsx'
+import { EditImages } from './edit/edit_images.jsx'
 
 export class PublicationEdit extends Component {
   static propTypes = {
@@ -86,12 +86,37 @@ export class PublicationEdit extends Component {
     )
   }
 
+  editImages = () => {
+    const { publication } = this.state
+    const { actions } = this.props
+
+    return (
+      <EditImages
+        item={publication}
+        fetchUpload={actions.fetchUpload}
+        onChange={(value) => this.onChange('images', value)}
+        setEditing={(editing) => this.setState({isEditing: editing})}
+      />
+    )
+  }
+
+  showCoverImage = () => {
+    const { publication } = this.props
+    const images = publication.images || []
+
+    if (images.length) {
+      const image = images[0]
+      return (
+        <ImageShow {...image} />
+      )
+    }
+  }
+
   render () {
-    const { publication, isSaved } = this.state
+    const { publication, isEditing, isSaved } = this.state
     const { actions, isSaving, label } = this.props
     const { fetchUpload, updatePublication, deletePublication } = actions
 
-    const images = publication.images || []
     const links = publication.links || []
 
     return (
@@ -109,30 +134,18 @@ export class PublicationEdit extends Component {
         />
         <LayoutGrid
           body={this.editBody}
+          coverImage={this.showCoverImage}
           header={this.editHeader}
           footer={this.editFooter}
           label={label.slice(0,-1)}
           labelLink={`/${label.toLowerCase()}`}
         />
+        {isEditing === 'images' && this.editImages()}
       </div>
     )
   }
 }
 
-
-// {images[0]
-//   ?
-//     <EditImagesList
-//       fetchUpload={fetchUpload}
-//       images={publication.images}
-//       onChange={(value) => this.onChange('images', value)}
-//     />
-//   :
-//     <FileInput
-//       fetchUpload={fetchUpload}
-//       onChange={(image) => this.onChange('images', [image])}
-//     />
-//   }
 //     <PlainText
 //       content={publication.embed_url}
 //       placeholder='Embed URL'

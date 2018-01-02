@@ -1,10 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import CheckboxInput from '../../../../components/forms/checkbox_input.js'
 import { Button } from '../../../../components/forms/buttons/button.jsx'
-import { SelectInput } from '../../../../components/forms/select_input.js'
-import { PlainText } from '../../../../components/forms/rich_text/plain_text.jsx'
 import { EditFormat } from './edit_format.jsx'
 
 export class EditFormats extends Component {

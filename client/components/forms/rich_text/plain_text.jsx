@@ -23,6 +23,7 @@ export class PlainText extends Component {
   }
 
   onChange = (editorState) => {
+    const { forceUpdate } = this.props
     const currentContentState = this.state.editorState.getCurrentContent()
     const newContentState = editorState.getCurrentContent()
     let newContent = newContentState.getPlainText()
@@ -30,12 +31,14 @@ export class PlainText extends Component {
     if (currentContentState !== newContentState) {
       // There was a change in the content
       this.onContentChange(newContent)
+      forceUpdate && this.setState({ editorState: this.setEditorState() })
+    } else {
+      this.setState({ editorState })
     }
-    this.setState({ editorState })
   }
 
   onContentChange = (content) => {
-    const { name, onChange } = this.props
+    const { name, forceUpdate, onChange } = this.props
 
     if (name) {
       onChange(name, content)
@@ -66,7 +69,8 @@ export class PlainText extends Component {
           placeholder={placeholder || 'Start Typing...'}
           handleReturn={() => 'handled'}
           onChange={this.onChange}
-          spellcheck />
+          spellcheck
+        />
       </div>
     )
   }
@@ -74,6 +78,7 @@ export class PlainText extends Component {
 
 PlainText.propTypes = {
   content: PropTypes.string,
+  forceUpdate: PropTypes.bool,
   name: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string

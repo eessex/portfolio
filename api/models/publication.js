@@ -18,7 +18,7 @@ var PublicationSchema = new Schema({
     }
   ],
   embed_url: String,
-  embed_urls: { type: Array, default: [] },
+  embed_codes: { type: Array, default: [] },
   description: String,
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },

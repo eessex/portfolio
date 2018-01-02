@@ -8,6 +8,7 @@ import { LayoutGrid } from '../../../components/layout/grid.jsx'
 import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
 
+import { EditEmbeds } from './edit/edit_embeds.jsx'
 import { EditHeader } from './edit/edit_header.jsx'
 import { EditImages } from './edit/edit_images.jsx'
 
@@ -100,6 +101,18 @@ export class PublicationEdit extends Component {
     )
   }
 
+  editEmbeds = () => {
+    const { publication } = this.state
+
+    return (
+      <EditEmbeds
+        embed_codes={publication.embed_codes || []}
+        onChange={(value) => this.onChange('embed_codes', value)}
+        setEditing={(editing) => this.setState({isEditing: editing})}
+      />
+    )
+  }
+
   showCoverImage = () => {
     const { publication } = this.props
     const images = publication.images || []
@@ -141,14 +154,9 @@ export class PublicationEdit extends Component {
           labelLink={`/${label.toLowerCase()}`}
         />
         {isEditing === 'images' && this.editImages()}
+        {isEditing === 'embeds' && this.editEmbeds()}
       </div>
     )
   }
 }
 
-//     <PlainText
-//       content={publication.embed_url}
-//       placeholder='Embed URL'
-//       className='Publication__embed p'
-//       onChange={(value) => this.onChange('embed_url', value)}
-//     />

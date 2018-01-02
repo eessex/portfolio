@@ -71,6 +71,19 @@
   }
 }
 
+.EditEmbeds {
+  &__list-item {
+    position: relative;
+    width: 100%;
+    padding-bottom: 20px;
+    .Button {
+      position: absolute;
+      right: -5px;
+      top: -5px;
+    }
+  }
+}
+
 .EditText .plain-text {
   border-bottom: 2px solid silver;
   padding-bottom: 2px;

@@ -48,6 +48,11 @@ class Header extends Component {
     }
   }
 
+  isActive (navItem) {
+    const { pathname } = window.location
+    return (pathname).replace('/', '') === navItem || pathname === '/' && navItem === 'events'
+  }
+
   headerInner = (isFixed) => {
     const { title, nav } = this.props.settings.settings
     const { isAuthenticated } = this.props.user
@@ -69,7 +74,7 @@ class Header extends Component {
               className='Header__nav-item'
               href={`/${navItem}`}
               key={i}
-              data-active={(window.location.pathname).replace('/', '') === navItem}
+              data-active={this.isActive(navItem)}
             >
               {capitalize(navItem)}
             </a>

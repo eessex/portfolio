@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Col } from 'react-styled-flexboxgrid'
-// import { Link } from 'react-router-dom'
 import { ItemTable } from './item_table.jsx'
 import { ItemGrid } from './item_grid.jsx'
 
@@ -10,7 +9,7 @@ export const ListItem = (props) => {
     artist,
     date,
     image,
-    format,
+    formats,
     layout,
     slug,
     title,
@@ -26,14 +25,7 @@ export const ListItem = (props) => {
         data-published={published}
       >
         <a href={slug}>
-          <ItemTable
-            artist={artist}
-            date={date}
-            format={format}
-            title={title}
-            venue={venue}
-            publisher={publisher}
-          />
+          <ItemTable {...props} />
         </a>
       </div>
     )
@@ -45,16 +37,10 @@ export const ListItem = (props) => {
         sm={6}
         xl={4}
         className='ListItem'
-        data-published={published}>
+        data-published={published}
+      >
         <a href={slug}>
-          <ItemGrid
-            artist={artist}
-            date={date}
-            title={title}
-            venue={venue}
-            publisher={publisher}
-            image={image}
-          />
+          <ItemGrid {...props} />
         </a>
       </Col>
     )
@@ -76,6 +62,7 @@ export const ListItem = (props) => {
 ListItem.propTypes = {
   artist: PropTypes.string,
   date: PropTypes.string,
+  formats: PropTypes.array,
   image: PropTypes.object,
   layout: PropTypes.string,
   slug: PropTypes.string.isRequired,

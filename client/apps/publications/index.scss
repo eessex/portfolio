@@ -1,3 +1,14 @@
 .Publications__compilations {
   margin-top: 5em;
 }
+
+.Publications {
+  .ShowFormats {
+    &[data-condensed=true] {
+      display: flex;
+      .ShowFormat:first-child {
+        margin-right: 20px;
+      }
+    }
+  }
+}

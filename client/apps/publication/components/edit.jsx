@@ -1,18 +1,16 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
+import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
-import { ImageShow } from '../../../components/images/image/image_show.jsx'
-import { LayoutGrid } from '../../../components/layout/grid.jsx'
 import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
-
+import { ImageShow } from '../../../components/images/image/image_show.jsx'
+import { LayoutGrid } from '../../../components/layout/grid.jsx'
 import { EditEmbeds } from './edit/edit_embeds.jsx'
 import { EditHeader } from './edit/edit_header.jsx'
 import { EditImages } from './edit/edit_images.jsx'
-
-import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 
 export class PublicationEdit extends Component {
   static propTypes = {
@@ -168,4 +166,3 @@ export class PublicationEdit extends Component {
     )
   }
 }
-

@@ -4,6 +4,7 @@ import { ModalContainer } from '../../../../components/modal/modal_container.jsx
 import { PlainText } from '../../../../components/forms/rich_text/plain_text.jsx'
 import { RichText } from '../../../../components/forms/rich_text/index.jsx'
 import { ShowFormat } from '../show/show_format.jsx'
+import { PublicationHeader } from '../header.jsx'
 import { EditFormats } from './edit_formats.jsx'
 import { EditText } from './edit_text.jsx'
 
@@ -52,14 +53,10 @@ export class EditHeader extends Component {
 
     return (
       <div className={`EditHeader ${className}`}>
-        <div className='EditHeader__title h1'>
-          <div className='artist' onClick={() => setEditing('artist')}>
-            {artist ? `${artist}: ` : 'Add Artist'}
-          </div>
-          <div className='title' onClick={() => setEditing('title')}>
-            {title}
-          </div>
-        </div>
+        <PublicationHeader
+          publication={publication}
+          setEditing={(value) => setEditing(value)}
+        />
 
         {formats && formats.length &&
           formats.map((format, index) =>

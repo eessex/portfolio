@@ -45,7 +45,7 @@ export class PublicationShow extends Component {
   }
 
   showMedia = () => {
-    const embed_codes = this.state.publication.embed_codes || []
+    const embed_codes = this.props.publication.embed_codes || []
 
     return <EmbedList embed_codes={embed_codes} />
   }

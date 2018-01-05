@@ -4,7 +4,7 @@ import { ImageShow } from '../../../components/images/image/image_show.jsx'
 import { ShowFormats } from './show/show_formats.jsx'
 
 export const PublicationHeader = (props) => {
-    const { coverImage, publication } = props
+    const { coverImage, publication, setEditing } = props
     const {
       artist,
       formats,
@@ -14,23 +14,48 @@ export const PublicationHeader = (props) => {
       publisher
     } = publication
     const { url } = coverImage || ''
+
     const renderBlock = (artist && artist.length > 30) || (title && title.length > 30)
+    const editArtist = () => setEditing('artist')
+    const editTitle = () => setEditing('title')
 
     return (
       <div className='Publication__header' data-layout={layout}>
         {renderBlock
           ? <div className='h1'>
-              <div>{artist && artist}</div>
-              <div>{title}</div>
+              <div
+                onClick={setEditing && editArtist}
+                data-placeholder={setEditing && !artist}
+              >
+                {artist ? artist : 'Add Artist'}
+              </div>
+              <div
+                onClick={setEditing && editTitle}
+                data-placeholder={setEditing && !title}
+              >
+                {title ? title : 'Add Title'}
+              </div>
             </div>
-          : <div className='h1'>
-              {artist && `${artist}: `}{title}
-            </div>
+
+            : <div className='h1'>
+                <span
+                  onClick={setEditing && editArtist}
+                  data-placeholder={setEditing && !artist}
+                >
+                  {artist ? `${artist}: ` : 'Add Artist'}
+                </span>
+                <span
+                  onClick={setEditing && editTitle}
+                  data-placeholder={setEditing && !title}
+                >
+                  {title ? title : 'Add Title'}
+                </span>
+              </div>
         }
         {formats &&
           <ShowFormats
             items={formats}
-            onClick={() => this.setState({isEditing: 'formats'})}
+            onClick={setEditing ? () => setEditing('formats') : undefined}
           />
         }
         {coverImage && url &&
@@ -42,5 +67,6 @@ export const PublicationHeader = (props) => {
 
 PublicationHeader.propTypes = {
   coverImage: PropTypes.object,
-  title: PropTypes.string
+  publication: PropTypes.object,
+  setEditing: PropTypes.func
 }

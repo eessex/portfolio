@@ -1,13 +1,9 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema
 
 var PublicationSchema = new Schema({
   artist: String,
-  compilation: { type: Boolean, default: false },
   title: String,
-  release_date: String,
-  publisher: String,
-  format: String,
   formats: [
     {
       publisher: { type: String },
@@ -17,7 +13,6 @@ var PublicationSchema = new Schema({
       featuring: { type: Boolean, default: false }
     }
   ],
-  embed_url: String,
   embed_codes: { type: Array, default: [] },
   description: String,
   created_at: { type: Date, default: Date.now },

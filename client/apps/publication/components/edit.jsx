@@ -12,6 +12,8 @@ import { EditEmbeds } from './edit/edit_embeds.jsx'
 import { EditHeader } from './edit/edit_header.jsx'
 import { EditImages } from './edit/edit_images.jsx'
 
+import { EmbedList } from '../../../components/embeds/embed_list.jsx'
+
 export class PublicationEdit extends Component {
   static propTypes = {
     actions: PropTypes.any,
@@ -58,6 +60,12 @@ export class PublicationEdit extends Component {
         onChange={(value) => this.onChange('description', value)}
       />
     )
+  }
+
+  showMedia = () => {
+    const embed_codes = this.state.publication.embed_codes || []
+
+    return <EmbedList embed_codes={embed_codes} />
   }
 
   editHeader = () => {
@@ -152,6 +160,7 @@ export class PublicationEdit extends Component {
           footer={this.editFooter}
           label={label.slice(0,-1)}
           labelLink={`/${label.toLowerCase()}`}
+          media={this.showMedia}
         />
         {isEditing === 'images' && this.editImages()}
         {isEditing === 'embeds' && this.editEmbeds()}

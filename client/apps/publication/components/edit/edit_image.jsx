@@ -30,16 +30,16 @@ export class EditImage extends Component {
 
   onChangeImage = (image) => {
     const { index, item, onChange } = this.props
+
     this.setState({ item: image })
     onChange(image, index)
   }
 
   onDeleteImage = () => {
     const { index, onDelete } = this.props
+
     if (onDelete) {
       onDelete(index)
-    } else {
-      debugger
     }
   }
 

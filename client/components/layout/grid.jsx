@@ -24,7 +24,7 @@ export const LayoutGrid = (props) => {
         className={`LayoutGrid ${className || ''}`}
         data-layout={layout || ''}
       >
-        {(coverImage || media) && 
+        {(coverImage) && 
           <Col
             className='LayoutGrid__media'
             xs={12}

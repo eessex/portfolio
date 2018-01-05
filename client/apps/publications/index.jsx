@@ -28,7 +28,12 @@ class Publications extends Component {
     const { list } = this.props.publications
     let sortedReleases = []
 
-    sortedReleases = filter(list, { compilation: compilation })
+    list.map((item, i) => {
+      const sorted = filter(item.formats, { compilation: compilation })
+      if (sorted.length) {
+        sortedReleases.push(item)
+      }
+    })
     return sortedReleases
   }
 

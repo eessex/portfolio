@@ -28,6 +28,7 @@ var PublicationSchema = new Schema({
     {
       title: { type: String },
       url: { type: String },
+      aspect: { type: Number },
     }
   ],
   links: [

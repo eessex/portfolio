@@ -2,23 +2,26 @@ import PropTypes from 'prop-types'
 import React from 'react'
 
 export const EmbedList = (props) => {
-  const { embed_urls } = props
+  const { embed_codes, className } = props
 
-  if (embed_urls && embed_urls.length) {
+  if (embed_codes && embed_codes.length) {
     return (
-      <div className='EmbedList'>
-        {embed_urls.map( (embed, i) =>
+      <div className={`EmbedList ${className}`}>
+        {embed_codes.map( (embed, i) =>
           <div className='EmbedList__item' key={i}>
             <Embed item={embed} />
           </div>
         )}
       </div>
     )
+  } else {
+    return <div />
   }
 }
 
 EmbedList.propTypes = {
-  items: PropTypes.array
+  className: PropTypes.string,
+  embed_codes: PropTypes.array
 }
 
 export const Embed = (props) => {

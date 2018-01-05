@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { Embed } from '../../../components/embeds/embed_list.jsx'
+import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { ImageShow } from '../../../components/images/image/image_show.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
 import { PublicationHeader } from './header.jsx'
@@ -45,16 +45,14 @@ export class PublicationShow extends Component {
   }
 
   showMedia = () => {
-    const { embed_url } = this.props.publication
+    const embed_codes = this.state.publication.embed_codes || []
 
-    if (embed_url) {
-      return <Embed item={embed_url} />
-    }
+    return <EmbedList embed_codes={embed_codes} />
   }
 
   render () {
     const { publication, label } = this.props
-    const { compilation, title, images, description, embed_url } = publication
+    const { compilation, title, images, description, embed_codes } = publication
     const formattedLabel = compilation ? `${label.slice(0,-1)} : Compilation` : label.slice(0,-1)
 
     return (
@@ -66,7 +64,7 @@ export class PublicationShow extends Component {
         header={this.showHeader}
         label={formattedLabel}
         labelLink={`/${label.toLowerCase()}`}
-        media={embed_url && this.showMedia}
+        media={embed_codes && this.showMedia}
       />
     )
   }

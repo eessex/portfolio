@@ -12,7 +12,7 @@ export class EditLinkList extends React.Component {
 
   state = {
     activeSection: null,
-    links: this.props.links
+    links: this.props.links || []
   }
 
   newLink = () => {

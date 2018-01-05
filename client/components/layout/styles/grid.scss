@@ -1,16 +1,20 @@
-.LayoutColumn {
+.LayoutGrid {
   padding: 0 calc(20px - .5em);
   margin-bottom: 4em;
 
   &__label {
     font-weight: 600;
-    margin-bottom: 1em;
+    margin-bottom: 10px;
     a {
       text-decoration: none;
     }
   }
   &__item {
     margin: 0 auto;
+  }
+  &__media {
+    margin-right: 30px;
+    max-width: 450px !important;
   }
 
   .ImageShow {

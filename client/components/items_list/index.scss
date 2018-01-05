@@ -1,8 +1,10 @@
 .ItemsList {
   margin-bottom: 3em;
 
-  &__header h5 {
+  &__header.h4 {
     margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: 600;
   }
 
   a {
@@ -43,6 +45,11 @@
     .Item {
       padding-left: 10px;
       padding-right: 10px;
+      img {
+        max-height: 80vh;
+        width: auto;
+        max-width: 100%;
+      }
     }
   }
 }

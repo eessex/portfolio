@@ -5,6 +5,7 @@ import * as Actions from '../../actions/publications'
 import { ItemsList } from '../../components/items_list/index.jsx'
 import { NewButton } from '../../components/header/components/new_button.jsx'
 import { LayoutColumn } from '../../components/layout/column.jsx'
+import { filter } from 'lodash'
 
 class Publications extends Component {
   constructor(props) {
@@ -23,12 +24,26 @@ class Publications extends Component {
     this.props.actions.fetchPublications(this.state.query)
   }
 
+  getReleases = (compilation=false) => {
+    const { list } = this.props.publications
+    let sortedReleases = []
+
+    list.map((item, i) => {
+      const sorted = filter(item.formats, { compilation: compilation })
+      if (sorted.length) {
+        sortedReleases.push(item)
+      }
+    })
+    return sortedReleases
+  }
+
   render() {
     const { actions, match, publications, settings } = this.props
     const { isAdmin } = this.state
     const { loading } = settings
     const { list } = publications
     const label = match.path.replace('/','') === 'publications' ? 'Publications' : 'Releases'
+    const compilations = this.getReleases(true)
 
     if (loading) {
       return (
@@ -37,9 +52,8 @@ class Publications extends Component {
 
     } else {
       return (
-        <LayoutColumn
+        <div
           className='Publications'
-          label={label}
         >
           {isAdmin &&
             <NewButton
@@ -48,11 +62,22 @@ class Publications extends Component {
             />
           }
           <ItemsList
-            model='publications'
-            list={list}
-            comingSoon
+            model={label.toLowerCase()}
+            list={this.getReleases()}
+            title={label}
+            layout='table'
+            className={`Publications__${label.toLowerCase()}`}
           />
-        </LayoutColumn>
+          {compilations &&
+            <ItemsList
+              model={label.toLowerCase()}
+              list={compilations}
+              title='Compilations'
+              layout='table'
+              className='Publications__compilations'
+            />
+          }
+        </div>
       )
     }
   }

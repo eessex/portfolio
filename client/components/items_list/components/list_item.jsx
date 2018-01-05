@@ -1,12 +1,22 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Col } from 'react-styled-flexboxgrid'
-// import { Link } from 'react-router-dom'
 import { ItemTable } from './item_table.jsx'
 import { ItemGrid } from './item_grid.jsx'
 
 export const ListItem = (props) => {
-  const { date, image, layout, slug, title, venue, published } = props
+  const {
+    artist,
+    date,
+    image,
+    formats,
+    layout,
+    slug,
+    title,
+    venue,
+    published,
+    publisher
+  } = props
 
   if (layout === 'table') {
     return (
@@ -15,11 +25,7 @@ export const ListItem = (props) => {
         data-published={published}
       >
         <a href={slug}>
-          <ItemTable
-            date={date}
-            title={title}
-            venue={venue}
-          />
+          <ItemTable {...props} />
         </a>
       </div>
     )
@@ -31,14 +37,10 @@ export const ListItem = (props) => {
         sm={6}
         xl={4}
         className='ListItem'
-        data-published={published}>
+        data-published={published}
+      >
         <a href={slug}>
-          <ItemGrid
-            date={date}
-            title={title}
-            venue={venue}
-            image={image}
-          />
+          <ItemGrid {...props} />
         </a>
       </Col>
     )
@@ -58,7 +60,9 @@ export const ListItem = (props) => {
 }
 
 ListItem.propTypes = {
+  artist: PropTypes.string,
   date: PropTypes.string,
+  formats: PropTypes.array,
   image: PropTypes.object,
   layout: PropTypes.string,
   slug: PropTypes.string.isRequired,

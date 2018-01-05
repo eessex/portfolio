@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { pluck, uniq } from 'underscore'
 
 export function sortByDate(items, dateField) {
   let upcoming = []
@@ -82,9 +83,25 @@ export function getDate (model, item, format) {
   switch (model) {
     case 'events':
       return formatEventDates(item, format)
-
+    case 'publications':
+    case 'releases':
+      return getReleaseDate(item)
     default:
       return
+  }
+}
+
+export function getReleaseDate (item) {
+  const { formats } = item
+  let dates = uniq(pluck(formats, 'release_year'))
+  const dateLength = dates.length
+
+  if (dateLength) {
+    if (dateLength > 1) {
+      return dates[0].toString() + '-' + dates[dateLength - 1].toString().slice(-2)
+    } else {
+      return dates[0].toString()
+    }
   }
 }
 

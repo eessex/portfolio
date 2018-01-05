@@ -1,12 +1,19 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema
 
 var PublicationSchema = new Schema({
+  artist: String,
   title: String,
-  release_date: { type: Date, default: Date.now, required: true },
-  publisher: String,
-  format: ['book', 'LP', 'casette'],
-  embed_url: String,
+  formats: [
+    {
+      publisher: { type: String },
+      format: { type: String },
+      release_year: { type: Number },
+      compilation: { type: Boolean, default: false },
+      featuring: { type: Boolean, default: false }
+    }
+  ],
+  embed_codes: { type: Array, default: [] },
   description: String,
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
@@ -16,6 +23,7 @@ var PublicationSchema = new Schema({
     {
       title: { type: String },
       url: { type: String },
+      aspect: { type: Number },
     }
   ],
   links: [
@@ -24,6 +32,6 @@ var PublicationSchema = new Schema({
       url: { type: String },
     }
   ]
-});
+})
 
-module.exports = mongoose.model('Publication', PublicationSchema);
+module.exports = mongoose.model('Publication', PublicationSchema)

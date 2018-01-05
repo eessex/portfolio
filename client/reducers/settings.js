@@ -1,4 +1,11 @@
-import { FETCH_SETTINGS, CREATE_SETTINGS, UPDATE_SETTINGS, RESET_SETTINGS } from '../actions';
+import {
+  FETCH_SETTINGS,
+  CREATE_SETTINGS,
+  UPDATE_SETTINGS,
+  RESET_SETTINGS,
+  FETCH_UPLOAD,
+  RESET_UPLOAD
+} from '../actions';
 
 const initialState = {
   settings: {},
@@ -69,6 +76,25 @@ const settingsReducer = (state = initialState, action) => {
         loading: false,
         settings: state.settings
       });
+
+    case FETCH_UPLOAD.PENDING:
+      return Object.assign({}, state, {
+        uploading: true
+      })
+
+    case FETCH_UPLOAD.SUCCESS:
+      return Object.assign({}, state, {
+        uploading: false,
+        upload: action.payload
+      })
+
+    case FETCH_UPLOAD.ERROR:
+      return Object.assign({}, state, {
+        uploading: false
+      })
+
+      case RESET_UPLOAD:
+      return initialState
 
     default:
       return state;

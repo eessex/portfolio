@@ -2,9 +2,12 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { FileInput } from '../../../../components/forms/file_input/index.jsx'
+import { RichText } from '../../../../components/forms/rich_text/index.jsx'
 
 export class EditImage extends Component {
   static propTypes = {
+    className: PropTypes.string,
+    editCaption: PropTypes.bool,
     fetchUpload: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     index: PropTypes.number,
@@ -44,7 +47,13 @@ export class EditImage extends Component {
   }
 
   render () {
-    const { index, fetchUpload, onDelete } = this.props
+    const {
+      className,
+      editCaption,
+      index,
+      fetchUpload,
+      onDelete
+    } = this.props
     const { item } = this.state
     const {
       aspect,
@@ -53,7 +62,7 @@ export class EditImage extends Component {
     } = item
 
     return (
-      <div className='EditImage'>
+      <div className={`EditImage ${className ? className : ''}`}>
         <FileInput
           hasPreview={index !== -1}
           fetchUpload={fetchUpload}
@@ -61,6 +70,19 @@ export class EditImage extends Component {
           onDelete={() => this.onDeleteImage()}
           file={item}
         />
+
+        {editCaption &&
+          <RichText
+            onChange={(caption) => {
+              let newImage = item
+              newImage.caption = caption
+              this.onChangeImage(newImage, index)
+            }}
+            html={caption}
+            className='h5'
+            placeholder='Image Caption'
+          />
+        }
       </div>
     )
   }

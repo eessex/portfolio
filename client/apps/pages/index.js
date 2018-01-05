@@ -2,13 +2,14 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as Actions from '../../actions/settings'
-import About from './about/index.jsx'
+import { AboutEdit } from './about/edit.jsx'
+import { AboutShow } from './about/show.jsx'
 require('./index.scss')
 
 class Pages extends Component {
   render() {
     const { isAuthenticated } = this.props.user
-    const { settings, loading } = this.props.settings
+    const { settings, loading, saving } = this.props.settings
     const { actions } = this.props
 
     if (loading) {
@@ -18,10 +19,16 @@ class Pages extends Component {
     } else {
       return (
         <div className='about'>
-          <About
-            settings={settings}
-            actions={actions}
-            isAuthenticated={isAuthenticated} />
+          {isAuthenticated
+            ? <AboutEdit
+                actions={actions}
+                saving={saving}
+                settings={settings}
+              />
+            : <AboutShow
+                settings={settings}
+              />
+          }
         </div>
       )
     }

@@ -62,17 +62,15 @@ export default class AdminSocial extends Component {
 
   renderSocialList = (social) => {
     const services = ['soundcloud', 'facebook', 'instagram', 'twitter']
-    if (social && social.length) {
-      const rendered = services.map((service, i) => {
-        return this.renderSocial(social, service, i)
-      })
-      return rendered
-    }
+    return services.map((service, i) => {
+      return this.renderSocial(social, service, i)
+    })
   }
 
   render() {
     const { social } = this.props
     const { isEditing } = this.state 
+
     return (
       <div className='social-links'>
         {this.renderSocialList(social)}

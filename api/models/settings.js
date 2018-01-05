@@ -1,10 +1,11 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema
 
 var SettingsSchema = new Schema({
   title: String,
   description: String,
   about: {
+    embed_codes: { type: Array, default: [] },
     description: String,
     social: {
       twitter: String,
@@ -14,7 +15,7 @@ var SettingsSchema = new Schema({
     },
     images: [
       {
-        title: { type: String },
+        caption: { type: String },
         url: { type: String },
         aspect: { type: Number }
       }
@@ -22,6 +23,6 @@ var SettingsSchema = new Schema({
   },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now }
-});
+})
 
-module.exports = mongoose.model('Settings', SettingsSchema);
+module.exports = mongoose.model('Settings', SettingsSchema)

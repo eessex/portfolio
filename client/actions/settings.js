@@ -1,4 +1,12 @@
-import { API, FETCH_SETTINGS, CREATE_SETTINGS, UPDATE_SETTINGS, RESET_SETTINGS } from '../actions';
+import {
+  API,
+  FETCH_SETTINGS,
+  FETCH_UPLOAD,
+  CREATE_SETTINGS,
+  UPDATE_SETTINGS,
+  RESET_SETTINGS
+} from '../actions'
+import { getUploadSignature } from './upload.js'
 
 export const fetchSettings = () => {
   return {
@@ -9,6 +17,10 @@ export const fetchSettings = () => {
       next: FETCH_SETTINGS
     }
   }
+}
+
+export const fetchUpload = (file, data, cb) => {
+  return getUploadSignature(file, data, cb)
 }
 
 export const createSettings = (settings) => {

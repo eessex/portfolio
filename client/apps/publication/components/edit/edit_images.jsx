@@ -15,7 +15,7 @@ export class EditImages extends Component {
 
   onChangeImage = (image, index) => {
     const { onChange, item } = this.props
-    const { images } = item
+    const images = this.props.item.images || []
 
     images[index] = image
     onChange(images)
@@ -23,7 +23,7 @@ export class EditImages extends Component {
 
   onNewImage = (image) => {
     const { onChange } = this.props
-    const { images } = this.props.item
+    const images = this.props.item.images || []
 
     images.push(image)
     onChange(images)
@@ -32,7 +32,7 @@ export class EditImages extends Component {
 
   onDeleteImage = (index) => {
     const { onChange } = this.props
-    const { images } = this.props.item
+    const images = this.props.item.images || []
 
     if (images.length === 1) {
       onChange([])
@@ -50,7 +50,7 @@ export class EditImages extends Component {
         <div className='EditImages__inner'>
           <label>Images:</label>
           <div className='EditImages__list'>
-            {images && images.map((image, index) =>
+            {images.length > 0 && images.map((image, index) =>
               <EditImage
                 fetchUpload={fetchUpload}
                 index={index}

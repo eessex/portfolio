@@ -1,9 +1,10 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import { capitalize } from 'underscore.string'
 import { LayoutColumn } from './layout/column.jsx'
 
-export const ComingSoon = (props) => {
-  const label = capitalize(props.location.pathname.replace('/',''))
+const ComingSoon = (props) => {
+  const label = props.label || capitalize(props.location.pathname.replace('/',''))
 
   return (
       <LayoutColumn
@@ -14,3 +15,11 @@ export const ComingSoon = (props) => {
       </LayoutColumn>
   )
 }
+
+const mapStateToProps = (state) => ({
+  ...state
+})
+
+export default connect(
+  mapStateToProps
+)(ComingSoon)

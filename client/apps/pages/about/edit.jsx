@@ -4,7 +4,7 @@ import AdminSocial from './admin_social.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
-import { EditEmbeds } from '../../publication/components/edit/edit_embeds.jsx'
+import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { EditImages } from '../../publication/components/edit/edit_images.jsx'
 import { EditImage } from '../../publication/components/edit/edit_image.jsx'
 
@@ -62,7 +62,7 @@ export class AboutEdit extends Component {
     const { about } = this.state.settings
 
     return (
-      <EditEmbeds
+      <EmbedModal
         embed_codes={about.embed_codes || []}
         onChange={(value) => this.onChange('embed_codes', value)}
         setEditing={(editing) => this.setState({isEditing: editing})}

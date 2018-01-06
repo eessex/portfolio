@@ -8,9 +8,10 @@ import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
 import { ImageShow } from '../../../components/images/image/image_show.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
-import { EditEmbeds } from './edit/edit_embeds.jsx'
 import { EditHeader } from './edit/edit_header.jsx'
 import { EditImages } from './edit/edit_images.jsx'
+
+import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 
 export class PublicationEdit extends Component {
   static propTypes = {
@@ -107,18 +108,6 @@ export class PublicationEdit extends Component {
     )
   }
 
-  editEmbeds = () => {
-    const { publication } = this.state
-
-    return (
-      <EditEmbeds
-        embed_codes={publication.embed_codes || []}
-        onChange={(value) => this.onChange('embed_codes', value)}
-        setEditing={(editing) => this.setState({isEditing: editing})}
-      />
-    )
-  }
-
   showCoverImage = () => {
     const { publication } = this.props
     const images = publication.images || []
@@ -151,6 +140,7 @@ export class PublicationEdit extends Component {
           onClickImage={() => this.setState({isEditing: 'images'})}
           onClickEmbed={() => this.setState({isEditing: 'embeds'})}
         />
+
         <LayoutGrid
           body={this.editBody}
           coverImage={this.showCoverImage}
@@ -160,8 +150,16 @@ export class PublicationEdit extends Component {
           labelLink={`/${label.toLowerCase()}`}
           media={this.showMedia}
         />
+
         {isEditing === 'images' && this.editImages()}
-        {isEditing === 'embeds' && this.editEmbeds()}
+
+        {isEditing === 'embeds' &&
+          <EmbedModal
+            embed_codes={embed_codes}
+            onChange={(value) => this.onChange('embed_codes', value)}
+            setEditing={(editing) => this.setState({isEditing: editing})}
+          />
+        }
       </div>
     )
   }

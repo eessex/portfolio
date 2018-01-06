@@ -1,7 +1,8 @@
-import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import React, { Component } from 'react'
 import * as Actions from '../../actions/events'
+import ComingSoon from '../../components/coming_soon.jsx'
 import { ItemsList } from '../../components/items_list/index.jsx'
 import { NewButton } from '../../components/header/components/new_button.jsx'
 import { sortByDate } from '../../utils/index.js' 
@@ -31,37 +32,48 @@ class Events extends Component {
     const upcoming = sortByDate(list, 'start_date').upcoming
     const past = sortByDate(list, 'start_date').past
 
-    if (loading) {
-      return (
-        <div className='Loading' />
-      )
+    return (
+      <div className='Events'>
+        {loading
+          ? <div className='Loading' />
 
-    } else {
-      return (
-        <div className='Events'>
-          {isAdmin &&
-            <NewButton
-              model='Event'
-              onCreate={actions.createEvent}
-            />
+          : list.length > 0
+            ? <div>
+
+                {isAdmin &&
+                  <NewButton
+                    model='Event'
+                    onCreate={actions.createEvent}
+                  />
+                }
+
+                <div className='Events__body'>
+
+                  {upcoming.length > 0 &&
+                    <ItemsList
+                      title='Upcoming Events'
+                      model='events'
+                      layout='grid'
+                      list={upcoming.reverse()}
+                    />
+                  }
+
+                  {past.length > 0 &&
+                    <ItemsList
+                      title='Past Events'
+                      model='events'
+                      list={past}
+                      layout='table'
+                    />
+                  }
+
+                </div>
+              </div>
+
+            : <ComingSoon label='Events' />
           }
-          <div className='Events__body'>
-            <ItemsList
-              title='Upcoming Events'
-              model='events'
-              layout='grid'
-              list={upcoming.reverse()}
-            />
-            <ItemsList
-              title='Past Events'
-              model='events'
-              list={past}
-              layout='table'
-            />
-          </div>
-        </div>
-      )
-    }
+      </div>
+    )
   }
 }
 

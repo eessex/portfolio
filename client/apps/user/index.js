@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import {bindActionCreators} from 'redux';
-import * as Actions from '../../actions/user';
-import Login from './login.js';
-import NewUser from './new.js';
+import React, { Component } from 'react'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import * as Actions from '../../actions/user'
+import Login from './login.js'
+import NewUser from './new.js'
 
 class User extends Component {
   getUserComponent() {
@@ -33,19 +33,19 @@ class User extends Component {
       <div className='user container'>
         {this.getUserComponent()}
       </div>
-    );
+    )
   }
 }
 
 const mapStateToProps = (state) => ({
   ...state
-});
+})
 
 const mapDispatchToProps = (dispatch) => ({
   actions: bindActionCreators(Actions, dispatch)
-});
+})
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(User);
+)(User)

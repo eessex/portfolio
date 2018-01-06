@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { Button } from '../../../../components/forms/buttons/button.jsx'
-import { EditImage } from './edit_image.jsx'
-import { ModalContainer } from '../../../../components/modal/modal_container.jsx'
+import { Button } from '../forms/buttons/button.jsx'
+import { ImageEdit } from '../image/image_edit.jsx'
+import { ModalContainer } from '../modal/modal_container.jsx'
 
-export class EditImages extends Component {
+export class ImagesEdit extends Component {
   static propTypes = {
     fetchUpload: PropTypes.func.isRequired,
     item: PropTypes.object.isRequired,
@@ -46,26 +46,28 @@ export class EditImages extends Component {
     const images = item.images || []
 
     return (
-      <ModalContainer className='EditImages' onClick={() => setEditing(null)}>
+      <ModalContainer className='ImagesEdit' onClick={() => setEditing(null)}>
 
-        <div className='EditImages__inner'>
+        <div className='ImagesEdit__inner'>
           <label>Images:</label>
 
-          <div className='EditImages__list'>
-            {images.length > 0 && images.map((image, index) =>
-              <EditImage
-                fetchUpload={fetchUpload}
-                index={index}
-                item={image}
-                key={index}
-                onChange={this.onChangeImage}
-                onDelete={this.onDeleteImage}
-              />
-            )}
-          </div>
+          {images.length > 0 &&
+            <div className='ImagesEdit__list'>
+              {images.map((image, index) =>
+                <ImageEdit
+                  fetchUpload={fetchUpload}
+                  index={index}
+                  item={image}
+                  key={index}
+                  onChange={this.onChangeImage}
+                  onDelete={this.onDeleteImage}
+                />
+              )}
+            </div>
+          }
 
-          <div className='EditImages__new'>
-            <EditImage
+          <div className='ImagesEdit__new'>
+            <ImageEdit
               fetchUpload={fetchUpload}
               index={-1}
               item={{}}

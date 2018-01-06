@@ -2,6 +2,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { EmbedList } from '../../../components/embeds/embed_list.jsx'
+import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
@@ -9,7 +10,6 @@ import { RichText } from '../../../components/forms/rich_text/index.jsx'
 import { ImageShow } from '../../../components/images/image/image_show.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
 import { EditHeader } from './edit/edit_header.jsx'
-import { EditImages } from './edit/edit_images.jsx'
 
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 
@@ -99,7 +99,7 @@ export class PublicationEdit extends Component {
     const { actions } = this.props
 
     return (
-      <EditImages
+      <ImagesEdit
         item={publication}
         fetchUpload={actions.fetchUpload}
         onChange={(value) => this.onChange('images', value)}
@@ -126,6 +126,7 @@ export class PublicationEdit extends Component {
     const { fetchUpload, updatePublication, deletePublication } = actions
 
     const links = publication.links || []
+    const embed_codes = publication.embed_codes || []
 
     return (
       <div className='PublicationEdit Edit'>

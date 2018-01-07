@@ -40,10 +40,31 @@ describe('ItemsList', () => {
     expect(component.html()).toMatch('ItemsList--events grid')
   })
 
-  it('Renders item data', () => {
+  it('Renders item title by default', () => {
     const component = mount(
       <ItemsList {...props} />
     )
+    expect(component.text()).toMatch(UpcomingEvent.title)
+  })
+
+  it('Renders item data for table', () => {
+    props.layout = 'table'
+    const component = mount(
+      <ItemsList {...props} />
+    )
+
+    expect(component.text()).toMatch(UpcomingEvent.title)
+    expect(component.text()).toMatch(UpcomingEvent.venue.name)
+    expect(component.text()).toMatch(UpcomingEvent.venue.city)
+    expect(component.text()).toMatch(getDate('events', UpcomingEvent))
+  })
+
+  it('Renders item data for grid', () => {
+    props.layout = 'table'
+    const component = mount(
+      <ItemsList {...props} />
+    )
+
     expect(component.text()).toMatch(UpcomingEvent.title)
     expect(component.text()).toMatch(UpcomingEvent.venue.name)
     expect(component.text()).toMatch(UpcomingEvent.venue.city)

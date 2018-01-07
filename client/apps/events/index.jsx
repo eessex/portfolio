@@ -37,40 +37,36 @@ class Events extends Component {
         {loading
           ? <div className='Loading' />
 
-          : list.length > 0
-            ? <div>
+          : <div>
+              {isAdmin &&
+                <NewButton
+                  model='Event'
+                  onCreate={actions.createEvent}
+                />
+              }
 
-                {isAdmin &&
-                  <NewButton
-                    model='Event'
-                    onCreate={actions.createEvent}
+              <div className='Events__body'>
+
+                {upcoming.length > 0 &&
+                  <ItemsList
+                    title='Upcoming Events'
+                    model='events'
+                    layout='grid'
+                    list={upcoming.reverse()}
                   />
                 }
 
-                <div className='Events__body'>
+                {past.length > 0 &&
+                  <ItemsList
+                    title='Past Events'
+                    model='events'
+                    list={past}
+                    layout='table'
+                  />
+                }
 
-                  {upcoming.length > 0 &&
-                    <ItemsList
-                      title='Upcoming Events'
-                      model='events'
-                      layout='grid'
-                      list={upcoming.reverse()}
-                    />
-                  }
-
-                  {past.length > 0 &&
-                    <ItemsList
-                      title='Past Events'
-                      model='events'
-                      list={past}
-                      layout='table'
-                    />
-                  }
-
-                </div>
               </div>
-
-            : <ComingSoon label='Events' />
+            </div>
           }
       </div>
     )

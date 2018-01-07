@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 
-import { getDate } from '../../utils/index.js'
-import { ImageShow } from '../../components/image/image_show.jsx'
-import { Title } from '../../components/layout/components/title.jsx'
-import { Venue } from '../../components/venue/index.jsx'
+import { getDate } from '../../../utils/index.js'
+import { ImageShow } from '../../../components/image/image_show.jsx'
+import { Title } from '../../../components/layout/components/title.jsx'
+import { Venue } from '../../../components/venue/index.jsx'
 
 export const EventHeader = (props) => {
     const {

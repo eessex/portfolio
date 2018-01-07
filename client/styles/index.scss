@@ -28,6 +28,10 @@ button {
   }
 }
 
+iframe {
+  width: 100%;
+}
+
 .AdminNav {
     position: fixed;
     top: 10px;
@@ -60,10 +64,6 @@ div[class*="Row-"] {
     padding-left: 20px;
     padding-right: 20px;
   }
-}
-
-.loading {
-  padding: 20px;
 }
 
 .modal__bg, .Modal {

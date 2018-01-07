@@ -9,24 +9,26 @@ class Settings extends Component {
     this.props.actions.fetchSettings()
   }
 
-  render() {
-    const { actions } = this.props;
-    const { isAuthenticated } = this.props.user;
-    const { settings, loading } = this.props.settings;
-    if (loading) {
-      return (
-        <div className='Loading' />
-      );
-    } else {
-      return (
-        <div className='settings container'>
-          <h3>Site Settings</h3>
-          <SiteDescription
-            settings={settings}
-            actions={this.props.actions} />
-        </div>
-      );
-    }
+render() {
+  const { actions, user } = this.props
+  const { isAuthenticated } = user
+  const { settings, loading } = this.props.settings
+
+    return (
+      <div className='Settings'>
+        {loading
+          ? <Loading />
+
+          : <div>
+              <h3>Site Settings</h3>
+              <SiteDescription
+                settings={settings}
+                actions={actions}
+              />
+            </div>
+        }
+      </div>
+    )
   }
 }
 

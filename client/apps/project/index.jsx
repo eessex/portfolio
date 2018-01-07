@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as Actions from '../../actions/project'
+import { Loading } from '../../components/layout/components/loading.jsx'
 import { ProjectEdit } from './components/edit.jsx'
 import { ProjectShow } from './components/show.jsx'
 
@@ -24,31 +25,24 @@ class Project extends Component {
       uploading
     } = this.props.project
 
-    if (loading) {
-      return (
-        <div className='Loading' />
-      )
+    return (
+      <div className='Project'>
+        {loading
+          ? <Loading />
 
-    } else if (isAuthenticated) {
-      return (
-        <div className='project'>
-          <ProjectEdit
-            project={project}
-            error={error}
-            loading={loading}
-            uploading={uploading}
-            isSaving={saving}
-            actions={this.props.actions} />
-        </div>
-      )
-
-    } else {
-      return (
-        <div className='Project'>
-          <ProjectShow project={project} />
-        </div>
-      )
-    }
+          : isAuthenticated
+            ? <ProjectEdit
+                project={project}
+                error={error}
+                loading={loading}
+                uploading={uploading}
+                isSaving={saving}
+                actions={this.props.actions}
+              />
+            : <ProjectShow project={project} />
+        }
+      </div>
+    )
   }
 }
 const mapStateToProps = (state) => ({

@@ -42,13 +42,6 @@ button {
     }
 }
 
-.Loading {
-  &:after {
-    content: '...';
-    color: silver;
-  }
-}
-
 nav {
   button {
     margin-left: .5em;

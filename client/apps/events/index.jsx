@@ -2,8 +2,8 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import React, { Component } from 'react'
 import * as Actions from '../../actions/events'
-import ComingSoon from '../../components/coming_soon.jsx'
 import { ItemsList } from '../../components/items_list/index.jsx'
+import { Loading } from '../../components/layout/components/loading.jsx'
 import { NewButton } from '../../components/header/components/new_button.jsx'
 import { sortByDate } from '../../utils/index.js' 
 
@@ -35,7 +35,7 @@ class Events extends Component {
     return (
       <div className='Events'>
         {loading
-          ? <div className='Loading' />
+          ? <Loading />
 
           : <div>
               {isAdmin &&

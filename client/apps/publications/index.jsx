@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import { filter } from 'lodash'
 import * as Actions from '../../actions/publications'
 import { ItemsList } from '../../components/items_list/index.jsx'
 import { NewButton } from '../../components/header/components/new_button.jsx'
 import { LayoutColumn } from '../../components/layout/column.jsx'
-import { filter } from 'lodash'
+import { Loading } from '../../components/layout/components/loading.jsx'
 
 class Publications extends Component {
   constructor(props) {
@@ -43,43 +44,43 @@ class Publications extends Component {
     const { loading } = settings
     const { list } = publications
     const label = match.path.replace('/','') === 'publications' ? 'Publications' : 'Releases'
+
+    const releases = this.getReleases()
     const compilations = this.getReleases(true)
 
-    if (loading) {
-      return (
-        <div className='Loading' />
-      )
-
-    } else {
-      return (
-        <div
-          className='Publications'
-        >
-          {isAdmin &&
-            <NewButton
-              model='Publication'
-              onCreate={actions.createPublication}
-            />
-          }
-          <ItemsList
-            model={label.toLowerCase()}
-            list={this.getReleases()}
-            label={label}
-            layout='table'
-            className={`Publications__${label.toLowerCase()}`}
-          />
-          {compilations &&
-            <ItemsList
-              model={label.toLowerCase()}
-              list={compilations}
-              label='Compilations'
-              layout='table'
-              className='Publications__compilations'
-            />
-          }
-        </div>
-      )
-    }
+    return (
+      <div className='Publications'>
+        {loading
+          ? <Loading />
+          : <div>
+              {isAdmin &&
+                <NewButton
+                  model='Publication'
+                  onCreate={actions.createPublication}
+                />
+              }
+              {releases &&
+                <ItemsList
+                  model={label.toLowerCase()}
+                  list={releases}
+                  label={label}
+                  layout='table'
+                  className={`Publications__${label.toLowerCase()}`}
+                />
+              }
+              {compilations &&
+                <ItemsList
+                  model={label.toLowerCase()}
+                  list={compilations}
+                  label='Compilations'
+                  layout='table'
+                  className='Publications__compilations'
+                />
+              }
+            </div>
+        }
+      </div>
+    )
   }
 }
 

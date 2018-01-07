@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import * as Actions from '../../actions/event'
 import EventEdit from './components/edit.jsx'
 import { EventShow }  from './components/show.jsx'
+import { Loading } from '../../components/layout/components/loading.jsx'
 
 class Event extends Component {
   componentWillMount() {
@@ -34,21 +35,11 @@ class Event extends Component {
     return (
       <div className='Event'>
         {loading
-          ? <div className='Loading' />
+          ? <Loading />
 
           : isAuthenticated
-            ? <EventEdit
-                event={event}
-                error={error}
-                loading={loading}
-                uploading={uploading}
-                saving={saving}
-                actions={this.props.actions}
-              />
-            : <EventShow
-                event={event}
-                loading={loading}
-              />
+            ? <EventEdit />
+            : <EventShow event={event} />
         }
       </div>
     )

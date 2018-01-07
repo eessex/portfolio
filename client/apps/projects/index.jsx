@@ -5,6 +5,7 @@ import * as Actions from '../../actions/projects'
 import { ItemsList } from '../../components/items_list/index.jsx'
 import { NewButton } from '../../components/header/components/new_button.jsx'
 import { LayoutColumn } from '../../components/layout/column.jsx'
+import { Loading } from '../../components/layout/components/loading.jsx'
 
 class Projects extends Component {
   constructor(props) {
@@ -29,30 +30,29 @@ class Projects extends Component {
     const { loading } = settings
     const { list } = projects
 
-    if (loading) {
-      return (
-        <div className='Loading' />
-      )
+    return (
+      <div className='Projects'>
+        {loading
+          ? <Loading />
 
-    } else {
-      return (
-        <LayoutColumn
-          className='Projects'
-          label='Projects'
-        >
-          {isAdmin &&
-            <NewButton
-              model='Project'
-              onCreate={actions.createProject}
-            />
-          }
-          <ItemsList
-            model='projects'
-            list={list}
-          />
-        </LayoutColumn>
-      )
-    }
+          : <LayoutColumn
+              className='Projects'
+              label='Projects'
+            >
+              {isAdmin &&
+                <NewButton
+                  model='Project'
+                  onCreate={actions.createProject}
+                />
+              }
+              <ItemsList
+                model='projects'
+                list={list}
+              />
+          </LayoutColumn>
+        }
+      </div>
+    )
   }
 }
 

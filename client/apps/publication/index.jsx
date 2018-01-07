@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as Actions from '../../actions/publication'
+import { Loading } from '../../components/layout/components/loading.jsx'
 import { PublicationEdit } from './components/edit.jsx'
 import { PublicationShow } from './components/show.jsx'
 
@@ -16,7 +17,8 @@ class Publication extends Component {
   }
 
   render() {
-    const { isAuthenticated } = this.props.user
+    const { match, user } = this.props
+    const { isAuthenticated } = user
     const {
       publication,
       error,
@@ -24,17 +26,15 @@ class Publication extends Component {
       saving,
       uploading
     } = this.props.publication
-    const label = this.props.match.path.replace('/','') === 'publications' ? 'Publications' : 'Releases'
 
-    if (loading) {
-      return (
-        <div className='Loading' />
-      )
+    const label = match.path.replace('/','') === 'publications' ? 'Publications' : 'Releases'
 
-    } else {
-      return (
-        <div className='Publication'>
-          {isAuthenticated
+    return (
+      <div className='Publication'>
+        {loading
+          ? <Loading />
+
+          : isAuthenticated
             ? <PublicationEdit
                 publication={publication}
                 label={label}
@@ -49,10 +49,9 @@ class Publication extends Component {
                 publication={publication}
                 label={label}
               />
-          }
-        </div>
-      )
-    }
+        }
+      </div>
+    )
   }
 }
 const mapStateToProps = (state) => ({

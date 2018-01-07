@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as Actions from '../../actions/settings'
+import { Loading } from '../../components/layout/components/loading.jsx'
 import { AboutEdit } from './about/edit.jsx'
 import { AboutShow } from './about/show.jsx'
-require('./index.scss')
 
 class Pages extends Component {
   render() {
@@ -12,14 +12,11 @@ class Pages extends Component {
     const { settings, loading, saving } = this.props.settings
     const { actions } = this.props
 
-    if (loading) {
-      return (
-        <div className='Loading' />
-      )
-    } else {
-      return (
-        <div className='about'>
-          {isAuthenticated
+    return (
+      <div className='Pages'>
+        {loading
+          ? <Loading />
+          : isAuthenticated
             ? <AboutEdit
                 actions={actions}
                 saving={saving}
@@ -28,10 +25,9 @@ class Pages extends Component {
             : <AboutShow
                 settings={settings}
               />
-          }
-        </div>
-      )
-    }
+        }
+      </div>
+    )
   }
 }
 

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { EmbedList } from '../../../components/embeds/embed_list.jsx'
-import { ImageShow } from '../../../components/images/image/image_show.jsx'
+import { ImageShow } from '../../../components/image/image_show.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
 import { PublicationHeader } from './header.jsx'
 

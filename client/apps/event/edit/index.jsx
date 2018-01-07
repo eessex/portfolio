@@ -170,7 +170,8 @@ export class EventEdit extends Component {
                   onClick={this.toggleEditDate}
                   hasEndDate={this.state.hasEndDate}
                   toggleEditDate={this.toggleEditDate}
-                  editDates={this.state.editDates}/>
+                  editDates={this.state.editDates}
+                />
                 {this.renderDateInputs(event)}
                 {this.renderModal()}
               </div>

@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { SelectInput } from '../../../../components/forms/select_input.js'
 import { PlainText } from '../../../../components/forms/rich_text/plain_text.jsx'
-import CheckboxInput from '../../../../components/forms/checkbox_input.js'
+import { CheckboxInput } from '../../../../components/forms/checkbox_input.jsx'
 
 export class EditFormat extends Component {
   static propTypes = {
@@ -89,7 +89,6 @@ export class EditFormat extends Component {
         <Col>
           <CheckboxInput
             label='Compilation'
-            name='compilation'
             value={compilation}
             onChange={() => this.onChangeFormat('compilation', !compilation)}
           />
@@ -97,7 +96,6 @@ export class EditFormat extends Component {
         <Col>
           <CheckboxInput
             label='Featuring'
-            name='featuring'
             value={featuring}
             onChange={() => this.onChangeFormat('featuring', !featuring)}
           />

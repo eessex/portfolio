@@ -1,0 +1,10 @@
+.ImagesEdit {
+  &__list {
+    display: flex;
+    justify-content: space-around;
+    .ImageEdit {
+      max-width: 35%;
+      padding-bottom: 20px;
+    }
+  }
+}

@@ -7,11 +7,12 @@ import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
-import { ImageShow } from '../../../components/images/image/image_show.jsx'
+import { ImageShow } from '../../../components/image/image_show.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
-import { EditHeader } from './edit/edit_header.jsx'
-
+import { PublicationHeader } from './header.jsx'
+import { Body } from '../../../components/layout/components/body.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
+import { TextModal } from '../../../components/text/text_modal.jsx'
 
 export class PublicationEdit extends Component {
   static propTypes = {
@@ -38,6 +39,10 @@ export class PublicationEdit extends Component {
     this.maybeSavePublication(publication, key === 'published')
   }
 
+  setEditing = (isEditing) => {
+    this.setState({ isEditing })
+  }
+
   maybeSavePublication = (publication, forceSave) => {
     let isSaved = false
 
@@ -52,10 +57,8 @@ export class PublicationEdit extends Component {
     const { publication } = this.state
 
     return (
-      <RichText
-        html={publication.description}
-        placeholder='Description'
-        className='Publication__description'
+      <Body
+        body={publication.description}
         onChange={(value) => this.onChange('description', value)}
       />
     )
@@ -72,13 +75,12 @@ export class PublicationEdit extends Component {
     const { label } = this.props
 
     return (
-      <EditHeader
-        isEditing={isEditing}
+      <PublicationHeader
         publication={publication}
         label={label}
         onChange={this.onChange}
         className='Publication__header'
-        setEditing={(editing) => this.setState({isEditing: editing})}
+        setEditing={this.setEditing}
       />
     )
   }
@@ -90,20 +92,6 @@ export class PublicationEdit extends Component {
       <EditLinkList
         links={publication.links}
         onChange={(value) => this.onChange('links', value)}
-      />
-    )
-  }
-
-  editImages = () => {
-    const { publication } = this.state
-    const { actions } = this.props
-
-    return (
-      <ImagesEdit
-        item={publication}
-        fetchUpload={actions.fetchUpload}
-        onChange={(value) => this.onChange('images', value)}
-        setEditing={(editing) => this.setState({isEditing: editing})}
       />
     )
   }
@@ -124,7 +112,7 @@ export class PublicationEdit extends Component {
     const { publication, isEditing, isSaved } = this.state
     const { actions, isSaving, label } = this.props
     const { fetchUpload, updatePublication, deletePublication } = actions
-
+    const { artist, title } = publication
     const links = publication.links || []
     const embed_codes = publication.embed_codes || []
 
@@ -138,8 +126,8 @@ export class PublicationEdit extends Component {
           model='publications'
           onPublish={() => this.onChange('published', !publication.published)}
           saveItem={() => this.maybeSavePublication(publication, true)}
-          onClickImage={() => this.setState({isEditing: 'images'})}
-          onClickEmbed={() => this.setState({isEditing: 'embeds'})}
+          onClickImage={() => this.setEditing('images')}
+          onClickEmbed={() => this.setEditing('embeds')}
         />
 
         <LayoutGrid
@@ -152,13 +140,40 @@ export class PublicationEdit extends Component {
           media={this.showMedia}
         />
 
-        {isEditing === 'images' && this.editImages()}
+        {isEditing === 'artist' &&
+          <TextModal
+            className='h1'
+            label='Artist'
+            text={artist}
+            onChange={(value) => this.onChange('artist', value)}
+            setEditing={(isEditing) => this.setEditing(isEditing)}
+          />
+        }
+
+        {isEditing === 'title' &&
+          <TextModal
+            className='h1'
+            label='Title'
+            text={title}
+            onChange={(value) => this.onChange('title', value)}
+            setEditing={(isEditing) => this.setEditing(isEditing)}
+          />
+        }
+
+        {isEditing === 'images' &&
+          <ImagesEdit
+            item={publication}
+            fetchUpload={fetchUpload}
+            onChange={(value) => this.onChange('images', value)}
+            setEditing={(isEditing) => this.setEditing(isEditing)}
+          />
+        }
 
         {isEditing === 'embeds' &&
           <EmbedModal
             embed_codes={embed_codes}
             onChange={(value) => this.onChange('embed_codes', value)}
-            setEditing={(editing) => this.setState({isEditing: editing})}
+            setEditing={(isEditing) => this.setEditing(isEditing)}
           />
         }
       </div>

@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { ImageShow } from '../../../components/images/image/image_show.jsx'
+import { ImageShow } from '../../../components/image/image_show.jsx'
+import { Title } from '../../../components/layout/components/title.jsx'
 import { ShowFormats } from './show/show_formats.jsx'
 
 export const PublicationHeader = (props) => {
@@ -21,37 +22,10 @@ export const PublicationHeader = (props) => {
 
     return (
       <div className='Publication__header' data-layout={layout}>
-        {renderBlock
-          ? <div className='h1'>
-              <div
-                onClick={setEditing && editArtist}
-                data-placeholder={setEditing && !artist}
-              >
-                {artist ? artist : 'Add Artist'}
-              </div>
-              <div
-                onClick={setEditing && editTitle}
-                data-placeholder={setEditing && !title}
-              >
-                {title ? title : 'Add Title'}
-              </div>
-            </div>
 
-            : <div className='h1'>
-                <span
-                  onClick={setEditing && editArtist}
-                  data-placeholder={setEditing && !artist}
-                >
-                  {artist ? `${artist}: ` : 'Add Artist'}
-                </span>
-                <span
-                  onClick={setEditing && editTitle}
-                  data-placeholder={setEditing && !title}
-                >
-                  {title ? title : 'Add Title'}
-                </span>
-              </div>
-        }
+        <Title title={artist} onClick={setEditing ? editArtist : undefined} />
+        <Title title={title} onClick={setEditing ? editTitle : undefined} />
+
         {formats &&
           <ShowFormats
             items={formats}

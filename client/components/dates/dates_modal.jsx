@@ -1,28 +1,30 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { EmbedList } from './embed_list.jsx'
 import { ModalContainer } from '../modal/modal_container.jsx'
+import { DatesEdit } from '../dates/dates_edit.jsx'
 
-export const EmbedModal = (props) => {
+export const DatesModal = (props) => {
   const {
-    embed_codes,
+    all_day,
+    end_date,
     onChange,
-    setEditing
+    setEditing,
+    start_date,
   } = props
+
+  const dateProps = {
+    all_day,
+    end_date,
+    start_date,
+  }
 
   return (
     <ModalContainer
-      className='EmbedModal'
+      className='DatesModal'
       onClick={() => setEditing(null)}
     >
-      <label>
-        Embed Codes:
-      </label>
-
-      <EmbedList
-        editing
-        embed_codes={embed_codes}
-        hasNew
+      <DatesEdit
+        {...dateProps}
         onChange={onChange}
       />
     </ModalContainer>

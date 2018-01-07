@@ -6,6 +6,9 @@
 body {
   margin: 0;
 }
+@-ms-viewport{
+  width: device-width;
+}
 
 main {
   padding-top: 2.5em;

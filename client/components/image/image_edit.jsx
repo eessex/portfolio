@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { FileInput } from '../../../../components/forms/file_input/index.jsx'
-import { RichText } from '../../../../components/forms/rich_text/index.jsx'
+import { FileInput } from '../forms/file_input/index.jsx'
+import { RichText } from '../forms/rich_text/index.jsx'
 
-export class EditImage extends Component {
+export class ImageEdit extends Component {
   static propTypes = {
     className: PropTypes.string,
     editCaption: PropTypes.bool,
@@ -16,6 +16,7 @@ export class EditImage extends Component {
 
   constructor(props) {
     super(props)
+
     const {
       aspect,
       caption,
@@ -39,10 +40,12 @@ export class EditImage extends Component {
   }
 
   onDeleteImage = () => {
-    const { index, onDelete } = this.props
-
+    const { index, onChange, onDelete } = this.props
+  
     if (onDelete) {
       onDelete(index)
+    } else {
+      onChange()
     }
   }
 
@@ -54,7 +57,9 @@ export class EditImage extends Component {
       fetchUpload,
       onDelete
     } = this.props
+
     const { item } = this.state
+
     const {
       aspect,
       caption,
@@ -62,7 +67,8 @@ export class EditImage extends Component {
     } = item
 
     return (
-      <div className={`EditImage ${className ? className : ''}`}>
+      <div className={`ImageEdit ${className ? className : ''}`}>
+
         <FileInput
           hasPreview={index !== -1}
           fetchUpload={fetchUpload}
@@ -83,6 +89,7 @@ export class EditImage extends Component {
             placeholder='Image Caption'
           />
         }
+
       </div>
     )
   }

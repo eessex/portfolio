@@ -1,7 +1,6 @@
 export { default as Error } from './error'
 export { default as Event } from './event/index.jsx'
 export { default as Events } from './events/index.jsx'
-export { default as Header } from '../components/header/index.jsx'
 export { default as Pages } from './pages'
 export { default as Project } from './project/index.jsx'
 export { default as Projects } from './projects/index.jsx'

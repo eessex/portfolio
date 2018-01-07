@@ -19,6 +19,10 @@ export function sortByDate(items, dateField) {
   }
 }
 
+export function imageIsVertical (image) {
+  return image.aspect && image.aspect < 1.1
+}
+
 export function formatEventDates (item, format) {
   const { end_date, start_date, all_day } = item
   let formattedStart

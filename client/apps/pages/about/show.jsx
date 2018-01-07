@@ -4,7 +4,7 @@ import AdminSocial from './admin_social.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
-import { ImageShow } from '../../../components/images/image/image_show.jsx'
+import { ImageShow } from '../../../components/image/image_show.jsx'
 
 import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 

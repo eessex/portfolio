@@ -2,10 +2,11 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { ProjectHeader } from './header.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
+import { LinksList } from '../../../components/links/links_list.jsx'
 
 export const ProjectShow = (props) => {
-  const { project } = props || {}
-  const { title, images, description } = project
+  const { project } = props
+  const { description, images, links, title } = project
 
   return (
     <LayoutColumn
@@ -23,29 +24,11 @@ export const ProjectShow = (props) => {
           dangerouslySetInnerHTML={{__html: description}}
         />
       }
-      {renderLinks(project)}
+      <LinksList links={links || []} />
     </LayoutColumn>
   )
 }
 
 ProjectShow.propTypes = {
   project: PropTypes.object
-}
-
-const renderLinks = (item) => {
-  const { links } = item
-
-  if (links && links.length) {
-    return (
-      <div className='LinksList'>
-        {links.map( (link, i) =>
-          <div className='LinksList__item' key={i}>
-            <a href={link.url} target='_blank'>
-              {link.title ? link.title : link.url}
-            </a>
-          </div>
-        )}
-      </div>
-    )
-  }
 }

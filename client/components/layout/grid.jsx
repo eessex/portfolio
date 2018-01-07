@@ -2,7 +2,8 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { LayoutColumn } from './column.jsx'
-
+import { ImageShow } from '../image/image_show.jsx'
+import { EmbedList } from '../embeds/embed_list.jsx'
 
 export const LayoutGrid = (props) => {
   const {
@@ -24,14 +25,22 @@ export const LayoutGrid = (props) => {
         className={`LayoutGrid ${className || ''}`}
         data-layout={layout || ''}
       >
-        {(coverImage) && 
+        {(coverImage || media) &&
           <Col
             className='LayoutGrid__media'
             xs={12}
             sm={5}
           >
-            {coverImage && coverImage()}
-            {media && media()}
+            {coverImage && (typeof coverImage === 'object')
+              ? <ImageShow {...coverImage} />
+              : coverImage()
+            }
+            {media
+              ? (typeof media !== 'function') &&
+                  <EmbedList embed_codes={media} />
+
+              : media()
+            }
           </Col>
         }
         <Col

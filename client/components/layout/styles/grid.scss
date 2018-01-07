@@ -1,7 +1,9 @@
-.LayoutGrid {
-  padding: 0 calc(20px - .5em);
+div[class*="Row-"].LayoutGrid {
+  padding: calc(20px - .5em);
   margin-bottom: 4em;
+}
 
+.LayoutGrid {
   &__label {
     font-weight: 600;
     margin-bottom: 10px;

@@ -5,6 +5,7 @@ var EventSchema = new Schema({
   all_day: { type: Boolean, default: false },
   created_at: { type: Date, default: Date.now },
   end_date: { type: Date, default: Date.now },
+  embed_codes: [],
   description: String,
   images: [
     {

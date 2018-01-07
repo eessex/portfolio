@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { EditImagesList } from '../../../components/forms/images/edit_images_list.jsx'
+import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { FileInput } from '../../../components/forms/file_input/index.jsx'
@@ -62,7 +62,7 @@ export class ProjectEdit extends Component {
         >
           {images[0]
           ?
-            <EditImagesList
+            <ImagesEdit
               fetchUpload={fetchUpload}
               images={project.images}
               onChange={(value) => this.onChange('images', value)}

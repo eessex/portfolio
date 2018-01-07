@@ -5,8 +5,8 @@ import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
-import { EditImages } from '../../publication/components/edit/edit_images.jsx'
-import { EditImage } from '../../publication/components/edit/edit_image.jsx'
+import { ImagesEdit } from '../../../components/images/images_edit.jsx'
+import { ImageEdit } from '../../../components/image/image_edit.jsx'
 
 export class AboutEdit extends Component {
   constructor (props) {
@@ -49,7 +49,7 @@ export class AboutEdit extends Component {
     const { actions } = this.props
 
     return (
-      <EditImages
+      <ImagesEdit
         item={about}
         fetchUpload={actions.fetchUpload}
         onChange={(value) => this.onChange('images', value)}
@@ -93,7 +93,7 @@ export class AboutEdit extends Component {
           label='Info'
         >
           {cover_image &&
-            <EditImage
+            <ImageEdit
               className='AboutEdit__cover-image'
               fetchUpload={actions.fetchUpload}
               index={0}

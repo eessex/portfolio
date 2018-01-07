@@ -1,17 +1,16 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
-import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
-import { RichText } from '../../../components/forms/rich_text/index.jsx'
-import { ImageShow } from '../../../components/images/image/image_show.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
-import { EditHeader } from './edit/edit_header.jsx'
-import { EditImages } from './edit/edit_images.jsx'
+import { PublicationHeader } from './header.jsx'
+import { Body } from '../../../components/layout/components/body.jsx'
 
+import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
+import { FormatsModal } from '../../../components/formats/formats_modal.jsx'
+import { TextModal } from '../../../components/text/text_modal.jsx'
 
 export class PublicationEdit extends Component {
   static propTypes = {
@@ -38,6 +37,10 @@ export class PublicationEdit extends Component {
     this.maybeSavePublication(publication, key === 'published')
   }
 
+  setEditing = (isEditing) => {
+    this.setState({ isEditing })
+  }
+
   maybeSavePublication = (publication, forceSave) => {
     let isSaved = false
 
@@ -52,33 +55,24 @@ export class PublicationEdit extends Component {
     const { publication } = this.state
 
     return (
-      <RichText
-        html={publication.description}
-        placeholder='Description'
-        className='Publication__description'
+      <Body
+        body={publication.description}
         onChange={(value) => this.onChange('description', value)}
       />
     )
   }
 
-  showMedia = () => {
-    const embed_codes = this.state.publication.embed_codes || []
-
-    return <EmbedList embed_codes={embed_codes} />
-  }
-
-  editHeader = () => {
+  showHeader = () => {
     const { publication, isEditing } = this.state
     const { label } = this.props
 
     return (
-      <EditHeader
-        isEditing={isEditing}
+      <PublicationHeader
         publication={publication}
         label={label}
         onChange={this.onChange}
         className='Publication__header'
-        setEditing={(editing) => this.setState({isEditing: editing})}
+        setEditing={this.setEditing}
       />
     )
   }
@@ -94,37 +88,15 @@ export class PublicationEdit extends Component {
     )
   }
 
-  editImages = () => {
-    const { publication } = this.state
-    const { actions } = this.props
-
-    return (
-      <EditImages
-        item={publication}
-        fetchUpload={actions.fetchUpload}
-        onChange={(value) => this.onChange('images', value)}
-        setEditing={(editing) => this.setState({isEditing: editing})}
-      />
-    )
-  }
-
-  showCoverImage = () => {
-    const { publication } = this.props
-    const images = publication.images || []
-
-    if (images.length) {
-      const image = images[0]
-      return (
-        <ImageShow {...image} />
-      )
-    }
-  }
-
   render () {
     const { publication, isEditing, isSaved } = this.state
     const { actions, isSaving, label } = this.props
     const { fetchUpload, updatePublication, deletePublication } = actions
+    const { artist, title } = publication
 
+    const embed_codes = publication.embed_codes || []
+    const formats = publication.formats || []
+    const images = publication.images || []
     const links = publication.links || []
 
     return (
@@ -137,27 +109,63 @@ export class PublicationEdit extends Component {
           model='publications'
           onPublish={() => this.onChange('published', !publication.published)}
           saveItem={() => this.maybeSavePublication(publication, true)}
-          onClickImage={() => this.setState({isEditing: 'images'})}
-          onClickEmbed={() => this.setState({isEditing: 'embeds'})}
+          onClickImage={() => this.setEditing('images')}
+          onClickEmbed={() => this.setEditing('embeds')}
         />
 
         <LayoutGrid
           body={this.editBody}
-          coverImage={this.showCoverImage}
-          header={this.editHeader}
+          coverImage={images.length > 0 && images[0]}
+          header={this.showHeader}
           footer={this.editFooter}
           label={label.slice(0,-1)}
           labelLink={`/${label.toLowerCase()}`}
-          media={this.showMedia}
+          media={embed_codes}
         />
 
-        {isEditing === 'images' && this.editImages()}
+        {isEditing === 'artist' &&
+          <TextModal
+            className='h1'
+            label='Artist'
+            text={artist}
+            onChange={(value) => this.onChange('artist', value)}
+            setEditing={(isEditing) => this.setEditing(isEditing)}
+          />
+        }
+
+        {isEditing === 'title' &&
+          <TextModal
+            className='h1'
+            label='Title'
+            text={title}
+            onChange={(value) => this.onChange('title', value)}
+            setEditing={(isEditing) => this.setEditing(isEditing)}
+          />
+        }
+
+        {isEditing === 'formats' &&
+          <FormatsModal
+            label='Formats'
+            formats={formats}
+            onChange={this.onChange}
+            setEditing={(isEditing) => this.setEditing(isEditing)}
+          />
+        }
+
+        {isEditing === 'images' &&
+          <ImagesEdit
+            item={publication}
+            fetchUpload={fetchUpload}
+            onChange={(value) => this.onChange('images', value)}
+            setEditing={(isEditing) => this.setEditing(isEditing)}
+          />
+        }
 
         {isEditing === 'embeds' &&
           <EmbedModal
             embed_codes={embed_codes}
             onChange={(value) => this.onChange('embed_codes', value)}
-            setEditing={(editing) => this.setState({isEditing: editing})}
+            setEditing={(isEditing) => this.setEditing(isEditing)}
           />
         }
       </div>

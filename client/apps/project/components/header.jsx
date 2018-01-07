@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { ImageShow } from '../../../components/images/image/image_show.jsx'
+import { ImageShow } from '../../../components/image/image_show.jsx'
 
 export const ProjectHeader = (props) => {
     const { title, coverImage, layout } = props

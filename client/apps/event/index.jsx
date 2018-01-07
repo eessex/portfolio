@@ -2,15 +2,17 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as Actions from '../../actions/event'
-import { EventEdit } from './edit/index.jsx'
-import { EventShow }  from './show/index.jsx'
+import EventEdit from './components/edit.jsx'
+import { EventShow }  from './components/show.jsx'
 
 class Event extends Component {
   componentWillMount() {
-    if (this.props.match.params.id == 'new') {
-      this.props.actions.createEvent()
+    const { actions, match } = this.props
+
+    if (match.params.id == 'new') {
+      actions.createEvent()
     } else {
-      this.props.actions.fetchEvent(this.props.match.params.id)
+      actions.fetchEvent(match.params.id)
     }
   }
 
@@ -20,34 +22,39 @@ class Event extends Component {
 
   render() {
     const { isAuthenticated } = this.props.user
-    const { event, error, loading, saving, uploading } = this.props.event
-    if (loading) {
-      return (
-        <div className='Loading' />
-      )
-    } else if (isAuthenticated) {
-      return (
-        <div className='Event'>
-          <EventEdit
-            event={event}
-            error={error}
-            loading={loading}
-            uploading={uploading}
-            saving={saving}
-            actions={this.props.actions} />
-        </div>
-      )
-    } else {
-      return (
-        <div className='Event'>
-          <EventShow
-            event={event}
-            loading={loading} />
-        </div>
-      )
-    }
+
+    const {
+      event,
+      error,
+      loading,
+      saving,
+      uploading
+    } = this.props.event
+
+    return (
+      <div className='Event'>
+        {loading
+          ? <div className='Loading' />
+
+          : isAuthenticated
+            ? <EventEdit
+                event={event}
+                error={error}
+                loading={loading}
+                uploading={uploading}
+                saving={saving}
+                actions={this.props.actions}
+              />
+            : <EventShow
+                event={event}
+                loading={loading}
+              />
+        }
+      </div>
+    )
   }
 }
+
 const mapStateToProps = (state) => ({
   ...state
 })

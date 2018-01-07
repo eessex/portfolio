@@ -1,8 +1,10 @@
-.ImageShow {
-  &__caption p {
-      font-size: .7em;
-      padding: 0;
-      text-align: right;
-      color: silver;
+.ImagesEdit {
+  &__list {
+    display: flex;
+    justify-content: space-around;
+    .ImageEdit {
+      max-width: 35%;
+      padding-bottom: 20px;
+    }
   }
 }

@@ -14,6 +14,7 @@ import { Body } from '../../../components/layout/components/body.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { TextModal } from '../../../components/text/text_modal.jsx'
+import { VenueModal } from '../../../components/venue/venue_modal.jsx'
 import { EventHeader } from './header.jsx'
 
 class EventEdit extends Component {
@@ -158,6 +159,14 @@ class EventEdit extends Component {
             label='Title'
             text={event.title}
             onChange={(value) => this.onChange('title', value)}
+            setEditing={(isEditing) => this.setState({ isEditing })}
+          />
+        }
+
+        {isEditing === 'venue' &&
+          <VenueModal
+            venue={event.venue}
+            onChange={(value) => this.onChange('venue', value)}
             setEditing={(isEditing) => this.setState({ isEditing })}
           />
         }

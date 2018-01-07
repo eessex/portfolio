@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { SelectInput } from '../../../../components/forms/select_input.js'
-import { PlainText } from '../../../../components/forms/rich_text/plain_text.jsx'
-import { CheckboxInput } from '../../../../components/forms/checkbox_input.jsx'
+import { SelectInput } from '../forms/select_input.js'
+import { PlainText } from '../forms/rich_text/plain_text.jsx'
+import { CheckboxInput } from '../forms/checkbox_input.jsx'
 
-export class EditFormat extends Component {
+export class FormatEdit extends Component {
   static propTypes = {
     index: PropTypes.number,
     item: PropTypes.object,
@@ -39,11 +39,13 @@ export class EditFormat extends Component {
 
     item[key] = value
     this.setState({ item, needsSave })
+    onChange(item, index)
   }
 
   saveItem = () => {
     const { index, onChange } = this.props
     const { item } = this.state
+
     onChange(this.state.item, index)
   }
 
@@ -59,7 +61,7 @@ export class EditFormat extends Component {
     } = item
 
     return (
-      <Row className='EditFormat h5'>
+      <Row className='FormatEdit h5'>
         <Col>
           <SelectInput
             name='format'
@@ -104,9 +106,17 @@ export class EditFormat extends Component {
           <button
             style={{color: needsSave ? 'red' : 'black'}}
             onClick={this.saveItem}
-          >Save</button>
+          >
+            Save
+          </button>
         }
       </Row>
     )
   }
+}
+
+FormatEdit.propTypes = {
+  index: PropTypes.number,
+  item: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired
 }

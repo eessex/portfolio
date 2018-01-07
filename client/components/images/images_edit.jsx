@@ -33,7 +33,7 @@ export class ImagesEdit extends Component {
   onDeleteImage = (index) => {
     const { onChange } = this.props
     const images = this.props.item.images || []
-
+  
     if (images.length === 1) {
       onChange([])
     } else {

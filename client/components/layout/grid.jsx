@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { LayoutColumn } from './column.jsx'
 import { ImageShow } from '../image/image_show.jsx'
+import { EmbedList } from '../embeds/embed_list.jsx'
 
 export const LayoutGrid = (props) => {
   const {
@@ -34,7 +35,10 @@ export const LayoutGrid = (props) => {
               ? <ImageShow {...coverImage} />
               : coverImage()
             }
-            {media && media()}
+            {media && (typeof media === 'array')
+              ? <EmbedList embed_codes={embed_codes} />
+              : media()
+            }
           </Col>
         }
         <Col

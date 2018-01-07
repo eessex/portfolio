@@ -40,10 +40,12 @@ export class ImageEdit extends Component {
   }
 
   onDeleteImage = () => {
-    const { index, onDelete } = this.props
-
+    const { index, onChange, onDelete } = this.props
+  
     if (onDelete) {
       onDelete(index)
+    } else {
+      onChange()
     }
   }
 

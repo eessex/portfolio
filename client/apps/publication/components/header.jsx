@@ -2,10 +2,15 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { ImageShow } from '../../../components/image/image_show.jsx'
 import { Title } from '../../../components/layout/components/title.jsx'
-import { ShowFormats } from './show/show_formats.jsx'
+import { ShowFormats } from '../../../components/formats/show_formats.jsx'
 
 export const PublicationHeader = (props) => {
-    const { coverImage, publication, setEditing } = props
+    const {
+      coverImage,
+      publication,
+      setEditing
+    } = props
+
     const {
       artist,
       formats,
@@ -14,9 +19,10 @@ export const PublicationHeader = (props) => {
       release_date,
       publisher
     } = publication
-    const { url } = coverImage || ''
 
+    const { url } = coverImage || ''
     const renderBlock = (artist && artist.length > 30) || (title && title.length > 30)
+
     const editArtist = () => setEditing('artist')
     const editTitle = () => setEditing('title')
 
@@ -32,6 +38,7 @@ export const PublicationHeader = (props) => {
             onClick={setEditing ? () => setEditing('formats') : undefined}
           />
         }
+
         {coverImage && url &&
           <ImageShow {...coverImage} />
         }

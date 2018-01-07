@@ -1,17 +1,15 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { EmbedList } from '../../../components/embeds/embed_list.jsx'
-import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
-import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
-import { RichText } from '../../../components/forms/rich_text/index.jsx'
-import { ImageShow } from '../../../components/image/image_show.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
 import { PublicationHeader } from './header.jsx'
 import { Body } from '../../../components/layout/components/body.jsx'
+
+import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
+import { FormatsModal } from '../../../components/formats/formats_modal.jsx'
 import { TextModal } from '../../../components/text/text_modal.jsx'
 
 export class PublicationEdit extends Component {
@@ -64,13 +62,7 @@ export class PublicationEdit extends Component {
     )
   }
 
-  showMedia = () => {
-    const embed_codes = this.state.publication.embed_codes || []
-
-    return <EmbedList embed_codes={embed_codes} />
-  }
-
-  editHeader = () => {
+  showHeader = () => {
     const { publication, isEditing } = this.state
     const { label } = this.props
 
@@ -96,25 +88,16 @@ export class PublicationEdit extends Component {
     )
   }
 
-  showCoverImage = () => {
-    const { publication } = this.props
-    const images = publication.images || []
-
-    if (images.length) {
-      const image = images[0]
-      return (
-        <ImageShow {...image} />
-      )
-    }
-  }
-
   render () {
     const { publication, isEditing, isSaved } = this.state
     const { actions, isSaving, label } = this.props
     const { fetchUpload, updatePublication, deletePublication } = actions
     const { artist, title } = publication
-    const links = publication.links || []
+
     const embed_codes = publication.embed_codes || []
+    const formats = publication.formats || []
+    const images = publication.images || []
+    const links = publication.links || []
 
     return (
       <div className='PublicationEdit Edit'>
@@ -132,12 +115,12 @@ export class PublicationEdit extends Component {
 
         <LayoutGrid
           body={this.editBody}
-          coverImage={this.showCoverImage}
-          header={this.editHeader}
+          coverImage={images.length > 0 && images[0]}
+          header={this.showHeader}
           footer={this.editFooter}
           label={label.slice(0,-1)}
           labelLink={`/${label.toLowerCase()}`}
-          media={this.showMedia}
+          media={embed_codes}
         />
 
         {isEditing === 'artist' &&
@@ -156,6 +139,15 @@ export class PublicationEdit extends Component {
             label='Title'
             text={title}
             onChange={(value) => this.onChange('title', value)}
+            setEditing={(isEditing) => this.setEditing(isEditing)}
+          />
+        }
+
+        {isEditing === 'formats' &&
+          <FormatsModal
+            label='Formats'
+            formats={formats}
+            onChange={this.onChange}
             setEditing={(isEditing) => this.setEditing(isEditing)}
           />
         }

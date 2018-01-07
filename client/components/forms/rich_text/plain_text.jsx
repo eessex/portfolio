@@ -31,10 +31,9 @@ export class PlainText extends Component {
     if (currentContentState !== newContentState) {
       // There was a change in the content
       this.onContentChange(newContent)
-      forceUpdate && this.setState({ editorState: this.setEditorState() })
-    } else {
-      this.setState({ editorState })
     }
+    this.setState({ editorState })
+    forceUpdate && this.setEditorState()
   }
 
   onContentChange = (content) => {
@@ -51,24 +50,25 @@ export class PlainText extends Component {
     this.refs.editor.focus()
   }
 
-  handleReturn = (e) => {
-    return 'handled'
-  }
-
   render () {
-    const { className, name, placeholder } = this.props
+    const {
+      className,
+      name,
+      placeholder
+    } = this.props
 
     return (
       <div
         className={'plain-text ' + className}
         name={name}
-        onClick={this.focus}>
+        onClick={this.focus}
+      >
         <Editor
-          ref='editor'
           editorState={this.state.editorState}
-          placeholder={placeholder || 'Start Typing...'}
           handleReturn={() => 'handled'}
           onChange={this.onChange}
+          placeholder={placeholder || 'Start Typing...'}
+          ref='editor'
           spellcheck
         />
       </div>

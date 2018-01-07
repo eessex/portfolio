@@ -26,7 +26,7 @@ export const TextModal = (props) => {
 
       <PlainText
         content={text}
-        placeholder={placeholder ? placeholder : 'Start typing...'}
+        placeholder={placeholder}
         className={`EditText ${className ? className : ''}`}
         onChange={(value) => onChange(value)}
       />

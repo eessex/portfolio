@@ -4,7 +4,8 @@ import React from 'react'
 export const Title = (props) => {
     const {
       title,
-      onClick
+      onClick,
+      placeholder
     } = props
 
     return (
@@ -13,12 +14,19 @@ export const Title = (props) => {
         onClick={onClick ? onClick : undefined}
         data-placeholder={onClick && !title}
       >
-        {title ? title : 'Add Title'}
+        {title
+          ? title
+
+          : placeholder
+            ? placeholder
+            : 'Add Title'
+        }
       </div>
     )
   }
 
 Title.propTypes = {
   title: PropTypes.string,
-  onClick: PropTypes.func
+  onClick: PropTypes.func,
+  placeholder: PropTypes.string
 }

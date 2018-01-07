@@ -49,7 +49,7 @@ class Events extends Component {
 
                 {upcoming.length > 0 &&
                   <ItemsList
-                    title='Upcoming Events'
+                    label='Upcoming Events'
                     model='events'
                     layout='grid'
                     list={upcoming.reverse()}
@@ -58,7 +58,7 @@ class Events extends Component {
 
                 {past.length > 0 &&
                   <ItemsList
-                    title='Past Events'
+                    label='Past Events'
                     model='events'
                     list={past}
                     layout='table'

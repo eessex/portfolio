@@ -10,49 +10,49 @@ export const ItemsList = (props) => {
     children,
     className,
     comingSoon,
+    label,
     list,
-    model,
-    title
+    model
   } = props
 
   const layout = props.layout || 'list'
   const listItems = children ? children : renderListItems(layout, list, model)
   const layoutClass = layout ? ' ' + layout : ''
   const classModelName = 'ItemsList--' + model + layoutClass
-  const renderedTitle = title && title.length ? title : capitalize(model)
+  const renderedLabel = label && label.length ? label : capitalize(model)
 
   return(
     <div className={`ItemsList ${classModelName} ${className || ''}`}>
-      {title && layout !== 'grid' &&
-        renderTitle(renderedTitle, props.layout)
+      {label && layout !== 'grid' &&
+        renderLabel(renderedLabel, props.layout)
       }
       {list.length
-        ? renderList(props.layout, listItems, title && renderedTitle)
+        ? renderList(props.layout, listItems, label && renderedLabel)
         : comingSoon && 'Coming Soon'
       }
     </div>
   )
 }
 
-function renderTitle (title, layout) {
+function renderLabel (label, layout) {
   if (layout && layout!== 'grid') {
     return (
       <Row className='ItemsList__header h4'>
         <Col xl>
-          {title}
+          {label}
         </Col>
       </Row>
     )
   } else {
     return (
       <div className='ItemsList__header h4'>
-        {title}
+        {label}
       </div>
     )
   }
 }
 
-function renderList (layout, items, title) {
+function renderList (layout, items, label) {
   if (layout === 'table') {
     return (
       <div className='ItemsList__list'>
@@ -62,9 +62,9 @@ function renderList (layout, items, title) {
   } else if (layout === 'grid') {
     return (
       <Row className='ItemsList__list'>
-        {title &&
+        {label &&
           <Col xs={12} lg={2}>
-            {renderTitle(title, layout)}
+            {renderLabel(label, layout)}
           </Col>
         }
         {items}
@@ -104,8 +104,8 @@ function renderListItems (layout, list, model) {
 
 ItemsList.propTypes = {
   comingSoon: PropTypes.bool,
+  label: PropTypes.string,
   layout: PropTypes.string,
   list: PropTypes.array.isRequired,
-  model: PropTypes.string.isRequired,
-  title: PropTypes.any
+  model: PropTypes.string.isRequired
 }

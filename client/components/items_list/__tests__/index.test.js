@@ -1,5 +1,5 @@
-import moment from 'moment'
 import { mount } from 'enzyme'
+import moment from 'moment'
 import React from 'react'
 import { ItemsList } from '../index.jsx'
 import { ListItem } from '../components/list_item.jsx'
@@ -29,6 +29,14 @@ describe('ItemsList', () => {
     )
     expect(component.find(ListItem).length).toBe(2)
     expect(component.html()).toMatch('ItemsList--events list')
+  })
+
+  it('Renders a label if provided', () => {
+    props.label = 'Upcoming Events'
+    const component = mount(
+      <ItemsList {...props} />
+    )
+    expect(component.text()).toMatch(props.label)
   })
 
   it('Renders layout based on props', () => {

@@ -64,7 +64,7 @@ class Publications extends Component {
           <ItemsList
             model={label.toLowerCase()}
             list={this.getReleases()}
-            title={label}
+            label={label}
             layout='table'
             className={`Publications__${label.toLowerCase()}`}
           />
@@ -72,7 +72,7 @@ class Publications extends Component {
             <ItemsList
               model={label.toLowerCase()}
               list={compilations}
-              title='Compilations'
+              label='Compilations'
               layout='table'
               className='Publications__compilations'
             />

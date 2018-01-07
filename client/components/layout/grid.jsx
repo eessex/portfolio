@@ -25,7 +25,7 @@ export const LayoutGrid = (props) => {
         className={`LayoutGrid ${className || ''}`}
         data-layout={layout || ''}
       >
-        {(coverImage) && 
+        {(coverImage || media) &&
           <Col
             className='LayoutGrid__media'
             xs={12}
@@ -35,8 +35,10 @@ export const LayoutGrid = (props) => {
               ? <ImageShow {...coverImage} />
               : coverImage()
             }
-            {media && (typeof media === 'array')
-              ? <EmbedList embed_codes={embed_codes} />
+            {media
+              ? (typeof media !== 'function') &&
+                  <EmbedList embed_codes={media} />
+
               : media()
             }
           </Col>

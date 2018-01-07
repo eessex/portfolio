@@ -3,12 +3,14 @@ import React, { Component } from 'react'
 import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { ImageShow } from '../../../components/image/image_show.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
+import { LinksList } from '../../../components/links/links_list.jsx'
 import { PublicationHeader } from './header.jsx'
 
 export class PublicationShow extends Component {
   showFooter = () => {
-    const { publication } = this.props
-    return renderLinks(publication)
+    const { links } = this.props.publication
+
+    return <LinksList links={links || []} />
   }
 
   showBody = () => {
@@ -44,27 +46,24 @@ export class PublicationShow extends Component {
     }
   }
 
-  showMedia = () => {
-    const embed_codes = this.props.publication.embed_codes || []
-
-    return <EmbedList embed_codes={embed_codes} />
-  }
-
   render () {
     const { publication, label } = this.props
-    const { compilation, title, images, description, embed_codes } = publication
+    const { compilation, title, description } = publication
     const formattedLabel = compilation ? `${label.slice(0,-1)} : Compilation` : label.slice(0,-1)
+
+    const embed_codes = publication.embed_codes || []
+    const images =  publication.images || []
 
     return (
       <LayoutGrid
         body={this.showBody}
         className='PublicationShow'
-        coverImage={images && images[0] && this.showCoverImage}
+        coverImage={images.length > 0 && images[0]}
         footer={this.showFooter}
         header={this.showHeader}
         label={formattedLabel}
         labelLink={`/${label.toLowerCase()}`}
-        media={embed_codes && this.showMedia}
+        media={embed_codes}
       />
     )
   }
@@ -73,22 +72,4 @@ export class PublicationShow extends Component {
 PublicationShow.propTypes = {
   label: PropTypes.string,
   publication: PropTypes.object
-}
-
-const renderLinks = (item) => {
-  const { links } = item
-
-  if (links && links.length) {
-    return (
-      <div className='LinksList'>
-        {links.map( (link, i) =>
-          <div className='LinksList__item' key={i}>
-            <a href={link.url} target='_blank'>
-              {link.title ? link.title : link.url}
-            </a>
-          </div>
-        )}
-      </div>
-    )
-  }
 }

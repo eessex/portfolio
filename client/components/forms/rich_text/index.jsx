@@ -15,7 +15,6 @@ import {
   Link
 } from './util'
 import UrlInput from './url_input'
-require('./index.scss')
 
 export class RichText extends Component {
   constructor(props) {

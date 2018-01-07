@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { capitalize } from 'underscore.string'
 import * as Actions from '../../actions/user'
-require('./index.scss')
 
 class Header extends Component {
   state = {

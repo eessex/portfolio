@@ -3,16 +3,17 @@ import { connect } from 'react-redux'
 import * as Actions from '../../../actions/event'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
+
+import { imageIsVertical } from '../../../utils/index.js'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { DatesModal } from '../../../components/dates/dates_modal.jsx'
+import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
-
-import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { Body } from '../../../components/layout/components/body.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
-import { imageIsVertical } from '../../../utils/index.js'
+import { TextModal } from '../../../components/text/text_modal.jsx'
 import { EventHeader } from './header.jsx'
 
 class EventEdit extends Component {
@@ -114,10 +115,10 @@ class EventEdit extends Component {
           isSaving={isSaving}
           item={event}
           model='events'
+          onClickEmbed={() => this.setState({isEditing: 'embeds'})}
+          onClickImage={() => this.setState({isEditing: 'images'})}
           onPublish={() => this.onChange('published', !event.published)}
           saveItem={() => this.maybeSaveEvent(event, true)}
-          onClickImage={() => this.setState({isEditing: 'images'})}
-          onClickEmbed={() => this.setState({isEditing: 'embeds'})}
         />
 
         {isGrid
@@ -129,7 +130,7 @@ class EventEdit extends Component {
           <EmbedModal
             embed_codes={embed_codes}
             onChange={(value) => this.onChange('embed_codes', value)}
-            setEditing={(editing) => this.setState({isEditing: editing})}
+            setEditing={(isEditing) => this.setState({ isEditing })}
           />
         }
 
@@ -138,7 +139,7 @@ class EventEdit extends Component {
             {...dateProps}
             onChange={this.onChange}
             hasEndDate={!this.state.hasEndDate}
-            setEditing={(editing) => this.setState({isEditing: editing})}
+            setEditing={(isEditing) => this.setState({ isEditing })}
           />
         }
 
@@ -147,10 +148,19 @@ class EventEdit extends Component {
             item={event}
             fetchUpload={fetchUpload}
             onChange={(value) => this.onChange('images', value)}
-            setEditing={(editing) => this.setState({isEditing: editing})}
+            setEditing={(isEditing) => this.setState({ isEditing })}
           />
         }
 
+        {isEditing === 'title' &&
+          <TextModal
+            className='h1'
+            label='Title'
+            text={event.title}
+            onChange={(value) => this.onChange('title', value)}
+            setEditing={(isEditing) => this.setState({ isEditing })}
+          />
+        }
       </div>
     )
   }

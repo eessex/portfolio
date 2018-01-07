@@ -1,12 +1,17 @@
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { ImagesEdit } from '../../../components/images/images_edit.jsx'
-import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
+import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
-import { FileInput } from '../../../components/forms/file_input/index.jsx'
+import { ImagesEdit } from '../../../components/images/images_edit.jsx'
+
+
+import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
+import { TextModal } from '../../../components/text/text_modal.jsx'
+
+import { Body } from '../../../components/layout/components/body.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
-import { PlainText } from '../../../components/forms/rich_text/plain_text.jsx'
-import { RichText } from '../../../components/forms/rich_text/index.jsx'
+import { imageIsVertical } from '../../../utils/index.js'
+import { ProjectHeader } from './header.jsx'
 
 export class ProjectEdit extends Component {
   constructor (props) {
@@ -14,6 +19,7 @@ export class ProjectEdit extends Component {
 
     this.state = {
       project: props.project,
+      isEditing: null,
       isSaved: true
     }
   }
@@ -36,13 +42,50 @@ export class ProjectEdit extends Component {
     this.setState({project, isSaved})
   }
 
+  renderHeader = (isGrid) => {
+    const { project } = this.state
+    const images = project.images || []
+    const coverImage = !isGrid && images.length > 0 ? images[0] : undefined
+
+    return (
+      <ProjectHeader
+        coverImage={coverImage}
+        title={project.title}
+        setEditing={(isEditing) => this.setState({ isEditing })}
+      />
+    )
+  }
+
+  renderBody = () => {
+    const { project } = this.state
+
+    return (
+      <Body
+        body={project.description}
+        onChange={(value) => this.onChange('description', value)}
+      />
+    )
+  }
+
+  renderMedia = () => {
+    const { project } = this.state
+    const embed_codes = project.embed_codes || []
+
+    return (
+      <EmbedList embed_codes={embed_codes} />
+    )
+  }
+
   render () {
-    const { project, isSaved } = this.state
+    const { project, isEditing, isSaved } = this.state
     const { actions, isSaving } = this.props
     const { fetchUpload, updateProject, deleteProject } = actions
 
     const images = project.images || []
     const links = project.links || []
+    const embed_codes = project.embed_codes || []
+
+    const isGrid = images.length > 0 && imageIsVertical(images[0])
 
     return (
       <div className='ProjectEdit Edit'>
@@ -52,46 +95,53 @@ export class ProjectEdit extends Component {
           isSaving={isSaving}
           item={project}
           model='projects'
+          onClickEmbed={() => this.setState({isEditing: 'embeds'})}
+          onClickImage={() => this.setState({isEditing: 'images'})}
           onPublish={() => this.onChange('published', !project.published)}
           saveItem={() => this.maybeSaveProject(project, true)}
         />
+
         <LayoutColumn
+          body={this.renderBody}
           className='Edit__body'
+          header={() => this.renderHeader(isGrid)}
           label='Project'
           labelLink='/projects'
         >
-          {images[0]
-          ?
-            <ImagesEdit
-              fetchUpload={fetchUpload}
-              images={project.images}
-              onChange={(value) => this.onChange('images', value)}
-            />
-          :
-            <FileInput
-              fetchUpload={fetchUpload}
-              onChange={(image) => this.onChange('images', [image])}
-            />
-          }
           <div className='ProjectEdit__body'>
-            <PlainText
-              content={project.title}
-              placeholder='Project title'
-              className='Project__title h1'
-              onChange={(value) => this.onChange('title', value)}
-            />
-            <RichText
-              html={project.description}
-              placeholder='Description'
-              className='Project__description'
-              onChange={(value) => this.onChange('description', value)}
-            />
             <EditLinkList
               links={links}
               onChange={(value) => this.onChange('links', value)}
             />
           </div>
         </LayoutColumn>
+
+        {isEditing === 'embeds' &&
+          <EmbedModal
+            embed_codes={embed_codes}
+            onChange={(value) => this.onChange('embed_codes', value)}
+            setEditing={(isEditing) => this.setState({ isEditing })}
+          />
+        }
+
+        {isEditing === 'images' &&
+          <ImagesEdit
+            item={project}
+            fetchUpload={fetchUpload}
+            onChange={(value) => this.onChange('images', value)}
+            setEditing={(isEditing) => this.setState({ isEditing })}
+          />
+        }
+
+        {isEditing === 'title' &&
+          <TextModal
+            className='h1'
+            label='Title'
+            text={project.title}
+            onChange={(value) => this.onChange('title', value)}
+            setEditing={(isEditing) => this.setState({ isEditing })}
+          />
+        }
       </div>
     )
   }

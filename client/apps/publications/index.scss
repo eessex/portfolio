@@ -4,6 +4,9 @@
 
 .Publications {
   .ShowFormats {
+    .ShowFormat {
+      margin-bottom: 0;
+    }
     &[data-condensed=true] {
       display: flex;
       .ShowFormat:first-child {

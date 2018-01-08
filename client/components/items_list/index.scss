@@ -69,3 +69,17 @@
 .ItemRow {
   margin-bottom: 1em;
 }
+
+@media screen and (max-width: 76rem) {
+  .ItemsList {
+    &.table {
+      .Item__title {
+        max-width: 100%;
+        h4 {
+          font-size: 1.3em;
+          line-height: 1.3em;
+        }
+      }
+    }
+  }
+}

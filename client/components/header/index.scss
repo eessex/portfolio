@@ -43,54 +43,16 @@
   }
 }
 
-nav.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  background: rgba(255,255,255,.85);
-  z-index: 10;
-  &.open {
-    z-index: 1000;
-  }
-  h4 {
-    margin-bottom: .25em;
-    &:nth-last-child {
-      margin-bottom: 0;
+@media screen and (max-width: 46rem) {
+  .Header {
+    display: block;
+    &__nav a:first-child {
+      margin-left: 0;
     }
-  }
-  a {
-    color: black;
-    text-decoration: none;
-  }
-  a:hover {
-    color: silver;
-  }
-  h2 {
-    margin: 0;
-  }
-  .header__right {
-    min-width: 30px;
-    min-height: 30px;
-  }
-  .header__menu {
-    position: fixed;
-    right: 15px;
-    top: 5px;
-    border: 1px solid;
-    padding: 5px 45px 10px 12px;
-    background: white;
-    z-index: 1;
-  }
-  .header__modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
+    &[data-fixed=true] {
+      .Header__nav {
+        margin: 15px 0 10px 0;
+      }
+    }
   }
 }

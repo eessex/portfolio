@@ -9,23 +9,23 @@ export const ItemTable = (props) => {
   return (
     <Row className='Item ItemTable'>
       {date &&
-        <Col sm={12} lg={3} className='Item__date'>
+        <Col xs={12} lg={3} className='Item__date'>
           <h4>{date}</h4>
         </Col>
       }
-      <Col sm={12} lg={6} className='Item__title'>
+      <Col xs={12} lg={6} className='Item__title'>
         <h4>
           {artist && `${artist}: `}
           {title || 'Missing Title'}
         </h4>
       </Col>
       {venue &&
-        <Col sm={12} lg={3} className='Item__venue'>
+        <Col xs={12} lg={3} className='Item__venue'>
           <h4>{venue}</h4>
         </Col>
       }
       {formats && formats.length &&
-        <Col sm={12} lg={3} className='Item__venue'>
+        <Col xs={12} lg={3} className='Item__venue'>
           <h4>
             <ShowFormats items={formats} short />
           </h4>

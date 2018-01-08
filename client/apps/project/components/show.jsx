@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { ProjectHeader } from './header.jsx'
+import { ItemHeader } from '../../../components/layout/components/header.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { LinksList } from '../../../components/links/links_list.jsx'
 
@@ -14,10 +14,12 @@ export const ProjectShow = (props) => {
       label='Project'
       labelLink='/projects'
     >
-      <ProjectHeader
-        title={title}
+      <ItemHeader
         coverImage={images && images[0]}
+        item={project}
+        model='project'
       />
+
       {description &&
         <div
           className='ProjectShow__body'

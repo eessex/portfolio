@@ -4,14 +4,13 @@ import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 
-
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { TextModal } from '../../../components/text/text_modal.jsx'
 
 import { Body } from '../../../components/layout/components/body.jsx'
+import { ItemHeader } from '../../../components/layout/components/header.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { imageIsVertical } from '../../../utils/index.js'
-import { ProjectHeader } from './header.jsx'
 
 export class ProjectEdit extends Component {
   constructor (props) {
@@ -48,9 +47,10 @@ export class ProjectEdit extends Component {
     const coverImage = !isGrid && images.length > 0 ? images[0] : undefined
 
     return (
-      <ProjectHeader
+      <ItemHeader
         coverImage={coverImage}
-        title={project.title}
+        item={project}
+        model='projects'
         setEditing={(isEditing) => this.setState({ isEditing })}
       />
     )

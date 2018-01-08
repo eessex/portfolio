@@ -2,9 +2,9 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { ImageShow } from '../../../components/image/image_show.jsx'
+import { ItemHeader } from '../../../components/layout/components/header.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
 import { LinksList } from '../../../components/links/links_list.jsx'
-import { PublicationHeader } from './header.jsx'
 
 export class PublicationShow extends Component {
   showFooter = () => {
@@ -30,7 +30,10 @@ export class PublicationShow extends Component {
     const { publication } = this.props
 
     return (
-      <PublicationHeader publication={publication} />
+      <ItemHeader
+        item={publication}
+        model='publications'
+      />
     )
   }
 

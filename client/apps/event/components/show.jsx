@@ -4,9 +4,9 @@ import { Body } from '../../../components/layout/components/body.jsx'
 import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
+import { ItemHeader } from '../../../components/layout/components/header.jsx'
 import { LinksList } from '../../../components/links/links_list.jsx'
 import { getDate, imageIsVertical } from '../../../utils/index.js'
-import { EventHeader } from './header.jsx'
 
 export const EventShow = (props) => {
   const { event } = props
@@ -46,9 +46,10 @@ function renderHeader(event, isGrid) {
   const coverImage = !isGrid && images.length > 0 ? images[0] : undefined
 
   return (
-    <EventHeader
+    <ItemHeader
       coverImage={coverImage}
-      event={event}
+      item={event}
+      model={'events'}
     />
   )
 }

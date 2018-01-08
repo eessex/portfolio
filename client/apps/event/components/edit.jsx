@@ -15,7 +15,7 @@ import { LayoutGrid } from '../../../components/layout/grid.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { TextModal } from '../../../components/text/text_modal.jsx'
 import { VenueModal } from '../../../components/venue/venue_modal.jsx'
-import { EventHeader } from './header.jsx'
+import { ItemHeader } from '../../../components/layout/components/header.jsx'
 
 class EventEdit extends Component {
   state = {
@@ -50,9 +50,10 @@ class EventEdit extends Component {
     const coverImage = !isGrid && images.length > 0 ? images[0] : undefined
 
     return (
-      <EventHeader
+      <ItemHeader
         coverImage={coverImage}
-        event={event}
+        item={event}
+        model={'events'}
         setEditing={(isEditing) => this.setState({ isEditing })}
       />
     )

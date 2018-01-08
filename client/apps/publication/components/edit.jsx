@@ -4,8 +4,8 @@ import { Col, Row } from 'react-styled-flexboxgrid'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
-import { PublicationHeader } from './header.jsx'
 import { Body } from '../../../components/layout/components/body.jsx'
+import { ItemHeader } from '../../../components/layout/components/header.jsx'
 
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
@@ -67,11 +67,9 @@ export class PublicationEdit extends Component {
     const { label } = this.props
 
     return (
-      <PublicationHeader
-        publication={publication}
-        label={label}
-        onChange={this.onChange}
-        className='Publication__header'
+      <ItemHeader
+        item={publication}
+        model='publications'
         setEditing={this.setEditing}
       />
     )

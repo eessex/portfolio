@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { ImageShow } from '../../../components/image/image_show.jsx'
-import { Title } from '../../../components/layout/components/title.jsx'
+import { Text } from '../../../components/text/text.jsx'
 
 export const ProjectHeader = (props) => {
     const {
@@ -16,7 +16,12 @@ export const ProjectHeader = (props) => {
 
     return (
       <div className='ProjectHeader' data-layout={layout}>
-        <Title title={title} onClick={setEditing ? editTitle : undefined} />
+        <Text
+          className='h1 title'
+          onClick={setEditing ? editTitle : undefined}
+          placeholder='Add Title'
+          text={title}
+        />
 
         {coverImage && url &&
           <ImageShow {...coverImage} />

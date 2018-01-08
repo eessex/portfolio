@@ -3,7 +3,7 @@ import React from 'react'
 
 import { getDate } from '../../../utils/index.js'
 import { ImageShow } from '../../../components/image/image_show.jsx'
-import { Title } from '../../../components/layout/components/title.jsx'
+import { Text } from '../../../components/text/text.jsx'
 import { Venue } from '../../../components/venue/venue.jsx'
 
 export const EventHeader = (props) => {
@@ -31,7 +31,12 @@ export const EventHeader = (props) => {
 
     return (
       <div className='EventHeader'>
-        <Title title={title} onClick={setEditing ? editTitle : undefined} />
+        <Text
+          className='h1'
+          onClick={setEditing ? editTitle : undefined}
+          placeholder='Add Title'
+          text={title} 
+        />
 
         {date &&
           <h4 onClick={setEditing && editDates}>{date}</h4>

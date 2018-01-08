@@ -85,16 +85,12 @@ class EventEdit extends Component {
     const { deleteEvent, fetchUpload } = actions
 
     const embed_codes = event.embed_codes || []
-    const images = event.images || []
-    const isGrid = images.length > 0 && imageIsVertical(images[0])
 
     const layoutProps = {
-      body: this.renderBody,
-      coverImage: isGrid && images[0],
-      header: () => this.renderHeader(isGrid),
+      item: event,
       label: 'Event',
-      labelLink: '/events',
-      media: this.renderMedia
+      model: 'events',
+      setEditing: (isEditing) => this.setState({ isEditing })
     }
 
     const {
@@ -123,10 +119,7 @@ class EventEdit extends Component {
           saveItem={() => this.maybeSaveEvent(event, true)}
         />
 
-        {isGrid
-          ? <LayoutGrid {...layoutProps} />
-          : <LayoutColumn {...layoutProps} />
-        }
+        <LayoutGrid {...layoutProps} />
 
         {isEditing === 'embeds' &&
           <EmbedModal
@@ -136,7 +129,7 @@ class EventEdit extends Component {
           />
         }
 
-        {isEditing === 'date' &&
+        {isEditing === 'dates' &&
           <DatesModal
             {...dateProps}
             onChange={this.onChange}

@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
+import { imageIsVertical } from '../../utils/index.js'
+import { ItemHeader } from './components/header.jsx'
 import { LayoutColumn } from './column.jsx'
 import { ImageShow } from '../image/image_show.jsx'
 import { EmbedList } from '../embeds/embed_list.jsx'
@@ -9,72 +11,60 @@ export const LayoutGrid = (props) => {
   const {
     body,
     className,
-    children,
-    coverImage,
     footer,
     header,
+    item,
     label,
     labelLink,
     layout,
-    media
+    media,
+    model,
+    setEditing
   } = props
 
-  if (coverImage) {
-    return (
-      <Row
-        className={`LayoutGrid ${className || ''}`}
-        data-layout={layout || ''}
+  const images = item.images || []
+  const isGrid = images.length > 0 && imageIsVertical(images[0])
+  const gridCoverImage = isGrid && images.length > 0 ? images[0] : undefined
+
+  return (
+    <Row
+      className={`LayoutGrid ${className || ''}`}
+      data-layout={layout || ''}
+    >
+      <Col
+        className='LayoutGrid__media'
+        xs={12}
+        sm={isGrid ? 5 : 2}
       >
-        {(coverImage || media) &&
-          <Col
-            className='LayoutGrid__media'
-            xs={12}
-            sm={5}
-          >
-            {coverImage && (typeof coverImage === 'object')
-              ? <ImageShow {...coverImage} />
-              : coverImage()
-            }
-            {media
-              ? (typeof media !== 'function') &&
-                  <EmbedList embed_codes={media} />
-
-              : media()
-            }
-          </Col>
+        {!isGrid &&
+          <label>{renderLabel(label, labelLink)}</label>
         }
-        <Col
-          className='LayoutGrid__item'
-          smOffset={coverImage ? 0 : 2}
-          xs={12}
-          sm={6}
-        >
-          {(label || header) &&
-            <div className='LayoutGrid__header'>
-              {label && renderLabel(label, labelLink)}
-              {header && header()}
-            </div>
-          }
+        {
+          <ImageShow {...gridCoverImage} />
+        }
+        {media && (typeof media !== 'function') &&
+          <EmbedList embed_codes={media} />
+        }
+      </Col>
 
-          {body &&
-            <div className='LayoutGrid__body'>
-              {body()}
-            </div>
-          }
+      <Col
+        className='LayoutGrid__item'
+        xs={12}
+        sm={6}
+      >
 
-          {footer &&
-            <div className='LayoutGrid__footer'>
-              {footer()}
-            </div>
-          }
-        </Col>
-      </Row>
-    )
-  } else {
-    return (
-      <LayoutColumn {...props} />
-    )
-  }
+        {item && model &&
+          <ItemHeader
+            item={item}
+            label={label}
+            model={model}
+            setEditing={setEditing}
+          />
+        }
+
+      </Col>
+    </Row>
+  )
 }
 
 const renderLabel = (label, link=null) => {

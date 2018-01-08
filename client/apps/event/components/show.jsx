@@ -19,47 +19,23 @@ export const EventShow = (props) => {
   } = event
 
   const embed_codes = event.embed_codes || []
-  const images = event.images || []
-  const isGrid = images.length > 0 && imageIsVertical(images[0])
 
   const layoutProps = {
-    body: () => renderBody(description, links),
-    coverImage: isGrid && images[0],
-    header: () => renderHeader(event, isGrid),
+    item: event,
     label: 'Event',
-    labelLink: '/events',
-    media: () => renderMedia(embed_codes)
+    model: 'events'
   }
 
   return (
     <div className='EventShow'>
-      {isGrid
-        ? <LayoutGrid {...layoutProps} />
-        : <LayoutColumn {...layoutProps} />
-      }
+      <LayoutGrid {...layoutProps} />
     </div>
-  )
-}
-
-function renderHeader(event, isGrid) {
-  const images = event.images || []
-  const coverImage = !isGrid && images.length > 0 ? images[0] : undefined
-
-  return (
-    <ItemHeader
-      coverImage={coverImage}
-      item={event}
-      model={'events'}
-    />
   )
 }
 
 function renderBody(description, links) {
   return (
-    <div className='Event__body'>
-      <Body body={description} />
-      <LinksList links={links || []} />
-    </div>
+    <Body body={description} />
   )
 }
 

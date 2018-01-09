@@ -10,7 +10,6 @@ import { DatesModal } from '../../../components/dates/dates_modal.jsx'
 import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
-import { Body } from '../../../components/layout/components/body.jsx'
 import { LayoutGrid } from '../../../components/layout/grid.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { TextModal } from '../../../components/text/text_modal.jsx'
@@ -59,17 +58,6 @@ class EventEdit extends Component {
     )
   }
 
-  renderBody = () => {
-    const { event } = this.state
-
-    return (
-      <Body
-        body={event.description}
-        onChange={(value) => this.onChange('description', value)}
-      />
-    )
-  }
-
   renderMedia = () => {
     const { event } = this.state
     const embed_codes = event.embed_codes || []
@@ -90,6 +78,7 @@ class EventEdit extends Component {
       item: event,
       label: 'Event',
       model: 'events',
+      onChange: this.onChange,
       setEditing: (isEditing) => this.setState({ isEditing })
     }
 

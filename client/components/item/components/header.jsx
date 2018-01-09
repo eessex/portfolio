@@ -6,14 +6,11 @@ import { ImageShow } from '../../image/image_show.jsx'
 import { ShowFormats } from '../../formats/show_formats.jsx'
 import { Text } from '../../text/text.jsx'
 import { Venue } from '../../venue/venue.jsx'
-import { Label } from './label.jsx'
 
 export const ItemHeader = (props) => {
     const {
       coverImage,
       item,
-      label,
-      labelLink,
       model,
       setEditing
     } = props
@@ -32,10 +29,6 @@ export const ItemHeader = (props) => {
 
     return (
       <div className='ItemHeader'>
-        {label &&
-          <Label label={label} labelLink={labelLink} />
-        }
-
         {artist &&
           <Text
             className='h1 artist'

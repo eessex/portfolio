@@ -7,7 +7,7 @@ import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { TextModal } from '../../../components/text/text_modal.jsx'
 
-import { Body } from '../../../components/layout/components/body.jsx'
+// import { Body } from '../../../components/layout/components/body.jsx'
 import { ItemHeader } from '../../../components/layout/components/header.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { imageIsVertical } from '../../../utils/index.js'
@@ -56,16 +56,16 @@ export class ProjectEdit extends Component {
     )
   }
 
-  renderBody = () => {
-    const { project } = this.state
+  // renderBody = () => {
+  //   const { project } = this.state
 
-    return (
-      <Body
-        body={project.description}
-        onChange={(value) => this.onChange('description', value)}
-      />
-    )
-  }
+  //   return (
+  //     <Body
+  //       body={project.description}
+  //       onChange={(value) => this.onChange('description', value)}
+  //     />
+  //   )
+  // }
 
   renderMedia = () => {
     const { project } = this.state

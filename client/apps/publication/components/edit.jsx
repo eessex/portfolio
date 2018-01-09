@@ -3,8 +3,7 @@ import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
-import { LayoutGrid } from '../../../components/layout/grid.jsx'
-import { Body } from '../../../components/layout/components/body.jsx'
+import { Item } from '../../../components/item/index.jsx'
 import { ItemHeader } from '../../../components/layout/components/header.jsx'
 
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
@@ -49,17 +48,6 @@ export class PublicationEdit extends Component {
       isSaved = true
     }
     this.setState({publication, isSaved})
-  }
-
-  editBody = () => {
-    const { publication } = this.state
-
-    return (
-      <Body
-        body={publication.description}
-        onChange={(value) => this.onChange('description', value)}
-      />
-    )
   }
 
   showHeader = () => {
@@ -111,14 +99,12 @@ export class PublicationEdit extends Component {
           onClickEmbed={() => this.setEditing('embeds')}
         />
 
-        <LayoutGrid
-          body={this.editBody}
+        <Item
           coverImage={images.length > 0 && images[0]}
-          header={this.showHeader}
-          footer={this.editFooter}
+          item={publication}
           label={label.slice(0,-1)}
           labelLink={`/${label.toLowerCase()}`}
-          media={embed_codes}
+          model='publications'
         />
 
         {isEditing === 'artist' &&

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { imageIsVertical } from '../../utils/index.js'
+import { Description } from './components/description.jsx'
 import { ItemHeader } from './components/header.jsx'
 import { LayoutColumn } from './column.jsx'
 import { ImageShow } from '../image/image_show.jsx'
@@ -9,22 +10,24 @@ import { EmbedList } from '../embeds/embed_list.jsx'
 
 export const LayoutGrid = (props) => {
   const {
-    body,
     className,
-    footer,
-    header,
     item,
     label,
     labelLink,
     layout,
-    media,
     model,
+    onChange,
     setEditing
   } = props
 
+  const {
+    description,
+    embed_codes
+  } = item
+
   const images = item.images || []
   const isGrid = images.length > 0 && imageIsVertical(images[0])
-  const gridCoverImage = isGrid && images.length > 0 ? images[0] : undefined
+  const gridCoverImage = images.length > 0 ? images[0] : undefined
 
   return (
     <Row
@@ -34,16 +37,13 @@ export const LayoutGrid = (props) => {
       <Col
         className='LayoutGrid__media'
         xs={12}
-        sm={isGrid ? 5 : 2}
+        sm={gridCoverImage ? 5 : 2}
       >
-        {!isGrid &&
-          <label>{renderLabel(label, labelLink)}</label>
-        }
-        {
+        {gridCoverImage &&
           <ImageShow {...gridCoverImage} />
         }
-        {media && (typeof media !== 'function') &&
-          <EmbedList embed_codes={media} />
+        {embed_codes &&
+          <EmbedList embed_codes={embed_codes} />
         }
       </Col>
 
@@ -52,15 +52,18 @@ export const LayoutGrid = (props) => {
         xs={12}
         sm={6}
       >
+        <ItemHeader
+          item={item}
+          label={label}
+          labelLink={labelLink}
+          model={model}
+          setEditing={setEditing}
+        />
 
-        {item && model &&
-          <ItemHeader
-            item={item}
-            label={label}
-            model={model}
-            setEditing={setEditing}
-          />
-        }
+        <Description
+          description={description}
+          onChange={onChange ? onChange : undefined}
+        />
 
       </Col>
     </Row>

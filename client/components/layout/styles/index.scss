@@ -1,0 +1,13 @@
+@import "column";
+@import "grid";
+
+.ItemHeader {
+  margin-bottom: 2em;
+
+  .h1 {
+    margin-top: -6px;
+  }
+  .ImageShow {
+    margin-top: 2em;
+  }
+}

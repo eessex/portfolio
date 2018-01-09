@@ -2,34 +2,34 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { RichText } from '../../forms/rich_text/index.jsx'
 
-export const Body = (props) => {
+export const Description = (props) => {
     const {
-      body,
+      description,
       onChange,
       placeholder
     } = props
 
     return (
-      <div className='Body'>
+      <div className='Description'>
         {onChange
           ? <RichText
-              html={body}
+              html={description}
               placeholder={placeholder ? placeholder : 'Start typing...'}
-              className='Body__edit'
-              onChange={onChange}
+              className='Description__edit'
+              onChange={(value) => onChange('description', value)}
             />
 
           : <div
-              className='Body__show'
-              dangerouslySetInnerHTML={{__html: body}}
+              className='Description__show'
+              dangerouslySetInnerHTML={{__html: description}}
             />
         }
       </div>
     )
   }
 
-Body.propTypes = {
-  body: PropTypes.string,
+Description.propTypes = {
+  description: PropTypes.string,
   onChange: PropTypes.func,
   placeholder: PropTypes.string
 }

@@ -50,35 +50,12 @@ export class PublicationEdit extends Component {
     this.setState({publication, isSaved})
   }
 
-  showHeader = () => {
-    const { publication, isEditing } = this.state
-    const { label } = this.props
-
-    return (
-      <ItemHeader
-        item={publication}
-        model='publications'
-        setEditing={this.setEditing}
-      />
-    )
-  }
-
-  editFooter = () => {
-    const { publication } = this.state
-
-    return (
-      <EditLinkList
-        links={publication.links}
-        onChange={(value) => this.onChange('links', value)}
-      />
-    )
-  }
-
   render () {
     const { publication, isEditing, isSaved } = this.state
     const { actions, isSaving, label } = this.props
     const { fetchUpload, updatePublication, deletePublication } = actions
-    const { artist, title } = publication
+    const { artist, compilation, title } = publication
+    const formattedLabel = compilation ? `${label.slice(0,-1)} : Compilation` : label.slice(0,-1)
 
     const embed_codes = publication.embed_codes || []
     const formats = publication.formats || []
@@ -100,11 +77,12 @@ export class PublicationEdit extends Component {
         />
 
         <Item
-          coverImage={images.length > 0 && images[0]}
           item={publication}
-          label={label.slice(0,-1)}
-          labelLink={`/${label.toLowerCase()}`}
+          label={formattedLabel}
+          labelLink
           model='publications'
+          onChange={this.onChange}
+          setEditing={(isEditing) => this.setEditing(isEditing)}
         />
 
         {isEditing === 'artist' &&

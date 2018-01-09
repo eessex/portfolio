@@ -9,6 +9,8 @@ export const Item = (props) => {
   const {
     className,
     item,
+    label,
+    labelLink,
     layout,
     model,
     onChange,
@@ -33,6 +35,8 @@ export const Item = (props) => {
 Item.propTypes = {
   className: PropTypes.string,
   item: PropTypes.object,
+  label: PropTypes.string,
+  labelLink: PropTypes.bool,
   layout: PropTypes.string,
   model: PropTypes.string,
   onChange: PropTypes.func,

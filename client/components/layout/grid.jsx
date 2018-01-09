@@ -70,24 +70,12 @@ export const LayoutGrid = (props) => {
   )
 }
 
-const renderLabel = (label, link=null) => {
-  return (
-    <div className='LayoutGrid__label'>
-      {link
-        ? <a href={link}>{label}</a>
-        : label
-      }
-    </div>
-  )
-}
-
 LayoutGrid.propTypes = {
-  body: PropTypes.func,
   className: PropTypes.string,
-  header: PropTypes.func,
-  footer: PropTypes.func,
   layout: PropTypes.string,
   label: PropTypes.string,
-  labelLink: PropTypes.string,
-  media: PropTypes.any
+  media: PropTypes.any,
+  model: PropTypes.string,
+  onChange: PropTypes.func,
+  setEditing: PropTypes.func
 }

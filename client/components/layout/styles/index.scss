@@ -1,6 +1,9 @@
 @import "column";
 @import "grid";
 
+.Item {
+  // padding: 0 calc(20px - .5em);
+}
 .ItemHeader {
   margin-bottom: 2em;
 
@@ -9,5 +12,14 @@
   }
   .ImageShow {
     margin-top: 2em;
+  }
+}
+
+.Label {
+  font-weight: 600;
+  padding-bottom: 15px;
+  display: block;
+  a {
+    text-decoration: none;
   }
 }

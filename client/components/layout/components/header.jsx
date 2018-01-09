@@ -33,7 +33,11 @@ export const ItemHeader = (props) => {
     return (
       <div className='ItemHeader'>
         {label &&
-          <Label label={label} labelLink={labelLink} />
+          <Label
+            label={label}
+            labelLink={labelLink}
+            model={model}
+          />
         }
 
         {artist &&

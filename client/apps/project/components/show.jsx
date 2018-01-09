@@ -1,33 +1,18 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { ItemHeader } from '../../../components/layout/components/header.jsx'
-import { LayoutColumn } from '../../../components/layout/column.jsx'
-import { LinksList } from '../../../components/links/links_list.jsx'
+import { Item } from '../../../components/item/index.jsx'
 
 export const ProjectShow = (props) => {
   const { project } = props
   const { description, images, links, title } = project
 
   return (
-    <LayoutColumn
-      className='ProjectShow'
+    <Item
+      item={project}
       label='Project'
-      labelLink='/projects'
-    >
-      <ItemHeader
-        coverImage={images && images[0]}
-        item={project}
-        model='project'
-      />
-
-      {description &&
-        <div
-          className='ProjectShow__body'
-          dangerouslySetInnerHTML={{__html: description}}
-        />
-      }
-      <LinksList links={links || []} />
-    </LayoutColumn>
+      labelLink
+      model='projects'
+    />
   )
 }
 

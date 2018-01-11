@@ -3,14 +3,28 @@
 
   &__header.h4 {
     margin-top: 0;
-    margin-bottom: 10px;
+    padding-bottom: 10px;
     font-weight: 600;
+    div {
+      display: flex;
+      justify-content: space-between;
+      align-content: center;
+    }
   }
 
   a {
     color: black;
     &:hover {
       color: #999;
+    }
+  }
+
+  &[data-toggle=true] {
+    &.table .ListItem:first-child .Item {
+      border-top: none;
+    }
+    .ItemsList__header.h4 {
+      border-bottom: 1px solid;
     }
   }
 
@@ -50,6 +64,13 @@
         width: auto;
         max-width: 100%;
       }
+    }
+  }
+  .ListItem[data-condensed=true] {
+    margin-top: 30px;
+    margin-bottom: 50px;
+    .h3 {
+      margin-bottom: .5em;
     }
   }
 }

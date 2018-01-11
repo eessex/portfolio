@@ -66,6 +66,7 @@ class Publications extends Component {
                   label={label}
                   layout='table'
                   className={`Publications__${label.toLowerCase()}`}
+                  canToggle
                 />
               }
               {compilations &&
@@ -75,6 +76,7 @@ class Publications extends Component {
                   label='Compilations'
                   layout='table'
                   className='Publications__compilations'
+                  canToggle
                 />
               }
             </div>

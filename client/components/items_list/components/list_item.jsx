@@ -7,6 +7,7 @@ import { ItemGrid } from './item_grid.jsx'
 export const ListItem = (props) => {
   const {
     artist,
+    condensed,
     date,
     image,
     formats,
@@ -34,10 +35,11 @@ export const ListItem = (props) => {
     return(
       <Col
         xs={12}
-        sm={6}
-        xl={4}
+        sm={condensed ? 4 : 6}
+        lg={condensed ? 3 : 4}
         className='ListItem'
         data-published={published}
+        data-condensed={condensed}
       >
         <a href={slug}>
           <ItemGrid {...props} />

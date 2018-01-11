@@ -25,7 +25,7 @@ export const ItemTable = (props) => {
         </Col>
       }
       {formats && formats.length &&
-        <Col xs={12} lg={3} className='Item__venue'>
+        <Col xs={12} lg={3} className='Item__formats'>
           <h4>
             <ShowFormats items={formats} short />
           </h4>

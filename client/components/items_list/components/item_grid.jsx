@@ -1,10 +1,13 @@
 import PropTypes from 'prop-types'
 import React from 'react'
+import { ShowFormats } from '../../formats/show_formats.jsx'
 
 export const ItemGrid = (props) => {
   const {
+    artist,
     date,
     description,
+    formats,
     image,
     title,
     venue
@@ -22,14 +25,22 @@ export const ItemGrid = (props) => {
       }
       <div className='Item__body'>
         <div className={'Item__title' + titleClass}>
+          {artist && `${artist}: `}
           {title || 'Missing Title'}
         </div>
-        <h5 className='Item__date'>
-          {date}
-        </h5>
+        {date && !formats &&
+          <h5 className='Item__date'>
+            {date}
+          </h5>
+        }
         {venue &&
           <h5 className='Item__venue'>
             {venue}
+          </h5>
+        }
+        {formats && formats.length &&
+          <h5 className='Item__formats'>
+            <ShowFormats items={formats} />
           </h5>
         }
         {description &&

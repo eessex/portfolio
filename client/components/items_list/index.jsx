@@ -36,20 +36,27 @@ export class ItemsList extends Component {
 
   renderLayoutToggle = () => {
     const { layout } = this.state
+    const { model } = this.props
 
     if (layout === 'table') {
       return (
-        <FontAwesome
-          name='th-large'
+        <h6
+          className='layout-toggle'
           onClick={() => this.setState({layout: 'grid'})}
-        />
+        >
+          {model === 'releases' ? 'Covers' : 'Posters'}
+          <FontAwesome name='expand' />
+        </h6>
       )
     } else {
       return (
-        <FontAwesome
-          name='bars'
+        <h6
+          className='layout-toggle'
           onClick={() => this.setState({layout: 'table'})}
-        />
+        >
+          List
+          <FontAwesome name='bars' />
+        </h6>
       )
     }
   }

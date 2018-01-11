@@ -69,9 +69,9 @@ export const ItemHeader = (props) => {
           />
         }
 
-        {hasVenue &&
+        {(hasVenue || model === 'events' && setEditing) &&
           <Venue
-            venue={venue}
+            venue={venue || {}}
             onClick={setEditing ? () => setEditing('venue') : undefined}
           />
         }

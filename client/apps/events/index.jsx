@@ -8,19 +8,15 @@ import { NewButton } from '../../components/header/components/new_button.jsx'
 import { sortByDate } from '../../utils/index.js' 
 
 class Events extends Component {
-  constructor(props) {
-    super(props)
-
-    const isAdmin = props.user.isAuthenticated
-    const query = isAdmin ? {} : { published: true }
-
-    this.state = {
-      isAdmin
-    }
+  state = {
+    isAdmin: this.props.user.isAuthenticated
   }
 
   componentWillMount() {
-    this.props.actions.fetchEvents(this.state.query)
+    const { isAdmin } = this.state
+    const query = isAdmin ? {} : { published: true }
+
+    this.props.actions.fetchEvents(query)
   }
 
   render() {

@@ -63,7 +63,7 @@ export class VenueEdit extends Component {
             <input
               placeholder='City'
               value={city ? city : ''}
-              onChange={(e) => this.onChange('name', e.target.value)}
+              onChange={(e) => this.onChange('city', e.target.value)}
             />
           </Col>
 

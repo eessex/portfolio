@@ -21,6 +21,7 @@ var SettingsSchema = new Schema({
       }
     ]
   },
+  nav: [],
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now }
 })

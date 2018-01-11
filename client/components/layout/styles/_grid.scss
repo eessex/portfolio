@@ -1,5 +1,5 @@
 div[class*="Row-"].LayoutGrid {
-  padding: calc(20px - .5em);
+  padding: 0 calc(20px - .5em);
   margin-bottom: 4em;
 }
 
@@ -12,14 +12,23 @@ div[class*="Row-"].LayoutGrid {
     }
   }
   &__item {
-    margin: 0 auto;
+    margin: 0 auto 0 0;
   }
   &__media {
     margin-right: 30px;
     max-width: 450px !important;
+    padding-bottom: 30px;
   }
 
   .ImageShow {
     margin-bottom: 1em;
+  }
+}
+
+@media screen and (max-width: 46rem) {
+  .LayoutGrid {
+    &__media {
+      max-width: 100% !important;
+    }
   }
 }

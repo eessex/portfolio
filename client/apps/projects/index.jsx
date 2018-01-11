@@ -25,9 +25,9 @@ class Projects extends Component {
   }
 
   render() {
-    const { actions, projects, settings } = this.props
+    const { actions, projects } = this.props
     const { isAdmin } = this.state
-    const { loading } = settings
+    const { loading } = projects
     const { list } = projects
 
     return (
@@ -47,7 +47,7 @@ class Projects extends Component {
               }
               <ItemsList
                 model='projects'
-                list={list}
+                list={list || []}
               />
           </LayoutColumn>
         }

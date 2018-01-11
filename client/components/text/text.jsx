@@ -1,31 +1,33 @@
+import { capitalize } from 'underscore.string'
 import PropTypes from 'prop-types'
 import React from 'react'
 
-export const Title = (props) => {
+export const Text = (props) => {
     const {
-      title,
+      className,
       onClick,
-      placeholder
+      placeholder,
+      text
     } = props
 
     return (
       <div
-        className='Title h1'
+        className={`Text ${className ? className : 'p'}`}
         onClick={onClick ? onClick : undefined}
-        data-placeholder={onClick && !title}
+        data-placeholder={onClick && !text}
       >
-        {title
-          ? title
+        {text
+          ? text
 
           : placeholder
             ? placeholder
-            : 'Add Title'
+            : 'Start typing'
         }
       </div>
     )
   }
 
-Title.propTypes = {
+Text.propTypes = {
   title: PropTypes.string,
   onClick: PropTypes.func,
   placeholder: PropTypes.string

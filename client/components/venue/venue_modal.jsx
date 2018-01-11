@@ -20,7 +20,7 @@ export const VenueModal = (props) => {
       </label>
 
       <VenueEdit
-        venue={venue}
+        venue={venue || {}}
         onChange={onChange}
       />
     </ModalContainer>

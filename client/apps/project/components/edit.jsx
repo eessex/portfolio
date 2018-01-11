@@ -3,15 +3,10 @@ import { Col, Row } from 'react-styled-flexboxgrid'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
-
-
 import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
+import { Item } from '../../../components/item/index.jsx'
 import { TextModal } from '../../../components/text/text_modal.jsx'
 
-import { Body } from '../../../components/layout/components/body.jsx'
-import { LayoutColumn } from '../../../components/layout/column.jsx'
-import { imageIsVertical } from '../../../utils/index.js'
-import { ProjectHeader } from './header.jsx'
 
 export class ProjectEdit extends Component {
   constructor (props) {
@@ -42,40 +37,6 @@ export class ProjectEdit extends Component {
     this.setState({project, isSaved})
   }
 
-  renderHeader = (isGrid) => {
-    const { project } = this.state
-    const images = project.images || []
-    const coverImage = !isGrid && images.length > 0 ? images[0] : undefined
-
-    return (
-      <ProjectHeader
-        coverImage={coverImage}
-        title={project.title}
-        setEditing={(isEditing) => this.setState({ isEditing })}
-      />
-    )
-  }
-
-  renderBody = () => {
-    const { project } = this.state
-
-    return (
-      <Body
-        body={project.description}
-        onChange={(value) => this.onChange('description', value)}
-      />
-    )
-  }
-
-  renderMedia = () => {
-    const { project } = this.state
-    const embed_codes = project.embed_codes || []
-
-    return (
-      <EmbedList embed_codes={embed_codes} />
-    )
-  }
-
   render () {
     const { project, isEditing, isSaved } = this.state
     const { actions, isSaving } = this.props
@@ -84,8 +45,6 @@ export class ProjectEdit extends Component {
     const images = project.images || []
     const links = project.links || []
     const embed_codes = project.embed_codes || []
-
-    const isGrid = images.length > 0 && imageIsVertical(images[0])
 
     return (
       <div className='ProjectEdit Edit'>
@@ -101,20 +60,14 @@ export class ProjectEdit extends Component {
           saveItem={() => this.maybeSaveProject(project, true)}
         />
 
-        <LayoutColumn
-          body={this.renderBody}
-          className='Edit__body'
-          header={() => this.renderHeader(isGrid)}
+        <Item
+          item={project}
           label='Project'
-          labelLink='/projects'
-        >
-          <div className='ProjectEdit__body'>
-            <EditLinkList
-              links={links}
-              onChange={(value) => this.onChange('links', value)}
-            />
-          </div>
-        </LayoutColumn>
+          labelLink
+          model='projects'
+          onChange={this.onChange}
+          setEditing={(isEditing) => this.setState({ isEditing })}
+        />
 
         {isEditing === 'embeds' &&
           <EmbedModal

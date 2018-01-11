@@ -4,18 +4,14 @@ import * as Actions from '../../../actions/event'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 
-import { imageIsVertical } from '../../../utils/index.js'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { DatesModal } from '../../../components/dates/dates_modal.jsx'
-import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
-import { Body } from '../../../components/layout/components/body.jsx'
-import { LayoutGrid } from '../../../components/layout/grid.jsx'
-import { LayoutColumn } from '../../../components/layout/column.jsx'
+import { Item } from '../../../components/item/index.jsx'
 import { TextModal } from '../../../components/text/text_modal.jsx'
 import { VenueModal } from '../../../components/venue/venue_modal.jsx'
-import { EventHeader } from './header.jsx'
+import { ItemHeader } from '../../../components/layout/components/header.jsx'
 
 class EventEdit extends Component {
   state = {
@@ -44,56 +40,20 @@ class EventEdit extends Component {
     this.setState({event, isSaved})
   }
 
-  renderHeader = (isGrid) => {
-    const { event } = this.state
-    const images = event.images || []
-    const coverImage = !isGrid && images.length > 0 ? images[0] : undefined
-
-    return (
-      <EventHeader
-        coverImage={coverImage}
-        event={event}
-        setEditing={(isEditing) => this.setState({ isEditing })}
-      />
-    )
-  }
-
-  renderBody = () => {
-    const { event } = this.state
-
-    return (
-      <Body
-        body={event.description}
-        onChange={(value) => this.onChange('description', value)}
-      />
-    )
-  }
-
-  renderMedia = () => {
-    const { event } = this.state
-    const embed_codes = event.embed_codes || []
-
-    return (
-      <EmbedList embed_codes={embed_codes} />
-    )
-  }
-
   render() {
     const { event, isEditing, isSaved } = this.state
     const { actions, isSaving } = this.props
     const { deleteEvent, fetchUpload } = actions
 
     const embed_codes = event.embed_codes || []
-    const images = event.images || []
-    const isGrid = images.length > 0 && imageIsVertical(images[0])
 
     const layoutProps = {
-      body: this.renderBody,
-      coverImage: isGrid && images[0],
-      header: () => this.renderHeader(isGrid),
+      item: event,
       label: 'Event',
-      labelLink: '/events',
-      media: this.renderMedia
+      labelLink: true,
+      model: 'events',
+      onChange: this.onChange,
+      setEditing: (isEditing) => this.setState({ isEditing })
     }
 
     const {
@@ -122,10 +82,7 @@ class EventEdit extends Component {
           saveItem={() => this.maybeSaveEvent(event, true)}
         />
 
-        {isGrid
-          ? <LayoutGrid {...layoutProps} />
-          : <LayoutColumn {...layoutProps} />
-        }
+        <Item {...layoutProps} />
 
         {isEditing === 'embeds' &&
           <EmbedModal
@@ -135,7 +92,7 @@ class EventEdit extends Component {
           />
         }
 
-        {isEditing === 'date' &&
+        {isEditing === 'dates' &&
           <DatesModal
             {...dateProps}
             onChange={this.onChange}

@@ -9,7 +9,7 @@ import { sortByDate } from '../../utils/index.js'
 
 class Events extends Component {
   state = {
-    isAdmin: this.props.user.isAuthenticated
+    isAdmin: this.props.user.isAuthenticated,
   }
 
   componentWillMount() {
@@ -21,7 +21,7 @@ class Events extends Component {
 
   render() {
     const { actions, events, settings } = this.props    
-    const { isAdmin } = this.state
+    const { isAdmin, listStyle } = this.state
     const { loading } = settings
     const { list } = events
 
@@ -58,6 +58,7 @@ class Events extends Component {
                     model='events'
                     list={past}
                     layout='table'
+                    canToggle
                   />
                 }
 

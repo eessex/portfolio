@@ -2,7 +2,9 @@
 @import "grid";
 
 .Item {
-  // padding: 0 calc(20px - .5em);
+  .LinksList {
+    margin-top: calc(2em - 10px);
+  }
 }
 .ItemHeader {
   margin-bottom: 2em;

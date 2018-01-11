@@ -4,9 +4,10 @@ import { Col, Row } from 'react-styled-flexboxgrid'
 import { imageIsVertical } from '../../utils/index.js'
 import { Description } from './components/description.jsx'
 import { ItemHeader } from './components/header.jsx'
-import { LayoutColumn } from './column.jsx'
-import { ImageShow } from '../image/image_show.jsx'
 import { EmbedList } from '../embeds/embed_list.jsx'
+import { ImageShow } from '../image/image_show.jsx'
+import { LinksList } from '../links/links_list.jsx'
+import { LayoutColumn } from './column.jsx'
 
 export const LayoutGrid = (props) => {
   const {
@@ -64,6 +65,8 @@ export const LayoutGrid = (props) => {
           description={description}
           onChange={onChange ? onChange : undefined}
         />
+
+        <LinksList links={item.links || [] }/>
 
       </Col>
     </Row>

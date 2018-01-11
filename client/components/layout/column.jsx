@@ -66,6 +66,7 @@ export const LayoutColumn = (props) => {
               description={item.description}
               onChange={onChange ? onChange : undefined}
             />
+            <LinksList links={item.links || [] }/>
 
             <EmbedList
               embed_codes={embed_codes.length > 0 ? embed_codes : undefined}

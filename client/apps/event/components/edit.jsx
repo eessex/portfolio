@@ -9,6 +9,7 @@ import { DatesModal } from '../../../components/dates/dates_modal.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 import { Item } from '../../../components/item/index.jsx'
+import { LinksModal } from '../../../components/links/links_modal.jsx'
 import { TextModal } from '../../../components/text/text_modal.jsx'
 import { VenueModal } from '../../../components/venue/venue_modal.jsx'
 import { ItemHeader } from '../../../components/layout/components/header.jsx'
@@ -78,6 +79,7 @@ class EventEdit extends Component {
           model='events'
           onClickEmbed={() => this.setState({isEditing: 'embeds'})}
           onClickImage={() => this.setState({isEditing: 'images'})}
+          onClickLink={() => this.setState({isEditing: 'links'})}
           onPublish={() => this.onChange('published', !event.published)}
           saveItem={() => this.maybeSaveEvent(event, true)}
         />
@@ -106,6 +108,14 @@ class EventEdit extends Component {
             item={event}
             fetchUpload={fetchUpload}
             onChange={(value) => this.onChange('images', value)}
+            setEditing={(isEditing) => this.setState({ isEditing })}
+          />
+        }
+
+        {isEditing === 'links' &&
+          <LinksModal
+            links={event.links}
+            onChange={(value) => this.onChange('links', value)}
             setEditing={(isEditing) => this.setState({ isEditing })}
           />
         }

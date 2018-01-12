@@ -1,26 +1,26 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { ModalContainer } from '../modal/modal_container.jsx'
-import { VenueEdit } from './venue_edit.jsx'
+import { LinksEdit } from './links_edit.jsx'
 
-export const VenueModal = (props) => {
+export const LinksModal = (props) => {
   const {
     onChange,
     setEditing,
-    venue,
+    links,
   } = props
 
   return (
     <ModalContainer
-      className='VenueModal'
+      className='LinksModal'
       onClick={() => setEditing(null)}
     >
       <label>
-        Venue:
+        Links:
       </label>
 
-      <VenueEdit
-        venue={venue || {}}
+      <LinksEdit
+        links={links || []}
         onChange={onChange}
       />
     </ModalContainer>

@@ -12,7 +12,7 @@ export const Button = (props) => {
     onClick,
     text
   } = props
-  const formatClassName = icon ? ` IconButton ${className}` : ` className`
+  const formatClassName = icon ? ` IconButton ${className}` : ` ${className}`
   const child = text ? text : children
 
   return (

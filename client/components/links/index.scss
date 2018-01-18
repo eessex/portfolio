@@ -1,18 +1,20 @@
 .LinksModal {
   .EditLinks {
     padding-top: 10px;
+    div[class*="Row-"]:last-child {
+      padding-bottom: 10px;
+    }
   }
 }
 
 .LinkEdit {
   &[class*="Row-"] {
     padding-bottom: 20px;
-    justify-content: space-between;
+    justify-content: flex-start;
     div[class^="Col-"] {
       padding: 0;
       &:last-child {
-        width: 25px;
-        max-width: 25px;
+        padding-left: 30px;
       }
     }
   }
@@ -34,8 +36,11 @@
   }
   .Button.new {
     font-size: .7em;
-    margin-left: -15px;
+    margin-top: -5px;
     padding: 5px 10px;
     text-transform: uppercase;
+    &:hover {
+      color: limegreen;
+    }
   }
 }

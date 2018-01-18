@@ -3,7 +3,6 @@ import { Col, Row } from 'react-styled-flexboxgrid'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
-import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { Item } from '../../../components/item/index.jsx'
 import { TextModal } from '../../../components/text/text_modal.jsx'
 

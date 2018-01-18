@@ -9,31 +9,34 @@ export class LinksEdit extends Component {
     onChange: PropTypes.func
   }
 
+  componentWillUnmount = () => {
+    const { links } = this.state
+    const cleanedLinks = this.checkEmpty()
+
+    if (cleanedLinks !== links) {
+      onChange(cleanedLinks)
+    }
+  }
+
   onChange = (link, index) => {
     const { links, onChange } = this.props
     const newLinks = clone(links)
 
-    newLinks[index] = link
+    if (index) {
+      newLinks[index] = link
+    } else {
+      newLinks.push(link)
+    }
     onChange(newLinks)
   }
 
   onDelete = (index) => {
-    debugger
-    // const { onChange, onDelete } = this.props
-    // let cleanedLinks = this.state.links
+    const { onChange } = this.props
+    let newLinks = clone(this.props.links)
 
-    // cleanedLinks.splice(index, 1)
-    // onChange(cleanedLinks)
-    // if (onDelete) {
-    //   onDelete()
-    // }
+    newLinks.splice(index, 1)
+    onChange(newLinks)
   }
-
-  // toggleEdit = () => {
-  //   const links = this.checkEmpty()
-
-  //   this.props.onChange(links)
-  // }
 
   checkEmpty = () => {
     const { links } = this.state

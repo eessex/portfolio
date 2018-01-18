@@ -4,6 +4,15 @@ import { Row, Col } from 'react-styled-flexboxgrid'
 import { Button } from '../forms/buttons/button.jsx'
 
 export class LinkEdit extends Component {
+  static propTypes = {
+    autoFocus: PropTypes.bool,
+    index: PropTypes.number,
+    onChange: PropTypes.func.isRequired,
+    onDelete: PropTypes.func,
+    title: PropTypes.string,
+    url: PropTypes.string
+  }
+
   state = {
     link: {
       title: this.props.title || '',
@@ -20,18 +29,27 @@ export class LinkEdit extends Component {
 
     if (index) {
       onChange(link, index)
-    } else {
-      onChange(link)
     }
   }
 
-  onNew = (link) => {
-    debugger
+  onNew = () => {
+    const { link } = this.state
+    const { onChange } = this.props
+
+    if (link.url.length) {
+      onChange(link)
+      this.setState({ 
+        link: {
+          title: '',
+          url: ''
+        }
+      })
+    }
   }
 
   render () {
     const { title, url } = this.state.link
-    const { autoFocus, index } = this.props
+    const { autoFocus, index, onDelete } = this.props
 
     return (
       <Row className='LinkEdit'>
@@ -39,14 +57,14 @@ export class LinkEdit extends Component {
           <input
             autoFocus={autoFocus}
             placeholder='Title'
-            defaultValue={title}
+            value={title}
             onChange={(e) => this.onChange('title', e.target.value)}
           />
         </Col>
         <Col sm={5}>
           <input
             placeholder='http://example.com'
-            defaultValue={url}
+            value={url}
             onChange={(e) => this.onChange('url', e.target.value)}
           />
         </Col>
@@ -54,26 +72,17 @@ export class LinkEdit extends Component {
           {(index || index === 0)
             ? <Button
                 borderless
-                icon='times'
-                onClick={this.onDelete}
+                icon='ban'
+                onClick={() => onDelete(index)}
               />
             : <Button
                 className='new'
                 text='save'
-                onClick={this.onNet}
+                onClick={this.onNew}
               />
           }
         </Col>
       </Row>
     )
   }
-}
-
-LinkEdit.propTypes = {
-  autoFocus: PropTypes.bool,
-  index: PropTypes.number,
-  onChange: PropTypes.func.isRequired,
-  onDelete: PropTypes.func,
-  title: PropTypes.string,
-  url: PropTypes.string
 }

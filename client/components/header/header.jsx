@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import Waypoint from 'react-waypoint'
 import { connect } from 'react-redux'
@@ -5,7 +6,12 @@ import { bindActionCreators } from 'redux'
 import { capitalize } from 'underscore.string'
 import * as Actions from '../../actions/user'
 
-class Header extends Component {
+export class Header extends Component {
+  static propTypes = {
+    settings: PropTypes.object,
+    user: PropTypes.object
+  }
+
   state = {
     navOpen: false,
     scrollPosition: 0,
@@ -16,20 +22,24 @@ class Header extends Component {
     this.setState({scrollPosition: window.pageYOffset})
 
     window.addEventListener('scroll', () => {
-      const { scrollPosition } = this.state
-      const offset = window.pageYOffset
-      let scrollDir = null
-
-      if (offset != scrollPosition) {
-        if (offset < scrollPosition) {
-          scrollDir = 'up'
-        }
-        this.setState({
-          scrollPosition: offset,
-          scrollDir
-        })
-      }
+      this.onScroll()
     })
+  }
+
+  onScroll = () => {
+    const { scrollPosition } = this.state
+    const offset = window.pageYOffset
+    let scrollDir = null
+
+    if (offset != scrollPosition) {
+      if (offset < scrollPosition) {
+        scrollDir = 'up'
+      }
+      this.setState({
+        scrollPosition: offset,
+        scrollDir
+      })
+    }
   }
 
   onWaypointEnter = () => {
@@ -55,12 +65,12 @@ class Header extends Component {
   headerInner = (isFixed) => {
     const { title, nav } = this.props.settings.settings
     const { isAuthenticated } = this.props.user
-    const hasMenuItems = nav && nav.length > 1
+    const hasMenuItems = nav && nav.length > 0
 
     return (
       <div
         className='Header'
-        data-layout={isAuthenticated && 'admin'}
+        data-layout={isAuthenticated ? 'admin' : ''}
         data-fixed={isFixed}
       >
         <h1>

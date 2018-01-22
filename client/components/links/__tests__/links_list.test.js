@@ -14,9 +14,10 @@ describe('LinksList', () => {
 
   it('Renders a list of links', () => {
     const component = getWrapper(props)
+    const renderedLinks = component.find('a')
 
-    expect(component.find('a').length).toBe(links.length)
-    expect(component.find('a').first().node.href).toMatch(links[0].url)
-    expect(component.find('a').first().text()).toMatch(links[0].title)
+    expect(renderedLinks.length).toBe(links.length)
+    expect(renderedLinks.first().node.href).toMatch(links[0].url)
+    expect(renderedLinks.first().text()).toMatch(links[0].title)
   })
 })

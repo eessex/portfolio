@@ -26,8 +26,7 @@ export class LinkEdit extends Component {
 
     link[key] = value
     this.setState({ link })
-
-    if (index) {
+    if (index || index === 0) {
       onChange(link, index)
     }
   }

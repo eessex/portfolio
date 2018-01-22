@@ -10,7 +10,7 @@ export class LinksEdit extends Component {
   }
 
   componentWillUnmount = () => {
-    const { links } = this.state
+    const { links, onChange } = this.props
     const cleanedLinks = this.checkEmpty()
 
     if (cleanedLinks !== links) {
@@ -22,7 +22,7 @@ export class LinksEdit extends Component {
     const { links, onChange } = this.props
     const newLinks = clone(links)
 
-    if (index) {
+    if (index || index === 0) {
       newLinks[index] = link
     } else {
       newLinks.push(link)
@@ -31,16 +31,16 @@ export class LinksEdit extends Component {
   }
 
   onDelete = (index) => {
-    const { onChange } = this.props
-    let newLinks = clone(this.props.links)
+    const { links, onChange } = this.props
+    let newLinks = clone(links)
 
     newLinks.splice(index, 1)
     onChange(newLinks)
   }
 
   checkEmpty = () => {
-    const { links } = this.state
-    let cleanedLinks = links
+    const { links } = this.props
+    let cleanedLinks = clone(links)
 
     links.map((link, index) => {
       if (!link.url.length) {

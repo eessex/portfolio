@@ -1,0 +1,46 @@
+.LinksModal {
+  .EditLinks {
+    padding-top: 10px;
+    div[class*="Row-"]:last-child {
+      padding-bottom: 10px;
+    }
+  }
+}
+
+.LinkEdit {
+  &[class*="Row-"] {
+    padding-bottom: 20px;
+    justify-content: flex-start;
+    div[class^="Col-"] {
+      padding: 0;
+      &:last-child {
+        padding-left: 30px;
+      }
+    }
+  }
+
+  input {
+    font-size: .9em;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid;
+  }
+
+  .IconButton {
+    padding: 0;
+    font-size: 1.15em;
+    transition: color .3s;
+    &:hover {
+      color: red;
+    }
+  }
+  .Button.new {
+    font-size: .7em;
+    margin-top: -5px;
+    padding: 5px 10px;
+    text-transform: uppercase;
+    &:hover {
+      color: limegreen;
+    }
+  }
+}

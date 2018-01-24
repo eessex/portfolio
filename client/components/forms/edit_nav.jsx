@@ -12,6 +12,7 @@ export const EditNav = (props) => {
     model,
     onClickEmbed,
     onClickImage,
+    onClickLink,
     onPublish,
     saveItem
   } = props
@@ -29,6 +30,13 @@ export const EditNav = (props) => {
         <Button
           icon='code'
           onClick={onClickEmbed}
+          className='AdminNav__icon'
+        />
+      }
+      {onClickLink &&
+        <Button
+          icon='link'
+          onClick={onClickLink}
           className='AdminNav__icon'
         />
       }
@@ -61,6 +69,9 @@ EditNav.propTypes = {
   isSaving: PropTypes.bool,
   item: PropTypes.object,
   model: PropTypes.string,
+  onClickEmbed: PropTypes.func,
+  onClickImage: PropTypes.func,
+  onClickLink: PropTypes.func,
   onPublish: PropTypes.func,
   saveItem: PropTypes.func
 }

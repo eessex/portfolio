@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { EditLinkList } from '../../../components/forms/links/edit_link_list.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { Item } from '../../../components/item/index.jsx'
 import { ItemHeader } from '../../../components/layout/components/header.jsx'
@@ -9,6 +8,7 @@ import { ItemHeader } from '../../../components/layout/components/header.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { FormatsModal } from '../../../components/formats/formats_modal.jsx'
+import { LinksModal } from '../../../components/links/links_modal.jsx'
 import { TextModal } from '../../../components/text/text_modal.jsx'
 
 export class PublicationEdit extends Component {
@@ -74,6 +74,7 @@ export class PublicationEdit extends Component {
           saveItem={() => this.maybeSavePublication(publication, true)}
           onClickImage={() => this.setEditing('images')}
           onClickEmbed={() => this.setEditing('embeds')}
+          onClickLink={() => this.setEditing('links')}
         />
 
         <Item
@@ -120,6 +121,14 @@ export class PublicationEdit extends Component {
             fetchUpload={fetchUpload}
             onChange={(value) => this.onChange('images', value)}
             setEditing={(isEditing) => this.setEditing(isEditing)}
+          />
+        }
+
+        {isEditing === 'links' &&
+          <LinksModal
+            links={publication.links}
+            onChange={(value) => this.onChange('links', value)}
+            setEditing={(isEditing) => this.setState({ isEditing })}
           />
         }
 

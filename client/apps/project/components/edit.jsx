@@ -4,6 +4,7 @@ import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 import { Item } from '../../../components/item/index.jsx'
+import { LinksModal } from '../../../components/links/links_modal.jsx'
 import { TextModal } from '../../../components/text/text_modal.jsx'
 
 
@@ -55,6 +56,7 @@ export class ProjectEdit extends Component {
           model='projects'
           onClickEmbed={() => this.setState({isEditing: 'embeds'})}
           onClickImage={() => this.setState({isEditing: 'images'})}
+          onClickLink={() => this.setState({isEditing: 'links'})}
           onPublish={() => this.onChange('published', !project.published)}
           saveItem={() => this.maybeSaveProject(project, true)}
         />
@@ -81,6 +83,14 @@ export class ProjectEdit extends Component {
             item={project}
             fetchUpload={fetchUpload}
             onChange={(value) => this.onChange('images', value)}
+            setEditing={(isEditing) => this.setState({ isEditing })}
+          />
+        }
+
+        {isEditing === 'links' &&
+          <LinksModal
+            links={project.links}
+            onChange={(value) => this.onChange('links', value)}
             setEditing={(isEditing) => this.setState({ isEditing })}
           />
         }

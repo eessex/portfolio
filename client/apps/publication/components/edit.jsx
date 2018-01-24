@@ -8,6 +8,7 @@ import { ItemHeader } from '../../../components/layout/components/header.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { FormatsModal } from '../../../components/formats/formats_modal.jsx'
+import { LinksModal } from '../../../components/links/links_modal.jsx'
 import { TextModal } from '../../../components/text/text_modal.jsx'
 
 export class PublicationEdit extends Component {
@@ -73,6 +74,7 @@ export class PublicationEdit extends Component {
           saveItem={() => this.maybeSavePublication(publication, true)}
           onClickImage={() => this.setEditing('images')}
           onClickEmbed={() => this.setEditing('embeds')}
+          onClickLink={() => this.setEditing('links')}
         />
 
         <Item
@@ -119,6 +121,14 @@ export class PublicationEdit extends Component {
             fetchUpload={fetchUpload}
             onChange={(value) => this.onChange('images', value)}
             setEditing={(isEditing) => this.setEditing(isEditing)}
+          />
+        }
+
+        {isEditing === 'links' &&
+          <LinksModal
+            links={publication.links}
+            onChange={(value) => this.onChange('links', value)}
+            setEditing={(isEditing) => this.setState({ isEditing })}
           />
         }
 

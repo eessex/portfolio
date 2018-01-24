@@ -16,6 +16,7 @@ export class PublicationShow extends Component {
         item={publication}
         label={formattedLabel}
         model='publications'
+        labelLink={formattedLabel}
       />
     )
   }

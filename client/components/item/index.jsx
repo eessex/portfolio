@@ -2,6 +2,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { imageIsVertical } from '../../utils/index.js'
+import { EditNav } from '../forms/edit_nav.jsx'
 import { LayoutColumn } from '../layout/column.jsx'
 import { LayoutGrid } from '../layout/grid.jsx'
 
@@ -24,6 +25,7 @@ export const Item = (props) => {
 
   return (
     <div className={`Item Item--${model}`}>
+      {/* TODO: EditNav */}
       {isGrid
         ? <LayoutGrid {...props} />
         : <LayoutColumn {...props} />

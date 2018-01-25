@@ -1,5 +1,6 @@
 import {
   API,
+  CHANGE_ITEM,
   DELETE_ITEM,
   FETCH_ITEM,
   FETCH_UPLOAD,  
@@ -8,14 +9,25 @@ import {
 } from '../actions'
 import { getUploadSignature } from './upload.js'
 
+export const changeItem = (key, value) => {
+  return {
+    type: CHANGE_ITEM,
+    payload: {
+      key,
+      value
+    }
+  }
+}
+
 export const fetchItem = (model, id) => {
   return {
     type: API,
     payload: {
+      id,
       method: 'get',
-      id: id,
-      url: `/${model}/${id}`,
-      next: FETCH_ITEM
+      model,
+      next: FETCH_ITEM,
+      url: `/${model}/${id}`
     }
   }
 }
@@ -40,6 +52,7 @@ export const fetchUpload = (file, data, cb) => {
 }
 
 export const updateItem = (model, item) => {
+  debugger
   return {
     type: API,
     payload: {

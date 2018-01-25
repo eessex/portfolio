@@ -8,6 +8,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
 
   const handleResponse = (res) => {
     dispatch({ type: action.payload.next.SUCCESS, payload: res.data })
+
     if (action.payload.next.SUCCESS === 'CREATE_EVENT_SUCCESS') {
       window.location.pathname = '/events/' + res.data.event._id
     }

@@ -1,4 +1,6 @@
+import { clone } from 'lodash'
 import {
+  CHANGE_ITEM,
   DELETE_ITEM,
   FETCH_ITEM,
   FETCH_UPLOAD,  
@@ -9,19 +11,35 @@ import {
 
 const initialState = {
   item: {},
+  isSaved: true,
+  isSaving: false,
   loading: false,
+  model: null,
   uploading: false,
-  saving: false,
   upload: {}
 }
 
 const itemReducer = (state = initialState, action) => {
   switch (action.type) {
-    case FETCH_ITEM.PENDING:
-      return Object.assign({}, state, {
-        loading: true
-      })
+    case CHANGE_ITEM: {
+      const item = clone(state.item)
+      const { key, value } = action.payload
 
+      item[key] = value
+
+      return Object.assign({}, state, {
+          item,
+          isSaved: false
+        })
+      }
+
+      case FETCH_ITEM.PENDING: {
+        debugger
+      return Object.assign({}, state, {
+        loading: true,
+        model: action.payload.model
+      })
+    }
     case FETCH_ITEM.SUCCESS:
       return Object.assign({}, state, {
         loading: false,
@@ -35,28 +53,26 @@ const itemReducer = (state = initialState, action) => {
 
     case UPDATE_ITEM.PENDING:
       return Object.assign({}, state, {
-        saving: true,
-        item: state.item
+        isSaving: true
       })
 
     case UPDATE_ITEM.SUCCESS:
       return Object.assign({}, state, {
-        saving: false,
+        error: null,
+        isSaved: true,
         item: action.payload.item,
-        error: null
+        isSaving: false
       })
 
     case UPDATE_ITEM.ERROR:
       return Object.assign({}, state, {
-        saving: false,
-        error: action.payload.data,
-        item: state.item
+        isSaving: false,
+        error: action.payload.data
       })
 
     case DELETE_ITEM.PENDING:
       return Object.assign({}, state, {
-        loading: true,
-        item: state.item
+        loading: true
       })
 
     case DELETE_ITEM.SUCCESS:
@@ -72,9 +88,10 @@ const itemReducer = (state = initialState, action) => {
 
     case RESET_ITEM:
       return Object.assign({}, state, {
+        item: state.item,
         loading: false,
         uploading: false,
-        item: state.item
+        model: null
       })
 
     case FETCH_UPLOAD.PENDING:

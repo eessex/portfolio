@@ -1,8 +1,11 @@
-const asyncActionType = (type) => ({
-  PENDING: `${type}_PENDING`,
-  SUCCESS: `${type}_SUCCESS`,
-  ERROR: `${type}_ERROR`,
-})
+const asyncActionType = (type) => {
+  debugger
+  return {
+    PENDING: `${type}_PENDING`,
+    SUCCESS: `${type}_SUCCESS`,
+    ERROR: `${type}_ERROR`,
+  }
+}
 export const API = 'API'
 
 // event
@@ -16,6 +19,7 @@ export const FETCH_EVENTS = asyncActionType('FETCH_EVENTS')
 export const CREATE_EVENT = asyncActionType('CREATE_EVENT')
 
 // item
+export const CHANGE_ITEM = 'CHANGE_ITEM'
 export const FETCH_ITEM = asyncActionType('FETCH_ITEM')
 export const UPDATE_ITEM = asyncActionType('UPDATE_ITEM')
 export const DELETE_ITEM = asyncActionType('DELETE_ITEM')
@@ -23,7 +27,7 @@ export const RESET_ITEM = 'RESET_ITEM'
 
 // items
 export const FETCH_ITEMS = asyncActionType('FETCH_ITEMS')
-export const CREATE_ITEMS = asyncActionType('CREATE_ITEMS')
+export const CREATE_ITEM = asyncActionType('CREATE_ITEM')
 
 // project
 export const FETCH_PROJECT = asyncActionType('FETCH_PROJECT')

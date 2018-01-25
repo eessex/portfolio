@@ -1,6 +1,8 @@
 import { combineReducers } from 'redux'
 import eventReducer from './event'
 import eventsReducer from './events'
+import itemReducer from './item'
+import itemsReducer from './items'
 import projectReducer from './project'
 import projectsReducer from './projects'
 import publicationReducer from './publication'
@@ -11,12 +13,14 @@ import userReducer from './user'
 const rootReducer = combineReducers({
   event: eventReducer,
   events: eventsReducer,
+  item: itemReducer,
+  items: itemsReducer,
   project: projectReducer,
   projects: projectsReducer,
   publication: publicationReducer,
   publications: publicationsReducer,
   settings: settingsReducer,
   user: userReducer
-});
+})
 
 export default rootReducer

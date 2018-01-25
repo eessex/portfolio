@@ -8,13 +8,13 @@ import {
 } from '../actions'
 import { getUploadSignature } from './upload.js'
 
-export const fetchItem = (id) => {
+export const fetchItem = (model, id) => {
   return {
     type: API,
     payload: {
       method: 'get',
       id: id,
-      url: '/items/' + id,
+      url: `/${model}/${id}`,
       next: FETCH_ITEM
     }
   }
@@ -39,25 +39,25 @@ export const fetchUpload = (file, data, cb) => {
   }
 }
 
-export const updateItem = (item) => {
+export const updateItem = (model, item) => {
   return {
     type: API,
     payload: {
       method: 'put',
       data: item,
-      url: '/items/' + item._id,
+      url: `/${model}/${item._id}`,
       next: UPDATE_ITEM
     }
   }
 }
 
-export const deleteItem = (item) => {
+export const deleteItem = (model, item) => {
   return {
     type: API,
     payload: {
       method: 'delete',
       data: item,
-      url: '/items/' + item._id,
+      url: `/${model}/${item._id}`,
       next: DELETE_ITEM
     }
   }

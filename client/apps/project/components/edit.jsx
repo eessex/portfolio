@@ -56,6 +56,7 @@ export class ProjectEdit extends Component {
           onClickEmbed={() => this.setState({isEditing: 'embeds'})}
           onClickImage={() => this.setState({isEditing: 'images'})}
           onClickLink={() => this.setState({isEditing: 'links'})}
+          setEditing={(isEditing) => this.setState({ isEditing })}
           onPublish={() => this.onChange('published', !item.published)}
           saveItem={() => this.maybeSaveItem(item, true)}
         />
@@ -91,16 +92,6 @@ export class ProjectEdit extends Component {
           <LinksModal
             links={item.links}
             onChange={(value) => this.onChange('links', value)}
-            setEditing={(isEditing) => this.setState({ isEditing })}
-          />
-        }
-
-        {isEditing === 'title' &&
-          <TextModal
-            className='h1'
-            label='Title'
-            text={item.title}
-            onChange={(value) => this.onChange('title', value)}
             setEditing={(isEditing) => this.setState({ isEditing })}
           />
         }

@@ -9,7 +9,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   const handleResponse = (res) => {
     const item = res.data
     const { model, next } = action.payload
-    debugger
+
     if (next.SUCCESS === 'FETCH_ITEM_SUCCESS' || next.SUCCESS === 'UPDATE_ITEM_SUCCESS') {
       dispatch({
         type: action.payload.next.SUCCESS,
@@ -58,7 +58,6 @@ const apiMiddleware = ({ dispatch }) => next => action => {
       )
   }
   if (action.payload.method == ('put')) {
-    debugger
     axios.put(BASE_URL + action.payload.url, action.payload.item)
       .then(handleResponse)
       .catch(error =>
@@ -66,7 +65,6 @@ const apiMiddleware = ({ dispatch }) => next => action => {
       )
   }
   if (action.payload.method == ('delete')) {
-    debugger
     axios.delete(BASE_URL + action.payload.url, action.payload.item)
       .then(handleResponse)
       .catch(error =>

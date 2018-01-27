@@ -15,6 +15,7 @@ export const ItemHeader = (props) => {
       label,
       labelLink,
       model,
+      onChange,
       setEditing
     } = props
 
@@ -42,16 +43,16 @@ export const ItemHeader = (props) => {
 
         {artist &&
           <Text
-            className='h1 artist'
-            onClick={setEditing ? () => setEditing('artist') : undefined}
-            placeholder='Add Artist'
+            className='h1'
+            onChange={(value) => onChange('artist', value)}
+            placeholder='Artist'
             text={artist}
           />
         }
 
         <Text
           className='h1'
-          onClick={setEditing ? () => setEditing('title') : undefined}
+          onChange={(value) => onChange('title', value)}
           placeholder='Add Title'
           text={title} 
         />
@@ -86,5 +87,6 @@ export const ItemHeader = (props) => {
 ItemHeader.propTypes = {
   coverImage: PropTypes.object,
   event: PropTypes.object,
+  onChange: PropTypes.func,
   setEditing: PropTypes.func
 }

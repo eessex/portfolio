@@ -67,7 +67,7 @@ const itemReducer = (state = initialState, action) => {
     case UPDATE_ITEM.ERROR:
       return Object.assign({}, state, {
         isSaving: false,
-        error: action.payload.data
+        error: action.payload
       })
 
     case DELETE_ITEM.PENDING:

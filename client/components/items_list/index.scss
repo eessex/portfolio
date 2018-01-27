@@ -67,9 +67,20 @@
 
   // Grid layout
   &.grid {
+    .ItemsList__label {
+      margin-bottom: 1em;
+      padding: 20px;
+    }
+    .ItemsList__list {
+      padding: 0;
+    }
     .Item {
       padding-left: 10px;
       padding-right: 10px;
+      margin-bottom: 4em;
+      .h1 {
+        font-size: 4.25em;
+      }
       img {
         max-height: 80vh;
         width: auto;
@@ -80,6 +91,9 @@
   .ListItem[data-condensed=true] {
     margin-top: 30px;
     margin-bottom: 50px;
+    h1 {
+      font-size: 2.5em;
+    }
     .h3 {
       margin-bottom: .5em;
     }

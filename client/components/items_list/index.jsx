@@ -72,17 +72,36 @@ export class ItemsList extends Component {
             {items}
           </div>
         )
+
       case 'grid':
-        return (
-          <Row className='ItemsList__list'>
-            {label && !canToggle &&
-              <Col xs={12} lg={2}>
+        if (label && !canToggle) {
+          return (
+            <Row>
+              <Col
+                className='ItemsList__label'
+                xs={12}
+                lg={2}
+              >
                 {this.renderLabel()}
               </Col>
-            }
-            {items}
-          </Row>
-        )
+              <Col
+                xs={12}
+                lg={10}
+                className='ItemsList__list'
+              >
+                <Row>
+                  {items}
+                </Row>
+              </Col>
+            </Row>
+          )
+        } else {
+          return (
+            <Row className='ItemsList__list'>
+              {items}
+            </Row>
+          )
+        }
       default:
         return (
           <div className='ItemsList__list'>

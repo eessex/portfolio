@@ -52,12 +52,11 @@ export const fetchUpload = (file, data, cb) => {
 }
 
 export const updateItem = (model, item) => {
-  debugger
   return {
     type: API,
     payload: {
       method: 'put',
-      data: item,
+      item,
       url: `/${model}/${item._id}`,
       next: UPDATE_ITEM
     }
@@ -69,7 +68,7 @@ export const deleteItem = (model, item) => {
     type: API,
     payload: {
       method: 'delete',
-      data: item,
+      item,
       url: `/${model}/${item._id}`,
       next: DELETE_ITEM
     }

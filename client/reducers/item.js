@@ -14,7 +14,6 @@ const initialState = {
   isSaved: true,
   isSaving: false,
   loading: false,
-  model: null,
   uploading: false,
   upload: {}
 }
@@ -33,17 +32,18 @@ const itemReducer = (state = initialState, action) => {
         })
       }
 
-      case FETCH_ITEM.PENDING: {
-        debugger
+    case FETCH_ITEM.PENDING: {
       return Object.assign({}, state, {
-        loading: true,
-        model: action.payload.model
+        loading: true
       })
     }
     case FETCH_ITEM.SUCCESS:
+      const { item, model } = action.payload
+
       return Object.assign({}, state, {
+        item,
         loading: false,
-        item: action.payload
+        model
       })
 
     case FETCH_ITEM.ERROR:
@@ -88,10 +88,9 @@ const itemReducer = (state = initialState, action) => {
 
     case RESET_ITEM:
       return Object.assign({}, state, {
-        item: state.item,
+        item: {},
         loading: false,
-        uploading: false,
-        model: null
+        uploading: false
       })
 
     case FETCH_UPLOAD.PENDING:

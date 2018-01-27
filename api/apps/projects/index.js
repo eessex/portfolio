@@ -24,8 +24,8 @@ projects.route('/')
 projects.route('/new')
   // new project
   .get((req, res) => {
-    var project = new Project
-    res.json(project)
+    var item = new Project
+    res.json(item)
   })
 
   projects.route('/:project_id')
@@ -44,7 +44,7 @@ projects.route('/new')
       Object.assign(item, req.body).save((err, item) => {
         if(err)
           return res.status(400).send(err)
-        res.json({ message: 'Project updated', item })
+        res.json(item)
       })
     })
   })

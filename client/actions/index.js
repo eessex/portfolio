@@ -1,5 +1,4 @@
 const asyncActionType = (type) => {
-  debugger
   return {
     PENDING: `${type}_PENDING`,
     SUCCESS: `${type}_SUCCESS`,

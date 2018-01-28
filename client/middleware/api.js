@@ -17,9 +17,16 @@ const apiMiddleware = ({ dispatch }) => next => action => {
 
     if (action.payload.next.SUCCESS === 'CREATE_ITEM_SUCCESS') {
       const { _id } = res.data.data
-
+      // redirect to new item
       window.location.pathname = `${url}/${_id}`
     }
+
+    if (action.payload.next.SUCCESS === 'DELETE_ITEM_SUCCESS') {
+      let redirect = url.split('/')[1]
+      // redirect to items list
+      window.location.pathname = `/${redirect}`
+    }
+
     if (action.payload.next.SUCCESS === 'CREATE_EVENT_SUCCESS') {
       window.location.pathname = '/events/' + res.data.event._id
     }
@@ -35,7 +42,10 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   }
 
   const handleError = (error) => {
-    dispatch({ type: action.payload.next.ERROR, payload: error.response })
+    dispatch({
+      type: action.payload.next.ERROR,
+      payload: error.response
+    })
   }
 
   const { data, method, query, url } = action.payload

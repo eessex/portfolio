@@ -5,7 +5,7 @@ import { SaveButton } from './buttons/save.jsx'
 
 export const EditNav = (props) => {
   const {
-    deleteitem,
+    deleteItem,
     isSaved,
     isSaving,
     item,
@@ -51,9 +51,9 @@ export const EditNav = (props) => {
           onClick={() => saveItem(item, true)}
         />
       }
-      {deleteitem &&
+      {deleteItem &&
         <Button
-          onClick={() => deleteitem(item)}
+          onClick={deleteItem}
           text='Delete'
         />
       }
@@ -62,7 +62,7 @@ export const EditNav = (props) => {
 }
 
 EditNav.propTypes = {
-  deleteitem: PropTypes.func,
+  deleteItem: PropTypes.func,
   isSaved: PropTypes.bool,
   isSaving: PropTypes.bool,
   item: PropTypes.object,

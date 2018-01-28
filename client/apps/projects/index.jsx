@@ -1,13 +1,20 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import * as Actions from '../../actions/items'
+import * as itemsActions from '../../actions/items'
 import { ItemsList } from '../../components/items_list/index.jsx'
 import { NewButton } from '../../components/header/components/new_button.jsx'
 import { LayoutColumn } from '../../components/layout/column.jsx'
 import { Loading } from '../../components/layout/components/loading.jsx'
 
 class Projects extends Component {
+  static propTypes = {
+    createItem: PropTypes.func,
+    fetchItems: PropTypes.func,
+    items: PropTypes.object,
+    user: PropTypes.object
+  }
+
   constructor(props) {
     super(props)
 
@@ -21,11 +28,14 @@ class Projects extends Component {
   }
 
   componentWillMount() {
-    this.props.actions.fetchItems('projects', this.state.query)
+    const { fetchItems } = this.props
+    const { query } = this.state
+
+    fetchItems('projects', query)
   }
 
   render() {
-    const { actions, items } = this.props
+    const { createItem, items } = this.props
     const { isAdmin } = this.state
     const { loading } = items
     const { list } = items
@@ -42,7 +52,7 @@ class Projects extends Component {
               {isAdmin &&
                 <NewButton
                   model='Project'
-                  onCreate={() => actions.createItem('projects')}
+                  onCreate={() => createItem('projects')}
                 />
               }
               <ItemsList
@@ -57,12 +67,14 @@ class Projects extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  ...state
+  items: state.items,
+  user: state.user
 })
 
-const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(Actions, dispatch)
-})
+const mapDispatchToProps = {
+  createItem: itemsActions.createItem,
+  fetchItems: itemsActions.fetchItems
+}
 
 export default connect(
   mapStateToProps,

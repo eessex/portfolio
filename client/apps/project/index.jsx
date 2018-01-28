@@ -37,7 +37,7 @@ class Project extends Component {
           ? <Loading />
 
           : isAuthenticated
-            ? <ProjectEdit model='project' />
+            ? <ProjectEdit model='projects' />
             : <Item
                 item={item}
                 label='Project'

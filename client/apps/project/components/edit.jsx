@@ -20,18 +20,21 @@ export class ProjectEdit extends Component {
     const { changeItem } = this.props
 
     changeItem(key, value)
+    this.maybeSaveItem()
   }
 
   maybeSaveItem = (forceSave) => {
     const { item } = this.props.item
-
+    debugger
     if (forceSave || !item.published) {
+      debugger
       this.props.updateItem('projects', item)
     }
   }
 
   render () {
-    const { model, isEditing } = this.state
+    const { isEditing } = this.state
+    const { model } = this.props
     const { item, isSaved, isSaving } = this.props.item
     const {
       actions,
@@ -48,7 +51,7 @@ export class ProjectEdit extends Component {
     return (
       <div className='ProjectEdit Edit'>
         <EditNav 
-          deleteitem={() => deleteItem(item)}
+          deleteItem={() => deleteItem(model, item)}
           isSaved={isSaved}
           isSaving={isSaving}
           item={item}
@@ -63,7 +66,7 @@ export class ProjectEdit extends Component {
           isSaved={isSaved}
           label='Project'
           labelLink
-          model='projects'
+          model={model}
           onChange={this.onChange}
           setEditing={(isEditing) => this.setState({ isEditing })}
         />

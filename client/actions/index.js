@@ -27,10 +27,6 @@ export const RESET_ITEM = 'RESET_ITEM'
 export const FETCH_ITEMS = asyncActionType('FETCH_ITEMS')
 export const CREATE_ITEM = asyncActionType('CREATE_ITEM')
 
-// projects
-export const FETCH_PROJECTS = asyncActionType('FETCH_PROJECTS')
-export const CREATE_PROJECT = asyncActionType('CREATE_PROJECT')
-
 // publication
 export const FETCH_PUBLICATION = asyncActionType('FETCH_PUBLICATION')
 export const UPDATE_PUBLICATION = asyncActionType('UPDATE_PUBLICATION')

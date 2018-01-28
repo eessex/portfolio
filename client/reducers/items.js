@@ -37,7 +37,6 @@ const itemsReducer = (state = initialState, action) => {
       list.push(action.payload.data)
 
       return Object.assign({}, state, {
-        loading: false,
         list,
         error: null
       })

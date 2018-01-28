@@ -52,6 +52,7 @@ export const fetchUpload = (file, data, cb) => {
 }
 
 export const updateItem = (model, item) => {
+  debugger
   return {
     type: API,
     payload: {

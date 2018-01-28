@@ -6,18 +6,18 @@ projects.route('/')
   // create project
   .post( (req, res) => {
     var item = new Project()
-    Object.assign(item, req.body).save((err, item) => {
+    Object.assign(item, req.body).save((err, data) => {
       if (err)
         return res.status(400).send(err)
-      res.json({ message: 'Project created', item })
+      res.json({ message: 'Project created', data })
     })
   })
   // all projects
   .get((req, res) => {
-    Project.find(req.query).exec(function(err, projects) {
+    Project.find(req.query).exec(function(err, data) {
       if (err)
         res.send(err)
-      res.json(projects)
+      res.json(data)
     })
   })
 

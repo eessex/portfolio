@@ -1,3 +1,4 @@
+import { clone } from 'lodash'
 import {
   FETCH_ITEMS,
   CREATE_ITEM
@@ -32,11 +33,12 @@ const itemsReducer = (state = initialState, action) => {
       })
 
     case CREATE_ITEM.SUCCESS:
-      state.list.push(action.payload.item)
+      const list = clone(state.list)
+      list.push(action.payload.data)
 
       return Object.assign({}, state, {
         loading: false,
-        list: state.list,
+        list,
         error: null
       })
 

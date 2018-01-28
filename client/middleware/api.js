@@ -7,7 +7,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   }
 
   const handleResponse = (res) => {
-    const { model } = action.payload
+    const { model, url } = action.payload
 
     dispatch({
       type: action.payload.next.SUCCESS,
@@ -15,11 +15,13 @@ const apiMiddleware = ({ dispatch }) => next => action => {
       model
     })
 
+    if (action.payload.next.SUCCESS === 'CREATE_ITEM_SUCCESS') {
+      const { _id } = res.data.data
+
+      window.location.pathname = `${url}/${_id}`
+    }
     if (action.payload.next.SUCCESS === 'CREATE_EVENT_SUCCESS') {
       window.location.pathname = '/events/' + res.data.event._id
-    }
-    if (action.payload.next.SUCCESS === 'CREATE_PROJECT_SUCCESS') {
-      window.location.pathname = '/projects/' + res.data.project._id
     }
     if (action.payload.next.SUCCESS === 'CREATE_PUBLICATION_SUCCESS') {
       window.location.pathname = '/publications/' + res.data.publication._id

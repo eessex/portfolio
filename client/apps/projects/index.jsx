@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import * as Actions from '../../actions/projects'
+import * as Actions from '../../actions/items'
 import { ItemsList } from '../../components/items_list/index.jsx'
 import { NewButton } from '../../components/header/components/new_button.jsx'
 import { LayoutColumn } from '../../components/layout/column.jsx'
@@ -21,14 +21,14 @@ class Projects extends Component {
   }
 
   componentWillMount() {
-    this.props.actions.fetchProjects(this.state.query)
+    this.props.actions.fetchItems('projects', this.state.query)
   }
 
   render() {
-    const { actions, projects } = this.props
+    const { actions, items } = this.props
     const { isAdmin } = this.state
-    const { loading } = projects
-    const { list } = projects
+    const { loading } = items
+    const { list } = items
 
     return (
       <div className='Projects'>
@@ -42,7 +42,7 @@ class Projects extends Component {
               {isAdmin &&
                 <NewButton
                   model='Project'
-                  onCreate={actions.createProject}
+                  onCreate={() => actions.createItem('projects')}
                 />
               }
               <ItemsList

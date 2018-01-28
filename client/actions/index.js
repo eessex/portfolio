@@ -28,12 +28,6 @@ export const RESET_ITEM = 'RESET_ITEM'
 export const FETCH_ITEMS = asyncActionType('FETCH_ITEMS')
 export const CREATE_ITEM = asyncActionType('CREATE_ITEM')
 
-// project
-export const FETCH_PROJECT = asyncActionType('FETCH_PROJECT')
-export const UPDATE_PROJECT = asyncActionType('UPDATE_PROJECT')
-export const DELETE_PROJECT = asyncActionType('DELETE_PROJECT')
-export const RESET_PROJECT = 'RESET_PROJECT'
-
 // projects
 export const FETCH_PROJECTS = asyncActionType('FETCH_PROJECTS')
 export const CREATE_PROJECT = asyncActionType('CREATE_PROJECT')

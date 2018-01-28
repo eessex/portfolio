@@ -58,7 +58,8 @@ export const LayoutGrid = (props) => {
           label={label}
           labelLink={labelLink}
           model={model}
-          setEditing={setEditing}
+          setEditing={setEditing ? setEditing : undefined}
+          onChange={onChange ? onChange : undefined}
         />
 
         <Description

@@ -5,7 +5,7 @@ var ProjectSchema = new Schema({
   active: Boolean,
   created_at: { type: Date, default: Date.now },  
   description: String,
-  embed_urls: [String],
+  embed_codes: [String],
   end_date: Date,
   images: [
     {

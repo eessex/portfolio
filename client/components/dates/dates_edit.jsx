@@ -50,6 +50,7 @@ export class DatesEdit extends Component {
               required={true}
               allDay={all_day}
               onChange={(date) => onChange('start_date', date)}
+              autoFocus
             />
           </Col>
 

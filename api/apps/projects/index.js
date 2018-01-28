@@ -24,34 +24,34 @@ projects.route('/')
 projects.route('/new')
   // new project
   .get((req, res) => {
-    var item = new Project
-    res.json(item)
+    var data = new Project
+    res.json(data)
   })
 
   projects.route('/:project_id')
   // single project
   .get( (req, res) => {
-    Project.findById(req.params.project_id, (err, item) => {
+    Project.findById(req.params.project_id, (err, data) => {
       if (err)
         return res.status(400).send(err)
-      res.json(item)
+      res.json(data)
     })
   })
   .put( (req, res) => {
-    Project.findById(req.params.project_id, (err, item) => {
+    Project.findById(req.params.project_id, (err, data) => {
       if(err)
-        return res.status(400).send(err);
-      Object.assign(item, req.body).save((err, item) => {
+        return res.status(400).send(err)
+      Object.assign(data, req.body).save((err, data) => {
         if(err)
           return res.status(400).send(err)
-        res.json(item)
+        res.json(data)
       })
     })
   })
   .delete( (req, res) => {
     Project.remove({
       _id: req.params.project_id
-    }, function(err, item) {
+    }, function(err, data) {
       if (err)
         return res.status(400).send(err)
       res.json({ message: 'Project deleted' })

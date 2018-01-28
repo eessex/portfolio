@@ -56,7 +56,7 @@ export const updateItem = (model, item) => {
     type: API,
     payload: {
       method: 'put',
-      item,
+      data: item,
       url: `/${model}/${item._id}`,
       next: UPDATE_ITEM
     }
@@ -68,7 +68,7 @@ export const deleteItem = (model, item) => {
     type: API,
     payload: {
       method: 'delete',
-      item,
+      data: item,
       url: `/${model}/${item._id}`,
       next: DELETE_ITEM
     }

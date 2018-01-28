@@ -53,9 +53,6 @@ export class ProjectEdit extends Component {
           isSaving={isSaving}
           item={item}
           model={model}
-          onClickEmbed={() => this.setState({isEditing: 'embeds'})}
-          onClickImage={() => this.setState({isEditing: 'images'})}
-          onClickLink={() => this.setState({isEditing: 'links'})}
           setEditing={(isEditing) => this.setState({ isEditing })}
           onPublish={() => this.onChange('published', !item.published)}
           saveItem={() => this.maybeSaveItem(item, true)}

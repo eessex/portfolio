@@ -19,10 +19,10 @@ export const SaveButton = (props) => {
 }
 
 function textColor (needsSave, isSaving) {
-  if (needsSave) {
-    return 'red'
-  } if (isSaving) {
+  if (isSaving) {
     return 'limegreen'
+  } else if (needsSave) {
+    return 'red'
   } else {
     return 'black'
   }

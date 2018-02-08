@@ -3,7 +3,8 @@ import {
   CHANGE_ITEM,
   DELETE_ITEM,
   FETCH_ITEM,
-  FETCH_UPLOAD,  
+  FETCH_UPLOAD,
+  MAYBE_SAVE_ITEM,
   RESET_ITEM,
   UPDATE_ITEM  
 } from '../actions'
@@ -32,6 +33,16 @@ export const fetchItem = (model, id) => {
   }
 }
 
+export const maybeSaveItem = (model, forceSave) => {
+  return (dispatch, getState) => {
+    const { item } = getState().item
+
+    if (!item.published || forceSave) {
+      dispatch(updateItem(model, item))
+    }
+  }
+}
+
 export const fetchUpload = (file, data, cb) => {
   const { name, type } = file
 
@@ -52,7 +63,6 @@ export const fetchUpload = (file, data, cb) => {
 }
 
 export const updateItem = (model, item) => {
-  debugger
   return {
     type: API,
     payload: {

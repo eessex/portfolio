@@ -54,7 +54,7 @@ export const ListItem = (props) => {
         data-published={published}
       >
         <a href={slug}>
-          <h1>{title}</h1>
+          <h1>{title || 'Missing Title'}</h1>
         </a>
       </div>
     )

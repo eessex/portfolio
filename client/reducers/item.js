@@ -25,10 +25,10 @@ const itemReducer = (state = initialState, action) => {
       const { key, value } = action.payload
 
       item[key] = value
-
       return Object.assign({}, state, {
           item,
-          isSaved: false
+          isSaved: false,
+          isSaving: !item.published
         })
       }
 

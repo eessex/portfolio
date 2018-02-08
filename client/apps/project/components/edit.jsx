@@ -17,27 +17,17 @@ export class ProjectEdit extends Component {
   }
 
   onChange = (key, value) => {
-    const { changeItem } = this.props
+    const { changeItem, maybeSaveItem } = this.props
 
     changeItem(key, value)
-    this.maybeSaveItem()
-  }
-
-  maybeSaveItem = (forceSave) => {
-    const { item } = this.props.item
-    debugger
-    if (forceSave || !item.published) {
-      debugger
-      this.props.updateItem('projects', item)
-    }
+    maybeSaveItem('projects')
   }
 
   render () {
     const { isEditing } = this.state
-    const { model } = this.props
+    const { model, maybeSaveItem } = this.props
     const { item, isSaved, isSaving } = this.props.item
     const {
-      actions,
       deleteItem,
       fetchUpload,
       loading,
@@ -58,7 +48,7 @@ export class ProjectEdit extends Component {
           model={model}
           setEditing={(isEditing) => this.setState({ isEditing })}
           onPublish={() => this.onChange('published', !item.published)}
-          saveItem={() => this.maybeSaveItem(item, true)}
+          saveItem={() => maybeSaveItem('projects', true)}
         />
 
         <Item
@@ -109,7 +99,8 @@ const mapDispatchToProps = {
   changeItem: itemActions.changeItem,
   fetchUpload: itemActions.fetchUpload,
   updateItem: itemActions.updateItem,
-  deleteItem: itemActions.deleteItem
+  deleteItem: itemActions.deleteItem,
+  maybeSaveItem: itemActions.maybeSaveItem
 }
 
 export default connect(

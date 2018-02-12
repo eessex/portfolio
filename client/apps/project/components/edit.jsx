@@ -40,51 +40,14 @@ export class ProjectEdit extends Component {
 
     return (
       <div className='ProjectEdit Edit'>
-        <EditNav 
-          deleteItem={() => deleteItem(model, item)}
-          isSaved={isSaved}
-          isSaving={isSaving}
-          item={item}
-          model={model}
-          setEditing={(isEditing) => this.setState({ isEditing })}
-          onPublish={() => this.onChange('published', !item.published)}
-          saveItem={() => maybeSaveItem('projects', true)}
-        />
-
         <Item
           item={item}
           isSaved={isSaved}
           label='Project'
           labelLink
           model={model}
-          onChange={this.onChange}
-          setEditing={(isEditing) => this.setState({ isEditing })}
+          editing
         />
-
-        {isEditing === 'embeds' &&
-          <EmbedModal
-            embed_codes={embed_codes}
-            onChange={(value) => this.onChange('embed_codes', value)}
-            setEditing={(isEditing) => this.setState({ isEditing })}
-          />
-        }
-
-        {isEditing === 'images' &&
-          <ImagesEdit
-            item={item}
-            fetchUpload={fetchUpload}
-            onChange={(value) => this.onChange('images', value)}
-            setEditing={(isEditing) => this.setState({ isEditing })}
-          />
-        }
-
-        {isEditing === 'links' &&
-          <LinksModal
-            links={item.links}
-            onChange={(value) => this.onChange('links', value)}
-            setEditing={(isEditing) => this.setState({ isEditing })}
-          />
-        }
       </div>
     )
   }

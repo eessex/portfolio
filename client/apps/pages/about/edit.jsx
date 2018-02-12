@@ -7,6 +7,7 @@ import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 import { ImageEdit } from '../../../components/image/image_edit.jsx'
+import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 
 export class AboutEdit extends Component {
   constructor (props) {
@@ -74,6 +75,7 @@ export class AboutEdit extends Component {
     const { actions, saving, isAuthenticated } = this.props
     const { isSaved, isEditing, settings } = this.state
     const cover_image = settings.about.images[0]
+    const embed_codes = settings.about.embed_codes || []
 
     return (
       <div
@@ -85,6 +87,7 @@ export class AboutEdit extends Component {
           item={settings.about}
           model='settings'
           saveItem={this.onSave}
+          setEditing={(isEditing) => this.setState({ isEditing })}
           onClickImage={() => this.setState({isEditing: 'images'})}
           onClickEmbed={() => this.setState({isEditing: 'embeds'})}
         />
@@ -112,6 +115,10 @@ export class AboutEdit extends Component {
           <div className='about__social'>
             <AdminSocial social={settings.about.social} onChange={this.onChange} />
           </div>
+
+          <EmbedList
+            embed_codes={embed_codes.length > 0 ? embed_codes : undefined}
+          />
 
           {isEditing === 'images' && this.editImages()}
           {isEditing === 'embeds' && this.editEmbeds()}

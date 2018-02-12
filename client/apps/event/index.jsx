@@ -5,6 +5,7 @@ import * as Actions from '../../actions/event'
 import EventEdit from './components/edit.jsx'
 import { EventShow }  from './components/show.jsx'
 import { Loading } from '../../components/layout/components/loading.jsx'
+import { Item } from '../../components/item/index.jsx'
 
 class Event extends Component {
   componentWillMount() {
@@ -39,7 +40,7 @@ class Event extends Component {
 
           : isAuthenticated
             ? <EventEdit />
-            : <EventShow event={event} />
+            : <Item item={event} />
         }
       </div>
     )

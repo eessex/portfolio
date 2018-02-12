@@ -16,7 +16,6 @@ class Project extends Component {
 
   componentWillUnmount = () => {
     const { resetItem } = this.props.actions
-
     resetItem()
   }
 
@@ -49,6 +48,7 @@ class Project extends Component {
     )
   }
 }
+
 const mapStateToProps = (state) => ({
   item: state.item,
   user: state.user

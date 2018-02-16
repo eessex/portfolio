@@ -23,7 +23,8 @@ var ProjectSchema = new Schema({
   published: { type: Boolean, default: false },  
   start_date: Date,  
   title: String,
-  updated_at: { type: Date, default: Date.now }
+  updated_at: { type: Date, default: Date.now },
+  list_index: Number
 })
 
 module.exports = mongoose.model('Project', ProjectSchema)

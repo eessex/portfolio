@@ -91,7 +91,7 @@
   .ListItem[data-condensed=true] {
     margin-top: 30px;
     margin-bottom: 50px;
-    .h1 {
+    .Item .h1 {
       font-size: 2.5em;
     }
     .h3 {
@@ -126,6 +126,9 @@
           line-height: 1.3em;
         }
       }
+    }
+    &.grid .Item .h1 {
+      font-size: 3.25em;
     }
   }
 }

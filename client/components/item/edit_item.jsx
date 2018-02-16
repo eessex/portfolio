@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as itemActions from '../../actions/item'
+import { imageIsVertical } from '../../utils/index.js'
 
 import { LayoutColumn } from '../layout/column.jsx'
 import { LayoutGrid } from '../layout/grid.jsx'

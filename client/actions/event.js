@@ -24,25 +24,25 @@ export const fetchUpload = (file, data, cb) => {
   return getUploadSignature(file, data, cb)
 }
 
-export const updateEvent = (event) => {
+export const updateEvent = (item) => {
   return {
     type: API,
     payload: {
       method: 'put',
-      data: event,
-      url: '/events/' + event._id,
+      data: item,
+      url: '/events/' + item._id,
       next: UPDATE_EVENT
     }
   }
 }
 
-export const deleteEvent = (event) => {
+export const deleteEvent = (item) => {
   return {
     type: API,
     payload: {
       method: 'delete',
-      data: event,
-      url: '/events/' + event._id,
+      data: item,
+      url: '/events/' + item._id,
       next: DELETE_EVENT
     }
   }

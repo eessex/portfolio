@@ -1,46 +1,39 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import * as Actions from '../../actions/event'
-import EventEdit from './components/edit.jsx'
-import { EventShow }  from './components/show.jsx'
-import { Loading } from '../../components/layout/components/loading.jsx'
+import * as itemActions from '../../actions/item'
 import { Item } from '../../components/item/index.jsx'
+import { Loading } from '../../components/layout/components/loading.jsx'
 
 class Event extends Component {
-  componentWillMount() {
-    const { actions, match } = this.props
+  componentWillMount = () => {
+    const { fetchItem } = this.props.actions
+    const { id } = this.props.match.params
 
-    if (match.params.id == 'new') {
-      actions.createEvent()
-    } else {
-      actions.fetchEvent(match.params.id)
-    }
+    fetchItem('events', id)
   }
 
-  componentWillUnmount() {
-    this.props.actions.resetEvent()
+  componentWillUnmount = () => {
+    const { resetItem } = this.props.actions
+    resetItem()
   }
 
   render() {
-    const { isAuthenticated } = this.props.user
-
-    const {
-      event,
-      error,
-      loading,
-      saving,
-      uploading
-    } = this.props.event
+    const { user } = this.props
+    const { isAuthenticated } = user
+    const { item, loading } = this.props.item
 
     return (
       <div className='Event'>
         {loading
           ? <Loading />
-
-          : isAuthenticated
-            ? <EventEdit />
-            : <Item item={event} />
+          : <Item
+              item={item}
+              label='Event'
+              labelLink
+              model='events'
+              editing={isAuthenticated}
+            />
         }
       </div>
     )
@@ -48,11 +41,12 @@ class Event extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  ...state
+  item: state.item,
+  user: state.user
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(Actions, dispatch)
+  actions: bindActionCreators(itemActions, dispatch)
 })
 
 export default connect(

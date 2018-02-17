@@ -1,63 +1,61 @@
-var express = require('express');
-var events = express.Router();
-var Event = require('../../models/event');
-
-// for /api/events/
+var express = require('express')
+var events = express.Router()
+var Event = require('../../models/event')
 
 events.route('/')
   // create event
   .post( (req, res) => {
-    var event = new Event();
-    Object.assign(event, req.body).save((err, event) => {
+    var item = new Event()
+    Object.assign(item, req.body).save((err, data) => {
       if (err)
-        return res.status(400).send(err);
-      res.json({ message: 'Event created', event });
-    });
+        return res.status(400).send(err)
+      res.json({ message: 'Event created', data })
+    })
   })
   // all events
-  .get( (req, res) => {
-    Event.find(req.query).sort({start_date: 'desc'}).exec(function(err, events) {
+  .get((req, res) => {
+    Event.find(req.query).sort({start_date: 'desc'}).exec(function(err, data) {
       if (err)
-        res.send(err);
-      res.json(events);
-    });
-  });
+        res.send(err)
+      res.json(data)
+    })
+  })
 
 events.route('/new')
   // new event
-  .get( (req, res) => {
-      var event = new Event
-      res.json(event);
-  });
+  .get((req, res) => {
+    var data = new Event
+    res.json(data)
+  })
 
-events.route('/:event_id')
+  events.route('/:event_id')
   // single event
   .get( (req, res) => {
-    Event.findById(req.params.event_id, (err, event) => {
+    Event.findById(req.params.event_id, (err, data) => {
       if (err)
-        return res.status(400).send(err);
-      res.json(event);
-    });
+        return res.status(400).send(err)
+      res.json(data)
+    })
   })
   .put( (req, res) => {
-    Event.findById(req.params.event_id, (err, event) => {
+    Event.findById(req.params.event_id, (err, data) => {
       if(err)
-        return res.status(400).send(err);
-      Object.assign(event, req.body).save((err, event) => {
+        return res.status(400).send(err)
+      Object.assign(data, req.body).save((err, data) => {
         if(err)
-          return res.status(400).send(err);
-        res.json({ message: 'Event updated', event });
-      });
-    });
+          return res.status(400).send(err)
+        res.json(data)
+      })
+    })
   })
   .delete( (req, res) => {
     Event.remove({
       _id: req.params.event_id
-    }, function(err, event) {
+    }, function(err, data) {
       if (err)
-        return res.status(400).send(err);
-      res.json({ message: 'Event deleted' });
-    });
-  });
+        return res.status(400).send(err)
+      res.json({ message: 'Event deleted' })
+    })
+  })
 
-module.exports = events;
+module.exports = events

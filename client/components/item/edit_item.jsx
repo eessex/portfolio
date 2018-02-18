@@ -7,6 +7,7 @@ import { imageIsVertical } from '../../utils/index.js'
 import { DatesModal } from '../dates/dates_modal.jsx'
 import { EditNav } from '../forms/edit_nav.jsx'
 import { EmbedModal } from '../embeds/embed_modal.jsx'
+import { FormatsModal } from '../formats/formats_modal.jsx'
 import { ImagesEdit } from '../images/images_edit.jsx'
 import { LayoutColumn } from '../layout/column.jsx'
 import { LayoutGrid } from '../layout/grid.jsx'
@@ -63,6 +64,7 @@ export class ItemEdit extends Component {
     const embed_codes = item.embed_codes || []
     const isGrid = images.length > 0 && imageIsVertical(images[0]) || images.length && model === 'publications'
     const venue = item.venue || {}
+    const formats = item.formats || []
 
     return (
       <div className='EditItem'>
@@ -76,7 +78,8 @@ export class ItemEdit extends Component {
           onPublish={() => this.onChange('published', !item.published)}
           saveItem={() => maybeSaveItem(model, true)}
         />
-        {isGrid
+
+        {isGrid || model === 'publications'
           ? <LayoutGrid
               {...this.props}
               item={item}
@@ -114,6 +117,15 @@ export class ItemEdit extends Component {
             fetchUpload={fetchUpload}
             onChange={(value) => this.onChange('images', value)}
             setEditing={(isEditing) => this.setState({ isEditing })}
+          />
+        }
+
+        {isEditing === 'formats' &&
+          <FormatsModal
+            label='Formats'
+            formats={formats}
+            onChange={this.onChange}
+            setEditing={(isEditing) => this.setEditing(isEditing)}
           />
         }
 

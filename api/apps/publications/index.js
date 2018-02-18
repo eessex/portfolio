@@ -5,56 +5,53 @@ var Publication = require('../../models/publication')
 publications.route('/')
   // create publication
   .post( (req, res) => {
-    var publication = new Publication()
-    Object.assign(publication, req.body).save((err, publication) => {
+    var item = new Publication()
+    Object.assign(item, req.body).save((err, data) => {
       if (err)
         return res.status(400).send(err)
-      res.json({ message: 'Publication created', publication })
+      res.json({ message: 'Publication created', data })
     })
   })
   // all publications
   .get((req, res) => {
-    Publication.find(req.query).sort({
-      'formats.release_year': 'desc',
-      artist: 'asc'
-    }).exec(function(err, publications) {
+    Publication.find(req.query).exec(function(err, data) {
       if (err)
         res.send(err)
-      res.json(publications)
+      res.json(data)
     })
   })
 
 publications.route('/new')
   // new publication
   .get((req, res) => {
-    var publication = new Publication
-    res.json(publication)
+    var data = new Publication
+    res.json(data)
   })
 
 publications.route('/:publication_id')
   // single publication
   .get( (req, res) => {
-    Publication.findById(req.params.publication_id, (err, publication) => {
+    Publication.findById(req.params.publication_id, (err, data) => {
       if (err)
         return res.status(400).send(err)
-      res.json(publication)
+      res.json(data)
     })
   })
   .put( (req, res) => {
-    Publication.findById(req.params.publication_id, (err, publication) => {
+    Publication.findById(req.params.publication_id, (err, data) => {
       if(err)
-        return res.status(400).send(err);
-      Object.assign(publication, req.body).save((err, publication) => {
+        return res.status(400).send(err)
+      Object.assign(data, req.body).save((err, data) => {
         if(err)
           return res.status(400).send(err)
-        res.json({ message: 'Publication updated', publication })
+        res.json(data)
       })
     })
   })
   .delete( (req, res) => {
     Publication.remove({
       _id: req.params.publication_id
-    }, function(err, publication) {
+    }, function(err, data) {
       if (err)
         return res.status(400).send(err)
       res.json({ message: 'Publication deleted' })

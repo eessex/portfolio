@@ -1,65 +1,55 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import * as Actions from '../../actions/publication'
+import * as itemActions from '../../actions/item'
+import { Item } from '../../components/item/index.jsx'
 import { Loading } from '../../components/layout/components/loading.jsx'
-import { PublicationEdit } from './components/edit.jsx'
-import { PublicationShow } from './components/show.jsx'
 
 class Publication extends Component {
-  componentWillMount() {
-    const { actions, match } = this.props
-    actions.fetchPublication(match.params.id)
+  componentWillMount = () => {
+    const { fetchItem } = this.props.actions
+    const { id } = this.props.match.params
+
+    fetchItem('publications', id)
   }
 
-  componentWillUnmount() {
-    this.props.actions.resetPublication()
+  componentWillUnmount = () => {
+    const { resetItem } = this.props.actions
+    resetItem()
   }
 
   render() {
     const { match, user } = this.props
     const { isAuthenticated } = user
-    const {
-      publication,
-      error,
-      loading,
-      saving,
-      uploading
-    } = this.props.publication
+    const { item, loading } = this.props.item
 
-    const label = match.path.replace('/','') === 'publications' ? 'Publications' : 'Releases'
+    const model = match.path.split('/')[1]
+    const label = model === 'publications' ? 'Publications' : 'Releases'
 
     return (
       <div className='Publication'>
         {loading
           ? <Loading />
-
-          : isAuthenticated
-            ? <PublicationEdit
-                publication={publication}
-                label={label}
-                error={error}
-                loading={loading}
-                uploading={uploading}
-                isSaving={saving}
-                actions={this.props.actions}
-              />
-
-            : <PublicationShow
-                publication={publication}
-                label={label}
-              />
+          : <Item
+              item={item}
+              label={label}
+              labelLink
+              model='publications'
+              editing={isAuthenticated}
+            />
         }
       </div>
     )
   }
 }
+
 const mapStateToProps = (state) => ({
-  ...state
+  item: state.item,
+  user: state.user
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(Actions, dispatch)
+  actions: bindActionCreators(itemActions, dispatch)
 })
 
 export default connect(

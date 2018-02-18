@@ -27,7 +27,6 @@ export const ItemHeader = (props) => {
     } = item
 
     const { url } = coverImage || ''
-
     const hasVenue = venue && (venue.name || venue.address)
     const date = model !== 'publications' && getDate(model, item)
 

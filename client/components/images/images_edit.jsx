@@ -31,12 +31,13 @@ export class ImagesEdit extends Component {
   }
 
   onDeleteImage = (index) => {
-    const { onChange } = this.props
-    const images = this.props.item.images || []
-  
+    const { onChange, item } = this.props
+    const images = item.images || []
+    debugger
     if (images.length === 1) {
       onChange([])
     } else {
+      images.splice(index, 1)
       onChange(images)
     }
   }

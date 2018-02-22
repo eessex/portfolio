@@ -67,6 +67,9 @@
 
   // Grid layout
   &.grid {
+    div[class*="Row-"] {
+      justify-content: space-evenly;
+    }
     .ItemsList__label {
       margin-bottom: 1em;
       padding: 20px;

@@ -70,6 +70,9 @@
     div[class*="Row-"] {
       justify-content: space-evenly;
     }
+    &[data-toggle=true] div[class*="Row-"] {
+      justify-content: flex-start;
+    }
     .ItemsList__label {
       margin-bottom: 1em;
       padding: 20px;

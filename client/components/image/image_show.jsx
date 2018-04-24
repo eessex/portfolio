@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { stripTags } from 'underscore.string'
@@ -14,7 +15,7 @@ export const ImageShow = (props) => {
         width='100%'
       />
       {caption &&
-        <div
+        <Caption
           className='ImageShow__caption'
           dangerouslySetInnerHTML={{__html: caption}}
         />
@@ -23,8 +24,18 @@ export const ImageShow = (props) => {
   )
 }
 
+const Caption = styled.div`
+  p {
+    font-size: .7em;
+    padding: 0;
+    text-align: right;
+    color: silver;
+  }
+`
+
 ImageShow.propTypes = {
   caption: PropTypes.string,
   title: PropTypes.string,
   url: PropTypes.string
 }
+

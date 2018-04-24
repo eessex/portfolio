@@ -1,3 +1,4 @@
+import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
@@ -28,6 +29,8 @@ export const LayoutColumn = (props) => {
     embed_codes = item.embed_codes || []
     images = item.images || []
   }
+
+  const secondaryImages = images.splice(0, 1)
 
   return (
     <Row

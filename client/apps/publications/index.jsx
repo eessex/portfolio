@@ -1,14 +1,22 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { filter } from 'lodash'
-import * as Actions from '../../actions/publications'
+import * as itemsActions from '../../actions/items'
+import { sortByDate } from '../../utils/index.js'
 import { ItemsList } from '../../components/items_list/index.jsx'
 import { NewButton } from '../../components/header/components/new_button.jsx'
 import { LayoutColumn } from '../../components/layout/column.jsx'
 import { Loading } from '../../components/layout/components/loading.jsx'
 
 class Publications extends Component {
+  static propTypes = {
+    createItem: PropTypes.func,
+    fetchItems: PropTypes.func,
+    items: PropTypes.object,
+    user: PropTypes.object
+  }
+
   constructor(props) {
     super(props)
 
@@ -22,11 +30,14 @@ class Publications extends Component {
   }
 
   componentWillMount() {
-    this.props.actions.fetchPublications(this.state.query)
-  }
+    const { fetchItems } = this.props
+    const { query } = this.state
 
+    fetchItems('publications', query)
+  }
+  
   getReleases = (compilation=false) => {
-    const { list } = this.props.publications
+    const { list } = this.props.items
     let sortedReleases = []
 
     list.map((item, i) => {
@@ -39,11 +50,15 @@ class Publications extends Component {
   }
 
   render() {
-    const { actions, match, publications, settings } = this.props
+    const {
+      createItem,
+      items: { list, loading },
+      match: { path }
+    } = this.props
     const { isAdmin } = this.state
-    const { loading } = settings
-    const { list } = publications
-    const label = match.path.replace('/','') === 'publications' ? 'Publications' : 'Releases'
+
+    const model = path.split('/')[1]
+    const label = model === 'publications' ? 'Publications' : 'Releases'
 
     const releases = this.getReleases()
     const compilations = this.getReleases(true)
@@ -52,11 +67,12 @@ class Publications extends Component {
       <div className='Publications'>
         {loading
           ? <Loading />
+
           : <div>
               {isAdmin &&
                 <NewButton
                   model='Publication'
-                  onCreate={actions.createPublication}
+                  onCreate={() => createItem('publications')}
                 />
               }
               {releases &&
@@ -79,7 +95,7 @@ class Publications extends Component {
                   canToggle
                 />
               }
-            </div>
+          </div>
         }
       </div>
     )
@@ -87,12 +103,14 @@ class Publications extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  ...state
+  items: state.items,
+  user: state.user
 })
 
-const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(Actions, dispatch)
-})
+const mapDispatchToProps = {
+  createItem: itemsActions.createItem,
+  fetchItems: itemsActions.fetchItems
+}
 
 export default connect(
   mapStateToProps,

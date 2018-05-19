@@ -6,16 +6,6 @@ const asyncActionType = (type) => ({
 
 export const API = 'API'
 
-// event
-export const FETCH_EVENT = asyncActionType('FETCH_EVENT')
-export const UPDATE_EVENT = asyncActionType('UPDATE_EVENT')
-export const DELETE_EVENT = asyncActionType('DELETE_EVENT')
-export const RESET_EVENT = 'RESET_EVENT'
-
-// events
-export const FETCH_EVENTS = asyncActionType('FETCH_EVENTS')
-export const CREATE_EVENT = asyncActionType('CREATE_EVENT')
-
 // item
 export const CHANGE_ITEM = 'CHANGE_ITEM'
 export const FETCH_ITEM = asyncActionType('FETCH_ITEM')

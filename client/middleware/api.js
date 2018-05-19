@@ -27,12 +27,6 @@ const apiMiddleware = ({ dispatch }) => next => action => {
       window.location.pathname = `/${redirect}`
     }
 
-    if (action.payload.next.SUCCESS === 'CREATE_EVENT_SUCCESS') {
-      window.location.pathname = '/events/' + res.data.event._id
-    }
-    if (action.payload.next.SUCCESS === 'CREATE_PUBLICATION_SUCCESS') {
-      window.location.pathname = '/publications/' + res.data.publication._id
-    }
     if (action.payload.next.SUCCESS === 'LOGIN_USER_SUCCESS') {
       window.location.pathname = ''
     }

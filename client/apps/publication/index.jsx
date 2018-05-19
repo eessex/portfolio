@@ -23,11 +23,12 @@ class Publication extends Component {
     const {
       match: { path },
       item: { item, loading },
-      user: { isAuthenticated }
+      user
     } = this.props
 
     const model = path.split('/')[1]
     const label = model === 'publications' ? 'Publications' : 'Releases'
+    const editing = user ? user.isAuthenticated : false
 
     return (
       <div className='Publication'>
@@ -38,7 +39,7 @@ class Publication extends Component {
               label={label}
               labelLink
               model='publications'
-              editing={isAuthenticated}
+              editing={editing}
             />
         }
       </div>

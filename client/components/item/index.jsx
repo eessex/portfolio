@@ -7,42 +7,34 @@ import { LayoutColumn } from '../layout/column.jsx'
 import { LayoutGrid } from '../layout/grid.jsx'
 import EditItem from './edit_item.jsx'
 
-export class Item extends Component {
-  static propTypes = {
-    className: PropTypes.string,
-    item: PropTypes.object,
-    label: PropTypes.string,
-    labelLink: PropTypes.bool,
-    layout: PropTypes.string,
-    model: PropTypes.string,
-  }
+export const Item = props => {
+  const {
+    editing,
+    model,
+    item
+  } = props
 
-  renderItem = () => {
-    const { item } = this.props
+  const images = item && item.images || []
+  const isPublication = model === 'publications'
+  const isGrid = images.length && (imageIsVertical(images[0]) || isPublication)
 
-    const images = item.images || []
-    const isGrid = images.length > 0 && imageIsVertical(images[0]) || images.length && model === 'publications'
+  return (
+    <div className={`Item Item--${model}`}>
+      {editing
+        ? <EditItem {...props} />
+        : isGrid
+          ? <LayoutGrid {...props} />
+          : <LayoutColumn {...props} />
+      }
+    </div>
+  )
+}
 
-    if (isGrid) {
-      return <LayoutGrid {...this.props} />
-    } else {
-      return <LayoutColumn {...this.props} />
-    }
-  }
-
-  render () {
-    const {
-      editing,
-      model
-    } = this.props
-
-    return (
-      <div className={`Item Item--${model}`}>
-        {editing
-          ? <EditItem {...this.props} />
-          : this.renderItem()
-        }
-      </div>
-    )
-  }
+Item.propTypes = {
+  className: PropTypes.string,
+  item: PropTypes.object,
+  label: PropTypes.string,
+  labelLink: PropTypes.bool,
+  layout: PropTypes.string,
+  model: PropTypes.string,
 }

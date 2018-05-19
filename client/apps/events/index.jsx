@@ -1,31 +1,45 @@
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import * as Actions from '../../actions/events'
+import { connect } from 'react-redux'
+import * as itemsActions from '../../actions/items'
+import { sortByDate } from '../../utils/index.js'
 import { ItemsList } from '../../components/items_list/index.jsx'
-import { Loading } from '../../components/layout/components/loading.jsx'
 import { NewButton } from '../../components/header/components/new_button.jsx'
-import { sortByDate } from '../../utils/index.js' 
+import { LayoutColumn } from '../../components/layout/column.jsx'
+import { Loading } from '../../components/layout/components/loading.jsx'
 
 class Events extends Component {
-  state = {
-    isAdmin: this.props.user.isAuthenticated,
+  static propTypes = {
+    createItem: PropTypes.func,
+    fetchItems: PropTypes.func,
+    items: PropTypes.object,
+    user: PropTypes.object
+  }
+
+  constructor(props) {
+    super(props)
+
+    const isAdmin = props.user.isAuthenticated
+    const query = isAdmin ? {} : {published: true}
+
+    this.state = {
+      query,
+      isAdmin
+    }
   }
 
   componentWillMount() {
-    const { isAdmin } = this.state
-    const query = isAdmin ? {} : { published: true }
+    const { fetchItems } = this.props
+    const { query } = this.state
 
-    this.props.actions.fetchEvents(query)
+    fetchItems('events', query)
   }
 
   render() {
-    const { actions, events, settings } = this.props    
-    const { isAdmin, listStyle } = this.state
-    const { loading } = settings
-    const { list } = events
-
-    const upcoming = sortByDate(list, 'start_date').upcoming
+    const { createItem, items } = this.props
+    const { isAdmin } = this.state
+    const { list, loading } = items
+    const upcoming = sortByDate(list, 'start_date').upcoming.reverse()
     const past = sortByDate(list, 'start_date').past
 
     return (
@@ -37,46 +51,42 @@ class Events extends Component {
               {isAdmin &&
                 <NewButton
                   model='Event'
-                  onCreate={actions.createEvent}
+                  onCreate={() => createItem('events')}
                 />
               }
-
-              <div className='Events__body'>
-
-                {upcoming.length > 0 &&
-                  <ItemsList
-                    label='Upcoming Events'
-                    model='events'
-                    layout='grid'
-                    list={upcoming.reverse()}
-                  />
-                }
-
-                {past.length > 0 &&
-                  <ItemsList
-                    label='Past Events'
-                    model='events'
-                    list={past}
-                    layout='table'
-                    canToggle
-                  />
-                }
-
-              </div>
-            </div>
-          }
+              {upcoming.length > 0 &&
+                <ItemsList
+                  label='Upcoming Events'
+                  model='events'
+                  layout='grid'
+                  list={upcoming}
+                />
+              }
+              {past.length > 0 &&
+                <ItemsList
+                  label='Past Events'
+                  model='events'
+                  list={past}
+                  layout='table'
+                  canToggle
+                />
+              }
+          </div>
+        }
       </div>
     )
   }
 }
 
 const mapStateToProps = (state) => ({
-  ...state
+  items: state.items,
+  user: state.user
 })
 
-const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(Actions, dispatch)
-})
+const mapDispatchToProps = {
+  createItem: itemsActions.createItem,
+  fetchItems: itemsActions.fetchItems
+}
 
 export default connect(
   mapStateToProps,

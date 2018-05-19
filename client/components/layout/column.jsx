@@ -24,13 +24,13 @@ export const LayoutColumn = (props) => {
 
   let embed_codes
   let images
+  let secondaryImages
 
   if (item) {
     embed_codes = item.embed_codes || []
     images = item.images || []
+    secondaryImages = images.splice(0, 1)
   }
-
-  const secondaryImages = images.splice(0, 1)
 
   return (
     <Row

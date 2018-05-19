@@ -18,10 +18,6 @@ export const RESET_ITEM = 'RESET_ITEM'
 export const FETCH_ITEMS = asyncActionType('FETCH_ITEMS')
 export const CREATE_ITEM = asyncActionType('CREATE_ITEM')
 
-// publications
-export const FETCH_PUBLICATIONS = asyncActionType('FETCH_PUBLICATIONS')
-export const CREATE_PUBLICATION = asyncActionType('CREATE_PUBLICATION')
-
 // settings
 export const FETCH_SETTINGS = asyncActionType('FETCH_SETTINGS')
 export const CREATE_SETTINGS = asyncActionType('CREATE_SETTINGS')

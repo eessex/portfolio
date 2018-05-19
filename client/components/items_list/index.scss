@@ -67,6 +67,12 @@
 
   // Grid layout
   &.grid {
+    div[class*="Row-"] {
+      justify-content: space-evenly;
+    }
+    &[data-toggle=true] div[class*="Row-"] {
+      justify-content: flex-start;
+    }
     .ItemsList__label {
       margin-bottom: 1em;
       padding: 0 20px 20px;
@@ -87,15 +93,15 @@
         max-width: 100%;
       }
     }
-    .ListItem[data-condensed=true] {
-      margin-top: 30px;
-      margin-bottom: 50px;
-      .h1 {
-        font-size: 2.5em;
-      }
-      .h3 {
-        margin-bottom: .5em;
-      }
+  }
+  .ListItem[data-condensed=true] {
+    margin-top: 30px;
+    margin-bottom: 50px;
+    .Item .h1 {
+      font-size: 2.5em;
+    }
+    .h3 {
+      margin-bottom: .5em;
     }
   }
 }
@@ -126,6 +132,9 @@
           line-height: 1.3em;
         }
       }
+    }
+    &.grid .Item .h1 {
+      font-size: 3.25em;
     }
   }
 }

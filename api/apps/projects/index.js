@@ -14,7 +14,9 @@ projects.route('/')
   })
   // all projects
   .get((req, res) => {
-    Project.find(req.query).exec(function(err, data) {
+    Project.find(req.query).sort({
+      'list_index': 'asc'
+    }).exec(function(err, projects) {
       if (err)
         res.send(err)
       res.json(data)

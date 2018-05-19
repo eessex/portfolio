@@ -36,7 +36,7 @@ export const ListItem = (props) => {
       <Col
         xs={12}
         sm={condensed ? 4 : 6}
-        lg={condensed ? 3 : 6}
+        lg={condensed ? 3 : 5}
         className='ListItem'
         data-published={published}
         data-condensed={condensed}

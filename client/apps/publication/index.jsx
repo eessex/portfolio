@@ -7,23 +7,26 @@ import { Loading } from '../../components/layout/components/loading.jsx'
 
 class Publication extends Component {
   componentWillMount = () => {
-    const { fetchItem } = this.props.actions
-    const { id } = this.props.match.params
+    const {
+      fetchItem,
+      match: { params: { id } }
+    } = this.props
 
     fetchItem('publications', id)
   }
 
   componentWillUnmount = () => {
-    const { resetItem } = this.props.actions
-    resetItem()
+    this.props.resetItem()
   }
 
   render() {
-    const { match, user } = this.props
-    const { isAuthenticated } = user
-    const { item, loading } = this.props.item
+    const {
+      match: { path },
+      item: { item, loading },
+      user: { isAuthenticated }
+    } = this.props
 
-    const model = match.path.split('/')[1]
+    const model = path.split('/')[1]
     const label = model === 'publications' ? 'Publications' : 'Releases'
 
     return (
@@ -48,9 +51,10 @@ const mapStateToProps = (state) => ({
   user: state.user
 })
 
-const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(itemActions, dispatch)
-})
+const mapDispatchToProps = {
+  fetchItem: itemActions.fetchItem,
+  resetItem: itemActions.resetItem
+}
 
 export default connect(
   mapStateToProps,

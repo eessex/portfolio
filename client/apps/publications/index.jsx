@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { filter } from 'lodash'
+import { filter, sortBy } from 'lodash'
 import * as itemsActions from '../../actions/items'
 import { sortByDate } from '../../utils/index.js'
 import { ItemsList } from '../../components/items_list/index.jsx'
@@ -38,14 +38,26 @@ class Publications extends Component {
   
   getReleases = (compilation=false) => {
     const { list } = this.props.items
-    let sortedReleases = []
+    let releases = []
 
     list.map((item, i) => {
+      let isDraft = !item.formats.length && !compilation
       const sorted = filter(item.formats, { compilation: compilation })
-      if (sorted.length) {
-        sortedReleases.push(item)
+
+      if (isDraft || sorted.length) {
+        releases.push(item)
       }
     })
+
+    const sortedReleases = sortBy(releases, [
+      (item) => {
+        if (item.formats.length) {
+          return item.formats[0].release_year
+        }
+      },
+      'name'
+    ]).reverse()
+
     return sortedReleases
   }
 

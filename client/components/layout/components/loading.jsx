@@ -23,6 +23,6 @@ const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: silver;
+  color: #ddd;
   z-index: -1;
 `

@@ -110,6 +110,7 @@ export class AboutEdit extends Component {
             onChange={(value) => this.onChange('description', value)}
             html={settings.about.description}
             placeholder='Start typing ...'
+            className='p'
           />
 
           <div className='about__social'>

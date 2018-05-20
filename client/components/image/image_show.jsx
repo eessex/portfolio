@@ -29,7 +29,7 @@ const Caption = styled.div`
     font-size: .7em;
     padding: 0;
     text-align: right;
-    color: silver;
+    color: #ddd;
     margin-top: 5px;
   }
 `

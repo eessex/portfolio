@@ -11,7 +11,7 @@
     text-decoration: none;
     color: black;
     &:hover {
-      color: silver;
+      color: #ddd;
     }
     &[data-active=true] {
       border-bottom: 2px solid;
@@ -39,7 +39,7 @@
     top: 0;
     background: white;
     z-index: 10;
-    border-bottom: 1px solid silver;
+    border-bottom: 1px solid #ddd;
   }
 }
 

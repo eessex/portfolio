@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === 'test') {
   app.use(logger('dev'))
 }
 
-mongoose.connect(db, { useMongoClient: true })
+mongoose.connect(db)
 
 if (process.env.NODE_ENV === 'production') {
   app.use(function(req, res, next) {

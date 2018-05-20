@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-
+import { clone } from 'lodash'
 import { getDate } from '../../../utils/index.js'
 import { ImageShow } from '../../image/image_show.jsx'
+import { ImageEdit } from '../../image/image_edit.jsx'
 import { ShowFormats } from '../../formats/show_formats.jsx'
 import { Text } from '../../text/text.jsx'
 import { Venue } from '../../venue/venue.jsx'
@@ -15,6 +16,7 @@ export const ItemHeader = (props) => {
       label,
       labelLink,
       model,
+      onChange,
       setEditing
     } = props
 
@@ -26,7 +28,7 @@ export const ItemHeader = (props) => {
     } = item
 
     const { url } = coverImage || ''
-
+    const hasImage = coverImage && url
     const hasVenue = venue && (venue.name || venue.address)
     const date = model !== 'publications' && getDate(model, item)
 
@@ -42,16 +44,16 @@ export const ItemHeader = (props) => {
 
         {artist &&
           <Text
-            className='h1 artist'
-            onClick={setEditing ? () => setEditing('artist') : undefined}
-            placeholder='Add Artist'
+            className='h1'
+            onChange={(value) => onChange('artist', value)}
+            placeholder='Artist'
             text={artist}
           />
         }
 
         <Text
           className='h1'
-          onClick={setEditing ? () => setEditing('title') : undefined}
+          onChange={(value) => onChange('title', value)}
           placeholder='Add Title'
           text={title} 
         />
@@ -75,9 +77,18 @@ export const ItemHeader = (props) => {
             onClick={setEditing ? () => setEditing('venue') : undefined}
           />
         }
-
-        {coverImage && url &&
-          <ImageShow {...coverImage} />
+        {hasImage && onChange
+          ? <ImageEdit
+              item={coverImage}
+              index={0}
+              onChange={(image) => {
+                const newImages = clone(item.images) || []
+                newImages[0] = image
+                onChange('images', newImages)
+              }}
+              editCaption={true}
+            />
+          : hasImage && <ImageShow {...coverImage} />
         }
       </div>
     )
@@ -86,5 +97,6 @@ export const ItemHeader = (props) => {
 ItemHeader.propTypes = {
   coverImage: PropTypes.object,
   event: PropTypes.object,
+  onChange: PropTypes.func,
   setEditing: PropTypes.func
 }

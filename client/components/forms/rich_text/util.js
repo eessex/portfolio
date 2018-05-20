@@ -25,13 +25,6 @@ export const Link = (props) => {
   )
 }
 
-export const blockRenderMap = () => {
-  // declare additional HTML elements available to the editor
-  return Immutable.Map({
-    'unstyled': {element: 'p'}
-  })
-}
-
 export const decorator = new CompositeDecorator([
   {
     strategy: findLinkEntities,

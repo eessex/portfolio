@@ -1,5 +1,5 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema
 
 var LinkSchema = new Schema({
   title: String,
@@ -11,6 +11,6 @@ var LinkSchema = new Schema({
   updated_at: { type: Date, default: Date.now },
   published: { type: Boolean, default: false }
   // related exhibition/event/project
-});
+})
 
-module.exports = mongoose.model('Link', LinkSchema);
+module.exports = mongoose.model('Link', LinkSchema)

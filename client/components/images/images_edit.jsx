@@ -31,12 +31,13 @@ export class ImagesEdit extends Component {
   }
 
   onDeleteImage = (index) => {
-    const { onChange } = this.props
-    const images = this.props.item.images || []
-  
+    const { onChange, item } = this.props
+    const images = item.images || []
+
     if (images.length === 1) {
       onChange([])
     } else {
+      images.splice(index, 1)
       onChange(images)
     }
   }
@@ -55,7 +56,6 @@ export class ImagesEdit extends Component {
             <div className='ImagesEdit__list'>
               {images.map((image, index) =>
                 <ImageEdit
-                  fetchUpload={fetchUpload}
                   index={index}
                   item={image}
                   key={index}
@@ -72,6 +72,7 @@ export class ImagesEdit extends Component {
               index={-1}
               item={{}}
               onChange={this.onNewImage}
+              showInput
             />
           </div>
 

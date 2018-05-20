@@ -1,46 +1,50 @@
-import { FETCH_PROJECTS, CREATE_PROJECT } from '../actions'
+import { clone } from 'lodash'
+import {
+  FETCH_ITEMS,
+  CREATE_ITEM
+} from '../actions'
 
 const initialState = {
   loading: false,
   list: []
 }
 
-const projectsReducer = (state = initialState, action) => {
+const itemsReducer = (state = initialState, action) => {
   switch (action.type) {
-    case FETCH_PROJECTS.PENDING:
+    case FETCH_ITEMS.PENDING:
       return Object.assign({}, state, {
         loading: true
       })
 
-    case FETCH_PROJECTS.SUCCESS:
+    case FETCH_ITEMS.SUCCESS:
       return Object.assign({}, state, {
         loading: false,
         list: action.payload
       })
 
-    case FETCH_PROJECTS.ERROR:
+    case FETCH_ITEMS.ERROR:
       return Object.assign({}, state, {
         loading: false
       })
 
-    case CREATE_PROJECT.PENDING:
+    case CREATE_ITEM.PENDING:
       return Object.assign({}, state, {
-        loading: true,
+        loading: true
       })
 
-    case CREATE_PROJECT.SUCCESS:
-      state.list.push(action.payload.project)
+    case CREATE_ITEM.SUCCESS:
+      const list = clone(state.list)
+      list.push(action.payload.data)
 
       return Object.assign({}, state, {
-        loading: false,
-        list: state.list,
+        list,
         error: null
       })
 
-    case CREATE_PROJECT.ERROR:
+    case CREATE_ITEM.ERROR:
       return Object.assign({}, state, {
         loading: false,
-        error: action.payload,
+        error: action.payload
       })
 
     default:
@@ -48,4 +52,4 @@ const projectsReducer = (state = initialState, action) => {
   }
 }
 
-export default projectsReducer
+export default itemsReducer

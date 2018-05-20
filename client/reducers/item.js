@@ -1,88 +1,108 @@
+import { clone } from 'lodash'
 import {
-  DELETE_EVENT,
-  FETCH_EVENT,
+  CHANGE_ITEM,
+  DELETE_ITEM,
+  FETCH_ITEM,
   FETCH_UPLOAD,  
-  RESET_EVENT,
+  RESET_ITEM,
   RESET_UPLOAD,
-  UPDATE_EVENT  
+  UPDATE_ITEM  
 } from '../actions'
 
 const initialState = {
-  event: {},
+  item: {},
+  isSaved: true,
+  isSaving: false,
   loading: false,
   uploading: false,
-  saving: false,
   upload: {}
 }
 
-const eventReducer = (state = initialState, action) => {
+const itemReducer = (state = initialState, action) => {
   switch (action.type) {
-    case FETCH_EVENT.PENDING:
+    case CHANGE_ITEM: {
+      const item = clone(state.item)
+      const { key, value } = action.payload
+
+      item[key] = value
+      return Object.assign({}, state, {
+          item,
+          isSaved: false,
+          isSaving: !item.published
+        })
+      }
+
+    case FETCH_ITEM.PENDING: {
       return Object.assign({}, state, {
         loading: true
       })
+    }
 
-    case FETCH_EVENT.SUCCESS:
+    case FETCH_ITEM.SUCCESS:
+      const { payload, model } = action
+
       return Object.assign({}, state, {
+        item: payload,
         loading: false,
-        event: action.payload
+        model
       })
 
-    case FETCH_EVENT.ERROR:
+    case FETCH_ITEM.ERROR:
       return Object.assign({}, state, {
         loading: false
       })
 
-    case UPDATE_EVENT.PENDING:
+    case UPDATE_ITEM.PENDING:
       return Object.assign({}, state, {
-        saving: true,
-        event: state.event
+        isSaving: true,
+        item: state.item
       })
 
-    case UPDATE_EVENT.SUCCESS:
+    case UPDATE_ITEM.SUCCESS:
       return Object.assign({}, state, {
-        saving: false,
-        event: action.payload.event,
-        error: null
+        error: null,
+        isSaved: true,
+        item: action.payload,
+        isSaving: false
       })
 
-    case UPDATE_EVENT.ERROR:
+    case UPDATE_ITEM.ERROR:
       return Object.assign({}, state, {
-        saving: false,
-        error: action.payload.data,
-        event: state.event
+        isSaving: false,
+        error: action.payload
       })
 
-    case DELETE_EVENT.PENDING:
-      return Object.assign({}, state, {
-        loading: true,
-        event: state.event
-      })
-
-    case DELETE_EVENT.SUCCESS:
+    case DELETE_ITEM.PENDING:
       return Object.assign({}, state, {
         loading: true
       })
 
-    case DELETE_EVENT.ERROR:
+    case DELETE_ITEM.SUCCESS:
       return Object.assign({}, state, {
-        loading: false,
-        event: state.event
+        loading: true
       })
 
-    case RESET_EVENT:
+    case DELETE_ITEM.ERROR:
       return Object.assign({}, state, {
         loading: false,
-        uploading: false,
-        event: state.event
+        item: state.item
+      })
+
+    case RESET_ITEM:
+      return Object.assign({}, state, {
+        item: {},
+        loading: false,
+        uploading: false
       })
 
     case FETCH_UPLOAD.PENDING:
+
       return Object.assign({}, state, {
         uploading: true
       })
 
     case FETCH_UPLOAD.SUCCESS:
+
       return Object.assign({}, state, {
         uploading: false,
         upload: action.payload
@@ -100,4 +120,4 @@ const eventReducer = (state = initialState, action) => {
   }
 }
 
-export default eventReducer
+export default itemReducer

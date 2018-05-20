@@ -5,7 +5,7 @@ import { imageIsVertical } from '../../utils/index.js'
 import { Description } from './components/description.jsx'
 import { ItemHeader } from './components/header.jsx'
 import { EmbedList } from '../embeds/embed_list.jsx'
-import { ImageShow } from '../image/image_show.jsx'
+import { ImagesShow } from '../images/images_show.jsx'
 import { LinksList } from '../links/links_list.jsx'
 import { LayoutColumn } from './column.jsx'
 
@@ -41,7 +41,7 @@ export const LayoutGrid = (props) => {
         sm={gridCoverImage ? 5 : 2}
       >
         {gridCoverImage &&
-          <ImageShow {...gridCoverImage} />
+          <ImagesShow images={images} />
         }
         {embed_codes &&
           <EmbedList embed_codes={embed_codes} />
@@ -58,7 +58,8 @@ export const LayoutGrid = (props) => {
           label={label}
           labelLink={labelLink}
           model={model}
-          setEditing={setEditing}
+          setEditing={setEditing ? setEditing : undefined}
+          onChange={onChange ? onChange : undefined}
         />
 
         <Description

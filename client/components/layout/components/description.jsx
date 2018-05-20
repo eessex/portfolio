@@ -10,7 +10,7 @@ export const Description = (props) => {
     } = props
 
     return (
-      <div className='Description'>
+      <div className='Description p'>
         {onChange
           ? <RichText
               html={description}

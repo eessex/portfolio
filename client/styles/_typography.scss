@@ -9,7 +9,7 @@ a {
   color: black;
   text-decoration: underline;
   &:hover {
-    color: silver;
+    color: #ddd;
   }
 }
 
@@ -64,7 +64,8 @@ h6, .h6 {
 
 p,
 .p .public-DraftStyleDefault-block,
-.p .public-DraftEditorPlaceholder-root {
+.p .public-DraftEditorPlaceholder-root
+{
   padding: .75em 0;
   margin: 0;
   line-height: 1.4em;

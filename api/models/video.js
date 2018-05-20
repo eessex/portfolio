@@ -1,5 +1,5 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema
 
 var VideoSchema = new Schema({
   title: String,
@@ -10,6 +10,6 @@ var VideoSchema = new Schema({
   updated_at: { type: Date, default: Date.now },
   published: { type: Boolean, default: false }
   // related exhibition/event/project
-});
+})
 
-module.exports = mongoose.model('Video', VideoSchema);
+module.exports = mongoose.model('Video', VideoSchema)

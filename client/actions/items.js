@@ -1,29 +1,29 @@
 import {
   API,
-  CREATE_PROJECT,
-  FETCH_PROJECTS
+  CREATE_ITEM,
+  FETCH_ITEMS
 } from '../actions'
 
-export const createProject = () => {
+export const createItem = (model) => {
   return {
     type: API,
     payload: {
       method: 'post',
       data: {},
-      url: '/projects',
-      next: CREATE_PROJECT
+      url: `/${model}`,
+      next: CREATE_ITEM
     }
   }
 }
 
-export const fetchProjects = (query) => {
+export const fetchItems = (model, query) => {
   return {
     type: API,
     payload: {
       method: 'get',
-      url: '/projects',
+      url: `/${model}`,
       query: query,
-      next: FETCH_PROJECTS
+      next: FETCH_ITEMS
     }
   }
 }

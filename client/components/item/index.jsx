@@ -2,31 +2,29 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { imageIsVertical } from '../../utils/index.js'
+import { EditNav } from '../forms/edit_nav.jsx'
 import { LayoutColumn } from '../layout/column.jsx'
 import { LayoutGrid } from '../layout/grid.jsx'
+import EditItem from './edit_item.jsx'
 
-export const Item = (props) => {
+export const Item = props => {
   const {
-    className,
-    item,
-    label,
-    labelLink,
-    layout,
+    editing,
     model,
-    onChange,
-    setEditing
+    item
   } = props
 
-  const images = item.images || []
-  const isGrid = images.length > 0 && imageIsVertical(images[0]) || images.length && model === 'publications'
-  const gridCoverImage = images.length > 0 ? images[0] : undefined
-
+  const images = item && item.images || []
+  const isPublication = model === 'publications'
+  const isGrid = images.length && (imageIsVertical(images[0]) || isPublication)
 
   return (
     <div className={`Item Item--${model}`}>
-      {isGrid
-        ? <LayoutGrid {...props} />
-        : <LayoutColumn {...props} />
+      {editing
+        ? <EditItem {...props} />
+        : isGrid
+          ? <LayoutGrid {...props} />
+          : <LayoutColumn {...props} />
       }
     </div>
   )
@@ -39,6 +37,4 @@ Item.propTypes = {
   labelLink: PropTypes.bool,
   layout: PropTypes.string,
   model: PropTypes.string,
-  onChange: PropTypes.func,
-  setEditing: PropTypes.func
 }

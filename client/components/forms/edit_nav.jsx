@@ -5,38 +5,36 @@ import { SaveButton } from './buttons/save.jsx'
 
 export const EditNav = (props) => {
   const {
-    deleteitem,
+    deleteItem,
     isSaved,
     isSaving,
     item,
     model,
-    onClickEmbed,
-    onClickImage,
-    onClickLink,
     onPublish,
-    saveItem
+    saveItem,
+    setEditing
   } = props
 
   return (
     <nav className='AdminNav AdminNav--Edit'>
-      {onClickImage &&
+      {setEditing &&
         <Button
           icon='camera'
-          onClick={onClickImage}
+          onClick={() => setEditing('images')}
           className='AdminNav__icon'
         />
       }
-      {onClickEmbed &&
+      {setEditing &&
         <Button
           icon='code'
-          onClick={onClickEmbed}
+          onClick={() => setEditing('embeds')}
           className='AdminNav__icon'
         />
       }
-      {onClickLink &&
+      {setEditing &&
         <Button
           icon='link'
-          onClick={onClickLink}
+          onClick={() => setEditing('links')}
           className='AdminNav__icon'
         />
       }
@@ -53,9 +51,9 @@ export const EditNav = (props) => {
           onClick={() => saveItem(item, true)}
         />
       }
-      {deleteitem &&
+      {deleteItem &&
         <Button
-          onClick={() => deleteitem(item)}
+          onClick={deleteItem}
           text='Delete'
         />
       }
@@ -64,14 +62,12 @@ export const EditNav = (props) => {
 }
 
 EditNav.propTypes = {
-  deleteitem: PropTypes.func,
+  deleteItem: PropTypes.func,
   isSaved: PropTypes.bool,
   isSaving: PropTypes.bool,
   item: PropTypes.object,
   model: PropTypes.string,
-  onClickEmbed: PropTypes.func,
-  onClickImage: PropTypes.func,
-  onClickLink: PropTypes.func,
   onPublish: PropTypes.func,
-  saveItem: PropTypes.func
+  saveItem: PropTypes.func,
+  setEditing: PropTypes.func
 }

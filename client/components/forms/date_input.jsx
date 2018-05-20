@@ -15,6 +15,7 @@ export class DateInput extends Component {
 
   render() {
     const {
+      autoFocus,
       allDay,
       label,
       value,
@@ -36,6 +37,7 @@ export class DateInput extends Component {
           required={required || false}
           defaultValue={moment(value).format('YYYY-MM-DD')}
           onKeyUp={this.onKeyUp}
+          autoFocus={autoFocus}
         />
 
         {!allDay &&

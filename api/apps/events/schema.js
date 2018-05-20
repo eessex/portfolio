@@ -9,7 +9,7 @@ var EventSchema = new Schema({
   description: String,
   images: [
     {
-      title: { type: String },
+      caption: { type: String },
       url: { type: String },
       aspect: { type: Number }
     }

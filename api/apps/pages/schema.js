@@ -1,5 +1,5 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema
 
 var PageSchema = new Schema({
   title: String,
@@ -9,15 +9,15 @@ var PageSchema = new Schema({
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
   published: { type: Boolean, default: false }
-});
+})
 
 PageSchema.pre('save', next => {
-  now = new Date();
+  now = new Date()
   if(!this.created_at) {
-    this.created_at = now;
+    this.created_at = now
   }
-  this.updated_at = now;
-  next();
-});
+  this.updated_at = now
+  next()
+})
 
-module.exports = mongoose.model('Page', PageSchema);
+module.exports = mongoose.model('Page', PageSchema)

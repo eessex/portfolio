@@ -46,6 +46,7 @@ export class VenueEdit extends Component {
               placeholder='Venue Name'
               value={name ? name : ''}
               onChange={(e) => this.onChange('name', e.target.value)}
+              autoFocus
             />
           </Col>
 
@@ -94,7 +95,7 @@ const VenueEditContainer = styled.div`
     font-size: 1em;
     width: 100%;
     border: none;
-    border-bottom: 1px solid silver;
+    border-bottom: 1px solid #ddd;
   }
 
   select {

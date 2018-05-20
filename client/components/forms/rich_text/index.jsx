@@ -9,7 +9,6 @@ import Draft, {
 } from 'draft-js';
 import { convertFromHTML, convertToHTML } from 'draft-convert'
 import {
-  blockRenderMap,
   decorator,
   findLinkEntities,
   Link
@@ -202,7 +201,6 @@ export class RichText extends Component {
           onMouseUp={this.checkSelection}>
           <Editor
             ref='editor'
-            blockRenderMap={blockRenderMap()}
             placeholder={placeholder}
             editorState={editorState}
             handleKeyCommand={this.handleKeyCommand}

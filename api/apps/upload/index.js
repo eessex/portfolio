@@ -2,6 +2,7 @@ var express = require('express')
 var upload = express.Router()
 var aws = require('aws-sdk')
 var S3_BUCKET = process.env.S3_BUCKET
+
 aws.config.region = 'us-east-1'
 
 upload.route('/')
@@ -26,7 +27,7 @@ upload.route('/')
         url: `https://${S3_BUCKET}.s3.amazonaws.com/${req.body.fileName}`
       }
       res.json(signature)
-    });
+    })
   })
 
 module.exports = upload

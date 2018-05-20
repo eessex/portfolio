@@ -5,11 +5,17 @@ export function sortByDate(items, dateField) {
   let upcoming = []
   let past = []
 
-  for (var item of items) {
-    if (new Date() < new Date(item[dateField])) {
-      upcoming.push(item)
-    } else {
-      past.push(item)
+  if (items.length) {
+    for (var item of items) {
+      if (item) {
+        const date = new Date(item[dateField])
+
+        if (new Date() < date) {
+          upcoming.push(item)
+        } else {
+          past.push(item)
+        }
+      }
     }
   }
 

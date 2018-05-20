@@ -1,3 +1,4 @@
+import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
@@ -21,12 +22,16 @@ export const LayoutColumn = (props) => {
     setEditing
   } = props
 
+  let coverImage
   let embed_codes
   let images
+  let links
 
   if (item) {
     embed_codes = item.embed_codes || []
-    images = item.images || []
+    links = item.links || []
+    images = clone(item.images) || []
+    coverImage = images.length && images.splice(0, 1)
   }
 
   return (
@@ -54,7 +59,7 @@ export const LayoutColumn = (props) => {
         {item &&
           <div>
             <ItemHeader
-              coverImage={item && images.length > 0 ? images[0] : undefined}
+              coverImage={coverImage ? coverImage[0] : undefined}
               item={item}
               labelLink={labelLink}
               model={model}
@@ -66,11 +71,16 @@ export const LayoutColumn = (props) => {
               description={item.description}
               onChange={onChange ? onChange : undefined}
             />
-            <LinksList links={item.links || [] }/>
 
-            <EmbedList
-              embed_codes={embed_codes.length > 0 ? embed_codes : undefined}
-            />
+            {links &&
+              <LinksList links={links}/>
+            }
+
+            {embed_codes &&
+              <EmbedList
+                embed_codes={embed_codes}
+              />
+            }
           </div>
         }
         {children}

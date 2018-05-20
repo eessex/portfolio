@@ -1,9 +1,10 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { stripTags } from 'underscore.string'
 
 export const ImageShow = (props) => {
-  const { aspect, caption, url } = props
+  const { caption, url } = props
   const alt = stripTags(caption) || ''
 
   return (
@@ -14,7 +15,7 @@ export const ImageShow = (props) => {
         width='100%'
       />
       {caption &&
-        <div
+        <Caption
           className='ImageShow__caption'
           dangerouslySetInnerHTML={{__html: caption}}
         />
@@ -23,8 +24,19 @@ export const ImageShow = (props) => {
   )
 }
 
+const Caption = styled.div`
+  p {
+    font-size: .7em;
+    padding: 0;
+    text-align: right;
+    color: #ddd;
+    margin-top: 5px;
+  }
+`
+
 ImageShow.propTypes = {
   caption: PropTypes.string,
-  title: PropTypes.string,
+  aspect: PropTypes.number,
   url: PropTypes.string
 }
+

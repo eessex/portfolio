@@ -56,7 +56,6 @@ export class ImagesEdit extends Component {
             <div className='ImagesEdit__list'>
               {images.map((image, index) =>
                 <ImageEdit
-                  fetchUpload={fetchUpload}
                   index={index}
                   item={image}
                   key={index}
@@ -73,6 +72,7 @@ export class ImagesEdit extends Component {
               index={-1}
               item={{}}
               onChange={this.onNewImage}
+              showInput
             />
           </div>
 

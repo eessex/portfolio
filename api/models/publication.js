@@ -21,7 +21,7 @@ var PublicationSchema = new Schema({
   project_ids: { type: Array, default: [] },
   images: [
     {
-      title: { type: String },
+      caption: { type: String },
       url: { type: String },
       aspect: { type: Number },
     }

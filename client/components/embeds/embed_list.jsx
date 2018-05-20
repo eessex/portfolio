@@ -1,3 +1,4 @@
+import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Embed } from './embed.jsx'
@@ -23,12 +24,10 @@ export class EmbedList extends Component {
 
   onRemoveEmbed = (embed, index) => {
     const { embed_codes, onChange } = this.props
+    const newEmbeds = clone(embed_codes)
 
-    if (embed_codes.length === 1) {
-      onChange([])
-    } else {
-      onChange(embed_codes)
-    }
+    newEmbeds.splice(index, 1)
+    onChange(newEmbeds)
   }
 
   render() {

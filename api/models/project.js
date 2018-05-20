@@ -9,9 +9,9 @@ var ProjectSchema = new Schema({
   end_date: Date,
   images: [
     {
-      aspect: { type: Number },
-      title: { type: String },
+      caption: { type: String },
       url: { type: String },
+      aspect: { type: Number }
     }
   ],
   links: [

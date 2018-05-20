@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-
+import { clone } from 'lodash'
 import { getDate } from '../../../utils/index.js'
 import { ImageShow } from '../../image/image_show.jsx'
+import { ImageEdit } from '../../image/image_edit.jsx'
 import { ShowFormats } from '../../formats/show_formats.jsx'
 import { Text } from '../../text/text.jsx'
 import { Venue } from '../../venue/venue.jsx'
@@ -27,6 +28,7 @@ export const ItemHeader = (props) => {
     } = item
 
     const { url } = coverImage || ''
+    const hasImage = coverImage && url
     const hasVenue = venue && (venue.name || venue.address)
     const date = model !== 'publications' && getDate(model, item)
 
@@ -75,9 +77,18 @@ export const ItemHeader = (props) => {
             onClick={setEditing ? () => setEditing('venue') : undefined}
           />
         }
-
-        {coverImage && url &&
-          <ImageShow {...coverImage} />
+        {hasImage && onChange
+          ? <ImageEdit
+              item={coverImage}
+              index={0}
+              onChange={(image) => {
+                const newImages = clone(item.images) || []
+                newImages[0] = image
+                onChange('images', newImages)
+              }}
+              editCaption={true}
+            />
+          : hasImage && <ImageShow {...coverImage} />
         }
       </div>
     )

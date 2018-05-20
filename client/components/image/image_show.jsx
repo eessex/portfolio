@@ -4,7 +4,7 @@ import React from 'react'
 import { stripTags } from 'underscore.string'
 
 export const ImageShow = (props) => {
-  const { aspect, caption, url } = props
+  const { caption, url } = props
   const alt = stripTags(caption) || ''
 
   return (
@@ -30,12 +30,13 @@ const Caption = styled.div`
     padding: 0;
     text-align: right;
     color: silver;
+    margin-top: 5px;
   }
 `
 
 ImageShow.propTypes = {
   caption: PropTypes.string,
-  title: PropTypes.string,
+  aspect: PropTypes.number,
   url: PropTypes.string
 }
 

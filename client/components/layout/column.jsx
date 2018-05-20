@@ -30,7 +30,7 @@ export const LayoutColumn = (props) => {
   if (item) {
     embed_codes = item.embed_codes || []
     links = item.links || []
-    images = item.images || []
+    images = clone(item.images) || []
     coverImage = images.length && images.splice(0, 1)
   }
 

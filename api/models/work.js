@@ -12,8 +12,9 @@ var WorkSchema = new Schema({
   published: { type: Boolean, default: false },
   images: [
     {
-      title: { type: String },
+      caption: { type: String },
       url: { type: String },
+      aspect: { type: Number }
     }
   ]
   // related project /exhibition history

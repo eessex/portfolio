@@ -1,6 +1,6 @@
 var express = require('express')
 var publications = express.Router()
-var Publication = require('../../models/publication')
+var Publication = require('./schema')
 
 publications.route('/')
   // create publication

@@ -1,6 +1,6 @@
 var express = require('express')
 var events = express.Router()
-var Event = require('../../models/event')
+var Event = require('./schema')
 
 events.route('/')
   // create event

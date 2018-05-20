@@ -1,5 +1,5 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema
 
 var WorkSchema = new Schema({
   title: String,
@@ -18,6 +18,6 @@ var WorkSchema = new Schema({
     }
   ]
   // related project /exhibition history
-});
+})
 
-module.exports = mongoose.model('Work', WorkSchema);
+module.exports = mongoose.model('Work', WorkSchema)

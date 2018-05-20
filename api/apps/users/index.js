@@ -1,6 +1,6 @@
 var express = require('express')
 var users = express.Router()
-var User = require('../../models/user')
+var User = require('./schema')
 
 // for /api/users/
 
@@ -70,6 +70,5 @@ users.route('/:user_id')
       res.json({ message: 'User deleted' })
     })
   })
-
 
 module.exports = users

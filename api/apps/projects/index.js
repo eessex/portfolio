@@ -1,6 +1,6 @@
 var express = require('express')
 var projects = express.Router()
-var Project = require('../../models/project')
+var Project = require('./schema')
 
 projects.route('/')
   // create project

@@ -1,6 +1,6 @@
 var express = require('express')
 var settings = express.Router()
-var Settings = require('../../models/settings')
+var Settings = require('./schema')
 
 // for /api/settings/
 
@@ -10,7 +10,7 @@ settings.route('/')
     var settings = new Settings()
     Object.assign(settings, req.body).save((err, settings) => {
       if (err)
-        return res.status(400).send(err);
+        return res.status(400).send(err)
       res.json({ message: 'Settings created', settings })
     })
   })
@@ -20,7 +20,7 @@ settings.route('/')
       if (err)
         res.send(err)
       res.json(settings)
-    });
+    })
   })
 
 settings.route('/:settings_id')

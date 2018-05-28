@@ -95,7 +95,7 @@ export class ImageEdit extends Component {
                 icon='times'
                 onClick={this.onDeleteImage}
               />
-              <ImageShow url={url} />
+              <ImageShow url={url} caption={!editCaption ? caption : ''} />
             </ImageContainer>
         }
 
@@ -107,12 +107,10 @@ export class ImageEdit extends Component {
             placeholder='Image Caption'
           />
         }
-
       </div>
     )
   }
 }
-
 
 const ImageContainer = styled.div`
   position: relative;

@@ -2,7 +2,7 @@ import FontAwesome from 'react-fontawesome'
 import PropTypes from 'prop-types'
 import React from 'react'
 
-export const Button = (props) => {
+export const Button = props => {
   const {
     borderless,
     children,
@@ -12,12 +12,12 @@ export const Button = (props) => {
     onClick,
     text
   } = props
-  const formatClassName = icon ? ` IconButton ${className}` : ` ${className}`
+  const formatClassName = icon ? ` IconButton` : ``
   const child = text ? text : children
 
   return (
     <button
-      className={'Button' + formatClassName}
+      className={`Button${icon ? ` IconButton` : ''}${className ? ` className` : ''}`}
       onClick={onClick}
       style={{
         borderWidth: borderless ? '0' : '1px',

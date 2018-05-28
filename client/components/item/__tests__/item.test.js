@@ -1,6 +1,9 @@
 import { mount } from 'enzyme'
+import configureStore from 'redux-mock-store'
+import { Provider } from 'react-redux'
 import React from 'react'
 import { Item } from '../index'
+import { ItemEdit } from '../item_edit'
 import { LayoutColumn } from '../../layout/column.jsx'
 import { LayoutGrid } from '../../layout/grid.jsx'
 
@@ -8,6 +11,23 @@ describe('Item', () => {
   const getWrapper = props => {
     return mount(
       <Item {...props} />
+    )
+  }
+
+  const getConnectedWrapper = props => {
+    const mockStore = configureStore([])
+    const store = mockStore({
+      item:{
+        item: props.item,
+        isSaved: true,
+        isSaving: false,
+      }
+    })
+
+    return mount(
+      <Provider store={store}>
+        <Item {...props} />
+      </Provider>
     )
   }
 
@@ -56,9 +76,10 @@ describe('Item', () => {
     expect(component.find(LayoutGrid).exists()).toBe(true)
   })
 
-  xit('Renders ItemEdit if props.editing', () => {
+  it('Renders ItemEdit if props.editing', () => {
     props.editing = true
-    const component = getWrapper(props)
-    console.log(component.html())
+    const component = getConnectedWrapper(props)
+
+    expect(component.find(ItemEdit).exists()).toBe(true)
   })
 })

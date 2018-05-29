@@ -7,12 +7,11 @@ import { imageIsVertical } from '../../utils/index.js'
 import { DatesModal } from '../dates/dates_modal.jsx'
 import { EditNav } from '../forms/edit_nav.jsx'
 import { EmbedModal } from '../embeds/embed_modal.jsx'
-import { FormatsModal } from '../formats/formats_modal.jsx'
 import { ImagesEdit } from '../images/images_edit.jsx'
 import { LayoutColumn } from '../layout/column.jsx'
 import { LayoutGrid } from '../layout/grid.jsx'
 import { LinksModal } from '../links/links_modal.jsx'
-import { VenueModal } from '../venue/venue_modal.jsx'
+import ItemEditModals from './item_edit_modals'
 
 export class ItemEdit extends Component {
   static propTypes = {
@@ -34,20 +33,6 @@ export class ItemEdit extends Component {
     this.setState({ isEditing })
   }
 
-  getDateProps = () => {
-    const {
-      all_day,
-      end_date,
-      start_date
-    } = this.props.item.item
-
-    return {
-      all_day,
-      end_date,
-      start_date
-    }
-  }
-
   render() {
     const { isEditing } = this.state
     const { model, maybeSaveItem } = this.props
@@ -63,11 +48,9 @@ export class ItemEdit extends Component {
     const links = item.links || []
     const embed_codes = item.embed_codes || []
     const isGrid = images.length > 0 && imageIsVertical(images[0]) || images.length && model === 'publications'
-    const venue = item.venue || {}
-    const formats = item.formats || []
 
     return (
-      <div className='EditItem'>
+      <div className='ItemEdit'>
         <EditNav 
           deleteItem={() => deleteItem(model, item)}
           isSaved={isSaved}
@@ -94,56 +77,11 @@ export class ItemEdit extends Component {
             />
         }
 
-        {isEditing === 'dates' &&
-          <DatesModal
-            {...this.getDateProps()}
-            onChange={(key, value) => this.onChange(key, value)}
-            hasEndDate={!this.state.hasEndDate}
-            setEditing={(isEditing) => this.setState({ isEditing })}
-          />
-        }
-
-        {isEditing === 'embeds' &&
-          <EmbedModal
-            embed_codes={embed_codes}
-            onChange={(value) => this.onChange('embed_codes', value)}
-            setEditing={(isEditing) => this.setState({ isEditing })}
-          />
-        }
-
-        {isEditing === 'images' &&
-          <ImagesEdit
-            item={item}
-            fetchUpload={fetchUpload}
-            onChange={(value) => this.onChange('images', value)}
-            setEditing={(isEditing) => this.setState({ isEditing })}
-          />
-        }
-
-        {isEditing === 'formats' &&
-          <FormatsModal
-            label='Formats'
-            formats={formats}
-            onChange={this.onChange}
-            setEditing={(isEditing) => this.setEditing(isEditing)}
-          />
-        }
-
-        {isEditing === 'links' &&
-          <LinksModal
-            links={item.links}
-            onChange={(value) => this.onChange('links', value)}
-            setEditing={(isEditing) => this.setState({ isEditing })}
-          />
-        }
-
-        {isEditing === 'venue' &&
-          <VenueModal
-            venue={venue}
-            onChange={(value) => this.onChange('venue', value)}
-            setEditing={(isEditing) => this.setState({ isEditing })}
-          />
-        }
+        <ItemEditModals
+          isEditing={isEditing}
+          setEditing={this.setEditing}
+          onChange={this.onChange}
+        />
       </div>
     )
   }

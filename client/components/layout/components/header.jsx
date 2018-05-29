@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { clone } from 'lodash'
@@ -33,7 +34,7 @@ export const ItemHeader = (props) => {
     const date = model !== 'publications' && getDate(model, item)
 
     return (
-      <div className='ItemHeader'>
+      <ItemHeaderContainer className='ItemHeader'>
         {label &&
           <Label
             label={label}
@@ -90,7 +91,7 @@ export const ItemHeader = (props) => {
             />
           : hasImage && <ImageShow {...coverImage} />
         }
-      </div>
+      </ItemHeaderContainer>
     )
   }
 
@@ -100,3 +101,9 @@ ItemHeader.propTypes = {
   onChange: PropTypes.func,
   setEditing: PropTypes.func
 }
+
+const ItemHeaderContainer = styled.div`
+  .h1 .public-DraftStyleDefault-block.public-DraftStyleDefault-ltr {
+    padding: 0;
+  }
+`

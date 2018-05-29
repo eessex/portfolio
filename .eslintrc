@@ -1,0 +1,25 @@
+{
+  "parser": "babel-eslint",
+  "extends": [
+    "standard",
+    "standard-react"
+  ],
+  "globals": {
+    "__dirname": true
+  },
+  "env": {
+    "browser": true,
+    "mocha": true,
+    "jest": true,
+    "node": true
+  },
+  "rules": {
+    "camelcase": 0,
+    "no-mixed-operators": 0,
+    "no-unused-vars": ["error", { "vars": "all", "args": "after-used", "ignoreRestSiblings": false }],
+    "no-new": 0,
+    "react/jsx-indent": 0,
+    "react/jsx-indent-props": 0,
+    "react/jsx-no-bind": 0
+  }
+}

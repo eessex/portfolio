@@ -1,16 +1,10 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as itemActions from '../../actions/item'
-import { imageIsVertical } from '../../utils/index.js'
 import { DatesModal } from '../dates/dates_modal.jsx'
-import { EditNav } from '../forms/edit_nav.jsx'
 import { EmbedModal } from '../embeds/embed_modal.jsx'
 import { FormatsModal } from '../formats/formats_modal.jsx'
 import { ImagesEdit } from '../images/images_edit.jsx'
-import { LayoutColumn } from '../layout/column.jsx'
-import { LayoutGrid } from '../layout/grid.jsx'
 import { LinksModal } from '../links/links_modal.jsx'
 import { VenueModal } from '../venue/venue_modal.jsx'
 
@@ -30,20 +24,8 @@ export class ItemEditModals extends Component {
   }
 
   render() {
-    const { isEditing, onChange, setEditing } = this.props
-    const { item, isSaved, isSaving } = this.props.item
-    const {
-      deleteItem,
-      fetchUpload,
-      loading,
-      updateItem
-    } = this.props
-
-    const images = item.images || []
-    const links = item.links || []
-    const embed_codes = item.embed_codes || []
-    const venue = item.venue || {}
-    const formats = item.formats || []
+    const { fetchUpload, isEditing, onChange, setEditing } = this.props
+    const { item } = this.props.item
 
     return (
       <div className='ItemEditModals'>
@@ -58,7 +40,7 @@ export class ItemEditModals extends Component {
 
         {isEditing === 'embeds' &&
           <EmbedModal
-            embed_codes={embed_codes}
+            embed_codes={item.embed_codes || []}
             onChange={(value) => onChange('embed_codes', value)}
             setEditing={setEditing}
           />
@@ -76,7 +58,7 @@ export class ItemEditModals extends Component {
         {isEditing === 'formats' &&
           <FormatsModal
             label='Formats'
-            formats={formats}
+            formats={item.formats || []}
             onChange={onChange}
             setEditing={setEditing}
           />
@@ -84,7 +66,7 @@ export class ItemEditModals extends Component {
 
         {isEditing === 'links' &&
           <LinksModal
-            links={item.links}
+            links={item.links || []}
             onChange={(value) => onChange('links', value)}
             setEditing={setEditing}
           />
@@ -92,7 +74,7 @@ export class ItemEditModals extends Component {
 
         {isEditing === 'venue' &&
           <VenueModal
-            venue={venue}
+            venue={item.venue || {}}
             onChange={(value) => onChange('venue', value)}
             setEditing={setEditing}
           />
@@ -103,15 +85,11 @@ export class ItemEditModals extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  item: state.item,
-  user: state.user
+  item: state.item
 })
 
 const mapDispatchToProps = {
-  changeItem: itemActions.changeItem,
-  fetchUpload: itemActions.fetchUpload,
-  updateItem: itemActions.updateItem,
-  deleteItem: itemActions.deleteItem
+  fetchUpload: itemActions.fetchUpload
 }
 
 export default connect(

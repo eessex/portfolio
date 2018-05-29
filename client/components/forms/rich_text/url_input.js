@@ -1,11 +1,7 @@
 import React, { Component } from 'react'
 
 export default class UrlInput extends Component {
-  constructor(props) {
-    super(props)
-  }
-
-  onSubmit = (e) => {
+  onSubmit = e => {
     e.preventDefault()
   	this.props.confirmLink(this.refs.url.value)
   }

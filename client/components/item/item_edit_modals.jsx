@@ -1,14 +1,27 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import * as itemActions from '../../actions/item'
-import { DatesModal } from '../dates/dates_modal.jsx'
-import { EmbedModal } from '../embeds/embed_modal.jsx'
-import { FormatsModal } from '../formats/formats_modal.jsx'
-import { ImagesEdit } from '../images/images_edit.jsx'
-import { LinksModal } from '../links/links_modal.jsx'
-import { VenueModal } from '../venue/venue_modal.jsx'
+import { DatesModal } from '../dates/dates_modal'
+import { EmbedModal } from '../embeds/embed_modal'
+import { FormatsModal } from '../formats/formats_modal'
+import { ImagesEdit } from '../images/images_edit'
+import { LinksModal } from '../links/links_modal'
+import { VenueModal } from '../venue/venue_modal'
 
 export class ItemEditModals extends Component {
+  static propTypes = {
+    fetchUpload: PropTypes.func,
+    item: {
+      item: PropTypes.object,
+      isSaved: PropTypes.bool,
+      isSaving: PropTypes.bool
+    },
+    onChange: PropTypes.func,
+    setEditing: PropTypes.func,
+    isEditing: PropTypes.bool
+  }
+
   getDateProps = () => {
     const {
       all_day,
@@ -23,7 +36,7 @@ export class ItemEditModals extends Component {
     }
   }
 
-  render() {
+  render () {
     const { fetchUpload, isEditing, onChange, setEditing } = this.props
     const { item } = this.props.item
 

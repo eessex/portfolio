@@ -9,6 +9,18 @@ import { LayoutGrid } from '../layout/grid.jsx'
 import ItemEditModals from './item_edit_modals'
 
 export class ItemEdit extends Component {
+  static propTypes = {
+    changeItem: PropTypes.func,
+    deleteItem: PropTypes.func,
+    item: {
+      item: PropTypes.object,
+      isSaved: PropTypes.bool,
+      isSaving: PropTypes.bool
+    },
+    maybeSaveItem: PropTypes.func,
+    model: PropTypes.string
+  }
+
   state = {
     isEditing: null
   }
@@ -24,7 +36,7 @@ export class ItemEdit extends Component {
     this.setState({ isEditing })
   }
 
-  render() {
+  render () {
     const { isEditing } = this.state
     const { deleteItem, model, maybeSaveItem } = this.props
     const { item, isSaved, isSaving } = this.props.item
@@ -34,7 +46,7 @@ export class ItemEdit extends Component {
 
     return (
       <div className='ItemEdit'>
-        <EditNav 
+        <EditNav
           deleteItem={() => deleteItem(model, item)}
           isSaved={isSaved}
           isSaving={isSaving}
@@ -46,18 +58,21 @@ export class ItemEdit extends Component {
         />
 
         {isGrid || model === 'publications'
-          ? <LayoutGrid
+          ? (
+            <LayoutGrid
               {...this.props}
               item={item}
               onChange={this.onChange}
               setEditing={this.setEditing}
             />
-          : <LayoutColumn
+          ) : (
+            <LayoutColumn
               {...this.props}
               item={item}
               onChange={this.onChange}
               setEditing={this.setEditing}
             />
+          )
         }
 
         <ItemEditModals

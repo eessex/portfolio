@@ -1,12 +1,11 @@
 import { clone } from 'lodash'
 import PropTypes from 'prop-types'
-import React, { Component } from 'react'
+import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { Description } from './components/description.jsx'
 import { ItemHeader } from './components/header.jsx'
 import { Label } from './components/label.jsx'
 import { EmbedList } from '../embeds/embed_list.jsx'
-import { ImageShow } from '../image/image_show.jsx'
 import { LinksList } from '../links/links_list.jsx'
 
 export const LayoutColumn = (props) => {
@@ -55,7 +54,7 @@ export const LayoutColumn = (props) => {
         className='LayoutColumn__item'
         xs={12}
         sm={6}
-      > 
+      >
         {item &&
           <div>
             <ItemHeader
@@ -69,17 +68,15 @@ export const LayoutColumn = (props) => {
 
             <Description
               description={item.description}
-              onChange={onChange ? onChange : undefined}
+              onChange={onChange && onChange}
             />
 
             {links &&
-              <LinksList links={links}/>
+              <LinksList links={links} />
             }
 
             {embed_codes &&
-              <EmbedList
-                embed_codes={embed_codes}
-              />
+              <EmbedList embed_codes={embed_codes} />
             }
           </div>
         }
@@ -90,8 +87,13 @@ export const LayoutColumn = (props) => {
 }
 
 LayoutColumn.propTypes = {
+  children: PropTypes.any,
   className: PropTypes.string,
+  item: PropTypes.object,
   layout: PropTypes.string,
   label: PropTypes.string,
-  labelLink: PropTypes.bool
+  labelLink: PropTypes.bool,
+  model: PropTypes.string,
+  onChange: PropTypes.func,
+  setEditing: PropTypes.string
 }

@@ -4,8 +4,8 @@ import { Provider } from 'react-redux'
 import React from 'react'
 import { Item } from '../index'
 import { ItemEdit } from '../item_edit'
-import { LayoutColumn } from '../../layout/column.jsx'
-import { LayoutGrid } from '../../layout/grid.jsx'
+import { LayoutColumn } from '../../layout/column'
+import { LayoutGrid } from '../../layout/grid'
 
 describe('Item', () => {
   const getWrapper = props => {
@@ -17,10 +17,10 @@ describe('Item', () => {
   const getConnectedWrapper = props => {
     const mockStore = configureStore([])
     const store = mockStore({
-      item:{
+      item: {
         item: props.item,
         isSaved: true,
-        isSaving: false,
+        isSaving: false
       }
     })
 

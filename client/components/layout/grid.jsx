@@ -1,13 +1,11 @@
 import PropTypes from 'prop-types'
-import React, { Component } from 'react'
+import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { imageIsVertical } from '../../utils/index.js'
 import { Description } from './components/description.jsx'
 import { ItemHeader } from './components/header.jsx'
 import { EmbedList } from '../embeds/embed_list.jsx'
 import { ImagesShow } from '../images/images_show.jsx'
 import { LinksList } from '../links/links_list.jsx'
-import { LayoutColumn } from './column.jsx'
 
 export const LayoutGrid = (props) => {
   const {
@@ -27,7 +25,6 @@ export const LayoutGrid = (props) => {
   } = item
 
   const images = item.images || []
-  const isGrid = images.length > 0 && imageIsVertical(images[0])
   const gridCoverImage = images.length > 0 ? images[0] : undefined
 
   return (
@@ -58,16 +55,16 @@ export const LayoutGrid = (props) => {
           label={label}
           labelLink={labelLink}
           model={model}
-          setEditing={setEditing ? setEditing : undefined}
-          onChange={onChange ? onChange : undefined}
+          setEditing={setEditing}
+          onChange={onChange}
         />
 
         <Description
           description={description}
-          onChange={onChange ? onChange : undefined}
+          onChange={onChange}
         />
 
-        <LinksList links={item.links || [] }/>
+        <LinksList links={item.links || []} />
 
       </Col>
     </Row>
@@ -76,9 +73,10 @@ export const LayoutGrid = (props) => {
 
 LayoutGrid.propTypes = {
   className: PropTypes.string,
+  item: PropTypes.object,
   layout: PropTypes.string,
   label: PropTypes.string,
-  media: PropTypes.any,
+  labelLink: PropTypes.string,
   model: PropTypes.string,
   onChange: PropTypes.func,
   setEditing: PropTypes.func

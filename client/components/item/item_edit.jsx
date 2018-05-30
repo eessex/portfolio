@@ -12,11 +12,11 @@ export class ItemEdit extends Component {
   static propTypes = {
     changeItem: PropTypes.func,
     deleteItem: PropTypes.func,
-    item: {
+    item: PropTypes.shape({
       item: PropTypes.object,
       isSaved: PropTypes.bool,
       isSaving: PropTypes.bool
-    },
+    }),
     maybeSaveItem: PropTypes.func,
     model: PropTypes.string
   }
@@ -42,7 +42,8 @@ export class ItemEdit extends Component {
     const { item, isSaved, isSaving } = this.props.item
 
     const images = item.images || []
-    const isGrid = images.length > 0 && imageIsVertical(images[0]) || images.length && model === 'publications'
+    const isPublication = model === 'publications'
+    const isGrid = images.length > 0 && (imageIsVertical(images[0]) || isPublication)
 
     return (
       <div className='ItemEdit'>
@@ -57,7 +58,7 @@ export class ItemEdit extends Component {
           saveItem={() => maybeSaveItem(model, true)}
         />
 
-        {isGrid || model === 'publications'
+        {isGrid || (model === 'publications' && images.length)
           ? (
             <LayoutGrid
               {...this.props}

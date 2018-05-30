@@ -12,14 +12,14 @@ import { VenueModal } from '../venue/venue_modal'
 export class ItemEditModals extends Component {
   static propTypes = {
     fetchUpload: PropTypes.func,
-    item: {
+    isEditing: PropTypes.string,
+    item: PropTypes.shape({
       item: PropTypes.object,
       isSaved: PropTypes.bool,
       isSaving: PropTypes.bool
-    },
+    }),
     onChange: PropTypes.func,
-    setEditing: PropTypes.func,
-    isEditing: PropTypes.bool
+    setEditing: PropTypes.func
   }
 
   getDateProps = () => {
@@ -46,7 +46,6 @@ export class ItemEditModals extends Component {
           <DatesModal
             {...this.getDateProps()}
             onChange={onChange}
-            hasEndDate={!this.state.hasEndDate}
             setEditing={setEditing}
           />
         }

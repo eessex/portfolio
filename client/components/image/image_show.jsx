@@ -36,7 +36,5 @@ const Caption = styled.div`
 
 ImageShow.propTypes = {
   caption: PropTypes.string,
-  aspect: PropTypes.number,
   url: PropTypes.string
 }
-

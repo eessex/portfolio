@@ -37,7 +37,7 @@ export class LinkEdit extends Component {
 
     if (link.url.length) {
       onChange(link)
-      this.setState({ 
+      this.setState({
         link: {
           title: '',
           url: ''
@@ -69,16 +69,19 @@ export class LinkEdit extends Component {
         </Col>
         <Col sm={1}>
           {(index || index === 0)
-            ? <Button
+            ? (
+              <Button
                 borderless
                 icon='ban'
                 onClick={() => onDelete(index)}
               />
-            : <Button
+            ) : (
+              <Button
                 className='new'
                 text='save'
                 onClick={this.onNew}
               />
+            )
           }
         </Col>
       </Row>

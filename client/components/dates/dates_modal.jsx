@@ -3,7 +3,7 @@ import React from 'react'
 import { ModalContainer } from '../modal/modal_container.jsx'
 import { DatesEdit } from './dates_edit.jsx'
 
-export const DatesModal = (props) => {
+export const DatesModal = props => {
   const {
     all_day,
     end_date,

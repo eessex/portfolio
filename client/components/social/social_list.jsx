@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 import { capitalize } from 'lodash'
@@ -29,7 +30,7 @@ export class Social extends Component {
     }
   }
 
-  render() {
+  render () {
     const { social } = this.props  
 
     return (
@@ -38,4 +39,8 @@ export class Social extends Component {
       </div>
     )
   }
+}
+
+Social.propTypes = {
+  social: PropTypes.array
 }

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
-import React, { Component } from 'react'
+import React from 'react'
 
-export const ModalBackground = (props) => {
+export const ModalBackground = props => {
   const { backgroundColor, onClick } = props
 
   return (

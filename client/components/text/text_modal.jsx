@@ -3,7 +3,7 @@ import React from 'react'
 import { ModalContainer } from '../modal/modal_container.jsx'
 import { PlainText } from '../forms/rich_text/plain_text.jsx'
 
-export const TextModal = (props) => {
+export const TextModal = props => {
   const {
     className,
     label,
@@ -19,15 +19,12 @@ export const TextModal = (props) => {
       onClick={() => setEditing(null)}
     >
       {label &&
-        <label>
-          {label}
-        </label>
+        <label>{label}</label>
       }
-
       <PlainText
         content={text}
         placeholder={placeholder}
-        className={`EditText ${className ? className : ''}`}
+        className={`EditText ${className || ''}`}
         onChange={(value) => onChange(value)}
       />
 

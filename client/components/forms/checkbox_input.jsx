@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import styled from 'styled-components'
 
-export const CheckboxInput = (props) => {
+export const CheckboxInput = props => {
   const {
     className,
     label,

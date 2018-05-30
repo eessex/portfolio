@@ -3,11 +3,11 @@ import React from 'react'
 import { ModalContainer } from '../modal/modal_container.jsx'
 import { LinksEdit } from './links_edit.jsx'
 
-export const LinksModal = (props) => {
+export const LinksModal = props => {
   const {
     onChange,
     setEditing,
-    links,
+    links
   } = props
 
   return (
@@ -15,14 +15,17 @@ export const LinksModal = (props) => {
       className='LinksModal'
       onClick={() => setEditing(null)}
     >
-      <label>
-        Links:
-      </label>
-
+      <label>Links</label>
       <LinksEdit
         links={links || []}
         onChange={onChange}
       />
     </ModalContainer>
   )
+}
+
+LinksModal.propTypes = {
+  links: PropTypes.array,
+  onChange: PropTypes.func,
+  setEditing: PropTypes.func
 }

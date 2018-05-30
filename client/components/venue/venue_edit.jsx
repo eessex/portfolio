@@ -1,11 +1,23 @@
 import styled from 'styled-components'
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { clone } from 'lodash'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { SelectInput } from '../forms/select_input.js'
 
 export class VenueEdit extends Component {
-  constructor(props) {
+  static propTypes = {
+    onChange: PropTypes.func,
+    venue: PropTypes.shape({
+      address: PropTypes.string,
+      city: PropTypes.string,
+      country: PropTypes.string,
+      name: PropTypes.string,
+      state: PropTypes.string
+    })
+  }
+
+  constructor (props) {
     super(props)
     const { venue } = this.props
 
@@ -29,7 +41,7 @@ export class VenueEdit extends Component {
     onChange(venue)
   }
 
-  render() {
+  render () {
     const {
       address,
       city,
@@ -44,7 +56,7 @@ export class VenueEdit extends Component {
           <Col xs={12} sm={6}>
             <input
               placeholder='Venue Name'
-              value={name ? name : ''}
+              value={name || ''}
               onChange={(e) => this.onChange('name', e.target.value)}
               autoFocus
             />
@@ -53,7 +65,7 @@ export class VenueEdit extends Component {
           <Col xs={12} sm={6}>
             <input
               placeholder='Address'
-              value={address ? address : ''}
+              value={address || ''}
               onChange={(e) => this.onChange('address', e.target.value)}
             />
           </Col>
@@ -63,14 +75,14 @@ export class VenueEdit extends Component {
           <Col xs={12} sm={4}>
             <input
               placeholder='City'
-              value={city ? city : ''}
+              value={city || ''}
               onChange={(e) => this.onChange('city', e.target.value)}
             />
           </Col>
 
           <Col xs={12} sm={2}>
             <SelectInput
-              value={state ? state : 0}
+              value={state || 0}
               states
               onChange={(key, value) => this.onChange('state', value)}
             />
@@ -79,7 +91,7 @@ export class VenueEdit extends Component {
           <Col xs={12} sm={6}>
             <input
               placeholder='Country'
-              value={country ? country : ''}
+              value={country || ''}
               onChange={(e) => this.onChange('country', e.target.value)}
             />
           </Col>

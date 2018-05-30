@@ -20,7 +20,7 @@ export class ItemsList extends Component {
       return (
         <Row className='ItemsList__header h4'>
           <Col xs={12}>
-            {label}
+            {renderedLabel}
             {canToggle && this.renderLayoutToggle()}
           </Col>
         </Row>
@@ -63,7 +63,7 @@ export class ItemsList extends Component {
 
   renderList = (items) => {
     const { layout } = this.state
-    const { canToggle, label, model } = this.props
+    const { canToggle, label } = this.props
 
     switch (layout) {
       case 'table':
@@ -150,12 +150,12 @@ export class ItemsList extends Component {
     } = this.props
 
     const { layout } = this.state
-    const listItems = children ? children : this.renderListItems()
+    const listItems = children || this.renderListItems()
     const layoutClass = layout ? ' ' + layout : ''
     const classModelName = 'ItemsList--' + model + layoutClass
     const hasLabel = label && layout !== 'grid' || layout === 'grid' && canToggle
 
-    return(
+    return (
       <div
         className={`ItemsList ${classModelName} ${className || ''}`}
         data-toggle={canToggle}
@@ -173,6 +173,8 @@ export class ItemsList extends Component {
 
 ItemsList.propTypes = {
   canToggle: PropTypes.bool,
+  children: PropTypes.any,
+  className: PropTypes.string,
   comingSoon: PropTypes.bool,
   label: PropTypes.string,
   layout: PropTypes.string,

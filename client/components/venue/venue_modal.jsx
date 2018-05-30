@@ -3,11 +3,11 @@ import React from 'react'
 import { ModalContainer } from '../modal/modal_container.jsx'
 import { VenueEdit } from './venue_edit.jsx'
 
-export const VenueModal = (props) => {
+export const VenueModal = props => {
   const {
     onChange,
     setEditing,
-    venue,
+    venue
   } = props
 
   return (
@@ -15,14 +15,23 @@ export const VenueModal = (props) => {
       className='VenueModal'
       onClick={() => setEditing(null)}
     >
-      <label>
-        Venue:
-      </label>
-
+      <label>Venue</label>
       <VenueEdit
         venue={venue || {}}
         onChange={onChange}
       />
     </ModalContainer>
   )
+}
+
+VenueModal.propTypes = {
+  onChange: PropTypes.func,
+  setEditing: PropTypes.func,
+  venue: PropTypes.shape({
+    address: PropTypes.string,
+    city: PropTypes.string,
+    country: PropTypes.string,
+    name: PropTypes.string,
+    state: PropTypes.string
+  })
 }

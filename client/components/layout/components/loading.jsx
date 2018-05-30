@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import React from 'react'
 import FontAwesome from 'react-fontawesome'
 
-export const Loading = (props) => {
+export const Loading = () => {
   return (
     <LoadingContainer>
       <FontAwesome

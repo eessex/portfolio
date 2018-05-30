@@ -23,13 +23,13 @@ var PublicationSchema = new Schema({
     {
       caption: { type: String },
       url: { type: String },
-      aspect: { type: Number },
+      aspect: { type: Number }
     }
   ],
   links: [
     {
       title: { type: String },
-      url: { type: String },
+      url: { type: String }
     }
   ]
 })

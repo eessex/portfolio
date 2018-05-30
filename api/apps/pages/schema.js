@@ -5,15 +5,15 @@ var PageSchema = new Schema({
   title: String,
   description: String,
   slug: String,
-  images: Array, default: [],
+  images: { type: Array, default: [] },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
   published: { type: Boolean, default: false }
 })
 
 PageSchema.pre('save', next => {
-  now = new Date()
-  if(!this.created_at) {
+  const now = new Date()
+  if (!this.created_at) {
     this.created_at = now
   }
   this.updated_at = now

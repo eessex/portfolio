@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Route } from 'react-router-dom'
 import {
-  Error,
   Event,
   Events,
   Pages,
@@ -12,9 +11,7 @@ import {
   Settings,
   User
 } from './apps'
-import { ComingSoon } from './components/coming_soon.jsx'
 import Header from './components/header/header.jsx'
-
 
 export default class Routes extends Component {
   render () {
@@ -41,5 +38,5 @@ export default class Routes extends Component {
         </main>
       </div>
     )
-  } 
+  }
 }

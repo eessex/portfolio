@@ -1,7 +1,7 @@
 const path = require('path')
-const htmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const webpack = require('webpack')
+require('webpack')
 
 module.exports = {
   entry: ['babel-polyfill', './client/index.js'],
@@ -51,7 +51,7 @@ module.exports = {
     ]
   },
   plugins: [
-    new htmlWebpackPlugin({
+    new HtmlWebpackPlugin({
       filename: './dist/index.html',
       title: 'Eve Essex',
       template: './client/index.html'

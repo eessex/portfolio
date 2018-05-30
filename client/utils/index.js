@@ -1,7 +1,7 @@
 import moment from 'moment'
 import { pluck, uniq } from 'underscore'
 
-export function sortByDate(items, dateField) {
+export const sortByDate = (items, dateField) => {
   let upcoming = []
   let past = []
 
@@ -25,11 +25,11 @@ export function sortByDate(items, dateField) {
   }
 }
 
-export function imageIsVertical (image) {
+export const imageIsVertical = image => {
   return image.aspect && image.aspect < 1.1
 }
 
-export function formatEventDates (item, format) {
+export const formatEventDates = (item, format) => {
   const { end_date, start_date, all_day } = item
   let formattedStart
   let formattedEnd
@@ -43,7 +43,7 @@ export function formatEventDates (item, format) {
       if (!all_day) {
         // Nov 1, 2017 - 8:00-10:00pm
         formattedEnd = formatEventDate(end_date, false, !isUpcoming, format)
-        const startTime =  moment(start_date).format(` - h:mma`)
+        const startTime = moment(start_date).format(` - h:mma`)
         return formattedEnd + startTime
       } else {
         // Nov 1, 2017
@@ -65,8 +65,7 @@ export function formatEventDates (item, format) {
   }
 }
 
-export function formatEventDate (date, allDay, hasYear, format) {
-  let formattedDate
+export const formatEventDate = (date, allDay, hasYear) => {
   const getYear = hasYear ? ', YYYY' : ''
 
   if (allDay) {
@@ -76,20 +75,20 @@ export function formatEventDate (date, allDay, hasYear, format) {
   }
 }
 
-export function dateIsUpcoming (date) {
+export const dateIsUpcoming = date => {
   const now = moment().toISOString()
   return date > now
 }
 
-export function datesMatch (date1, date2) {
+export const datesMatch = (date1, date2) => {
   return moment(date1).format('MMM DD, YYYY') === moment(date2).format('MMM DD, YYYY')
 }
 
-export function yearsMatch (date1, date2) {
+export const yearsMatch = (date1, date2) => {
   return moment(date1).format('YYYY') === moment(date2).format('YYYY')
 }
 
-export function getDate (model, item, format) {
+export const getDate = (model, item, format) => {
   switch (model) {
     case 'events':
       return formatEventDates(item, format)
@@ -97,25 +96,24 @@ export function getDate (model, item, format) {
     case 'releases':
       return getReleaseDate(item)
     default:
-      return
+      return null
   }
 }
 
-export function getReleaseDate (item) {
+export const getReleaseDate = item => {
   const { formats } = item
   let dates = uniq(pluck(formats, 'release_year'))
-  const dateLength = dates.length
 
-  if (dateLength) {
-    if (dateLength > 1) {
-      return dates[0].toString() + '-' + dates[dateLength - 1].toString().slice(-2)
+  if (dates.length) {
+    if (dates.length > 1) {
+      return dates[0].toString() + '-' + dates[dates.length - 1].toString().slice(-2)
     } else {
       return dates[0].toString()
     }
   }
 }
 
-export function getVenue (venue) {
+export const getVenue = venue => {
   const { address, city, country, name } = venue || {}
 
   if (venue) {
@@ -124,7 +122,6 @@ export function getVenue (venue) {
 
     if (venue && name.length) {
       return name + City + Country
-
     } else if (venue && address && address.length) {
       return address + City + Country
     }

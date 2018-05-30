@@ -8,7 +8,7 @@ var ExhibitionSchema = new Schema({
     address: { type: String, default: '' },
     city: { type: String, default: '' },
     state: { type: String, default: '' },
-    country: { type: String, default: '' },
+    country: { type: String, default: '' }
   },
   start_date: { type: Date, default: Date.now },
   end_date: { type: Date, default: Date.now },
@@ -26,7 +26,7 @@ var ExhibitionSchema = new Schema({
   links: [
     {
       title: { type: String },
-      url: { type: String },
+      url: { type: String }
     }
   ]
 })

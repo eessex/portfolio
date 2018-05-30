@@ -7,6 +7,7 @@ import { loadState } from '../utils/local_storage.js'
 
 const middleware = [
   thunk,
+  logMiddleware,
   apiMiddleware
 ]
 

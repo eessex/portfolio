@@ -6,30 +6,31 @@ var logger = require('morgan')
 require('dotenv').load()
 
 var app = express()
+let port
+let db
 
 if (process.env.NODE_ENV === 'test') {
-  var port = 5000
-  var db = 'portfolio_test'
-  console.log('starting tests')
+  port = 5000
+  db = 'portfolio_test'
 } else {
-  var port = process.env.PORT || 3000
-  var db = process.env.MONGODB_URI
+  port = process.env.PORT || 3000
+  db = process.env.MONGODB_URI
   app.use(logger('dev'))
 }
 
 mongoose.connect(db)
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(function(req, res, next) {
-    if (req.header('x-forwarded-proto') !== 'https')
+  app.use(function (req, res, next) {
+    if (req.header('x-forwarded-proto') !== 'https') {
       res.redirect(`https://${req.header('host')}${req.url}`)
-    else
+    } else {
       next()
+    }
   })
 }
 
-
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next()
 })
 
@@ -42,7 +43,7 @@ app.use('/dist', publicPath)
 app.use('/api', require('./api/apps'))
 app.use('*', require('./client/middleware'))
 
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   console.error(err)
   next(err)
 })

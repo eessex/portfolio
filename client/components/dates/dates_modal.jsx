@@ -9,13 +9,13 @@ export const DatesModal = (props) => {
     end_date,
     onChange,
     setEditing,
-    start_date,
+    start_date
   } = props
 
   const dateProps = {
     all_day,
     end_date,
-    start_date,
+    start_date
   }
 
   return (
@@ -29,4 +29,12 @@ export const DatesModal = (props) => {
       />
     </ModalContainer>
   )
+}
+
+DatesModal.propTypes = {
+  all_day: PropTypes.bool,
+  end_date: PropTypes.string,
+  onChange: PropTypes.func,
+  setEditing: PropTypes.func,
+  start_date: PropTypes.bool
 }

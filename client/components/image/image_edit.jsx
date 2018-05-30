@@ -2,7 +2,6 @@ import styled from 'styled-components'
 import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { Col, Row } from 'react-styled-flexboxgrid'
 import { FileInput } from '../forms/file_input/index.jsx'
 import { ImageShow } from './image_show.jsx'
 import { RichText } from '../forms/rich_text/index.jsx'
@@ -14,12 +13,13 @@ export class ImageEdit extends Component {
     editCaption: PropTypes.bool,
     fetchUpload: PropTypes.func,
     onChange: PropTypes.func.isRequired,
+    onDelete: PropTypes.func,
     index: PropTypes.number,
     item: PropTypes.object,
     showInput: PropTypes.bool
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
 
     const {
@@ -37,15 +37,15 @@ export class ImageEdit extends Component {
     }
   }
 
-  onChangeImage = (image) => {
-    const { index, item, onChange } = this.props
+  onChangeImage = item => {
+    const { index, onChange } = this.props
 
-    this.setState({ item: image })
-    onChange(image, index)
+    this.setState({ item: item })
+    onChange(item, index)
   }
 
   onChangeText = caption => {
-    const { index, item, onChange } = this.props
+    const { index, item } = this.props
     let newImage = clone(item)
 
     newImage.caption = caption
@@ -54,7 +54,7 @@ export class ImageEdit extends Component {
 
   onDeleteImage = () => {
     const { index, onChange, onDelete } = this.props
-  
+
     if (onDelete) {
       onDelete(index)
     } else {
@@ -68,14 +68,12 @@ export class ImageEdit extends Component {
       editCaption,
       index,
       fetchUpload,
-      onDelete,
       showInput
     } = this.props
 
     const { item } = this.state
 
     const {
-      aspect,
       caption,
       url
     } = item
@@ -83,20 +81,26 @@ export class ImageEdit extends Component {
     return (
       <div className={`ImageEdit ${className ? className : ''}`}>
         {showInput
-          ? <FileInput
+          ? (
+            <FileInput
               hasPreview={index !== -1}
               fetchUpload={fetchUpload}
               onChange={(image) => this.onChangeImage(image, index)}
               onDelete={() => this.onDeleteImage()}
               file={item}
             />
-          : <ImageContainer>
+          ) : (
+            <ImageContainer>
               <Button
                 icon='times'
                 onClick={this.onDeleteImage}
               />
-              <ImageShow url={url} />
+              <ImageShow
+                url={url}
+                caption={!editCaption ? caption : ''}
+              />
             </ImageContainer>
+          )
         }
 
         {editCaption &&
@@ -107,12 +111,10 @@ export class ImageEdit extends Component {
             placeholder='Image Caption'
           />
         }
-
       </div>
     )
   }
 }
-
 
 const ImageContainer = styled.div`
   position: relative;

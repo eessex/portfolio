@@ -1,11 +1,9 @@
 import PropTypes from 'prop-types'
-import React, { Component } from 'react'
-import { Col, Row } from 'react-styled-flexboxgrid'
+import React from 'react'
 import { imageIsVertical } from '../../utils/index.js'
-import { EditNav } from '../forms/edit_nav.jsx'
-import { LayoutColumn } from '../layout/column.jsx'
-import { LayoutGrid } from '../layout/grid.jsx'
-import EditItem from './edit_item.jsx'
+import { LayoutColumn } from '../layout/column'
+import { LayoutGrid } from '../layout/grid'
+import ItemEdit from './item_edit'
 
 export const Item = props => {
   const {
@@ -21,7 +19,7 @@ export const Item = props => {
   return (
     <div className={`Item Item--${model}`}>
       {editing
-        ? <EditItem {...props} />
+        ? <ItemEdit {...props} />
         : isGrid
           ? <LayoutGrid {...props} />
           : <LayoutColumn {...props} />
@@ -32,9 +30,10 @@ export const Item = props => {
 
 Item.propTypes = {
   className: PropTypes.string,
+  editing: PropTypes.bool,
   item: PropTypes.object,
   label: PropTypes.string,
   labelLink: PropTypes.bool,
   layout: PropTypes.string,
-  model: PropTypes.string,
+  model: PropTypes.string
 }

@@ -1,21 +1,33 @@
-import React, { Component } from 'react';
+import PropTypes from 'prop-types'
+import React, { Component } from 'react'
 
 class TextInput extends Component {
-  constructor(props) {
-    super(props);
-
-    this.onKeyUp = this.onKeyUp.bind(this);
+  static propTypes = {
+    index: PropTypes.number,
+    label: PropTypes.string,
+    maxLength: PropTypes.number,
+    name: PropTypes.string,
+    onChange: PropTypes.func,
+    placeholder: PropTypes.string,
+    required: PropTypes.bool,
+    size: PropTypes.any,
+    textarea: PropTypes.bool,
+    value: PropTypes.string
   }
 
-  onKeyUp(e) {
-    if (this.props.index || this.props.index === 0) {
-      this.props.onChange(this.props.name, e.target.value, this.props.index)
+  onKeyUp = (e) => {
+    const { index, name, onChange } = this.props
+
+    if (index || index === 0) {
+      onChange(name, e.target.value, index)
     } else {
-      this.props.onChange(this.props.name, e.target.value)
+      onChange(name, e.target.value)
     }
   }
 
-  renderLabel(label) {
+  renderLabel = () => {
+    const { label } = this.props
+
     if (label && label.length > 0) {
       return <label>{label}</label>
     } else if (label) {
@@ -23,7 +35,7 @@ class TextInput extends Component {
     }
   }
 
-  renderPlaceholder(name) {
+  renderPlaceholder (name) {
     if (this.props.placeholder) {
       name = this.props.placeholder
     } else {
@@ -32,7 +44,7 @@ class TextInput extends Component {
     return name
   }
 
-  renderInput() {
+  renderInput = () => {
     const { name, value, required, textarea, maxLength, size } = this.props
     if (textarea) {
       return (
@@ -43,7 +55,8 @@ class TextInput extends Component {
           size={size}
           maxLength={maxLength}
           defaultValue={value}
-          onKeyUp={this.onKeyUp} />
+          onKeyUp={this.onKeyUp}
+        />
       )
     } else {
       return (
@@ -54,12 +67,13 @@ class TextInput extends Component {
           size={size}
           maxLength={maxLength}
           defaultValue={value}
-          onKeyUp={this.onKeyUp} />
+          onKeyUp={this.onKeyUp}
+        />
       )
     }
   }
 
-  render() {
+  render () {
     const { required, label } = this.props
 
     var group = label ? ' input-group' : ''
@@ -67,11 +81,11 @@ class TextInput extends Component {
 
     return (
       <div className={'input--text' + req + group}>
-        {this.renderLabel(label)}
+        {this.renderLabel()}
         {this.renderInput()}
       </div>
     );
   }
 }
 
-export default TextInput;
+export default TextInput

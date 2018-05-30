@@ -76,7 +76,7 @@ LayoutGrid.propTypes = {
   item: PropTypes.object,
   layout: PropTypes.string,
   label: PropTypes.string,
-  labelLink: PropTypes.string,
+  labelLink: PropTypes.any,
   model: PropTypes.string,
   onChange: PropTypes.func,
   setEditing: PropTypes.func

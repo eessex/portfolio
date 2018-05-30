@@ -1,7 +1,17 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import moment from 'moment'
 
 export class DateInput extends Component {
+  static propTypes = {
+    autoFocus: PropTypes.bool,
+    allDay: PropTypes.bool,
+    label: PropTypes.string,
+    required: PropTypes.bool,
+    onChange: PropTypes.func,
+    value: PropTypes.any
+  }
+
   onKeyUp = () => {
     const { onChange } = this.props
     const { date, time } = this.refs
@@ -13,7 +23,7 @@ export class DateInput extends Component {
     onChange(formattedDate)
   }
 
-  render() {
+  render () {
     const {
       autoFocus,
       allDay,
@@ -30,7 +40,6 @@ export class DateInput extends Component {
         {label &&
           <label>{label}</label>
         }
-
         <input
           type='date'
           ref='date'
@@ -39,7 +48,6 @@ export class DateInput extends Component {
           onKeyUp={this.onKeyUp}
           autoFocus={autoFocus}
         />
-
         {!allDay &&
           <input
             type='time'
@@ -48,7 +56,6 @@ export class DateInput extends Component {
             onKeyUp={this.onKeyUp}
           />
         }
-
       </div>
     )
   }

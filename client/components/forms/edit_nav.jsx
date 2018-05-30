@@ -9,7 +9,6 @@ export const EditNav = (props) => {
     isSaved,
     isSaving,
     item,
-    model,
     onPublish,
     saveItem,
     setEditing
@@ -66,7 +65,6 @@ EditNav.propTypes = {
   isSaved: PropTypes.bool,
   isSaving: PropTypes.bool,
   item: PropTypes.object,
-  model: PropTypes.string,
   onPublish: PropTypes.func,
   saveItem: PropTypes.func,
   setEditing: PropTypes.func

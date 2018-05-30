@@ -1,14 +1,10 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { ModalContainer } from '../modal/modal_container.jsx'
-import { FormatsEdit } from'./formats_edit.jsx'
+import { FormatsEdit } from './formats_edit.jsx'
 
 export const FormatsModal = (props) => {
-  const {
-    formats,
-    onChange,
-    setEditing
-  } = props
+  const { setEditing } = props
 
   return (
     <ModalContainer
@@ -24,7 +20,5 @@ export const FormatsModal = (props) => {
 }
 
 FormatsModal.propTypes = {
-  formats: PropTypes.array.isRequired,
-  onChange: PropTypes.func.isRequired,
   setEditing: PropTypes.func.isRequired
 }

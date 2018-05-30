@@ -2,13 +2,13 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { clone } from 'lodash'
-import { getDate } from '../../../utils/index'
-import { ImageShow } from '../../image/image_show'
-import { ImageEdit } from '../../image/image_edit'
-import { ShowFormats } from '../../formats/show_formats'
-import { Text } from '../../text/text'
-import { Venue } from '../../venue/venue'
-import { Label } from './label'
+import { getDate } from '../../../utils/index.js'
+import { ImageShow } from '../../image/image_show.jsx'
+import { ImageEdit } from '../../image/image_edit.jsx'
+import { ShowFormats } from '../../formats/show_formats.jsx'
+import { Text } from '../../text/text.jsx'
+import { Venue } from '../../venue/venue.jsx'
+import { Label } from './label.jsx'
 
 export const ItemHeader = (props) => {
   const {
@@ -98,7 +98,7 @@ ItemHeader.propTypes = {
   event: PropTypes.object,
   item: PropTypes.object,
   label: PropTypes.string,
-  labelLink: PropTypes.string,
+  labelLink: PropTypes.any,
   model: PropTypes.string,
   onChange: PropTypes.func,
   setEditing: PropTypes.func

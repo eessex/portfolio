@@ -1,24 +1,37 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as itemActions from '../../actions/item'
 import { Item } from '../../components/item/index.jsx'
 import { Loading } from '../../components/layout/components/loading.jsx'
 
 class Event extends Component {
+  static propTypes = {
+    fetchItem: PropTypes.func,
+    item: PropTypes.shape({
+      item: PropTypes.object,
+      loading: PropTypes.bool
+    }),
+    match: PropTypes.any,
+    resetItem: PropTypes.func,
+    user: PropTypes.shape({
+      isAuthenticated: PropTypes.bool
+    })
+  }
+
   componentWillMount = () => {
-    const { fetchItem } = this.props.actions
-    const { id } = this.props.match.params
+    const { fetchItem, match } = this.props
+    const { id } = match.params
 
     fetchItem('events', id)
   }
 
   componentWillUnmount = () => {
-    const { resetItem } = this.props.actions
+    const { resetItem } = this.props
     resetItem()
   }
 
-  render() {
+  render () {
     const { user } = this.props
     const { isAuthenticated } = user
     const { item, loading } = this.props.item
@@ -27,13 +40,15 @@ class Event extends Component {
       <div className='Event'>
         {loading
           ? <Loading />
-          : <Item
+          : (
+            <Item
               item={item}
               label='Event'
               labelLink
               model='events'
               editing={isAuthenticated}
             />
+          )
         }
       </div>
     )
@@ -45,9 +60,10 @@ const mapStateToProps = (state) => ({
   user: state.user
 })
 
-const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(itemActions, dispatch)
-})
+const mapDispatchToProps = {
+  fetchItem: itemActions.fetchItem,
+  resetItem: itemActions.resetItem
+}
 
 export default connect(
   mapStateToProps,

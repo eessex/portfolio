@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import * as itemActions from '../../actions/item'
+import * as itemActions from '../../actions/item.js'
 import { imageIsVertical } from '../../utils/index.js'
 import { EditNav } from '../forms/edit_nav.jsx'
 import { LayoutColumn } from '../layout/column.jsx'
 import { LayoutGrid } from '../layout/grid.jsx'
-import ItemEditModals from './item_edit_modals'
+import ItemEditModals from './item_edit_modals.jsx'
 
 export class ItemEdit extends Component {
   static propTypes = {

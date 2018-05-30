@@ -1,6 +1,6 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { ImageShow } from '../image_show'
+import { ImageShow } from '../image_show.jsx'
 
 describe('ImageShow', () => {
   const getWrapper = props => {

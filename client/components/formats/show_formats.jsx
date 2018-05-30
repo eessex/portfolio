@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import React, { Component } from 'react'
+import React from 'react'
 import { ShowFormat } from './show_format.jsx'
 
 export const ShowFormats = (props) => {
@@ -20,5 +20,6 @@ export const ShowFormats = (props) => {
 
 ShowFormats.propTypes = {
   items: PropTypes.array,
+  onClick: PropTypes.func,
   short: PropTypes.bool
 }

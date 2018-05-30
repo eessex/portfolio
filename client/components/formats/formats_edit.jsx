@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { Col, Row } from 'react-styled-flexboxgrid'
 import { Button } from '../forms/buttons/button.jsx'
 import { FormatEdit } from './format_edit.jsx'
 

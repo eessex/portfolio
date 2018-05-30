@@ -1,30 +1,39 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import axios from 'axios'
 
-class FileInput extends Component {
-  constructor(props) {
-    super(props)
-    this.fetchSignature = this.fetchSignature.bind(this)
-    this.onChange = this.onChange.bind(this)
+export class FileInput extends Component {
+  static propTypes = {
+    accept: PropTypes.array,
+    fetchUpload: PropTypes.func,
+    label: PropTypes.string,
+    name: PropTypes.string,
+    onChange: PropTypes.func
   }
 
-  uploadFile(data, signature, onChange) {
-    axios.put(signature.signedRequest, data, { headers: {
+  uploadFile = (data, signature, onChange) => {
+    axios.put(
+      signature.signedRequest,
+      data,
+      {
+        headers: {
           'Content-Type': data.type
         }
-      })
+      }
+    )
       .then(res =>
         onChange(res, signature.url)
       ).catch(error =>
         console.log(error)
       ).bind(this)
   }
-  onChange(res, url) {
-    this.props.onChange(this.props.name, url)
+  onChange = (res, url) => {
+    const { name, onChange } = this.props
+    onChange(name, url)
   }
 
-  fetchSignature(e) {
-    this.props.actions.fetchUpload(
+  fetchSignature = (e) => {
+    this.props.fetchUpload(
       e.target.files[0],
       e.target.value,
       this.uploadFile,
@@ -32,7 +41,9 @@ class FileInput extends Component {
     )
   }
 
-  renderLabel(label) {
+  renderLabel = () => {
+    const { label } = this.props
+
     if (label) {
       return (
         <label>
@@ -42,12 +53,13 @@ class FileInput extends Component {
     }
   }
 
-  render() {
-    const { name, value, label, accept } = this.props
+  render () {
+    const { label, accept } = this.props
     const group = label ? ' input-group' : ''
+
     return (
       <div className={'input--file' + group}>
-        {this.renderLabel(label)}
+        {this.renderLabel()}
         <input
           ref='file'
           type='file'
@@ -57,5 +69,3 @@ class FileInput extends Component {
     )
   }
 }
-
-export default FileInput

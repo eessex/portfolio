@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { imageIsVertical } from '../../utils/index.js'
-import { LayoutColumn } from '../layout/column'
-import { LayoutGrid } from '../layout/grid'
-import ItemEdit from './item_edit'
+import { LayoutColumn } from '../layout/column.jsx'
+import { LayoutGrid } from '../layout/grid.jsx'
+import ItemEdit from './item_edit.jsx'
 
 export const Item = props => {
   const {

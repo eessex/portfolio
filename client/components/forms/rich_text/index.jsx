@@ -1,27 +1,30 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import ReactDOM from 'react-dom'
-import Draft, {
+import {
   Editor,
   EditorState,
   Entity,
-  ContentState,
   RichUtils
-} from 'draft-js';
+} from 'draft-js'
 import { convertFromHTML, convertToHTML } from 'draft-convert'
-import {
-  decorator,
-  findLinkEntities,
-  Link
-} from './util'
-import UrlInput from './url_input'
+import { decorator } from './util.js'
+import UrlInput from './url_input.jsx'
 
 export class RichText extends Component {
-  constructor(props) {
+  static propTypes = {
+    className: PropTypes.string,
+    html: PropTypes.string,
+    name: PropTypes.string,
+    onChange: PropTypes.func,
+    placeholder: PropTypes.string
+  }
+
+  constructor (props) {
     super(props)
 
     this.state = {
       editorState: EditorState.createEmpty(decorator),
-      html: this.props.html || null,
+      html: props.html || null,
       showUrlInput: false,
       showMenu: false,
       urlValue: ''
@@ -40,7 +43,7 @@ export class RichText extends Component {
     }
   }
 
-  inputToHtml = (editorState) => {
+  inputToHtml = editorState => {
     const html = convertToHTML({
       entityToHTML: (entity, originalText) => {
         if (entity.type === 'LINK') {
@@ -57,7 +60,7 @@ export class RichText extends Component {
     return html
   }
 
-  inputFromHTML = (html) => {
+  inputFromHTML = html => {
     const blocksFromHTML = convertFromHTML({
       htmlToEntity: (nodeName, node) => {
         if (nodeName === 'a') {
@@ -76,7 +79,6 @@ export class RichText extends Component {
   onChange = (editorState) => {
     const currentContentState = this.state.editorState.getCurrentContent()
     const newContentState = editorState.getCurrentContent()
-    let newContent = newContentState.getPlainText()
     const html = this.inputToHtml(editorState)
 
     if (currentContentState !== newContentState) {
@@ -100,7 +102,10 @@ export class RichText extends Component {
   }
 
   handleKeyCommand = (command) => {
-    const newState = RichUtils.handleKeyCommand(this.state.editorState, command)
+    const newState = RichUtils.handleKeyCommand(
+      this.state.editorState,
+      command
+    )
 
     if (newState) {
       this.onChange(newState)
@@ -134,13 +139,13 @@ export class RichText extends Component {
   }
 
   confirmLink = (url) => {
-    const {editorState, urlValue} = this.state;
-    const contentState = editorState.getCurrentContent();
+    const { editorState } = this.state
+    const contentState = editorState.getCurrentContent()
     const contentStateWithEntity = contentState.createEntity(
       'LINK',
       'MUTABLE',
       { url }
-    );
+    )
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
     const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity });
 
@@ -151,10 +156,10 @@ export class RichText extends Component {
         entityKey
       ),
       showUrlInput: false,
-      urlValue: '',
+      urlValue: ''
     }, () => {
       setTimeout(() => this.refs.editor.focus(), 0)
-    });
+    })
   }
 
   renderLinkInput () {
@@ -191,7 +196,7 @@ export class RichText extends Component {
     const { editorState } = this.state
 
     return (
-      <div className={'rich-text ' + className}>
+      <div className={'rich-text ' + (className || '')}>
         {this.renderMenu()}
         {this.renderLinkInput()}
 
@@ -204,7 +209,8 @@ export class RichText extends Component {
             placeholder={placeholder}
             editorState={editorState}
             handleKeyCommand={this.handleKeyCommand}
-            onChange={this.onChange} />
+            onChange={this.onChange}
+          />
         </div>
       </div>
     )

@@ -11,7 +11,7 @@ export const CheckboxInput = (props) => {
   } = props
 
   return (
-    <CheckboxInputContainer className={`CheckboxInput ${className ? className : ''}`}>
+    <CheckboxInputContainer className={`CheckboxInput ${className || ''}`}>
       <input
         type='checkbox'
         defaultChecked={value}

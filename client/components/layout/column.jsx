@@ -92,8 +92,8 @@ LayoutColumn.propTypes = {
   item: PropTypes.object,
   layout: PropTypes.string,
   label: PropTypes.string,
-  labelLink: PropTypes.bool,
+  labelLink: PropTypes.any,
   model: PropTypes.string,
   onChange: PropTypes.func,
-  setEditing: PropTypes.string
+  setEditing: PropTypes.func
 }

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 
 const States = [
@@ -8,16 +9,27 @@ const States = [
 ]
 
 export class SelectInput extends Component {
+  static propTypes = {
+    label: PropTypes.string,
+    name: PropTypes.string,
+    onChange: PropTypes.func,
+    options: PropTypes.array,
+    required: PropTypes.bool,
+    states: PropTypes.bool,
+    value: PropTypes.any
+  }
 
-  renderLabel(label) {
+  renderLabel = () => {
+    const { label, name } = this.props
+
     if (label && label.length > 0) {
       return <label>{label}</label>
     } else if (label) {
-      return <label>{this.props.name}</label>
+      return <label>{name}</label>
     }
   }
 
-  renderOptions(options) {
+  renderOptions = options => {
     if (this.props.states) { options = States }
 
     const renderOptions = options.map((value, i) =>
@@ -26,7 +38,7 @@ export class SelectInput extends Component {
     return renderOptions
   }
 
-  renderInput() {
+  renderInput () {
     const { name, value, required, options, onChange } = this.props
 
     return (
@@ -40,7 +52,7 @@ export class SelectInput extends Component {
     )
   }
 
-  render() {
+  render () {
     const { required, label } = this.props
 
     var group = label ? ' input-group' : ''
@@ -48,7 +60,7 @@ export class SelectInput extends Component {
 
     return (
       <div className={'input--select' + req + group}>
-        {this.renderLabel(label)}
+        {this.renderLabel()}
         {this.renderInput()}
       </div>
     )

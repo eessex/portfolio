@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import * as itemActions from '../../actions/item'
-import { DatesModal } from '../dates/dates_modal'
-import { EmbedModal } from '../embeds/embed_modal'
-import { FormatsModal } from '../formats/formats_modal'
-import { ImagesEdit } from '../images/images_edit'
-import { LinksModal } from '../links/links_modal'
-import { VenueModal } from '../venue/venue_modal'
+import * as itemActions from '../../actions/item.js'
+import { DatesModal } from '../dates/dates_modal.jsx'
+import { EmbedModal } from '../embeds/embed_modal.jsx'
+import { FormatsModal } from '../formats/formats_modal.jsx'
+import { ImagesEdit } from '../images/images_edit.jsx'
+import { LinksModal } from '../links/links_modal.jsx'
+import { VenueModal } from '../venue/venue_modal.jsx'
 
 export class ItemEditModals extends Component {
   static propTypes = {

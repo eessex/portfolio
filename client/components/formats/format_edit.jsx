@@ -2,16 +2,15 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { SelectInput } from '../forms/select_input.js'
-import { PlainText } from '../forms/rich_text/plain_text.jsx'
 import { CheckboxInput } from '../forms/checkbox_input.jsx'
 
 export class FormatEdit extends Component {
   static propTypes = {
     index: PropTypes.number,
-    item: PropTypes.object,
+    item: PropTypes.object
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
     const {
       compilation,
@@ -46,7 +45,7 @@ export class FormatEdit extends Component {
     const { index, onChange } = this.props
     const { item } = this.state
 
-    onChange(this.state.item, index)
+    onChange(item, index)
   }
 
   render () {

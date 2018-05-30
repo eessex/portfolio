@@ -1,14 +1,12 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import {
-  ContentState,
-  Editor,
-  EditorState
-} from 'draft-js'
+import { ContentState, Editor, EditorState } from 'draft-js'
 
 export class PlainText extends Component {
-  state = { editorState: this.setEditorState() }
- 
+  state = {
+    editorState: this.setEditorState()
+  }
+
   setEditorState () {
     if (this.props.content) {
       return this.setStateWithContent()
@@ -22,7 +20,7 @@ export class PlainText extends Component {
     return EditorState.createWithContent(content)
   }
 
-  onChange = (editorState) => {
+  onChange = editorState => {
     const { forceUpdate } = this.props
     const currentContentState = this.state.editorState.getCurrentContent()
     const newContentState = editorState.getCurrentContent()
@@ -36,8 +34,8 @@ export class PlainText extends Component {
     forceUpdate && this.setEditorState()
   }
 
-  onContentChange = (content) => {
-    const { name, forceUpdate, onChange } = this.props
+  onContentChange = content => {
+    const { name, onChange } = this.props
 
     if (name) {
       onChange(name, content)
@@ -77,6 +75,7 @@ export class PlainText extends Component {
 }
 
 PlainText.propTypes = {
+  className: PropTypes.string,
   content: PropTypes.string,
   forceUpdate: PropTypes.bool,
   name: PropTypes.string,

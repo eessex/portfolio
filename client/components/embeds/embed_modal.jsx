@@ -28,3 +28,9 @@ export const EmbedModal = (props) => {
     </ModalContainer>
   )
 }
+
+EmbedModal.propTypes = {
+  embed_codes: PropTypes.array,
+  onChange: PropTypes.func,
+  setEditing: PropTypes.func
+}

@@ -1,10 +1,9 @@
 import PropTypes from 'prop-types'
-import React, { Component } from 'react'
+import React from 'react'
 
 export const ShowFormat = (props) => {
   const { item, short, onClick } = props
   const {
-    compilation,
     format,
     publisher,
     release_year

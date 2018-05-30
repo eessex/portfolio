@@ -1,9 +1,17 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { CheckboxInput } from '../forms/checkbox_input.jsx'
 import { DateInput } from '../forms/date_input.jsx'
 
 export class DatesEdit extends Component {
+  static propTypes = {
+    all_day: PropTypes.bool,
+    end_date: PropTypes.string,
+    onChange: PropTypes.func,
+    start_date: PropTypes.string
+  }
+
   state = {
     allDay: this.props.all_day ? true : false,
     hasEndDate: this.props.end_date ? true : false,
@@ -27,7 +35,7 @@ export class DatesEdit extends Component {
     this.setState({ hasEndDate: !hasEndDate })
   }
 
-  render() {
+  render () {
     const {
       all_day,
       end_date,
@@ -41,13 +49,12 @@ export class DatesEdit extends Component {
 
     return (
       <div className='DatesEdit'>
-
         <Row className='DatesEdit__dates'>
           <Col>
             <DateInput
               label='Start Date'
-              value={start_date || new Date}
-              required={true}
+              value={start_date || new Date()}
+              required
               allDay={all_day}
               onChange={(date) => onChange('start_date', date)}
               autoFocus
@@ -82,9 +89,7 @@ export class DatesEdit extends Component {
             onChange={() => onChange('all_day', !all_day)}
           />
         </div>
-
       </div>
     )
   }
 }
-

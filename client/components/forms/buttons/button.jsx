@@ -12,12 +12,11 @@ export const Button = props => {
     onClick,
     text
   } = props
-  const formatClassName = icon ? ` IconButton` : ``
-  const child = text ? text : children
+  const child = text || children
 
   return (
     <button
-      className={`Button${icon ? ` IconButton` : ''}${className ? ` className` : ''}`}
+      className={`Button${icon ? ` IconButton` : ''}${className ? ` ${className}` : ''}`}
       onClick={onClick}
       style={{
         borderWidth: borderless ? '0' : '1px',

@@ -1,14 +1,8 @@
 import React, { Component } from 'react'
-import TextInput from '../../components/forms/text_input.js'
+import { TextInput } from '../../components/forms/text_input.js'
 
 class Login extends Component {
-  constructor(props) {
-    super(props)
-
-    this.onSubmit = this.onSubmit.bind(this)
-  }
-
-  componentDidMount() {
+  componentDidMount () {
     if (this.props.isAuthenticated) {
       window.location.replace('/')
     }
@@ -20,36 +14,37 @@ class Login extends Component {
   //   }
   // }
 
-  onSubmit(e) {
-  	var creds = {
-  		email: this.refs.email.value,
-  		password: this.refs.password.value
-  	}
-  	this.props.actions.loginUser(creds)
+  onSubmit = () => {
+    var creds = {
+      email: this.refs.email.value,
+      password: this.refs.password.value
+    }
+    this.props.actions.loginUser(creds)
   }
 
-  renderError() {
+  renderError = () => {
     if (this.props.error) {
       return <div>{this.props.error}</div>
     }
   }
 
-  render() {
+  render () {
     return (
       <div className='user--login'>
         <h1>Log In</h1>
         {this.renderError()}
         <form onSubmit={this.onSubmit}>
-        <input
-          ref='email'
-          placeholder='email'
-          required />
-        <input
-          ref='password'
-          placeholder='password'
-          type='password'
-          required />
-        <button onClick={this.onSubmit}>Submit</button>
+          <input
+            ref='email'
+            placeholder='email'
+            required />
+          <input
+            ref='password'
+            placeholder='password'
+            type='password'
+            required
+          />
+          <button onClick={this.onSubmit}>Submit</button>
         </form>
       </div>
     )

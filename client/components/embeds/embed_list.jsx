@@ -30,7 +30,7 @@ export class EmbedList extends Component {
     onChange(newEmbeds)
   }
 
-  render() {
+  render () {
     const {
       className,
       editing,

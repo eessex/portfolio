@@ -3,10 +3,10 @@ import configureStore from 'redux-mock-store'
 import { Provider } from 'react-redux'
 import React from 'react'
 import { EditNav } from '../../forms/edit_nav.jsx'
-import { ItemEdit } from '../item_edit'
-import { ItemEditModals } from '../item_edit_modals'
-import { LayoutColumn } from '../../layout/column'
-import { LayoutGrid } from '../../layout/grid'
+import { ItemEdit } from '../item_edit.jsx'
+import { ItemEditModals } from '../item_edit_modals.jsx'
+import { LayoutColumn } from '../../layout/column.jsx'
+import { LayoutGrid } from '../../layout/grid.jsx'
 
 describe('ItemEdit', () => {
   const getWrapper = props => {

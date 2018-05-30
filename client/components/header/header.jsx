@@ -2,9 +2,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import Waypoint from 'react-waypoint'
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 import { capitalize } from 'underscore.string'
-import * as Actions from '../../actions/user'
 
 export class Header extends Component {
   static propTypes = {
@@ -31,7 +29,7 @@ export class Header extends Component {
     const offset = window.pageYOffset
     let scrollDir = null
 
-    if (offset != scrollPosition) {
+    if (offset !== scrollPosition) {
       if (offset < scrollPosition) {
         scrollDir = 'up'
       }
@@ -74,11 +72,11 @@ export class Header extends Component {
         data-fixed={isFixed}
       >
         <h1>
-          <a href="/">{title}</a>
+          <a href='/'>{title}</a>
         </h1>
 
         <nav className='Header__nav'>
-          {nav && nav.map((navItem, i) =>
+          {hasMenuItems && nav.map((navItem, i) =>
             <a
               className='Header__nav-item'
               href={`/${navItem}`}
@@ -93,8 +91,7 @@ export class Header extends Component {
     )
   }
 
-  render() {
-    const { nav } = this.props.settings.settings
+  render () {
     const { navOpen, scrollDir } = this.state
 
     return (
@@ -117,11 +114,6 @@ const mapStateToProps = (state) => ({
   ...state
 })
 
-const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(Actions, dispatch)
-})
-
 export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+  mapStateToProps
 )(Header)

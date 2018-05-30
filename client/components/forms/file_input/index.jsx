@@ -1,7 +1,7 @@
 import axios from 'axios'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { Button } from'../buttons/button.jsx'
+import { Button } from '../buttons/button.jsx'
 
 export class FileInput extends Component {
   static propTypes = {
@@ -10,6 +10,7 @@ export class FileInput extends Component {
     hasPreview: PropTypes.bool,
     label: PropTypes.string,
     onChange: PropTypes.func.isRequired,
+    onDelete: PropTypes.func,
     file: PropTypes.object
   }
 
@@ -24,17 +25,20 @@ export class FileInput extends Component {
     }
   }
 
-  uploadFile = (data, signature ) => {
-    const { file, onChange } = this.props
+  uploadFile = (data, signature) => {
+    const { onChange } = this.props
     const { signedRequest, url } = signature
 
-    axios.put(signedRequest, data, {
-      headers: {
+    axios.put(
+      signedRequest,
+      data,
+      {
+        headers: {
           'Content-Type': data.type
         }
       }
     )
-      .then(res => {
+      .then(() => {
         const img = new Image()
         img.src = url
         img.onload = () => {
@@ -52,11 +56,11 @@ export class FileInput extends Component {
       ).bind(this)
   }
 
-  toggleDragOver = (isDragOver) => {
+  toggleDragOver = isDragOver => {
     this.setState({ isDragOver })
   }
 
-  fetchSignature = (e) => {
+  fetchSignature = e => {
     const { fetchUpload } = this.props
     const { files, file } = e.target
 
@@ -68,11 +72,12 @@ export class FileInput extends Component {
     this.setState({ loading: true })
   }
 
-  renderPreview = (file) => {
+  renderPreview = file => {
     if (file && file.url) {
       if (file.url.includes('mp4')) {
-        return <video src={file.url} />
-
+        return (
+          <video src={file.url} />
+        )
       } else {
         return (
           <div className='FileInput__preview-img'>
@@ -88,7 +93,7 @@ export class FileInput extends Component {
   }
 
   render () {
-    const { accept, file, hasPreview, index, label } = this.props
+    const { accept, file, hasPreview, label } = this.props
     const { isDragOver } = this.state
 
     return (
@@ -101,9 +106,9 @@ export class FileInput extends Component {
           data-drag-over={isDragOver}
           onDragEnter={() => this.toggleDragOver(true)}
           onDragLeave={() => this.toggleDragOver(false)}
-          ref={div => {this.fileContainer = div}}
+          ref={div => (this.fileContainer = div)}
           style={{
-            opacity: hasPreview && file.url ? 1 : .7,
+            opacity: hasPreview && file.url ? 1 : 0.7,
             borderWidth: hasPreview && file.url ? 0 : '1px'
           }}
         >

@@ -1,5 +1,5 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { Social } from '../../../components/social/social_list.jsx'
 import AdminSocial from './admin_social.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
@@ -10,12 +10,18 @@ import { ImageEdit } from '../../../components/image/image_edit.jsx'
 import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 
 export class AboutEdit extends Component {
+  static propTypes = {
+    actions: PropTypes.object,
+    settings: PropTypes.object,
+    saving: PropTypes.bool
+  }
+
   constructor (props) {
     super(props)
 
     this.state = {
       isSaved: true,
-      settings: this.props.settings
+      settings: props.settings
     }
   }
 
@@ -71,8 +77,8 @@ export class AboutEdit extends Component {
     )
   }
 
-  render() {
-    const { actions, saving, isAuthenticated } = this.props
+  render () {
+    const { actions, saving } = this.props
     const { isSaved, isEditing, settings } = this.state
     const cover_image = settings.about.images[0]
     const embed_codes = settings.about.embed_codes || []
@@ -81,7 +87,7 @@ export class AboutEdit extends Component {
       <div
         className='AboutEdit'
       >
-        <EditNav 
+        <EditNav
           isSaved={isSaved}
           isSaving={saving}
           item={settings.about}

@@ -2,10 +2,10 @@ import styled from 'styled-components'
 import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { FileInput } from '../forms/file_input/index.jsx'
-import { ImageShow } from './image_show.jsx'
-import { RichText } from '../forms/rich_text/index.jsx'
 import { Button } from '../forms/buttons/button.jsx'
+import { FileInput } from '../forms/file_input/index.jsx'
+import { Image } from './image.jsx'
+import { RichText } from '../forms/rich_text/index.jsx'
 
 export class ImageEdit extends Component {
   static propTypes = {
@@ -62,6 +62,19 @@ export class ImageEdit extends Component {
     }
   }
 
+  editCaption = () => {
+    const { caption } = this.state.item
+
+    return (
+      <RichText
+        onChange={this.onChangeText}
+        html={caption}
+        className='p'
+        placeholder='Image Caption'
+      />
+    )
+  }
+
   render () {
     const {
       className,
@@ -79,7 +92,7 @@ export class ImageEdit extends Component {
     } = item
 
     return (
-      <div className={`ImageEdit ${className ? className : ''}`}>
+      <div className={className || ''}>
         {showInput
           ? (
             <FileInput
@@ -95,21 +108,13 @@ export class ImageEdit extends Component {
                 icon='times'
                 onClick={this.onDeleteImage}
               />
-              <ImageShow
+              <Image
                 url={url}
-                caption={!editCaption ? caption : ''}
+                caption={!editCaption && caption || ''}
+                editCaption={editCaption && this.editCaption()}
               />
             </ImageContainer>
           )
-        }
-
-        {editCaption &&
-          <RichText
-            onChange={this.onChangeText}
-            html={caption}
-            className='h5'
-            placeholder='Image Caption'
-          />
         }
       </div>
     )

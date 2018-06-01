@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { clone } from 'lodash'
 import { getDate } from '../../../utils/index.js'
-import { ImageShow } from '../../image/image_show.jsx'
+import { Image } from '../../image/image.jsx'
 import { ImageEdit } from '../../image/image_edit.jsx'
 import { ShowFormats } from '../../formats/show_formats.jsx'
 import { Text } from '../../text/text.jsx'
@@ -86,7 +86,7 @@ export const ItemHeader = (props) => {
             editCaption
           />
         ) : hasImage && (
-          <ImageShow {...coverImage} />
+          <Image {...coverImage} />
         )
       }
     </ItemHeaderContainer>

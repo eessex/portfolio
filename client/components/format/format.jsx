@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 
-export const ShowFormat = props => {
+export const Format = props => {
   const { item, short, onClick } = props
   const {
     format,
@@ -16,7 +16,6 @@ export const ShowFormat = props => {
 
   return (
     <FormatContainer
-      className='ShowFormat'
       onClick={onClick && onClick}
       short={short}
     >
@@ -34,7 +33,7 @@ const FormatContainer = styled.div`
   `}
 `
 
-ShowFormat.propTypes = {
+Format.propTypes = {
   item: PropTypes.object,
   short: PropTypes.bool,
   onClick: PropTypes.func

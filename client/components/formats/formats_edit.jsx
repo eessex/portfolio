@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Button } from '../forms/buttons/button.jsx'
-import { FormatEdit } from './format_edit.jsx'
+import { FormatEdit } from '../format/format_edit.jsx'
 
 export class FormatsEdit extends Component {
   static propTypes = {
@@ -10,7 +10,7 @@ export class FormatsEdit extends Component {
   }
 
   state = {
-    showNewForm: this.props.formats.length === 0 ? true : false
+    showNewForm: this.props.formats.length === true
   }
 
   onChangeFormat = (item, index) => {

@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { ShowFormats } from '../../formats/show_formats.jsx'
+import { Formats } from '../../formats/formats.jsx'
 
 export const ItemTable = (props) => {
-  const { artist, date, formats, title, venue, publisher } = props
+  const { artist, date, formats, title, venue } = props
 
   return (
     <Row className='Item ItemTable'>
@@ -27,7 +27,7 @@ export const ItemTable = (props) => {
       {formats && formats.length &&
         <Col xs={12} lg={3} className='Item__formats'>
           <h4>
-            <ShowFormats items={formats} short />
+            <Formats items={formats} short />
           </h4>
         </Col>
       }
@@ -40,6 +40,5 @@ ItemTable.propTypes = {
   date: PropTypes.string,
   formats: PropTypes.array,
   title: PropTypes.string,
-  venue: PropTypes.string,
-  publisher: PropTypes.string
+  venue: PropTypes.string
 }

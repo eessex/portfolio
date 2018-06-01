@@ -5,7 +5,7 @@ import { clone } from 'lodash'
 import { getDate } from '../../../utils/index.js'
 import { Image } from '../../image/image.jsx'
 import { ImageEdit } from '../../image/image_edit.jsx'
-import { ShowFormats } from '../../formats/show_formats.jsx'
+import { Formats } from '../../formats/formats.jsx'
 import { Text } from '../../text/text.jsx'
 import { Venue } from '../../venue/venue.jsx'
 import { Label } from './label.jsx'
@@ -62,7 +62,7 @@ export const ItemHeader = (props) => {
         </h4>
       }
       {formats &&
-        <ShowFormats
+        <Formats
           items={formats}
           onClick={setEditing ? () => setEditing('formats') : undefined}
         />

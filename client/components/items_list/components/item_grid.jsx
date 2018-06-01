@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { ShowFormats } from '../../formats/show_formats.jsx'
+import { Formats } from '../../formats/formats.jsx'
 
-export const ItemGrid = (props) => {
+export const ItemGrid = props => {
   const {
     artist,
     date,
@@ -15,11 +15,11 @@ export const ItemGrid = (props) => {
   const hasImage = image && image.url.length
   const titleClass = hasImage ? ' h3' : ' h1'
 
-  return(
+  return (
     <div className='Item ItemGrid'>
       {hasImage &&
         <img
-          className='Item__img' 
+          className='Item__img'
           src={image.url}
           width='100%' />
       }
@@ -40,7 +40,7 @@ export const ItemGrid = (props) => {
         }
         {formats && formats.length &&
           <h5 className='Item__formats'>
-            <ShowFormats items={formats} />
+            <Formats items={formats} />
           </h5>
         }
         {description &&
@@ -54,8 +54,10 @@ export const ItemGrid = (props) => {
 }
 
 ItemGrid.propTypes = {
+  artist: PropTypes.string,
   date: PropTypes.string,
   description: PropTypes.string,
+  formats: PropTypes.array,
   image: PropTypes.object,
   title: PropTypes.string,
   venue: PropTypes.string

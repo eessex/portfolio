@@ -1,29 +1,28 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { ShowFormat } from './show_format.jsx'
+import { Format } from '../format/format.jsx'
 
-export const ShowFormats = props => {
+export const Formats = props => {
   const { items, short, onClick } = props
 
   return (
-    <ShowFormatsContainer
-      className='ShowFormats'
+    <FormatsContainer
       condensed={short}
       onClick={onClick && onClick}
     >
       {items.map((item, index) =>
-        <ShowFormat
+        <Format
           key={index}
           item={item}
           short={short}
         />
       )}
-    </ShowFormatsContainer>
+    </FormatsContainer>
   )
 }
 
-const ShowFormatsContainer = styled.div`
+const FormatsContainer = styled.div`
   ${props => props.condensed && `
     display: flex;
     div:first-child {
@@ -32,7 +31,7 @@ const ShowFormatsContainer = styled.div`
   `}
 `
 
-ShowFormats.propTypes = {
+Formats.propTypes = {
   items: PropTypes.array,
   onClick: PropTypes.func,
   short: PropTypes.bool

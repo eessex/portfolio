@@ -8,6 +8,7 @@ var SettingsSchema = new Schema({
     embed_codes: { type: Array, default: [] },
     description: String,
     social: {
+      bandcamp: String,
       twitter: String,
       instagram: String,
       facebook: String,

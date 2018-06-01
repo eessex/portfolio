@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import AdminSocial from './admin_social.jsx'
 import { EditNav } from '../../../components/forms/edit_nav.jsx'
-import { RichText } from '../../../components/forms/rich_text/index.jsx'
-import { LayoutColumn } from '../../../components/layout/column.jsx'
+import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
 import { ImageEdit } from '../../../components/image/image_edit.jsx'
-import { EmbedList } from '../../../components/embeds/embed_list.jsx'
+import { LayoutColumn } from '../../../components/layout/column.jsx'
+import { RichText } from '../../../components/forms/rich_text/index.jsx'
+import { SocialEdit } from '../../../components/social/social_edit.jsx'
 
 export class AboutEdit extends Component {
   static propTypes = {
@@ -120,7 +120,7 @@ export class AboutEdit extends Component {
           />
 
           <div className='about__social'>
-            <AdminSocial social={settings.about.social} onChange={this.onChange} />
+            <SocialEdit social={settings.about.social} onChange={this.onChange} />
           </div>
 
           <EmbedList

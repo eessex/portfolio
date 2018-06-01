@@ -1,11 +1,20 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as itemActions from '../../actions/item'
 import { Item } from '../../components/item/index.jsx'
 import { Loading } from '../../components/layout/components/loading.jsx'
 
 class Publication extends Component {
+  static propTypes = {
+    fetchItem: PropTypes.func,
+    item: PropTypes.object,
+    isAuthenticated: PropTypes.bool,
+    loading: PropTypes.bool,
+    match: PropTypes.object,
+    resetItem: PropTypes.func
+  }
+
   componentWillMount = () => {
     const {
       fetchItem,
@@ -19,28 +28,30 @@ class Publication extends Component {
     this.props.resetItem()
   }
 
-  render() {
+  render () {
     const {
       match: { path },
-      item: { item, loading },
-      user
+      item,
+      isAuthenticated,
+      loading
     } = this.props
 
     const model = path.split('/')[1]
     const label = model === 'publications' ? 'Publications' : 'Releases'
-    const editing = user ? user.isAuthenticated : false
 
     return (
       <div className='Publication'>
         {loading
           ? <Loading />
-          : <Item
+          : (
+            <Item
               item={item}
               label={label}
               labelLink
               model='publications'
-              editing={editing}
+              editing={isAuthenticated}
             />
+          )
         }
       </div>
     )
@@ -48,8 +59,9 @@ class Publication extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  item: state.item,
-  user: state.user
+  item: state.item.item,
+  loading: state.item.loading,
+  isAuthenticated: state.user.isAuthenticated
 })
 
 const mapDispatchToProps = {

@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { RichText } from '../../forms/rich_text/index.jsx'
@@ -10,25 +11,23 @@ export const Description = props => {
   } = props
 
   return (
-    <div className='Description p'>
+    <DescriptionContainer className='Description p'>
       {onChange
         ? (
           <RichText
             html={description}
             placeholder={placeholder || 'Start typing...'}
-            className='Description__edit'
             onChange={(value) => onChange('description', value)}
           />
-        ) : (
-          <div
-            className='Description__show'
-            dangerouslySetInnerHTML={{__html: description}}
-          />
-        )
+        ) : <div dangerouslySetInnerHTML={{__html: description}} />
       }
-    </div>
+    </DescriptionContainer>
   )
 }
+
+export const DescriptionContainer = styled.div`
+  margin-bottom: 1em;
+`
 
 Description.propTypes = {
   description: PropTypes.string,

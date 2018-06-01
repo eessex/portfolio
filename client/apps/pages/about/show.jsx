@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { EmbedList } from '../../../components/embeds/embed_list.jsx'
@@ -24,9 +25,9 @@ export const AboutShow = props => {
         dangerouslySetInnerHTML={{__html: about.description}}
       />
 
-      <div className='about__social'>
+      <SocialContainer>
         <Social social={about.social} />
-      </div>
+      </SocialContainer>
 
       {embed_codes &&
         <EmbedList embed_codes={embed_codes} />
@@ -35,6 +36,11 @@ export const AboutShow = props => {
     </LayoutColumn>
   )
 }
+
+export const SocialContainer = styled.div`
+  font-size: 90%;
+  padding: 1em 0 4em;
+`
 
 AboutShow.propTypes = {
   settings: PropTypes.object

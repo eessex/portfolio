@@ -8,6 +8,7 @@ import { ImageEdit } from '../../../components/image/image_edit.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
 import { SocialEdit } from '../../../components/social/social_edit.jsx'
+import { SocialContainer } from './show.jsx'
 
 export class AboutEdit extends Component {
   static propTypes = {
@@ -103,7 +104,6 @@ export class AboutEdit extends Component {
         >
           {cover_image &&
             <ImageEdit
-              className='AboutEdit__cover-image'
               fetchUpload={actions.fetchUpload}
               index={0}
               item={cover_image}
@@ -119,9 +119,9 @@ export class AboutEdit extends Component {
             className='p'
           />
 
-          <div className='about__social'>
+          <SocialContainer>
             <SocialEdit social={settings.about.social} onChange={this.onChange} />
-          </div>
+          </SocialContainer>
 
           <EmbedList
             embed_codes={embed_codes.length > 0 ? embed_codes : undefined}

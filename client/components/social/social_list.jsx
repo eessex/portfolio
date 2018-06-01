@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
@@ -7,15 +8,14 @@ export class Social extends Component {
   renderSocial = (social, service, i) => {
     if (social[service]) {
       return (
-        <div key={i}>
-          <a
-            target='_blank'
-            href={'https://' + service + '.com/' + social[service]}
-          >
-            <FontAwesome name={service} />
-            {capitalize(service)}
-          </a>
-        </div>
+        <a
+          target='_blank'
+          href={'https://' + service + '.com/' + social[service]}
+          key={i}
+        >
+          <FontAwesome name={service} />
+          {capitalize(service)}
+        </a>
       )
     }
   }
@@ -34,12 +34,24 @@ export class Social extends Component {
     const { social } = this.props
 
     return (
-      <div className='social-links'>
+      <SocialContainer>
         {this.renderSocialList(social)}
-      </div>
+      </SocialContainer>
     )
   }
 }
+
+export const SocialContainer = styled.div`
+  display: flex;
+  a {
+    margin-right: 1em;
+    text-decoration: none;
+    color: black;
+  }
+  .fa {
+    margin-right: 5px;
+  }
+`
 
 Social.propTypes = {
   social: PropTypes.array

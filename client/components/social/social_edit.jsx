@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 import { capitalize, cloneDeep } from 'lodash'
+import { SocialContainer } from './social_list.jsx'
 
 export class SocialEdit extends Component {
   static propTypes = {
@@ -69,7 +70,7 @@ export class SocialEdit extends Component {
     const { isEditing } = this.state
 
     return (
-      <div className='social-links'>
+      <SocialContainer>
         {this.renderSocialList(social)}
         {isEditing && (
           <div
@@ -77,7 +78,7 @@ export class SocialEdit extends Component {
             onClick={() => this.setState({ isEditing: null })}
           />
         )}
-      </div>
+      </SocialContainer>
     )
   }
 }

@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ImageEdit, ImageContainer } from '../image/image_edit.jsx'
-import { ModalContainer } from '../modal/modal_container.jsx'
+import { Modal } from '../modal/modal.jsx'
 
 export class ImagesEdit extends Component {
   static propTypes = {
@@ -46,7 +46,7 @@ export class ImagesEdit extends Component {
     const images = item.images || []
 
     return (
-      <ModalContainer className='ImagesEdit' onClick={() => setEditing(null)}>
+      <Modal className='ImagesEdit' onClick={() => setEditing(null)}>
 
         <div className='ImagesEdit__inner'>
           <label>Images:</label>
@@ -77,7 +77,7 @@ export class ImagesEdit extends Component {
           </div>
 
         </div>
-      </ModalContainer>
+      </Modal>
     )
   }
 }

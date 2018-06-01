@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { EmbedList } from './embed_list.jsx'
-import { ModalContainer } from '../modal/modal_container.jsx'
+import { Modal } from '../modal/modal.jsx'
 
 export const EmbedModal = (props) => {
   const {
@@ -11,7 +11,7 @@ export const EmbedModal = (props) => {
   } = props
 
   return (
-    <ModalContainer
+    <Modal
       className='EmbedModal'
       onClick={() => setEditing(null)}
     >
@@ -25,7 +25,7 @@ export const EmbedModal = (props) => {
         hasNew
         onChange={onChange}
       />
-    </ModalContainer>
+    </Modal>
   )
 }
 

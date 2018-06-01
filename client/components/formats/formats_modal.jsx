@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { ModalContainer } from '../modal/modal_container.jsx'
+import { Modal } from '../modal/modal.jsx'
 import { FormatsEdit } from './formats_edit.jsx'
 
 export const FormatsModal = (props) => {
   const { setEditing } = props
 
   return (
-    <ModalContainer
+    <Modal
       className='FormatsModal'
       onClick={() => setEditing(null)}
     >
@@ -15,7 +15,7 @@ export const FormatsModal = (props) => {
       <FormatsEdit
         {...props}
       />
-    </ModalContainer>
+    </Modal>
   )
 }
 

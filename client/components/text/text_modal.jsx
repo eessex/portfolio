@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { ModalContainer } from '../modal/modal_container.jsx'
+import { Modal } from '../modal/modal.jsx'
 import { PlainText } from '../forms/rich_text/plain_text.jsx'
 
 export const TextModal = props => {
@@ -14,7 +14,7 @@ export const TextModal = props => {
   } = props
 
   return (
-    <ModalContainer
+    <Modal
       className='TextModal'
       onClick={() => setEditing(null)}
     >
@@ -28,7 +28,7 @@ export const TextModal = props => {
         onChange={(value) => onChange(value)}
       />
 
-    </ModalContainer>
+    </Modal>
   )
 }
 

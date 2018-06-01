@@ -13,7 +13,7 @@ class Pages extends Component {
     isAuthenticated: PropTypes.bool,
     loading: PropTypes.bool,
     saving: PropTypes.bool,
-    settings: PropTypes.bool
+    settings: PropTypes.object
   }
 
   render () {
@@ -39,10 +39,10 @@ class Pages extends Component {
 }
 
 const mapStateToProps = state => ({
-  isAuthenticated: state.user,
+  isAuthenticated: state.user.isAuthenticated,
   loading: state.settings.loading,
-  saving: state.settings,
-  settings: state.settings
+  saving: state.settings.saving,
+  settings: state.settings.settings
 })
 
 const mapDispatchToProps = (dispatch) => ({

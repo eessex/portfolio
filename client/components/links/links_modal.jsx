@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { ModalContainer } from '../modal/modal_container.jsx'
+import { Modal } from '../modal/modal.jsx'
 import { LinksEdit } from './links_edit.jsx'
 
 export const LinksModal = props => {
@@ -11,7 +11,7 @@ export const LinksModal = props => {
   } = props
 
   return (
-    <ModalContainer
+    <Modal
       className='LinksModal'
       onClick={() => setEditing(null)}
     >
@@ -20,7 +20,7 @@ export const LinksModal = props => {
         links={links || []}
         onChange={onChange}
       />
-    </ModalContainer>
+    </Modal>
   )
 }
 

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { ModalContainer } from '../modal/modal_container.jsx'
+import { Modal } from '../modal/modal.jsx'
 import { DatesEdit } from './dates_edit.jsx'
 
 export const DatesModal = props => {
@@ -19,7 +19,7 @@ export const DatesModal = props => {
   }
 
   return (
-    <ModalContainer
+    <Modal
       className='DatesModal'
       onClick={() => setEditing(null)}
     >
@@ -27,7 +27,7 @@ export const DatesModal = props => {
         {...dateProps}
         onChange={onChange}
       />
-    </ModalContainer>
+    </Modal>
   )
 }
 

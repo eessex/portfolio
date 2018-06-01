@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
@@ -39,21 +40,18 @@ export class EmbedList extends Component {
     } = this.props
 
     return (
-      <div className={`EmbedList ${className ? className : ''}`}>
+      <div className={`EmbedList ${className || ''}`}>
         {embed_codes && embed_codes.length > 0 &&
-          embed_codes.map( (embed_code, i) =>
-            <div className='EmbedList__item' key={i}>
-
+          embed_codes.map((embed_code, i) =>
+            <EmbedItem className='EmbedList__item' key={i}>
               <Embed embed_code={embed_code} />
-
               {editing &&
                 <Button
                   icon='times'
                   onClick={() => this.onRemoveEmbed(embed_code, i)}
                 />
               }
-
-            </div>
+            </EmbedItem>
           )
         }
         {hasNew &&
@@ -71,3 +69,14 @@ export class EmbedList extends Component {
     )
   }
 }
+
+const EmbedItem = styled.div`
+  position: relative;
+  width: 100%;
+  padding-bottom: 20px;
+  .Button {
+    position: absolute;
+    right: -5px;
+    top: -5px;
+  }
+`

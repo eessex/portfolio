@@ -1,56 +1,11 @@
-.Header {
-  padding: 10px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  label {
-    font-weight: 600;
-  }
-  a {
-    text-decoration: none;
-    color: black;
-    &:hover {
-      color: #ddd;
-    }
-    &[data-active=true] {
-      border-bottom: 2px solid;
-    }
-  }
-  h1 {
-    font-size: 1.5em;
-    font-weight: 600;
-    line-height: 1em;
-    text-transform: uppercase;
-    letter-spacing: .075em;
-  }
-  &__nav {
-    a {
-      margin-left: 15px;
-    }
-  }
-  &[data-layout=admin] {
-    justify-content: flex-start;
-  }
-  &[data-fixed=true] {
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    background: white;
-    z-index: 10;
-    border-bottom: 1px solid #ddd;
-  }
-}
-
 @media screen and (max-width: 46rem) {
   .Header {
     display: block;
-    &__nav a:first-child {
+    nav a:first-child {
       margin-left: 0;
     }
     &[data-fixed=true] {
-      .Header__nav {
+      .nav {
         margin: 15px 0 10px 0;
       }
     }

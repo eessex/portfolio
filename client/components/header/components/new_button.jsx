@@ -2,17 +2,12 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 
 export class NewButton extends Component {
-  constructor(props) {
-    super(props)
-    this.newItem = this.newItem.bind(this)
-  }
-
   static propTypes = {
     model: PropTypes.string,
     onCreate: PropTypes.func
   }
 
-  async newItem () {
+  newItem = async () => {
     try {
       await this.props.onCreate()
     } catch (err) {
@@ -22,7 +17,7 @@ export class NewButton extends Component {
 
   render () {
     const { model } = this.props
-    return(
+    return (
       <nav className='AdminNav'>
         <div onClick={this.newItem}>
           <button>New {model}</button>

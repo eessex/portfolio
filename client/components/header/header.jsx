@@ -1,8 +1,9 @@
+import styled from 'styled-components'
+import { connect } from 'react-redux'
+import { capitalize } from 'underscore.string'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import Waypoint from 'react-waypoint'
-import { connect } from 'react-redux'
-import { capitalize } from 'underscore.string'
 
 export class Header extends Component {
   static propTypes = {
@@ -66,28 +67,29 @@ export class Header extends Component {
     const hasMenuItems = nav && nav.length > 0
 
     return (
-      <div
+      <HeaderContainer
         className='Header'
-        data-layout={isAuthenticated ? 'admin' : ''}
-        data-fixed={isFixed}
+        admin={isAuthenticated}
+        fixed={isFixed}
       >
         <h1>
-          <a href='/'>{title}</a>
+          <A href='/'>{title}</A>
         </h1>
-
-        <nav className='Header__nav'>
-          {hasMenuItems && nav.map((navItem, i) =>
-            <a
-              className='Header__nav-item'
-              href={`/${navItem}`}
-              key={i}
-              data-active={this.isActive(navItem)}
-            >
-              {capitalize(navItem)}
-            </a>
-          )}
-        </nav>
-      </div>
+        {hasMenuItems &&
+          <nav>
+            {nav.map((navItem, i) =>
+              <A
+                className='Header__nav-item'
+                href={`/${navItem}`}
+                key={i}
+                active={this.isActive(navItem)}
+              >
+                {capitalize(navItem)}
+              </A>
+            )}
+          </nav>
+        }
+      </HeaderContainer>
     )
   }
 
@@ -117,3 +119,58 @@ const mapStateToProps = (state) => ({
 export default connect(
   mapStateToProps
 )(Header)
+
+export const HeaderContainer = styled.div`
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  label {
+    font-weight: 600;
+  }
+  h1 {
+    font-size: 1.5em;
+    font-weight: 600;
+    line-height: 1em;
+    text-transform: uppercase;
+    letter-spacing: .075em;
+  }
+  ${props => props.admin && `
+    justify-content: flex-start;
+  `}
+  ${props => props.fixed && `
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    background: white;
+    z-index: 10;
+    border-bottom: 1px solid #ddd;
+  `}
+`
+
+const A = styled.a`
+  text-decoration: none;
+  color: black;
+  margin-right: 15px;
+  &:hover {
+    color: #ddd;
+  }
+  ${props => props.active && `
+    border-bottom: 2px solid;
+  `}
+`
+// @media screen and (max-width: 46rem) {
+//   .Header {
+//     display: block;
+//     &__nav a:first-child {
+//       margin-left: 0;
+//     }
+//     &[data-fixed=true] {
+//       .Header__nav {
+//         margin: 15px 0 10px 0;
+//       }
+//     }
+//   }
+// }

@@ -1,6 +1,6 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { Header } from '../header.jsx'
+import { Header, HeaderContainer } from '../header.jsx'
 
 describe('Header', () => {
   let props = {
@@ -8,15 +8,15 @@ describe('Header', () => {
       settings: {
         title: 'Cool Website',
         nav: [
-          "Events",
-          "Releases",
-          "Projects",
-          "Info"
+          'Events',
+          'Releases',
+          'Projects',
+          'Info'
         ]
       }
     },
     user: {
-      isAuthenticated: false,
+      isAuthenticated: false
     }
   }
   window.location = { pathname: '/events' }
@@ -39,7 +39,7 @@ describe('Header', () => {
   it('Renders the nav items', () => {
     const component = getWrapper(props)
     const { nav } = props.settings.settings
-    const links = component.find('.Header__nav a')
+    const links = component.find('nav a')
 
     expect(links.at(0).props().href).toMatch(nav[0])
     expect(links.at(0).props().children).toMatch(nav[0])
@@ -58,7 +58,7 @@ describe('Header', () => {
     props.user.isAuthenticated = true
     const component = getWrapper(props)
 
-    expect(component.html()).toMatch('data-layout="admin"')
+    expect(component.find(HeaderContainer).getElement().props.admin).toBe(true)
   })
 
   it('#onScroll sets the layout position to "up" when scrolling up', () => {

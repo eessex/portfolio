@@ -7,10 +7,14 @@ import { capitalize } from 'lodash'
 export class Social extends Component {
   renderSocial = (social, service, i) => {
     if (social[service]) {
+      const href = service === 'bandcamp'
+        ? `https://${social[service]}.${service}.com/`
+        : `https://${service}.com/${social[service]}`
+
       return (
         <a
           target='_blank'
-          href={'https://' + service + '.com/' + social[service]}
+          href={href}
           key={i}
         >
           <FontAwesome name={service} />

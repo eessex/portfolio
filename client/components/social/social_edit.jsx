@@ -45,15 +45,22 @@ export class SocialEdit extends Component {
   }
 
   renderEditPanel (social, service) {
+    const isBandCamp = service === 'bandcamp'
+    const href = isBandCamp ? `.${service}.com` : `${service}.com/`
     return (
       <SocialInput data-name={service}>
-        <div>{service + '.com/'}</div>
+        {!isBandCamp &&
+          <div>{href}</div>
+        }
         <input
           ref={service}
           placeholder='username'
           defaultValue={social[service] ? social[service] : null}
           onChange={(e) => this.onChange(service, e.target.value)}
         />
+        {isBandCamp &&
+          <div>{href}</div>
+        }
       </SocialInput>
     )
   }

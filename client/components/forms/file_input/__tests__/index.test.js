@@ -1,6 +1,6 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { FileInput } from '../index.jsx'
+import { FileInput, DragZone } from '../index.jsx'
 
 describe('FileInput', () => {
   let props = {}
@@ -64,7 +64,7 @@ describe('FileInput', () => {
     const component = mount(
       <FileInput {...props} />
     )
-    const dragZone = component.find('.FileInput__drag-zone')
+    const dragZone = component.find(DragZone)
     dragZone.simulate('dragEnter')
 
     expect(component.state().isDragOver).toBe(true)
@@ -76,7 +76,7 @@ describe('FileInput', () => {
       <FileInput {...props} />
     )
     component.instance().setState({isDragOver: true})
-    const dragZone = component.find('.FileInput__drag-zone')
+    const dragZone = component.find(DragZone)
     dragZone.simulate('dragLeave')
 
     expect(component.state().isDragOver).toBe(false)

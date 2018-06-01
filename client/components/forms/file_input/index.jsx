@@ -1,4 +1,5 @@
 import axios from 'axios'
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Button } from '../buttons/button.jsx'
@@ -80,13 +81,13 @@ export class FileInput extends Component {
         )
       } else {
         return (
-          <div className='FileInput__preview-img'>
+          <Preview className='FileInput__preview-img'>
             <img src={file.url} />
             <Button
               icon='times'
               onClick={this.props.onDelete}
             />
-          </div>
+          </Preview>
         )
       }
     }
@@ -97,12 +98,11 @@ export class FileInput extends Component {
     const { isDragOver } = this.state
 
     return (
-      <div className='FileInput'>
+      <FileInputContainer className='FileInput'>
         {label &&
           <label>{label}</label>
         }
-        <div
-          className='FileInput__drag-zone'
+        <DragZone
           data-drag-over={isDragOver}
           onDragEnter={() => this.toggleDragOver(true)}
           onDragLeave={() => this.toggleDragOver(false)}
@@ -114,7 +114,7 @@ export class FileInput extends Component {
         >
           {hasPreview && this.renderPreview(file)}
 
-          <div className='FileInput__input'>
+          <Input className='FileInput__input'>
             {!file.url &&
               <h5>Click or Drag to Upload</h5>
             }
@@ -124,9 +124,68 @@ export class FileInput extends Component {
               accept={accept || 'image/*, video/mp4'}
               onChange={this.fetchSignature}
             />
-          </div>
-        </div>
-      </div>
+          </Input>
+        </DragZone>
+      </FileInputContainer>
     )
   }
 }
+
+const FileInputContainer = styled.div`
+  position: relative;
+  width: 100%;
+`
+
+export const DragZone = styled.div`
+  width: 100%;
+  min-width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eaeaea;
+  color: #aaa;
+  border: 1px dashed #aaa;
+  opacity: .7;
+  transition: opacity .5s;
+  &:hover {
+    opacity: 1;
+  }
+`
+
+const Input = styled.div`
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: 100%;
+  input {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    opacity: 0;
+    min-width: 100%;
+  }
+`
+
+const Preview = styled.div`
+  img {
+    max-width: 100%;
+    display: block;
+  }
+  button {
+    position: absolute;
+    right: -3px;
+    top: -3px;
+    z-index: 10;
+    color: black;
+    padding: 2px 5px;
+    font-size: 1em;
+    &:hover {
+      color: red;
+    }
+  }
+`

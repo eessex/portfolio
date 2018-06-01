@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
@@ -29,8 +30,7 @@ export class SocialEdit extends Component {
     const isPlaceholder = social[service] ? '' : 'placeholder'
 
     return (
-      <div
-        className='edit-social'
+      <SocialItem
         onClick={() => this.setState({ isEditing: service })}
         key={i}
       >
@@ -39,13 +39,13 @@ export class SocialEdit extends Component {
           {capitalize(service)}
         </a>
         {renderEdit}
-      </div>
+      </SocialItem>
     )
   }
 
   renderEditPanel (social, service) {
     return (
-      <div className='edit-social__input' data-name={service}>
+      <SocialInput data-name={service}>
         <div>{service + '.com/'}</div>
         <input
           ref={service}
@@ -53,7 +53,7 @@ export class SocialEdit extends Component {
           defaultValue={social[service] ? social[service] : null}
           onChange={(e) => this.onChange(service, e.target.value)}
         />
-      </div>
+      </SocialInput>
     )
   }
 
@@ -74,10 +74,58 @@ export class SocialEdit extends Component {
         {isEditing && (
           <div
             className='modal__bg'
-            onClick={() => this.toggleEditService(null)}
+            onClick={() => this.setState({ isEditing: null })}
           />
         )}
       </div>
     )
   }
 }
+
+const SocialItem = styled.div`
+  position: relative;
+`
+
+const SocialInput = styled.div`
+  border: 1px solid;
+  position: absolute;
+  background: white;
+  z-index: 2;
+  padding: 10px;
+  top: 1.75em;
+  display: flex;
+  input {
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-bottom: 1px solid;
+    font-size: .9em;
+    padding-left: 5px;
+  }
+  &::before {
+    content: '.';
+    color: transparent;
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 16px solid white;
+    position: absolute;
+    top: -16px;
+    left: 7px;
+    z-index: 2;
+  }
+  &::after {
+    content: '.';
+    color: transparent;
+    width: 0;
+    height: 0;
+    border-left: 17px solid transparent;
+    border-right: 17px solid transparent;
+    border-bottom: 17px solid black;
+    position: absolute;
+    top: -17.5px;
+    left: 5px;
+    z-index: 1;
+  }
+`

@@ -1,31 +1,35 @@
+import { stripTags } from 'underscore.string'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { stripTags } from 'underscore.string'
 
-export const ImageShow = (props) => {
-  const { caption, url } = props
+export const Image = props => {
+  const { editCaption, caption, url } = props
   const alt = stripTags(caption) || ''
 
   return (
-    <div className='ImageShow'>
+    <div className='Image'>
       <img
         src={url}
         alt={alt}
         width='100%'
       />
-      {caption &&
+      {editCaption &&
+        <Caption>{editCaption}</Caption>
+      }
+      {caption && (
         <Caption
-          className='ImageShow__caption'
+          className='Image__caption'
           dangerouslySetInnerHTML={{__html: caption}}
         />
-      }
+      )}
     </div>
   )
 }
 
 const Caption = styled.div`
-  p {
+  p,
+  .public-DraftStyleDefault-block  {
     font-size: .7em;
     padding: 0;
     text-align: right;
@@ -34,7 +38,8 @@ const Caption = styled.div`
   }
 `
 
-ImageShow.propTypes = {
+Image.propTypes = {
+  editCaption: PropTypes.any,
   caption: PropTypes.string,
   url: PropTypes.string
 }

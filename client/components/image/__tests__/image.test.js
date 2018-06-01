@@ -1,11 +1,11 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { ImageShow } from '../image_show.jsx'
+import { Image } from '../image.jsx'
 
-describe('ImageShow', () => {
+describe('Image', () => {
   const getWrapper = props => {
     return mount(
-      <ImageShow {...props} />
+      <Image {...props} />
     )
   }
 
@@ -28,5 +28,11 @@ describe('ImageShow', () => {
   it('Renders caption as image alt', () => {
     const component = getWrapper(props)
     expect(component.html()).toMatch('alt="A caption"')
+  })
+
+  it('Renders editCaption if present', () => {
+    props.editCaption = <div>Hello</div>
+    const component = getWrapper(props)
+    expect(component.html()).toMatch('Hello')
   })
 })

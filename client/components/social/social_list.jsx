@@ -22,7 +22,7 @@ export class Social extends Component {
 
   renderSocialList = (social) => {
     if (social) {
-      const services = ['soundcloud', 'facebook', 'instagram', 'twitter']
+      const services = ['bandcamp', 'soundcloud', 'facebook', 'instagram', 'twitter']
 
       return services.map((service, i) => {
         return this.renderSocial(social, service, i)
@@ -31,7 +31,7 @@ export class Social extends Component {
   }
 
   render () {
-    const { social } = this.props  
+    const { social } = this.props
 
     return (
       <div className='social-links'>

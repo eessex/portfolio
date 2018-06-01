@@ -1,12 +1,15 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
+import { PlainText } from './rich_text/plain_text.jsx'
 
-class TextInput extends Component {
+export class TextInput extends Component {
   static propTypes = {
     index: PropTypes.number,
+    inline: PropTypes.bool,
     label: PropTypes.string,
     maxLength: PropTypes.number,
-    name: PropTypes.string,
+    name: PropTypes.string.isRequired,
     onChange: PropTypes.func,
     placeholder: PropTypes.string,
     required: PropTypes.bool,
@@ -15,77 +18,103 @@ class TextInput extends Component {
     value: PropTypes.string
   }
 
-  onKeyUp = (e) => {
+  onChange = value => {
     const { index, name, onChange } = this.props
 
     if (index || index === 0) {
-      onChange(name, e.target.value, index)
+      onChange(name, value, index)
     } else {
-      onChange(name, e.target.value)
+      onChange(name, value)
     }
   }
 
   renderLabel = () => {
-    const { label } = this.props
+    const { label, name } = this.props
+    const text = (label && label.length > 0) ? label : name
 
-    if (label && label.length > 0) {
-      return <label>{label}</label>
-    } else if (label) {
-      return <label>{this.props.name}</label>
-    }
+    return <label>{text}</label>
   }
 
-  renderPlaceholder (name) {
-    if (this.props.placeholder) {
-      name = this.props.placeholder
-    } else {
-      name = name.replace(/-/g, ' ').replace(/_/g, ' ')
-    }
-    return name
-  }
+  renderPlaceholder = () => {
+    const { name, placeholder } = this.props
 
-  renderInput = () => {
-    const { name, value, required, textarea, maxLength, size } = this.props
-    if (textarea) {
-      return (
-        <textarea
-          required={required || false}
-          placeholder={this.renderPlaceholder(name)}
-          name={name}
-          size={size}
-          maxLength={maxLength}
-          defaultValue={value}
-          onKeyUp={this.onKeyUp}
-        />
-      )
+    if (placeholder) {
+      return placeholder
     } else {
-      return (
-        <input
-          required={required || false}
-          placeholder={this.renderPlaceholder(name)}
-          name={name}
-          size={size}
-          maxLength={maxLength}
-          defaultValue={value}
-          onKeyUp={this.onKeyUp}
-        />
-      )
+      return name.replace(/-/g, ' ').replace(/_/g, ' ')
     }
   }
 
   render () {
-    const { required, label } = this.props
-
-    var group = label ? ' input-group' : ''
+    const {
+      inline,
+      label,
+      maxLength,
+      name,
+      value,
+      required,
+      size,
+      textarea
+    } = this.props
     var req = required ? ' req' : ''
 
     return (
-      <div className={'input--text' + req + group}>
-        {this.renderLabel()}
-        {this.renderInput()}
-      </div>
-    );
+      <TextInputContainer
+        inline={inline}
+        required={required}
+        className={'input--text' + req}
+      >
+        {label &&
+          this.renderLabel()
+        }
+        {textarea
+          ? (
+            <PlainText
+              required={required || false}
+              placeholder={this.renderPlaceholder()}
+              size={size}
+              maxLength={maxLength}
+              content={value}
+              onChange={this.onChange}
+            />
+          ) : (
+            <Input
+              required={required || false}
+              placeholder={this.renderPlaceholder()}
+              name={name}
+              size={size}
+              maxLength={maxLength}
+              defaultValue={value}
+              onChange={(e) => this.onChange(e.target.value)}
+            />
+          )
+        }
+      </TextInputContainer>
+    )
   }
 }
 
-export default TextInput
+export const TextInputContainer = styled.div`
+  display: flex;
+  flex-direction: ${props => props.inline ? 'row' : 'column'};
+
+  .plain-text {
+    border-bottom: 1px solid silver;
+    padding: 5px 0;
+  }
+
+  ${props => !props.inline && `
+    label { 
+      margin-bottom: 5px;
+    }
+  `}
+`
+
+export const Input = styled.input`
+  border-bottom: 1px solid silver;
+  font-size: 1em;
+  padding: 5px 0;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+`

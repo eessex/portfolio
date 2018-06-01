@@ -1,44 +1,56 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as Actions from '../../actions/settings'
 import SiteDescription from './components/site_description'
+import { Loading } from '../../components/layout/components/loading.jsx'
+import { LayoutColumn } from '../../components/layout/column.jsx'
 
 class Settings extends Component {
-  componentWillMount() {
-    this.props.actions.fetchSettings()
+  static propTypes = {
+    fetchSettings: PropTypes.func,
+    loading: PropTypes.bool,
+    user: PropTypes.object
   }
 
-render() {
-  const { actions, user } = this.props
-  const { isAuthenticated } = user
-  const { settings, loading } = this.props.settings
+  componentWillMount () {
+    const {
+      fetchSettings,
+      user: { isAuthenticated }
+    } = this.props
+
+    if (isAuthenticated) {
+      fetchSettings()
+    } else {
+      window.location.assign('/')
+    }
+  }
+
+  render () {
+    const { loading } = this.props
 
     return (
-      <div className='Settings'>
+      <LayoutColumn
+        className='Settings'
+        label='Site Settings'
+      >
         {loading
           ? <Loading />
-
-          : <div>
-              <h3>Site Settings</h3>
-              <SiteDescription
-                settings={settings}
-                actions={actions}
-              />
-            </div>
+          : <SiteDescription />
         }
-      </div>
+      </LayoutColumn>
     )
   }
 }
 
 const mapStateToProps = (state) => ({
-  ...state
+  loading: state.settings.loading,
+  user: state.user
 })
 
-const mapDispatchToProps = (dispatch) => ({
-  actions: bindActionCreators(Actions, dispatch)
-})
+const mapDispatchToProps = {
+  fetchSettings: Actions.fetchSettings
+}
 
 export default connect(
   mapStateToProps,

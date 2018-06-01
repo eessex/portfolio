@@ -1,8 +1,7 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { Col, Row } from 'react-styled-flexboxgrid'
-import { Button } from '../forms/buttons/button.jsx'
-import { ImageEdit } from '../image/image_edit.jsx'
+import { ImageEdit, ImageContainer } from '../image/image_edit.jsx'
 import { ModalContainer } from '../modal/modal_container.jsx'
 
 export class ImagesEdit extends Component {
@@ -14,16 +13,16 @@ export class ImagesEdit extends Component {
   }
 
   onChangeImage = (image, index) => {
-    const { onChange, item } = this.props
-    const images = this.props.item.images || []
+    const { item, onChange } = this.props
+    const images = item.images || []
 
     images[index] = image
     onChange(images)
   }
 
   onNewImage = (image) => {
-    const { onChange } = this.props
-    const images = this.props.item.images || []
+    const { item, onChange } = this.props
+    const images = item.images || []
 
     images.push(image)
     onChange(images)
@@ -31,7 +30,7 @@ export class ImagesEdit extends Component {
   }
 
   onDeleteImage = (index) => {
-    const { onChange, item } = this.props
+    const { item, onChange } = this.props
     const images = item.images || []
 
     if (images.length === 1) {
@@ -53,7 +52,7 @@ export class ImagesEdit extends Component {
           <label>Images:</label>
 
           {images.length > 0 &&
-            <div className='ImagesEdit__list'>
+            <ImagesEditList>
               {images.map((image, index) =>
                 <ImageEdit
                   index={index}
@@ -61,9 +60,10 @@ export class ImagesEdit extends Component {
                   key={index}
                   onChange={this.onChangeImage}
                   onDelete={this.onDeleteImage}
+                  editCaption
                 />
               )}
-            </div>
+            </ImagesEditList>
           }
 
           <div className='ImagesEdit__new'>
@@ -81,3 +81,13 @@ export class ImagesEdit extends Component {
     )
   }
 }
+
+const ImagesEditList = styled.div`
+  display: flex;
+  justify-content: space-around;
+
+  ${ImageContainer} {
+    max-width: 35%;
+    padding-bottom: 20px;
+  }
+`

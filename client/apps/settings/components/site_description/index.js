@@ -1,41 +1,64 @@
-import React, { Component } from 'react';
-import { TextInput } from '../../../../components/forms/text_input.js'
-require('./index.scss')
+import styled from 'styled-components'
+import { cloneDeep } from 'lodash'
+import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
+import React, { Component } from 'react'
+import * as Actions from '../../../../actions/settings'
+import { TextInput, TextInputContainer } from '../../../../components/forms/text_input.js'
 
-class SettingsInfo extends Component {
-  state = {
-    settings: {
-      title: this.props.settings.title || '',
-      description: this.props.settings.description || ''
-    }
+export class SiteDescription extends Component {
+  static propTypes = {
+    settings: PropTypes.object,
+    updateSettings: PropTypes.func
   }
 
   onChange = (key, value) => {
-    var newSettings = Object.assign({}, this.props.settings, this.state.settings);
+    const { settings, updateSettings } = this.props
+    let newSettings = cloneDeep(settings)
+
     newSettings[key] = value
-    this.props.actions.updateSettings(newSettings)
-    this.setState({settings: newSettings})
+    updateSettings(newSettings)
   }
 
   render () {
-    const { settings } = this.state
+    const { settings: { description, title } } = this.props
+
     return (
-      <div className='settings--site-description'>
+      <SiteDescriptionContainer>
         <TextInput
           label='Site Title'
           name='title'
-          value={settings ? settings.title : this.props.settings.title}
-          onChange={this.onChange} />
+          onChange={this.onChange}
+          value={title}
+        />
         <TextInput
           label='Site Description'
           name='description'
+          onChange={this.onChange}
           placeholder='Appears in search results. Limited to 200 characters.'
           textarea
-          value={settings ? settings.description : this.props.settings.description}
-          onChange={this.onChange} />
-      </div>
-    );
+          value={description}
+        />
+      </SiteDescriptionContainer>
+    )
   }
 }
 
-export default SettingsInfo
+const SiteDescriptionContainer = styled.div`
+  ${TextInputContainer} {
+    margin-bottom: 2em;
+  }
+`
+
+const mapStateToProps = (state) => ({
+  settings: state.settings.settings
+})
+
+const mapDispatchToProps = {
+  updateSettings: Actions.updateSettings
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SiteDescription)

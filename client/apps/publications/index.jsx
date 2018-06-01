@@ -1,12 +1,11 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { filter, sortBy } from 'lodash'
 import * as itemsActions from '../../actions/items'
-import { sortByDate } from '../../utils/index.js'
 import { ItemsList } from '../../components/items_list/index.jsx'
 import { NewButton } from '../../components/header/components/new_button.jsx'
-import { LayoutColumn } from '../../components/layout/column.jsx'
 import { Loading } from '../../components/layout/components/loading.jsx'
 
 class Publications extends Component {
@@ -14,10 +13,11 @@ class Publications extends Component {
     createItem: PropTypes.func,
     fetchItems: PropTypes.func,
     items: PropTypes.object,
+    match: PropTypes.object,
     user: PropTypes.object
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
 
     const isAdmin = props.user.isAuthenticated
@@ -29,18 +29,18 @@ class Publications extends Component {
     }
   }
 
-  componentWillMount() {
+  componentWillMount () {
     const { fetchItems } = this.props
     const { query } = this.state
 
     fetchItems('publications', query)
   }
   
-  getReleases = (compilation=false) => {
+  getReleases = (compilation = false) => {
     const { list } = this.props.items
     let releases = []
 
-    list.map((item, i) => {
+    list.map((item) => {
       let isDraft = !item.formats.length && !compilation
       const sorted = filter(item.formats, { compilation: compilation })
 
@@ -61,10 +61,10 @@ class Publications extends Component {
     return sortedReleases
   }
 
-  render() {
+  render () {
     const {
       createItem,
-      items: { list, loading },
+      items: { loading },
       match: { path }
     } = this.props
     const { isAdmin } = this.state
@@ -79,8 +79,8 @@ class Publications extends Component {
       <div className='Publications'>
         {loading
           ? <Loading />
-
-          : <div>
+          : (
+            <div>
               {isAdmin &&
                 <NewButton
                   model='Publication'
@@ -98,21 +98,28 @@ class Publications extends Component {
                 />
               }
               {compilations &&
-                <ItemsList
-                  model={label.toLowerCase()}
-                  list={compilations}
-                  label='Compilations'
-                  layout='table'
-                  className='Publications__compilations'
-                  canToggle
-                />
+                <Compilations>
+                  <ItemsList
+                    model={label.toLowerCase()}
+                    list={compilations}
+                    label='Compilations'
+                    layout='table'
+                    className='Publications__compilations'
+                    canToggle
+                  />
+                </Compilations>
               }
-          </div>
+            </div>
+          )
         }
       </div>
     )
   }
 }
+
+const Compilations = styled.div`
+  margin-top: 5em;
+`
 
 const mapStateToProps = (state) => ({
   items: state.items,

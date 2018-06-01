@@ -36,5 +36,5 @@ DatesModal.propTypes = {
   end_date: PropTypes.string,
   onChange: PropTypes.func,
   setEditing: PropTypes.func,
-  start_date: PropTypes.bool
+  start_date: PropTypes.string
 }

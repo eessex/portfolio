@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
@@ -13,8 +14,8 @@ export class DatesEdit extends Component {
   }
 
   state = {
-    allDay: this.props.all_day ? true : false,
-    hasEndDate: this.props.end_date ? true : false,
+    allDay: this.props.all_day === true,
+    hasEndDate: this.props.end_date === true
   }
 
   toggleAllDay = () => {
@@ -48,8 +49,8 @@ export class DatesEdit extends Component {
     } = this.state
 
     return (
-      <div className='DatesEdit'>
-        <Row className='DatesEdit__dates'>
+      <DatesEditContainer className='DatesEdit'>
+        <Row>
           <Col>
             <DateInput
               label='Start Date'
@@ -73,7 +74,7 @@ export class DatesEdit extends Component {
           }
         </Row>
 
-        <div className='DatesEdit__check-inputs'>
+        <CheckboxInputs>
           <CheckboxInput
             className='h5'
             label='Hide End Date'
@@ -88,8 +89,33 @@ export class DatesEdit extends Component {
             value={all_day}
             onChange={() => onChange('all_day', !all_day)}
           />
-        </div>
-      </div>
+        </CheckboxInputs>
+      </DatesEditContainer>
     )
   }
 }
+
+const DatesEditContainer = styled.div`
+  ${Row} {
+    padding-bottom: 10px;
+    div[class*="Col-"]:first-child {
+      padding-left: 0;
+    }
+    div[class*="Col-"]:last-child {
+      padding-right: 0;
+    }
+  }
+  input {
+    border: none;
+    border-bottom: 1px solid #ddd;
+    font-size: .9em;
+    padding-bottom: 2px;
+    font-family: inherit;
+  }
+`
+const CheckboxInputs = styled.div`
+    display: flex;
+    .CheckboxInput {
+      margin-right: 20px;
+    }
+`

@@ -148,6 +148,14 @@ export const HeaderContainer = styled.div`
     z-index: 10;
     border-bottom: 1px solid #ddd;
   `}
+  @media (max-width: 46rem) {
+    display: block;
+    ${props => props.fixed && `
+      nav {
+        margin: 15px 0 10px 0;
+      }
+    `}
+  }
 `
 
 const A = styled.a`
@@ -161,16 +169,3 @@ const A = styled.a`
     border-bottom: 2px solid;
   `}
 `
-// @media screen and (max-width: 46rem) {
-//   .Header {
-//     display: block;
-//     &__nav a:first-child {
-//       margin-left: 0;
-//     }
-//     &[data-fixed=true] {
-//       .Header__nav {
-//         margin: 15px 0 10px 0;
-//       }
-//     }
-//   }
-// }

@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
@@ -14,99 +15,65 @@ export class ItemsList extends Component {
   renderLabel = () => {
     const { layout } = this.state
     const { canToggle, label, model } = this.props
+    const hasBorder = layout === 'table' || canToggle
     const renderedLabel = label && label.length ? label : capitalize(model)
 
-    if (layout !== 'grid' || canToggle) {
-      return (
-        <Row className='ItemsList__header h4'>
-          <Col xs={12}>
-            {renderedLabel}
-            {canToggle && this.renderLayoutToggle()}
-          </Col>
-        </Row>
-      )
-    } else {
-      return (
-        <div className='ItemsList__header h4'>
-          {label}
-        </div>
-      )
-    }
+    return (
+      <ItemsListHeader layout={layout} canToggle={hasBorder}>
+        {renderedLabel}
+        {canToggle && this.renderLayoutToggle()}
+      </ItemsListHeader>
+    )
   }
 
   renderLayoutToggle = () => {
     const { layout } = this.state
     const { model } = this.props
 
-    if (layout === 'table') {
-      return (
-        <h6
-          className='layout-toggle'
-          onClick={() => this.setState({layout: 'grid'})}
-        >
-          {model === 'releases' ? 'Covers' : 'Posters'}
-          <FontAwesome name='expand' />
-        </h6>
-      )
-    } else {
-      return (
-        <h6
-          className='layout-toggle'
-          onClick={() => this.setState({layout: 'table'})}
-        >
-          List
-          <FontAwesome name='bars' />
-        </h6>
-      )
-    }
+    const isTable = layout === 'table'
+    const toggleTo = isTable ? 'grid' : 'table'
+    const text = isTable ? (model === 'releases' ? 'Covers' : 'Posters') : 'List'
+    const icon = isTable ? 'expand' : 'bars'
+
+    return (
+      <LayoutToggle onClick={() => this.setState({layout: toggleTo})}>
+        {text}
+        <FontAwesome name={icon} />
+      </LayoutToggle>
+    )
   }
 
-  renderList = (items) => {
+  renderList = items => {
     const { layout } = this.state
     const { canToggle, label } = this.props
 
     switch (layout) {
-      case 'table':
-        return (
-          <div className='ItemsList__list'>
-            {items}
-          </div>
-        )
-
       case 'grid':
         if (label && !canToggle) {
           return (
-            <Row>
-              <Col
-                className='ItemsList__label'
-                xs={12}
-                lg={2}
-              >
+            <ListContainer canToggle={canToggle} layout={layout}>
+              <Content xs={12} lg={2}>
                 {this.renderLabel()}
-              </Col>
-              <Col
-                xs={12}
-                lg={10}
-                className='ItemsList__list'
-              >
-                <Row>
+              </Content>
+              <Content xs={12} lg={10}>
+                <ItemGridContainer className='hello' canToggle={canToggle} layout={layout}>
                   {items}
-                </Row>
-              </Col>
-            </Row>
+                </ItemGridContainer>
+              </Content>
+            </ListContainer>
           )
         } else {
           return (
-            <Row className='ItemsList__list'>
+            <ListContainer canToggle={canToggle} layout={layout}>
               {items}
-            </Row>
+            </ListContainer>
           )
         }
       default:
         return (
-          <div className='ItemsList__list'>
+          <ListContainer canToggle={canToggle} layout={layout}>
             {items}
-          </div>
+          </ListContainer>
         )
     }
   }
@@ -156,9 +123,10 @@ export class ItemsList extends Component {
     const hasLabel = label && layout !== 'grid' || layout === 'grid' && canToggle
 
     return (
-      <div
+      <ItemsListContainer
         className={`ItemsList ${classModelName} ${className || ''}`}
-        data-toggle={canToggle}
+        layout={layout}
+        canToggle={canToggle}
       >
         {hasLabel && this.renderLabel()}
 
@@ -166,10 +134,82 @@ export class ItemsList extends Component {
           ? this.renderList(listItems)
           : comingSoon && 'Coming Soon'
         }
-      </div>
+      </ItemsListContainer>
     )
   }
 }
+
+const ItemsListContainer = styled.div`
+  margin-bottom: 3em;
+  padding-left: 0;
+  padding-right: 0;
+  ${props => props.layout !== 'table' && `
+    display: flex;
+  `}
+  ${props => props.canToggle && `
+    display: block;
+  `}
+  @media (max-width: 76rem) {
+    ${props => props.layout !== 'table' && `
+      flex-direction: column;
+    `}
+  }
+`
+
+const Content = Col.extend`
+  padding: 0;
+`
+
+const LayoutToggle = styled.h6`
+  &:hover {
+    color: #ddd;
+    cursor: pointer;
+  }
+  .fa {
+    margin-left: 10px;
+  }
+`
+
+const ListContainer = styled.div`
+  display: flex;
+  ${props => props.layout === 'grid' && `
+    flex-wrap: wrap;
+    padding: 0;
+  `}
+  ${props => props.layout !== 'grid' && `
+    flex-direction: column;
+  `}
+  @media (max-width: 76rem) {
+    flex-direction: column;
+  }
+`
+
+const ItemGridContainer = Row.extend`
+  margin: 0;
+  @media (max-width: 76rem) {
+    ${props => props.condensed && `
+      padding-left: 10px;
+      padding-right: 10px;
+    `}
+  }
+`
+
+const ItemsListHeader = styled.div`
+  margin-top: 0;
+  font-weight: 600;
+  padding: 0 20px;
+
+  @media (max-width: 76rem) {
+    padding: 0 20px 10px;
+  }
+  ${props => props.canToggle && `
+    border-bottom: 1px solid;
+    padding: 0 20px 5px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  `}
+`
 
 ItemsList.propTypes = {
   canToggle: PropTypes.bool,

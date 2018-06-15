@@ -15,7 +15,7 @@ class Projects extends Component {
     user: PropTypes.object
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
 
     const isAdmin = props.user.isAuthenticated
@@ -27,14 +27,14 @@ class Projects extends Component {
     }
   }
 
-  componentWillMount() {
+  componentWillMount () {
     const { fetchItems } = this.props
     const { query } = this.state
 
     fetchItems('projects', query)
   }
 
-  render() {
+  render () {
     const { createItem, items } = this.props
     const { isAdmin } = this.state
     const { loading } = items
@@ -45,7 +45,8 @@ class Projects extends Component {
         {loading
           ? <Loading />
 
-          : <LayoutColumn
+          : (
+            <LayoutColumn
               className='Projects'
               label='Projects'
             >
@@ -59,7 +60,8 @@ class Projects extends Component {
                 model='projects'
                 list={list || []}
               />
-          </LayoutColumn>
+            </LayoutColumn>
+          )
         }
       </div>
     )

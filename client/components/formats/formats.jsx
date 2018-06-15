@@ -22,7 +22,7 @@ export const Formats = props => {
   )
 }
 
-const FormatsContainer = styled.div`
+export const FormatsContainer = styled.div`
   ${props => props.condensed && `
     display: flex;
     div:first-child {

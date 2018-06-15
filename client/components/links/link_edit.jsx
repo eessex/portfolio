@@ -51,7 +51,7 @@ export class LinkEdit extends Component {
     const { autoFocus, index, onDelete } = this.props
 
     return (
-      <Row className='LinkEdit'>
+      <LinkEditContainer>
         <Col sm={5}>
           <input
             autoFocus={autoFocus}
@@ -84,7 +84,45 @@ export class LinkEdit extends Component {
             )
           }
         </Col>
-      </Row>
+      </LinkEditContainer>
     )
   }
 }
+
+const LinkEditContainer = Row.extend`
+  padding-bottom: 20px !important;
+  justify-content: flex-start !important;
+
+  div[class^="Col-"] {
+    padding-left: 0 !important;
+    &:last-child {
+      padding-left: 10px !important;
+    }
+  }
+
+  input {
+    font-size: .9em;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid;
+  }
+
+  .IconButton {
+    padding: 0;
+    font-size: 1.15em;
+    transition: color .3s;
+    &:hover {
+      color: red;
+    }
+  }
+
+  button.new {
+    font-size: .7em;
+    margin-top: -5px;
+    padding: 5px 10px;
+    text-transform: uppercase;
+    &:hover {
+      color: limegreen;
+    }
+  }
+`

@@ -16,7 +16,6 @@
   "rules": {
     "camelcase": 0,
     "no-mixed-operators": 0,
-    "no-unused-vars": ["error", { "vars": "all", "args": "after-used", "ignoreRestSiblings": false }],
     "no-new": 0,
     "react/jsx-indent": 0,
     "react/jsx-indent-props": 0,

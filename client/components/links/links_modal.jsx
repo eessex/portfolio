@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Modal } from '../modal/modal.jsx'
@@ -15,7 +16,7 @@ export const LinksModal = props => {
       className='LinksModal'
       onClick={() => setEditing(null)}
     >
-      <label>Links</label>
+      <Label>Links</Label>
       <LinksEdit
         links={links || []}
         onChange={onChange}
@@ -23,6 +24,10 @@ export const LinksModal = props => {
     </Modal>
   )
 }
+
+const Label = styled.label`
+  padding-bottom: 10px;
+`
 
 LinksModal.propTypes = {
   links: PropTypes.array,

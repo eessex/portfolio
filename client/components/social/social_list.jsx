@@ -51,9 +51,14 @@ export const SocialContainer = styled.div`
     margin-right: 1em;
     text-decoration: none;
     color: black;
+    padding-bottom: 5px;
+    display: block;
   }
   .fa {
     margin-right: 5px;
+  }
+  @media (max-width: 76rem) {
+    flex-direction: column;
   }
 `
 

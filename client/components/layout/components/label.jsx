@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import { capitalize } from 'underscore.string'
 import PropTypes from 'prop-types'
 import React from 'react'
@@ -16,14 +17,23 @@ export const Label = (props) => {
   }
 
   return (
-    <label className='Label'>
+    <LabelContainer>
       {labelLink && formattedModel
         ? <a href={formattedModel}>{formattedLabel}</a>
         : formattedLabel
       }
-    </label>
+    </LabelContainer>
   )
 }
+
+const LabelContainer = styled.label`
+  font-weight: 600;
+  padding-bottom: 15px;
+  display: block;
+  a {
+    text-decoration: none;
+  }
+`
 
 Label.propTypes = {
   label: PropTypes.string,

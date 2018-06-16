@@ -18,7 +18,7 @@ import Header from './components/header/header.jsx'
 export default class Routes extends Component {
   render () {
     return (
-      <div>
+      <Content>
         <Header />
         <Main>
           <Route exact path='/' component={Events} />
@@ -38,11 +38,18 @@ export default class Routes extends Component {
           <Route exact path='/info' component={Pages} />
           <Route exact path='/settings' component={Settings} />
         </Main>
-      </div>
+      </Content>
     )
   }
 }
 
 const Main = styled.main`
   padding-top: 2.5em;
+`
+
+const Content = styled.div`
+  font-family: 'Roboto', 'helvetica neue', 'helvetica', 'arial', 'sans-serif';
+  font-size: 16px;
+  line-height: 1.2em;
+  letter-spacing: .015em;
 `

@@ -28,7 +28,7 @@ export const LayoutGrid = (props) => {
   const gridCoverImage = images.length > 0 ? images[0] : undefined
 
   return (
-    <Row
+    <GridContainer
       className={`LayoutGrid ${className || ''}`}
       data-layout={layout || ''}
     >
@@ -67,9 +67,49 @@ export const LayoutGrid = (props) => {
         <LinksList links={item.links || []} />
 
       </Col>
-    </Row>
+    </GridContainer>
   )
 }
+
+const GridContainer = Row.extend`
+  padding: 0 calc(20px - .5em) !important;
+  margin-bottom: 4em;
+
+  .LayoutGrid__label {
+    font-weight: 600;
+    margin-bottom: 10px;
+    a {
+      text-decoration: none;
+    }
+  }
+
+  .LayoutGrid__item {
+    margin: 0 auto 0 0;
+  }
+
+  .LayoutGrid__media {
+    margin-right: 30px;
+    max-width: 450px !important;
+    padding-bottom: 30px;
+  }
+
+  .Image {
+    margin-bottom: 1em;
+  }
+
+  .LinksList {
+    margin-top: calc(2em - 10px);
+    margin-bottom: 2em;
+  }
+
+  @media (max-width: 46rem) {
+    .LayoutGrid__media {
+      max-width: 100% !important;
+    }
+  }
+}
+
+`
 
 LayoutGrid.propTypes = {
   className: PropTypes.string,

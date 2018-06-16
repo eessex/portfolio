@@ -34,7 +34,7 @@ export const LayoutColumn = (props) => {
   }
 
   return (
-    <Row
+    <ColumnContainer
       className={`LayoutColumn ${className || ''}`}
       data-layout={layout || ''}
     >
@@ -82,9 +82,34 @@ export const LayoutColumn = (props) => {
         }
         {children}
       </Col>
-    </Row>
+    </ColumnContainer>
   )
 }
+
+const ColumnContainer = Row.extend`
+  padding: 0 calc(20px - .5em) !important;
+  margin-bottom: 4em;
+
+  .LayoutColumn__label {
+    font-weight: 600;
+    margin-bottom: 1em;
+    a {
+      text-decoration: none;
+    }
+  }
+  .LayoutColumn__item {
+    margin: 0 auto 0 0;
+  }
+
+  .Image {
+    margin-bottom: 1em;
+  }
+
+  .LinksList {
+    margin-top: calc(2em - 10px);
+    margin-bottom: 2em;
+  }
+`
 
 LayoutColumn.propTypes = {
   children: PropTypes.any,

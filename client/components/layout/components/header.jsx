@@ -34,7 +34,7 @@ export const ItemHeader = (props) => {
   const date = model !== 'publications' && getDate(model, item)
 
   return (
-    <ItemHeaderContainer className='ItemHeader'>
+    <ItemHeaderContainer>
       {label &&
         <Label
           label={label}
@@ -105,7 +105,21 @@ ItemHeader.propTypes = {
 }
 
 const ItemHeaderContainer = styled.div`
-  .h1 .public-DraftStyleDefault-block.public-DraftStyleDefault-ltr {
-    padding: 0;
+  margin-bottom: 2em;
+
+  .h1 {
+    margin-top: -6px;
+    .public-DraftStyleDefault-block.public-DraftStyleDefault-ltr {
+      padding: 0;
+    }
   }
+
+  .h6, h6 {
+    margin: 0;
+  }
+
+  .Image {
+    margin-top: 2em;
+  }
+}
 `

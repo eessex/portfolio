@@ -148,6 +148,7 @@ export const HeaderContainer = styled.div`
     z-index: 10;
     border-bottom: 1px solid #ddd;
   `}
+
   @media (max-width: 46rem) {
     display: block;
     ${props => props.fixed && `
@@ -160,7 +161,6 @@ export const HeaderContainer = styled.div`
 
 const A = styled.a`
   text-decoration: none;
-  color: black;
   margin-right: 15px;
   &:hover {
     color: #ddd;

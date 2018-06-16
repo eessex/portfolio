@@ -10,7 +10,7 @@ export const ItemTable = (props) => {
   return (
     <TableItem>
       {date &&
-        <Col xs={12} lg={3} className='Item__date'>
+        <Col xs={12} lg={3}>
           <h4>{date}</h4>
         </Col>
       }
@@ -45,11 +45,15 @@ const Title = styled.h4`
 `
 
 const TableItem = Row.extend`
+  margin-left: 0;
+  margin-right: 0;
   padding: .5em 20px !important;
+
   ${Col} {
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
+
   @media (max-width: 76rem) {
     ${FormatsContainer} {
       flex-direction: column;

@@ -56,7 +56,7 @@ export class ItemsList extends Component {
                 {this.renderLabel()}
               </Content>
               <Content xs={12} lg={10}>
-                <ItemGridContainer className='hello' canToggle={canToggle} layout={layout}>
+                <ItemGridContainer canToggle={canToggle} layout={layout}>
                   {items}
                 </ItemGridContainer>
               </Content>

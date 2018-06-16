@@ -52,4 +52,11 @@ const Content = styled.div`
   font-size: 16px;
   line-height: 1.2em;
   letter-spacing: .015em;
+
+  a {
+    color: black;
+    &:hover {
+      color: #ddd;
+    }
+  }
 `

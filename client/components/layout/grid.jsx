@@ -6,14 +6,13 @@ import { ItemHeader } from './components/header.jsx'
 import { EmbedList } from '../embeds/embed_list.jsx'
 import { ImagesShow } from '../images/images_show.jsx'
 import { LinksList } from '../links/links_list.jsx'
+import { ContentContainer } from './column.jsx'
 
 export const LayoutGrid = (props) => {
   const {
-    className,
     item,
     label,
     labelLink,
-    layout,
     model,
     onChange,
     setEditing
@@ -28,28 +27,17 @@ export const LayoutGrid = (props) => {
   const gridCoverImage = images.length > 0 ? images[0] : undefined
 
   return (
-    <GridContainer
-      className={`LayoutGrid ${className || ''}`}
-      data-layout={layout || ''}
-    >
-      <Col
-        className='LayoutGrid__media'
-        xs={12}
-        sm={gridCoverImage ? 5 : 2}
-      >
+    <GridContainer>
+      <MediaContainer xs={12} sm={gridCoverImage ? 5 : 2}>
         {gridCoverImage &&
           <ImagesShow images={images} />
         }
         {embed_codes &&
           <EmbedList embed_codes={embed_codes} />
         }
-      </Col>
+      </MediaContainer>
 
-      <Col
-        className='LayoutGrid__item'
-        xs={12}
-        sm={6}
-      >
+      <ContentContainer xs={12} sm={6}>
         <ItemHeader
           item={item}
           label={label}
@@ -66,32 +54,16 @@ export const LayoutGrid = (props) => {
 
         <LinksList links={item.links || []} />
 
-      </Col>
+      </ContentContainer>
     </GridContainer>
   )
 }
 
 const GridContainer = Row.extend`
-  padding: 0 calc(20px - .5em) !important;
+  padding: 0 20px;
+  margin-left: 0;
+  margin-right: 0;
   margin-bottom: 4em;
-
-  .LayoutGrid__label {
-    font-weight: 600;
-    margin-bottom: 10px;
-    a {
-      text-decoration: none;
-    }
-  }
-
-  .LayoutGrid__item {
-    margin: 0 auto 0 0;
-  }
-
-  .LayoutGrid__media {
-    margin-right: 30px;
-    max-width: 450px !important;
-    padding-bottom: 30px;
-  }
 
   .Image {
     margin-bottom: 1em;
@@ -101,20 +73,20 @@ const GridContainer = Row.extend`
     margin-top: calc(2em - 10px);
     margin-bottom: 2em;
   }
+`
+
+const MediaContainer = Col.extend`
+  margin-right: 30px;
+  max-width: 450px !important;
+  padding-bottom: 30px;
 
   @media (max-width: 46rem) {
-    .LayoutGrid__media {
-      max-width: 100% !important;
-    }
+    max-width: 100% !important;
   }
-}
-
 `
 
 LayoutGrid.propTypes = {
-  className: PropTypes.string,
   item: PropTypes.object,
-  layout: PropTypes.string,
   label: PropTypes.string,
   labelLink: PropTypes.any,
   model: PropTypes.string,

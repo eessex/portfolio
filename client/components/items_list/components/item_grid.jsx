@@ -67,7 +67,7 @@ const GridItem = styled.div`
     max-width: 100%;
   }
 
-  ${props => props.condensed === true && `
+  ${props => (props.condensed === true) && `
     margin-top: 30px;
     margin-bottom: 50px;
     padding: 0 10px;

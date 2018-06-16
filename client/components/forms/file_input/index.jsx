@@ -181,7 +181,6 @@ const Preview = styled.div`
     right: -3px;
     top: -3px;
     z-index: 10;
-    color: black;
     padding: 2px 5px;
     font-size: 1em;
     &:hover {

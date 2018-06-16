@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ContentState, Editor, EditorState } from 'draft-js'
@@ -50,14 +51,12 @@ export class PlainText extends Component {
 
   render () {
     const {
-      className,
       name,
       placeholder
     } = this.props
 
     return (
-      <div
-        className={'plain-text ' + className}
+      <PlainTextContainer
         name={name}
         onClick={this.focus}
       >
@@ -69,13 +68,19 @@ export class PlainText extends Component {
           ref='editor'
           spellcheck
         />
-      </div>
+      </PlainTextContainer>
     )
   }
 }
 
+const PlainTextContainer = styled.div`
+  position: relative;
+  .public-DraftEditorPlaceholder-root {
+    position: absolute;
+  }
+`
+
 PlainText.propTypes = {
-  className: PropTypes.string,
   content: PropTypes.string,
   forceUpdate: PropTypes.bool,
   name: PropTypes.string,

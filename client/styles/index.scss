@@ -1,26 +1,3 @@
-@-ms-viewport{
-  width: device-width;
-}
-
-div[class*="Row-"] {
-  margin-left: 0;
-  margin-right: 0;
-  padding: 0;
-  div[class^="Col-"] {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-}
-
-a {
-  color: black;
-  text-decoration: underline;
-  &:hover {
-    color: #ddd;
-  }
-}
-
-
 h1, .h1 {
   font-size: 2em;
   margin-top: 0.35em;
@@ -79,11 +56,4 @@ p,
 }
 p:first-child, .p:first-child {
   padding-top: 0;
-}
-
-.plain-text {
-  position: relative;
-  .public-DraftEditorPlaceholder-root {
-    position: absolute;
-  }
 }

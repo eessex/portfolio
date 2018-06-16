@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -37,7 +38,7 @@ class Event extends Component {
     const { item, loading } = this.props.item
 
     return (
-      <div className='Event'>
+      <EventContainer>
         {loading
           ? <Loading />
           : (
@@ -50,10 +51,16 @@ class Event extends Component {
             />
           )
         }
-      </div>
+      </EventContainer>
     )
   }
 }
+
+const EventContainer = styled.div`
+  .Venue {
+    margin: 1em 0;
+  }
+`
 
 const mapStateToProps = (state) => ({
   item: state.item,

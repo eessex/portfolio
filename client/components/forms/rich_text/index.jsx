@@ -146,8 +146,11 @@ export class RichText extends Component {
       'MUTABLE',
       { url }
     )
-    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-    const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity });
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
+    const newEditorState = EditorState.set(
+      editorState,
+      { currentContent: contentStateWithEntity }
+    )
 
     this.setState({
       editorState: RichUtils.toggleLink(
@@ -178,11 +181,9 @@ export class RichText extends Component {
   renderMenu () {
     if (this.state.showMenu) {
       return (
-        <div>
-          <button onClick={this.promptForLink}>
-            Link
-          </button>
-        </div>
+        <button onClick={this.promptForLink}>
+          Link
+        </button>
       )
     }
   }
@@ -230,5 +231,6 @@ const RichTextContainer = styled.div`
     left: 0;
     right: 0;
     top: 0;
+    color: gray;
   }
 `

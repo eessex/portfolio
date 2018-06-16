@@ -1,5 +1,9 @@
 import styled from 'styled-components'
 
+export const Placeholder = styled.span`
+  color: gray;
+`
+
 export const Input = styled.input`
   font-size: 1em;
   border-bottom: 1px solid #ddd;

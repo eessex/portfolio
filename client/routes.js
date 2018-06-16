@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import React, { Component } from 'react'
 import { Route } from 'react-router-dom'
 import {
@@ -19,7 +20,7 @@ export default class Routes extends Component {
     return (
       <div>
         <Header />
-        <main>
+        <Main>
           <Route exact path='/' component={Events} />
           <Route exact path='/events' component={Events} />
           <Route path='/events/:id' component={Event} />
@@ -36,8 +37,12 @@ export default class Routes extends Component {
           <Route exact path='/new/user' component={NewUser} />
           <Route exact path='/info' component={Pages} />
           <Route exact path='/settings' component={Settings} />
-        </main>
+        </Main>
       </div>
     )
   }
 }
+
+const Main = styled.main`
+  padding-top: 2.5em;
+`

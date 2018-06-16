@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
+import { Placeholder } from '../forms/input.jsx'
 
 export const Venue = props => {
   const { className, onClick, venue } = props
@@ -25,7 +26,7 @@ export const Venue = props => {
         </div>
       }
       {!hasVenue && onClick &&
-        <div className='placeholder'>Add Venue</div>
+        <Placeholder>Add Venue</Placeholder>
       }
     </div>
   )

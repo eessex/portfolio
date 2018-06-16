@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import FontAwesome from 'react-fontawesome'
 import PropTypes from 'prop-types'
 import React from 'react'
@@ -6,7 +7,6 @@ export const Button = props => {
   const {
     borderless,
     children,
-    className,
     color,
     icon,
     onClick,
@@ -15,29 +15,46 @@ export const Button = props => {
   const child = text || children
 
   return (
-    <button
-      className={`Button${icon ? ` IconButton` : ''}${className ? ` ${className}` : ''}`}
+    <ButtonContainer
+      borderless={borderless}
+      color={color}
       onClick={onClick}
-      style={{
-        borderWidth: borderless ? '0' : '1px',
-        color
-      }}
+      icon={icon}
     >
       {icon &&
         <FontAwesome name={icon} />
       }
       {child &&
-        <span className='Button__text'>{child}</span>
+        <ButtonText icon={icon}>{child}</ButtonText>
       }
       {text && children && children}
-    </button>
+    </ButtonContainer>
   )
 }
+
+export const ButtonContainer = styled.button`
+  font-size: .85em;
+  border: 1px solid;
+  background: white;
+  padding: 6px 12px;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  border-radius: 0;
+  transition: color 0.25s;
+  color: ${props => props.color || 'black'};
+  border-width: ${props => props.borderless ? '0' : '1px'};
+`
+
+const ButtonText = styled.span`
+  ${props => props.icon && `
+    margin-left: 8px;
+  `}
+`
 
 Button.propTypes = {
   borderless: PropTypes.bool,
   children: PropTypes.any,
-  className: PropTypes.string,
   color: PropTypes.string,
   icon: PropTypes.string,
   onClick: PropTypes.func,

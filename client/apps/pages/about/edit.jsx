@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { EditNav } from '../../../components/forms/edit_nav.jsx'
+import { EditNav } from '../../../components/header/edit_nav.jsx'
 import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'

@@ -3,13 +3,14 @@ import { Route } from 'react-router-dom'
 import {
   Event,
   Events,
+  Login,
   Pages,
   Project,
   Projects,
   Publication,
   Publications,
   Settings,
-  User
+  NewUser
 } from './apps'
 import Header from './components/header/header.jsx'
 
@@ -31,8 +32,8 @@ export default class Routes extends Component {
           <Route exact path='/publications' component={Publications} />
           <Route exact path='/publications/:id' component={Publication} />
 
-          <Route exact path='/login' component={User} />
-          <Route exact path='/new/user' component={User} />
+          <Route exact path='/login' component={Login} />
+          <Route exact path='/new/user' component={NewUser} />
           <Route exact path='/info' component={Pages} />
           <Route exact path='/settings' component={Settings} />
         </main>

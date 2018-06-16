@@ -1,6 +1,7 @@
-import styled from 'styled-components'
+import styled, { ThemeProvider } from 'styled-components'
 import React, { Component } from 'react'
 import { Route } from 'react-router-dom'
+import { theme } from './styles/theme.jsx'
 import {
   Event,
   Events,
@@ -18,27 +19,29 @@ import Header from './components/header/header.jsx'
 export default class Routes extends Component {
   render () {
     return (
-      <Content>
-        <Header />
-        <Main>
-          <Route exact path='/' component={Events} />
-          <Route exact path='/events' component={Events} />
-          <Route path='/events/:id' component={Event} />
+      <ThemeProvider theme={theme}>
+        <Content>
+          <Header />
+          <Main>
+            <Route exact path='/' component={Events} />
+            <Route exact path='/events' component={Events} />
+            <Route path='/events/:id' component={Event} />
 
-          <Route exact path='/projects' component={Projects} />
-          <Route exact path='/projects/:id' component={Project} />
+            <Route exact path='/projects' component={Projects} />
+            <Route exact path='/projects/:id' component={Project} />
 
-          <Route exact path='/releases' component={Publications} />
-          <Route exact path='/releases/:id' component={Publication} />
-          <Route exact path='/publications' component={Publications} />
-          <Route exact path='/publications/:id' component={Publication} />
+            <Route exact path='/releases' component={Publications} />
+            <Route exact path='/releases/:id' component={Publication} />
+            <Route exact path='/publications' component={Publications} />
+            <Route exact path='/publications/:id' component={Publication} />
 
-          <Route exact path='/login' component={Login} />
-          <Route exact path='/new/user' component={NewUser} />
-          <Route exact path='/info' component={Pages} />
-          <Route exact path='/settings' component={Settings} />
-        </Main>
-      </Content>
+            <Route exact path='/login' component={Login} />
+            <Route exact path='/new/user' component={NewUser} />
+            <Route exact path='/info' component={Pages} />
+            <Route exact path='/settings' component={Settings} />
+          </Main>
+        </Content>
+      </ThemeProvider>
     )
   }
 }

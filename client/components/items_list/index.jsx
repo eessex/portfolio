@@ -64,9 +64,9 @@ export class ItemsList extends Component {
           )
         } else {
           return (
-            <ListContainer canToggle={canToggle} layout={layout}>
+            <ItemGridContainer canToggle={canToggle} layout={layout}>
               {items}
-            </ListContainer>
+            </ItemGridContainer>
           )
         }
       default:
@@ -156,10 +156,6 @@ const ItemsListContainer = styled.div`
   }
 `
 
-const Content = Col.extend`
-  padding: 0;
-`
-
 const LayoutToggle = styled.h6`
   &:hover {
     color: #ddd;
@@ -184,16 +180,6 @@ const ListContainer = styled.div`
   }
 `
 
-const ItemGridContainer = Row.extend`
-  margin: 0;
-  @media (max-width: 76rem) {
-    ${props => props.condensed && `
-      padding-left: 10px;
-      padding-right: 10px;
-    `}
-  }
-`
-
 const ItemsListHeader = styled.div`
   margin-top: 0;
   font-weight: 600;
@@ -209,6 +195,21 @@ const ItemsListHeader = styled.div`
     justify-content: space-between;
     align-items: center;
   `}
+`
+
+const ItemGridContainer = Row.extend`
+  margin: 0;
+  padding: 0 10px;
+  @media (max-width: 76rem) {
+    padding: 0;
+  }
+`
+
+const Content = Col.extend`
+  padding: 0;
+  ${ItemGridContainer} {
+    padding: 0 20px;
+  }
 `
 
 ItemsList.propTypes = {

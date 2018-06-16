@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import { fetchItem, resetItem } from '../../actions/item'
 import { Item } from '../../components/item/index.jsx'
 import { Loading } from '../../components/layout/components/loading.jsx'
+import { H1 } from '../../styles/text.jsx'
 
 class Project extends Component {
   static propTypes = {
@@ -50,11 +51,9 @@ class Project extends Component {
 }
 
 const ProjectContainer = styled.div`
-  .ItemHeader {
-    .h1 {
-      font-size: 3em;
-      margin-top: -5px;
-    }
+  ${H1} {
+    font-size: 3em;
+    margin-top: -5px;
   }
 `
 

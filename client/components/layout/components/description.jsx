@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { RichText } from '../../forms/rich_text/index.jsx'
+import { P } from '../../../styles/text.jsx'
 
 export const Description = props => {
   const {
@@ -11,15 +12,17 @@ export const Description = props => {
   } = props
 
   return (
-    <DescriptionContainer className='Description p'>
+    <DescriptionContainer className='Description'>
       {onChange
         ? (
-          <RichText
-            html={description}
-            placeholder={placeholder || 'Start typing...'}
-            onChange={(value) => onChange('description', value)}
-          />
-        ) : <div dangerouslySetInnerHTML={{__html: description}} />
+          <P>
+            <RichText
+              html={description}
+              placeholder={placeholder || 'Start typing...'}
+              onChange={(value) => onChange('description', value)}
+            />
+          </P>
+        ) : <P dangerouslySetInnerHTML={{__html: description}} />
       }
     </DescriptionContainer>
   )

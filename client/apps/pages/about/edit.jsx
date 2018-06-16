@@ -8,6 +8,7 @@ import { ImageEdit } from '../../../components/image/image_edit.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
 import { SocialEdit } from '../../../components/social/social_edit.jsx'
+import { P } from '../../../styles/text.jsx'
 import { SocialContainer } from './show.jsx'
 
 export class AboutEdit extends Component {
@@ -111,13 +112,13 @@ export class AboutEdit extends Component {
               editCaption
             />
           }
-
-          <RichText
-            onChange={(value) => this.onChange('description', value)}
-            html={settings.about.description}
-            placeholder='Start typing ...'
-            className='p'
-          />
+          <P>
+            <RichText
+              onChange={(value) => this.onChange('description', value)}
+              html={settings.about.description}
+              placeholder='Start typing ...'
+            />
+          </P>
 
           <SocialContainer>
             <SocialEdit social={settings.about.social} onChange={this.onChange} />

@@ -4,11 +4,12 @@ import { capitalize } from 'underscore.string'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import Waypoint from 'react-waypoint'
+import { H1 } from '../../styles/text.jsx'
 
 export class Header extends Component {
   static propTypes = {
-    settings: PropTypes.object,
-    user: PropTypes.object
+    isAuthenticated: PropTypes.object,
+    settings: PropTypes.object
   }
 
   state = {
@@ -18,8 +19,9 @@ export class Header extends Component {
   }
 
   componentDidMount = () => {
-    this.setState({scrollPosition: window.pageYOffset})
+    const scrollPosition = window.pageYOffset
 
+    this.setState({ scrollPosition })
     window.addEventListener('scroll', () => {
       this.onScroll()
     })
@@ -51,6 +53,7 @@ export class Header extends Component {
 
   onWaypointLeave = () => {
     const { navOpen } = this.state
+
     if (!navOpen) {
       this.setState({ navOpen: true })
     }
@@ -58,12 +61,15 @@ export class Header extends Component {
 
   isActive (navItem) {
     const { pathname } = window.location
-    return (pathname).replace('/', '') === navItem || pathname === '/' && navItem === 'events'
+    const isHome = pathname === '/'
+    const isActive = (pathname).replace('/', '') === navItem
+
+    return isActive || isHome && navItem === 'events'
   }
 
   headerInner = (isFixed) => {
-    const { title, nav } = this.props.settings.settings
-    const { isAuthenticated } = this.props.user
+    const { title, nav } = this.props.settings
+    const { isAuthenticated } = this.props
     const hasMenuItems = nav && nav.length > 0
 
     return (
@@ -72,9 +78,9 @@ export class Header extends Component {
         admin={isAuthenticated}
         fixed={isFixed}
       >
-        <h1>
+        <H1>
           <A href='/'>{title}</A>
-        </h1>
+        </H1>
         {hasMenuItems &&
           <nav>
             {nav.map((navItem, i) =>
@@ -113,7 +119,8 @@ export class Header extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  ...state
+  isAuthenticated: state.user.isAuthenticated,
+  settings: state.settings.settings
 })
 
 export default connect(
@@ -126,19 +133,18 @@ export const HeaderContainer = styled.div`
   align-items: center;
   justify-content: space-between;
 
-  label {
-    font-weight: 600;
-  }
-  h1 {
+  ${H1} {
     font-size: 1.5em;
     font-weight: 600;
     line-height: 1em;
     text-transform: uppercase;
     letter-spacing: .075em;
   }
+
   ${props => props.admin && `
     justify-content: flex-start;
   `}
+
   ${props => props.fixed && `
     position: fixed;
     left: 0;

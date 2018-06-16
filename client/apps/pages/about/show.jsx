@@ -5,6 +5,7 @@ import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { Image } from '../../../components/image/image.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { Social } from '../../../components/social/social_list.jsx'
+import { P } from '../../../styles/text.jsx'
 
 export const AboutShow = props => {
   const { settings: { about } } = props
@@ -20,10 +21,7 @@ export const AboutShow = props => {
         <Image {...cover_image} />
       }
 
-      <div
-        className='about__description'
-        dangerouslySetInnerHTML={{__html: about.description}}
-      />
+      <P dangerouslySetInnerHTML={{__html: about.description}} />
 
       <SocialContainer>
         <Social social={about.social} />

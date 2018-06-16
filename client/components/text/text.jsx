@@ -4,7 +4,6 @@ import { PlainText } from '../forms/rich_text/plain_text.jsx'
 
 export const Text = props => {
   const {
-    className,
     onClick,
     onChange,
     placeholder,
@@ -13,7 +12,6 @@ export const Text = props => {
 
   return (
     <div
-      className={`Text ${className || 'p'}`}
       onClick={onClick || undefined}
       data-placeholder={onClick && !text}
     >
@@ -33,7 +31,6 @@ export const Text = props => {
 }
 
 Text.propTypes = {
-  className: PropTypes.string,
   text: PropTypes.string,
   onClick: PropTypes.func,
   onChange: PropTypes.func,

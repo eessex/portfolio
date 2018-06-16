@@ -26,7 +26,13 @@ export class Social extends Component {
 
   renderSocialList = social => {
     if (social) {
-      const services = ['bandcamp', 'soundcloud', 'facebook', 'instagram', 'twitter']
+      const services = [
+        'bandcamp',
+        'soundcloud',
+        'facebook',
+        'instagram',
+        'twitter'
+      ]
 
       return services.map((service, i) => {
         return this.renderSocial(social, service, i)

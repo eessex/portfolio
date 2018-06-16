@@ -9,6 +9,7 @@ import { Formats } from '../../formats/formats.jsx'
 import { Text } from '../../text/text.jsx'
 import { Venue } from '../../venue/venue.jsx'
 import { Label } from './label.jsx'
+import { H1 } from '../../../styles/text.jsx'
 
 export const ItemHeader = (props) => {
   const {
@@ -43,19 +44,22 @@ export const ItemHeader = (props) => {
         />
       }
       {artist &&
-        <Text
-          className='h1'
-          onChange={(value) => onChange('artist', value)}
-          placeholder='Artist'
-          text={artist}
-        />
+        <H1>
+          <Text
+            onChange={(value) => onChange('artist', value)}
+            placeholder='Artist'
+            text={artist}
+          />
+        </H1>
       }
-      <Text
-        className='h1'
-        onChange={(value) => onChange('title', value)}
-        placeholder='Add Title'
-        text={title}
-      />
+      <H1>
+        <Text
+          onChange={(value) => onChange('title', value)}
+          placeholder='Add Title'
+          text={title}
+        />
+      </H1>
+
       {date &&
         <h4 onClick={setEditing ? () => setEditing('dates') : undefined}>
           {date}
@@ -107,9 +111,10 @@ ItemHeader.propTypes = {
 const ItemHeaderContainer = styled.div`
   margin-bottom: 2em;
 
-  .h1 {
+  ${H1} {
     margin-top: -6px;
-    .public-DraftStyleDefault-block.public-DraftStyleDefault-ltr {
+    .public-DraftStyleDefault-block.public-DraftStyleDefault-ltr,
+    public-DraftEditorPlaceholder-root {
       padding: 0;
     }
   }

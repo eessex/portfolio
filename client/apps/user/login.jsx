@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { loginUser } from '../../actions/user.js'
 import { Button } from '../../components/forms/buttons/button.jsx'
-import { ColumnForm, Input } from '../../components/forms/input.jsx'
+import { ColumnForm, Input } from '../../styles/forms.jsx'
 import { LayoutColumn } from '../../components/layout/column.jsx'
 import { Loading } from '../../components/layout/components/loading.jsx'
 

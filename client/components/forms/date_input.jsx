@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import moment from 'moment'
+import { Input } from '../../styles/forms.jsx'
 
 export class DateInput extends Component {
   static propTypes = {
@@ -42,7 +43,7 @@ export class DateInput extends Component {
         {label &&
           <label>{label}</label>
         }
-        <input
+        <Input
           type='date'
           ref='date'
           required={required || false}
@@ -51,7 +52,7 @@ export class DateInput extends Component {
           autoFocus={autoFocus}
         />
         {!allDay &&
-          <input
+          <Input
             type='time'
             ref='time'
             defaultValue={moment(value).format('HH:mm')}

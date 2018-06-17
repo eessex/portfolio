@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Placeholder } from '../forms/input.jsx'
+import { Placeholder } from '../../styles/forms.jsx '
 
 export const Venue = props => {
   const { onClick, venue } = props

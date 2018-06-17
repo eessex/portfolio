@@ -7,10 +7,7 @@ export const FormatsModal = (props) => {
   const { setEditing } = props
 
   return (
-    <Modal
-      className='FormatsModal'
-      onClick={() => setEditing(null)}
-    >
+    <Modal onClick={() => setEditing(null)}>
       <label>Formats:</label>
       <FormatsEdit
         {...props}

@@ -4,6 +4,7 @@ import React from 'react'
 import { Col } from 'react-styled-flexboxgrid'
 import { ItemTable } from './item_table.jsx'
 import { ItemGrid } from './item_grid.jsx'
+import { H1 } from '../../../styles/text.jsx'
 
 export const ListItem = props => {
   const {
@@ -44,7 +45,7 @@ export const ListItem = props => {
       return (
         <Item layout={layout} published={published} condensed={condensed}>
           <a href={slug}>
-            <h1>{title || 'Missing Title'}</h1>
+            <H1>{title || 'Missing Title'}</H1>
           </a>
         </Item>
       )
@@ -56,9 +57,7 @@ export const Item = styled.div`
   a {
     text-decoration: none;
   }
-  h1, h2, h3, h4, h5 {
-    margin: 0.5em 0;
-  }
+
   ${props => props.published === false && `
     opacity: .65;
   `}

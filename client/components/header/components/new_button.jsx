@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
+import { Button } from '../../forms/buttons/button.jsx'
+import { Nav } from '../edit_nav.jsx'
 
 export class NewButton extends Component {
   static propTypes = {
@@ -18,11 +20,12 @@ export class NewButton extends Component {
   render () {
     const { model } = this.props
     return (
-      <nav className='AdminNav'>
-        <div onClick={this.newItem}>
-          <button>New {model}</button>
-        </div>
-      </nav>
+      <Nav>
+        <Button
+          text={`New ${model}`}
+          onClick={this.newItem}
+        />
+      </Nav>
     )
   }
 }

@@ -46,10 +46,10 @@ export class ImagesEdit extends Component {
     const images = item.images || []
 
     return (
-      <Modal className='ImagesEdit' onClick={() => setEditing(null)}>
+      <Modal onClick={() => setEditing(null)}>
 
-        <div className='ImagesEdit__inner'>
-          <label>Images:</label>
+        <div>
+          <label>Images</label>
 
           {images.length > 0 &&
             <ImagesEditList>
@@ -66,7 +66,7 @@ export class ImagesEdit extends Component {
             </ImagesEditList>
           }
 
-          <div className='ImagesEdit__new'>
+          <div>
             <ImageEdit
               fetchUpload={fetchUpload}
               index={-1}

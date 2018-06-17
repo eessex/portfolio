@@ -54,7 +54,7 @@ export class LinksEdit extends Component {
     const { links } = this.props
 
     return (
-      <div className='EditLinks'>
+      <div>
         {links.map((link, index) =>
           <LinkEdit
             {...link}

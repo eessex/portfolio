@@ -11,10 +11,7 @@ export const VenueModal = props => {
   } = props
 
   return (
-    <Modal
-      className='VenueModal'
-      onClick={() => setEditing(null)}
-    >
+    <Modal onClick={() => setEditing(null)}>
       <label>Venue</label>
       <VenueEdit
         venue={venue || {}}

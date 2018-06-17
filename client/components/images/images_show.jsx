@@ -6,7 +6,7 @@ export const ImagesShow = props => {
   const { images } = props
 
   return (
-    <div className='ImagesShow'>
+    <div>
       {images.map((image, i) => {
         return <Image {...image} key={i} />
       })}

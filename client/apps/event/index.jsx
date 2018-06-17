@@ -37,7 +37,7 @@ class Event extends Component {
     const { item, loading } = this.props.item
 
     return (
-      <div className='Event'>
+      <div>
         {loading
           ? <Loading />
           : (

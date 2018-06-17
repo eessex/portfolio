@@ -6,6 +6,7 @@ import { Col, Row } from 'react-styled-flexboxgrid'
 import { capitalize } from 'lodash'
 import { getDate, getVenue } from '../../utils/index.js'
 import { ListItem } from './components/list_item.jsx'
+import { H6 } from '../../styles/text.jsx'
 
 export class ItemsList extends Component {
   state = {
@@ -56,7 +57,7 @@ export class ItemsList extends Component {
                 {this.renderLabel()}
               </Content>
               <Content xs={12} lg={10}>
-                <ItemGridContainer className='hello' canToggle={canToggle} layout={layout}>
+                <ItemGridContainer canToggle={canToggle} layout={layout}>
                   {items}
                 </ItemGridContainer>
               </Content>
@@ -64,9 +65,9 @@ export class ItemsList extends Component {
           )
         } else {
           return (
-            <ListContainer canToggle={canToggle} layout={layout}>
+            <ItemGridContainer canToggle={canToggle} layout={layout}>
               {items}
-            </ListContainer>
+            </ItemGridContainer>
           )
         }
       default:
@@ -109,22 +110,17 @@ export class ItemsList extends Component {
     const {
       canToggle,
       children,
-      className,
       comingSoon,
       label,
-      list,
-      model
+      list
     } = this.props
 
     const { layout } = this.state
     const listItems = children || this.renderListItems()
-    const layoutClass = layout ? ' ' + layout : ''
-    const classModelName = 'ItemsList--' + model + layoutClass
     const hasLabel = label && layout !== 'grid' || layout === 'grid' && canToggle
 
     return (
       <ItemsListContainer
-        className={`ItemsList ${classModelName} ${className || ''}`}
         layout={layout}
         canToggle={canToggle}
       >
@@ -156,11 +152,7 @@ const ItemsListContainer = styled.div`
   }
 `
 
-const Content = Col.extend`
-  padding: 0;
-`
-
-const LayoutToggle = styled.h6`
+const LayoutToggle = H6.extend`
   &:hover {
     color: #ddd;
     cursor: pointer;
@@ -184,16 +176,6 @@ const ListContainer = styled.div`
   }
 `
 
-const ItemGridContainer = Row.extend`
-  margin: 0;
-  @media (max-width: 76rem) {
-    ${props => props.condensed && `
-      padding-left: 10px;
-      padding-right: 10px;
-    `}
-  }
-`
-
 const ItemsListHeader = styled.div`
   margin-top: 0;
   font-weight: 600;
@@ -211,10 +193,24 @@ const ItemsListHeader = styled.div`
   `}
 `
 
+const ItemGridContainer = Row.extend`
+  margin: 0;
+  padding: 0 10px;
+  @media (max-width: 76rem) {
+    padding: 0;
+  }
+`
+
+const Content = Col.extend`
+  padding: 0;
+  ${ItemGridContainer} {
+    padding: 0 20px;
+  }
+`
+
 ItemsList.propTypes = {
   canToggle: PropTypes.bool,
   children: PropTypes.any,
-  className: PropTypes.string,
   comingSoon: PropTypes.bool,
   label: PropTypes.string,
   layout: PropTypes.string,

@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Formats } from '../../formats/formats.jsx'
+import { H1, H3, H5, P } from '../../../styles/text.jsx'
 
 export const ItemGrid = props => {
   const {
@@ -15,68 +16,73 @@ export const ItemGrid = props => {
     venue
   } = props
   const hasImage = image && image.url.length
-  const titleClass = hasImage ? ' h3' : ' h1'
+  const formattedTitle = artist
+    ? `${artist}: ${title || 'Missing Title'}`
+    : title || 'Missing Title'
 
   return (
     <GridItem condensed={condensed}>
       {hasImage &&
-        <img
-          src={image.url}
-          width='100%'
-        />
+        <img src={image.url} />
       }
-      <div>
-        <div className={titleClass}>
-          {artist && `${artist}: `}
-          {title || 'Missing Title'}
-        </div>
-        {date && !formats &&
-          <h5>
-            {date}
-          </h5>
-        }
-        {venue &&
-          <h5>
-            {venue}
-          </h5>
-        }
-        {formats && formats.length &&
-          <h5>
-            <Formats items={formats} />
-          </h5>
-        }
-        {description &&
-          <p>
-            {description}
-          </p>
-        }
-      </div>
+      {hasImage
+        ? <H3>{formattedTitle}</H3>
+        : <H1>{formattedTitle}</H1>
+      }
+      {date && !formats &&
+        <H5>
+          {date}
+        </H5>
+      }
+      {venue &&
+        <H5>
+          {venue}
+        </H5>
+      }
+      {formats && formats.length &&
+        <H5>
+          <Formats items={formats} />
+        </H5>
+      }
+      {description &&
+        <P>
+          {description}
+        </P>
+      }
     </GridItem>
   )
 }
 
 const GridItem = styled.div`
   margin-bottom: 4em;
-  padding: 10px 0;
-  .h1 {
-    font-size: 4.25em;
-  }
-  img {
-    max-height: 80vh;
-    width: auto;
-    max-width: 100%;
+
+  ${H1} {
+    font-size: 3.5em;
+    margin-top: 0;
+    ${props => props.condensed && `
+      font-size: 2.5em;
+    `}
   }
 
-  ${props => props.condensed === true && `
-    margin-top: 30px;
+  ${H3} {
+    ${props => props.condensed && `
+      margin-bottom: .5em;
+      font-size: 1.25em;
+    `}
+  }
+
+  img {
+    max-height: 80vh;
+    width: 100%;
+    max-width: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  ${props => props.condensed && `
+    margin-top: 20px;
     margin-bottom: 50px;
     padding: 0 10px;
-    .h1 {
-      font-size: 2.5em;
-    }
-    .h3 {
-      margin-bottom: .5em;
-    }
     @media (max-width: 76rem) {
       margin-top: 10px;
       margin-bottom: 30px;
@@ -85,18 +91,15 @@ const GridItem = styled.div`
   `}
 
   @media (max-width: 76rem) {
-    .h1 {
-      font-size: 3.25em;
-    }
-    h4 {
-      font-size: 1.3em;
-      line-height: 1.3em;
+    ${H1} {
+      font-size: 2.25em;
     }
   }
 `
 
 ItemGrid.propTypes = {
   artist: PropTypes.string,
+  condensed: PropTypes.bool,
   date: PropTypes.string,
   description: PropTypes.string,
   formats: PropTypes.array,

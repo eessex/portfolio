@@ -49,7 +49,7 @@ export class DatesEdit extends Component {
     } = this.state
 
     return (
-      <DatesEditContainer className='DatesEdit'>
+      <DatesEditContainer>
         <Row>
           <Col>
             <DateInput
@@ -74,22 +74,24 @@ export class DatesEdit extends Component {
           }
         </Row>
 
-        <CheckboxInputs>
-          <CheckboxInput
-            className='h5'
-            label='Hide End Date'
-            name='end_date'
-            value={!hasEndDate}
-            onChange={this.toggleEndDate}
-          />
-          <CheckboxInput
-            className='h5'
-            label='Hide Time'
-            name='all_day'
-            value={all_day}
-            onChange={() => onChange('all_day', !all_day)}
-          />
-        </CheckboxInputs>
+        <Row>
+          <Col>
+            <CheckboxInput
+              label='Hide End Date'
+              name='end_date'
+              value={!hasEndDate}
+              onChange={this.toggleEndDate}
+            />
+          </Col>
+          <Col>
+            <CheckboxInput
+              label='Hide Time'
+              name='all_day'
+              value={all_day}
+              onChange={() => onChange('all_day', !all_day)}
+            />
+          </Col>
+        </Row>
       </DatesEditContainer>
     )
   }
@@ -98,11 +100,13 @@ export class DatesEdit extends Component {
 const DatesEditContainer = styled.div`
   ${Row} {
     padding-bottom: 10px;
-    div[class*="Col-"]:first-child {
-      padding-left: 0;
-    }
-    div[class*="Col-"]:last-child {
-      padding-right: 0;
+    ${Col} {
+      &:first-child {
+        padding-left: 0;
+      }
+      &:last-child {
+        padding-right: 0;
+      }
     }
   }
   input {
@@ -112,10 +116,4 @@ const DatesEditContainer = styled.div`
     padding-bottom: 2px;
     font-family: inherit;
   }
-`
-const CheckboxInputs = styled.div`
-    display: flex;
-    .CheckboxInput {
-      margin-right: 20px;
-    }
 `

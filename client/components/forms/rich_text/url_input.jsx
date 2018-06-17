@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
+import { Button } from '../buttons/button.jsx'
 
 export default class UrlInput extends Component {
   static propTypes = {
@@ -15,15 +16,17 @@ export default class UrlInput extends Component {
 
   render () {
     const { name, url } = this.props
+
     return (
-      <form
-        onSubmit={this.onSubmit}
-        className='input--url'>
+      <form onSubmit={this.onSubmit}>
         <input
           placeholder={name}
           ref='url'
-          defaultValue={url || ''} />
-        <button>Save</button>
+          defaultValue={url || ''}
+        />
+        <Button>
+          Save
+        </Button>
       </form>
     )
   }

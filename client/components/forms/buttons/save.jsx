@@ -1,20 +1,20 @@
 import PropTypes from 'prop-types'
 import React from 'react'
+import { ButtonContainer } from './button.jsx'
 
 export const SaveButton = (props) => {
   const { isSaved, isSaving, onClick } = props
   const action = isSaving ? 'Saving' : 'Save'
 
   return (
-    <button
-      className='SaveButton'
+    <ButtonContainer
       data-saving={isSaving}
       data-saved={isSaved}
       onClick={onClick}
-      style={{color: textColor(!isSaved, isSaving)}}
+      color={textColor(!isSaved, isSaving)}
     >
       {action}
-    </button>
+    </ButtonContainer>
   )
 }
 

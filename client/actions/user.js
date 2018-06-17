@@ -1,6 +1,11 @@
-import { API, CREATE_USER, LOGIN_USER, LOGOUT_USER } from '../actions';
+import {
+  API,
+  CREATE_USER,
+  LOGIN_USER,
+  LOGOUT_USER
+} from '../actions'
 
-export const createUser = (creds) => {
+export const createUser = creds => {
   return {
     type: API,
     payload: {
@@ -12,7 +17,7 @@ export const createUser = (creds) => {
   }
 }
 
-export const loginUser = (creds) => {
+export const loginUser = creds => {
   return {
     type: API,
     payload: {

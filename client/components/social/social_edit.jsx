@@ -4,6 +4,7 @@ import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 import { capitalize, cloneDeep } from 'lodash'
 import { SocialContainer } from './social_list.jsx'
+import { ModalBackground } from '../modal/modal_background.jsx'
 
 export class SocialEdit extends Component {
   static propTypes = {
@@ -79,9 +80,9 @@ export class SocialEdit extends Component {
     return (
       <SocialContainer>
         {this.renderSocialList(social)}
+
         {isEditing && (
-          <div
-            className='modal__bg'
+          <ModalBackground
             onClick={() => this.setState({ isEditing: null })}
           />
         )}

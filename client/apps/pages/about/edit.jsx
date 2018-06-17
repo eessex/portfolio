@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { EditNav } from '../../../components/forms/edit_nav.jsx'
+import { EditNav } from '../../../components/header/edit_nav.jsx'
 import { EmbedList } from '../../../components/embeds/embed_list.jsx'
 import { EmbedModal } from '../../../components/embeds/embed_modal.jsx'
 import { ImagesEdit } from '../../../components/images/images_edit.jsx'
@@ -8,6 +8,7 @@ import { ImageEdit } from '../../../components/image/image_edit.jsx'
 import { LayoutColumn } from '../../../components/layout/column.jsx'
 import { RichText } from '../../../components/forms/rich_text/index.jsx'
 import { SocialEdit } from '../../../components/social/social_edit.jsx'
+import { P } from '../../../styles/text.jsx'
 import { SocialContainer } from './show.jsx'
 
 export class AboutEdit extends Component {
@@ -85,9 +86,7 @@ export class AboutEdit extends Component {
     const embed_codes = settings.about.embed_codes || []
 
     return (
-      <div
-        className='AboutEdit'
-      >
+      <div>
         <EditNav
           isSaved={isSaved}
           isSaving={saving}
@@ -95,8 +94,7 @@ export class AboutEdit extends Component {
           model='settings'
           saveItem={this.onSave}
           setEditing={(isEditing) => this.setState({ isEditing })}
-          onClickImage={() => this.setState({isEditing: 'images'})}
-          onClickEmbed={() => this.setState({isEditing: 'embeds'})}
+          noLinks
         />
 
         <LayoutColumn
@@ -111,13 +109,13 @@ export class AboutEdit extends Component {
               editCaption
             />
           }
-
-          <RichText
-            onChange={(value) => this.onChange('description', value)}
-            html={settings.about.description}
-            placeholder='Start typing ...'
-            className='p'
-          />
+          <P>
+            <RichText
+              onChange={(value) => this.onChange('description', value)}
+              html={settings.about.description}
+              placeholder='Start typing ...'
+            />
+          </P>
 
           <SocialContainer>
             <SocialEdit social={settings.about.social} onChange={this.onChange} />

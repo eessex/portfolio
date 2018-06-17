@@ -56,13 +56,11 @@ export class TextInput extends Component {
       size,
       textarea
     } = this.props
-    var req = required ? ' req' : ''
 
     return (
       <TextInputContainer
         inline={inline}
         required={required}
-        className={'input--text' + req}
       >
         {label &&
           this.renderLabel()

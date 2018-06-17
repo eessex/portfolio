@@ -11,11 +11,9 @@ import { LinksList } from '../links/links_list.jsx'
 export const LayoutColumn = (props) => {
   const {
     children,
-    className,
     item,
     label,
     labelLink,
-    layout,
     model,
     onChange,
     setEditing
@@ -34,27 +32,16 @@ export const LayoutColumn = (props) => {
   }
 
   return (
-    <Row
-      className={`LayoutColumn ${className || ''}`}
-      data-layout={layout || ''}
-    >
-      <Col
-        className='LayoutColumn__label'
-        xs={12}
-        sm={2}
-      >
+    <ColumnContainer>
+      <LabelContainer xs={12} sm={2}>
         <Label
           label={label}
           labelLink={labelLink}
           model={model}
         />
-      </Col>
+      </LabelContainer>
 
-      <Col
-        className='LayoutColumn__item'
-        xs={12}
-        sm={6}
-      >
+      <ContentContainer xs={12} sm={6}>
         {item &&
           <div>
             <ItemHeader
@@ -81,16 +68,40 @@ export const LayoutColumn = (props) => {
           </div>
         }
         {children}
-      </Col>
-    </Row>
+      </ContentContainer>
+    </ColumnContainer>
   )
 }
 
+const ColumnContainer = Row.extend`
+  padding: 0 20px;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 4em;
+
+  .Image {
+    margin-bottom: 1em;
+  }
+
+  .LinksList {
+    margin-top: calc(2em - 10px);
+    margin-bottom: 2em;
+  }
+`
+
+export const LabelContainer = Col.extend`
+  margin-bottom: 1em;
+  padding: 0;
+`
+
+export const ContentContainer = Col.extend`
+  margin: 0 auto 0 0;
+  padding: 0;
+`
+
 LayoutColumn.propTypes = {
   children: PropTypes.any,
-  className: PropTypes.string,
   item: PropTypes.object,
-  layout: PropTypes.string,
   label: PropTypes.string,
   labelLink: PropTypes.any,
   model: PropTypes.string,

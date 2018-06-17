@@ -6,7 +6,6 @@ import Routes from './routes'
 import store from './utils/store.js'
 import { saveState } from './utils/local_storage.js'
 import { fetchSettings } from './actions/settings'
-require('./styles/index.scss')
 
 store.subscribe(() => {
   saveState({user: store.getState().user})

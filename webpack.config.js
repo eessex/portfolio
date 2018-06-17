@@ -1,6 +1,5 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
 require('webpack')
 
 module.exports = {
@@ -17,7 +16,7 @@ module.exports = {
         include: [path.join(__dirname, 'client')],
         query: {
           plugins: ['transform-runtime'],
-          presets: ['env', 'stage-0', 'react'],
+          presets: ['env', 'stage-0', 'react']
         }
       },
       {
@@ -27,22 +26,8 @@ module.exports = {
         include: [path.join(__dirname, 'client')],
         query: {
           plugins: ['transform-runtime'],
-          presets: ['env', 'stage-0', 'react'],
+          presets: ['env', 'stage-0', 'react']
         }
-      },
-      {
-        test: /\.scss$/,
-        loader: ExtractTextPlugin.extract({
-          use: ['css-loader', 'sass-loader'],
-          fallback: 'style-loader'
-        })
-      },
-      {
-        test: /\.css$/,
-        loader: ExtractTextPlugin.extract({
-          use: ['css-loader'],
-          fallback: 'style-loader'
-        })
       },
       {
         test: /\.html$/,
@@ -55,7 +40,6 @@ module.exports = {
       filename: './dist/index.html',
       title: 'Eve Essex',
       template: './client/index.html'
-    }),
-    new ExtractTextPlugin('./dist/style.css')
+    })
   ]
 }

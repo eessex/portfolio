@@ -40,7 +40,7 @@ class Publication extends Component {
     const label = model === 'publications' ? 'Publications' : 'Releases'
 
     return (
-      <div className='Publication'>
+      <div>
         {loading
           ? <Loading />
           : (

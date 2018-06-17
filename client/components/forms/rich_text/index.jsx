@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import {
@@ -9,10 +10,10 @@ import {
 import { convertFromHTML, convertToHTML } from 'draft-convert'
 import { decorator } from './util.js'
 import UrlInput from './url_input.jsx'
+import { Button } from '../../forms/buttons/button.jsx'
 
 export class RichText extends Component {
   static propTypes = {
-    className: PropTypes.string,
     html: PropTypes.string,
     name: PropTypes.string,
     onChange: PropTypes.func,
@@ -120,14 +121,14 @@ export class RichText extends Component {
 
     if (!selection.isCollapsed()) {
       const contentState = editorState.getCurrentContent()
-      const startKey = editorState.getSelection().getStartKey()
-      const startOffset = editorState.getSelection().getStartOffset()
+      const startKey = selection.getStartKey()
+      const startOffset = selection.getStartOffset()
       const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey)
       const linkKey = blockWithLinkAtBeginning.getEntityAt(startOffset)
       let urlValue = ''
 
       if (linkKey) {
-        const linkInstance = contentState.getEntity(linkKey);
+        const linkInstance = contentState.getEntity(linkKey)
         urlValue = linkInstance.getData().url
       }
 
@@ -146,8 +147,11 @@ export class RichText extends Component {
       'MUTABLE',
       { url }
     )
-    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-    const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity });
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
+    const newEditorState = EditorState.set(
+      editorState,
+      { currentContent: contentStateWithEntity }
+    )
 
     this.setState({
       editorState: RichUtils.toggleLink(
@@ -163,11 +167,13 @@ export class RichText extends Component {
   }
 
   renderLinkInput () {
-    if (this.state.showUrlInput) {
+    const { showUrlInput, urlValue } = this.state
+
+    if (showUrlInput) {
       return (
         <UrlInput
           confirmLink={this.confirmLink}
-          url={this.state.urlValue}
+          url={urlValue}
         />
       )
     }
@@ -176,31 +182,33 @@ export class RichText extends Component {
   renderMenu () {
     if (this.state.showMenu) {
       return (
-        <div>
-          <button onClick={this.promptForLink}>Link</button>
-        </div>
+        <Button onClick={this.promptForLink}>
+          Link
+        </Button>
       )
     }
   }
 
   checkSelection = () => {
+    const { editorState } = this.state
     let showMenu = false
-    if (!this.state.editorState.getSelection().isCollapsed()) {
+
+    if (!editorState.getSelection().isCollapsed()) {
       showMenu = true
     }
     this.setState({ showMenu })
   }
 
   render () {
-    const { className, placeholder } = this.props
+    const { placeholder } = this.props
     const { editorState } = this.state
 
     return (
-      <div className={'rich-text ' + (className || '')}>
+      <RichTextContainer>
         {this.renderMenu()}
         {this.renderLinkInput()}
 
-        <div className='rich-text--editor'
+        <div
           onClick={this.focus}
           onKeyUp={this.checkSelection}
           onMouseUp={this.checkSelection}>
@@ -212,7 +220,18 @@ export class RichText extends Component {
             onChange={this.onChange}
           />
         </div>
-      </div>
+      </RichTextContainer>
     )
   }
 }
+
+const RichTextContainer = styled.div`
+  position: relative;
+  .public-DraftEditorPlaceholder-root {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    color: gray;
+  }
+`

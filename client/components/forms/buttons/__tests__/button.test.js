@@ -22,21 +22,6 @@ describe('Button', () => {
     expect(component.text()).toMatch(props.text)
   })
 
-  it('adds a border by default', () => {
-    const component = mount(
-      <Button {...props} />
-    )
-    expect(component.html()).toMatch('border-width: 1px')
-  })
-
-  it('does not add a border if props.borderless', () => {
-    props.borderless = true
-    const component = mount(
-      <Button {...props} />
-    )
-    expect(component.html()).not.toMatch('border-width: 1px')
-  })
-
   it('renders an icon if props.icon', () => {
     props.icon = 'times'
     const component = mount(
@@ -50,14 +35,6 @@ describe('Button', () => {
       <Button {...props}>{child}</Button>
     )
     expect(component.find(FileInput).length).toBe(1)
-  })
-
-  it('sets a color if props.color', () => {
-    props.color = 'red'
-    const component = mount(
-      <Button {...props} />
-    )
-    expect(component.html()).toMatch('color: red')
   })
 
   it('Calls props.onClick when clicked', () => {

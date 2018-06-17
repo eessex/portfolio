@@ -48,7 +48,7 @@ export class FormatsEdit extends Component {
     const { formats } = this.props
 
     return (
-      <div className='FormatsEdit'>
+      <div>
         {formats.map((format, index) =>
           <FormatEdit
             index={index}

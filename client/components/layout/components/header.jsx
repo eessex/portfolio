@@ -3,12 +3,13 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { clone } from 'lodash'
 import { getDate } from '../../../utils/index.js'
-import { Image } from '../../image/image.jsx'
+import { Image, ImageContainer } from '../../image/image.jsx'
 import { ImageEdit } from '../../image/image_edit.jsx'
 import { Formats } from '../../formats/formats.jsx'
 import { Text } from '../../text/text.jsx'
-import { Venue } from '../../venue/venue.jsx'
+import { Venue, VenueContainer } from '../../venue/venue.jsx'
 import { Label } from './label.jsx'
+import { H1, H4 } from '../../../styles/text.jsx'
 
 export const ItemHeader = (props) => {
   const {
@@ -34,7 +35,7 @@ export const ItemHeader = (props) => {
   const date = model !== 'publications' && getDate(model, item)
 
   return (
-    <ItemHeaderContainer className='ItemHeader'>
+    <ItemHeaderContainer>
       {label &&
         <Label
           label={label}
@@ -43,23 +44,26 @@ export const ItemHeader = (props) => {
         />
       }
       {artist &&
-        <Text
-          className='h1'
-          onChange={(value) => onChange('artist', value)}
-          placeholder='Artist'
-          text={artist}
-        />
+        <H1>
+          <Text
+            onChange={(value) => onChange('artist', value)}
+            placeholder='Artist'
+            text={artist}
+          />
+        </H1>
       }
-      <Text
-        className='h1'
-        onChange={(value) => onChange('title', value)}
-        placeholder='Add Title'
-        text={title}
-      />
+      <H1>
+        <Text
+          onChange={(value) => onChange('title', value)}
+          placeholder='Add Title'
+          text={title}
+        />
+      </H1>
+
       {date &&
-        <h4 onClick={setEditing ? () => setEditing('dates') : undefined}>
+        <H4 onClick={setEditing ? () => setEditing('dates') : undefined}>
           {date}
-        </h4>
+        </H4>
       }
       {formats &&
         <Formats
@@ -105,7 +109,25 @@ ItemHeader.propTypes = {
 }
 
 const ItemHeaderContainer = styled.div`
-  .h1 .public-DraftStyleDefault-block.public-DraftStyleDefault-ltr {
-    padding: 0;
+  margin-bottom: 2em;
+
+  ${H1} {
+    margin-top: -6px;
+    .public-DraftStyleDefault-block,
+    .public-DraftEditorPlaceholder-root {
+      padding: 0;
+    }
+  }
+
+  ${H4} {
+    margin-bottom: .5em;
+  }
+
+  ${ImageContainer} {
+    margin-top: 2em;
+  }
+
+  ${VenueContainer}: {
+    margin-bottom: 1em;
   }
 `

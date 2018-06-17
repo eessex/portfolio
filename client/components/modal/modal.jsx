@@ -4,10 +4,10 @@ import React from 'react'
 import { ModalBackground } from './modal_background.jsx'
 
 export const Modal = props => {
-  const { children, className, onClick } = props
+  const { children, onClick } = props
 
   return (
-    <ModalContainer className={`ModalContainer ${className}`}>
+    <ModalContainer>
       <ModalContainerInner>
         {children}
       </ModalContainerInner>
@@ -48,7 +48,6 @@ const ModalContainerInner = styled.div`
 `
 
 Modal.propTypes = {
-  className: PropTypes.string,
   children: PropTypes.any.isRequired,
   onClick: PropTypes.func.isRequired
 }

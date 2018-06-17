@@ -1,15 +1,13 @@
-import styled from 'styled-components'
 import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Button } from '../forms/buttons/button.jsx'
 import { FileInput } from '../forms/file_input/index.jsx'
-import { Image } from './image.jsx'
+import { Image, Caption, ImageContainer } from './image.jsx'
 import { RichText } from '../forms/rich_text/index.jsx'
 
 export class ImageEdit extends Component {
   static propTypes = {
-    className: PropTypes.string,
     editCaption: PropTypes.bool,
     fetchUpload: PropTypes.func,
     onChange: PropTypes.func.isRequired,
@@ -66,18 +64,18 @@ export class ImageEdit extends Component {
     const { caption } = this.state.item
 
     return (
-      <RichText
-        onChange={this.onChangeText}
-        html={caption}
-        className='p'
-        placeholder='Image Caption'
-      />
+      <Caption>
+        <RichText
+          onChange={this.onChangeText}
+          html={caption}
+          placeholder='Image Caption'
+        />
+      </Caption>
     )
   }
 
   render () {
     const {
-      className,
       editCaption,
       index,
       fetchUpload,
@@ -92,7 +90,7 @@ export class ImageEdit extends Component {
     } = item
 
     return (
-      <div className={className || ''}>
+      <div>
         {showInput
           ? (
             <FileInput
@@ -120,16 +118,3 @@ export class ImageEdit extends Component {
     )
   }
 }
-
-const ImageContainer = styled.div`
-  position: relative;
-  button {
-    position: absolute;
-    right: -5px;
-    top: -5px;
-    padding: 4px 8px;
-    &:hover {
-      color: red;
-    }
-  }
-`

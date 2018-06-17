@@ -5,7 +5,6 @@ import { PlainText } from '../forms/rich_text/plain_text.jsx'
 
 export const TextModal = props => {
   const {
-    className,
     label,
     onChange,
     placeholder,
@@ -14,17 +13,13 @@ export const TextModal = props => {
   } = props
 
   return (
-    <Modal
-      className='TextModal'
-      onClick={() => setEditing(null)}
-    >
+    <Modal onClick={() => setEditing(null)}>
       {label &&
         <label>{label}</label>
       }
       <PlainText
         content={text}
         placeholder={placeholder}
-        className={`EditText ${className || ''}`}
         onChange={(value) => onChange(value)}
       />
 
@@ -33,7 +28,6 @@ export const TextModal = props => {
 }
 
 TextModal.propTypes = {
-  className: PropTypes.string,
   label: PropTypes.string,
   placeholder: PropTypes.string,
   onChange: PropTypes.func.isRequired,

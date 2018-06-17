@@ -24,9 +24,15 @@ export class Social extends Component {
     }
   }
 
-  renderSocialList = (social) => {
+  renderSocialList = social => {
     if (social) {
-      const services = ['bandcamp', 'soundcloud', 'facebook', 'instagram', 'twitter']
+      const services = [
+        'bandcamp',
+        'soundcloud',
+        'facebook',
+        'instagram',
+        'twitter'
+      ]
 
       return services.map((service, i) => {
         return this.renderSocial(social, service, i)
@@ -49,10 +55,9 @@ export const SocialContainer = styled.div`
   display: flex;
   a {
     margin-right: 1em;
-    text-decoration: none;
-    color: black;
     padding-bottom: 5px;
     display: block;
+    text-decoration: none;
   }
   .fa {
     margin-right: 5px;

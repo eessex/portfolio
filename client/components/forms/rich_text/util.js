@@ -1,6 +1,6 @@
-import Immutable from 'immutable'
+import PropTypes from 'prop-types'
 import React from 'react'
-import Draft, { CompositeDecorator } from 'draft-js'
+import { CompositeDecorator } from 'draft-js'
 
 export const findLinkEntities = (contentBlock, callback, contentState) => {
   contentBlock.findEntityRanges(
@@ -15,9 +15,9 @@ export const findLinkEntities = (contentBlock, callback, contentState) => {
   )
 }
 
-export const Link = (props) => {
+export const Link = props => {
   const { children, contentState, entityKey } = props
-  const { url, className } = contentState.getEntity(entityKey).getData()
+  const { url } = contentState.getEntity(entityKey).getData()
   return (
     <a href={url}>
       {children}
@@ -25,9 +25,15 @@ export const Link = (props) => {
   )
 }
 
+Link.propTypes = {
+  children: PropTypes.any,
+  contentState: PropTypes.any,
+  entityKey: PropTypes.string
+}
+
 export const decorator = new CompositeDecorator([
   {
     strategy: findLinkEntities,
-    component: Link,
+    component: Link
   }
 ])

@@ -6,6 +6,7 @@ import { Col, Row } from 'react-styled-flexboxgrid'
 import { capitalize } from 'lodash'
 import { getDate, getVenue } from '../../utils/index.js'
 import { ListItem } from './components/list_item.jsx'
+import { H6 } from '../../styles/text.jsx'
 
 export class ItemsList extends Component {
   state = {
@@ -156,7 +157,7 @@ const ItemsListContainer = styled.div`
   }
 `
 
-const LayoutToggle = styled.h6`
+const LayoutToggle = H6.extend`
   &:hover {
     color: #ddd;
     cursor: pointer;

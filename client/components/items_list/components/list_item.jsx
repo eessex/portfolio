@@ -57,9 +57,7 @@ export const Item = styled.div`
   a {
     text-decoration: none;
   }
-  h2, h3, h4, h5 {
-    margin: 0.5em 0;
-  }
+
   ${props => props.published === false && `
     opacity: .65;
   `}

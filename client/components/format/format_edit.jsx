@@ -62,7 +62,7 @@ export class FormatEdit extends Component {
     } = item
 
     return (
-      <FormatEditContainer className='FormatEdit h5'>
+      <FormatEditContainer className='FormatEdit'>
         <Row>
           <Col>
             <SelectInput

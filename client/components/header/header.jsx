@@ -8,7 +8,7 @@ import { H1 } from '../../styles/text.jsx'
 
 export class Header extends Component {
   static propTypes = {
-    isAuthenticated: PropTypes.object,
+    isAuthenticated: PropTypes.bool,
     settings: PropTypes.object
   }
 

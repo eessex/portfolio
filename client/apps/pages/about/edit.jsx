@@ -96,8 +96,7 @@ export class AboutEdit extends Component {
           model='settings'
           saveItem={this.onSave}
           setEditing={(isEditing) => this.setState({ isEditing })}
-          onClickImage={() => this.setState({isEditing: 'images'})}
-          onClickEmbed={() => this.setState({isEditing: 'embeds'})}
+          noLinks
         />
 
         <LayoutColumn

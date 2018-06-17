@@ -12,7 +12,8 @@ export const EditNav = (props) => {
     item,
     onPublish,
     saveItem,
-    setEditing
+    setEditing,
+    noLinks
   } = props
 
   return (
@@ -27,10 +28,12 @@ export const EditNav = (props) => {
             icon='code'
             onClick={() => setEditing('embeds')}
           />
-          <Button
-            icon='link'
-            onClick={() => setEditing('links')}
-          />
+          {!noLinks &&
+            <Button
+              icon='link'
+              onClick={() => setEditing('links')}
+            />
+          }
         </ModalNav>
       }
       {onPublish &&
@@ -86,6 +89,7 @@ EditNav.propTypes = {
   isSaved: PropTypes.bool,
   isSaving: PropTypes.bool,
   item: PropTypes.object,
+  noLinks: PropTypes.bool,
   onPublish: PropTypes.func,
   saveItem: PropTypes.func,
   setEditing: PropTypes.func

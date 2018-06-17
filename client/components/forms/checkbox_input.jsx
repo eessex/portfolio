@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import styled from 'styled-components'
+import { H5 } from '../../styles/text.jsx'
 
 export const CheckboxInput = props => {
   const {
@@ -19,7 +20,7 @@ export const CheckboxInput = props => {
       />
 
       {label &&
-        <label>{label}</label>
+        <H5>{label}</H5>
       }
     </CheckboxInputContainer>
   )
@@ -40,7 +41,7 @@ const CheckboxInputContainer = styled.div`
     margin: 0;
   }
 
-  label {
+  ${H5} {
     padding: 0 0 0 0.5em;
   }
 `

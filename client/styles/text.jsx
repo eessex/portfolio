@@ -37,27 +37,26 @@ export const H3 = styled.h3`
   line-height: 1.2em;
 `
 
-// h4, .h4 {
-//   margin: 0;
-//   font-weight: 400;
-//   line-height: 1.2em;
-// }
+export const H4 = styled.h4`
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.2em;
+`
 
-// h5, .h5 {
-//   font-size: 0.83em;
-//   margin-top: 0.5em;
-//   margin-bottom: 0.5em;
-//   font-weight: 400;
-//   line-height: 1.2em;
-// }
+export const H5 = styled.h5`
+  font-size: 0.83em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  font-weight: 400;
+  line-height: 1.2em;
+`
 
-// h6, .h6 {
-//   font-size: 0.83em;
-//   margin-top: 0.67em;
-//   margin-bottom: 0.67em;
-//   line-height: 1.2em;
-//   font-weight: 400;
-//   text-transform: uppercase;
-//   letter-spacing: .045em;
-// }
-
+export const H6 = styled.h6`
+  font-size: 0.83em;
+  margin-top: 0.67em;
+  margin-bottom: 0.67em;
+  line-height: 1.2em;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: .045em;
+`

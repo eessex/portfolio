@@ -1,17 +1,17 @@
-import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { Formats, FormatsContainer } from '../../formats/formats.jsx'
+import { H4 } from '../../../styles/text.jsx'
 
-export const ItemTable = (props) => {
+export const ItemTable = props => {
   const { artist, date, formats, title, venue } = props
 
   return (
     <TableItem>
       {date &&
         <Col xs={12} lg={3}>
-          <h4>{date}</h4>
+          <H4>{date}</H4>
         </Col>
       }
       <Col xs={12} lg={6}>
@@ -22,21 +22,21 @@ export const ItemTable = (props) => {
       </Col>
       {venue &&
         <Col xs={12} lg={3}>
-          <h4>{venue}</h4>
+          <H4>{venue}</H4>
         </Col>
       }
       {formats && formats.length &&
         <Col xs={12} lg={3}>
-          <h4>
+          <H4>
             <Formats items={formats} short />
-          </h4>
+          </H4>
         </Col>
       }
     </TableItem>
   )
 }
 
-const Title = styled.h4`
+const Title = H4.extend`
   @media (max-width: 76em) {
     max-width: 100%;
     font-size: 1.3em;
@@ -47,11 +47,11 @@ const Title = styled.h4`
 const TableItem = Row.extend`
   margin-left: 0;
   margin-right: 0;
-  padding: .5em 20px !important;
+  padding: 12px 20px;
 
   ${Col} {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   @media (max-width: 76rem) {

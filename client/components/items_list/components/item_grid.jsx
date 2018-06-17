@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Formats } from '../../formats/formats.jsx'
-import { H1, H3 } from '../../../styles/text.jsx'
+import { H1, H3, H5 } from '../../../styles/text.jsx'
 
 export const ItemGrid = props => {
   const {
@@ -30,19 +30,19 @@ export const ItemGrid = props => {
         : <H1>{formattedTitle}</H1>
       }
       {date && !formats &&
-        <h5>
+        <H5>
           {date}
-        </h5>
+        </H5>
       }
       {venue &&
-        <h5>
+        <H5>
           {venue}
-        </h5>
+        </H5>
       }
       {formats && formats.length &&
-        <h5>
+        <H5>
           <Formats items={formats} />
-        </h5>
+        </H5>
       }
       {description &&
         <p>
@@ -59,25 +59,30 @@ const GridItem = styled.div`
   ${H1} {
     font-size: 3.5em;
     margin-top: 0;
+    ${props => props.condensed && `
+      font-size: 2.5em;
+    `}
+  }
+
+  ${H3} {
+    ${props => props.condensed && `
+      margin-bottom: .5em;
+      font-size: 1.25em;
+    `}
   }
 
   img {
     max-height: 80vh;
     width: 100%;
     max-width: 100%;
+    object-fit: cover;
+    object-position: center;
   }
 
   ${props => props.condensed && `
     margin-top: 20px;
     margin-bottom: 50px;
     padding: 0 10px;
-    ${H1} {
-      font-size: 2.5em;
-    }
-    ${H3} {
-      margin-bottom: .5em;
-      font-size: 1.25em;
-    }
     @media (max-width: 76rem) {
       margin-top: 10px;
       margin-bottom: 30px;

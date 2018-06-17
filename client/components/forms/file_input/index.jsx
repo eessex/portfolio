@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Button } from '../buttons/button.jsx'
+import { H5 } from '../../../styles/text.jsx'
 
 export class FileInput extends Component {
   static propTypes = {
@@ -116,7 +117,7 @@ export class FileInput extends Component {
 
           <Input className='FileInput__input'>
             {!file.url &&
-              <h5>Click or Drag to Upload</h5>
+              <H5>Click or Drag to Upload</H5>
             }
 
             <input

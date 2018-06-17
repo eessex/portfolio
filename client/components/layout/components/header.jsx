@@ -9,7 +9,7 @@ import { Formats } from '../../formats/formats.jsx'
 import { Text } from '../../text/text.jsx'
 import { Venue } from '../../venue/venue.jsx'
 import { Label } from './label.jsx'
-import { H1 } from '../../../styles/text.jsx'
+import { H1, H4 } from '../../../styles/text.jsx'
 
 export const ItemHeader = (props) => {
   const {
@@ -61,9 +61,9 @@ export const ItemHeader = (props) => {
       </H1>
 
       {date &&
-        <h4 onClick={setEditing ? () => setEditing('dates') : undefined}>
+        <H4 onClick={setEditing ? () => setEditing('dates') : undefined}>
           {date}
-        </h4>
+        </H4>
       }
       {formats &&
         <Formats
@@ -119,12 +119,7 @@ const ItemHeaderContainer = styled.div`
     }
   }
 
-  .h6, h6 {
-    margin: 0;
-  }
-
   .Image {
     margin-top: 2em;
   }
-}
 `

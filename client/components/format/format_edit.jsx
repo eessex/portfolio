@@ -2,8 +2,9 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { SelectInput } from '../forms/select_input.js'
+import { Button } from '../forms/buttons/button.jsx'
 import { CheckboxInput } from '../forms/checkbox_input.jsx'
+import { SelectInput } from '../forms/select_input.js'
 
 export class FormatEdit extends Component {
   static propTypes = {
@@ -62,7 +63,7 @@ export class FormatEdit extends Component {
     } = item
 
     return (
-      <FormatEditContainer className='FormatEdit'>
+      <FormatEditContainer>
         <Row>
           <Col>
             <SelectInput
@@ -105,12 +106,12 @@ export class FormatEdit extends Component {
             />
           </Col>
           {!index && index !== 0 &&
-            <button
+            <Button
               style={{color: needsSave ? 'red' : 'black'}}
               onClick={this.saveItem}
             >
               Save
-            </button>
+            </Button>
           }
         </Row>
       </FormatEditContainer>

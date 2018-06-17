@@ -7,7 +7,6 @@ export const ModalBackground = props => {
 
   return (
     <ModalBackgroundContainer
-      className='Modal'
       onClick={onClick}
       backgroundColor={backgroundColor}
     />

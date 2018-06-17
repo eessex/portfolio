@@ -17,7 +17,7 @@ export const Item = props => {
   const isGrid = images.length && (imageIsVertical(images[0]) || isPublication)
 
   return (
-    <div className={`Item Item--${model}`}>
+    <div>
       {editing
         ? <ItemEdit {...props} />
         : isGrid
@@ -29,7 +29,6 @@ export const Item = props => {
 }
 
 Item.propTypes = {
-  className: PropTypes.string,
   editing: PropTypes.bool,
   item: PropTypes.object,
   label: PropTypes.string,

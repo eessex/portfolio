@@ -12,10 +12,7 @@ export const LinksModal = props => {
   } = props
 
   return (
-    <Modal
-      className='LinksModal'
-      onClick={() => setEditing(null)}
-    >
+    <Modal onClick={() => setEditing(null)}>
       <Label>Links</Label>
       <LinksEdit
         links={links || []}

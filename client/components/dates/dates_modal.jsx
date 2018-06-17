@@ -19,10 +19,7 @@ export const DatesModal = props => {
   }
 
   return (
-    <Modal
-      className='DatesModal'
-      onClick={() => setEditing(null)}
-    >
+    <Modal onClick={() => setEditing(null)}>
       <DatesEdit
         {...dateProps}
         onChange={onChange}

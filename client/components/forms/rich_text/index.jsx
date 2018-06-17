@@ -10,6 +10,7 @@ import {
 import { convertFromHTML, convertToHTML } from 'draft-convert'
 import { decorator } from './util.js'
 import UrlInput from './url_input.jsx'
+import { Button } from '../../forms/buttons/button.jsx'
 
 export class RichText extends Component {
   static propTypes = {
@@ -181,9 +182,9 @@ export class RichText extends Component {
   renderMenu () {
     if (this.state.showMenu) {
       return (
-        <button onClick={this.promptForLink}>
+        <Button onClick={this.promptForLink}>
           Link
-        </button>
+        </Button>
       )
     }
   }

@@ -82,7 +82,7 @@ export class FileInput extends Component {
         )
       } else {
         return (
-          <Preview className='FileInput__preview-img'>
+          <Preview>
             <img src={file.url} />
             <Button
               icon='times'
@@ -99,7 +99,7 @@ export class FileInput extends Component {
     const { isDragOver } = this.state
 
     return (
-      <FileInputContainer className='FileInput'>
+      <FileInputContainer>
         {label &&
           <label>{label}</label>
         }
@@ -115,7 +115,7 @@ export class FileInput extends Component {
         >
           {hasPreview && this.renderPreview(file)}
 
-          <Input className='FileInput__input'>
+          <Input>
             {!file.url &&
               <H5>Click or Drag to Upload</H5>
             }

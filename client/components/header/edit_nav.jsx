@@ -17,7 +17,7 @@ export const EditNav = (props) => {
   } = props
 
   return (
-    <Nav className='AdminNav AdminNav--Edit'>
+    <Nav>
       {setEditing &&
         <ModalNav>
           <Button

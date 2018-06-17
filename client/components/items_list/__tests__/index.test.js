@@ -1,14 +1,9 @@
 import { mount } from 'enzyme'
-import moment from 'moment'
 import React from 'react'
 import { ItemsList } from '../index.jsx'
 import { ListItem } from '../components/list_item.jsx'
-import { getDate, getVenue } from '../../../utils/index.js'
-import {
-  UpcomingEvent,
-  PastEvent,
-  tomorrow
-} from '../../../tests/fixtures/events.js'
+import { getDate } from '../../../utils/index.js'
+import { UpcomingEvent, PastEvent } from '../../../tests/fixtures/events.js'
 
 describe('ItemsList', () => {
   let props = {}
@@ -28,7 +23,7 @@ describe('ItemsList', () => {
       <ItemsList {...props} />
     )
     expect(component.find(ListItem).length).toBe(2)
-    expect(component.html()).toMatch('ItemsList--events list')
+    expect(component.find(ListItem).at(0).props().layout).toBe('list')
   })
 
   it('Renders a label if provided', () => {
@@ -45,7 +40,7 @@ describe('ItemsList', () => {
       <ItemsList {...props} />
     )
     expect(component.find(ListItem).length).toBe(2)
-    expect(component.html()).toMatch('ItemsList--events grid')
+    expect(component.find(ListItem).at(1).props().layout).toBe('grid')
   })
 
   it('Renders item title by default', () => {

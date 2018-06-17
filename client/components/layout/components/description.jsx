@@ -12,7 +12,7 @@ export const Description = props => {
   } = props
 
   return (
-    <DescriptionContainer className='Description'>
+    <DescriptionContainer>
       {onChange
         ? (
           <P>

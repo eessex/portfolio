@@ -11,12 +11,9 @@ export const EmbedModal = (props) => {
   } = props
 
   return (
-    <Modal
-      className='EmbedModal'
-      onClick={() => setEditing(null)}
-    >
+    <Modal onClick={() => setEditing(null)}>
       <label>
-        Embed Codes:
+        Embeds
       </label>
 
       <EmbedList

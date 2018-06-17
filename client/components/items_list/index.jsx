@@ -110,22 +110,17 @@ export class ItemsList extends Component {
     const {
       canToggle,
       children,
-      className,
       comingSoon,
       label,
-      list,
-      model
+      list
     } = this.props
 
     const { layout } = this.state
     const listItems = children || this.renderListItems()
-    const layoutClass = layout ? ' ' + layout : ''
-    const classModelName = 'ItemsList--' + model + layoutClass
     const hasLabel = label && layout !== 'grid' || layout === 'grid' && canToggle
 
     return (
       <ItemsListContainer
-        className={`ItemsList ${classModelName} ${className || ''}`}
         layout={layout}
         canToggle={canToggle}
       >
@@ -216,7 +211,6 @@ const Content = Col.extend`
 ItemsList.propTypes = {
   canToggle: PropTypes.bool,
   children: PropTypes.any,
-  className: PropTypes.string,
   comingSoon: PropTypes.bool,
   label: PropTypes.string,
   layout: PropTypes.string,

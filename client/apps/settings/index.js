@@ -30,10 +30,7 @@ class Settings extends Component {
     const { loading } = this.props
 
     return (
-      <LayoutColumn
-        className='Settings'
-        label='Site Settings'
-      >
+      <LayoutColumn label='Site Settings'>
         {loading
           ? <Loading />
           : <SiteDescription />

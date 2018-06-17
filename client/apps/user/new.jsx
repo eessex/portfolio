@@ -2,6 +2,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { createUser, logoutUser } from '../../actions/user.js'
+import { Button } from '../../components/forms/buttons/button.jsx'
 import { ColumnForm, Input } from '../../components/forms/input.jsx'
 import { LayoutColumn } from '../../components/layout/column.jsx'
 import { Loading } from '../../components/layout/components/loading.jsx'
@@ -79,9 +80,9 @@ export class NewUser extends Component {
 
               {error && <div>{error}</div>}
 
-              <button onClick={this.onSubmit}>
+              <Button onClick={this.onSubmit}>
                 Submit
-              </button>
+              </Button>
 
             </ColumnForm>
           )

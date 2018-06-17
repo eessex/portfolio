@@ -5,9 +5,9 @@ export const LinksList = props => {
   const { links } = props
 
   return (
-    <div className='LinksList'>
+    <div>
       {links.length > 0 && links.map((link, i) =>
-        <div className='LinksList__item' key={i}>
+        <div key={i}>
           <a href={link.url} target='_blank'>
             {link.title ? link.title : link.url}
           </a>

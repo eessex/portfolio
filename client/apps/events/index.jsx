@@ -5,7 +5,6 @@ import * as itemsActions from '../../actions/items'
 import { sortByDate } from '../../utils/index.js'
 import { ItemsList } from '../../components/items_list/index.jsx'
 import { NewButton } from '../../components/header/components/new_button.jsx'
-import { LayoutColumn } from '../../components/layout/column.jsx'
 import { Loading } from '../../components/layout/components/loading.jsx'
 
 class Events extends Component {
@@ -16,7 +15,7 @@ class Events extends Component {
     user: PropTypes.object
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
 
     const isAdmin = props.user.isAuthenticated
@@ -28,14 +27,14 @@ class Events extends Component {
     }
   }
 
-  componentWillMount() {
+  componentWillMount () {
     const { fetchItems } = this.props
     const { query } = this.state
 
     fetchItems('events', query)
   }
 
-  render() {
+  render () {
     const { createItem, items } = this.props
     const { isAdmin } = this.state
     const { list, loading } = items
@@ -43,11 +42,12 @@ class Events extends Component {
     const past = sortByDate(list, 'start_date').past
 
     return (
-      <div className='Events'>
+      <div>
         {loading
           ? <Loading />
 
-          : <div>
+          : (
+            <div>
               {isAdmin &&
                 <NewButton
                   model='Event'
@@ -71,7 +71,8 @@ class Events extends Component {
                   canToggle
                 />
               }
-          </div>
+            </div>
+          )
         }
       </div>
     )

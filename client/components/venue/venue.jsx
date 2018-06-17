@@ -1,17 +1,15 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Placeholder } from '../forms/input.jsx'
 
 export const Venue = props => {
-  const { className, onClick, venue } = props
+  const { onClick, venue } = props
   const { address, city, country, state, name } = venue
   const hasVenue = venue && (venue.name || venue.address)
 
   return (
-    <div
-      className={`Venue ${className || ''}`}
-      onClick={onClick || undefined}
-    >
+    <VenueContainer onClick={onClick || undefined}>
       {name &&
         <div>{name}</div>
       }
@@ -28,12 +26,15 @@ export const Venue = props => {
       {!hasVenue && onClick &&
         <Placeholder>Add Venue</Placeholder>
       }
-    </div>
+    </VenueContainer>
   )
 }
 
+const VenueContainer = styled.div`
+  position: relative
+`
+
 Venue.propTypes = {
-  className: PropTypes.string,
   onClick: PropTypes.func,
   venue: PropTypes.shape({
     address: PropTypes.string,

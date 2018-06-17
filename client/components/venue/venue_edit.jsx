@@ -51,7 +51,7 @@ export class VenueEdit extends Component {
     } = this.state.venue
 
     return (
-      <VenueEditContainer className='VenueEdit'>
+      <VenueEditContainer>
         <Row>
           <Col xs={12} sm={6}>
             <input
@@ -115,11 +115,12 @@ const VenueEditContainer = styled.div`
     width: 100%;
   }
 
-  div[class*="Row-"]:first-child {
-    margin: 10px 0 30px 0;
-  }
-
-  div[class*="Row-"] div[class^="Col-"] {
-    padding-left: 0;
+  ${Row} {
+    &:first-child {
+      margin: 10px 0 30px 0;
+    }
+    ${Col} {
+      padding-left: 0;
+    }
   }
 `

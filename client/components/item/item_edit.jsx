@@ -46,7 +46,7 @@ export class ItemEdit extends Component {
     const isGrid = images.length > 0 && (imageIsVertical(images[0]) || isPublication)
 
     return (
-      <div className='ItemEdit'>
+      <div>
         <EditNav
           deleteItem={() => deleteItem(model, item)}
           isSaved={isSaved}

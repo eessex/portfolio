@@ -3,11 +3,11 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { clone } from 'lodash'
 import { getDate } from '../../../utils/index.js'
-import { Image } from '../../image/image.jsx'
+import { Image, ImageContainer } from '../../image/image.jsx'
 import { ImageEdit } from '../../image/image_edit.jsx'
 import { Formats } from '../../formats/formats.jsx'
 import { Text } from '../../text/text.jsx'
-import { Venue } from '../../venue/venue.jsx'
+import { Venue, VenueContainer } from '../../venue/venue.jsx'
 import { Label } from './label.jsx'
 import { H1, H4 } from '../../../styles/text.jsx'
 
@@ -113,13 +113,21 @@ const ItemHeaderContainer = styled.div`
 
   ${H1} {
     margin-top: -6px;
-    .public-DraftStyleDefault-block.public-DraftStyleDefault-ltr,
-    public-DraftEditorPlaceholder-root {
+    .public-DraftStyleDefault-block,
+    .public-DraftEditorPlaceholder-root {
       padding: 0;
     }
   }
 
-  .Image {
+  ${H4} {
+    margin-bottom: .5em;
+  }
+
+  ${ImageContainer} {
     margin-top: 2em;
+  }
+
+  ${VenueContainer}: {
+    margin-bottom: 1em;
   }
 `

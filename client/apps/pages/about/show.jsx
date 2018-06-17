@@ -13,10 +13,7 @@ export const AboutShow = props => {
   const { embed_codes } = about
 
   return (
-    <LayoutColumn
-      label='Info'
-      className='AboutShow'
-    >
+    <LayoutColumn label='Info'>
       {cover_image &&
         <Image {...cover_image} />
       }

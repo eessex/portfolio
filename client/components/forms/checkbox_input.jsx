@@ -5,14 +5,13 @@ import { H5 } from '../../styles/text.jsx'
 
 export const CheckboxInput = props => {
   const {
-    className,
     label,
     value,
     onChange
   } = props
 
   return (
-    <CheckboxInputContainer className={`CheckboxInput ${className || ''}`}>
+    <CheckboxInputContainer>
       <input
         type='checkbox'
         defaultChecked={value}
@@ -27,7 +26,6 @@ export const CheckboxInput = props => {
 }
 
 CheckboxInput.propTypes = {
-  className: PropTypes.string,
   label: PropTypes.string,
   value: PropTypes.bool,
   onChange: PropTypes.func.isRequired

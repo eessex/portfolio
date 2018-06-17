@@ -49,7 +49,7 @@ export class DatesEdit extends Component {
     } = this.state
 
     return (
-      <DatesEditContainer className='DatesEdit'>
+      <DatesEditContainer>
         <Row>
           <Col>
             <DateInput

@@ -41,15 +41,12 @@ class Projects extends Component {
     const { list } = items
 
     return (
-      <div className='Projects'>
+      <div>
         {loading
           ? <Loading />
 
           : (
-            <LayoutColumn
-              className='Projects'
-              label='Projects'
-            >
+            <LayoutColumn label='Projects'>
               {isAdmin &&
                 <NewButton
                   model='Project'

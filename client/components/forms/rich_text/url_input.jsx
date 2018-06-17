@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
+import { Button } from '../buttons/button.jsx'
 
 export default class UrlInput extends Component {
   static propTypes = {
@@ -23,9 +24,9 @@ export default class UrlInput extends Component {
           ref='url'
           defaultValue={url || ''}
         />
-        <button>
+        <Button>
           Save
-        </button>
+        </Button>
       </form>
     )
   }

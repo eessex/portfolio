@@ -8,7 +8,7 @@ export const Image = props => {
   const alt = stripTags(caption) || ''
 
   return (
-    <div className='Image'>
+    <ImageContainer>
       <img
         src={url}
         alt={alt}
@@ -19,22 +19,38 @@ export const Image = props => {
       }
       {caption && (
         <Caption
-          className='Image__caption'
           dangerouslySetInnerHTML={{__html: caption}}
         />
       )}
-    </div>
+    </ImageContainer>
   )
 }
 
-const Caption = styled.div`
+export const Caption = styled.div`
+  margin-top: 5px;
   p,
-  .public-DraftStyleDefault-block  {
+  .public-DraftStyleDefault-block,
+  .public-DraftEditorPlaceholder-root  {
+    margin: 0;
     font-size: .7em;
     padding: 0;
     text-align: right;
     color: #ddd;
-    margin-top: 5px;
+  }
+`
+
+export const ImageContainer = styled.div`
+  position: relative;
+  margin-bottom: 1em;
+  button {
+    z-index: 1;
+    position: absolute;
+    right: -5px;
+    top: -5px;
+    padding: 4px 8px;
+    &:hover {
+      color: red;
+    }
   }
 `
 

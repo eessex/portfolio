@@ -1,25 +1,28 @@
+import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 
 export default class ValidationError extends Component {
-  constructor(props) {
-    super(props)
+  static propTypes = {
+    errors: PropTypes.object
   }
 
-  getErrors() {
-  	const fields = Object.keys(this.props.errors)
-  	const errors = fields.map((error, i) => {
-  		let getType = this.props.errors[error].message.split('`').pop()
-  		let formatError = error.split('_').join(' ') + getType
-  		return <span key={i}>{formatError}</span>
-  	}, this)
-  	return errors
+  getErrors = () => {
+    const { errors } = this.props
+    const fields = Object.keys(errors)
+
+    return fields.map((error, i) => {
+      const type = errors[error].message.split('`').pop()
+      const message = error.split('_').join(' ')
+
+      return <span key={i}>{message + type}</span>
+    })
   }
 
-  render() {
+  render () {
     return (
-      <div className='error'>
-        <div>{this.getErrors()}</div>
+      <div>
+        {this.getErrors()}
       </div>
-    );
+    )
   }
 }

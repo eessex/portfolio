@@ -32,11 +32,13 @@ export class DateInput extends Component {
       required
     } = this.props
 
-    var group = label ? ' input-group' : ''
-    var req = required ? ' req' : ''
+    // TODO: Required indicators
+
+    // var group = label ? ' input-group' : ''
+    // var req = required ? ' req' : ''
 
     return (
-      <div className={'input--date' + req + group}>
+      <div>
         {label &&
           <label>{label}</label>
         }

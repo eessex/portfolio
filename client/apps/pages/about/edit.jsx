@@ -86,9 +86,7 @@ export class AboutEdit extends Component {
     const embed_codes = settings.about.embed_codes || []
 
     return (
-      <div
-        className='AboutEdit'
-      >
+      <div>
         <EditNav
           isSaved={isSaved}
           isSaving={saving}

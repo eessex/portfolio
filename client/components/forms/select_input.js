@@ -53,13 +53,14 @@ export class SelectInput extends Component {
   }
 
   render () {
-    const { required, label } = this.props
+    // const { required, label } = this.props
 
-    var group = label ? ' input-group' : ''
-    var req = required ? ' req' : ''
+    // TODO: Required indicators
+    // var group = label ? ' input-group' : ''
+    // var req = required ? ' req' : ''
 
     return (
-      <div className={'input--select' + req + group}>
+      <div>
         {this.renderLabel()}
         {this.renderInput()}
       </div>

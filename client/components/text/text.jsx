@@ -20,7 +20,6 @@ export const Text = props => {
           <PlainText
             content={text}
             placeholder={placeholder}
-            className='EditText'
             onChange={(value) => onChange(value)}
           />
         )

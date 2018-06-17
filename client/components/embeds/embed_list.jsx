@@ -5,10 +5,10 @@ import React, { Component } from 'react'
 import { Embed } from './embed.jsx'
 import { Button } from '../forms/buttons/button.jsx'
 import { PlainText } from '../forms/rich_text/plain_text.jsx'
+import { P } from '../../styles/text.jsx'
 
 export class EmbedList extends Component {
   static propTypes = {
-    className: PropTypes.string,
     editing: PropTypes.bool,
     embed_codes: PropTypes.array,
     hasNew: PropTypes.bool,
@@ -33,17 +33,16 @@ export class EmbedList extends Component {
 
   render () {
     const {
-      className,
       editing,
       embed_codes,
       hasNew
     } = this.props
 
     return (
-      <div className={`EmbedList ${className || ''}`}>
+      <div>
         {embed_codes && embed_codes.length > 0 &&
           embed_codes.map((embed_code, i) =>
-            <EmbedItem className='EmbedList__item' key={i}>
+            <EmbedItem key={i}>
               <Embed embed_code={embed_code} />
               {editing &&
                 <Button
@@ -55,15 +54,14 @@ export class EmbedList extends Component {
           )
         }
         {hasNew &&
-          <div className='EditEmbeds__new'>
+          <P>
             <PlainText
               content=''
-              className='EditEmbeds__input p'
               placeholder='Paste embed code...'
               onChange={(value) => this.onNewEmbed(value)}
               forceUpdate
             />
-          </div>
+          </P>
         }
       </div>
     )
@@ -74,7 +72,7 @@ const EmbedItem = styled.div`
   position: relative;
   width: 100%;
   padding-bottom: 20px;
-  .Button {
+  button {
     position: absolute;
     right: -5px;
     top: -5px;

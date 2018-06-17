@@ -41,7 +41,7 @@ export class ItemEditModals extends Component {
     const { item } = this.props.item
 
     return (
-      <div className='ItemEditModals'>
+      <div>
         {isEditing === 'dates' &&
           <DatesModal
             {...this.getDateProps()}

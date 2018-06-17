@@ -21,7 +21,7 @@ class Pages extends Component {
     const { actions } = this.props
 
     return (
-      <div className='Pages'>
+      <div>
         {loading
           ? <Loading />
           : isAuthenticated

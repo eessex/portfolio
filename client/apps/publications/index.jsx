@@ -76,7 +76,7 @@ class Publications extends Component {
     const compilations = this.getReleases(true)
 
     return (
-      <div className='Publications'>
+      <div>
         {loading
           ? <Loading />
           : (
@@ -93,7 +93,6 @@ class Publications extends Component {
                   list={releases}
                   label={label}
                   layout='table'
-                  className={`Publications__${label.toLowerCase()}`}
                   canToggle
                 />
               }
@@ -104,7 +103,6 @@ class Publications extends Component {
                     list={compilations}
                     label='Compilations'
                     layout='table'
-                    className='Publications__compilations'
                     canToggle
                   />
                 </Compilations>

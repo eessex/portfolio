@@ -74,7 +74,6 @@ export class Header extends Component {
 
     return (
       <HeaderContainer
-        className='Header'
         admin={isAuthenticated}
         fixed={isFixed}
       >
@@ -85,7 +84,6 @@ export class Header extends Component {
           <nav>
             {nav.map((navItem, i) =>
               <A
-                className='Header__nav-item'
                 href={`/${navItem}`}
                 key={i}
                 active={this.isActive(navItem)}

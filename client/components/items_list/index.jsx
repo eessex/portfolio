@@ -205,6 +205,7 @@ const Content = Col.extend`
   padding: 0;
   ${ItemGridContainer} {
     padding: 0 20px;
+    justify-content: space-evenly;
   }
 `
 

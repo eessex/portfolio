@@ -5,6 +5,8 @@ import { Col, Row } from 'react-styled-flexboxgrid'
 import { Button } from '../forms/buttons/button.jsx'
 import { CheckboxInput } from '../forms/checkbox_input.jsx'
 import { SelectInput } from '../forms/select_input.js'
+import { Input } from '../../styles/forms.jsx'
+//  '../../styles/forms.jsx'
 
 export class FormatEdit extends Component {
   static propTypes = {
@@ -74,7 +76,7 @@ export class FormatEdit extends Component {
             />
           </Col>
           <Col>
-            <input
+            <Input
               placeholder='YYYY'
               maxLength='4'
               name='release_year'
@@ -85,7 +87,7 @@ export class FormatEdit extends Component {
             />
           </Col>
           <Col>
-            <input
+            <Input
               placeholder='publisher'
               defaultValue={publisher}
               onChange={(e) => this.onChangeFormat('publisher', e.target.value)}

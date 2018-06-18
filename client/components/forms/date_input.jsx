@@ -1,9 +1,13 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import moment from 'moment'
 import { Input } from '../../styles/forms.jsx'
 
 export class DateInput extends Component {
+  static date
+  static time
+
   static propTypes = {
     autoFocus: PropTypes.bool,
     allDay: PropTypes.bool,
@@ -15,13 +19,13 @@ export class DateInput extends Component {
 
   onKeyUp = () => {
     const { onChange } = this.props
-    const { date, time } = this.refs
+    if (this.date && this.time) {
+      const newDate = this.date.value
+      const newTime = this.time.value || ''
+      const formattedDate = moment(newDate + ' ' + newTime).toISOString()
 
-    const newDate = date.value
-    const newTime = time ? time.value : ''
-    const formattedDate = moment(newDate + ' ' + newTime).toISOString()
-
-    onChange(formattedDate)
+      onChange(formattedDate)
+    }
   }
 
   render () {
@@ -41,11 +45,13 @@ export class DateInput extends Component {
     return (
       <div>
         {label &&
-          <label>{label}</label>
+          <Label required={required}>
+            {label}
+          </Label>
         }
         <Input
           type='date'
-          ref='date'
+          innerRef={(ref) => { this.date = ref }}
           required={required || false}
           defaultValue={moment(value).format('YYYY-MM-DD')}
           onKeyUp={this.onKeyUp}
@@ -54,7 +60,7 @@ export class DateInput extends Component {
         {!allDay &&
           <Input
             type='time'
-            ref='time'
+            innerRef={(ref) => { this.time = ref }}
             defaultValue={moment(value).format('HH:mm')}
             onKeyUp={this.onKeyUp}
           />
@@ -63,3 +69,15 @@ export class DateInput extends Component {
     )
   }
 }
+
+const Label = styled.label`
+  ${props => props.required && `
+    &::after {
+      content: '*';
+      color: red;
+      margin-left: 5px;
+      font-size: .75em;
+      vertical-align: super;
+    }
+  `}
+`

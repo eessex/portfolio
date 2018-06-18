@@ -29,17 +29,17 @@ export class SocialEdit extends Component {
     const renderEdit = isEditing === service
       ? this.renderEditPanel(social, service)
       : false
-    const isPlaceholder = social[service] ? '' : 'placeholder'
+    const isPlaceholder = !social[service]
 
     return (
       <SocialItem
         onClick={() => this.setState({ isEditing: service })}
         key={i}
       >
-        <a className={isPlaceholder}>
+        <A isPlaceholder={isPlaceholder}>
           <FontAwesome name={service} />
           {capitalize(service)}
-        </a>
+        </A>
         {renderEdit}
       </SocialItem>
     )
@@ -93,6 +93,12 @@ export class SocialEdit extends Component {
 
 const SocialItem = styled.div`
   position: relative;
+`
+
+const A = styled.a`
+  ${props => props.isPlaceholder && `
+    color: #ddd !important;
+  `}
 `
 
 const SocialInput = styled.div`

@@ -1,4 +1,5 @@
 # Portfolio
+[![Build Status](https://travis-ci.com/eessex/portfolio.svg?branch=master)](https://travis-ci.com/eessex/portfolio)
 
 A portfolio and listings app appropriate for musicians, performing artists, or event presenters.
 

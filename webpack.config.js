@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 require('webpack')
 
 module.exports = {
-  entry: ['babel-polyfill', './client/index.js'],
+  entry: ['babel-polyfill', './src/client/index.js'],
   output: {
     filename: './dist/bundle.js'
   },
@@ -13,7 +13,7 @@ module.exports = {
         test: /\.js$/,
         loader: 'babel-loader',
         exclude: /node_modules/,
-        include: [path.join(__dirname, 'client')],
+        include: [path.join(__dirname, 'src')],
         query: {
           plugins: ['transform-runtime'],
           presets: ['env', 'stage-0', 'react']
@@ -23,7 +23,7 @@ module.exports = {
         test: /\.jsx$/,
         loader: 'babel-loader',
         exclude: /node_modules/,
-        include: [path.join(__dirname, 'client')],
+        include: [path.join(__dirname, 'src')],
         query: {
           plugins: ['transform-runtime'],
           presets: ['env', 'stage-0', 'react']
@@ -35,11 +35,18 @@ module.exports = {
       }
     ]
   },
+  resolve: {
+    extensions: ['.js', '.jsx'],
+    modules: [
+      path.resolve('./src'),
+      path.resolve('./node_modules')
+    ]
+  },
   plugins: [
     new HtmlWebpackPlugin({
       filename: './dist/index.html',
       title: 'Eve Essex',
-      template: './client/index.html'
+      template: './src/client/index.html'
     })
   ]
 }

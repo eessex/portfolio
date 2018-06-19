@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Formats } from '../../formats/formats.jsx'
-import { H1, H3, H5, P } from '../../../styles/text.jsx'
+import { Formats } from 'client/components/formats/formats'
+import { H1, H3, H5, P } from 'client/styles/text'
 
 export const ItemGrid = props => {
   const {

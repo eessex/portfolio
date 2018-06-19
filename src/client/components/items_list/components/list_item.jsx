@@ -2,9 +2,9 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Col } from 'react-styled-flexboxgrid'
-import { ItemTable } from './item_table.jsx'
-import { ItemGrid } from './item_grid.jsx'
-import { H1 } from '../../../styles/text.jsx'
+import { ItemTable } from './item_table'
+import { ItemGrid } from './item_grid'
+import { H1 } from 'client/styles/text'
 
 export const ListItem = props => {
   const {

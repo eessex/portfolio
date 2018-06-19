@@ -2,10 +2,10 @@ import styled from 'styled-components'
 import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { Embed } from './embed.jsx'
-import { Button } from '../forms/buttons/button.jsx'
-import { PlainText } from '../forms/rich_text/plain_text.jsx'
-import { P } from '../../styles/text.jsx'
+import { Embed } from './embed'
+import { Button } from 'client/components/forms/buttons/button'
+import { PlainText } from 'client/components/forms/rich_text/plain_text'
+import { P } from 'client/styles/text'
 
 export class EmbedList extends Component {
   static propTypes = {

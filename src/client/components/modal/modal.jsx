@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { ModalBackground } from './modal_background.jsx'
+import { ModalBackground } from './modal_background'
 
 export const Modal = props => {
   const { children, onClick } = props

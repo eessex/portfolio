@@ -3,8 +3,8 @@ import { cloneDeep } from 'lodash'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import * as Actions from '../../../../actions/settings'
-import { TextInput, TextInputContainer } from '../../../../components/forms/text_input.js'
+import * as Actions from 'client/actions/settings'
+import { TextInput, TextInputContainer } from 'client/components/forms/text_input'
 
 export class SiteDescription extends Component {
   static propTypes = {

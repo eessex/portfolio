@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Modal } from '../modal/modal.jsx'
-import { PlainText } from '../forms/rich_text/plain_text.jsx'
+import { Modal } from 'client/components/modal/modal'
+import { PlainText } from 'client/components/forms/rich_text/plain_text'
 
 export const TextModal = props => {
   const {

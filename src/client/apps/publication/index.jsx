@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import * as itemActions from '../../actions/item'
-import { Item } from '../../components/item/index.jsx'
-import { Loading } from '../../components/layout/components/loading.jsx'
+import * as itemActions from 'client/actions/item'
+import { Item } from 'client/components/item'
+import { Loading } from 'client/components/layout/components/loading'
 
 class Publication extends Component {
   static propTypes = {

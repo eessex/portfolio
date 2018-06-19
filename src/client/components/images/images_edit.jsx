@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { ImageEdit, ImageContainer } from '../image/image_edit.jsx'
-import { Modal } from '../modal/modal.jsx'
+import { ImageEdit, ImageContainer } from 'client/components/image/image_edit'
+import { Modal } from 'client/components/modal/modal'
 
 export class ImagesEdit extends Component {
   static propTypes = {

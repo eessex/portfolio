@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import * as Actions from '../../actions/settings'
+import * as Actions from 'client/actions/settings'
 import SiteDescription from './components/site_description'
-import { Loading } from '../../components/layout/components/loading.jsx'
-import { LayoutColumn } from '../../components/layout/column.jsx'
+import { Loading } from 'client/components/layout/components/loading'
+import { LayoutColumn } from 'client/components/layout/column'
 
 class Settings extends Component {
   static propTypes = {

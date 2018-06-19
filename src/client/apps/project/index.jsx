@@ -2,10 +2,10 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { fetchItem, resetItem } from '../../actions/item'
-import { Item } from '../../components/item/index.jsx'
-import { Loading } from '../../components/layout/components/loading.jsx'
-import { H1 } from '../../styles/text.jsx'
+import { fetchItem, resetItem } from 'client/actions/item'
+import { Item } from 'client/components/item'
+import { Loading } from 'client/components/layout/components/loading'
+import { H1 } from 'client/styles/text'
 
 class Project extends Component {
   static propTypes = {
@@ -17,8 +17,8 @@ class Project extends Component {
   }
 
   componentWillMount = () => {
-    const { fetchItemAction } = this.props
-    const { id } = this.props.match.params
+    const { fetchItemAction, match } = this.props
+    const { id } = match.params
 
     fetchItemAction('projects', id)
   }

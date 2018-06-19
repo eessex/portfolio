@@ -1,9 +1,8 @@
 import moment from 'moment'
 
 const today = moment().toISOString()
-const tomorrow = moment().add(1,'day').toISOString()
-const yesterday = moment().subtract(1,'day').toISOString()
-
+const tomorrow = moment().add(1, 'day').toISOString()
+const yesterday = moment().subtract(1, 'day').toISOString()
 
 export const ListItemEvent = {
   date: 'Dec 6, 2017',
@@ -17,13 +16,13 @@ export const UpcomingEvent = {
   _id: "5a0a60d48dcb886c6a1ab1df",
   published: true,
   start_date: tomorrow,
-  links: [ 
+  links: [
     {
       title: "Facebook Event",
       url: "https://www.facebook.com/events/1505422539549739/"
     }
   ],
-  images : [
+  images: [
     {
       title: "<p>A caption for an upcoming event</p>",
       url: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/20170117-cixous72-eve-essex-honeys.jpg`
@@ -33,11 +32,11 @@ export const UpcomingEvent = {
   all_day: false,
   title: "Eve Essex, Kate Monhanty, Ben Jaffe",
   venue: {
-      country: "",
-      state: "NY",
-      city: "Ridgewood",
-      address: "1290 Wyckoff Ave",
-      name: "Holo"
+    country: "",
+    state: "NY",
+    city: "Ridgewood",
+    address: "1290 Wyckoff Ave",
+    name: "Holo"
   },
   description: "<p>Three solo saxophone sets.</p>"
 }
@@ -52,7 +51,7 @@ export const PastEvent = {
       url: "https://www.facebook.com/events/235101790162104/"
     }
   ],
-  images : [
+  images: [
     {
       title: "<p>A caption for a past event</p>",
       url: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/eve-poster.jpg`
@@ -62,11 +61,11 @@ export const PastEvent = {
   all_day: false,
   title: "Eve Essex",
   venue: {
-      country: "",
-      state: "NY",
-      city: "Brooklyn",
-      address: "1004 Metropolitan Ave.",
-      name: "Safe Gallery"
+    country: "",
+    state: "NY",
+    city: "Brooklyn",
+    address: "1004 Metropolitan Ave.",
+    name: "Safe Gallery"
   },
   description: "<p>Closing party for Gretta Johnson and Andy Cahill&#x27;s exhibition.</p>"
 }

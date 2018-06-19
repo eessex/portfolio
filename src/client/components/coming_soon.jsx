@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { connect } from 'react-redux'
 import { capitalize } from 'underscore.string'
-import { LayoutColumn } from './layout/column.jsx'
+import { LayoutColumn } from 'client/components/layout/column'
 
 const ComingSoon = props => {
   const label = props.label || capitalize(props.location.pathname.replace('/', ''))

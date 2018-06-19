@@ -1,9 +1,9 @@
 import { createStore, applyMiddleware } from 'redux'
 import thunk from 'redux-thunk'
-import rootReducer from '../reducers'
-import apiMiddleware from '../middleware/api'
-import logMiddleware from '../middleware/log'
-import { loadState } from '../utils/local_storage.js'
+import rootReducer from 'client/reducers'
+import apiMiddleware from 'client/middleware/api'
+import logMiddleware from 'client/middleware/log'
+import { loadState } from 'client/utils/local_storage'
 
 const middleware = [
   thunk,

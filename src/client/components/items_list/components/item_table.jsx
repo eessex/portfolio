@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { Formats, FormatsContainer } from '../../formats/formats.jsx'
-import { H4 } from '../../../styles/text.jsx'
+import { Formats, FormatsContainer } from 'client/components/formats/formats'
+import { H4 } from 'client/styles/text'
 
 export const ItemTable = props => {
   const { artist, date, formats, title, venue } = props

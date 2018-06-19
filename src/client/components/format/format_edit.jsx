@@ -2,11 +2,10 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { Button } from '../forms/buttons/button.jsx'
-import { CheckboxInput } from '../forms/checkbox_input.jsx'
-import { SelectInput } from '../forms/select_input.js'
-import { Input } from '../../styles/forms.jsx'
-//  '../../styles/forms.jsx'
+import { Button } from 'client/components/forms/buttons/button'
+import { CheckboxInput } from 'client/components/forms/checkbox_input'
+import { SelectInput } from 'client/components/forms/select_input'
+import { Input } from 'client/styles/forms'
 
 export class FormatEdit extends Component {
   static propTypes = {

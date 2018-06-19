@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Image } from '../image/image.jsx'
+import { Image } from 'client/components/image/image'
 
 export const ImagesShow = props => {
   const { images } = props

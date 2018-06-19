@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { Description } from './components/description.jsx'
-import { ItemHeader } from './components/header.jsx'
-import { EmbedList } from '../embeds/embed_list.jsx'
-import { ImagesShow } from '../images/images_show.jsx'
-import { LinksList } from '../links/links_list.jsx'
-import { ContentContainer } from './column.jsx'
+import { Description } from './components/description'
+import { ItemHeader } from './components/header'
+import { EmbedList } from 'client/components/embeds/embed_list'
+import { ImagesShow } from 'client/components/images/images_show'
+import { LinksList } from 'client/components/links/links_list'
+import { ContentContainer } from './column'
 
 export const LayoutGrid = (props) => {
   const {

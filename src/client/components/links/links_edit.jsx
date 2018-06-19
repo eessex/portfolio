@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { clone } from 'lodash'
-import { LinkEdit } from './link_edit.jsx'
+import { LinkEdit } from './link_edit'
 
 export class LinksEdit extends Component {
   static propTypes = {

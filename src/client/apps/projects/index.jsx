@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import * as itemsActions from '../../actions/items'
-import { ItemsList } from '../../components/items_list/index.jsx'
-import { NewButton } from '../../components/header/components/new_button.jsx'
-import { LayoutColumn } from '../../components/layout/column.jsx'
-import { Loading } from '../../components/layout/components/loading.jsx'
+import * as itemsActions from 'client/actions/items'
+import { ItemsList } from 'client/components/items_list'
+import { NewButton } from 'client/components/header/components/new_button'
+import { LayoutColumn } from 'client/components/layout/column'
+import { Loading } from 'client/components/layout/components/loading'
 
 class Projects extends Component {
   static propTypes = {

@@ -3,10 +3,10 @@ import {
   CHANGE_ITEM,
   DELETE_ITEM,
   FETCH_ITEM,
-  FETCH_UPLOAD,  
+  FETCH_UPLOAD,
   RESET_ITEM,
   RESET_UPLOAD,
-  UPDATE_ITEM  
+  UPDATE_ITEM
 } from '../actions'
 
 const initialState = {
@@ -26,11 +26,11 @@ const itemReducer = (state = initialState, action) => {
 
       item[key] = value
       return Object.assign({}, state, {
-          item,
-          isSaved: false,
-          isSaving: !item.published
-        })
-      }
+        item,
+        isSaved: false,
+        isSaving: !item.published
+      })
+    }
 
     case FETCH_ITEM.PENDING: {
       return Object.assign({}, state, {
@@ -96,13 +96,11 @@ const itemReducer = (state = initialState, action) => {
       })
 
     case FETCH_UPLOAD.PENDING:
-
       return Object.assign({}, state, {
         uploading: true
       })
 
     case FETCH_UPLOAD.SUCCESS:
-
       return Object.assign({}, state, {
         uploading: false,
         upload: action.payload

@@ -2,11 +2,11 @@ import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { Description } from './components/description.jsx'
-import { ItemHeader } from './components/header.jsx'
-import { Label } from './components/label.jsx'
-import { EmbedList } from '../embeds/embed_list.jsx'
-import { LinksList } from '../links/links_list.jsx'
+import { Description } from './components/description'
+import { ItemHeader } from './components/header'
+import { Label } from './components/label'
+import { EmbedList } from 'client/components/embeds/embed_list'
+import { LinksList } from 'client/components/links/links_list'
 
 export const LayoutColumn = (props) => {
   const {

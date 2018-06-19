@@ -2,8 +2,8 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import * as Actions from '../../actions/settings'
-import { Loading } from '../../components/layout/components/loading.jsx'
+import * as Actions from 'client/actions/settings'
+import { Loading } from 'client/components/layout/components/loading'
 import { AboutEdit } from './about/edit.jsx'
 import { AboutShow } from './about/show.jsx'
 
@@ -17,7 +17,12 @@ class Pages extends Component {
   }
 
   render () {
-    const { isAuthenticated, loading, saving, settings } = this.props
+    const {
+      isAuthenticated,
+      loading,
+      saving,
+      settings
+    } = this.props
     const { actions } = this.props
 
     return (

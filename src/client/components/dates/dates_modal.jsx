@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Modal } from '../modal/modal.jsx'
-import { DatesEdit } from './dates_edit.jsx'
+import { Modal } from 'client/components/modal/modal'
+import { DatesEdit } from './dates_edit'
 
 export const DatesModal = props => {
   const {

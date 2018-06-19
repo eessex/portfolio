@@ -3,10 +3,10 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { filter, sortBy } from 'lodash'
-import * as itemsActions from '../../actions/items'
-import { ItemsList } from '../../components/items_list/index.jsx'
-import { NewButton } from '../../components/header/components/new_button.jsx'
-import { Loading } from '../../components/layout/components/loading.jsx'
+import * as itemsActions from 'client/actions/items'
+import { ItemsList } from 'client/components/items_list'
+import { NewButton } from 'client/components/header/components/new_button'
+import { Loading } from 'client/components/layout/components/loading'
 
 class Publications extends Component {
   static propTypes = {
@@ -35,7 +35,7 @@ class Publications extends Component {
 
     fetchItems('publications', query)
   }
-  
+
   getReleases = (compilation = false) => {
     const { list } = this.props.items
     let releases = []

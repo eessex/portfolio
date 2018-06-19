@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { clone } from 'lodash'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { SelectInput } from '../forms/select_input.js'
+import { SelectInput } from 'client/components/forms/select_input'
 
 export class VenueEdit extends Component {
   static propTypes = {

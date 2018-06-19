@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { loginUser } from '../../actions/user.js'
-import { Button } from '../../components/forms/buttons/button.jsx'
-import { ColumnForm, Input } from '../../styles/forms.jsx'
-import { LayoutColumn } from '../../components/layout/column.jsx'
-import { Loading } from '../../components/layout/components/loading.jsx'
+import { loginUser } from 'client/actions/user'
+import { Button } from 'client/components/forms/buttons/button'
+import { ColumnForm, Input } from 'client/styles/forms'
+import { LayoutColumn } from 'client/components/layout/column'
+import { Loading } from 'client/components/layout/components/loading'
 
 export class Login extends Component {
   static propTypes = {

@@ -90,6 +90,7 @@
     },
     "setupFiles": [
       "<rootDir>/test.config.js"
-    ]
+    ],
+    "modulePaths": ["src"]
   }
 }

@@ -4,9 +4,9 @@ import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { capitalize } from 'lodash'
-import { getDate, getVenue } from '../../utils/index.js'
-import { ListItem } from './components/list_item.jsx'
-import { H6 } from '../../styles/text.jsx'
+import { getDate, getVenue } from 'client/utils'
+import { ListItem } from './components/list_item'
+import { H6 } from 'client/styles/text'
 
 export class ItemsList extends Component {
   state = {

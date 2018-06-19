@@ -1,16 +1,16 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { EmbedList } from '../../../components/embeds/embed_list.jsx'
-import { Image } from '../../../components/image/image.jsx'
-import { LayoutColumn } from '../../../components/layout/column.jsx'
-import { Social } from '../../../components/social/social_list.jsx'
-import { P } from '../../../styles/text.jsx'
+import { EmbedList } from 'client/components/embeds/embed_list'
+import { Image } from 'client/components/image/image'
+import { LayoutColumn } from 'client/components/layout/column'
+import { Social } from 'client/components/social/social_list'
+import { P } from 'client/styles/text'
 
 export const AboutShow = props => {
   const { settings: { about } } = props
-  const cover_image = about.images[0]
-  const { embed_codes } = about
+  const { embed_codes, images } = about
+  const cover_image = images && images[0]
 
   return (
     <LayoutColumn label='Info'>

@@ -2,10 +2,10 @@ import React from 'react'
 import { render } from 'react-dom'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { Provider } from 'react-redux'
-import Routes from './routes'
-import store from './utils/store.js'
-import { saveState } from './utils/local_storage.js'
-import { fetchSettings } from './actions/settings'
+import Routes from 'client/routes'
+import store from 'client/utils/store'
+import { saveState } from 'client/utils/local_storage'
+import { fetchSettings } from 'client/actions/settings'
 
 store.subscribe(() => {
   saveState({user: store.getState().user})

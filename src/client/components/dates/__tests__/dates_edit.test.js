@@ -67,5 +67,16 @@ describe('DatesEdit', () => {
       expect(onChange[0]).toBe('start_date')
       expect(onChange[1]).toMatch('2018-05-03')
     })
+
+    it('can change start_time', () => {
+      const component = getElement(props)
+      const input = component.find(DateInput).at(0).instance()
+      input.time.value = '12:00'
+      input.onKeyUp()
+
+      const onChange = props.onChange.mock.calls[0]
+      expect(onChange[0]).toBe('start_date')
+      expect(onChange[1]).toMatch('16:00')
+    })
   })
 })

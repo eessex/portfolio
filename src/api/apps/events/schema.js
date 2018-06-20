@@ -4,7 +4,7 @@ var Schema = mongoose.Schema
 var EventSchema = new Schema({
   all_day: { type: Boolean, default: false },
   created_at: { type: Date, default: Date.now },
-  end_date: { type: Date, default: Date.now },
+  end_date: { type: Date, default: null },
   embed_codes: [],
   description: String,
   images: [
@@ -17,11 +17,11 @@ var EventSchema = new Schema({
   links: [
     {
       title: { type: String },
-      url: { type: String },
+      url: { type: String }
     }
   ],
   meta: {
-    description: String,
+    description: String
   },
   start_date: { type: Date, default: Date.now },
   title: String,

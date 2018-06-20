@@ -22,6 +22,7 @@ export class DateInput extends Component {
     if (this.date && this.time) {
       const newDate = this.date.value
       const newTime = this.time.value || ''
+      // TODO: Investigate local
       const formattedDate = moment(newDate + ' ' + newTime).toISOString()
 
       onChange(formattedDate)

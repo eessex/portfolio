@@ -4,14 +4,14 @@ import React from 'react'
 import { Format } from '../format/format.jsx'
 
 export const Formats = props => {
-  const { items, short, onClick } = props
+  const { formats, short, onClick } = props
 
   return (
     <FormatsContainer
       condensed={short}
       onClick={onClick && onClick}
     >
-      {items.map((item, index) =>
+      {formats.map((item, index) =>
         <Format
           key={index}
           item={item}
@@ -32,7 +32,7 @@ export const FormatsContainer = styled.div`
 `
 
 Formats.propTypes = {
-  items: PropTypes.array,
+  formats: PropTypes.array,
   onClick: PropTypes.func,
   short: PropTypes.bool
 }

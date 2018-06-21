@@ -14,3 +14,20 @@ export const embed_codes = [
   '<iframe width="560" height="315" src="https://www.youtube.com/embed/ekRYnh-Hhq0?rel=0&amp;showinfo=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>',
   '<div style="padding:75% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/68556248?color=ffffff&title=0&byline=0&portrait=0" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>'
 ]
+
+export const formats = [
+  {
+    release_year: 2018,
+    publisher: 'Soap Library',
+    format: 'Cassette',
+    featuring: false,
+    compilation: false
+  },
+  {
+    release_year: 2018,
+    publisher: 'Sky Walking',
+    format: 'LP',
+    featuring: false,
+    compilation: false
+  }
+]

@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import moment from 'moment'
-import { Input } from '../../styles/forms.jsx'
+import { Input } from 'client/styles/forms.jsx'
 
 export class DateInput extends Component {
   static date
@@ -22,6 +22,7 @@ export class DateInput extends Component {
     if (this.date && this.time) {
       const newDate = this.date.value
       const newTime = this.time.value || ''
+      // TODO: Investigate local
       const formattedDate = moment(newDate + ' ' + newTime).toISOString()
 
       onChange(formattedDate)
@@ -36,11 +37,6 @@ export class DateInput extends Component {
       value,
       required
     } = this.props
-
-    // TODO: Required indicators
-
-    // var group = label ? ' input-group' : ''
-    // var req = required ? ' req' : ''
 
     return (
       <div>
@@ -78,6 +74,7 @@ const Label = styled.label`
       margin-left: 5px;
       font-size: .75em;
       vertical-align: super;
+      position: absolute;
     }
   `}
 `

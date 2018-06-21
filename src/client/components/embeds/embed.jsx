@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 
-export const Embed = (props) => {
+export const Embed = props => {
   const { embed_code } = props
 
   return (

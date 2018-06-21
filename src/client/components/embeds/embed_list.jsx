@@ -53,7 +53,7 @@ export class EmbedList extends Component {
             </EmbedItem>
           )
         }
-        {hasNew &&
+        {hasNew && editing &&
           <P>
             <PlainText
               content=''

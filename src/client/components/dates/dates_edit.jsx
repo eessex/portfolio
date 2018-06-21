@@ -15,7 +15,7 @@ export class DatesEdit extends Component {
 
   state = {
     allDay: this.props.all_day === true,
-    hasEndDate: this.props.end_date === true
+    hasEndDate: this.props.end_date !== null
   }
 
   toggleAllDay = () => {
@@ -44,9 +44,7 @@ export class DatesEdit extends Component {
       start_date
     } = this.props
 
-    const {
-      hasEndDate
-    } = this.state
+    const { hasEndDate } = this.state
 
     return (
       <DatesEditContainer>

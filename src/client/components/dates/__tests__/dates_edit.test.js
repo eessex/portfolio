@@ -1,7 +1,7 @@
-import moment from 'moment'
 import { mount } from 'enzyme'
 import React from 'react'
 import { DatesEdit } from '../dates_edit'
+import { CheckboxInput } from 'client/components/forms/checkbox_input'
 import { DateInput } from 'client/components/forms/date_input'
 
 describe('DatesEdit', () => {
@@ -11,72 +11,150 @@ describe('DatesEdit', () => {
     )
   }
 
-  let props = {}
-  let date
-
+  let props
   beforeEach(() => {
-    date = '2018-05-02T23:00:00.000Z'
     props = {
       all_day: false,
-      end_date: moment(date).add(1, 'day').toISOString(),
+      end_date: null,
       onChange: jest.fn(),
-      start_date: date
+      start_date: '2018-05-02T23:00:00.000Z'
     }
   })
 
-  it('renders a start_date input with data', () => {
-    const component = getElement(props)
-    const input = component.find('input').at(0).getElement().props
-
-    expect(input.type).toBe('date')
-    expect(input.defaultValue).toBe('2018-05-02')
-  })
-
-  it('renders a start_time input with data', () => {
-    const component = getElement(props)
-    const input = component.find('input').at(1).getElement().props
-
-    expect(input.type).toBe('time')
-    expect(input.defaultValue).toBe('19:00')
-  })
-
-  it('renders hide end_date checkbox checked by default', () => {
-    const component = getElement(props)
-    const input = component.find('input').at(2).getElement().props
-
-    expect(input.type).toBe('checkbox')
-    expect(input.defaultChecked).toBe(true)
-  })
-
-  it('renders all_day checkbox unchecked by default', () => {
-    const component = getElement(props)
-    const input = component.find('input').at(3).getElement().props
-
-    expect(input.type).toBe('checkbox')
-    expect(input.defaultChecked).toBe(false)
-  })
-
-  describe('editing', () => {
-    it('can change start_date', () => {
+  describe('hide end date', () => {
+    it('is checked by default', () => {
       const component = getElement(props)
-      const input = component.find(DateInput).at(0).instance()
-      input.date.value = '2018-05-03'
-      input.onKeyUp()
+      const input = component.find(CheckboxInput).at(0).getElement().props
 
-      const onChange = props.onChange.mock.calls[0]
-      expect(onChange[0]).toBe('start_date')
-      expect(onChange[1]).toMatch('2018-05-03')
+      expect(component.find(DateInput).length).toBe(1)
+      expect(input.value).toBe(true)
     })
 
-    it('can change start_time', () => {
+    it('is unchecked if has end_date', () => {
+      props.end_date = '2018-05-03T23:00:00.000Z'
       const component = getElement(props)
-      const input = component.find(DateInput).at(0).instance()
-      input.time.value = '12:00'
-      input.onKeyUp()
+      const input = component.find(CheckboxInput).at(0).getElement().props
 
-      const onChange = props.onChange.mock.calls[0]
-      expect(onChange[0]).toBe('start_date')
-      expect(onChange[1]).toMatch('16:00')
+      expect(component.find(DateInput).length).toBe(2)
+      expect(input.value).toBe(false)
+    })
+
+    it('can toggle show end date', () => {
+      const component = getElement(props)
+      const input = component.find('input[type="checkbox"]').at(0)
+      input.simulate('change', { target: { checked: true } })
+
+      expect(component.find(DateInput).length).toBe(2)
+    })
+  })
+
+  describe('all_day', () => {
+    it('is unchecked by default', () => {
+      props.end_date = '2018-05-03T23:00:00.000Z'
+      const component = getElement(props)
+      const input = component.find(CheckboxInput).at(1).getElement().props
+
+      expect(component.find('input[type="time"]').length).toBe(2)
+      expect(input.value).toBe(false)
+    })
+
+    it('can toggle all_day', () => {
+      const component = getElement(props)
+      const input = component.find('input[type="checkbox"]').at(1)
+      input.simulate('change', { target: { checked: true } })
+
+      expect(props.onChange.mock.calls[0][0]).toBe('all_day')
+      expect(props.onChange.mock.calls[0][1]).toBe(true)
+    })
+  })
+
+  describe('start_date', () => {
+    describe('rendering', () => {
+      it('renders a start_date input with data', () => {
+        const component = getElement(props)
+        const input = component.find(DateInput).at(0).instance().date
+
+        expect(input.defaultValue).toBe('2018-05-02')
+      })
+
+      it('renders a start_time input with data', () => {
+        const component = getElement(props)
+        const input = component.find(DateInput).at(0).instance().time
+
+        expect(input.defaultValue).toBe('19:00')
+      })
+    })
+
+    describe('editing', () => {
+      it('can change start_date', () => {
+        const component = getElement(props)
+        const input = component.find(DateInput).at(0).instance()
+        input.date.value = '2018-05-03'
+        input.onKeyUp()
+
+        const onChange = props.onChange.mock.calls[0]
+        expect(onChange[0]).toBe('start_date')
+        expect(onChange[1]).toMatch('2018-05-03')
+      })
+
+      it('can change start_time', () => {
+        const component = getElement(props)
+        const input = component.find(DateInput).at(0).instance()
+        input.time.value = '12:00'
+        input.onKeyUp()
+
+        const onChange = props.onChange.mock.calls[0]
+        expect(onChange[0]).toBe('start_date')
+        expect(onChange[1]).toMatch('16:00')
+      })
+    })
+  })
+
+  describe('end_date', () => {
+    beforeEach(() => {
+      props.end_date = '2018-05-03T23:00:00.000Z'
+    })
+
+    describe('rendering', () => {
+      it('renders a date input with data', () => {
+        const component = getElement(props)
+        const input = component.find(DateInput).at(1).instance().date
+
+        expect(input.type).toBe('date')
+        expect(input.defaultValue).toBe('2018-05-03')
+      })
+
+      it('renders a time input with data', () => {
+        const component = getElement(props)
+        const input = component.find('input').at(1).getElement().props
+
+        expect(input.type).toBe('time')
+        expect(input.defaultValue).toBe('19:00')
+      })
+    })
+
+    describe('editing', () => {
+      it('can change end_date', () => {
+        const component = getElement(props)
+        const input = component.find(DateInput).at(1).instance()
+        input.date.value = '2018-05-04'
+        input.onKeyUp()
+
+        const onChange = props.onChange.mock.calls[0]
+        expect(onChange[0]).toBe('end_date')
+        expect(onChange[1]).toMatch('2018-05-04')
+      })
+
+      it('can change end_date', () => {
+        const component = getElement(props)
+        const input = component.find(DateInput).at(1).instance()
+        input.time.value = '12:00'
+        input.onKeyUp()
+
+        const onChange = props.onChange.mock.calls[0]
+        expect(onChange[0]).toBe('end_date')
+        expect(onChange[1]).toMatch('16:00')
+      })
     })
   })
 })

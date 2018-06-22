@@ -67,7 +67,7 @@ export const ItemHeader = (props) => {
       }
       {formats &&
         <Formats
-          items={formats}
+          formats={formats}
           onClick={setEditing ? () => setEditing('formats') : undefined}
         />
       }

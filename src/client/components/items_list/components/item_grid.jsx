@@ -41,7 +41,7 @@ export const ItemGrid = props => {
       }
       {formats && formats.length &&
         <H5>
-          <Formats items={formats} />
+          <Formats formats={formats} />
         </H5>
       }
       {description &&

@@ -3,13 +3,13 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { clone } from 'lodash'
 import { getDate } from 'client/utils'
+import { Formats } from 'client/components/formats/formats'
 import { Image, ImageContainer } from 'client/components/image/image'
 import { ImageEdit } from 'client/components/image/image_edit'
-import { Formats } from 'client/components/formats/formats'
+import { H1, H4 } from 'client/styles/text'
 import { Text } from 'client/components/text/text'
 import { Venue, VenueContainer } from 'client/components/venue/venue'
 import { Label } from './label'
-import { H1, H4 } from 'client/styles/text'
 
 export const ItemHeader = (props) => {
   const {

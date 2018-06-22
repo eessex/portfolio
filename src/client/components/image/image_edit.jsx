@@ -38,7 +38,7 @@ export class ImageEdit extends Component {
   onChangeImage = item => {
     const { index, onChange } = this.props
 
-    this.setState({ item: item })
+    this.setState({ item })
     onChange(item, index)
   }
 

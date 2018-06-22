@@ -4,7 +4,7 @@ import { capitalize } from 'underscore.string'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import Waypoint from 'react-waypoint'
-import { H1 } from '../../styles/text.jsx'
+import { H1 } from 'client/styles/text.jsx'
 
 export class Header extends Component {
   static propTypes = {
@@ -116,14 +116,12 @@ export class Header extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   isAuthenticated: state.user.isAuthenticated,
   settings: state.settings.settings
 })
 
-export default connect(
-  mapStateToProps
-)(Header)
+export default connect(mapStateToProps)(Header)
 
 export const HeaderContainer = styled.div`
   padding: 10px 20px;

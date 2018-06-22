@@ -1,10 +1,10 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Button, ButtonContainer } from '../forms/buttons/button.jsx'
-import { SaveButton } from '../forms/buttons/save.jsx'
+import { Button, ButtonContainer } from 'client/components/forms/buttons/button.jsx'
+import { SaveButton } from 'client/components/forms/buttons/save.jsx'
 
-export const EditNav = (props) => {
+export const EditNav = props => {
   const {
     deleteItem,
     isSaved,

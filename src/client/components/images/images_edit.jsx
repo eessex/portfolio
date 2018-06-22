@@ -20,7 +20,7 @@ export class ImagesEdit extends Component {
     onChange(images)
   }
 
-  onNewImage = (image) => {
+  onNewImage = image => {
     const { item, onChange } = this.props
     const images = item.images || []
 
@@ -29,7 +29,7 @@ export class ImagesEdit extends Component {
     this.forceUpdate()
   }
 
-  onDeleteImage = (index) => {
+  onDeleteImage = index => {
     const { item, onChange } = this.props
     const images = item.images || []
 

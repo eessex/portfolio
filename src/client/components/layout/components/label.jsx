@@ -3,7 +3,7 @@ import { capitalize } from 'underscore.string'
 import PropTypes from 'prop-types'
 import React from 'react'
 
-export const Label = (props) => {
+export const Label = props => {
   const {
     label,
     labelLink,

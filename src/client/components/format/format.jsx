@@ -26,7 +26,7 @@ export const Format = props => {
   )
 }
 
-const FormatContainer = styled.div`
+export const FormatContainer = styled.div`
   margin-bottom: .35em;
   ${props => props.short && `
     margin-bottom: 0;

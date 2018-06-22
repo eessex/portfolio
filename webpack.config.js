@@ -45,7 +45,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       filename: './dist/index.html',
-      title: 'Eve Essex',
+      title: process.env.PAGE_TITLE,
       template: './src/client/index.html'
     })
   ]

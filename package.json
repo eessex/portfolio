@@ -77,7 +77,7 @@
     "webpack-dev-server": "^2.4.5"
   },
   "scripts": {
-    "dev": "concurrent --kill-others \"yarn webpack-watch\" \"node server.js\"",
+    "dev": "NODE_ENV=development PAGE_TITLE='Eve Essex' concurrent --kill-others \"yarn webpack-watch\" \"node server.js\"",
     "heroku-postbuild": "webpack -p --config ./webpack.config.js --progress",
     "start": "node server.js",
     "test": "jest",

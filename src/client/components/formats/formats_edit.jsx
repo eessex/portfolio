@@ -10,8 +10,10 @@ export class FormatsEdit extends Component {
   }
 
   state = {
-    showNewForm: this.props.formats.length === true
+    showNewForm: this.props.formats.length === 0
   }
+
+  // TODO: Remove format
 
   onChangeFormat = (item, index) => {
     const { onChange, formats } = this.props
@@ -20,7 +22,7 @@ export class FormatsEdit extends Component {
     onChange('formats', formats)
   }
 
-  onNewFormat = (item) => {
+  onNewFormat = item => {
     const { onChange, formats } = this.props
 
     formats.push(item)

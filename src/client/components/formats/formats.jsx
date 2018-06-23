@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
+import { Button } from 'client/components/forms/buttons/button'
 import { Format } from '../format/format.jsx'
 
 export const Formats = props => {
@@ -11,13 +12,16 @@ export const Formats = props => {
       condensed={short}
       onClick={onClick && onClick}
     >
-      {formats.map((item, index) =>
-        <Format
-          key={index}
-          item={item}
-          short={short}
-        />
-      )}
+      {formats && formats.length
+        ? formats.map((item, index) =>
+          <Format
+            key={index}
+            item={item}
+            short={short}
+          />
+        )
+        : onClick && <Button text='Add Format' />
+      }
     </FormatsContainer>
   )
 }

@@ -32,7 +32,8 @@ export const ItemHeader = (props) => {
   const { url } = coverImage || ''
   const hasImage = coverImage && url
   const hasVenue = venue && (venue.name || venue.address)
-  const date = model !== 'publications' && getDate(model, item)
+  const isPublication = model === 'publications'
+  const date = !isPublication && getDate(model, item)
 
   return (
     <ItemHeaderContainer>
@@ -43,7 +44,7 @@ export const ItemHeader = (props) => {
           model={model}
         />
       }
-      {artist &&
+      {(artist || isPublication && setEditing) &&
         <H1>
           <Text
             onChange={(value) => onChange('artist', value)}
@@ -65,9 +66,9 @@ export const ItemHeader = (props) => {
           {date}
         </H4>
       }
-      {formats &&
+      {(formats || isPublication && setEditing) &&
         <Formats
-          formats={formats}
+          formats={formats || []}
           onClick={setEditing ? () => setEditing('formats') : undefined}
         />
       }

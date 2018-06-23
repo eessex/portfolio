@@ -5,14 +5,13 @@ import { LinkEdit } from '../link_edit.jsx'
 import { links } from '../../../tests/fixtures/components.js'
 
 describe('LinkEdit', () => {
-  let props
-
-  const getWrapper = (props) => {
+  const getWrapper = props => {
     return mount(
       <LinkEdit {...props} />
     )
   }
 
+  let props
   describe('New Link', () => {
     beforeEach(() => {
       props = {
@@ -87,11 +86,9 @@ describe('LinkEdit', () => {
 
     it('Renders expected fields', () => {
       const component = getWrapper(props)
-
       const titleInput = component.find('input').first().props()
       const urlInput = component.find('input').last().props()
       const button = component.find(Button)
-
 
       expect(titleInput.autoFocus).toBe(true)
       expect(titleInput.placeholder).toBe('Title')
@@ -108,9 +105,8 @@ describe('LinkEdit', () => {
       const component = getWrapper(props)
       const urlInput = component.find('input').last()
       const value = 'http://mylink.com'
-
       urlInput.simulate('change', {target: { value }})
-      
+
       expect(component.state().link.title).toBe(title)
       expect(component.state().link.url).toBe(value)
       expect(props.onChange.mock.calls[0][0].title).toBe(title)
@@ -122,9 +118,8 @@ describe('LinkEdit', () => {
       const component = getWrapper(props)
       const titleInput = component.find('input').first()
       const value = 'New Link'
-
       titleInput.simulate('change', {target: { value }})
-      
+
       expect(component.state().link.title).toBe(value)
       expect(component.state().link.url).toBe(url)
       expect(props.onChange.mock.calls[0][0].title).toBe(value)
@@ -135,7 +130,6 @@ describe('LinkEdit', () => {
     it('Can delete a link', () => {
       const component = getWrapper(props)
       const deleteButton = component.find(Button).first()
-
       deleteButton.simulate('click')
 
       expect(props.onDelete.mock.calls[0][0]).toBe(props.index)

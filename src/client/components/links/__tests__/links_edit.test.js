@@ -5,14 +5,13 @@ import { LinksEdit } from '../links_edit.jsx'
 import { links } from '../../../tests/fixtures/components.js'
 
 describe('LinksEdit', () => {
-  let props
-
-  const getWrapper = (props) => {
+  const getWrapper = props => {
     return mount(
       <LinksEdit {...props} />
     )
   }
 
+  let props
   beforeEach(() => {
     props = {
       links,

@@ -30,6 +30,7 @@ export class SocialEdit extends Component {
       ? this.renderEditPanel(social, service)
       : false
     const isPlaceholder = !social[service]
+    const icon = service === 'discogs' ? 'compact-disc' : service
 
     return (
       <SocialItem
@@ -37,7 +38,7 @@ export class SocialEdit extends Component {
         key={i}
       >
         <A isPlaceholder={isPlaceholder}>
-          <FontAwesome name={service} />
+          <FontAwesome name={icon} />
           {capitalize(service)}
         </A>
         {renderEdit}
@@ -66,8 +67,15 @@ export class SocialEdit extends Component {
     )
   }
 
-  renderSocialList = (social) => {
-    const services = ['bandcamp', 'soundcloud', 'facebook', 'instagram', 'twitter']
+  renderSocialList = social => {
+    const services = [
+      'bandcamp',
+      'discogs',
+      'soundcloud',
+      'facebook',
+      'instagram',
+      'twitter'
+    ]
     return services.map((service, i) => {
       return this.renderSocial(social, service, i)
     })
@@ -91,7 +99,7 @@ export class SocialEdit extends Component {
   }
 }
 
-const SocialItem = styled.div`
+export const SocialItem = styled.div`
   position: relative;
 `
 

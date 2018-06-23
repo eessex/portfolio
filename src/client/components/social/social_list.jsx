@@ -68,5 +68,5 @@ export const SocialContainer = styled.div`
 `
 
 Social.propTypes = {
-  social: PropTypes.array
+  social: PropTypes.object
 }

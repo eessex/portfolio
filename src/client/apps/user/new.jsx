@@ -11,10 +11,14 @@ export class NewUser extends Component {
   static propTypes = {
     createUserAction: PropTypes.func,
     error: PropTypes.string,
+    isAuthenticated: PropTypes.bool,
     loading: PropTypes.bool,
-    logoutUserAction: PropTypes.func,
-    isAuthenticated: PropTypes.bool
+    logoutUserAction: PropTypes.func
   }
+
+  static email
+  static password
+  static password_confirm
 
   componentDidMount () {
     if (!this.props.isAuthenticated) {
@@ -33,15 +37,18 @@ export class NewUser extends Component {
   onSubmit = e => {
     const { createUserAction } = this.props
 
-    if (this.refs.password.value === this.refs.password_confirm.value) {
-      var creds = {
-        email: this.refs.email.value,
-        password: this.refs.password.value
-      }
+    if (this.password && this.password_confirm) {
+      if (this.password.value !== undefined &&
+        this.password.value === this.password_confirm.value) {
+        const creds = {
+          email: this.email.value,
+          password: this.password.value
+        }
 
-      createUserAction(creds)
-    } else {
-      alert('Passwords do not match!')
+        createUserAction(creds)
+      } else {
+        alert('Passwords do not match!')
+      }
     }
   }
 
@@ -61,18 +68,18 @@ export class NewUser extends Component {
           : (
             <ColumnForm onSubmit={this.onSubmit}>
               <Input
-                ref='email'
+                innerRef={email => (this.email = email)}
                 placeholder='email'
                 required
               />
               <Input
-                ref='password'
+                innerRef={password => (this.password = password)}
                 placeholder='password'
                 type='password'
                 required
               />
               <Input
-                ref='password_confirm'
+                innerRef={password_confirm => (this.password_confirm = password_confirm)}
                 placeholder='confirm password'
                 type='password'
                 required
@@ -92,7 +99,7 @@ export class NewUser extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   error: state.user.error,
   loading: state.user.loading,
   isAuthenticated: state.user.isAuthenticated

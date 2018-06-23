@@ -84,10 +84,11 @@ class Publications extends Component {
               {isAdmin &&
                 <NewButton
                   model='Publication'
+                  isRelease={label === 'Releases'}
                   onCreate={() => createItem('publications')}
                 />
               }
-              {releases.length > 0  &&
+              {releases.length > 0 &&
                 <ItemsList
                   model={label.toLowerCase()}
                   list={releases}

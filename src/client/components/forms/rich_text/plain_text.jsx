@@ -31,8 +31,12 @@ export class PlainText extends Component {
       // There was a change in the content
       this.onContentChange(newContent)
     }
-    this.setState({ editorState })
-    forceUpdate && this.setEditorState()
+
+    if (forceUpdate) {
+      this.setState({ editorState: this.setEditorState() })
+    } else {
+      this.setState({ editorState })
+    }
   }
 
   onContentChange = content => {

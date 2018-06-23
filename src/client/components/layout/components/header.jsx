@@ -11,7 +11,7 @@ import { Text } from 'client/components/text/text'
 import { Venue, VenueContainer } from 'client/components/venue/venue'
 import { Label } from './label'
 
-export const ItemHeader = (props) => {
+export const ItemHeader = props => {
   const {
     coverImage,
     item,
@@ -47,7 +47,7 @@ export const ItemHeader = (props) => {
       {(artist || isPublication && setEditing) &&
         <H1>
           <Text
-            onChange={(value) => onChange('artist', value)}
+            onChange={setEditing ? (value) => onChange('artist', value) : undefined}
             placeholder='Artist'
             text={artist}
           />
@@ -55,7 +55,7 @@ export const ItemHeader = (props) => {
       }
       <H1>
         <Text
-          onChange={(value) => onChange('title', value)}
+          onChange={setEditing ? (value) => onChange('title', value) : undefined}
           placeholder='Add Title'
           text={title}
         />

@@ -10,6 +10,7 @@ export class Social extends Component {
       const href = service === 'bandcamp'
         ? `https://${social[service]}.${service}.com/`
         : `https://${service}.com/${social[service]}`
+      const icon = service === 'discogs' ? 'compact-disc' : service
 
       return (
         <a
@@ -17,7 +18,7 @@ export class Social extends Component {
           href={href}
           key={i}
         >
-          <FontAwesome name={service} />
+          <FontAwesome name={icon} />
           {capitalize(service)}
         </a>
       )
@@ -28,6 +29,7 @@ export class Social extends Component {
     if (social) {
       const services = [
         'bandcamp',
+        'discogs',
         'soundcloud',
         'facebook',
         'instagram',

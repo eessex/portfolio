@@ -87,7 +87,7 @@ class Publications extends Component {
                   onCreate={() => createItem('publications')}
                 />
               }
-              {releases.length &&
+              {releases.length > 0  &&
                 <ItemsList
                   model={label.toLowerCase()}
                   list={releases}
@@ -96,7 +96,7 @@ class Publications extends Component {
                   canToggle
                 />
               }
-              {compilations.length &&
+              {compilations.length > 0 &&
                 <Compilations>
                   <ItemsList
                     model={label.toLowerCase()}

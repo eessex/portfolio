@@ -15,6 +15,9 @@ export class Login extends Component {
     isAuthenticated: PropTypes.bool
   }
 
+  static email
+  static password
+
   componentDidMount () {
     if (this.props.isAuthenticated) {
       window.location.replace('/')
@@ -23,12 +26,13 @@ export class Login extends Component {
 
   onSubmit = () => {
     const { loginUserAction } = this.props
-
-    var creds = {
-      email: this.refs.email.value,
-      password: this.refs.password.value
+    if (this.email && this.password) {
+      const creds = {
+        email: this.email.value,
+        password: this.password.value
+      }
+      loginUserAction(creds)
     }
-    loginUserAction(creds)
   }
 
   render () {
@@ -41,12 +45,12 @@ export class Login extends Component {
           : (
             <ColumnForm onSubmit={this.onSubmit}>
               <Input
-                ref='email'
+                innerRef={email => (this.email = email)}
                 placeholder='email'
                 required
               />
               <Input
-                ref='password'
+                innerRef={password => (this.password = password)}
                 placeholder='password'
                 type='password'
                 required
@@ -65,7 +69,7 @@ export class Login extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   error: state.user.error,
   loading: state.user.loading,
   isAuthenticated: state.user.isAuthenticated

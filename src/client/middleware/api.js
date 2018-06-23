@@ -35,7 +35,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
     }
   }
 
-  const handleError = (error) => {
+  const handleError = error => {
     dispatch({
       type: action.payload.next.ERROR,
       payload: error.response
@@ -44,28 +44,28 @@ const apiMiddleware = ({ dispatch }) => next => action => {
 
   const { data, method, query, url } = action.payload
 
-  if (method == 'get') {
+  if (method === 'get') {
     axios.get(BASE_URL + url, {params: query})
       .then(handleResponse)
       .catch(error =>
         handleError(error)
       )
   }
-  if (method == ('post')) {
+  if (method === ('post')) {
     axios.post(BASE_URL + url, data)
       .then(handleResponse)
       .catch(error =>
         handleError(error)
       )
   }
-  if (method == ('put')) {
+  if (method === ('put')) {
     axios.put(BASE_URL + url, data)
       .then(handleResponse)
       .catch(error =>
         handleError(error)
       )
   }
-  if (method == ('delete')) {
+  if (method === ('delete')) {
     axios.delete(BASE_URL + url, data)
       .then(handleResponse)
       .catch(error =>

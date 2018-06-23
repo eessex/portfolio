@@ -9,6 +9,7 @@ export const Format = props => {
     publisher,
     release_year
   } = item
+
   const formattedFormat = format && (publisher || (release_year && !short))
     ? `${format}, `
     : format

@@ -70,7 +70,7 @@ export class FormatEdit extends Component {
             <SelectInput
               name='format'
               value={format}
-              options={['LP', '2xLP', 'Cassette', '2xCassette', 'Digital']}
+              options={['LP', '2xLP', 'Cassette', '2xCassette', 'CD', '2xCD', 'Digital']}
               onChange={(key, value) => this.onChangeFormat(key, value)}
             />
           </Col>

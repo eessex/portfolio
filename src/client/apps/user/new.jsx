@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { createUser, logoutUser } from 'client/actions/user'
 import { Button } from 'client/components/forms/buttons/button'
-import { ColumnForm, Input } from 'client/styles/forms'
+import { ColumnForm, Input, ErrorContainer } from 'client/styles/forms'
 import { LayoutColumn } from 'client/components/layout/column'
 import { Loading } from 'client/components/layout/components/loading'
 
@@ -52,12 +52,6 @@ export class NewUser extends Component {
     }
   }
 
-  renderError = () => {
-    if (this.props.error) {
-      return <div>{this.props.error}</div>
-    }
-  }
-
   render () {
     const { error, loading } = this.props
 
@@ -85,7 +79,7 @@ export class NewUser extends Component {
                 required
               />
 
-              {error && <div>{error}</div>}
+              {error && <ErrorContainer>{error}</ErrorContainer>}
 
               <Button onClick={this.onSubmit}>
                 Submit

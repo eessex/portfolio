@@ -3,6 +3,14 @@ import React from 'react'
 import { Header, HeaderContainer } from '../header.jsx'
 
 describe('Header', () => {
+  window.location = { pathname: '/events' }
+
+  const getWrapper = props => {
+    return mount(
+      <Header {...props} />
+    )
+  }
+
   let props = {
     settings: {
       title: 'Cool Website',
@@ -14,13 +22,6 @@ describe('Header', () => {
       ]
     },
     isAuthenticated: false
-  }
-  window.location = { pathname: '/events' }
-
-  const getWrapper = (props) => {
-    return mount(
-      <Header {...props} />
-    )
   }
 
   it('Renders the home link', () => {

@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { loginUser } from 'client/actions/user'
 import { Button } from 'client/components/forms/buttons/button'
-import { ColumnForm, Input } from 'client/styles/forms'
+import { ColumnForm, Input, ErrorContainer } from 'client/styles/forms'
 import { LayoutColumn } from 'client/components/layout/column'
 import { Loading } from 'client/components/layout/components/loading'
 
@@ -56,7 +56,7 @@ export class Login extends Component {
                 required
               />
 
-              {error && <div>{error}</div>}
+              {error && <ErrorContainer>{error}</ErrorContainer>}
 
               <Button onClick={this.onSubmit}>
                 Submit

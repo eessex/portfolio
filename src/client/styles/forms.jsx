@@ -17,6 +17,10 @@ export const Input = styled.input`
   }
 `
 
+export const ErrorContainer = styled.div`
+  color: red;
+`
+
 export const ColumnForm = styled.form`
   display: flex;
   flex-direction: column;

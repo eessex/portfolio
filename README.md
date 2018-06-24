@@ -30,4 +30,5 @@ $ yarn dev
 $ open http://localhost:3000/
 ```
 
+### CMS Demo
 ![Alt text](https://s3.amazonaws.com/eve-portfolio/assets/portfolio-demo.gif  "Demo gif")

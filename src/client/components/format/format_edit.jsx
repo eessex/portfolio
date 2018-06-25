@@ -37,23 +37,23 @@ export class FormatEdit extends Component {
   }
 
   onChangeFormat = (key, value) => {
-    const { index, item, onChange } = this.props
+    const { item } = this.props
     const needsSave = true
 
     item[key] = value
     this.setState({ item, needsSave })
-    onChange(item, index)
   }
 
   saveItem = () => {
     const { index, onChange } = this.props
     const { item } = this.state
+    const needsSave = false
 
+    this.setState({ needsSave })
     onChange(item, index)
   }
 
   render () {
-    const { index } = this.props
     const { item, needsSave } = this.state
     const {
       compilation,
@@ -106,14 +106,13 @@ export class FormatEdit extends Component {
               onChange={() => this.onChangeFormat('featuring', !featuring)}
             />
           </Col>
-          {!index && index !== 0 &&
-            <Button
-              style={{color: needsSave ? 'red' : 'black'}}
-              onClick={this.saveItem}
-            >
-              Save
-            </Button>
-          }
+          {/* TODO: Delete button */}
+          <Button
+            color={needsSave ? 'red' : 'black'}
+            onClick={this.saveItem}
+          >
+            Save
+          </Button>
         </Row>
       </FormatEditContainer>
     )
@@ -131,14 +130,6 @@ const FormatEditContainer = styled.div`
   }
   input[name='release_year'] {
     width: 3em;
-  }
-  input {
-    border-bottom: 1px solid #ddd;
-    border-left: 0;
-    border-right: 0;
-    border-top: 0;
-    padding-bottom: 2px;
-    font-size: 1em;
   }
 `
 

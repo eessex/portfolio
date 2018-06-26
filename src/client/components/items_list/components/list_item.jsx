@@ -59,7 +59,7 @@ export const Item = styled.div`
   }
 
   ${props => props.published === false && `
-    opacity: .65;
+    opacity: .45;
   `}
 
   // layouts

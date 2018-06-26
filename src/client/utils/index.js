@@ -105,10 +105,16 @@ export const getReleaseDate = item => {
   let dates = uniq(pluck(formats, 'release_year'))
 
   if (dates.length) {
+    const startDate = dates[0]
+
     if (dates.length > 1) {
-      return dates[0].toString() + '-' + dates[dates.length - 1].toString().slice(-2)
+      const endDate = dates[dates.length - 1]
+
+      return endDate !== null
+        ? startDate.toString() + '-' + endDate.toString().slice(-2)
+        : startDate.toString()
     } else {
-      return dates[0].toString()
+      return startDate.toString()
     }
   }
 }

@@ -10,7 +10,9 @@ import { Input } from 'client/styles/forms'
 export class FormatEdit extends Component {
   static propTypes = {
     index: PropTypes.number,
-    item: PropTypes.object
+    item: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired,
+    onRemoveFormat: PropTypes.func
   }
 
   constructor (props) {
@@ -55,6 +57,7 @@ export class FormatEdit extends Component {
 
   render () {
     const { item, needsSave } = this.state
+    const { onRemoveFormat, index } = this.props
     const {
       compilation,
       featuring,
@@ -106,13 +109,21 @@ export class FormatEdit extends Component {
               onChange={() => this.onChangeFormat('featuring', !featuring)}
             />
           </Col>
-          {/* TODO: Delete button */}
-          <Button
-            color={needsSave ? 'red' : 'black'}
-            onClick={this.saveItem}
-          >
-            Save
-          </Button>
+          <Col>
+            <Button
+              color={needsSave ? 'red' : 'black'}
+              onClick={this.saveItem}
+            >
+              Save
+            </Button>
+            {onRemoveFormat &&
+              <Button
+                borderless
+                icon='ban'
+                onClick={() => onRemoveFormat(index)}
+              />
+            }
+          </Col>
         </Row>
       </FormatEditContainer>
     )
@@ -123,6 +134,7 @@ const FormatEditContainer = styled.div`
   ${Row} {
     margin: 0;
     padding: 0 0 10px 0;
+    flex-wrap: nowrap;
   }
   ${Col} {
     padding-left: 0 !important;
@@ -132,9 +144,3 @@ const FormatEditContainer = styled.div`
     width: 3em;
   }
 `
-
-FormatEdit.propTypes = {
-  index: PropTypes.number,
-  item: PropTypes.object.isRequired,
-  onChange: PropTypes.func.isRequired
-}

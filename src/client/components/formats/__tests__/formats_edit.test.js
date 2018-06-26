@@ -31,7 +31,7 @@ describe('FormatsEdit', () => {
     const component = getElement(props)
 
     expect(component.find(FormatEdit)).toHaveLength(2)
-    expect(component.find('button').at(0).text()).toBe('Add New')
+    expect(component.find('button').at(4).text()).toBe('Add New')
   })
 
   it('Renders existing data in forms', () => {

@@ -30,6 +30,14 @@ export class FormatsEdit extends Component {
     this.setState({ showNewForm: false })
   }
 
+  onRemoveFormat = index => {
+    const { onChange, formats } = this.props
+    formats.splice(index, 1)
+
+    onChange('formats', formats)
+    this.setState({ showNewForm: false })
+  }
+
   renderNew = () => {
     const { showNewForm } = this.state
 
@@ -57,6 +65,7 @@ export class FormatsEdit extends Component {
             item={format}
             key={index}
             onChange={this.onChangeFormat}
+            onRemoveFormat={this.onRemoveFormat}
           />
         )}
 

@@ -39,33 +39,38 @@ export class FileInput extends Component {
   }
 
   uploadFile = async (data, signature) => {
-    const { signedRequest, url } = signature
+    try {
+      const { signedRequest, url } = await signature.data
 
-    axios.put(
-      signedRequest,
-      data,
-      {
-        headers: {
-          'Content-Type': data.type
+      axios.put(
+        signedRequest,
+        data,
+        {
+          headers: {
+            'Content-Type': data.type
+          },
+          crossDomain: true
         }
-      }
-    ).then(res => {
-      const img = new Image()
+      ).then(() => {
+        const img = new Image()
 
-      img.src = url
-      img.onload = () => {
-        const aspect = img.width / img.height
-        const newImage = {
-          url,
-          aspect,
-          caption: ''
+        img.src = url || ''
+        img.onload = () => {
+          const aspect = img.width / img.height
+          const newImage = {
+            url,
+            aspect,
+            caption: ''
+          }
+          this.onChangeImage(newImage)
+          return newImage
         }
-        this.onChangeImage(newImage)
-        return newImage
-      }
-    }).catch(err => {
+      }).catch(err => {
+        console.error(err)
+      })
+    } catch (err) {
       console.error(err)
-    })
+    }
   }
 
   toggleDragOver = isDragOver => {

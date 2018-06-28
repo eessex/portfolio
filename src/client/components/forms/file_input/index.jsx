@@ -63,6 +63,8 @@ export class FileInput extends Component {
         this.onChangeImage(newImage)
         return newImage
       }
+    }).catch(err => {
+      console.error(err)
     })
   }
 

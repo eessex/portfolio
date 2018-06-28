@@ -85,7 +85,11 @@ export const ItemHeader = props => {
             index={0}
             onChange={(image) => {
               const newImages = clone(item.images) || []
-              newImages[0] = image
+              if (image) {
+                newImages[0] = image
+              } else {
+                newImages.splice(0, 1)
+              }
               onChange('images', newImages)
             }}
             editCaption

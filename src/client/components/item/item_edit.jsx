@@ -43,7 +43,7 @@ export class ItemEdit extends Component {
 
     const images = item.images || []
     const isPublication = model === 'publications'
-    const isGrid = images.length > 0 && (imageIsVertical(images[0]) || isPublication)
+    const isGrid = images.length !== 0 && (imageIsVertical(images[0]) || isPublication)
 
     return (
       <div>

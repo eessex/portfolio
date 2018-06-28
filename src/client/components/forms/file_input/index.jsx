@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Button } from '../buttons/button.jsx'
 import { H5 } from '../../../styles/text.jsx'
+import { Loading } from 'client/components/layout/components/loading'
 
 export class FileInput extends Component {
   static propTypes = {
@@ -27,8 +28,17 @@ export class FileInput extends Component {
     }
   }
 
-  uploadFile = (data, signature) => {
-    const { onChange } = this.props
+  onChangeImage = newImage => {
+    const { onChange, hasPreview } = this.props
+
+    onChange(newImage)
+    this.setState({
+      loading: false,
+      fileUrl: !hasPreview && ''
+    })
+  }
+
+  uploadFile = async (data, signature) => {
     const { signedRequest, url } = signature
 
     axios.put(
@@ -39,23 +49,21 @@ export class FileInput extends Component {
           'Content-Type': data.type
         }
       }
-    )
-      .then(() => {
-        const img = new Image()
-        img.src = url
-        img.onload = () => {
-          const aspect = img.width / img.height
-          const newImage = {
-            url,
-            aspect
-          }
-          onChange(newImage)
-          this.setState({ loading: false })
+    ).then(res => {
+      const img = new Image()
+
+      img.src = url
+      img.onload = () => {
+        const aspect = img.width / img.height
+        const newImage = {
+          url,
+          aspect,
+          caption: ''
         }
+        this.onChangeImage(newImage)
+        return newImage
       }
-      ).catch(error =>
-        console.log(error)
-      ).bind(this)
+    })
   }
 
   toggleDragOver = isDragOver => {
@@ -96,7 +104,7 @@ export class FileInput extends Component {
 
   render () {
     const { accept, file, hasPreview, label } = this.props
-    const { isDragOver } = this.state
+    const { isDragOver, loading } = this.state
 
     return (
       <FileInputContainer>
@@ -116,15 +124,20 @@ export class FileInput extends Component {
           {hasPreview && this.renderPreview(file)}
 
           <Input>
-            {!file.url &&
-              <H5>Click or Drag to Upload</H5>
-            }
+            {loading
+              ? <Loading isAbsolute />
+              : <div>
+                {(hasPreview && !file.url) || (!hasPreview) &&
+                  <H5>Click or Drag to Upload</H5>
+                }
 
-            <input
-              type='file'
-              accept={accept || 'image/*, video/mp4'}
-              onChange={this.fetchSignature}
-            />
+                <input
+                  type='file'
+                  accept={accept || 'image/*, video/mp4'}
+                  onChange={this.fetchSignature}
+                />
+              </div>
+            }
           </Input>
         </DragZone>
       </FileInputContainer>

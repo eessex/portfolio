@@ -1,10 +1,13 @@
+import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import React from 'react'
 import FontAwesome from 'react-fontawesome'
 
-export const Loading = () => {
+export const Loading = props => {
+  const { isAbsolute } = props
+
   return (
-    <LoadingContainer>
+    <LoadingContainer isAbsolute={isAbsolute}>
       <FontAwesome
         name='circle-o-notch'
         size='2x'
@@ -15,7 +18,7 @@ export const Loading = () => {
 }
 
 const LoadingContainer = styled.div`
-  position: fixed;
+  position: ${props => props.isAbsolute ? 'absolute' : 'fixed'};
   top: 0;
   left: 0;
   right: 0;
@@ -26,3 +29,6 @@ const LoadingContainer = styled.div`
   color: #ddd;
   z-index: -1;
 `
+Loading.propTypes = {
+  isAbsolute: PropTypes.bool
+}

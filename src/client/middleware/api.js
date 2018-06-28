@@ -36,6 +36,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   }
 
   const handleError = error => {
+    console.log(error)
     dispatch({
       type: action.payload.next.ERROR,
       payload: error.response

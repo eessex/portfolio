@@ -26,7 +26,7 @@ export const sortByDate = (items, dateField) => {
 }
 
 export const imageIsVertical = image => {
-  return image.aspect && image.aspect < 1.1
+  return image && image.aspect && image.aspect < 1.1
 }
 
 export const formatEventDates = (item, format) => {

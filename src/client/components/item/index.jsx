@@ -14,7 +14,7 @@ export const Item = props => {
 
   const images = item && item.images || []
   const isPublication = model === 'publications'
-  const isGrid = images.length && (imageIsVertical(images[0]) || isPublication)
+  const isGrid = images.length !== 0 && (imageIsVertical(images[0]) || isPublication)
 
   return (
     <div>

@@ -114,7 +114,9 @@ export const getReleaseDate = item => {
         ? startDate.toString() + '-' + endDate.toString().slice(-2)
         : startDate.toString()
     } else {
-      return startDate.toString()
+      if (startDate) {
+        return startDate.toString()
+      }
     }
   }
 }

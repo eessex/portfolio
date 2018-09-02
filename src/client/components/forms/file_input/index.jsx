@@ -52,9 +52,11 @@ export class FileInput extends Component {
           crossDomain: true
         }
       ).then(() => {
+        console.log('finished upload')
         const img = new Image()
         debugger
         img.src = url || ''
+        console.log('image', img.src)
         img.onload = () => {
           const aspect = img.width / img.height
           const newImage = {

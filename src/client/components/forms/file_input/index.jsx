@@ -41,6 +41,7 @@ export class FileInput extends Component {
   uploadFile = async (data, signature) => {
     try {
       const { signedRequest, url } = await signature.data
+      console.log('put upload')
       debugger
       axios.put(
         signedRequest,
@@ -89,7 +90,7 @@ export class FileInput extends Component {
     fetchUpload(
       files[0],
       file,
-      this.uploadFile
+      this.uploadFile.bind(this)
     )
     this.setState({ loading: true })
   }

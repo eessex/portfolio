@@ -1,5 +1,7 @@
 import axios from 'axios'
-const BASE_URL = location.href.indexOf('localhost') > 0 ? 'http://localhost:3000/api' : '/api'
+const BASE_URL = location.href.indexOf('localhost') > 0
+  ? 'http://localhost:3000/api'
+  : `${window.location.origin}/api`
 
 const apiMiddleware = ({ dispatch }) => next => action => {
   if (action.type !== 'API') {

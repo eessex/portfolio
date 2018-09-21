@@ -41,14 +41,14 @@ export class FileInput extends Component {
   uploadFile = async (data, signature) => {
     try {
       const { signedRequest, url } = await signature.data
-      console.log('put upload', data)
+      const uploadData = data
       debugger
       axios.put(
         signedRequest,
-        data,
+        uploadData,
         {
           headers: {
-            'Content-Type': data.type
+            'Content-Type': uploadData.type
           },
           crossDomain: true
         }

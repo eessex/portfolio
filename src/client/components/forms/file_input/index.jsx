@@ -65,7 +65,6 @@ export class FileInput extends Component {
             aspect,
             caption: ''
           }
-          console.log('newImage', newImage, 'onChangeImage', this.onChangeImage)
           this.onChangeImage(newImage)
           return newImage
         }

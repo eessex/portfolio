@@ -17,6 +17,7 @@ upload.route('/')
       ContentType: req.body.fileType,
       ACL: 'public-read'
     }
+
     s3.getSignedUrl('putObject', s3Params, (err, data) => {
       if (err) {
         console.log(err)

@@ -41,23 +41,19 @@ export class FileInput extends Component {
   uploadFile = async (data, signature) => {
     try {
       const { signedRequest, url } = await signature.data
-      const uploadData = data
-      debugger
       axios.put(
         signedRequest,
-        uploadData,
+        data,
         {
           headers: {
-            'Content-Type': uploadData.type
+            'Content-Type': data.type
           },
           crossDomain: true
         }
       ).then(() => {
-        console.log('finished upload')
         const img = new Image()
-        debugger
         img.src = url || ''
-        console.log('image', img.src)
+
         img.onload = () => {
           const aspect = img.width / img.height
           const newImage = {
@@ -69,11 +65,9 @@ export class FileInput extends Component {
           return newImage
         }
       }).catch(err => {
-        debugger
         console.error(err)
       })
     } catch (err) {
-      debugger
       console.error(err)
     }
   }

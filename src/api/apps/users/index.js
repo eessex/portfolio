@@ -40,6 +40,7 @@ users.route('/session/create')
           if (!isMatch || err) {
             return res.send(400, { error: (err || 'Incorrect password') })
           }
+          console.log('successful log in')
           // sets user authenticated in store
           return res.json(user)
         })

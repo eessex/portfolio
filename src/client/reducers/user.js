@@ -32,7 +32,8 @@ const userReducer = (state = initialState, action) => {
 
     case LOGIN_USER.PENDING:
       return Object.assign({}, state, {
-        loading: false
+        loading: true,
+        error: null
       })
 
     case LOGIN_USER.SUCCESS:

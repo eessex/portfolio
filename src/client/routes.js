@@ -6,6 +6,7 @@ import {
   Event,
   Events,
   Login,
+  Logout,
   Pages,
   Project,
   Projects,
@@ -36,6 +37,7 @@ export default class Routes extends Component {
             <Route exact path='/publications/:id' component={Publication} />
 
             <Route exact path='/login' component={Login} />
+            <Route exact path='/logout' component={Logout} />
             <Route exact path='/new/user' component={NewUser} />
             <Route exact path='/info' component={Pages} />
             <Route exact path='/settings' component={Settings} />

@@ -128,7 +128,7 @@ export const getVenue = venue => {
     const City = city && city.length ? `, ${city}` : ''
     const Country = country ? `, ${country}` : ''
 
-    if (venue && name.length) {
+    if (venue && name && name.length) {
       return name + City + Country
     } else if (venue && address && address.length) {
       return address + City + Country

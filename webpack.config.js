@@ -1,52 +1,74 @@
-const path = require('path')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-require('webpack')
+var path = require('path')
+var webpack = require('webpack')
+var nodeExternals = require('webpack-node-externals')
+var Dotenv = require('dotenv-webpack')
 
-module.exports = {
+var browserConfig = {
   entry: ['babel-polyfill', './src/client/index.js'],
   output: {
-    filename: './dist/bundle.js'
+    path: path.resolve(__dirname, 'public'),
+    filename: 'bundle.js',
+    publicPath: '/'
   },
   module: {
-    loaders: [
+    rules: [
       {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/,
-        include: [path.join(__dirname, 'src')],
-        query: {
-          plugins: ['transform-runtime'],
-          presets: ['env', 'stage-0', 'react']
-        }
-      },
-      {
-        test: /\.jsx$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/,
-        include: [path.join(__dirname, 'src')],
-        query: {
-          plugins: ['transform-runtime'],
-          presets: ['env', 'stage-0', 'react']
-        }
-      },
-      {
-        test: /\.html$/,
-        loader: 'underscore-template-loader'
+        test: /(\.(js|jsx)?$)/,
+        include: path.resolve('./src'),
+        use: 'babel-loader'
       }
     ]
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      __isBrowser__: 'true'
+    }),
+    new Dotenv({
+      path: './.env'
+    })
+  ],
   resolve: {
     extensions: ['.js', '.jsx'],
     modules: [
       path.resolve('./src'),
       path.resolve('./node_modules')
     ]
+  }
+}
+
+var serverConfig = {
+  entry: ['babel-polyfill', './src/index.js'],
+  target: 'node',
+  externals: [nodeExternals()],
+  output: {
+    path: __dirname,
+    filename: 'server.js',
+    publicPath: '/'
+  },
+  module: {
+    rules: [
+      {
+        test: /(\.(js|jsx)?$)/,
+        include: path.resolve('./src'),
+        use: 'babel-loader'
+      }
+    ]
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      filename: './dist/index.html',
-      title: 'Eve Essex',
-      template: './src/client/index.html'
+    new webpack.DefinePlugin({
+      __isBrowser__: 'false'
+    }),
+    new Dotenv({
+      path: './.env'
     })
-  ]
+  ],
+  resolve: {
+    extensions: ['.js', '.jsx'],
+    modules: [
+      path.resolve('./src'),
+      path.resolve('./node_modules')
+    ]
+  }
 }
+
+module.exports = [browserConfig, serverConfig]

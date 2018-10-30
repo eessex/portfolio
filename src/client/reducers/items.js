@@ -4,6 +4,12 @@ import {
   CREATE_ITEM
 } from '../actions'
 
+import {
+  FETCH_ITEMS_ERROR,
+  FETCH_ITEMS_REQUESTED,
+  FETCH_ITEMS_SUCCESS
+} from 'client/actions/items2'
+
 const initialState = {
   loading: false,
   list: []
@@ -11,16 +17,28 @@ const initialState = {
 
 const itemsReducer = (state = initialState, action) => {
   switch (action.type) {
-    case FETCH_ITEMS.PENDING:
+    // case FETCH_ITEMS.PENDING:
+    //   return Object.assign({}, state, {
+    //     loading: true
+    //   })
+
+    case FETCH_ITEMS_REQUESTED:
       return Object.assign({}, state, {
         loading: true
       })
 
-    case FETCH_ITEMS.SUCCESS:
+    case FETCH_ITEMS_SUCCESS: {
       return Object.assign({}, state, {
-        loading: false,
-        list: action.payload
+        list: action.payload.items,
+        loading: false
       })
+    }
+
+    // case FETCH_ITEMS.SUCCESS:
+    //   return Object.assign({}, state, {
+    //     loading: false,
+    //     list: action.payload
+    //   })
 
     case FETCH_ITEMS.ERROR:
       return Object.assign({}, state, {

@@ -5,7 +5,7 @@
     "node": "8.4.0",
     "yarn": "1.3.2"
   },
-  "main": "server.js",
+  "main": "index.js",
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.100.0",
@@ -20,11 +20,14 @@
     "babel-runtime": "^6.26.0",
     "bcrypt": "^1.0.2",
     "body-parser": "^1.17.2",
+    "connected-react-router": "^4.5.0",
+    "cors": "^2.8.4",
     "dotenv": "^4.0.0",
     "draft-convert": "^2.0.0",
     "draft-js": "^0.10.4",
     "express": "^4.15.3",
     "extract-text-webpack-plugin": "^2.1.2",
+    "helmet": "^3.14.0",
     "html-loader": "^0.5.1",
     "html-webpack-plugin": "^2.28.0",
     "immutable": "^3.8.2",
@@ -32,11 +35,13 @@
     "moment": "^2.18.1",
     "mongoose": "^4.10.3",
     "morgan": "^1.8.2",
+    "nodemon": "^1.18.5",
     "path": "^0.12.7",
     "prop-types": "^15.6.0",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-fontawesome": "^1.6.1",
+    "react-helmet": "^5.2.0",
     "react-redux": "^5.0.5",
     "react-router": "^4.1.1",
     "react-router-dom": "^4.1.1",
@@ -44,6 +49,7 @@
     "react-waypoint": "^7.3.2",
     "redux": "^3.6.0",
     "redux-thunk": "^2.2.0",
+    "serialize-javascript": "^1.5.0",
     "style-loader": "^0.18.2",
     "styled-components": "^2.2.3",
     "underscore": "^1.8.3",
@@ -57,6 +63,7 @@
     "chai": "^4.0.0",
     "chai-http": "^3.0.0",
     "concurrently": "^3.4.0",
+    "dotenv-webpack": "^1.5.7",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "eslint": "^4.19.1",
@@ -64,21 +71,21 @@
     "eslint-config-standard-react": "^6.0.0",
     "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.8.0",
+    "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-react": "^7.8.2",
     "eslint-plugin-standard": "^3.1.0",
     "jest": "^22.4.4",
     "mocha": "^3.4.2",
     "react-test-renderer": "^15.5.4",
     "redux-mock-store": "^1.5.1",
-    "webpack-dev-server": "^2.4.5"
+    "webpack-dev-server": "^2.4.5",
+    "webpack-node-externals": "^1.7.2"
   },
   "scripts": {
     "dev": "concurrently --kill-others \"yarn webpack-watch\" \"node server.js\"",
     "heroku-postbuild": "webpack -p --config ./webpack.config.js --progress",
-    "start": "node server.js",
-    "test": "jest",
-    "webpack-watch": "webpack -w"
+    "start": "webpack -w & nodemon server.js",
+    "test": "jest"
   },
   "jest": {
     "transform": {
@@ -88,6 +95,8 @@
     "setupFiles": [
       "<rootDir>/test.config.js"
     ],
-    "modulePaths": ["src"]
+    "modulePaths": [
+      "src"
+    ]
   }
 }

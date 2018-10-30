@@ -4,11 +4,10 @@ import {
   DELETE_ITEM,
   FETCH_ITEM,
   FETCH_UPLOAD,
-  MAYBE_SAVE_ITEM,
-  RESET_ITEM,
-  UPDATE_ITEM  
+  // MAYBE_SAVE_ITEM,
+  RESET_ITEM
+  // UPDATE_ITEM
 } from '../actions'
-import { getUploadSignature } from './upload.js'
 
 export const changeItem = (key, value) => {
   return {

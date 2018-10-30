@@ -6,7 +6,7 @@ import userReducer from './user'
 
 const rootReducer = combineReducers({
   item: itemReducer,
-  items: itemsReducer,
+  itemsReducer: itemsReducer,
   settings: settingsReducer,
   user: userReducer
 })

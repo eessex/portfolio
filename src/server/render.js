@@ -5,7 +5,7 @@ import { Provider } from 'react-redux'
 import { StaticRouter } from 'react-router-dom'
 import { App } from 'client/App'
 import serialize from 'serialize-javascript'
-const { GOOGLE_ANALYTICS_ID } = process.env
+const { GOOGLE_ANALYTICS_ID, GOOGLE_FONTS_FAMILY } = process.env
 
 export const ServerRender = (path, store, context) => {
   const markup = renderToString(
@@ -37,7 +37,7 @@ export const ServerRender = (path, store, context) => {
     
           gtag('config', ${serialize(GOOGLE_ANALYTICS_ID)});
         </script>
-        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=${GOOGLE_FONTS_FAMILY}" rel="stylesheet">
         <script src="/bundle.js" defer></script>
         <script>window.__INITIAL_DATA__ = ${serialize(store.getState())}</script>
       </head>

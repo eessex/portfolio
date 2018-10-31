@@ -32,7 +32,10 @@ var browserConfig = {
     modules: [
       path.resolve('./src'),
       path.resolve('./node_modules')
-    ]
+    ],
+    alias: {
+      'styled-components': path.resolve('./node_modules/styled-components')
+    }
   }
 }
 
@@ -67,7 +70,10 @@ var serverConfig = {
     modules: [
       path.resolve('./src'),
       path.resolve('./node_modules')
-    ]
+    ],
+    alias: {
+      'styled-components': path.resolve('./node_modules/styled-components')
+    }
   }
 }
 

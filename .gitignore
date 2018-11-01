@@ -11,6 +11,7 @@
 .DS_Store
 yarn-error.log
 /dist
+/public
 eve-rootkey.csv
 kayla-rootkey.csv
 

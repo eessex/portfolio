@@ -1,5 +1,8 @@
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
+var slug = require('mongoose-slug-generator')
+
+mongoose.plugin(slug)
 
 var EventSchema = new Schema({
   all_day: { type: Boolean, default: false },
@@ -24,6 +27,12 @@ var EventSchema = new Schema({
     description: String
   },
   start_date: { type: Date, default: Date.now },
+  slug: {
+    type: String,
+    slug: ['title'],
+    slug_padding_size: 2,
+    unique: true
+  },
   title: String,
   updated_at: { type: Date, default: Date.now },
   venue: {

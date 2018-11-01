@@ -1,4 +1,3 @@
-import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { sortByDate } from 'client/utils'
@@ -10,7 +9,7 @@ export class Events extends Component {
   }
 
   render () {
-    const { items } = this.props // createItem,
+    const { items } = this.props
     const upcoming = sortByDate(items, 'start_date').upcoming.reverse()
     const past = sortByDate(items, 'start_date').past
 
@@ -37,11 +36,3 @@ export class Events extends Component {
     )
   }
 }
-
-const mapStateToProps = ({ itemsReducer }) => ({
-  items: itemsReducer.list
-})
-
-export default connect(
-  mapStateToProps
-)(Events)

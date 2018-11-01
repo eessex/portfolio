@@ -12,7 +12,7 @@ const routes = [
     title: 'Home'
   },
   {
-    path: '/events/:slug',
+    path: '/events/:id',
     model: 'events',
     component: Home,
     // component: Item,
@@ -36,6 +36,15 @@ const routes = [
     title: 'Projects',
     fetchInitialData: (path = '', store) => {
       return store.dispatch(fetchItems(path))
+    }
+  },
+  {
+    path: '/releases',
+    component: Items,
+    model: 'publications',
+    title: 'Releases',
+    fetchInitialData: (path = '', store) => {
+      return store.dispatch(fetchItems('/publications'))
     }
   }
 ]

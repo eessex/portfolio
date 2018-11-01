@@ -11,6 +11,21 @@ import { H1 } from 'client/styles/text.jsx'
 
 const appTitle = process.env.PAGE_TITLE
 
+const links = [
+  {
+    name: 'Events',
+    param: 'events'
+  },
+  {
+    name: 'Projects',
+    param: 'projects'
+  },
+  {
+    name: 'Releases',
+    param: 'releases'
+  }
+]
+
 export class Nav extends React.Component {
   static propTypes = {
     resetItemsAction: PropTypes.func,
@@ -90,16 +105,6 @@ export class Nav extends React.Component {
   }
 
   render () {
-    const links = [
-      {
-        name: 'Events',
-        param: 'events'
-      },
-      {
-        name: 'Projects',
-        param: 'projects'
-      }
-    ]
     const { navOpen, scrollDir } = this.state
 
     return (

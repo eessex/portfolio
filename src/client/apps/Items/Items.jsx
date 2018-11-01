@@ -3,8 +3,9 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import * as itemsActions from 'client/actions/items2'
-import { Events } from '../events'
+import { Events } from '../events/Events'
 import { Projects } from '../projects/Projects'
+import { Publications } from '../publications/Publications'
 import { Loading } from 'client/components/layout/components/loading'
 
 export class Items extends Component {
@@ -12,6 +13,7 @@ export class Items extends Component {
     error: PropTypes.object,
     fetchItemsAction: PropTypes.func,
     items: PropTypes.array,
+    title: PropTypes.string,
     loading: PropTypes.bool,
     match: PropTypes.any,
     model: PropTypes.string,
@@ -49,11 +51,12 @@ export class Items extends Component {
 
   fetchItems = () => {
     const { fetchItemsAction, match: { path } } = this.props
-    fetchItemsAction(path)
+    const formattedPath = path === '/releases' ? '/publications' : path
+    fetchItemsAction(formattedPath)
   }
 
   getApp = items => {
-    const { model } = this.props
+    const { model, title } = this.props
 
     switch (model) {
       case 'events': {
@@ -61,6 +64,10 @@ export class Items extends Component {
       }
       case 'projects': {
         return <Projects items={items} />
+      }
+      case 'publications':
+      case 'releases': {
+        return <Publications items={items} title={title} />
       }
       default: {
         return (

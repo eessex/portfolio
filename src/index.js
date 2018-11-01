@@ -7,7 +7,7 @@ import { matchPath } from 'react-router-dom'
 import createStore from 'client/utils/store'
 import routes from 'client/routes2.js'
 import { ServerRender } from 'server/render'
-const { MONGODB_URI } = process.env
+const { MONGODB_URI, PORT } = process.env
 
 mongoose.connect(
   MONGODB_URI,
@@ -47,6 +47,6 @@ app.get('*', (req, res, next) => {
   }).catch(next)
 })
 
-app.listen(3000, () => {
-  console.log(`Server is listening on port:3000`)
+app.listen(PORT, () => {
+  console.log(`Server is listening on port:${PORT}`)
 })

@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet'
 import { Route, Switch } from 'react-router-dom'
 import routes from 'client/routes2'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
-import { Nav } from 'client/components/Nav'
+import Nav from 'client/components/Nav'
 import { NotFound } from 'client/components/NotFound'
 const appTitle = process.env.PAGE_TITLE
 

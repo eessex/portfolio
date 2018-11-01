@@ -4,6 +4,7 @@ const { API_URL } = process.env
 export const FETCH_ITEMS_SUCCESS = 'FETCH_ITEMS_SUCCESS'
 export const FETCH_ITEMS_ERROR = 'FETCH_ITEMS_ERROR'
 export const FETCH_ITEMS_REQUESTED = 'FETCH_ITEMS_REQUESTED'
+export const RESET_ITEMS = 'RESET_ITEMS'
 
 export const fetchItems = (model = '', query = {}) => dispatch => {
   const encodedURI = encodeURI(`${API_URL}${model}`)
@@ -14,7 +15,9 @@ export const fetchItems = (model = '', query = {}) => dispatch => {
 
   return fetch(encodedURI, query)
     .then(res => {
-      return res.json()
+      if (res) {
+        return res.json()
+      }
     })
     .then(items => {
       dispatch({
@@ -26,6 +29,7 @@ export const fetchItems = (model = '', query = {}) => dispatch => {
       return items
     })
     .catch(error => {
+      console.error(error)
       dispatch({
         type: FETCH_ITEMS_ERROR,
         payload: {
@@ -34,4 +38,9 @@ export const fetchItems = (model = '', query = {}) => dispatch => {
       })
       return null
     })
+}
+export const resetItems = () => {
+  return {
+    type: RESET_ITEMS
+  }
 }

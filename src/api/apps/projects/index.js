@@ -19,6 +19,7 @@ projects.route('/')
       'list_index': 'asc'
     }).exec(function (err, data) {
       if (err) {
+        console.log(err)
         res.send(err)
       }
       res.json(data)

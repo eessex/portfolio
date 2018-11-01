@@ -1,18 +1,20 @@
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-// import { ItemsList } from 'client/Components/Items/ItemsList'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import * as itemsActions from 'client/actions/items2'
 import { Events } from '../events'
+import { Projects } from '../projects/Projects'
 import { Loading } from 'client/components/layout/components/loading'
 
 export class Items extends Component {
   static propTypes = {
-    // error: PropTypes.func,
+    error: PropTypes.object,
     fetchItemsAction: PropTypes.func,
     items: PropTypes.array,
     loading: PropTypes.bool,
+    match: PropTypes.any,
+    model: PropTypes.string,
     staticContext: PropTypes.any
   }
 
@@ -32,13 +34,13 @@ export class Items extends Component {
   componentWillMount () {
     const { items, loading } = this.props
 
-    if (!items && !loading) {
+    if ((!items || items.length === 0) && !loading) {
       this.fetchItems()
     }
   }
 
   componentWillUpdate (prevProps) {
-    const { path } = this.props.match
+    const { match: { path } } = this.props
 
     if (prevProps.match.path !== path) {
       this.fetchItems()
@@ -47,7 +49,6 @@ export class Items extends Component {
 
   fetchItems = () => {
     const { fetchItemsAction, match: { path } } = this.props
-
     fetchItemsAction(path)
   }
 
@@ -55,9 +56,13 @@ export class Items extends Component {
     const { model } = this.props
 
     switch (model) {
-      case 'events':
+      case 'events': {
         return <Events items={items} />
-      default:
+      }
+      case 'projects': {
+        return <Projects items={items} />
+      }
+      default: {
         return (
           <ul>
             {items.map(item => (
@@ -68,18 +73,20 @@ export class Items extends Component {
             }
           </ul>
         )
+      }
     }
   }
 
   render () {
     const { data } = this.state
+    const { error } = this.props
     const items = data && data || this.props.items
 
     if (!items || this.props.loading) {
       return <Loading />
     } else {
       return (
-        <ErrorBoundary>
+        <ErrorBoundary error={error}>
           {this.getApp(items)}
         </ErrorBoundary>
       )

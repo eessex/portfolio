@@ -1,13 +1,13 @@
 import { clone } from 'lodash'
 import {
-  FETCH_ITEMS,
   CREATE_ITEM
 } from '../actions'
 
 import {
   FETCH_ITEMS_ERROR,
   FETCH_ITEMS_REQUESTED,
-  FETCH_ITEMS_SUCCESS
+  FETCH_ITEMS_SUCCESS,
+  RESET_ITEMS
 } from 'client/actions/items2'
 
 const initialState = {
@@ -17,11 +17,6 @@ const initialState = {
 
 const itemsReducer = (state = initialState, action) => {
   switch (action.type) {
-    // case FETCH_ITEMS.PENDING:
-    //   return Object.assign({}, state, {
-    //     loading: true
-    //   })
-
     case FETCH_ITEMS_REQUESTED:
       return Object.assign({}, state, {
         loading: true
@@ -34,15 +29,10 @@ const itemsReducer = (state = initialState, action) => {
       })
     }
 
-    // case FETCH_ITEMS.SUCCESS:
-    //   return Object.assign({}, state, {
-    //     loading: false,
-    //     list: action.payload
-    //   })
-
-    case FETCH_ITEMS.ERROR:
+    case FETCH_ITEMS_ERROR:
       return Object.assign({}, state, {
-        loading: false
+        loading: false,
+        error: action.payload
       })
 
     case CREATE_ITEM.PENDING:
@@ -64,7 +54,11 @@ const itemsReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload
       })
-
+    case RESET_ITEMS:
+      return Object.assign({}, state, {
+        loading: false,
+        list: []
+      })
     default:
       return state
   }

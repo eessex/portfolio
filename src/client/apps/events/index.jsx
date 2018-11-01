@@ -1,8 +1,8 @@
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { sortByDate } from 'client/utils'
 import { ItemsList } from 'client/components/items_list'
-// import { NewButton } from 'client/components/header/components/new_button'
 
 export class Events extends Component {
   static propTypes = {
@@ -16,33 +16,32 @@ export class Events extends Component {
 
     return (
       <div>
-        <div>
-          {
-            // isAdmin &&
-            // <NewButton
-            //   model='Event'
-            //   // onCreate={() => createItem('events')}
-            // />
-          }
-          {upcoming.length > 0 &&
-            <ItemsList
-              label='Upcoming Events'
-              model='events'
-              layout='grid'
-              list={upcoming}
-            />
-          }
-          {past.length > 0 &&
-            <ItemsList
-              label='Past Events'
-              model='events'
-              list={past}
-              layout='table'
-              canToggle
-            />
-          }
-        </div>
+        {upcoming.length > 0 &&
+          <ItemsList
+            label='Upcoming Events'
+            model='events'
+            layout='grid'
+            list={upcoming}
+          />
+        }
+        {past.length > 0 &&
+          <ItemsList
+            label='Past Events'
+            model='events'
+            list={past}
+            layout='table'
+            canToggle
+          />
+        }
       </div>
     )
   }
 }
+
+const mapStateToProps = ({ itemsReducer }) => ({
+  items: itemsReducer.list
+})
+
+export default connect(
+  mapStateToProps
+)(Events)

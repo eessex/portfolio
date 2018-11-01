@@ -28,6 +28,15 @@ const routes = [
     fetchInitialData: (path = '', store) => {
       return store.dispatch(fetchItems(path))
     }
+  },
+  {
+    path: '/projects',
+    component: Items,
+    model: 'projects',
+    title: 'Projects',
+    fetchInitialData: (path = '', store) => {
+      return store.dispatch(fetchItems(path))
+    }
   }
 ]
 

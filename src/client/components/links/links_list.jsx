@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 
@@ -5,7 +6,7 @@ export const LinksList = props => {
   const { links } = props
 
   return (
-    <div>
+    <LinksContainer>
       {links.length > 0 && links.map((link, i) =>
         <div key={i}>
           <a href={link.url} target='_blank'>
@@ -13,10 +14,14 @@ export const LinksList = props => {
           </a>
         </div>
       )}
-    </div>
+    </LinksContainer>
   )
 }
 
 LinksList.propTypes = {
   links: PropTypes.array.isRequired
 }
+
+const LinksContainer = styled.div`
+  margin-bottom: 1.75em;
+`

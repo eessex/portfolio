@@ -164,6 +164,7 @@ const LayoutToggle = H6.extend`
 
 const ListContainer = styled.div`
   display: flex;
+  flex: 1;
   ${props => props.layout === 'grid' && `
     flex-wrap: wrap;
     padding: 0;

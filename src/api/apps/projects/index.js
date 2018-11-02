@@ -1,6 +1,18 @@
 var express = require('express')
 var projects = express.Router()
 var Project = require('./schema')
+var { extend } = require('lodash')
+
+function queryByIdOrSlug (id, reqQuery = {}) {
+  var query = extend(
+    reqQuery,
+    {$or: [{slug: id}]}
+  )
+  if (id.match(/^[0-9a-fA-F]{24}$/)) {
+    query.$or.push({_id: id})
+  }
+  return query
+}
 
 projects.route('/')
   // create project
@@ -15,27 +27,28 @@ projects.route('/')
   })
   // all projects
   .get((req, res) => {
-    Project.find(req.query).sort({
-      'list_index': 'asc'
-    }).exec(function (err, data) {
-      if (err) {
-        res.send(err)
+    Project.find(req.query).sort({'list_index': 'asc'}).exec(
+      function (err, data) {
+        if (err) {
+          res.send(err)
+        }
+        res.json(data)
       }
-      res.json(data)
-    })
+    )
   })
 
 projects.route('/new')
-  // new project
+  // new event
   .get((req, res) => {
     var data = new Project()
     res.json(data)
   })
 
-projects.route('/:project_id')
-  // single project
+projects.route('/:id')
+  // single event
   .get((req, res) => {
-    Project.findById(req.params.project_id, (err, data) => {
+    var query = queryByIdOrSlug(req.params.id, req.query)
+    Project.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
@@ -43,7 +56,8 @@ projects.route('/:project_id')
     })
   })
   .put((req, res) => {
-    Project.findById(req.params.project_id, (err, data) => {
+    var query = queryByIdOrSlug(req.params.id, req.query)
+    Project.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
@@ -56,13 +70,19 @@ projects.route('/:project_id')
     })
   })
   .delete((req, res) => {
-    Project.remove({
-      _id: req.params.project_id
-    }, function (err) {
+    var query = queryByIdOrSlug(req.params.id)
+    Project.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
-      res.json({ message: 'Project deleted' })
+      Project.remove({
+        _id: data._id
+      }, function (err) {
+        if (err) {
+          return res.status(400).send(err)
+        }
+        res.json({ message: 'Project deleted' })
+      })
     })
   })
 

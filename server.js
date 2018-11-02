@@ -5,23 +5,25 @@ var mongoose = require('mongoose')
 var logger = require('morgan')
 require('dotenv').load()
 
+var { MONGODB_URI, MONGODB_TEST_URI, NODE_ENV, PORT } = process.env
+
 var app = express()
 let port
 let db
 
-if (process.env.NODE_ENV === 'test') {
+if (NODE_ENV === 'test') {
   console.log('starting test server')
   port = 5000
-  db = 'mongodb://localhost/portfolio-dev'
+  db = MONGODB_TEST_URI
 } else {
-  port = process.env.PORT || 3000
-  db = process.env.MONGODB_URI
+  port = PORT || 3000
+  db = MONGODB_URI
   app.use(logger('dev'))
 }
 
 mongoose.connect(db)
 
-if (process.env.NODE_ENV === 'production') {
+if (NODE_ENV === 'production') {
   app.use(function (req, res, next) {
     if (req.header('x-forwarded-proto') !== 'https') {
       res.redirect(`https://${req.header('host')}${req.url}`)

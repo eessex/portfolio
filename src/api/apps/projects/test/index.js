@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test'
 
-var Event = require('../schema')
+var Project = require('../schema')
 var chai = require('chai')
 var chaiHttp = require('chai-http')
 var server = require('../../../../../server')
@@ -10,14 +10,14 @@ require('mongoose')
 chai.should()
 chai.use(chaiHttp)
 
-describe('Events', () => {
-  let event
+describe('Projects', () => {
+  let project
   beforeEach(() => {
-    event = new Event({ title: 'Cool Event' })
+    project = new Project({ title: 'Cool Project' })
   })
 
   afterEach(done => {
-    Event.remove({}, err => {
+    Project.remove({}, err => {
       if (err) {
         console.log(err)
       }
@@ -25,14 +25,14 @@ describe('Events', () => {
     })
   })
 
-  describe('GET /api/events', () => {
+  describe('GET /api/projects', () => {
     beforeEach(done => {
-      var publishedEvent = new Event({ title: 'Published Event', published: true })
-      chai.request(server).post('/api/events').send(event).end((err, event) => {
+      var publishedProject = new Project({ title: 'Published Project', published: true })
+      chai.request(server).post('/api/projects').send(project).end((err, project) => {
         if (err) {
           console.log(err)
         }
-        chai.request(server).post('/api/events').send(publishedEvent).end((err, event) => {
+        chai.request(server).post('/api/projects').send(publishedProject).end((err, project) => {
           if (err) {
             console.log(err)
           }
@@ -40,62 +40,62 @@ describe('Events', () => {
         })
       })
     })
-    it('it should GET all the events', done => {
-      chai.request(server).get('/api/events').end((err, res) => {
+    it('it should GET all the projects', done => {
+      chai.request(server).get('/api/projects').end((err, res) => {
         if (err) {
           console.log(err)
         }
         res.should.have.status(200)
         res.body.should.be.a('array')
         res.body.length.should.be.eql(2)
-        res.body[0].slug.should.eql('published-event')
-        res.body[1].slug.should.eql('cool-event')
+        res.body[0].slug.should.eql('cool-project')
+        res.body[1].slug.should.eql('published-project')
         done()
       })
     })
 
-    it('Can GET published events', done => {
-      chai.request(server).get('/api/events').query({published: true}).end((err, res) => {
+    it('Can GET published projects', done => {
+      chai.request(server).get('/api/projects').query({published: true}).end((err, res) => {
         if (err) {
           console.log(err)
         }
         res.should.have.status(200)
         res.body.should.be.a('array')
         res.body.length.should.be.eql(1)
-        res.body[0].slug.should.eql('published-event')
+        res.body[0].slug.should.eql('published-project')
         done()
       })
     })
 
-    it('Can GET unpublished events', done => {
-      chai.request(server).get('/api/events').query({published: false}).end((err, res) => {
+    it('Can GET unpublished projects', done => {
+      chai.request(server).get('/api/projects').query({published: false}).end((err, res) => {
         if (err) {
           console.log(err)
         }
         res.should.have.status(200)
         res.body.should.be.a('array')
         res.body.length.should.be.eql(1)
-        res.body[0].slug.should.eql('cool-event')
+        res.body[0].slug.should.eql('cool-project')
         done()
       })
     })
   })
 
-  describe('POST /api/events', () => {
-    it('can save an event', (done) => {
-      chai.request(server).post('/api/events').send(event).end((err, res) => {
+  describe('POST /api/projects', () => {
+    it('can save a project', (done) => {
+      chai.request(server).post('/api/projects').send(project).end((err, res) => {
         if (err) {
           console.log(err)
         }
         res.should.have.status(200)
         res.body.should.be.a('object')
-        res.body.data.title.should.eql('Cool Event')
+        res.body.data.title.should.eql('Cool Project')
         done()
       })
     })
 
     it('adds slug, updated_at, created_at and published field by default', done => {
-      chai.request(server).post('/api/events').send(event).end((err, res) => {
+      chai.request(server).post('/api/projects').send(project).end((err, res) => {
         if (err) {
           console.log(err)
         }
@@ -104,118 +104,118 @@ describe('Events', () => {
         var updated_at = moment(res.body.data.updated_at).format('YYYY-MM-DD')
         created_at.should.eql(date)
         updated_at.should.eql(date)
-        res.body.data.slug.should.eql('cool-event')
+        res.body.data.slug.should.eql('cool-project')
         res.body.data.published.should.not.be.ok
         done()
       })
     })
   })
 
-  describe('GET /api/events/:id ', () => {
-    it('it should GET an event by id', done => {
-      event.save((err, event) => {
+  describe('GET /api/projects/:id ', () => {
+    it('it should GET an project by id', done => {
+      project.save((err, project) => {
         if (err) {
           console.log(err)
         }
-        chai.request(server).get('/api/events/' + event._id).send(event).end((err, res) => {
+        chai.request(server).get('/api/projects/' + project._id).send(project).end((err, res) => {
           if (err) {
             console.log(err)
           }
           res.should.have.status(200)
           res.body.should.be.a('object')
-          res.body.title.should.eql('Cool Event')
-          res.body.slug.should.eql('cool-event')
-          res.body._id.should.eql(event.id)
+          res.body.title.should.eql('Cool Project')
+          res.body.slug.should.eql('cool-project')
+          res.body._id.should.eql(project.id)
           done()
         })
       })
     })
 
-    it('it should GET an event by slug', done => {
-      event.save((err, event) => {
+    it('it should GET an project by slug', done => {
+      project.save((err, project) => {
         if (err) {
           console.log(err)
         }
-        chai.request(server).get('/api/events/' + event.slug).send(event).end((err, res) => {
+        chai.request(server).get('/api/projects/' + project.slug).send(project).end((err, res) => {
           if (err) {
             console.log(err)
           }
           res.should.have.status(200)
           res.body.should.be.a('object')
-          res.body.title.should.eql('Cool Event')
-          res.body.slug.should.eql('cool-event')
-          done()
-        })
-      })
-    })
-  })
-
-  describe('PUT /api/events/:id', () => {
-    it('it should UPDATE an event by id', done => {
-      event.save((err, event) => {
-        if (err) {
-          console.log(err)
-        }
-        chai.request(server).put('/api/events/' + event.id).send({title: 'Updated Event'}).end((err, res) => {
-          if (err) {
-            console.log(err)
-          }
-          res.should.have.status(200)
-          res.body.should.be.a('object')
-          res.body.title.should.eql('Updated Event')
-          done()
-        })
-      })
-    })
-
-    it('it should UPDATE an event by slug', done => {
-      event.save((err, event) => {
-        if (err) {
-          console.log(err)
-        }
-        chai.request(server).put('/api/events/' + event.id).send({title: 'Updated Event'}).end((err, res) => {
-          if (err) {
-            console.log(err)
-          }
-          res.should.have.status(200)
-          res.body.should.be.a('object')
-          res.body.title.should.eql('Updated Event')
+          res.body.title.should.eql('Cool Project')
+          res.body.slug.should.eql('cool-project')
           done()
         })
       })
     })
   })
 
-  describe('DELETE /api/events/:id', () => {
-    it('it should DELETE an event by id', done => {
-      event.save((err, event) => {
+  describe('PUT /api/projects/:id', () => {
+    it('it should UPDATE a project by id', done => {
+      project.save((err, project) => {
         if (err) {
           console.log(err)
         }
-        chai.request(server).delete('/api/events/' + event.id).end((err, res) => {
+        chai.request(server).put('/api/projects/' + project.id).send({title: 'Updated Project'}).end((err, res) => {
           if (err) {
             console.log(err)
           }
           res.should.have.status(200)
           res.body.should.be.a('object')
-          res.body.should.have.property('message').eql('Event deleted')
+          res.body.title.should.eql('Updated Project')
           done()
         })
       })
     })
 
-    it('it should DELETE an event by slug', done => {
-      event.save((err, event) => {
+    it('it should UPDATE a project by slug', done => {
+      project.save((err, project) => {
         if (err) {
           console.log(err)
         }
-        chai.request(server).delete('/api/events/' + event.slug).end((err, res) => {
+        chai.request(server).put('/api/projects/' + project.id).send({title: 'Updated Project'}).end((err, res) => {
           if (err) {
             console.log(err)
           }
           res.should.have.status(200)
           res.body.should.be.a('object')
-          res.body.should.have.property('message').eql('Event deleted')
+          res.body.title.should.eql('Updated Project')
+          done()
+        })
+      })
+    })
+  })
+
+  describe('DELETE /api/project/:id', () => {
+    it('it should DELETE a project by id', done => {
+      project.save((err, project) => {
+        if (err) {
+          console.log(err)
+        }
+        chai.request(server).delete('/api/projects/' + project.id).end((err, res) => {
+          if (err) {
+            console.log(err)
+          }
+          res.should.have.status(200)
+          res.body.should.be.a('object')
+          res.body.should.have.property('message').eql('Project deleted')
+          done()
+        })
+      })
+    })
+
+    it('it should DELETE a project by slug', done => {
+      project.save((err, project) => {
+        if (err) {
+          console.log(err)
+        }
+        chai.request(server).delete('/api/projects/' + project.slug).end((err, res) => {
+          if (err) {
+            console.log(err)
+          }
+          res.should.have.status(200)
+          res.body.should.be.a('object')
+          res.body.should.have.property('message').eql('Project deleted')
           done()
         })
       })

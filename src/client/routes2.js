@@ -5,16 +5,25 @@ import Item from 'client/apps/Item/Item'
 import Items from 'client/apps/Items/Items'
 import Page from 'client/apps/pages/Page'
 
-const routes = [
-  {
-    path: '/',
-    exact: true,
-    component: Page,
-    title: 'Home',
-    fetchInitialData: (path = '', store) => {
+const { HOMEPAGE_ENABLED } = process.env
+
+const HomeRoute = {
+  path: '/',
+  exact: true,
+  component: HOMEPAGE_ENABLED ? Page : Items,
+  model: HOMEPAGE_ENABLED ? undefined : 'events',
+  title: 'Home',
+  fetchInitialData: (path = '', store) => {
+    if (HOMEPAGE_ENABLED) {
       return store.dispatch(fetchPage('/home'))
+    } else {
+      return store.dispatch(fetchItems('/events'))
     }
-  },
+  }
+}
+
+export const routes = [
+  HomeRoute,
   {
     path: '/events/:id',
     model: 'events',
@@ -75,5 +84,3 @@ const routes = [
     }
   }
 ]
-
-export default routes

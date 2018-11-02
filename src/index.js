@@ -5,7 +5,7 @@ import mongoose from 'mongoose'
 import morgan from 'morgan'
 import { matchPath } from 'react-router-dom'
 import createStore from 'client/utils/store'
-import routes from 'client/routes2.js'
+import { routes } from 'client/routes2'
 import { ServerRender } from 'server/render'
 const { MONGODB_URI, PORT } = process.env
 

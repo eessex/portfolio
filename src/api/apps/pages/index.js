@@ -27,7 +27,7 @@ pages.route('/')
   })
   // all pages
   .get((req, res) => {
-    Page.find(req.query).sort({'list_index': 'asc'}).exec(
+    Page.find(req.query).exec(
       function (err, data) {
         if (err) {
           res.send(err)
@@ -48,6 +48,7 @@ pages.route('/:id')
   // single page
   .get((req, res) => {
     var query = queryByIdOrSlug(req.params.id, req.query)
+
     Page.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)

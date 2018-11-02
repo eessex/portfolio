@@ -1,8 +1,9 @@
 import { Home } from 'client/apps/Home/Home'
-import { fetchItem } from 'client/actions/item'
+// import { fetchItem } from 'client/actions/item'
 import { fetchItems } from 'client/actions/items2'
 // import Item from 'client/Apps/Item/Item'
-import Items from 'client/Apps/Items/Items'
+import Items from 'client/apps/Items/Items'
+import Page from 'client/apps/pages/Page'
 
 const routes = [
   {
@@ -11,15 +12,15 @@ const routes = [
     component: Home,
     title: 'Home'
   },
-  {
-    path: '/events/:id',
-    model: 'events',
-    component: Home,
-    // component: Item,
-    fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItem('events', path.split('/').pop()))
-    }
-  },
+  // {
+  // path: '/events/:id',
+  // model: 'events',
+  // component: Home,
+  // component: Item,
+  // fetchInitialData: (path = '', store) => {
+  //   return store.dispatch(fetchItem('events', path.split('/').pop()))
+  // }
+  // },
   {
     path: '/events',
     component: Items,
@@ -28,6 +29,15 @@ const routes = [
     fetchInitialData: (path = '', store) => {
       return store.dispatch(fetchItems(path))
     }
+  },
+  {
+    path: '/info',
+    component: Page,
+    model: 'page',
+    title: 'Info'
+    // fetchInitialData: (path = '', store) => {
+    //   return store.dispatch(fetchItems('settings'))
+    // }
   },
   {
     path: '/projects',

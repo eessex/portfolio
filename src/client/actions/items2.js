@@ -39,6 +39,7 @@ export const fetchItems = (model = '', query = {}) => dispatch => {
       return null
     })
 }
+
 export const resetItems = () => {
   return {
     type: RESET_ITEMS

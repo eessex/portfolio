@@ -3,10 +3,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import * as pageActions from 'client/actions/page'
-// import { Events } from '../events/Events'
-// import { Projects } from '../projects/Projects'
-// import { Publications } from '../publications/Publications'
-// import { Loading } from 'client/components/layout/components/loading'
+import { Loading } from 'client/components/layout/components/loading'
 
 import { Info } from './Info'
 
@@ -15,10 +12,8 @@ export class Page extends Component {
     error: PropTypes.object,
     fetchPageAction: PropTypes.func,
     page: PropTypes.object,
-    title: PropTypes.string,
     loading: PropTypes.bool,
     match: PropTypes.any,
-    model: PropTypes.string,
     staticContext: PropTypes.any
   }
 
@@ -44,55 +39,43 @@ export class Page extends Component {
   }
 
   componentWillUpdate (prevProps) {
-    // const { match: { path } } = this.props
+    const { match: { path } } = this.props
 
-    // if (prevProps.match.path !== path) {
-    //   this.fetchItems()
-    // }
+    if (prevProps.match.path !== path) {
+      this.fetchPage()
+    }
   }
 
   fetchPage = () => {
     const { fetchPageAction, match: { path } } = this.props
-    console.log('fetchPageAction', path)
+
     fetchPageAction(path)
   }
 
-  getApp = () => {
-    // const { model, title } = this.props
-
-    // switch (model) {
-    // case 'events': {
-    //   return <Events items={items} />
-    // }
-    // case 'projects': {
-    //   return <Projects items={items} />
-    // }
-    // case 'publications':
-    // case 'releases': {
-    //   return <Publications items={items} title={title} />
-    // }
-    // default: {
-    return (
-      <Info />
-    )
-    // }
-    // }
+  getApp = page => {
+    switch (page) {
+      default: {
+        return (
+          <Info page={page} />
+        )
+      }
+    }
   }
 
   render () {
-    // const { data } = this.state
+    const { data } = this.state
     const { error } = this.props
-    // const items = data && data || this.props.items
+    const page = data && data || this.props.page
 
-    // if (!items || this.props.loading) {
-    //   return <Loading />
-    // } else {
-    return (
-      <ErrorBoundary error={error}>
-        {this.getApp()}
-      </ErrorBoundary>
-    )
-    // }
+    if (!page || (page && !page._id) || this.props.loading) {
+      return <Loading />
+    } else {
+      return (
+        <ErrorBoundary error={error}>
+          {this.getApp(page)}
+        </ErrorBoundary>
+      )
+    }
   }
 }
 

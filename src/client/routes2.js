@@ -1,6 +1,7 @@
 import { Home } from 'client/apps/Home/Home'
 // import { fetchItem } from 'client/actions/item'
 import { fetchItems } from 'client/actions/items2'
+import { fetchPage } from 'client/actions/page'
 // import Item from 'client/Apps/Item/Item'
 import Items from 'client/apps/Items/Items'
 import Page from 'client/apps/pages/Page'
@@ -34,10 +35,10 @@ const routes = [
     path: '/info',
     component: Page,
     model: 'page',
-    title: 'Info'
-    // fetchInitialData: (path = '', store) => {
-    //   return store.dispatch(fetchItems('settings'))
-    // }
+    title: 'Info',
+    fetchInitialData: (path = '', store) => {
+      return store.dispatch(fetchPage(path))
+    }
   },
   {
     path: '/projects',

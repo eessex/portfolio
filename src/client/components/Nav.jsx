@@ -23,6 +23,10 @@ const links = [
   {
     name: 'Releases',
     param: 'releases'
+  },
+  {
+    name: 'Info',
+    param: 'info'
   }
 ]
 

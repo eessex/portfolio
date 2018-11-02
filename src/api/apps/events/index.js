@@ -1,6 +1,18 @@
 var express = require('express')
 var events = express.Router()
 var Event = require('./schema')
+var { extend } = require('lodash')
+
+function queryByIdOrSlug (id, reqQuery = {}) {
+  var query = extend(
+    reqQuery,
+    {$or: [{slug: id}]}
+  )
+  if (id.match(/^[0-9a-fA-F]{24}$/)) {
+    query.$or.push({_id: id})
+  }
+  return query
+}
 
 events.route('/')
   // create event
@@ -32,10 +44,11 @@ events.route('/new')
     res.json(data)
   })
 
-events.route('/:event_id')
+events.route('/:id')
   // single event
   .get((req, res) => {
-    Event.findById(req.params.event_id, (err, data) => {
+    var query = queryByIdOrSlug(req.params.id, req.query)
+    Event.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
@@ -43,7 +56,8 @@ events.route('/:event_id')
     })
   })
   .put((req, res) => {
-    Event.findById(req.params.event_id, (err, data) => {
+    var query = queryByIdOrSlug(req.params.id, req.query)
+    Event.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
@@ -56,13 +70,19 @@ events.route('/:event_id')
     })
   })
   .delete((req, res) => {
-    Event.remove({
-      _id: req.params.event_id
-    }, function (err) {
+    var query = queryByIdOrSlug(req.params.id)
+    Event.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
-      res.json({ message: 'Event deleted' })
+      Event.remove({
+        _id: data._id
+      }, function (err) {
+        if (err) {
+          return res.status(400).send(err)
+        }
+        res.json({ message: 'Event deleted' })
+      })
     })
   })
 

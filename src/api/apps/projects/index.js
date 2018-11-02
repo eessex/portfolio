@@ -38,14 +38,14 @@ projects.route('/')
   })
 
 projects.route('/new')
-  // new event
+  // new projects
   .get((req, res) => {
     var data = new Project()
     res.json(data)
   })
 
 projects.route('/:id')
-  // single event
+  // single projects
   .get((req, res) => {
     var query = queryByIdOrSlug(req.params.id, req.query)
     Project.findOne(query, (err, data) => {

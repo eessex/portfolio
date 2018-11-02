@@ -1,6 +1,18 @@
 var express = require('express')
 var publications = express.Router()
 var Publication = require('./schema')
+var { extend } = require('lodash')
+
+function queryByIdOrSlug (id, reqQuery = {}) {
+  var query = extend(
+    reqQuery,
+    {$or: [{slug: id}]}
+  )
+  if (id.match(/^[0-9a-fA-F]{24}$/)) {
+    query.$or.push({_id: id})
+  }
+  return query
+}
 
 publications.route('/')
   // create publication
@@ -15,12 +27,14 @@ publications.route('/')
   })
   // all publications
   .get((req, res) => {
-    Publication.find(req.query).exec(function (err, data) {
-      if (err) {
-        res.send(err)
+    Publication.find(req.query).exec(
+      function (err, data) {
+        if (err) {
+          res.send(err)
+        }
+        res.json(data)
       }
-      res.json(data)
-    })
+    )
   })
 
 publications.route('/new')
@@ -30,10 +44,11 @@ publications.route('/new')
     res.json(data)
   })
 
-publications.route('/:publication_id')
+publications.route('/:id')
   // single publication
   .get((req, res) => {
-    Publication.findById(req.params.publication_id, (err, data) => {
+    var query = queryByIdOrSlug(req.params.id, req.query)
+    Publication.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
@@ -41,7 +56,8 @@ publications.route('/:publication_id')
     })
   })
   .put((req, res) => {
-    Publication.findById(req.params.publication_id, (err, data) => {
+    var query = queryByIdOrSlug(req.params.id, req.query)
+    Publication.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
@@ -54,13 +70,19 @@ publications.route('/:publication_id')
     })
   })
   .delete((req, res) => {
-    Publication.remove({
-      _id: req.params.publication_id
-    }, function (err) {
+    var query = queryByIdOrSlug(req.params.id)
+    Publication.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
-      res.json({ message: 'Publication deleted' })
+      Publication.remove({
+        _id: data._id
+      }, function (err) {
+        if (err) {
+          return res.status(400).send(err)
+        }
+        res.json({ message: 'Publication deleted' })
+      })
     })
   })
 

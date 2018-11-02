@@ -3,8 +3,8 @@
 
 A portfolio and listings app appropriate for musicians, performing artists, or event presenters.
 
-API: MongoDB
-Client: React/React Router/Redux
+- API: MongoDB
+- Client: React/React Router/Redux
 
 Demo: https://eveessex.herokuapp.com/
 

@@ -10,8 +10,9 @@ let port
 let db
 
 if (process.env.NODE_ENV === 'test') {
+  console.log('starting test server')
   port = 5000
-  db = 'portfolio_test'
+  db = 'mongodb://localhost/portfolio-dev'
 } else {
   port = process.env.PORT || 3000
   db = process.env.MONGODB_URI

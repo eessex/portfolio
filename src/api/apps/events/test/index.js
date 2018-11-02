@@ -132,7 +132,6 @@ describe('Events', () => {
     })
 
     it('it should GET an event by slug', done => {
-      let event = new Event({ title: 'Cool Event' })
       event.save((err, event) => {
         if (err) {
           console.log(err)
@@ -152,8 +151,7 @@ describe('Events', () => {
   })
 
   describe('PUT /api/events/:id', () => {
-    it('it should UPDATE a events by id', done => {
-      let event = new Event({title: 'New Event'})
+    it('it should UPDATE an event by id', done => {
       event.save((err, event) => {
         if (err) {
           console.log(err)
@@ -170,7 +168,7 @@ describe('Events', () => {
       })
     })
 
-    it('it should UPDATE a events by slug', (done) => {
+    it('it should UPDATE an event by slug', done => {
       event.save((err, event) => {
         if (err) {
           console.log(err)
@@ -188,8 +186,8 @@ describe('Events', () => {
     })
   })
 
-  describe('DELETE /api/events/:event_id event', () => {
-    it('it should DELETE an event by id', (done) => {
+  describe('DELETE /api/events/:id', () => {
+    it('it should DELETE an event by id', done => {
       event.save((err, event) => {
         if (err) {
           console.log(err)
@@ -206,7 +204,7 @@ describe('Events', () => {
       })
     })
 
-    it('it should DELETE an event by slug', (done) => {
+    it('it should DELETE an event by slug', done => {
       event.save((err, event) => {
         if (err) {
           console.log(err)

@@ -7,6 +7,7 @@ import React from 'react'
 import Waypoint from 'react-waypoint'
 import { NavLink } from 'react-router-dom'
 import { resetItems } from 'client/actions/items2'
+import { resetPage } from 'client/actions/page'
 import { H1 } from 'client/styles/text.jsx'
 
 const appTitle = process.env.PAGE_TITLE
@@ -33,6 +34,7 @@ const links = [
 export class Nav extends React.Component {
   static propTypes = {
     resetItemsAction: PropTypes.func,
+    resetPageAction: PropTypes.func,
     location: PropTypes.object
   }
 
@@ -80,7 +82,11 @@ export class Nav extends React.Component {
     const linkIsActive = this.linkIsActive(param)
 
     if (!linkIsActive) {
-      this.props.resetItemsAction()
+      if (param === 'info') {
+        this.props.resetPageAction()
+      } else {
+        this.props.resetItemsAction()
+      }
     }
   }
 
@@ -115,9 +121,9 @@ export class Nav extends React.Component {
       <div>
         <NavContainer scrollDir={scrollDir} navOpen={navOpen}>
           <H1>
-            <NavLink to={``}>
+            <a href='/'>
               {appTitle}
-            </NavLink>
+            </a>
           </H1>
 
           <Navigation>
@@ -149,7 +155,8 @@ export class Nav extends React.Component {
 const mapStateToProps = state => ({})
 
 const mapDispatchToProps = {
-  resetItemsAction: resetItems
+  resetItemsAction: resetItems,
+  resetPageAction: resetPage
 }
 
 export default withRouter(

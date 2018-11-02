@@ -73,7 +73,7 @@ export const LayoutColumn = (props) => {
   )
 }
 
-const ColumnContainer = Row.extend`
+export const ColumnContainer = Row.extend`
   padding: 0 20px;
   margin-left: 0;
   margin-right: 0;

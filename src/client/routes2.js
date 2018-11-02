@@ -1,4 +1,3 @@
-import { Home } from 'client/apps/Home/Home'
 // import { fetchItem } from 'client/actions/item'
 import { fetchItems } from 'client/actions/items2'
 import { fetchPage } from 'client/actions/page'
@@ -10,8 +9,11 @@ const routes = [
   {
     path: '/',
     exact: true,
-    component: Home,
-    title: 'Home'
+    component: Page,
+    title: 'Home',
+    fetchInitialData: (path = '', store) => {
+      return store.dispatch(fetchPage('/home'))
+    }
   },
   // {
   // path: '/events/:id',
@@ -34,7 +36,6 @@ const routes = [
   {
     path: '/info',
     component: Page,
-    model: 'page',
     title: 'Info',
     fetchInitialData: (path = '', store) => {
       return store.dispatch(fetchPage(path))

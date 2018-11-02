@@ -37,7 +37,7 @@ var PublicationSchema = new Schema({
   ],
   slug: {
     type: String,
-    slug: ['title'],
+    slug: ['artist', 'title'],
     slug_padding_size: 2,
     unique: true
   }

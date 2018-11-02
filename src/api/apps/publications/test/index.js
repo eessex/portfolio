@@ -95,6 +95,7 @@ describe('Publications', () => {
     })
 
     it('adds slug, updated_at, created_at and published field by default', done => {
+      publication.artist = 'The Artist'
       chai.request(server).post('/api/publications').send(publication).end((err, res) => {
         if (err) {
           console.log(err)
@@ -104,7 +105,7 @@ describe('Publications', () => {
         var updated_at = moment(res.body.data.updated_at).format('YYYY-MM-DD')
         created_at.should.eql(date)
         updated_at.should.eql(date)
-        res.body.data.slug.should.eql('cool-publication')
+        res.body.data.slug.should.eql('the-artist-cool-publication')
         res.body.data.published.should.not.be.ok
         done()
       })

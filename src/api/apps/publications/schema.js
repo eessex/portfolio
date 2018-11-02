@@ -1,5 +1,8 @@
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
+var slug = require('mongoose-slug-generator')
+
+mongoose.plugin(slug)
 
 var PublicationSchema = new Schema({
   artist: String,
@@ -31,7 +34,13 @@ var PublicationSchema = new Schema({
       title: { type: String },
       url: { type: String }
     }
-  ]
+  ],
+  slug: {
+    type: String,
+    slug: ['artist', 'title'],
+    slug_padding_size: 2,
+    unique: true
+  }
 })
 
 module.exports = mongoose.model('Publication', PublicationSchema)

@@ -2,8 +2,8 @@
   "name": "portfolio",
   "version": "0.0.1",
   "engines": {
-    "node": "8.12.0",
-    "yarn": "1.10.1"
+    "node": "8.4.0",
+    "yarn": "1.x.x"
   },
   "main": "index.js",
   "license": "MIT",
@@ -35,6 +35,7 @@
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "mongoose": "^4.10.3",
+    "mongoose-slug-generator": "^1.0.4",
     "morgan": "^1.8.2",
     "nodemon": "^1.18.5",
     "path": "^0.12.7",

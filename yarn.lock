@@ -414,7 +414,7 @@ async@2.1.4:
   dependencies:
     lodash "^4.14.0"
 
-async@^1.4.0, async@^1.5.2:
+async@^1.4.0, async@^1.5.0, async@^1.5.2:
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
 
@@ -5313,6 +5313,14 @@ mongodb@2.2.27:
     mongodb-core "2.1.11"
     readable-stream "2.2.7"
 
+mongoose-slug-generator@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/mongoose-slug-generator/-/mongoose-slug-generator-1.0.4.tgz#a5364f2d4203783472c235c302d35aa1b20d53eb"
+  dependencies:
+    async "^1.5.0"
+    shortid "^2.2.4"
+    speakingurl "^7.0.0"
+
 mongoose@^4.10.3:
   version "4.11.0"
   resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-4.11.0.tgz#76edc51959520f46ab6f322156833bdfa35a2bc0"
@@ -7030,6 +7038,12 @@ shellwords@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/shellwords/-/shellwords-0.1.1.tgz#d6b9181c1a48d397324c84871efbcfc73fc0654b"
 
+shortid@^2.2.4:
+  version "2.2.13"
+  resolved "https://registry.yarnpkg.com/shortid/-/shortid-2.2.13.tgz#b2441e71c664ace458a341d343959f677910ef5b"
+  dependencies:
+    nanoid "^1.0.7"
+
 signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
@@ -7208,6 +7222,10 @@ spdy@^3.4.1:
     safe-buffer "^5.0.1"
     select-hose "^2.0.0"
     spdy-transport "^2.0.18"
+
+speakingurl@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/speakingurl/-/speakingurl-7.0.0.tgz#0a392873af83bad594565ce3dcb4332d5187ab0b"
 
 split-string@^3.0.1, split-string@^3.0.2:
   version "3.1.0"

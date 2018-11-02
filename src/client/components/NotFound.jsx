@@ -1,9 +1,10 @@
 import React from 'react'
+import { ColumnContainer } from 'client/components/layout/column'
 
 export const NotFound = () => {
   return (
-    <div>
+    <ColumnContainer>
       404 Not Found
-    </div>
+    </ColumnContainer>
   )
 }

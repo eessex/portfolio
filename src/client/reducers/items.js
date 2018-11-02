@@ -15,7 +15,7 @@ const initialState = {
   list: []
 }
 
-const itemsReducer = (state = initialState, action) => {
+export const itemsReducer = (state = initialState, action) => {
   switch (action.type) {
     case FETCH_ITEMS_REQUESTED:
       return Object.assign({}, state, {
@@ -63,5 +63,3 @@ const itemsReducer = (state = initialState, action) => {
       return state
   }
 }
-
-export default itemsReducer

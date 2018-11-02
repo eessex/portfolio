@@ -1,7 +1,7 @@
-// import { fetchItem } from 'client/actions/item'
+import { fetchItem } from 'client/actions/item2'
 import { fetchItems } from 'client/actions/items2'
 import { fetchPage } from 'client/actions/page'
-// import Item from 'client/Apps/Item/Item'
+import Item from 'client/apps/Item/Item'
 import Items from 'client/apps/Items/Items'
 import Page from 'client/apps/pages/Page'
 
@@ -15,15 +15,14 @@ const routes = [
       return store.dispatch(fetchPage('/home'))
     }
   },
-  // {
-  // path: '/events/:id',
-  // model: 'events',
-  // component: Home,
-  // component: Item,
-  // fetchInitialData: (path = '', store) => {
-  //   return store.dispatch(fetchItem('events', path.split('/').pop()))
-  // }
-  // },
+  {
+    path: '/events/:id',
+    model: 'events',
+    component: Item,
+    fetchInitialData: (path = '', store) => {
+      return store.dispatch(fetchItem('/events', path.split('/').pop()))
+    }
+  },
   {
     path: '/events',
     component: Items,
@@ -42,12 +41,28 @@ const routes = [
     }
   },
   {
+    path: '/projects/:id',
+    model: 'projects',
+    component: Item,
+    fetchInitialData: (path = '', store) => {
+      return store.dispatch(fetchItem('/projects', path.split('/').pop()))
+    }
+  },
+  {
     path: '/projects',
     component: Items,
     model: 'projects',
     title: 'Projects',
     fetchInitialData: (path = '', store) => {
       return store.dispatch(fetchItems(path))
+    }
+  },
+  {
+    path: '/releases/:id',
+    model: 'publications',
+    component: Item,
+    fetchInitialData: (path = '', store) => {
+      return store.dispatch(fetchItem('/publications', path.split('/').pop()))
     }
   },
   {

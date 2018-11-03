@@ -42,7 +42,7 @@ var browserConfig = {
 var serverConfig = {
   entry: ['babel-polyfill', './src/index.js'],
   target: 'node',
-  externals: [nodeExternals()],
+  externals: [nodeExternals(), 'react-helmet'],
   output: {
     path: __dirname,
     filename: 'server.js',

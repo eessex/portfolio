@@ -1,34 +1,53 @@
 import { connect } from 'react-redux'
+import { stripTags, truncate } from 'underscore.string'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import * as itemActions from 'client/actions/item2'
 import { Loading } from 'client/components/layout/components/loading'
 import { Item as ViewItem } from 'client/components/item'
+import { Helmet } from 'react-helmet'
+
+const prettyDescription = html => {
+  return truncate(stripTags(html), 150)
+}
+
+const getMetaData = (meta, item = {}) => {
+  const { description, title } = item
+
+  const metaDescription = description ? prettyDescription(description) : meta.description
+  return [
+    { name: 'description', content: metaDescription },
+    { property: 'og:title', content: title }
+  ]
+}
 
 export class Item extends Component {
   static propTypes = {
     error: PropTypes.object,
     // fetchItemsAction: PropTypes.func,
     item: PropTypes.object,
-    // title: PropTypes.string,
     loading: PropTypes.bool,
     match: PropTypes.any,
     model: PropTypes.string,
-    staticContext: PropTypes.any
+    staticContext: PropTypes.any,
+    settings: PropTypes.object
   }
 
   constructor (props) {
     super(props)
 
     let data
+    let meta
     if (__isBrowser__) {
-      data = window.__INITIAL_DATA__
+      data = window.__INITIAL_DATA__ && window.__INITIAL_DATA__.data
+      meta = window.__INITIAL_DATA__ && window.__INITIAL_DATA__.settings
       delete window.__INITIAL_DATA__
     } else {
       data = props.staticContext.data
+      meta = props.staticContext.settings
     }
-    this.state = { data }
+    this.state = { data, meta }
   }
 
   componentWillMount () {
@@ -53,45 +72,53 @@ export class Item extends Component {
     // fetchItemAction(model, formattedPath)
   }
 
-  getApp = item => {
+  getApp = (item, metaData) => {
     const { model } = this.props
     const formattedLabel = model === 'publications' ? 'Release' : model
 
     switch (model) {
       default: {
         return (
-          <ViewItem
-            item={item}
-            label={formattedLabel}
-            labelLink
-            model={model}
-          />
+          <React.Fragment>
+            <Helmet
+              title={item.title}
+              meta={getMetaData(metaData, item)}
+            />
+            <ViewItem
+              item={item}
+              label={formattedLabel}
+              labelLink
+              model={model}
+            />
+          </React.Fragment>
         )
       }
     }
   }
 
   render () {
-    const { data } = this.state
+    const { data, meta } = this.state
     const { error } = this.props
     const item = data && data || this.props.item
+    const metaData = meta && meta || this.props.settings
 
     if (!item || this.props.loading) {
       return <Loading />
     } else {
       return (
         <ErrorBoundary error={error}>
-          {this.getApp(item)}
+          {this.getApp(item, metaData)}
         </ErrorBoundary>
       )
     }
   }
 }
 
-const mapStateToProps = ({ itemReducer }) => ({
+const mapStateToProps = ({ itemReducer, settingsReducer }) => ({
   error: itemReducer.error,
   item: itemReducer.item,
-  loading: itemReducer.loading
+  loading: itemReducer.loading,
+  settings: settingsReducer.settings
 })
 
 const mapDispatchToProps = ({

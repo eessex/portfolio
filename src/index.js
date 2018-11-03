@@ -4,7 +4,9 @@ import express from 'express'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
 import { matchPath } from 'react-router-dom'
+
 import createStore from 'client/utils/store'
+import { fetchSettings } from 'client/actions/settings'
 import { routes } from 'client/routes2'
 import { ServerRender } from 'server/render'
 const { MONGODB_URI, PORT } = process.env
@@ -31,16 +33,18 @@ app.use(cors())
 app.use(express.static('public'))
 app.use('/api', require('./api'))
 
-app.get('*', (req, res, next) => {
+app.get('*', async (req, res, next) => {
   const { store } = createStore(req.url)
+
+  const settings = await store.dispatch(fetchSettings())
   const activeRoute = routes.find(route => matchPath(req.url, route))
 
-  const promise = activeRoute && activeRoute.fetchInitialData
+  const promiseData = activeRoute && activeRoute.fetchInitialData
     ? activeRoute.fetchInitialData(req.path, store)
     : Promise.resolve()
 
-  promise.then(data => {
-    const context = { data }
+  promiseData.then(data => {
+    const context = { data, settings }
     const content = ServerRender(req.url, store, context)
 
     res.send(content)

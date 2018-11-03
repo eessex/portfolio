@@ -7,7 +7,7 @@ import { routes } from 'client/routes2'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import Nav from 'client/components/Nav'
 import { NotFound } from 'client/components/NotFound'
-const appTitle = process.env.PAGE_TITLE
+const { PAGE_TITLE } = process.env
 
 export class App extends Component {
   render () {
@@ -21,12 +21,13 @@ export class App extends Component {
                 {routes.map(({ path, exact, component: Component, title, ...rest }) => (
                   <Route key={path} path={path} exact={exact} render={
                     props => {
-                      const pageTitle = `${appTitle}${title ? ` | ${title}` : ''}`
                       return (
                         <div>
-                          <Helmet>
-                            <title>{pageTitle}</title>
-                          </Helmet>
+                          <Helmet
+                            titleTemplate={`%s | ${title || PAGE_TITLE}`}
+                            defaultTitle={PAGE_TITLE}
+                            title={PAGE_TITLE}
+                          />
                           <Component {...props} {...rest} title={title} />
                         </div>
                       )

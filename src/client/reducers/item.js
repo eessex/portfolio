@@ -54,7 +54,8 @@ export const itemReducer = (state = initialState, action) => {
 
     case FETCH_ITEM_ERROR:
       return Object.assign({}, state, {
-        loading: false
+        loading: false,
+        error: action.payload.error
       })
 
     case UPDATE_ITEM.PENDING:

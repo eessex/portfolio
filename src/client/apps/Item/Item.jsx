@@ -2,11 +2,13 @@ import { connect } from 'react-redux'
 import { stripTags, truncate } from 'underscore.string'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
+import { Helmet } from 'react-helmet'
+
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
-import * as itemActions from 'client/actions/item2'
+import { NotFound } from 'client/components/NotFound'
 import { Loading } from 'client/components/layout/components/loading'
 import { Item as ViewItem } from 'client/components/item'
-import { Helmet } from 'react-helmet'
+import * as itemActions from 'client/actions/item2'
 
 const prettyDescription = html => {
   return truncate(stripTags(html), 150)
@@ -106,6 +108,8 @@ export class Item extends Component {
 
     if (!item || this.props.loading) {
       return <Loading />
+    } if (error && error.message.includes('404')) {
+      return <NotFound />
     } else {
       return (
         <ErrorBoundary error={error}>

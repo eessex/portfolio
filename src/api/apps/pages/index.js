@@ -53,6 +53,9 @@ pages.route('/:id')
       if (err) {
         return res.status(400).send(err)
       }
+      if (!data) {
+        return res.status(404).send(new Error('not found'))
+      }
       res.json(data)
     })
   })

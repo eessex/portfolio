@@ -3,30 +3,36 @@ import {
   CHANGE_ITEM,
   DELETE_ITEM,
   // FETCH_ITEM,
-  FETCH_UPLOAD,
+  FETCH_UPLOAD
   // MAYBE_SAVE_ITEM,
   // RESET_ITEM
   // UPDATE_ITEM
 } from '../actions'
 
 import fetch from 'isomorphic-fetch'
+import * as url from 'url'
 const { API_URL } = process.env
 
-export const FETCH_ITEM_SUCCESS = 'FETCH_ITEMS_SUCCESS'
-export const FETCH_ITEM_ERROR = 'FETCH_ITEMS_ERROR'
-export const FETCH_ITEM_REQUESTED = 'FETCH_ITEMS_REQUESTED'
-export const RESET_ITEM = 'RESET_ITEMS'
+export const FETCH_ITEM_SUCCESS = 'FETCH_ITEM_SUCCESS'
+export const FETCH_ITEM_ERROR = 'FETCH_ITEM_ERROR'
+export const FETCH_ITEM_REQUESTED = 'FETCH_ITEM_REQUESTED'
+export const RESET_ITEM = 'RESET_ITEM'
 
 export const fetchItem = (model = '', id, query = {}) => dispatch => {
-  const encodedURI = encodeURI(`${API_URL}${model}/${id}`)
+  const encodedURI = url.parse(`${API_URL}${model}/${id}`)
+  encodedURI.query = query
+  const formattedURI = url.format(encodedURI)
 
   dispatch({
     type: FETCH_ITEM_REQUESTED
   })
 
-  return fetch(encodedURI, query)
+  return fetch(formattedURI)
     .then(res => {
       if (res) {
+        if (!res.ok) {
+          throw Error(res.status)
+        }
         return res.json()
       }
     })
@@ -40,11 +46,10 @@ export const fetchItem = (model = '', id, query = {}) => dispatch => {
       return item
     })
     .catch(error => {
-      console.error(error)
       dispatch({
         type: FETCH_ITEM_ERROR,
         payload: {
-          error
+          error: { message: error.toString() }
         }
       })
       return null

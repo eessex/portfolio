@@ -37,7 +37,7 @@ export const routes = [
     model: 'events',
     component: Item,
     fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItem('/events', path.split('/').pop()))
+      return store.dispatch(fetchItem('/events', path.split('/').pop(), getQuery(store)))
     }
   },
   {
@@ -67,7 +67,7 @@ export const routes = [
     model: 'projects',
     component: Item,
     fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItem('/projects', path.split('/').pop()))
+      return store.dispatch(fetchItem('/projects', path.split('/').pop(), getQuery(store)))
     }
   },
   {
@@ -84,7 +84,7 @@ export const routes = [
     model: 'publications',
     component: Item,
     fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItem('/publications', path.split('/').pop()))
+      return store.dispatch(fetchItem('/publications', path.split('/').pop(), getQuery(store)))
     }
   },
   {

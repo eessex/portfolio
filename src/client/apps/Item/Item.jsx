@@ -26,6 +26,7 @@ export class Item extends Component {
   static propTypes = {
     error: PropTypes.object,
     // fetchItemsAction: PropTypes.func,
+    // isAuthenticated: PropTypes.any,
     item: PropTypes.object,
     loading: PropTypes.bool,
     match: PropTypes.any,
@@ -89,6 +90,7 @@ export class Item extends Component {
               label={formattedLabel}
               labelLink
               model={model}
+              // editing={isAuthenticated}
             />
           </React.Fragment>
         )
@@ -114,11 +116,12 @@ export class Item extends Component {
   }
 }
 
-const mapStateToProps = ({ itemReducer, settingsReducer }) => ({
+const mapStateToProps = ({ itemReducer, settingsReducer, user }) => ({
   error: itemReducer.error,
   item: itemReducer.item,
   loading: itemReducer.loading,
-  settings: settingsReducer.settings
+  settings: settingsReducer.settings,
+  isAuthenticated: user.isAuthenticated
 })
 
 const mapDispatchToProps = ({

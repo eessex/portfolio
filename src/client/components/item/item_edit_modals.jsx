@@ -13,11 +13,9 @@ export class ItemEditModals extends Component {
   static propTypes = {
     fetchUpload: PropTypes.func,
     isEditing: PropTypes.string,
-    item: PropTypes.shape({
-      item: PropTypes.object,
-      isSaved: PropTypes.bool,
-      isSaving: PropTypes.bool
-    }),
+    item: PropTypes.object,
+    isSaved: PropTypes.bool,
+    isSaving: PropTypes.bool,
     onChange: PropTypes.func,
     setEditing: PropTypes.func
   }
@@ -37,8 +35,7 @@ export class ItemEditModals extends Component {
   }
 
   render () {
-    const { fetchUpload, isEditing, onChange, setEditing } = this.props
-    const { item } = this.props.item
+    const { item, fetchUpload, isEditing, onChange, setEditing } = this.props
 
     return (
       <div>
@@ -96,8 +93,10 @@ export class ItemEditModals extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  item: state.item
+const mapStateToProps = ({ itemReducer }) => ({
+  item: itemReducer.item,
+  isSaved: itemReducer.isSaved,
+  isSaving: itemReducer.isSaving
 })
 
 const mapDispatchToProps = {

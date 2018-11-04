@@ -4,6 +4,7 @@ import { fetchPage } from 'client/actions/page'
 import Item from 'client/apps/Item/Item'
 import Items from 'client/apps/Items/Items'
 import Page from 'client/apps/pages/Page'
+import Login from 'client/apps/user/login'
 
 const { HOMEPAGE_ENABLED } = process.env
 
@@ -48,6 +49,11 @@ export const routes = [
     fetchInitialData: (path = '', store) => {
       return store.dispatch(fetchPage(path))
     }
+  },
+  {
+    path: '/login',
+    component: Login,
+    title: 'Login'
   },
   {
     path: '/projects/:id',

@@ -32,6 +32,7 @@
     "html-loader": "^0.5.1",
     "html-webpack-plugin": "^2.28.0",
     "immutable": "^3.8.2",
+    "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "mongoose": "^4.10.3",
@@ -57,6 +58,7 @@
     "underscore": "^1.8.3",
     "underscore-template-loader": "^0.8.0",
     "underscore.string": "^3.3.4",
+    "universal-cookie-express": "^3.0.4",
     "webpack": "^2.6.1"
   },
   "devDependencies": {

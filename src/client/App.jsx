@@ -1,8 +1,9 @@
-import React, { Component } from 'react'
 import styled, { ThemeProvider } from 'styled-components'
-import { theme } from './styles/theme.jsx'
+import React, { Component } from 'react'
 import { Helmet } from 'react-helmet'
 import { Route, Switch } from 'react-router-dom'
+
+import { theme } from 'client/styles/theme.jsx'
 import { routes } from 'client/routes2'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import Nav from 'client/components/Nav'

@@ -1,7 +1,8 @@
 import axios from 'axios'
-const { BASE_URL } = process.env
+import Cookies from 'universal-cookie'
 
-const API_URL = `${BASE_URL}/api`
+const { API_URL } = process.env
+const cookies = new Cookies()
 
 const apiMiddleware = ({ dispatch }) => next => action => {
   if (action.type !== 'API') {
@@ -30,6 +31,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
     }
 
     if (action.payload.next.SUCCESS === 'LOGIN_USER_SUCCESS') {
+      cookies.set('portfolio.session', res.data.session, { maxAge: 2592000 })
       window.location.pathname = ''
     }
     if (action.payload.next.SUCCESS === 'FETCH_UPLOAD_SUCCESS') {

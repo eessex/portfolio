@@ -6,23 +6,17 @@ import { Button } from 'client/components/forms/buttons/button'
 import { ColumnForm, Input, ErrorContainer } from 'client/styles/forms'
 import { LayoutColumn } from 'client/components/layout/column'
 import { Loading } from 'client/components/layout/components/loading'
+import { ErrorBoundary } from 'client/components/ErrorBoundary'
 
 export class Login extends Component {
   static propTypes = {
     error: PropTypes.string,
     loading: PropTypes.bool,
-    loginUserAction: PropTypes.func,
-    isAuthenticated: PropTypes.bool
+    loginUserAction: PropTypes.func
   }
 
   static email
   static password
-
-  componentDidMount () {
-    if (this.props.isAuthenticated) {
-      window.location.replace('/')
-    }
-  }
 
   onSubmit = () => {
     const { loginUserAction } = this.props
@@ -43,25 +37,27 @@ export class Login extends Component {
         {loading
           ? <Loading />
           : (
-            <ColumnForm onSubmit={this.onSubmit}>
-              <Input
-                innerRef={email => (this.email = email)}
-                placeholder='email'
-                required
-              />
-              <Input
-                innerRef={password => (this.password = password)}
-                placeholder='password'
-                type='password'
-                required
-              />
+            <ErrorBoundary>
+              <ColumnForm onSubmit={this.onSubmit}>
+                <Input
+                  innerRef={email => (this.email = email)}
+                  placeholder='email'
+                  required
+                />
+                <Input
+                  innerRef={password => (this.password = password)}
+                  placeholder='password'
+                  type='password'
+                  required
+                />
 
-              {error && <ErrorContainer>{error}</ErrorContainer>}
+                {error && <ErrorContainer>{error}</ErrorContainer>}
 
-              <Button onClick={this.onSubmit}>
-                Submit
-              </Button>
-            </ColumnForm>
+                <Button onClick={this.onSubmit}>
+                  Submit
+                </Button>
+              </ColumnForm>
+            </ErrorBoundary>
           )
         }
       </LayoutColumn>
@@ -72,7 +68,7 @@ export class Login extends Component {
 const mapStateToProps = state => ({
   error: state.user.error,
   loading: state.user.loading,
-  isAuthenticated: state.user.isAuthenticated
+  user: state.user
 })
 
 const mapDispatchToProps = {

@@ -4,6 +4,8 @@ import express from 'express'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
 import { matchPath } from 'react-router-dom'
+import cookiesMiddleware from 'universal-cookie-express'
+import Cookies from 'universal-cookie'
 
 import createStore from 'client/utils/store'
 import { fetchSettings } from 'client/actions/settings'
@@ -24,6 +26,7 @@ const app = express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(morgan('dev'))
+app.use(cookiesMiddleware())
 
 app.use((req, res, next) => {
   next()
@@ -34,7 +37,10 @@ app.use(express.static('public'))
 app.use('/api', require('./api'))
 
 app.get('*', async (req, res, next) => {
-  const { store } = createStore(req.url)
+  const cookies = new Cookies(req.headers.cookie)
+  const session = cookies.get('portfolio.session')
+
+  const { store } = createStore({ entry: req.url, session })
 
   const settings = await store.dispatch(fetchSettings())
   const activeRoute = routes.find(route => matchPath(req.url, route))
@@ -45,7 +51,7 @@ app.get('*', async (req, res, next) => {
 
   promiseData.then(data => {
     const context = { data, settings }
-    const content = ServerRender(req.url, store, context)
+    const content = ServerRender(req, store, context)
 
     res.send(content)
   }).catch(next)

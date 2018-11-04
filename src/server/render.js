@@ -9,13 +9,13 @@ import { App } from 'client/App'
 
 const { GOOGLE_ANALYTICS_ID, GOOGLE_FONTS_FAMILY } = process.env
 
-export const ServerRender = (path, store, context) => {
+export const ServerRender = (req, store, context) => {
   const sheet = new ServerStyleSheet()
   const markup = renderToString(
     sheet.collectStyles(
       <Provider store={store}>
-        <StaticRouter location={path} context={context}>
-          <App settings={context.settings} />
+        <StaticRouter location={req.url} context={context}>
+          <App />
         </StaticRouter>
       </Provider>
     )

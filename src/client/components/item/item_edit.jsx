@@ -10,13 +10,11 @@ import ItemEditModals from './item_edit_modals'
 
 export class ItemEdit extends Component {
   static propTypes = {
-    changeItem: PropTypes.func,
+    changeItemAction: PropTypes.func,
     deleteItem: PropTypes.func,
-    item: PropTypes.shape({
-      item: PropTypes.object,
-      isSaved: PropTypes.bool,
-      isSaving: PropTypes.bool
-    }),
+    item: PropTypes.object,
+    isSaved: PropTypes.bool,
+    isSaving: PropTypes.bool,
     maybeSaveItem: PropTypes.func,
     model: PropTypes.string
   }
@@ -26,9 +24,9 @@ export class ItemEdit extends Component {
   }
 
   onChange = (key, value) => {
-    const { changeItem, maybeSaveItem, model } = this.props
+    const { changeItemAction, maybeSaveItem, model } = this.props
 
-    changeItem(key, value)
+    changeItemAction(key, value)
     maybeSaveItem(model)
   }
 
@@ -39,7 +37,7 @@ export class ItemEdit extends Component {
   render () {
     const { isEditing } = this.state
     const { deleteItem, model, maybeSaveItem } = this.props
-    const { item, isSaved, isSaving } = this.props.item
+    const { item, isSaved, isSaving } = this.props
 
     const images = item.images || []
     const isPublication = model === 'publications'
@@ -86,12 +84,14 @@ export class ItemEdit extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  item: state.item
+const mapStateToProps = ({ itemReducer }) => ({
+  item: itemReducer.item,
+  isSaved: itemReducer.isSaved,
+  isSaving: itemReducer.isSaving
 })
 
 const mapDispatchToProps = {
-  changeItem: itemActions.changeItem,
+  changeItemAction: itemActions.changeItem,
   deleteItem: itemActions.deleteItem,
   maybeSaveItem: itemActions.maybeSaveItem
 }

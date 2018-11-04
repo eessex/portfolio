@@ -12,9 +12,9 @@ export const isServer = !(
   window.document.createElement
 )
 
-export default (url = '/') => {
+export default ({ entry, session }) => {
   const history = isServer
-    ? createMemoryHistory({ initialEntries: [url] })
+    ? createMemoryHistory({ initialEntries: [entry || '/'] })
     : createBrowserHistory()
 
   const enhancers = []
@@ -39,7 +39,12 @@ export default (url = '/') => {
     ...enhancers
   )
 
-  const initialState = !isServer ? window.__INITIAL_DATA__ : {}
+  const initialState = !isServer ? window.__INITIAL_DATA__ : {
+    user: {
+      isAuthenticated: session && true,
+      session
+    }
+  }
 
   if (!isServer) {
     delete window.__INITIAL_DATA__

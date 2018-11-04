@@ -34,6 +34,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
       cookies.set('portfolio.session', res.data.session, { maxAge: 2592000 })
       window.location.pathname = ''
     }
+
     if (action.payload.next.SUCCESS === 'FETCH_UPLOAD_SUCCESS') {
       action.payload.cb(action.payload.file, res)
     }

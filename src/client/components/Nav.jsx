@@ -6,11 +6,13 @@ import styled from 'styled-components'
 import React from 'react'
 import Waypoint from 'react-waypoint'
 import { NavLink } from 'react-router-dom'
+
 import { resetItems } from 'client/actions/items2'
 import { resetPage } from 'client/actions/page'
-import { H1 } from 'client/styles/text.jsx'
+import AdminNav from 'client/components/AdminNav'
+import { H1 } from 'client/styles/text'
 
-const appTitle = process.env.PAGE_TITLE
+const { PAGE_TITLE } = process.env
 
 const links = [
   {
@@ -33,6 +35,7 @@ const links = [
 
 export class Nav extends React.Component {
   static propTypes = {
+    isAuthenticated: PropTypes.bool,
     resetItemsAction: PropTypes.func,
     resetPageAction: PropTypes.func,
     location: PropTypes.object
@@ -116,32 +119,39 @@ export class Nav extends React.Component {
 
   render () {
     const { navOpen, scrollDir } = this.state
+    const { isAuthenticated } = this.props
 
     return (
       <div>
         <NavContainer scrollDir={scrollDir} navOpen={navOpen}>
           <H1>
             <a href='/'>
-              {appTitle}
+              {PAGE_TITLE}
             </a>
           </H1>
 
-          <Navigation>
-            {links.map(({ name, param }) => {
-              const linkIsActive = this.linkIsActive(param)
+          <NavItems isAuthenticated={isAuthenticated}>
+            <MainMenu>
+              {links.map(({ name, param }) => {
+                const linkIsActive = this.linkIsActive(param)
 
-              return (
-                <NavItem linkIsActive={linkIsActive} key={param}>
-                  <NavLink
-                    to={`/${param}`}
-                    onClick={() => this.onClick(param)}
-                  >
-                    {name}
-                  </NavLink>
-                </NavItem>
-              )
-            })}
-          </Navigation>
+                return (
+                  <NavItem linkIsActive={linkIsActive} key={param}>
+                    <NavLink
+                      to={`/${param}`}
+                      onClick={() => this.onClick(param)}
+                    >
+                      {name}
+                    </NavLink>
+                  </NavItem>
+                )
+              })}
+            </MainMenu>
+
+            {isAuthenticated &&
+              <AdminNav />
+            }
+          </NavItems>
         </NavContainer>
         <Waypoint
           onEnter={this.onWaypointEnter}
@@ -152,7 +162,9 @@ export class Nav extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({})
+const mapStateToProps = state => ({
+  isAuthenticated: state.user.isAuthenticated
+})
 
 const mapDispatchToProps = {
   resetItemsAction: resetItems,
@@ -195,11 +207,19 @@ const NavContainer = styled.div`
   `}
 `
 
-const Navigation = styled.div`
+const MainMenu = styled.div`
   list-style: none;
   display: flex;
   margin-block-start: 0;
   padding-inline-start: 0;
+`
+
+const NavItems = styled.div`
+  display: flex;
+  justify-content: space-between;
+  ${props => props.isAuthenticated && `
+    flex: 1;
+  `}
 `
 
 const NavItem = styled.div`

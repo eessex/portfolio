@@ -217,6 +217,8 @@ const MainMenu = styled.div`
 const NavItems = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
+
   ${props => props.isAuthenticated && `
     flex: 1;
   `}

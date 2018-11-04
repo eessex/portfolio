@@ -18,6 +18,7 @@ publications.route('/')
   // create publication
   .post((req, res) => {
     var item = new Publication()
+    item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
         return res.status(400).send(err)

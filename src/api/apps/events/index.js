@@ -18,6 +18,7 @@ events.route('/')
   // create event
   .post((req, res) => {
     var item = new Event()
+    item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
         return res.status(400).send(err)

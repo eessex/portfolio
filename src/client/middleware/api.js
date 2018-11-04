@@ -21,7 +21,8 @@ const apiMiddleware = ({ dispatch }) => next => action => {
     if (action.payload.next.SUCCESS === 'CREATE_ITEM_SUCCESS') {
       const { _id } = res.data.data
       // redirect to new item
-      window.location.pathname = `${url}/${_id}`
+      const formattedUrl = url === '/publications' ? '/releases' : url
+      window.location.pathname = `${formattedUrl}/${_id}`
     }
 
     if (action.payload.next.SUCCESS === 'DELETE_ITEM_SUCCESS') {

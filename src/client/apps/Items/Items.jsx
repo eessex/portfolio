@@ -12,6 +12,7 @@ export class Items extends Component {
   static propTypes = {
     error: PropTypes.object,
     fetchItemsAction: PropTypes.func,
+    isAuthenticated: PropTypes.bool,
     items: PropTypes.array,
     title: PropTypes.string,
     loading: PropTypes.bool,
@@ -50,9 +51,15 @@ export class Items extends Component {
   }
 
   fetchItems = () => {
-    const { fetchItemsAction, match: { path } } = this.props
+    const {
+      isAuthenticated,
+      fetchItemsAction,
+      match: { path }
+    } = this.props
+    const query = isAuthenticated ? {} : { published: true }
     const formattedPath = path === '/releases' ? '/publications' : path
-    fetchItemsAction(formattedPath)
+
+    fetchItemsAction(formattedPath, query)
   }
 
   getApp = items => {
@@ -101,10 +108,11 @@ export class Items extends Component {
   }
 }
 
-const mapStateToProps = ({ itemsReducer }) => ({
+const mapStateToProps = ({ itemsReducer, user }) => ({
   error: itemsReducer.error,
   items: itemsReducer.list,
-  loading: itemsReducer.loading
+  loading: itemsReducer.loading,
+  isAuthenticated: user.isAuthenticated
 })
 
 const mapDispatchToProps = ({

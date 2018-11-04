@@ -1,4 +1,5 @@
 import fetch from 'isomorphic-fetch'
+import * as url from 'url'
 const { API_URL } = process.env
 
 export const FETCH_ITEMS_SUCCESS = 'FETCH_ITEMS_SUCCESS'
@@ -7,13 +8,15 @@ export const FETCH_ITEMS_REQUESTED = 'FETCH_ITEMS_REQUESTED'
 export const RESET_ITEMS = 'RESET_ITEMS'
 
 export const fetchItems = (model = '', query = {}) => dispatch => {
-  const encodedURI = encodeURI(`${API_URL}${model}`)
+  const encodedURI = url.parse(`${API_URL}${model}`)
+  encodedURI.query = query
+  const formattedURI = url.format(encodedURI)
 
   dispatch({
     type: FETCH_ITEMS_REQUESTED
   })
 
-  return fetch(encodedURI, query)
+  return fetch(formattedURI)
     .then(res => {
       if (res) {
         return res.json()

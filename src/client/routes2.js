@@ -8,6 +8,13 @@ import Login from 'client/apps/user/login'
 
 const { HOMEPAGE_ENABLED } = process.env
 
+const getQuery = store => {
+  if (!store.getState().user.isAuthenticated) {
+    return { published: true }
+  }
+  return {}
+}
+
 const HomeRoute = {
   path: '/',
   exact: true,
@@ -18,7 +25,7 @@ const HomeRoute = {
     if (HOMEPAGE_ENABLED) {
       return store.dispatch(fetchPage('/home'))
     } else {
-      return store.dispatch(fetchItems('/events'))
+      return store.dispatch(fetchItems('/events', getQuery(store)))
     }
   }
 }
@@ -39,7 +46,7 @@ export const routes = [
     model: 'events',
     title: 'Events',
     fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItems(path))
+      return store.dispatch(fetchItems(path, getQuery(store)))
     }
   },
   {
@@ -69,7 +76,7 @@ export const routes = [
     model: 'projects',
     title: 'Projects',
     fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItems(path))
+      return store.dispatch(fetchItems(path, getQuery(store)))
     }
   },
   {
@@ -86,7 +93,7 @@ export const routes = [
     model: 'publications',
     title: 'Releases',
     fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItems('/publications'))
+      return store.dispatch(fetchItems('/publications', getQuery(store)))
     }
   }
 ]

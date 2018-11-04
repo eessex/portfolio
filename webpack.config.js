@@ -15,7 +15,10 @@ var browserConfig = {
       {
         test: /(\.(js|jsx)?$)/,
         include: path.resolve('./src'),
-        use: 'babel-loader'
+        loader: 'babel-loader',
+        query: {
+          plugins: ['transform-runtime']
+        }
       }
     ]
   },
@@ -53,7 +56,10 @@ var serverConfig = {
       {
         test: /(\.(js|jsx)?$)/,
         include: path.resolve('./src'),
-        use: 'babel-loader'
+        loader: 'babel-loader',
+        query: {
+          plugins: ['transform-runtime']
+        }
       }
     ]
   },

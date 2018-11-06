@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import * as itemActions from 'client/actions/item'
 import { Item } from 'client/components/item'
 import { Loading } from 'client/components/layout/components/loading'
+import { NotFound } from 'client/components/NotFound'
 
 class Event extends Component {
   static propTypes = {
@@ -36,22 +37,26 @@ class Event extends Component {
     const { isAuthenticated } = user
     const { item, loading } = this.props.item
 
-    return (
-      <div>
-        {loading
-          ? <Loading />
-          : (
-            <Item
-              item={item}
-              label='Event'
-              labelLink
-              model='events'
-              editing={isAuthenticated}
-            />
-          )
-        }
-      </div>
-    )
+    if (!loading && !item._id) {
+      return <NotFound />
+    } else {
+      return (
+        <div>
+          {loading
+            ? <Loading />
+            : (
+              <Item
+                item={item}
+                label='Event'
+                labelLink
+                model='events'
+                editing={isAuthenticated}
+              />
+            )
+          }
+        </div>
+      )
+    }
   }
 }
 

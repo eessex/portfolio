@@ -8,7 +8,7 @@ import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import { NotFound } from 'client/components/NotFound'
 import { Loading } from 'client/components/layout/components/loading'
 import { Item as ViewItem } from 'client/components/item'
-import * as itemActions from 'client/actions/item2'
+import * as itemActions from 'client/actions/item'
 
 const prettyDescription = html => {
   return truncate(stripTags(html), 150)
@@ -28,7 +28,7 @@ export class Item extends Component {
   static propTypes = {
     error: PropTypes.object,
     // fetchItemsAction: PropTypes.func,
-    // isAuthenticated: PropTypes.any,
+    isAuthenticated: PropTypes.any,
     item: PropTypes.object,
     loading: PropTypes.bool,
     match: PropTypes.any,
@@ -50,7 +50,7 @@ export class Item extends Component {
       data = props.staticContext.data
       meta = props.staticContext.settings
     }
-    this.state = { data, meta }
+    this.state = { data, meta, isEditing: false }
   }
 
   componentWillMount () {
@@ -58,6 +58,12 @@ export class Item extends Component {
 
     if ((!item || item._id) && !loading) {
       this.fetchItem()
+    }
+  }
+
+  componentDidMount () {
+    if (this.props.isAuthenticated && __isBrowser__) {
+      this.setState({ isEditing: true })
     }
   }
 
@@ -77,6 +83,7 @@ export class Item extends Component {
 
   getApp = (item, metaData) => {
     const { model } = this.props
+    const { isEditing } = this.state
     const formattedLabel = model === 'publications' ? 'Release' : model
 
     switch (model) {
@@ -92,7 +99,7 @@ export class Item extends Component {
               label={formattedLabel}
               labelLink
               model={model}
-              // editing={isAuthenticated}
+              editing={isEditing}
             />
           </React.Fragment>
         )

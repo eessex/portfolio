@@ -27,8 +27,10 @@ const apiMiddleware = ({ dispatch }) => next => action => {
 
     if (action.payload.next.SUCCESS === 'DELETE_ITEM_SUCCESS') {
       let redirect = url.split('/')[1]
+      const formattedUrl = redirect === 'publications' ? 'releases' : redirect
+
       // redirect to items list
-      window.location.pathname = `/${redirect}`
+      window.location.pathname = `/${formattedUrl}`
     }
 
     if (action.payload.next.SUCCESS === 'LOGIN_USER_SUCCESS') {

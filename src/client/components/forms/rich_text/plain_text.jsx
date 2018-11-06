@@ -4,6 +4,7 @@ import React, { Component } from 'react'
 import { ContentState, Editor, EditorState } from 'draft-js'
 
 export class PlainText extends Component {
+  static editor
   state = {
     editorState: this.setEditorState()
   }
@@ -50,7 +51,7 @@ export class PlainText extends Component {
   }
 
   focus = () => {
-    this.refs.editor.focus()
+    this.editor.focus()
   }
 
   render () {
@@ -69,7 +70,9 @@ export class PlainText extends Component {
           handleReturn={() => 'handled'}
           onChange={this.onChange}
           placeholder={placeholder || 'Start Typing...'}
-          ref='editor'
+          ref={ref => {
+            this.editor = ref
+          }}
           spellcheck
         />
       </PlainTextContainer>

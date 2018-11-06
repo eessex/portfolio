@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet'
 import { Route, Switch } from 'react-router-dom'
 
 import { theme } from 'client/styles/theme.jsx'
-import { routes } from 'client/routes2'
+import { routes } from 'client/routes'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import Nav from 'client/components/Nav'
 import { NotFound } from 'client/components/NotFound'

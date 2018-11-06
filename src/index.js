@@ -9,7 +9,7 @@ import Cookies from 'universal-cookie'
 
 import createStore from 'client/utils/store'
 import { fetchSettings } from 'client/actions/settings'
-import { routes } from 'client/routes2'
+import { routes } from 'client/routes'
 import { ServerRender } from 'server/render'
 const { MONGODB_URI, PORT } = process.env
 

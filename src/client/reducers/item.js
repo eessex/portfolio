@@ -12,7 +12,7 @@ import {
   FETCH_ITEM_REQUESTED,
   FETCH_ITEM_SUCCESS,
   RESET_ITEM
-} from '../actions/item2'
+} from '../actions/item'
 
 const initialState = {
   item: {},

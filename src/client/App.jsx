@@ -29,7 +29,7 @@ export class App extends Component {
                             defaultTitle={PAGE_TITLE}
                             title={PAGE_TITLE}
                           />
-                          <Component {...props} {...rest} title={title} />
+                          <Component {...props} {...rest} />
                         </div>
                       )
                     }

@@ -6,8 +6,7 @@ import { ItemsList } from 'client/components/items_list'
 
 export class Publications extends Component {
   static propTypes = {
-    items: PropTypes.array,
-    title: PropTypes.string
+    items: PropTypes.array
   }
 
   getReleases = (compilation = false) => {
@@ -36,7 +35,6 @@ export class Publications extends Component {
   }
 
   render () {
-    const { title } = this.props
     const releases = this.getReleases()
     const compilations = this.getReleases(true)
 
@@ -44,9 +42,9 @@ export class Publications extends Component {
       <div>
         {releases.length > 0 &&
           <ItemsList
-            model={title.toLowerCase()}
+            model='releases'
             list={releases}
-            label={title}
+            label='Releases'
             layout='table'
             canToggle
           />
@@ -54,7 +52,7 @@ export class Publications extends Component {
         {compilations.length > 0 &&
           <Compilations>
             <ItemsList
-              model={title.toLowerCase()}
+              model='releases'
               list={compilations}
               label='Compilations'
               layout='table'

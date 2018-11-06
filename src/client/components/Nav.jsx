@@ -1,3 +1,4 @@
+import { capitalize } from 'underscore.string'
 import { connect } from 'react-redux'
 import { debounce } from 'lodash'
 import { withRouter } from 'react-router'
@@ -15,22 +16,10 @@ import { H1 } from 'client/styles/text'
 const { PAGE_TITLE } = process.env
 
 const links = [
-  {
-    name: 'Events',
-    param: 'events'
-  },
-  {
-    name: 'Projects',
-    param: 'projects'
-  },
-  {
-    name: 'Releases',
-    param: 'releases'
-  },
-  {
-    name: 'Info',
-    param: 'info'
-  }
+  'events',
+  'projects',
+  'releases',
+  'info'
 ]
 
 export class Nav extends React.Component {
@@ -95,10 +84,17 @@ export class Nav extends React.Component {
 
   linkIsActive = param => {
     const { location: { pathname } } = this.props
-    // const isHome = path === '/'
     const isActive = (pathname).replace('/', '') === param
 
-    return isActive // || isHome && param === 'events'
+    return isActive
+  }
+
+  hasAdminNav = () => {
+    const { location: { pathname } } = this.props
+    const isHome = pathname === '/'
+    const isItemsLink = links.includes((pathname).replace('/', ''))
+
+    return (isItemsLink || isHome) && pathname !== '/info'
   }
 
   onWaypointEnter = () => {
@@ -120,6 +116,7 @@ export class Nav extends React.Component {
   render () {
     const { navOpen, scrollDir } = this.state
     const { isAuthenticated } = this.props
+    const showAdminNav = isAuthenticated && this.hasAdminNav()
 
     return (
       <div>
@@ -132,7 +129,7 @@ export class Nav extends React.Component {
 
           <NavItems isAuthenticated={isAuthenticated}>
             <MainMenu>
-              {links.map(({ name, param }) => {
+              {links.map(param => {
                 const linkIsActive = this.linkIsActive(param)
 
                 return (
@@ -141,14 +138,14 @@ export class Nav extends React.Component {
                       to={`/${param}`}
                       onClick={() => this.onClick(param)}
                     >
-                      {name}
+                      {capitalize(param)}
                     </NavLink>
                   </NavItem>
                 )
               })}
             </MainMenu>
 
-            {isAuthenticated &&
+            {showAdminNav &&
               <AdminNav />
             }
           </NavItems>

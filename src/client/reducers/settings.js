@@ -23,7 +23,7 @@ const settingsReducer = (state = initialState, action) => {
     case FETCH_SETTINGS.SUCCESS:
       return Object.assign({}, state, {
         loading: false,
-        settings: action.payload[0]
+        settings: action.payload
       })
 
     case FETCH_SETTINGS.ERROR:

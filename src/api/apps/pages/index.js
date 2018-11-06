@@ -18,6 +18,7 @@ pages.route('/')
   // create page
   .post((req, res) => {
     var item = new Page()
+    item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -27,7 +28,7 @@ pages.route('/')
   })
   // all pages
   .get((req, res) => {
-    Page.find(req.query).sort({'list_index': 'asc'}).exec(
+    Page.find(req.query).exec(
       function (err, data) {
         if (err) {
           res.send(err)
@@ -51,6 +52,9 @@ pages.route('/:id')
     Page.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
+      }
+      if (!data) {
+        return res.status(404).send(new Error('not found'))
       }
       res.json(data)
     })

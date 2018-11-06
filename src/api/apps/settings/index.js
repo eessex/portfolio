@@ -17,7 +17,7 @@ settings.route('/')
   })
   // all settings
   .get((req, res) => {
-    Settings.find(req.query).sort({start_date: 'desc'}).exec(
+    Settings.findOne(req.query).exec(
       function (err, settings) {
         if (err) {
           res.send(err)

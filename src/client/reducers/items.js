@@ -8,7 +8,7 @@ import {
   FETCH_ITEMS_REQUESTED,
   FETCH_ITEMS_SUCCESS,
   RESET_ITEMS
-} from 'client/actions/items2'
+} from 'client/actions/items'
 
 const initialState = {
   loading: false,

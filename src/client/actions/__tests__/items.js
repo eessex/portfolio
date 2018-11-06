@@ -12,13 +12,13 @@ describe('Items', () => {
           method: 'post',
           data: {},
           url: '/events',
-          next: types.CREATE_ITEM,
+          next: types.CREATE_ITEM
         }
       }
     )
   })
 
-  describe('#fetchItems', () => {
+  xdescribe('#fetchItems', () => {
     it('Gets items of expected model (admin)', () => {
       expect(
         itemsActions.fetchItems('projects', {published: true})
@@ -30,8 +30,8 @@ describe('Items', () => {
             url: '/projects',
             next: types.FETCH_ITEMS,
             query: {
-              published: true,
-            },
+              published: true
+            }
           }
         }
       )
@@ -48,8 +48,8 @@ describe('Items', () => {
             url: '/events',
             next: types.FETCH_ITEMS,
             query: {
-              published: false,
-            },
+              published: false
+            }
           }
         }
       )

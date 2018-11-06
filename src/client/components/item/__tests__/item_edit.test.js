@@ -12,7 +12,7 @@ describe('ItemEdit', () => {
   const getWrapper = props => {
     const mockStore = configureStore([])
     const store = mockStore({
-      item: props.item
+      itemReducer: { item: props.item }
     })
 
     return mount(
@@ -27,12 +27,10 @@ describe('ItemEdit', () => {
     props = {
       isEditing: null,
       setEditing: jest.fn(),
-      changeItem: jest.fn(),
-      item: {
-        item: {},
-        isSaved: true,
-        isSaving: false
-      },
+      changeItemAction: jest.fn(),
+      item: {},
+      isSaved: true,
+      isSaving: false,
       maybeSaveItem: jest.fn(),
       model: 'events'
     }
@@ -60,7 +58,7 @@ describe('ItemEdit', () => {
   })
 
   it('Renders LayoutGrid if item is publications and has images', () => {
-    props.item.item = {
+    props.item = {
       images: [{
         aspect: 1.2
       }]
@@ -71,7 +69,7 @@ describe('ItemEdit', () => {
   })
 
   it('Renders LayoutGrid if item has vertical image', () => {
-    props.item.item = {
+    props.item = {
       images: [{
         aspect: 0.9
       }]
@@ -89,8 +87,8 @@ describe('ItemEdit', () => {
   it('#onChange calls props.changeItem and props.maybeSaveItem', () => {
     const component = getWrapper(props)
     component.childAt(0).instance().onChange('title', 'New Title')
-    expect(props.changeItem.mock.calls[0][0]).toBe('title')
-    expect(props.changeItem.mock.calls[0][1]).toBe('New Title')
+    expect(props.changeItemAction.mock.calls[0][0]).toBe('title')
+    expect(props.changeItemAction.mock.calls[0][1]).toBe('New Title')
     expect(props.maybeSaveItem.mock.calls[0][0]).toBe(props.model)
   })
 })

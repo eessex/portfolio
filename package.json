@@ -90,7 +90,7 @@
     "dev": "concurrently --kill-others \"yarn webpack-watch\" \"node server.js\"",
     "heroku-postbuild": "webpack -p --config ./webpack.config.js --progress",
     "start": "webpack -w & nodemon server.js",
-    "test": "jest"
+    "test": "NODE_ENV=test jest"
   },
   "jest": {
     "transform": {

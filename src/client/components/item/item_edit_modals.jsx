@@ -25,7 +25,7 @@ export class ItemEditModals extends Component {
       all_day,
       end_date,
       start_date
-    } = this.props.item.item
+    } = this.props.item
 
     return {
       all_day,

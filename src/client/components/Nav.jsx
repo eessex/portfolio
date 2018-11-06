@@ -8,7 +8,7 @@ import React from 'react'
 import Waypoint from 'react-waypoint'
 import { NavLink } from 'react-router-dom'
 
-import { resetItems } from 'client/actions/items2'
+import { resetItems } from 'client/actions/items'
 import { resetPage } from 'client/actions/page'
 import AdminNav from 'client/components/AdminNav'
 import { H1 } from 'client/styles/text'

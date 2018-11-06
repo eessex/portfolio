@@ -11,10 +11,12 @@ import createStore from 'client/utils/store'
 import { fetchSettings } from 'client/actions/settings'
 import { routes } from 'client/routes'
 import { ServerRender } from 'server/render'
-const { MONGODB_URI, PORT } = process.env
+const { MONGODB_URI, MONGODB_TEST_URI, PORT, NODE_ENV } = process.env
+
+const db = NODE_ENV === 'test' ? MONGODB_TEST_URI : MONGODB_URI
 
 mongoose.connect(
-  MONGODB_URI,
+  db,
   { useNewUrlParser: true, useCreateIndex: true }
 ).then(() => {
   console.log('Mongodb connected')

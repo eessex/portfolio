@@ -1,3 +1,4 @@
+// process.env.NODE_ENV = 'test'
 import * as itemActions from '../item'
 import * as types from '../index'
 import { UpcomingEvent } from '../../tests/fixtures/events'
@@ -11,7 +12,7 @@ describe('Item', () => {
     data = UpcomingEvent
     dispatch = jest.fn()
     getState = jest.fn(() => ({
-      item: { item: data },
+      itemReducer: { item: data }
     }))
   })
 
@@ -23,27 +24,34 @@ describe('Item', () => {
         type: types.CHANGE_ITEM,
         payload: {
           key: 'title',
-          value: 'new title',
+          value: 'new title'
         }
       }
     )
   })
 
-  it('#fetchItem gets item of expected model', () => {
-    expect(
-      itemActions.fetchItem('projects', data._id)
-    ).toEqual(
-      {
-        type: types.API,
-        payload: {
-          method: 'get',
-          id: '5a0a60d48dcb886c6a1ab1df',
-          model: 'projects',
-          url: '/projects/5a0a60d48dcb886c6a1ab1df',
-          next: types.FETCH_ITEM,
-        }
-      }
+  xit('#fetchItem gets item of expected model', () => {
+    // FIXME
+    // try {
+    itemActions.fetchItem('projects', data._id)(dispatch).then(res =>
+      console.log(res)
     )
+    // console.log(dispatch.mock.calls)
+    expect(dispatch.mock.calls[0][0].type).toBe('FETCH_ITEM_REQUESTED')
+    // } catch (err) {
+    //   console.log(err)
+    // }
+  })
+
+  xit('#fetchItem can catch an error', async () => {
+    // FIXME
+    try {
+      await itemActions.fetchItem('projects', data._id)(dispatch)
+      // const theRes = await res(dispatch)
+      expect(dispatch.mock.calls[1][0].type).toBe('FETCH_ITEM_ERROR')
+    } catch (err) {
+      console.log(err)
+    }
   })
 
   it('#fetchUpload', () => {
@@ -78,7 +86,7 @@ describe('Item', () => {
     it('Calls #updateItem if not published', () => {
       data.published = false
       getState = jest.fn(() => ({
-        item: { item: data },
+        itemReducer: { item: data }
       }))
       itemActions.maybeSaveItem('events', false)(dispatch, getState)
       const { payload, type } = dispatch.mock.calls[0][0]
@@ -101,7 +109,7 @@ describe('Item', () => {
           method: 'put',
           data,
           url: '/events/5a0a60d48dcb886c6a1ab1df',
-          next: types.UPDATE_ITEM,
+          next: types.UPDATE_ITEM
         }
       }
     )
@@ -116,7 +124,7 @@ describe('Item', () => {
         method: 'delete',
         data,
         url: '/events/5a0a60d48dcb886c6a1ab1df',
-        next: types.DELETE_ITEM,
+        next: types.DELETE_ITEM
       }
     })
   })

@@ -17,7 +17,7 @@ describe('Item', () => {
   const getConnectedWrapper = props => {
     const mockStore = configureStore([])
     const store = mockStore({
-      item: {
+      itemReducer: {
         item: props.item,
         isSaved: true,
         isSaving: false

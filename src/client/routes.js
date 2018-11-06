@@ -1,5 +1,5 @@
 import { fetchItem } from 'client/actions/item'
-import { fetchItems } from 'client/actions/items2'
+import { fetchItems } from 'client/actions/items'
 import { fetchPage } from 'client/actions/page'
 import Item from 'client/apps/Item/Item'
 import Items from 'client/apps/Items/Items'

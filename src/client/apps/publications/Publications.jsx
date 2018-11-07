@@ -9,15 +9,29 @@ export class Publications extends Component {
     items: PropTypes.array
   }
 
-  getReleases = (compilation = false) => {
+  getReleases = type => {
     const { items } = this.props
     let releases = []
 
     items.map((item) => {
-      let isDraft = !item.formats.length && !compilation
-      const sorted = filter(item.formats, { compilation: compilation })
+      let sorted
+      switch (type) {
+        case 'compilation': {
+          sorted = filter(item.formats, { compilation: true })
+          break
+        }
+        case 'featuring': {
+          sorted = filter(item.formats, { featuring: true })
+          break
+        }
+        default: {
+          sorted = filter(item.formats, { compilation: false, featuring: false })
+        }
+      }
+      // let isRelease = !item.formats.length && !compilation && !featured
+      // const isCompilation = filter(item.formats, { compilation: compilation })
 
-      if (isDraft || sorted.length) {
+      if (sorted.length) {
         releases.push(item)
       }
     })
@@ -36,7 +50,8 @@ export class Publications extends Component {
 
   render () {
     const releases = this.getReleases()
-    const compilations = this.getReleases(true)
+    const compilations = this.getReleases('compilation')
+    const featuring = this.getReleases('featuring')
 
     return (
       <div>
@@ -55,6 +70,17 @@ export class Publications extends Component {
               model='releases'
               list={compilations}
               label='Compilations'
+              layout='table'
+              canToggle
+            />
+          </Compilations>
+        }
+        {featuring.length > 0 &&
+          <Compilations>
+            <ItemsList
+              model='releases'
+              list={featuring}
+              label='Featured Artist'
               layout='table'
               canToggle
             />

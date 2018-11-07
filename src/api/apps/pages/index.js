@@ -18,6 +18,7 @@ pages.route('/')
   // create page
   .post((req, res) => {
     var item = new Page()
+    item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
         return res.status(400).send(err)

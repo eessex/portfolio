@@ -18,6 +18,7 @@ events.route('/')
   // create event
   .post((req, res) => {
     var item = new Event()
+    item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -51,6 +52,9 @@ events.route('/:id')
     Event.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
+      }
+      if (!data) {
+        return res.status(404).send(new Error('not found'))
       }
       res.json(data)
     })

@@ -18,6 +18,7 @@ projects.route('/')
   // create project
   .post((req, res) => {
     var item = new Project()
+    item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -51,6 +52,9 @@ projects.route('/:id')
     Project.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
+      }
+      if (!data) {
+        return res.status(404).send(new Error('not found'))
       }
       res.json(data)
     })

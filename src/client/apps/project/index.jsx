@@ -6,6 +6,7 @@ import { fetchItem, resetItem } from 'client/actions/item'
 import { Item } from 'client/components/item'
 import { Loading } from 'client/components/layout/components/loading'
 import { H1 } from 'client/styles/text'
+import { NotFound } from 'client/components/NotFound'
 
 class Project extends Component {
   static propTypes = {
@@ -31,22 +32,26 @@ class Project extends Component {
     const { isAuthenticated } = this.props
     const { item, loading } = this.props.item
 
-    return (
-      <ProjectContainer>
-        {loading
-          ? <Loading />
-          : (
-            <Item
-              item={item}
-              label='Project'
-              labelLink
-              model='projects'
-              editing={isAuthenticated}
-            />
-          )
-        }
-      </ProjectContainer>
-    )
+    if (!loading && !item._id) {
+      return <NotFound />
+    } else {
+      return (
+        <ProjectContainer>
+          {loading
+            ? <Loading />
+            : (
+              <Item
+                item={item}
+                label='Project'
+                labelLink
+                model='projects'
+                editing={isAuthenticated}
+              />
+            )
+          }
+        </ProjectContainer>
+      )
+    }
   }
 }
 

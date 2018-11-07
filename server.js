@@ -43,7 +43,7 @@ app.use(bodyParser.json())
 var publicPath = express.static(path.join(__dirname, '/dist'))
 
 app.use('/dist', publicPath)
-app.use('/api', require('./src/api/apps'))
+app.use('/api', require('./src/api'))
 app.use('*', require('./src/client/middleware'))
 
 app.use(function (err, req, res, next) {

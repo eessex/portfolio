@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import * as itemActions from 'client/actions/item'
 import { Item } from 'client/components/item'
 import { Loading } from 'client/components/layout/components/loading'
+import { NotFound } from 'client/components/NotFound'
 
 class Publication extends Component {
   static propTypes = {
@@ -38,23 +39,26 @@ class Publication extends Component {
 
     const model = path.split('/')[1]
     const label = model === 'publications' ? 'Publications' : 'Releases'
-
-    return (
-      <div>
-        {loading
-          ? <Loading />
-          : (
-            <Item
-              item={item}
-              label={label}
-              labelLink
-              model='publications'
-              editing={isAuthenticated}
-            />
-          )
-        }
-      </div>
-    )
+    if (!loading && !item._id) {
+      return <NotFound />
+    } else {
+      return (
+        <div>
+          {loading
+            ? <Loading />
+            : (
+              <Item
+                item={item}
+                label={label}
+                labelLink
+                model='publications'
+                editing={isAuthenticated}
+              />
+            )
+          }
+        </div>
+      )
+    }
   }
 }
 

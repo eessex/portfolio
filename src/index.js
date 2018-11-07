@@ -13,7 +13,30 @@ import { routes } from 'client/routes'
 import { ServerRender } from 'server/render'
 const { MONGODB_URI, MONGODB_TEST_URI, PORT, NODE_ENV } = process.env
 
-const db = NODE_ENV === 'test' ? MONGODB_TEST_URI : MONGODB_URI
+const app = express()
+
+let port
+let db
+
+if (NODE_ENV === 'test') {
+  console.log('starting test server')
+  port = 5000
+  db = MONGODB_TEST_URI
+} else {
+  port = PORT || 3000
+  db = MONGODB_URI
+  app.use(morgan('dev'))
+}
+
+if (NODE_ENV === 'production') {
+  app.use(function (req, res, next) {
+    if (req.header('x-forwarded-proto') !== 'https') {
+      res.redirect(`https://${req.header('host')}${req.url}`)
+    } else {
+      next()
+    }
+  })
+}
 
 mongoose.connect(
   db,
@@ -24,10 +47,8 @@ mongoose.connect(
   console.log('Mongodb error', err)
 })
 
-const app = express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(morgan('dev'))
 app.use(cookiesMiddleware())
 
 app.use((req, res, next) => {
@@ -59,6 +80,6 @@ app.get('*', async (req, res, next) => {
   }).catch(next)
 })
 
-app.listen(PORT, () => {
-  console.log(`Server is listening on port:${PORT}`)
+app.listen(port, () => {
+  console.log(`Server is listening on port:${port}`)
 })

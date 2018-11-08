@@ -26,7 +26,7 @@ export class Nav extends React.Component {
   static propTypes = {
     isAuthenticated: PropTypes.bool,
     resetItemsAction: PropTypes.func,
-    resetPageAction: PropTypes.func,
+    // resetPageAction: PropTypes.func,
     location: PropTypes.object
   }
 
@@ -74,11 +74,11 @@ export class Nav extends React.Component {
     const linkIsActive = this.linkIsActive(param)
 
     if (!linkIsActive) {
-      if (param === 'info') {
-        this.props.resetPageAction()
-      } else {
-        this.props.resetItemsAction()
-      }
+      // if (param === 'info') {
+      //   this.props.resetPageAction()
+      // } else {
+      this.props.resetItemsAction()
+      // }
     }
   }
 

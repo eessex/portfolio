@@ -3,12 +3,14 @@ import { stripTags, truncate } from 'underscore.string'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Helmet } from 'react-helmet'
+import * as url from 'url'
 
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import { NotFound } from 'client/components/NotFound'
 import { Loading } from 'client/components/layout/components/loading'
 import { Item as ViewItem } from 'client/components/item'
 import * as itemActions from 'client/actions/item'
+const { BASE_URL } = process.env
 
 const prettyDescription = html => {
   return truncate(stripTags(html), 150)
@@ -27,7 +29,7 @@ const getMetaData = (meta, item = {}) => {
 export class Item extends Component {
   static propTypes = {
     error: PropTypes.object,
-    // fetchItemsAction: PropTypes.func,
+    fetchItemAction: PropTypes.func,
     isAuthenticated: PropTypes.any,
     item: PropTypes.object,
     loading: PropTypes.bool,
@@ -56,7 +58,7 @@ export class Item extends Component {
   componentWillMount () {
     const { item, loading } = this.props
 
-    if ((!item || item._id) && !loading) {
+    if ((!item || !Object.keys(item).length) && !loading) {
       this.fetchItem()
     }
   }
@@ -68,30 +70,39 @@ export class Item extends Component {
   }
 
   componentWillUpdate (prevProps) {
-    const { match: { path } } = this.props
+    const { item, loading } = this.props
+    const prevSlug = url.parse(BASE_URL + prevProps.match.url).href.split('/').pop()
 
-    if (prevProps.match.path !== path) {
+    if ((prevSlug !== item.slug) && !loading) {
       this.fetchItem()
     }
   }
 
   fetchItem = () => {
-    // const { fetchItemAction, match: { path }, model } = this.props
-    // const formattedPath = path === '/releases' ? '/publications' : path
-    // fetchItemAction(model, formattedPath)
+    const { item, fetchItemAction, match: { path }, model } = this.props
+    let param = item._id
+    let formattedModel = path === '/releases' ? '/publications' : path
+
+    if (model === 'pages') {
+      formattedModel = '/pages'
+      param = path
+    }
+
+    fetchItemAction(formattedModel, param)
   }
 
   getApp = (item, metaData) => {
     const { model } = this.props
     const { isEditing } = this.state
-    const formattedLabel = model === 'publications' ? 'Release' : model
+    const isPage = model === 'pages'
+    const formattedLabel = model === 'publications' ? 'Release' : isPage ? 'Info' : model
 
     switch (model) {
       default: {
         return (
           <React.Fragment>
             <Helmet
-              title={item.title}
+              title={!isPage ? item.title : undefined}
               meta={getMetaData(metaData, item)}
             />
             <ViewItem

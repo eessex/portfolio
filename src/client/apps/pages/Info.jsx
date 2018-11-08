@@ -1,33 +1,26 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { EmbedList } from 'client/components/embeds/embed_list'
-import { Image } from 'client/components/image/image'
-import { LayoutColumn } from 'client/components/layout/column'
 // import { Social } from 'client/components/social/social_list'
-import { Description } from 'client/components/layout/components/description'
+import { Item as ViewItem } from 'client/components/item'
 
 export const Info = props => {
-  const { description, embed_codes, images } = props.page
-  const cover_image = images && images[0]
+  const { page } = props
+  // const cover_image = images && images[0]
 
   return (
-    <LayoutColumn label='Info'>
-      {cover_image &&
-        <Image {...cover_image} />
-      }
-
-      <Description description={description} />
-
-      {/* <SocialContainer>
-        <Social social={social} />
-      </SocialContainer> */}
-
-      {embed_codes &&
-        <EmbedList embed_codes={embed_codes} />
-      }
-
-    </LayoutColumn>
+    <React.Fragment>
+      <ViewItem
+        item={page}
+        label={page.title}
+        labelLink
+        model='page'
+        editing={false}
+      />
+    </React.Fragment>
+    //   {/* <SocialContainer>
+    //     <Social social={social} />
+    //   </SocialContainer> */}
   )
 }
 

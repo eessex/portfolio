@@ -1,4 +1,3 @@
-// process.env.NODE_ENV = 'test'
 import * as itemActions from '../item'
 import * as types from '../index'
 import { UpcomingEvent } from '../../tests/fixtures/events'

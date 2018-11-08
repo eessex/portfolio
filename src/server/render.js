@@ -26,11 +26,13 @@ export const ServerRender = (req, store, context) => {
 
   return `
     <!DOCTYPE html>
-    <html>
+    <html lang="en-us">
       <head>
         ${head.title}
         ${head.meta}
         ${styles}
+
+        <meta name="viewport" content="width=device-width, initial-scale=1"> 
         <link
           rel="stylesheet"
           type="text/css"

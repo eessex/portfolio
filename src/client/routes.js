@@ -51,10 +51,11 @@ export const routes = [
   },
   {
     path: '/info',
-    component: Page,
+    component: Item,
     title: 'Info',
+    model: 'pages',
     fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchPage(path))
+      return store.dispatch(fetchItem('/pages', path.split('/').pop(), getQuery(store)))
     }
   },
   {

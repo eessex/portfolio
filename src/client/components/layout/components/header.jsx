@@ -36,7 +36,7 @@ export const ItemHeader = props => {
   const date = !isPublication && getDate(model, item)
 
   return (
-    <ItemHeaderContainer>
+    <ItemHeaderContainer model={model}>
       {label &&
         <Label
           label={label}
@@ -53,14 +53,15 @@ export const ItemHeader = props => {
           />
         </H1>
       }
-      <H1>
-        <Text
-          onChange={setEditing ? (value) => onChange('title', value) : undefined}
-          placeholder='Add Title'
-          text={title}
-        />
-      </H1>
-
+      {model !== 'pages' &&
+        <H1>
+          <Text
+            onChange={setEditing ? (value) => onChange('title', value) : undefined}
+            placeholder='Add Title'
+            text={title}
+          />
+        </H1>
+      }
       {date &&
         <H4 onClick={setEditing ? () => setEditing('dates') : undefined}>
           {date}
@@ -127,10 +128,11 @@ const ItemHeaderContainer = styled.div`
   ${H4} {
     margin-bottom: .5em;
   }
-
-  ${ImageContainer} {
-    margin-top: 2em;
-  }
+  ${props => props.model !== 'pages' && `
+    ${ImageContainer} {
+      margin-top: 2em;
+    }
+  `}
 
   ${VenueContainer}: {
     margin-bottom: 1em;

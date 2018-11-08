@@ -78,7 +78,7 @@ export class Page extends Component {
     const { data } = this.state
     const { error } = this.props
     const page = data && data || this.props.page
-
+    debugger
     if (!page || (page && !page._id) || this.props.loading) {
       return <Loading />
     } else {

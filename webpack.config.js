@@ -1,5 +1,6 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+var Dotenv = require('dotenv-webpack')
 require('webpack')
 
 module.exports = {
@@ -47,6 +48,9 @@ module.exports = {
       filename: './dist/index.html',
       title: 'Eve Essex',
       template: './src/client/index.html'
+    }),
+    new Dotenv({
+      path: './.env'
     })
   ]
 }

@@ -6,7 +6,10 @@ import {
 
 const initialState = {
   loading: false,
-  isAuthenticated: false
+  isAuthenticated: false,
+  currentUser: null,
+  session: null,
+  error: null
 }
 
 const userReducer = (state = initialState, action) => {
@@ -37,24 +40,31 @@ const userReducer = (state = initialState, action) => {
       })
 
     case LOGIN_USER.SUCCESS:
+      const { currentUser, session } = action.payload
+
       return Object.assign({}, state, {
         loading: false,
         isAuthenticated: true,
-        error: null
+        error: null,
+        currentUser,
+        session
       })
 
     case LOGIN_USER.ERROR:
       return Object.assign({}, state, {
         loading: false,
         isAuthenticated: false,
-        error: action.payload.data.error
+        error: action.payload.data.error,
+        currentUser: null,
+        session: null
       })
 
     case LOGOUT_USER:
       return Object.assign({}, state, {
         loading: false,
         isAuthenticated: false,
-        error: null
+        error: null,
+        currentUser: undefined
       })
 
     default:

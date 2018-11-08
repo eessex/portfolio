@@ -55,6 +55,11 @@ app.use((req, res, next) => {
   next()
 })
 
+app.use('/robots.txt', function (_req, res, _next) {
+  res.type('text/plain')
+  res.send('')
+})
+
 app.use(cors())
 app.use(express.static('public'))
 app.use('/api', require('./api'))

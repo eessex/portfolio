@@ -2,6 +2,7 @@ var path = require('path')
 var webpack = require('webpack')
 var nodeExternals = require('webpack-node-externals')
 var Dotenv = require('dotenv-webpack')
+var NODE_ENV = process.env.NODE_ENV
 
 var browserConfig = {
   entry: ['babel-polyfill', './src/client/index.js'],
@@ -28,6 +29,9 @@ var browserConfig = {
     }),
     new Dotenv({
       path: './.env'
+    }),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': `${NODE_ENV}`
     })
   ],
   resolve: {
@@ -69,6 +73,9 @@ var serverConfig = {
     }),
     new Dotenv({
       path: './.env'
+    }),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': `${NODE_ENV}`
     })
   ],
   resolve: {

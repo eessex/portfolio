@@ -1,7 +1,8 @@
 import axios from 'axios'
-const BASE_URL = location.href.indexOf('localhost') > 0
-  ? 'http://localhost:3000/api'
-  : `${window.location.origin}/api`
+import Cookies from 'universal-cookie'
+
+const { API_URL } = process.env
+const cookies = new Cookies()
 
 const apiMiddleware = ({ dispatch }) => next => action => {
   if (action.type !== 'API') {
@@ -20,18 +21,23 @@ const apiMiddleware = ({ dispatch }) => next => action => {
     if (action.payload.next.SUCCESS === 'CREATE_ITEM_SUCCESS') {
       const { _id } = res.data.data
       // redirect to new item
-      window.location.pathname = `${url}/${_id}`
+      const formattedUrl = url === '/publications' ? '/releases' : url
+      window.location.pathname = `${formattedUrl}/${_id}`
     }
 
     if (action.payload.next.SUCCESS === 'DELETE_ITEM_SUCCESS') {
       let redirect = url.split('/')[1]
+      const formattedUrl = redirect === 'publications' ? 'releases' : redirect
+
       // redirect to items list
-      window.location.pathname = `/${redirect}`
+      window.location.pathname = `/${formattedUrl}`
     }
 
     if (action.payload.next.SUCCESS === 'LOGIN_USER_SUCCESS') {
+      cookies.set('portfolio.session', res.data.session, { maxAge: 2592000 })
       window.location.pathname = ''
     }
+
     if (action.payload.next.SUCCESS === 'FETCH_UPLOAD_SUCCESS') {
       action.payload.cb(action.payload.file, res)
     }
@@ -48,28 +54,28 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   const { data, method, query, url } = action.payload
 
   if (method === 'get') {
-    axios.get(BASE_URL + url, {params: query})
+    axios.get(API_URL + url, {params: query})
       .then(handleResponse)
       .catch(error =>
         handleError(error)
       )
   }
   if (method === ('post')) {
-    axios.post(BASE_URL + url, data)
+    axios.post(API_URL + url, data)
       .then(handleResponse)
       .catch(error =>
         handleError(error)
       )
   }
   if (method === ('put')) {
-    axios.put(BASE_URL + url, data)
+    axios.put(API_URL + url, data)
       .then(handleResponse)
       .catch(error =>
         handleError(error)
       )
   }
   if (method === ('delete')) {
-    axios.delete(BASE_URL + url, data)
+    axios.delete(API_URL + url, data)
       .then(handleResponse)
       .catch(error =>
         handleError(error)

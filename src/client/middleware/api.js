@@ -11,7 +11,6 @@ const apiMiddleware = ({ dispatch }) => next => action => {
 
   const handleResponse = res => {
     const { model, url } = action.payload
-
     dispatch({
       type: action.payload.next.SUCCESS,
       payload: res.data,

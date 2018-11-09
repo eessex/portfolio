@@ -13,8 +13,6 @@ export const initialState = {
 }
 
 export const userReducer = (state = initialState, action) => {
-  const { currentUser, session } = action.payload
-
   switch (action.type) {
     case CREATE_USER.PENDING:
       return Object.assign({}, state, {
@@ -26,15 +24,15 @@ export const userReducer = (state = initialState, action) => {
         loading: false,
         isAuthenticated: true,
         error: null,
-        currentUser,
-        session
+        currentUser: action.payload.currentUser,
+        session: action.payload.session
       })
 
     case CREATE_USER.ERROR:
       return Object.assign({}, state, {
         loading: false,
         isAuthenticated: false,
-        error: action.payload.data.error
+        error: action.payload.error
       })
 
     case LOGIN_USER.PENDING:
@@ -48,15 +46,15 @@ export const userReducer = (state = initialState, action) => {
         loading: false,
         isAuthenticated: true,
         error: null,
-        currentUser,
-        session
+        currentUser: action.payload.currentUser,
+        session: action.payload.session
       })
 
     case LOGIN_USER.ERROR:
       return Object.assign({}, state, {
         loading: false,
         isAuthenticated: false,
-        error: action.payload.data.error,
+        error: action.payload.error,
         currentUser: null,
         session: null
       })

@@ -12,9 +12,17 @@ users.route('/')
       if (err) {
         return res.status(400).send(err)
       }
-      res.json({ message: 'User created', user })
+      const { email, _id } = user
+      const session = jwt.sign({ email, _id }, 'secret', { expiresIn: '30d' })
+
+      res.json({
+        message: 'User created',
+        currentUser: { email, _id },
+        session
+      })
     })
   })
+
   // all users
   .get((req, res) => {
     User.find(

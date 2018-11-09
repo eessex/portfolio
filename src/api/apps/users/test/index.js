@@ -4,17 +4,16 @@ var User = require('../schema')
 var chai = require('chai')
 var chaiHttp = require('chai-http')
 var server = require('../../../../../server')
-var should = chai.should()
-var moment = require('moment')
 require('mongoose')
 
+chai.should()
 chai.use(chaiHttp)
 
 describe('Users', () => {
   afterEach(done => {
     User.remove({}, (err) => {
       if (err) {
-        console.log(err)
+        console.error(err.status)
       }
       done()
     })
@@ -24,7 +23,7 @@ describe('Users', () => {
     it('it should GET all the users', done => {
       chai.request(server).get('/api/users').end((err, res) => {
         if (err) {
-          console.log(err)
+          console.error(err.status)
         }
         res.should.have.status(200)
         res.body.should.be.a('array')
@@ -44,13 +43,14 @@ describe('Users', () => {
       }
       chai.request(server).post('/api/users').send(user).end((err, res) => {
         if (err) {
-          console.log(err)
+          console.error(err.status)
         }
         res.should.have.status(200)
         res.body.should.be.a('object')
-        res.body.user.name_first.should.eql('Dolly')
-        res.body.user.password.should.not.eql('asdf123')
-        // res.body.user.password.should.be > 7
+        res.body.message.should.eql('User created')
+        res.body.currentUser.email.should.eql('user@email.com')
+        res.body.currentUser._id.should.be.a('string')
+        res.body.session.should.be.a('string')
         done()
       })
     })
@@ -64,7 +64,7 @@ describe('Users', () => {
       }
       chai.request(server).post('/api/users').send(user).end((err, res) => {
         if (err) {
-          console.log(err)
+          console.error(err.status)
         }
         var duplicateUser = {
           name_first: 'Jonny',
@@ -74,31 +74,11 @@ describe('Users', () => {
         }
         chai.request(server).post('/api/users').send(duplicateUser).end((err, res) => {
           if (err) {
-            // console.log(err)
+            console.error(err.status)
           }
           res.should.have.status(400)
           done()
         })
-      })
-    })
-
-    it('adds an updated_at and created_at field by default', done => {
-      var user = {
-        name_first: 'Dolly',
-        name_last: 'Parton',
-        email: 'user@email.com',
-        password: 'asdf123'
-      }
-      chai.request(server).post('/api/users').send(user).end((err, res) => {
-        if (err) {
-          console.log(err)
-        }
-        var date = moment().format('YYYY-MM-DD')
-        var created_at = moment(res.body.user.created_at).format('YYYY-MM-DD')
-        var updated_at = moment(res.body.user.updated_at).format('YYYY-MM-DD')
-        created_at.should.eql(date)
-        updated_at.should.eql(date)
-        done()
       })
     })
   })
@@ -113,7 +93,7 @@ describe('Users', () => {
       })
       user.save((err, user) => {
         if (err) {
-          console.log(err)
+          console.error(err.status)
         }
         chai.request(server).post(
           '/api/users/session/create'
@@ -122,7 +102,7 @@ describe('Users', () => {
           password: 'asdf123'
         }).end((err, res) => {
           if (err) {
-            console.log(err)
+            console.error(err.status)
           }
           res.should.have.status(200)
           res.body.should.be.a('object')
@@ -146,11 +126,11 @@ describe('Users', () => {
 
       user.save((err, user) => {
         if (err) {
-          console.log(err)
+          console.error(err.status)
         }
         chai.request(server).get('/api/users/' + user.id).send(user).end((err, res) => {
           if (err) {
-            console.log(err)
+            console.error(err.status)
           }
           res.should.have.status(200)
           res.body.should.be.a('object')
@@ -172,13 +152,13 @@ describe('Users', () => {
       })
       user.save((err, user) => {
         if (err) {
-          console.log(err)
+          console.error(err.status)
         }
         chai.request(server).put('/api/users/' + user.id).send(
           {name_first: 'Dottie'}
         ).end((err, res) => {
           if (err) {
-            console.log(err)
+            console.error(err.status)
           }
           res.should.have.status(200)
           res.body.should.be.a('object')
@@ -200,11 +180,11 @@ describe('Users', () => {
       })
       user.save((err, user) => {
         if (err) {
-          console.log(err)
+          console.error(err.status)
         }
         chai.request(server).delete('/api/users/' + user.id).end((err, res) => {
           if (err) {
-            console.log(err)
+            console.error(err.status)
           }
           res.should.have.status(200)
           res.body.should.be.a('object')

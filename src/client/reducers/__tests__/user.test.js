@@ -51,7 +51,7 @@ describe('userReducer', () => {
 
     it('CREATE_USER.ERROR', () => {
       action.type = 'CREATE_USER_ERROR'
-      action.payload.data = { error: userError }
+      action.payload = { error: userError }
       const newState = userReducer(state, action)
 
       expect(newState.error).toBe(userError)
@@ -89,7 +89,7 @@ describe('userReducer', () => {
 
     it('LOGIN_USER.ERROR', () => {
       action.type = 'LOGIN_USER_ERROR'
-      action.payload.data = { error: userError }
+      action.payload = { error: userError }
       const newState = userReducer(state, action)
 
       expect(newState.error).toBe(userError)

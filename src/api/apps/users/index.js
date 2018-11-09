@@ -1,7 +1,7 @@
 var express = require('express')
 var users = express.Router()
 var User = require('./schema')
-
+var jwt = require('jsonwebtoken')
 // for /api/users/
 
 users.route('/')
@@ -12,9 +12,17 @@ users.route('/')
       if (err) {
         return res.status(400).send(err)
       }
-      res.json({ message: 'User created', user })
+      const { email, _id } = user
+      const session = jwt.sign({ email, _id }, 'secret', { expiresIn: '30d' })
+
+      res.json({
+        message: 'User created',
+        currentUser: { email, _id },
+        session
+      })
     })
   })
+
   // all users
   .get((req, res) => {
     User.find(
@@ -40,9 +48,12 @@ users.route('/session/create')
           if (!isMatch || err) {
             return res.send(400, { error: (err || 'Incorrect password') })
           }
-          console.log('successful log in')
-          // sets user authenticated in store
-          return res.json(user)
+          const { email, _id } = user
+          const session = jwt.sign({ email, _id }, 'secret', { expiresIn: '30d' })
+          return res.json({
+            currentUser: { email, _id },
+            session
+          })
         })
       }
     })

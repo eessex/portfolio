@@ -4,6 +4,8 @@ import {
   LOGIN_USER,
   LOGOUT_USER
 } from '../actions'
+import Cookies from 'universal-cookie'
+const cookies = new Cookies()
 
 export const createUser = creds => {
   return {
@@ -30,6 +32,7 @@ export const loginUser = creds => {
 }
 
 export const logoutUser = () => {
+  cookies.remove('portfolio.session')
   return {
     type: LOGOUT_USER
   }

@@ -4,7 +4,7 @@ import {
   LOGOUT_USER
 } from '../actions'
 
-const initialState = {
+export const initialState = {
   loading: false,
   isAuthenticated: false,
   currentUser: null,
@@ -12,18 +12,22 @@ const initialState = {
   error: null
 }
 
-const userReducer = (state = initialState, action) => {
+export const userReducer = (state = initialState, action) => {
+  const { currentUser, session } = action.payload
+
   switch (action.type) {
     case CREATE_USER.PENDING:
       return Object.assign({}, state, {
-        loading: false
+        loading: true
       })
 
     case CREATE_USER.SUCCESS:
       return Object.assign({}, state, {
         loading: false,
         isAuthenticated: true,
-        error: null
+        error: null,
+        currentUser,
+        session
       })
 
     case CREATE_USER.ERROR:
@@ -40,8 +44,6 @@ const userReducer = (state = initialState, action) => {
       })
 
     case LOGIN_USER.SUCCESS:
-      const { currentUser, session } = action.payload
-
       return Object.assign({}, state, {
         loading: false,
         isAuthenticated: true,
@@ -64,7 +66,8 @@ const userReducer = (state = initialState, action) => {
         loading: false,
         isAuthenticated: false,
         error: null,
-        currentUser: undefined
+        currentUser: null,
+        session: null
       })
 
     default:

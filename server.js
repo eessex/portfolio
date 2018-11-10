@@ -1,3 +1,4 @@
+var cors = require('cors')
 var express = require('express')
 var path = require('path')
 var bodyParser = require('body-parser')
@@ -32,6 +33,7 @@ if (NODE_ENV === 'production') {
     }
   })
 }
+app.use(cors())
 
 app.use(function (req, res, next) {
   next()

@@ -97,7 +97,7 @@ export default withRouter(
   )(AdminNav)
 )
 
-const AdminNavContainer = styled.div`
+export const AdminNavContainer = styled.div`
   a {
     cursor: pointer;
     padding-left: 15px;

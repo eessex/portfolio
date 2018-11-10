@@ -48,6 +48,10 @@ export class App extends Component {
 const Main = styled.main`
   padding-top: 2.5em;
   height: calc(100vh - 2.5em - 65px);
+
+  @media (max-width: 46rem) {
+    height: calc(100vh - 2.5em - 100px);
+  }
 `
 
 const Content = styled.div`
@@ -59,6 +63,10 @@ const Content = styled.div`
     color: black;
     &:hover {
       color: #ddd;
+    }
+    &:hover, &:active, &:focus {
+      outline: none;
+      border: 0;
     }
   }
 `

@@ -96,7 +96,7 @@ export class Item extends Component {
     const { isEditing } = this.state
     const isPage = model === 'pages'
     const formattedLabel = model === 'publications' ? 'Release' : isPage ? 'Info' : model
-    const socialLinks = metaData && metaData.about && metaData.about.social
+    const socialLinks = metaData && metaData.social
 
     switch (model) {
       default: {

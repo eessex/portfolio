@@ -21,6 +21,7 @@ export const Home = props => {
 
 const HomeContainer = styled(ColumnContainer)`
   align-items: flex-end;
+  align-self: flex-end;
   height: 100%;
   margin: 0;
   text-shadow: 0.015em 0.015em 0.05em #fff;
@@ -34,6 +35,9 @@ const PageBackground = styled.div`
     background-position: center;
     background-size: cover;
     opacity: .45;
+    @media (max-width: 46rem) {
+      background-position: right;
+    }
   `}
   position: fixed;
   top: 0;
@@ -47,6 +51,11 @@ const PageDescription = styled.div`
   max-width: 70%;
   font-size: 1.85em;
   line-height: 1.25em;
+
+  @media (max-width: 46rem) {
+    max-width: 85%;
+    font-size: 1.65em;
+  }
 `
 
 Home.propTypes = {

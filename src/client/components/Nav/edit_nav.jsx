@@ -70,6 +70,9 @@ export const Nav = styled.nav`
     margin-left: .5em;
     width: 7.5em;
   }
+  @media (max-width: 46rem) {
+    display: none;
+  }
 `
 
 const ModalNav = styled.div`

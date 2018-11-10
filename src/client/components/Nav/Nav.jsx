@@ -10,7 +10,7 @@ import { NavLink } from 'react-router-dom'
 
 import { resetItems } from 'client/actions/items'
 import { resetPage } from 'client/actions/page'
-import AdminNav from './AdminNav'
+import AdminNav, { AdminNavContainer } from './AdminNav'
 import { H1 } from 'client/styles/text'
 
 const { PAGE_TITLE } = process.env
@@ -187,6 +187,7 @@ const NavContainer = styled.div`
     line-height: 1em;
     text-transform: uppercase;
     letter-spacing: .075em;
+    padding-right: 15px;
   }
 
   ${props => props.navOpen && `
@@ -198,6 +199,16 @@ const NavContainer = styled.div`
     z-index: 10;
     border-bottom: 1px solid #ddd;
   `}
+
+  @media (max-width: 46rem) {
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
+
+    ${AdminNavContainer} {
+      display: none;
+    }
+  }
 `
 
 const MainMenu = styled.div`
@@ -218,7 +229,10 @@ const NavItems = styled.div`
 `
 
 const NavItem = styled.div`
-  padding-left: 15px;
+  padding-right: 15px;
+  &:last-child {
+    padding-right: 0;
+  }
 
   ${props => props.linkIsActive && `
     a {

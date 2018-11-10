@@ -22,7 +22,7 @@
     "bcrypt": "^1.0.2",
     "body-parser": "^1.17.2",
     "connected-react-router": "^4.5.0",
-    "cors": "^2.8.4",
+    "cors": "^2.8.5",
     "dotenv": "^4.0.0",
     "draft-convert": "^2.0.0",
     "draft-js": "^0.10.4",

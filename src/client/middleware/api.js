@@ -11,7 +11,6 @@ const apiMiddleware = ({ dispatch }) => next => action => {
 
   const handleResponse = res => {
     const { model, url } = action.payload
-
     dispatch({
       type: action.payload.next.SUCCESS,
       payload: res.data,
@@ -44,7 +43,7 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   }
 
   const handleError = error => {
-    console.log(error)
+    console.error(error)
     dispatch({
       type: action.payload.next.ERROR,
       payload: error.response
@@ -52,30 +51,30 @@ const apiMiddleware = ({ dispatch }) => next => action => {
   }
 
   const { data, method, query, url } = action.payload
-
+  const apiUrl = `${API_URL}${url}`
   if (method === 'get') {
-    axios.get(API_URL + url, {params: query})
+    axios.get(apiUrl, {params: query})
       .then(handleResponse)
       .catch(error =>
         handleError(error)
       )
   }
   if (method === ('post')) {
-    axios.post(API_URL + url, data)
+    axios.post(apiUrl, data)
       .then(handleResponse)
       .catch(error =>
         handleError(error)
       )
   }
   if (method === ('put')) {
-    axios.put(API_URL + url, data)
+    axios.put(apiUrl, data)
       .then(handleResponse)
       .catch(error =>
         handleError(error)
       )
   }
   if (method === ('delete')) {
-    axios.delete(API_URL + url, data)
+    axios.delete(apiUrl, data)
       .then(handleResponse)
       .catch(error =>
         handleError(error)

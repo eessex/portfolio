@@ -4,3 +4,7 @@ const Enzyme = require('enzyme')
 Enzyme.configure({
   adapter: new Adapter()
 })
+
+require('dotenv').config({
+  path: require('path').join(process.cwd(), '.env.example')
+})

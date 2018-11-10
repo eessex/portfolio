@@ -23,14 +23,14 @@ export class App extends Component {
                   <Route key={path} path={path} exact={exact} render={
                     props => {
                       return (
-                        <div>
+                        <React.Fragment>
                           <Helmet
                             titleTemplate={`%s | ${title || PAGE_TITLE}`}
                             defaultTitle={PAGE_TITLE}
                             title={PAGE_TITLE}
                           />
                           <Component {...props} {...rest} />
-                        </div>
+                        </React.Fragment>
                       )
                     }
                   } />
@@ -47,6 +47,7 @@ export class App extends Component {
 
 const Main = styled.main`
   padding-top: 2.5em;
+  height: calc(100vh - 2.5em - 65px);
 `
 
 const Content = styled.div`

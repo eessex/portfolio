@@ -8,23 +8,32 @@ export const Home = props => {
   const backgroundImg = images && images[0] && images[0].url
 
   return (
-    <ColumnContainer>
+    <HomeContainer>
       {backgroundImg &&
         <PageBackground backgroundImg={backgroundImg} />
       }
       {description &&
         <PageDescription dangerouslySetInnerHTML={{__html: description}} />
       }
-    </ColumnContainer>
+    </HomeContainer>
   )
 }
 
+const HomeContainer = styled(ColumnContainer)`
+  align-items: flex-end;
+  height: 100%;
+  margin: 0;
+  text-shadow: 0.015em 0.015em 0.05em #fff;
+`
+
 const PageBackground = styled.div`
-  background-color: orange;
+  background-color: silver;
   ${props => props.backgroundImg && `
+    background-color: white;
     background: url(${props.backgroundImg});
     background-position: center;
     background-size: cover;
+    opacity: .45;
   `}
   position: fixed;
   top: 0;
@@ -35,9 +44,9 @@ const PageBackground = styled.div`
 `
 
 const PageDescription = styled.div`
-  max-width: 500px;
-  font-size: 2em;
-  line-height: 1.15em;
+  max-width: 70%;
+  font-size: 1.85em;
+  line-height: 1.25em;
 `
 
 Home.propTypes = {

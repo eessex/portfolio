@@ -123,12 +123,16 @@ const ItemHeaderContainer = styled.div`
     .public-DraftEditorPlaceholder-root {
       padding: 0;
     }
+    ${props => props.model === 'projects' && `
+      font-size: 3em;
+    `}
   }
 
   ${H4} {
     margin-bottom: .5em;
   }
-  ${props => props.model !== 'pages' && `
+
+  ${props => props.model !== 'pages' && props.model !== 'projects' && `
     ${ImageContainer} {
       margin-top: 2em;
     }

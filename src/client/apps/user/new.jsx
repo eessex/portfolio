@@ -93,10 +93,10 @@ export class NewUser extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  error: state.user.error,
-  loading: state.user.loading,
-  isAuthenticated: state.user.isAuthenticated
+const mapStateToProps = ({ userReducer }) => ({
+  error: userReducer.error,
+  loading: userReducer.loading,
+  isAuthenticated: userReducer.isAuthenticated
 })
 
 const mapDispatchToProps = {

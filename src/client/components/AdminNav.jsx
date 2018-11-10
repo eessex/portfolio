@@ -77,8 +77,8 @@ export class AdminNav extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
-  isAuthenticated: state.user.isAuthenticated
+const mapStateToProps = ({ userReducer }) => ({
+  isAuthenticated: userReducer.isAuthenticated
 })
 
 const mapDispatchToProps = {

@@ -9,7 +9,7 @@ import Login from 'client/apps/user/login'
 const { HOMEPAGE_ENABLED } = process.env
 
 const getQuery = store => {
-  if (!store.getState().user.isAuthenticated) {
+  if (!store.getState().userReducer.isAuthenticated) {
     return { published: true }
   }
   return {}

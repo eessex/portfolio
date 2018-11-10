@@ -40,7 +40,7 @@ export default ({ entry, session }) => {
   )
 
   const initialState = !isServer ? window.__INITIAL_DATA__ : {
-    user: {
+    userReducer: {
       isAuthenticated: session && true,
       session
     }

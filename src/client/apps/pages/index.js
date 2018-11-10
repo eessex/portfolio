@@ -43,11 +43,11 @@ class Pages extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  isAuthenticated: state.user.isAuthenticated,
-  loading: state.settings.loading,
-  saving: state.settings.saving,
-  settings: state.settings.settings
+const mapStateToProps = ({ userReducer, settingsReducer }) => ({
+  isAuthenticated: userReducer.isAuthenticated,
+  loading: settingsReducer.loading,
+  saving: settingsReducer.saving,
+  settings: settingsReducer.settings
 })
 
 const mapDispatchToProps = (dispatch) => ({

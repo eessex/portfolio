@@ -108,11 +108,11 @@ export class Items extends Component {
   }
 }
 
-const mapStateToProps = ({ itemsReducer, user }) => ({
+const mapStateToProps = ({ itemsReducer, userReducer }) => ({
   error: itemsReducer.error,
   items: itemsReducer.list,
   loading: itemsReducer.loading,
-  isAuthenticated: user.isAuthenticated
+  isAuthenticated: userReducer.isAuthenticated
 })
 
 const mapDispatchToProps = ({

@@ -6,7 +6,7 @@ import { Route, Switch } from 'react-router-dom'
 import { theme } from 'client/styles/theme.jsx'
 import { routes } from 'client/routes'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
-import Nav from 'client/components/Nav'
+import Nav from 'client/components/Nav/Nav'
 import { NotFound } from 'client/components/NotFound'
 const { PAGE_TITLE } = process.env
 

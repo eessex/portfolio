@@ -10,7 +10,7 @@ import { NavLink } from 'react-router-dom'
 
 import { resetItems } from 'client/actions/items'
 import { resetPage } from 'client/actions/page'
-import AdminNav from 'client/components/AdminNav'
+import AdminNav from './AdminNav'
 import { H1 } from 'client/styles/text'
 
 const { PAGE_TITLE } = process.env
@@ -74,11 +74,7 @@ export class Nav extends React.Component {
     const linkIsActive = this.linkIsActive(param)
 
     if (!linkIsActive) {
-      // if (param === 'info') {
-      //   this.props.resetPageAction()
-      // } else {
       this.props.resetItemsAction()
-      // }
     }
   }
 

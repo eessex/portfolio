@@ -1,7 +1,5 @@
 import { clone } from 'lodash'
-import {
-  CREATE_ITEM
-} from '../actions'
+import { CREATE_ITEM } from '../actions'
 
 import {
   FETCH_ITEMS_ERROR,

@@ -1,6 +1,5 @@
 import {
   API,
-  // FETCH_SETTINGS,
   CREATE_SETTINGS,
   UPDATE_SETTINGS,
   RESET_SETTINGS
@@ -47,17 +46,6 @@ export const fetchSettings = () => dispatch => {
       return null
     })
 }
-
-// export const fetchSettings = () => {
-//   return {
-//     type: API,
-//     payload: {
-//       method: 'get',
-//       url: '/settings',
-//       next: FETCH_SETTINGS
-//     }
-//   }
-// }
 
 export const fetchUpload = (file, data, cb) => {
   return getUploadSignature(file, data, cb)

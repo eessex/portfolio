@@ -67,7 +67,11 @@ export class AdminNav extends React.Component {
 
     return (
       <AdminNavContainer>
-        <Button text='New' icon='file' onClick={() => this.toggleNewItemMenu(true)} />
+        <Button
+          text='New'
+          icon='file'
+          onClick={() => this.toggleNewItemMenu(true)}
+        />
         <a onClick={logoutUserAction}>
           Logout
         </a>

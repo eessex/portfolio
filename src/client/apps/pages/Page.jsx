@@ -5,7 +5,6 @@ import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import * as pageActions from 'client/actions/page'
 import { Loading } from 'client/components/layout/components/loading'
 import { Home } from 'client/apps/Home/Home'
-import { Info } from './Info'
 
 export class Page extends Component {
   static propTypes = {
@@ -56,19 +55,9 @@ export class Page extends Component {
     const { match: { path } } = this.props
 
     switch (path) {
-      case '/': {
-        return (
-          <Home page={page} />
-        )
-      }
-      case '/info': {
-        return (
-          <Info page={page} />
-        )
-      }
       default: {
         return (
-          <Info page={page} />
+          <Home page={page} />
         )
       }
     }

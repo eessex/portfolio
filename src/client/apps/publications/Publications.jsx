@@ -28,8 +28,6 @@ export class Publications extends Component {
           sorted = filter(item.formats, { compilation: false, featuring: false })
         }
       }
-      // let isRelease = !item.formats.length && !compilation && !featured
-      // const isCompilation = filter(item.formats, { compilation: compilation })
 
       if (sorted.length) {
         releases.push(item)

@@ -1,7 +1,7 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 var Dotenv = require('dotenv-webpack')
-require('webpack')
+const webpack = require('webpack')
 
 module.exports = {
   entry: ['babel-polyfill', './src/client/index.js'],
@@ -50,7 +50,12 @@ module.exports = {
       template: './src/client/index.html'
     }),
     new Dotenv({
-      path: './.env'
+      path: path.resolve(__dirname, './.env'),
+      systemvars: true
+    }),
+    new webpack.DefinePlugin({
+      'process.env.API_URL': JSON.stringify(process.env.API_URL),
+      'process.env.PROCESS_ENV': JSON.stringify(process.env.PROCESS_ENV)
     })
   ]
 }

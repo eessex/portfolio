@@ -64,23 +64,23 @@ export class Publications extends Component {
             canToggle
           />
         }
-        {compilations.length > 0 &&
-          <Compilations>
-            <ItemsList
-              model='releases'
-              list={compilations}
-              label='Compilations'
-              layout='table'
-              canToggle
-            />
-          </Compilations>
-        }
         {featuring.length > 0 &&
           <Compilations>
             <ItemsList
               model='releases'
               list={featuring}
               label='Featured Artist'
+              layout='table'
+              canToggle
+            />
+          </Compilations>
+        }
+        {compilations.length > 0 &&
+          <Compilations>
+            <ItemsList
+              model='releases'
+              list={compilations}
+              label='Compilations'
               layout='table'
               canToggle
             />

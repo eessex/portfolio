@@ -96,6 +96,7 @@ export class Item extends Component {
     const { isEditing } = this.state
     const isPage = model === 'pages'
     const formattedLabel = model === 'publications' ? 'Release' : isPage ? 'Info' : model
+    const socialLinks = metaData && metaData.about && metaData.about.social
 
     switch (model) {
       default: {
@@ -111,6 +112,7 @@ export class Item extends Component {
               labelLink
               model={model}
               editing={isEditing}
+              social={isPage ? socialLinks : undefined}
             />
           </React.Fragment>
         )
@@ -138,12 +140,12 @@ export class Item extends Component {
   }
 }
 
-const mapStateToProps = ({ itemReducer, settingsReducer, user }) => ({
+const mapStateToProps = ({ itemReducer, settingsReducer, userReducer }) => ({
   error: itemReducer.error,
   item: itemReducer.item,
   loading: itemReducer.loading,
   settings: settingsReducer.settings,
-  isAuthenticated: user.isAuthenticated
+  isAuthenticated: userReducer.isAuthenticated
 })
 
 const mapDispatchToProps = ({

@@ -13,6 +13,7 @@ import UrlInput from './url_input.jsx'
 import { Button } from '../../forms/buttons/button.jsx'
 
 export class RichText extends Component {
+  static editor
   static propTypes = {
     html: PropTypes.string,
     name: PropTypes.string,
@@ -31,7 +32,7 @@ export class RichText extends Component {
       urlValue: ''
     }
 
-    this.focus = () => this.refs.editor.focus()
+    this.focus = () => this.editor.focus()
   }
 
   componentDidMount () {
@@ -77,7 +78,7 @@ export class RichText extends Component {
     return editorState
   }
 
-  onChange = (editorState) => {
+  onChange = editorState => {
     const currentContentState = this.state.editorState.getCurrentContent()
     const newContentState = editorState.getCurrentContent()
     const html = this.inputToHtml(editorState)
@@ -92,7 +93,7 @@ export class RichText extends Component {
     })
   }
 
-  onContentChange = (html) => {
+  onContentChange = html => {
     const { name, onChange } = this.props
 
     if (name) {
@@ -102,7 +103,7 @@ export class RichText extends Component {
     }
   }
 
-  handleKeyCommand = (command) => {
+  handleKeyCommand = command => {
     const newState = RichUtils.handleKeyCommand(
       this.state.editorState,
       command
@@ -139,7 +140,7 @@ export class RichText extends Component {
     }
   }
 
-  confirmLink = (url) => {
+  confirmLink = url => {
     const { editorState } = this.state
     const contentState = editorState.getCurrentContent()
     const contentStateWithEntity = contentState.createEntity(
@@ -162,7 +163,7 @@ export class RichText extends Component {
       showUrlInput: false,
       urlValue: ''
     }, () => {
-      setTimeout(() => this.refs.editor.focus(), 0)
+      setTimeout(() => this.editor.focus(), 0)
     })
   }
 
@@ -213,7 +214,9 @@ export class RichText extends Component {
           onKeyUp={this.checkSelection}
           onMouseUp={this.checkSelection}>
           <Editor
-            ref='editor'
+            ref={ref => {
+              this.editor = ref
+            }}
             placeholder={placeholder}
             editorState={editorState}
             handleKeyCommand={this.handleKeyCommand}

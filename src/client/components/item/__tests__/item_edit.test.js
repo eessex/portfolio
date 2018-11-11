@@ -2,7 +2,7 @@ import { mount } from 'enzyme'
 import configureStore from 'redux-mock-store'
 import { Provider } from 'react-redux'
 import React from 'react'
-import { EditNav } from '../../header/edit_nav.jsx'
+import { ItemAdminNav } from 'client/components/Nav/ItemAdminNav'
 import { ItemEdit } from '../item_edit.jsx'
 import { ItemEditModals } from '../item_edit_modals.jsx'
 import { LayoutColumn } from '../../layout/column.jsx'
@@ -38,9 +38,9 @@ describe('ItemEdit', () => {
     }
   })
 
-  it('Renders EditNav', () => {
+  it('Renders ItemAdminNav', () => {
     const component = getWrapper(props)
-    expect(component.find(EditNav).exists()).toBe(true)
+    expect(component.find(ItemAdminNav).exists()).toBe(true)
   })
 
   it('Renders ItemEditModals', () => {

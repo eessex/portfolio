@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import * as itemActions from 'client/actions/item'
 import { imageIsVertical } from 'client/utils'
-import { EditNav } from 'client/components/header/edit_nav'
+import { ItemAdminNav } from 'client/components/Nav/ItemAdminNav'
 import { LayoutColumn } from 'client/components/layout/column'
 import { LayoutGrid } from 'client/components/layout/grid'
 import ItemEditModals from './item_edit_modals'
@@ -47,7 +47,7 @@ export class ItemEdit extends Component {
 
     return (
       <div>
-        <EditNav
+        <ItemAdminNav
           deleteItem={() => deleteItem(model, item)}
           isSaved={isSaved}
           isSaving={isSaving}

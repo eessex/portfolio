@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Button } from '../../forms/buttons/button.jsx'
-import { Nav } from '../edit_nav.jsx'
+import { Nav } from 'client/components/Nav/ItemAdminNav'
 
 export class NewButton extends Component {
   static propTypes = {

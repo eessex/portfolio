@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { EditNav } from 'client/components/header/edit_nav'
+import { ItemAdminNav } from 'client/components/Nav/ItemAdminNav'
 import { EmbedList } from 'client/components/embeds/embed_list'
 import { EmbedModal } from 'client/components/embeds/embed_modal'
 import { ImagesEdit } from 'client/components/images/images_edit'
@@ -87,7 +87,7 @@ export class AboutEdit extends Component {
 
     return (
       <div>
-        <EditNav
+        <ItemAdminNav
           isSaved={isSaved}
           isSaving={saving}
           item={settings.about}

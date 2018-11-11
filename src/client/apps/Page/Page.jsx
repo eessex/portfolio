@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import * as pageActions from 'client/actions/page'
 import { Loading } from 'client/components/layout/components/loading'
-import { Home } from 'client/apps/Home/Home'
+import { Home } from 'client/apps/Page/Components/Home'
 
 export class Page extends Component {
   static propTypes = {

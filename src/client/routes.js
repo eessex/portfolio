@@ -3,7 +3,7 @@ import { fetchItems } from 'client/actions/items'
 import { fetchPage } from 'client/actions/page'
 import Item from 'client/apps/Item/Item'
 import Items from 'client/apps/Items/Items'
-import Page from 'client/apps/pages/Page'
+import Page from 'client/apps/Page/Page'
 import Login from 'client/apps/user/login'
 
 const { HOMEPAGE_ENABLED } = process.env

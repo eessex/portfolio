@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { ItemAdminNav } from 'client/components/Nav/ItemAdminNav'
+import { ItemAdminNav } from 'client/components/Nav/Components/ItemAdminNav'
 import { EmbedList } from 'client/components/embeds/embed_list'
 import { EmbedModal } from 'client/components/embeds/embed_modal'
 import { ImagesEdit } from 'client/components/images/images_edit'

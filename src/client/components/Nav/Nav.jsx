@@ -9,16 +9,15 @@ import Waypoint from 'react-waypoint'
 import { NavLink } from 'react-router-dom'
 
 import { resetItems } from 'client/actions/items'
-import { resetPage } from 'client/actions/page'
-import AdminNav, { AdminNavContainer } from './AdminNav'
+import AdminNav, { AdminNavContainer } from './Components/AdminNav'
 import { H1 } from 'client/styles/text'
 
 const { PAGE_TITLE } = process.env
 
 const links = [
   'events',
-  'projects',
   'releases',
+  'projects',
   'info'
 ]
 
@@ -26,7 +25,6 @@ export class Nav extends React.Component {
   static propTypes = {
     isAuthenticated: PropTypes.bool,
     resetItemsAction: PropTypes.func,
-    // resetPageAction: PropTypes.func,
     location: PropTypes.object
   }
 
@@ -160,8 +158,7 @@ const mapStateToProps = ({ userReducer }) => ({
 })
 
 const mapDispatchToProps = {
-  resetItemsAction: resetItems,
-  resetPageAction: resetPage
+  resetItemsAction: resetItems
 }
 
 export default withRouter(
@@ -171,7 +168,7 @@ export default withRouter(
   )(Nav)
 )
 
-const NavContainer = styled.div`
+export const NavContainer = styled.div`
   padding: 10px 20px;
   display: flex;
   align-items: center;

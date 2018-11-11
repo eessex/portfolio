@@ -1,28 +1,18 @@
 import { connect } from 'react-redux'
-import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import React from 'react'
 import { createItem } from 'client/actions/items'
-import { logoutUser } from 'client/actions/user'
 import { Button, ButtonContainer } from 'client/components/forms/buttons/button'
 import { H2, H3 } from 'client/styles/text'
 
-export class AdminNav extends React.Component {
+export class NewItemMenu extends React.Component {
   static propTypes = {
     createItemAction: PropTypes.func,
-    logoutUserAction: PropTypes.func
+    onClose: PropTypes.func
   }
 
-  state = {
-    menuIsOpen: false
-  }
-
-  toggleNewItemMenu = menuIsOpen => {
-    this.setState({ menuIsOpen })
-  }
-
-  newItem = async (model) => {
+  newItem = async model => {
     try {
       await this.props.createItemAction(model)
     } catch (err) {
@@ -30,9 +20,9 @@ export class AdminNav extends React.Component {
     }
   }
 
-  newItemMenu = () => {
+  render () {
     return (
-      <NewItemMenu>
+      <NewItemMenuContainer>
         <NewItemInner>
           <NewItemHeader>
             <H2>Create a new ...</H2>
@@ -56,55 +46,22 @@ export class AdminNav extends React.Component {
             </H3>
           </NewItemContainer>
         </NewItemInner>
-        <Button icon='times' borderless onClick={() => this.toggleNewItemMenu(false)} />
-      </NewItemMenu>
-    )
-  }
-
-  render () {
-    const { logoutUserAction } = this.props
-    const { menuIsOpen } = this.state
-
-    return (
-      <AdminNavContainer>
-        <Button
-          text='New'
-          icon='file'
-          onClick={() => this.toggleNewItemMenu(true)}
-        />
-        <a onClick={logoutUserAction}>
-          Logout
-        </a>
-        {menuIsOpen && this.newItemMenu()}
-      </AdminNavContainer>
+        <Button icon='times' borderless onClick={this.props.onClose} />
+      </NewItemMenuContainer>
     )
   }
 }
 
-const mapStateToProps = ({ userReducer }) => ({
-  isAuthenticated: userReducer.isAuthenticated
-})
-
 const mapDispatchToProps = {
-  logoutUserAction: logoutUser,
   createItemAction: createItem
 }
 
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(AdminNav)
-)
+export default connect(
+  () => ({}),
+  mapDispatchToProps
+)(NewItemMenu)
 
-export const AdminNavContainer = styled.div`
-  a {
-    cursor: pointer;
-    padding-left: 15px;
-  }
-`
-
-const NewItemMenu = styled.div`
+const NewItemMenuContainer = styled.div`
   position: fixed;
   left: 20px;
   right: 20px;

@@ -1,10 +1,10 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Button, ButtonContainer } from 'client/components/forms/buttons/button.jsx'
-import { SaveButton } from 'client/components/forms/buttons/save.jsx'
+import { Button, ButtonContainer } from 'client/components/forms/buttons/button'
+import { SaveButton } from 'client/components/forms/buttons/save'
 
-export const EditNav = props => {
+export const ItemAdminNav = props => {
   const {
     deleteItem,
     isSaved,
@@ -66,10 +66,12 @@ export const Nav = styled.nav`
   z-index: 100;
   align-items: center;
   display: flex;
+
   ${ButtonContainer} {
     margin-left: .5em;
     width: 7.5em;
   }
+
   @media (max-width: 46rem) {
     display: none;
   }
@@ -87,7 +89,7 @@ const ModalNav = styled.div`
   }
 `
 
-EditNav.propTypes = {
+ItemAdminNav.propTypes = {
   deleteItem: PropTypes.func,
   isSaved: PropTypes.bool,
   isSaving: PropTypes.bool,

@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import * as itemActions from 'client/actions/item'
 import { imageIsVertical } from 'client/utils'
-import { EditNav } from 'client/components/Nav/edit_nav'
+import { ItemAdminNav } from 'client/components/Nav/Components/ItemAdminNav'
 import { LayoutColumn } from 'client/components/layout/column'
 import { LayoutGrid } from 'client/components/layout/grid'
 import ItemEditModals from './item_edit_modals'
@@ -45,15 +45,16 @@ export class ItemEdit extends Component {
 
     return (
       <div>
-        <EditNav
-          deleteItem={() => deleteItem(model, item)}
+        <ItemAdminNav
+          deleteItem={model !== 'pages' ? () => deleteItem(model, item) : undefined}
           isSaved={isSaved}
           isSaving={isSaving}
           item={item}
           model={model}
           setEditing={this.setEditing}
-          onPublish={() => this.onChange('published', !item.published)}
+          onPublish={model !== 'pages' ? () => this.onChange('published', !item.published) : undefined}
           saveItem={() => maybeSaveItem(model, true)}
+          noLinks={model === 'pages'}
         />
 
         {isGrid || (model === 'publications' && images.length)

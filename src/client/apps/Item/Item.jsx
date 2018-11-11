@@ -70,10 +70,10 @@ export class Item extends Component {
   }
 
   componentWillUpdate (prevProps) {
-    const { item, loading } = this.props
+    const { item, loading, model } = this.props
     const prevSlug = url.parse(BASE_URL + prevProps.match.url).href.split('/').pop()
 
-    if ((prevSlug !== item.slug) && !loading) {
+    if (model === 'pages' && prevSlug !== item.slug && !loading) {
       this.fetchItem()
     }
   }
@@ -81,7 +81,7 @@ export class Item extends Component {
   fetchItem = () => {
     const { item, fetchItemAction, match: { path }, model } = this.props
     let param = item._id
-    let formattedModel = path === '/releases' ? '/publications' : path
+    let formattedModel = model === 'releases' ? '/publications' : `/${model}`
 
     if (model === 'pages') {
       formattedModel = '/pages'

@@ -27,10 +27,10 @@ settings.route('/')
     )
   })
 
-settings.route('/:settings_id')
+settings.route('/:id')
   // update settings
   .put((req, res) => {
-    Settings.findById(req.params.settings_id, (err, settings) => {
+    Settings.findById(req.params.id, (err, settings) => {
       if (err) {
         return res.status(400).send(err)
       }

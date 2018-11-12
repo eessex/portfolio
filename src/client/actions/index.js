@@ -19,7 +19,6 @@ export const CREATE_ITEM = asyncActionType('CREATE_ITEM')
 export const FETCH_SETTINGS = asyncActionType('FETCH_SETTINGS')
 export const CREATE_SETTINGS = asyncActionType('CREATE_SETTINGS')
 export const UPDATE_SETTINGS = asyncActionType('UPDATE_SETTINGS')
-export const RESET_SETTINGS = 'RESET_SETTINGS'
 
 // upload
 export const FETCH_UPLOAD = asyncActionType('FETCH_UPLOAD')

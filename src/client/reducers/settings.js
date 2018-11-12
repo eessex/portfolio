@@ -1,101 +1,69 @@
+import { UPDATE_SETTINGS } from '../actions'
 import {
-  FETCH_SETTINGS,
-  CREATE_SETTINGS,
-  UPDATE_SETTINGS,
-  RESET_SETTINGS,
-  FETCH_UPLOAD,
-  RESET_UPLOAD
-} from '../actions'
-import { FETCH_SETTINGS_SUCCESS } from 'client/actions/settings'
+  FETCH_SETTINGS_ERROR,
+  FETCH_SETTINGS_REQUESTED,
+  FETCH_SETTINGS_SUCCESS,
+  RESET_SETTINGS
+} from 'client/actions/settings'
 
-const initialState = {
+export const initialState = {
+  error: null,
   settings: {},
   loading: false,
-  saving: false
+  isSaved: true,
+  isSaving: false
 }
 
 export const settingsReducer = (state = initialState, action) => {
   switch (action.type) {
-    case FETCH_SETTINGS.PENDING:
+    case FETCH_SETTINGS_REQUESTED:
       return Object.assign({}, state, {
         loading: true
       })
 
     case FETCH_SETTINGS_SUCCESS:
       return Object.assign({}, state, {
+        error: null,
         loading: false,
         settings: action.payload.settings
       })
 
-    case FETCH_SETTINGS.ERROR:
+    case FETCH_SETTINGS_ERROR:
       return Object.assign({}, state, {
-        loading: false
-      })
-
-    case CREATE_SETTINGS.PENDING:
-      return Object.assign({}, state, {
-        saving: true,
-        settings: state.settings[0]
-      })
-
-    case CREATE_SETTINGS.SUCCESS:
-      return Object.assign({}, state, {
-        saving: false,
-        settings: action.payload.settings[0],
-        error: null
-      })
-
-    case CREATE_SETTINGS.ERROR:
-      return Object.assign({}, state, {
-        saving: false,
-        error: action.payload.data,
-        settings: state.settings
+        loading: false,
+        error: action.payload
       })
 
     case UPDATE_SETTINGS.PENDING:
       return Object.assign({}, state, {
-        saving: true,
+        isSaving: true,
+        isSaved: false,
         settings: state.settings
       })
 
     case UPDATE_SETTINGS.SUCCESS:
       return Object.assign({}, state, {
-        saving: false,
+        isSaving: false,
+        isSaved: true,
         settings: action.payload.settings,
         error: null
       })
 
     case UPDATE_SETTINGS.ERROR:
       return Object.assign({}, state, {
-        saving: false,
+        isSaving: false,
         error: action.payload.data,
         settings: state.settings
       })
 
     case RESET_SETTINGS:
       return Object.assign({}, state, {
+        error: null,
+        isSaving: false,
+        isSaved: true,
         loading: false,
-        settings: state.settings
+        settings: {}
       })
-
-    case FETCH_UPLOAD.PENDING:
-      return Object.assign({}, state, {
-        uploading: true
-      })
-
-    case FETCH_UPLOAD.SUCCESS:
-      return Object.assign({}, state, {
-        uploading: false,
-        upload: action.payload
-      })
-
-    case FETCH_UPLOAD.ERROR:
-      return Object.assign({}, state, {
-        uploading: false
-      })
-
-    case RESET_UPLOAD:
-      return initialState
 
     default:
       return state

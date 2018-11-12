@@ -1,17 +1,14 @@
+import fetch from 'isomorphic-fetch'
 import {
   API,
-  CREATE_SETTINGS,
-  UPDATE_SETTINGS,
-  RESET_SETTINGS
+  UPDATE_SETTINGS
 } from '../actions'
-import { getUploadSignature } from './upload.js'
-
-import fetch from 'isomorphic-fetch'
 const { API_URL } = process.env
 
 export const FETCH_SETTINGS_SUCCESS = 'FETCH_SETTINGS_SUCCESS'
 export const FETCH_SETTINGS_ERROR = 'FETCH_SETTINGS_ERROR'
 export const FETCH_SETTINGS_REQUESTED = 'FETCH_SETTINGS_REQUESTED'
+export const RESET_SETTINGS = 'RESET_SETTINGS'
 
 export const fetchSettings = () => dispatch => {
   const encodedURI = encodeURI(`${API_URL}/settings`)
@@ -45,22 +42,6 @@ export const fetchSettings = () => dispatch => {
       })
       return null
     })
-}
-
-export const fetchUpload = (file, data, cb) => {
-  return getUploadSignature(file, data, cb)
-}
-
-export const createSettings = settings => {
-  return {
-    type: API,
-    payload: {
-      method: 'post',
-      data: settings,
-      url: '/settings',
-      next: CREATE_SETTINGS
-    }
-  }
 }
 
 export const updateSettings = settings => {

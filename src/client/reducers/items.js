@@ -1,6 +1,5 @@
-import { clone } from 'lodash'
+import { cloneDeep } from 'lodash'
 import { CREATE_ITEM } from '../actions'
-
 import {
   FETCH_ITEMS_ERROR,
   FETCH_ITEMS_REQUESTED,
@@ -8,7 +7,7 @@ import {
   RESET_ITEMS
 } from 'client/actions/items'
 
-const initialState = {
+export const initialState = {
   loading: false,
   list: []
 }
@@ -39,7 +38,7 @@ export const itemsReducer = (state = initialState, action) => {
       })
 
     case CREATE_ITEM.SUCCESS:
-      const list = clone(state.list)
+      const list = cloneDeep(state.list)
       list.push(action.payload.data)
 
       return Object.assign({}, state, {
@@ -52,11 +51,13 @@ export const itemsReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload
       })
+
     case RESET_ITEMS:
       return Object.assign({}, state, {
         loading: false,
         list: []
       })
+
     default:
       return state
   }

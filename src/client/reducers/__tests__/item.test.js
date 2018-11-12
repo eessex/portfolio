@@ -12,7 +12,7 @@ describe('itemReducer', () => {
       type: '',
       payload: {},
       error: null,
-      model: 'events'
+      model: 'events' // TODO: Is model used?
     }
   })
 

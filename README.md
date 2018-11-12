@@ -14,20 +14,19 @@ Demo: https://eveessex.herokuapp.com/
 - Releases/publications
 - Projects (make a page for each band you're in)
 - Info page with social links
+- Optional homepage (defaults to events page)
 
 
 ### Local Installation
+Mongodb is required when running locally. To connect to a remote database, update the `MONGODB_URI` field in `./.env`.
+
 ```
 $ git clone https://github.com/eessex/portfolio.git
 $ cd portfolio
 $ npm install -g yarn
 $ yarn install
 $ cp .env.example .env
-```
-A functional Mongo database is required to start the server, set the `MONGODB_URI` in the `.env` file.
-
-```
-$ yarn dev
+$ yarn start
 $ open http://localhost:3000/
 ```
 

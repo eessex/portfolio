@@ -41,7 +41,7 @@ const ModalContainerInner = styled.div`
   max-height: 78vh;
   overflow: scroll;
   label {
-    font-weight: 500;
+    font-weight: 600;
     padding-bottom: 10px;
     display: block;
   }

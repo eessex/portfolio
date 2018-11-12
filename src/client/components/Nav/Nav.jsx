@@ -180,7 +180,7 @@ export const NavContainer = styled.div`
 
   ${H1} {
     font-size: 1.5em;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1em;
     text-transform: uppercase;
     letter-spacing: .075em;
@@ -234,7 +234,7 @@ const NavItem = styled.div`
   ${props => props.linkIsActive && `
     a {
       border-bottom: 2px solid;
-      font-weight: 500;
+      font-weight: 600;
     }
   `}
 `

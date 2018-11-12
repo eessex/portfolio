@@ -27,7 +27,7 @@ export const Label = props => {
 }
 
 const LabelContainer = styled.label`
-  font-weight: 500;
+  font-weight: 600;
   padding-bottom: 15px;
   display: block;
   a {

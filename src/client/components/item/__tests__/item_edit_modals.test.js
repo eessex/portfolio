@@ -61,7 +61,7 @@ describe('ItemEditModals', () => {
 
   it('Shows ImagesEdit if isEditing is "images"', () => {
     props.isEditing = 'images'
-    props.fetchUpload = jest.fn()
+    props.fetchUploadAction = jest.fn()
     const component = getWrapper(props)
 
     expect(component.find(ImagesEdit).exists()).toBe(true)

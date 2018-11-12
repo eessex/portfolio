@@ -20,7 +20,7 @@ describe('Item', () => {
       itemActions.changeItem('title', 'new title')
     ).toEqual(
       {
-        type: types.CHANGE_ITEM,
+        type: 'CHANGE_ITEM',
         payload: {
           key: 'title',
           value: 'new title'
@@ -51,23 +51,6 @@ describe('Item', () => {
     } catch (err) {
       console.log(err)
     }
-  })
-
-  it('#fetchUpload', () => {
-    const data = {
-      name: 'file.jpg',
-      type: 'image/jpg'
-    }
-    const cb = jest.fn()
-    const { type, payload } = itemActions.fetchUpload(data, {}, cb)
-
-    expect(type).toBe('API')
-    expect(payload.method).toBe('post')
-    expect(payload.url).toBe('/upload')
-    expect(payload.next).toBe(types.FETCH_UPLOAD)
-    expect(payload.data.fileName).toBe(data.name)
-    expect(payload.data.fileType).toBe(data.type)
-    expect(payload.cb).toBe(cb)
   })
 
   describe('#maybeSaveItem ', () => {

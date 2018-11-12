@@ -7,12 +7,10 @@ const asyncActionType = (type) => ({
 export const API = 'API'
 
 // item
-export const CHANGE_ITEM = 'CHANGE_ITEM'
 export const FETCH_ITEM = asyncActionType('FETCH_ITEM')
 export const MAYBE_SAVE_ITEM = 'MAYBE_SAVE_ITEM'
 export const UPDATE_ITEM = asyncActionType('UPDATE_ITEM')
 export const DELETE_ITEM = asyncActionType('DELETE_ITEM')
-export const RESET_ITEM = 'RESET_ITEM'
 
 // items
 export const CREATE_ITEM = asyncActionType('CREATE_ITEM')

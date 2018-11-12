@@ -1,8 +1,6 @@
 import {
   API,
-  CHANGE_ITEM,
   DELETE_ITEM,
-  FETCH_UPLOAD,
   UPDATE_ITEM
 } from '../actions'
 
@@ -10,6 +8,7 @@ import fetch from 'isomorphic-fetch'
 import * as url from 'url'
 const { API_URL } = process.env
 
+export const CHANGE_ITEM = 'CHANGE_ITEM'
 export const FETCH_ITEM_SUCCESS = 'FETCH_ITEM_SUCCESS'
 export const FETCH_ITEM_ERROR = 'FETCH_ITEM_ERROR'
 export const FETCH_ITEM_REQUESTED = 'FETCH_ITEM_REQUESTED'
@@ -69,25 +68,6 @@ export const maybeSaveItem = (model, forceSave) => {
 
     if (!item.published || forceSave) {
       dispatch(updateItem(model, item))
-    }
-  }
-}
-
-export const fetchUpload = (file, data, cb) => {
-  const { name, type } = file
-
-  return {
-    type: API,
-    payload: {
-      method: 'post',
-      url: '/upload',
-      data: {
-        fileName: name,
-        fileType: type
-      },
-      next: FETCH_UPLOAD,
-      cb: cb,
-      file: file
     }
   }
 }

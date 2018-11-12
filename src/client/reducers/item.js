@@ -1,13 +1,11 @@
 import { clone } from 'lodash'
 import {
-  CHANGE_ITEM,
   DELETE_ITEM,
-  FETCH_UPLOAD,
-  RESET_UPLOAD,
   UPDATE_ITEM
 } from '../actions'
 
 import {
+  CHANGE_ITEM,
   FETCH_ITEM_ERROR,
   FETCH_ITEM_REQUESTED,
   FETCH_ITEM_SUCCESS,
@@ -104,25 +102,6 @@ export const itemReducer = (state = initialState, action) => {
         error: null,
         model: null
       })
-
-    case FETCH_UPLOAD.PENDING:
-      return Object.assign({}, state, {
-        uploading: true
-      })
-
-    case FETCH_UPLOAD.SUCCESS:
-      return Object.assign({}, state, {
-        uploading: false,
-        upload: action.payload
-      })
-
-    case FETCH_UPLOAD.ERROR:
-      return Object.assign({}, state, {
-        uploading: false
-      })
-
-    case RESET_UPLOAD:
-      return initialState
 
     default:
       return state

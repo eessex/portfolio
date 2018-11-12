@@ -19,7 +19,12 @@ const fetchInitialItem = (path = '', store, model) => {
   const param = path.split('/').pop()
   const query = getQuery(store)
 
-  return store.dispatch(fetchItem('/events', param, query))
+  return store.dispatch(fetchItem(`/${model}`, param, query))
+}
+
+const fetchInitialItems = (path = '', store, model) => {
+  const query = getQuery(store)
+  return store.dispatch(fetchItems(`/${model}`, query))
 }
 
 const HomeRoute = {
@@ -41,25 +46,23 @@ export const routes = [
   HomeRoute,
   {
     path: '/events/:id',
-    model: 'events', // TODO: is model used?
+    model: 'events',
     component: Item,
-    fetchInitialData: (path, store) => fetchInitialItem(path, store, '/events')
+    fetchInitialData: fetchInitialItem
   },
   {
     path: '/events',
     component: Items,
     model: 'events',
     title: 'Events',
-    fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItems(path, getQuery(store)))
-    }
+    fetchInitialData: fetchInitialItems
   },
   {
     path: '/info',
     component: Item,
     title: 'Info',
     model: 'pages',
-    fetchInitialData: (path, store) => fetchInitialItem(path, store, '/pages')
+    fetchInitialData: fetchInitialItem
   },
   {
     path: '/login',
@@ -70,30 +73,26 @@ export const routes = [
     path: '/projects/:id',
     model: 'projects',
     component: Item,
-    fetchInitialData: (path, store) => fetchInitialItem(path, store, '/projects')
+    fetchInitialData: fetchInitialItem
   },
   {
     path: '/projects',
     component: Items,
     model: 'projects',
     title: 'Projects',
-    fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItems(path, getQuery(store)))
-    }
+    fetchInitialData: fetchInitialItems
   },
   {
     path: '/releases/:id',
     model: 'publications',
     component: Item,
-    fetchInitialData: (path, store) => fetchInitialItem(path, store, '/publications')
+    fetchInitialData: fetchInitialItem
   },
   {
     path: '/releases',
     component: Items,
     model: 'publications',
     title: 'Releases',
-    fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItems('/publications', getQuery(store)))
-    }
+    fetchInitialData: fetchInitialItems
   }
 ]

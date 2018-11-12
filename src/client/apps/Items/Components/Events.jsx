@@ -14,7 +14,7 @@ export class Events extends Component {
     const past = sortByDate(items, 'start_date').past
 
     return (
-      <div>
+      <React.Fragment>
         {upcoming.length > 0 &&
           <ItemsList
             label='Upcoming Events'
@@ -23,6 +23,7 @@ export class Events extends Component {
             list={upcoming}
           />
         }
+
         {past.length > 0 &&
           <ItemsList
             label='Past Events'
@@ -32,7 +33,7 @@ export class Events extends Component {
             canToggle
           />
         }
-      </div>
+      </React.Fragment>
     )
   }
 }

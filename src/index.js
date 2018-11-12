@@ -74,7 +74,7 @@ app.get('*', async (req, res, next) => {
   const activeRoute = routes.find(route => matchPath(req.url, route))
 
   const promiseData = activeRoute && activeRoute.fetchInitialData
-    ? activeRoute.fetchInitialData(req.path, store)
+    ? activeRoute.fetchInitialData(req.path, store, activeRoute.model)
     : Promise.resolve()
 
   promiseData.then(data => {

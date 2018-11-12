@@ -3,9 +3,9 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import * as itemsActions from 'client/actions/items'
-import { Events } from '../events/Events'
-import { Projects } from '../projects/Projects'
-import { Publications } from '../publications/Publications'
+import { Events } from './Components/Events'
+import { Projects } from './Components/Projects'
+import { Publications } from './Components/Publications'
 import { Loading } from 'client/components/layout/components/loading'
 
 export class Items extends Component {

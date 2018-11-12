@@ -14,7 +14,7 @@ export const UPDATE_ITEM = asyncActionType('UPDATE_ITEM')
 export const DELETE_ITEM = asyncActionType('DELETE_ITEM')
 export const RESET_ITEM = 'RESET_ITEM'
 
-// // items
+// items
 export const CREATE_ITEM = asyncActionType('CREATE_ITEM')
 
 // settings

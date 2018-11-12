@@ -8,7 +8,7 @@ export const getUploadSignature = (file, data, cb) => {
     payload: {
       method: 'post',
       url: '/upload',
-      data: {fileName: name, fileType: type},
+      data: { fileName: name, fileType: type },
       next: FETCH_UPLOAD,
       cb: cb,
       file: file

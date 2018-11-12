@@ -14,7 +14,7 @@ import {
   RESET_ITEM
 } from '../actions/item'
 
-const initialState = {
+export const initialState = {
   item: {},
   isSaved: true,
   isSaving: false,
@@ -49,7 +49,8 @@ export const itemReducer = (state = initialState, action) => {
       return Object.assign({}, state, {
         item: payload.item,
         loading: false,
-        model
+        model,
+        error: null
       })
 
     case FETCH_ITEM_ERROR:
@@ -60,15 +61,14 @@ export const itemReducer = (state = initialState, action) => {
 
     case UPDATE_ITEM.PENDING:
       return Object.assign({}, state, {
-        isSaving: true,
-        item: state.item
+        isSaving: true
       })
 
     case UPDATE_ITEM.SUCCESS:
       return Object.assign({}, state, {
         error: null,
-        isSaved: true,
         item: action.payload,
+        isSaved: true,
         isSaving: false
       })
 
@@ -97,8 +97,12 @@ export const itemReducer = (state = initialState, action) => {
     case RESET_ITEM:
       return Object.assign({}, state, {
         item: {},
+        isSaved: true,
+        isSaving: false,
         loading: false,
-        uploading: false
+        uploading: false,
+        error: null,
+        model: null
       })
 
     case FETCH_UPLOAD.PENDING:
@@ -116,6 +120,7 @@ export const itemReducer = (state = initialState, action) => {
       return Object.assign({}, state, {
         uploading: false
       })
+
     case RESET_UPLOAD:
       return initialState
 

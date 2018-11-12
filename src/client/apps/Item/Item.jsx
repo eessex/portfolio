@@ -85,7 +85,7 @@ export class Item extends Component {
 
     if (model === 'pages') {
       formattedModel = '/pages'
-      param = path
+      param = path.replace('/', '')
     }
 
     fetchItemAction(formattedModel, param)

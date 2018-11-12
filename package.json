@@ -68,7 +68,6 @@
     "babel-jest": "^21.2.0",
     "chai": "^4.0.0",
     "chai-http": "^3.0.0",
-    "concurrently": "^3.4.0",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "eslint": "^4.19.1",
@@ -83,11 +82,9 @@
     "mocha": "^3.4.2",
     "react-test-renderer": "^15.5.4",
     "redux-mock-store": "^1.5.3",
-    "webpack-dev-server": "^2.4.5",
     "webpack-node-externals": "^1.7.2"
   },
   "scripts": {
-    "dev": "concurrently --kill-others \"yarn webpack-watch\" \"node server.js\"",
     "heroku-postbuild": "webpack -p --config ./webpack.config.js --progress",
     "start": "webpack -w & nodemon server.js",
     "test": "NODE_ENV=test jest"

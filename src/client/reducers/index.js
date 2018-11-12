@@ -5,12 +5,10 @@ import { pageReducer } from './page'
 import { settingsReducer } from './settings'
 import { userReducer } from './user'
 
-const rootReducer = combineReducers({
+export const rootReducer = combineReducers({
   itemReducer,
   itemsReducer,
   pageReducer,
   settingsReducer,
   userReducer
 })
-
-export default rootReducer

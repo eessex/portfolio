@@ -5,8 +5,9 @@ import {
   RESET_PAGE
 } from 'client/actions/page'
 
-const initialState = {
+export const initialState = {
   loading: false,
+  error: null,
   page: {}
 }
 
@@ -20,6 +21,7 @@ export const pageReducer = (state = initialState, action) => {
     case FETCH_PAGE_SUCCESS: {
       return Object.assign({}, state, {
         page: action.payload.page,
+        error: null,
         loading: false
       })
     }
@@ -27,12 +29,13 @@ export const pageReducer = (state = initialState, action) => {
     case FETCH_PAGE_ERROR:
       return Object.assign({}, state, {
         loading: false,
-        error: action.payload
+        error: action.payload.error
       })
 
     case RESET_PAGE:
       return Object.assign({}, state, {
         loading: false,
+        error: null,
         page: {}
       })
 

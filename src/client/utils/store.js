@@ -4,7 +4,7 @@ import { applyMiddleware, createStore, compose } from 'redux'
 import { connectRouter, routerMiddleware } from 'connected-react-router'
 import thunk from 'redux-thunk'
 import { createBrowserHistory, createMemoryHistory } from 'history'
-import rootReducer from 'client/reducers'
+import { rootReducer } from 'client/reducers'
 
 export const isServer = !(
   typeof window !== 'undefined' &&

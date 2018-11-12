@@ -15,6 +15,13 @@ const getQuery = store => {
   return {}
 }
 
+const fetchInitialItem = (path = '', store, model) => {
+  const param = path.split('/').pop()
+  const query = getQuery(store)
+
+  return store.dispatch(fetchItem('/events', param, query))
+}
+
 const HomeRoute = {
   path: '/',
   exact: true,
@@ -34,11 +41,9 @@ export const routes = [
   HomeRoute,
   {
     path: '/events/:id',
-    model: 'events',
+    model: 'events', // TODO: is model used?
     component: Item,
-    fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItem('/events', path.split('/').pop(), getQuery(store)))
-    }
+    fetchInitialData: (path, store) => fetchInitialItem(path, store, '/events')
   },
   {
     path: '/events',
@@ -54,9 +59,7 @@ export const routes = [
     component: Item,
     title: 'Info',
     model: 'pages',
-    fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItem('/pages', path.split('/').pop(), getQuery(store)))
-    }
+    fetchInitialData: (path, store) => fetchInitialItem(path, store, '/pages')
   },
   {
     path: '/login',
@@ -67,9 +70,7 @@ export const routes = [
     path: '/projects/:id',
     model: 'projects',
     component: Item,
-    fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItem('/projects', path.split('/').pop(), getQuery(store)))
-    }
+    fetchInitialData: (path, store) => fetchInitialItem(path, store, '/projects')
   },
   {
     path: '/projects',
@@ -84,9 +85,7 @@ export const routes = [
     path: '/releases/:id',
     model: 'publications',
     component: Item,
-    fetchInitialData: (path = '', store) => {
-      return store.dispatch(fetchItem('/publications', path.split('/').pop(), getQuery(store)))
-    }
+    fetchInitialData: (path, store) => fetchInitialItem(path, store, '/publications')
   },
   {
     path: '/releases',

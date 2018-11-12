@@ -179,7 +179,7 @@ const ListContainer = styled.div`
 
 const ItemsListHeader = styled.div`
   margin-top: 0;
-  font-weight: 600;
+  font-weight: 500;
   padding: 0 20px;
 
   @media (max-width: 76rem) {

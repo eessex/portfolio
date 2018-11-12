@@ -15,7 +15,7 @@ export class EmbedList extends Component {
     onChange: PropTypes.func
   }
 
-  onNewEmbed = (embed) => {
+  onNewEmbed = embed => {
     const { embed_codes, onChange } = this.props
 
     embed_codes.push(embed)
@@ -23,7 +23,7 @@ export class EmbedList extends Component {
     this.setState({ lastUpdated: new Date() })
   }
 
-  onRemoveEmbed = (embed, index) => {
+  onRemoveEmbed = (_embed, index) => {
     const { embed_codes, onChange } = this.props
     const newEmbeds = clone(embed_codes)
 
@@ -72,6 +72,7 @@ const EmbedItem = styled.div`
   position: relative;
   width: 100%;
   padding-bottom: 20px;
+
   button {
     position: absolute;
     right: -5px;

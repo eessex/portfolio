@@ -1,23 +1,21 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import * as itemActions from '../../actions/item.js'
-import { DatesModal } from '../dates/dates_modal.jsx'
-import { EmbedModal } from '../embeds/embed_modal.jsx'
-import { FormatsModal } from '../formats/formats_modal.jsx'
-import { ImagesEdit } from '../images/images_edit.jsx'
-import { LinksModal } from '../links/links_modal.jsx'
-import { VenueModal } from '../venue/venue_modal.jsx'
+import * as itemActions from 'client/actions/item'
+import { DatesModal } from '../dates/dates_modal'
+import { EmbedModal } from '../embeds/embed_modal'
+import { FormatsModal } from '../formats/formats_modal'
+import { ImagesEdit } from '../images/images_edit'
+import { LinksModal } from '../links/links_modal'
+import { VenueModal } from '../venue/venue_modal'
 
 export class ItemEditModals extends Component {
   static propTypes = {
     fetchUpload: PropTypes.func,
     isEditing: PropTypes.string,
-    item: PropTypes.shape({
-      item: PropTypes.object,
-      isSaved: PropTypes.bool,
-      isSaving: PropTypes.bool
-    }),
+    item: PropTypes.object,
+    isSaved: PropTypes.bool,
+    isSaving: PropTypes.bool,
     onChange: PropTypes.func,
     setEditing: PropTypes.func
   }
@@ -27,7 +25,7 @@ export class ItemEditModals extends Component {
       all_day,
       end_date,
       start_date
-    } = this.props.item.item
+    } = this.props.item
 
     return {
       all_day,
@@ -37,8 +35,7 @@ export class ItemEditModals extends Component {
   }
 
   render () {
-    const { fetchUpload, isEditing, onChange, setEditing } = this.props
-    const { item } = this.props.item
+    const { item, fetchUpload, isEditing, onChange, setEditing } = this.props
 
     return (
       <div>
@@ -96,8 +93,10 @@ export class ItemEditModals extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  item: state.item
+const mapStateToProps = ({ itemReducer }) => ({
+  item: itemReducer.item,
+  isSaved: itemReducer.isSaved,
+  isSaving: itemReducer.isSaving
 })
 
 const mapDispatchToProps = {

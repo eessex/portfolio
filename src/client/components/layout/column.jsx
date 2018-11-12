@@ -1,12 +1,15 @@
 import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React from 'react'
+import styled from 'styled-components'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { Description } from './components/description'
 import { ItemHeader } from './components/header'
 import { Label } from './components/label'
 import { EmbedList } from 'client/components/embeds/embed_list'
 import { LinksList } from 'client/components/links/links_list'
+import { Social } from 'client/components/social/social_list'
+import { SocialContainer } from './grid'
 
 export const LayoutColumn = (props) => {
   const {
@@ -16,7 +19,8 @@ export const LayoutColumn = (props) => {
     labelLink,
     model,
     onChange,
-    setEditing
+    setEditing,
+    social
   } = props
 
   let coverImage
@@ -43,7 +47,7 @@ export const LayoutColumn = (props) => {
 
       <ContentContainer xs={12} sm={6}>
         {item &&
-          <div>
+          <React.Fragment>
             <ItemHeader
               coverImage={coverImage ? coverImage[0] : undefined}
               item={item}
@@ -52,26 +56,34 @@ export const LayoutColumn = (props) => {
               onChange={onChange}
               setEditing={setEditing}
             />
-
-            <Description
-              description={item.description}
-              onChange={onChange && onChange}
-            />
-
-            {links &&
-              <LinksList links={links} />
-            }
-
+            <ItemBody>
+              <Description
+                description={item.description}
+                onChange={onChange && onChange}
+              />
+              {links &&
+                <LinksList links={links} />
+              }
+              {social &&
+                <SocialContainer>
+                  <Social social={social} />
+                </SocialContainer>
+              }
+            </ItemBody>
             {embed_codes &&
               <EmbedList embed_codes={embed_codes} />
             }
-          </div>
+          </React.Fragment>
         }
         {children}
       </ContentContainer>
     </ColumnContainer>
   )
 }
+
+const ItemBody = styled.div`
+  padding-bottom: 2em;
+`
 
 export const ColumnContainer = Row.extend`
   padding: 0 20px;
@@ -106,5 +118,6 @@ LayoutColumn.propTypes = {
   labelLink: PropTypes.any,
   model: PropTypes.string,
   onChange: PropTypes.func,
-  setEditing: PropTypes.func
+  setEditing: PropTypes.func,
+  social: PropTypes.object
 }

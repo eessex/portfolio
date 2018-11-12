@@ -95,7 +95,7 @@ export class ItemsList extends Component {
           formats={item.formats}
           image={item.images[0]}
           layout={layout}
-          slug={`/${model}/${item.slug || item._id}`}
+          slug={`/${model}/${item.published ? item.slug || item._id : item._id}`}
           title={item.title}
           venue={venue}
           published={item.published}

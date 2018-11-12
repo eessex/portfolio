@@ -61,7 +61,7 @@ export const ItemAdminNav = props => {
 
 export const Nav = styled.nav`
   position: fixed;
-  top: 10px;
+  top: 15px;
   right: 20px;
   z-index: 100;
   align-items: center;

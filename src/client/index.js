@@ -1,25 +1,21 @@
-import React from 'react'
-import { render } from 'react-dom'
-import { BrowserRouter as Router } from 'react-router-dom'
+import { hydrate } from 'react-dom'
+import { ConnectedRouter } from 'connected-react-router'
 import { Provider } from 'react-redux'
-import Routes from 'client/routes'
-import store from 'client/utils/store'
-import { saveState } from 'client/utils/local_storage'
-import { fetchSettings } from 'client/actions/settings'
+import React from 'react'
+import Cookies from 'universal-cookie'
+import { App } from 'client/App'
+import createStore from 'client/utils/store'
 
-store.subscribe(() => {
-  saveState({user: store.getState().user})
-})
+const cookies = new Cookies()
+const session = cookies.get('portfolio.session')
 
-store.dispatch(fetchSettings())
+const { store, history } = createStore({ session })
 
-window.store = store
-
-render(
+hydrate(
   <Provider store={store}>
-    <Router>
-      <Routes store={store} />
-    </Router>
+    <ConnectedRouter history={history}>
+      <App />
+    </ConnectedRouter>
   </Provider>
   , document.getElementById('app')
 )

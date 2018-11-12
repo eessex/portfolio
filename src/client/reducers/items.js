@@ -1,30 +1,36 @@
 import { clone } from 'lodash'
+import { CREATE_ITEM } from '../actions'
+
 import {
-  FETCH_ITEMS,
-  CREATE_ITEM
-} from '../actions'
+  FETCH_ITEMS_ERROR,
+  FETCH_ITEMS_REQUESTED,
+  FETCH_ITEMS_SUCCESS,
+  RESET_ITEMS
+} from 'client/actions/items'
 
 const initialState = {
   loading: false,
   list: []
 }
 
-const itemsReducer = (state = initialState, action) => {
+export const itemsReducer = (state = initialState, action) => {
   switch (action.type) {
-    case FETCH_ITEMS.PENDING:
+    case FETCH_ITEMS_REQUESTED:
       return Object.assign({}, state, {
         loading: true
       })
 
-    case FETCH_ITEMS.SUCCESS:
+    case FETCH_ITEMS_SUCCESS: {
+      return Object.assign({}, state, {
+        list: action.payload.items,
+        loading: false
+      })
+    }
+
+    case FETCH_ITEMS_ERROR:
       return Object.assign({}, state, {
         loading: false,
-        list: action.payload
-      })
-
-    case FETCH_ITEMS.ERROR:
-      return Object.assign({}, state, {
-        loading: false
+        error: action.payload
       })
 
     case CREATE_ITEM.PENDING:
@@ -46,10 +52,12 @@ const itemsReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload
       })
-
+    case RESET_ITEMS:
+      return Object.assign({}, state, {
+        loading: false,
+        list: []
+      })
     default:
       return state
   }
 }
-
-export default itemsReducer

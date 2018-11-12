@@ -5,7 +5,8 @@
     "standard-react"
   ],
   "globals": {
-    "__dirname": true
+    "__dirname": true,
+    "__isBrowser__": true
   },
   "env": {
     "browser": true,

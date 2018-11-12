@@ -1,53 +1,30 @@
-const path = require('path')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+var path = require('path')
+var webpack = require('webpack')
+var nodeExternals = require('webpack-node-externals')
 var Dotenv = require('dotenv-webpack')
-const webpack = require('webpack')
 
-module.exports = {
+var browserConfig = {
   entry: ['babel-polyfill', './src/client/index.js'],
   output: {
-    filename: './dist/bundle.js'
+    path: path.resolve(__dirname, 'public'),
+    filename: 'bundle.js',
+    publicPath: '/'
   },
   module: {
-    loaders: [
+    rules: [
       {
-        test: /\.js$/,
+        test: /(\.(js|jsx)?$)/,
+        include: path.resolve('./src'),
         loader: 'babel-loader',
-        exclude: /node_modules/,
-        include: [path.join(__dirname, 'src')],
         query: {
-          plugins: ['transform-runtime'],
-          presets: ['env', 'stage-0', 'react']
+          plugins: ['transform-runtime']
         }
-      },
-      {
-        test: /\.jsx$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/,
-        include: [path.join(__dirname, 'src')],
-        query: {
-          plugins: ['transform-runtime'],
-          presets: ['env', 'stage-0', 'react']
-        }
-      },
-      {
-        test: /\.html$/,
-        loader: 'underscore-template-loader'
       }
     ]
   },
-  resolve: {
-    extensions: ['.js', '.jsx'],
-    modules: [
-      path.resolve('./src'),
-      path.resolve('./node_modules')
-    ]
-  },
   plugins: [
-    new HtmlWebpackPlugin({
-      filename: './dist/index.html',
-      title: 'Eve Essex',
-      template: './src/client/index.html'
+    new webpack.DefinePlugin({
+      __isBrowser__: 'true'
     }),
     new Dotenv({
       path: path.resolve(__dirname, './.env'),
@@ -57,5 +34,63 @@ module.exports = {
       'process.env.API_URL': JSON.stringify(process.env.API_URL),
       'process.env.PROCESS_ENV': JSON.stringify(process.env.PROCESS_ENV)
     })
-  ]
+  ],
+  resolve: {
+    extensions: ['.js', '.jsx'],
+    modules: [
+      path.resolve('./src'),
+      path.resolve('./node_modules')
+    ],
+    alias: {
+      'styled-components': path.resolve('./node_modules/styled-components')
+    }
+  }
 }
+
+var serverConfig = {
+  entry: ['babel-polyfill', './src/index.js'],
+  target: 'node',
+  externals: [nodeExternals(), 'react-helmet'],
+  output: {
+    path: __dirname,
+    filename: 'server.js',
+    publicPath: '/'
+  },
+  module: {
+    rules: [
+      {
+        test: /(\.(js|jsx)?$)/,
+        include: path.resolve('./src'),
+        loader: 'babel-loader',
+        query: {
+          plugins: ['transform-runtime']
+        }
+      }
+    ]
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      __isBrowser__: 'false'
+    }),
+    new Dotenv({
+      path: path.resolve(__dirname, './.env'),
+      systemvars: true
+    }),
+    new webpack.DefinePlugin({
+      'process.env.API_URL': JSON.stringify(process.env.API_URL),
+      'process.env.PROCESS_ENV': JSON.stringify(process.env.PROCESS_ENV)
+    })
+  ],
+  resolve: {
+    extensions: ['.js', '.jsx'],
+    modules: [
+      path.resolve('./src'),
+      path.resolve('./node_modules')
+    ],
+    alias: {
+      'styled-components': path.resolve('./node_modules/styled-components')
+    }
+  }
+}
+
+module.exports = [browserConfig, serverConfig]

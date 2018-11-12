@@ -40,32 +40,32 @@ export class Nav extends React.Component {
       5
     )
 
-    // if (__isBrowser__) {
-    const scrollPosition = window.pageYOffset
+    if (__isBrowser__) {
+      const scrollPosition = window.pageYOffset
 
-    this.setState({ scrollPosition })
-    window.addEventListener('scroll', () => {
-      debouncedOnScroll()
-    })
-    // }
+      this.setState({ scrollPosition })
+      window.addEventListener('scroll', () => {
+        debouncedOnScroll()
+      })
+    }
   }
 
   onScroll = () => {
-    // if (__isBrowser__) {
-    const { scrollPosition } = this.state
-    const offset = window.pageYOffset
-    let scrollDir = null
+    if (__isBrowser__) {
+      const { scrollPosition } = this.state
+      const offset = window.pageYOffset
+      let scrollDir = null
 
-    if (offset !== scrollPosition) {
-      if (offset < scrollPosition) {
-        scrollDir = 'up'
+      if (offset !== scrollPosition) {
+        if (offset < scrollPosition) {
+          scrollDir = 'up'
+        }
+        this.setState({
+          scrollPosition: offset,
+          scrollDir
+        })
       }
-      this.setState({
-        scrollPosition: offset,
-        scrollDir
-      })
     }
-    // }
   }
 
   onClick = param => {

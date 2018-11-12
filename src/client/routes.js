@@ -1,67 +1,98 @@
-import styled, { ThemeProvider } from 'styled-components'
-import React, { Component } from 'react'
-import { Route } from 'react-router-dom'
-import { theme } from './styles/theme.jsx'
-import {
-  Event,
-  Events,
-  Login,
-  Logout,
-  Pages,
-  Project,
-  Projects,
-  Publication,
-  Publications,
-  Settings,
-  NewUser
-} from './apps'
-import Header from './components/header/header.jsx'
+import { fetchItem } from 'client/actions/item'
+import { fetchItems } from 'client/actions/items'
+import { fetchPage } from 'client/actions/page'
+import Item from 'client/apps/Item/Item'
+import Items from 'client/apps/Items/Items'
+import Page from 'client/apps/Page/Page'
+import Login from 'client/apps/user/login'
 
-export default class Routes extends Component {
-  render () {
-    return (
-      <ThemeProvider theme={theme}>
-        <Content>
-          <Header />
-          <Main>
-            <Route exact path='/' component={Events} />
-            <Route exact path='/events' component={Events} />
-            <Route path='/events/:id' component={Event} />
+const { HOMEPAGE_ENABLED } = process.env
 
-            <Route exact path='/projects' component={Projects} />
-            <Route exact path='/projects/:id' component={Project} />
+const getQuery = store => {
+  if (!store.getState().userReducer.isAuthenticated) {
+    return { published: true }
+  }
+  return {}
+}
 
-            <Route exact path='/releases' component={Publications} />
-            <Route exact path='/releases/:id' component={Publication} />
-            <Route exact path='/publications' component={Publications} />
-            <Route exact path='/publications/:id' component={Publication} />
+const fetchInitialItem = (path = '', store, model) => {
+  const param = path.split('/').pop()
+  const query = getQuery(store)
 
-            <Route exact path='/login' component={Login} />
-            <Route exact path='/logout' component={Logout} />
-            <Route exact path='/new/user' component={NewUser} />
-            <Route exact path='/info' component={Pages} />
-            <Route exact path='/settings' component={Settings} />
-          </Main>
-        </Content>
-      </ThemeProvider>
-    )
+  return store.dispatch(fetchItem(`/${model}`, param, query))
+}
+
+const fetchInitialItems = (path = '', store, model) => {
+  const query = getQuery(store)
+  return store.dispatch(fetchItems(`/${model}`, query))
+}
+
+const HomeRoute = {
+  path: '/',
+  exact: true,
+  component: HOMEPAGE_ENABLED ? Page : Items,
+  model: HOMEPAGE_ENABLED ? undefined : 'events',
+  title: 'Home',
+  fetchInitialData: (path = '', store) => {
+    if (HOMEPAGE_ENABLED) {
+      return store.dispatch(fetchPage('/home'))
+    } else {
+      return store.dispatch(fetchItems('/events', getQuery(store)))
+    }
   }
 }
 
-const Main = styled.main`
-  padding-top: 2.5em;
-`
-
-const Content = styled.div`
-  font-family: 'Roboto', 'helvetica neue', 'helvetica', 'arial', 'sans-serif';
-  font-size: 16px;
-  line-height: 1.2em;
-  letter-spacing: .015em;
-
-  a {
-    color: black;
-    &:hover {
-      color: #ddd;
-    }
+export const routes = [
+  HomeRoute,
+  {
+    path: '/events/:id',
+    model: 'events',
+    component: Item,
+    fetchInitialData: fetchInitialItem
+  },
+  {
+    path: '/events',
+    component: Items,
+    model: 'events',
+    title: 'Events',
+    fetchInitialData: fetchInitialItems
+  },
+  {
+    path: '/info',
+    component: Item,
+    title: 'Info',
+    model: 'pages',
+    fetchInitialData: fetchInitialItem
+  },
+  {
+    path: '/login',
+    component: Login,
+    title: 'Login'
+  },
+  {
+    path: '/projects/:id',
+    model: 'projects',
+    component: Item,
+    fetchInitialData: fetchInitialItem
+  },
+  {
+    path: '/projects',
+    component: Items,
+    model: 'projects',
+    title: 'Projects',
+    fetchInitialData: fetchInitialItems
+  },
+  {
+    path: '/releases/:id',
+    model: 'publications',
+    component: Item,
+    fetchInitialData: fetchInitialItem
+  },
+  {
+    path: '/releases',
+    component: Items,
+    model: 'publications',
+    title: 'Releases',
+    fetchInitialData: fetchInitialItems
   }
-`
+]

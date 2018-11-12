@@ -6,6 +6,7 @@ import {
   FETCH_UPLOAD,
   RESET_UPLOAD
 } from '../actions'
+import { FETCH_SETTINGS_SUCCESS } from 'client/actions/settings'
 
 const initialState = {
   settings: {},
@@ -13,17 +14,17 @@ const initialState = {
   saving: false
 }
 
-const settingsReducer = (state = initialState, action) => {
+export const settingsReducer = (state = initialState, action) => {
   switch (action.type) {
     case FETCH_SETTINGS.PENDING:
       return Object.assign({}, state, {
         loading: true
       })
 
-    case FETCH_SETTINGS.SUCCESS:
+    case FETCH_SETTINGS_SUCCESS:
       return Object.assign({}, state, {
         loading: false,
-        settings: action.payload
+        settings: action.payload.settings
       })
 
     case FETCH_SETTINGS.ERROR:
@@ -100,5 +101,3 @@ const settingsReducer = (state = initialState, action) => {
       return state
   }
 }
-
-export default settingsReducer

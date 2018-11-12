@@ -14,7 +14,7 @@ yarn-error.log
 /public
 eve-rootkey.csv
 kayla-rootkey.csv
-
+server.js
 # Ignore vscode setup
 .vscode
 

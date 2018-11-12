@@ -2,12 +2,17 @@ import { clone } from 'lodash'
 import {
   CHANGE_ITEM,
   DELETE_ITEM,
-  FETCH_ITEM,
   FETCH_UPLOAD,
-  RESET_ITEM,
   RESET_UPLOAD,
   UPDATE_ITEM
 } from '../actions'
+
+import {
+  FETCH_ITEM_ERROR,
+  FETCH_ITEM_REQUESTED,
+  FETCH_ITEM_SUCCESS,
+  RESET_ITEM
+} from '../actions/item'
 
 const initialState = {
   item: {},
@@ -18,7 +23,7 @@ const initialState = {
   upload: {}
 }
 
-const itemReducer = (state = initialState, action) => {
+export const itemReducer = (state = initialState, action) => {
   switch (action.type) {
     case CHANGE_ITEM: {
       const item = clone(state.item)
@@ -32,24 +37,25 @@ const itemReducer = (state = initialState, action) => {
       })
     }
 
-    case FETCH_ITEM.PENDING: {
+    case FETCH_ITEM_REQUESTED: {
       return Object.assign({}, state, {
         loading: true
       })
     }
 
-    case FETCH_ITEM.SUCCESS:
+    case FETCH_ITEM_SUCCESS:
       const { payload, model } = action
 
       return Object.assign({}, state, {
-        item: payload,
+        item: payload.item,
         loading: false,
         model
       })
 
-    case FETCH_ITEM.ERROR:
+    case FETCH_ITEM_ERROR:
       return Object.assign({}, state, {
-        loading: false
+        loading: false,
+        error: action.payload.error
       })
 
     case UPDATE_ITEM.PENDING:
@@ -117,5 +123,3 @@ const itemReducer = (state = initialState, action) => {
       return state
   }
 }
-
-export default itemReducer

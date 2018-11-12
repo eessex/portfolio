@@ -15,7 +15,6 @@ export const DELETE_ITEM = asyncActionType('DELETE_ITEM')
 export const RESET_ITEM = 'RESET_ITEM'
 
 // items
-export const FETCH_ITEMS = asyncActionType('FETCH_ITEMS')
 export const CREATE_ITEM = asyncActionType('CREATE_ITEM')
 
 // settings

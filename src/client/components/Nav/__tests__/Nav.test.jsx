@@ -9,6 +9,7 @@ import { AdminNav } from '../Components/AdminNav'
 
 describe('Nav', () => {
   let props
+  global.__isBrowser__ = true
 
   const getWrapper = (passedProps = props) => {
     const mockStore = configureStore([])

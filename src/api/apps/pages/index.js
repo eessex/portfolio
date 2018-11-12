@@ -49,6 +49,7 @@ pages.route('/:id')
   // single page
   .get((req, res) => {
     var query = queryByIdOrSlug(req.params.id, req.query)
+
     Page.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)

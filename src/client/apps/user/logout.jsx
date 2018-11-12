@@ -33,9 +33,9 @@ export class Login extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  error: state.user.error,
-  loading: state.user.loading
+const mapStateToProps = ({ userReducer }) => ({
+  error: userReducer.error,
+  loading: userReducer.loading
 })
 
 const mapDispatchToProps = {

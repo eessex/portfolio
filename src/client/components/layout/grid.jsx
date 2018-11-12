@@ -1,21 +1,24 @@
 import PropTypes from 'prop-types'
 import React from 'react'
+import styled from 'styled-components'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { Description } from './components/description'
 import { ItemHeader } from './components/header'
 import { EmbedList } from 'client/components/embeds/embed_list'
 import { ImagesShow } from 'client/components/images/images_show'
 import { LinksList } from 'client/components/links/links_list'
+import { Social } from 'client/components/social/social_list'
 import { ContentContainer } from './column'
 
-export const LayoutGrid = (props) => {
+export const LayoutGrid = props => {
   const {
     item,
     label,
     labelLink,
     model,
     onChange,
-    setEditing
+    setEditing,
+    social
   } = props
 
   const {
@@ -52,6 +55,11 @@ export const LayoutGrid = (props) => {
           onChange={onChange}
         />
 
+        {social &&
+          <SocialContainer>
+            <Social social={social} />
+          </SocialContainer>
+        }
         <LinksList links={item.links || []} />
 
       </ContentContainer>
@@ -85,11 +93,17 @@ const MediaContainer = Col.extend`
   }
 `
 
+export const SocialContainer = styled.div`
+  font-size: 90%;
+  padding: 1em 0 4em;
+`
+
 LayoutGrid.propTypes = {
   item: PropTypes.object,
   label: PropTypes.string,
   labelLink: PropTypes.any,
   model: PropTypes.string,
   onChange: PropTypes.func,
-  setEditing: PropTypes.func
+  setEditing: PropTypes.func,
+  social: PropTypes.object
 }

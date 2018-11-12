@@ -16,9 +16,7 @@ export const initialState = {
   item: {},
   isSaved: true,
   isSaving: false,
-  loading: false,
-  uploading: false,
-  upload: {}
+  loading: false
 }
 
 export const itemReducer = (state = initialState, action) => {
@@ -98,7 +96,6 @@ export const itemReducer = (state = initialState, action) => {
         isSaved: true,
         isSaving: false,
         loading: false,
-        uploading: false,
         error: null,
         model: null
       })

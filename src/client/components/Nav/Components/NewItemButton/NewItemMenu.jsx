@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import React from 'react'
 import { createItem } from 'client/actions/items'
-import { Button, ButtonContainer } from 'client/components/forms/buttons/button'
+import { Button, ButtonContainer } from 'client/components/Button'
 import { H2, H3 } from 'client/styles/text'
 
 export class NewItemMenu extends React.Component {

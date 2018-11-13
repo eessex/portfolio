@@ -8,7 +8,7 @@ import {
   RichUtils
 } from 'draft-js'
 import { convertFromHTML, convertToHTML } from 'draft-convert'
-import { Button } from 'client/components/forms/buttons/button'
+import { Button } from 'client/components/Button'
 import { decorator } from './util'
 import { UrlInput } from './components/UrlInput'
 
@@ -183,9 +183,7 @@ export class RichText extends Component {
   renderMenu () {
     if (this.state.showMenu) {
       return (
-        <Button onClick={this.promptForLink}>
-          Link
-        </Button>
+        <Button onClick={this.promptForLink} text='link' />
       )
     }
   }

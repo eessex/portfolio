@@ -1,9 +1,7 @@
 import React from 'react'
-// import configureStore from 'redux-mock-store'
 import { mount } from 'enzyme'
-// import { Provider } from 'react-redux'
 
-import { Button } from 'client/components/forms/buttons/button'
+import { Button } from 'client/components/Button'
 import { NewItemMenu } from '../NewItemMenu'
 
 describe('NewItemMenu', () => {

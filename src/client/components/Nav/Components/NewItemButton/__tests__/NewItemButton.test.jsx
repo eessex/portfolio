@@ -3,7 +3,7 @@ import configureStore from 'redux-mock-store'
 import { mount } from 'enzyme'
 import { Provider } from 'react-redux'
 
-import { Button } from 'client/components/forms/buttons/button'
+import { Button } from 'client/components/Button'
 import { NewItemButton } from '../NewItemButton'
 import NewItemMenu from '../NewItemMenu'
 

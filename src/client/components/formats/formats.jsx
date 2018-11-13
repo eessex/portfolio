@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Button } from 'client/components/forms/buttons/button'
-import { Format } from '../format/format.jsx'
+import { Button } from 'client/components/Button'
+import { Format } from 'client/components/format/format'
 
 export const Formats = props => {
   const { formats, short, onClick } = props

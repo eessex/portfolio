@@ -1,10 +1,10 @@
 import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { Button } from 'client/components/forms/buttons/button'
+import { Button } from 'client/components/Button'
 import { FileInput } from 'client/components/forms/file_input'
-import { Image, Caption, ImageContainer } from './image'
 import { RichText } from 'client/components/text/draft/RichText'
+import { Image, Caption, ImageContainer } from './image'
 
 export class ImageEdit extends Component {
   static propTypes = {

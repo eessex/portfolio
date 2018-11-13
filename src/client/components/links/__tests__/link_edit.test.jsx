@@ -1,8 +1,8 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { Button } from '../../forms/buttons/button.jsx'
-import { LinkEdit } from '../link_edit.jsx'
-import { links } from '../../../tests/fixtures/components.js'
+import { Button } from 'client/components/Button'
+import { links } from 'client/tests/fixtures/components'
+import { LinkEdit } from '../link_edit'
 
 describe('LinkEdit', () => {
   const getWrapper = props => {

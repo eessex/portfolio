@@ -1,8 +1,7 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Button, ButtonContainer } from 'client/components/forms/buttons/button'
-import { SaveButton } from 'client/components/forms/buttons/save'
+import { Button, ButtonContainer } from 'client/components/Button'
 
 export const ItemAdminNav = props => {
   const {
@@ -43,10 +42,10 @@ export const ItemAdminNav = props => {
         />
       }
       {saveItem &&
-        <SaveButton
-          isSaved={isSaved}
-          isSaving={isSaving}
+        <Button
           onClick={() => saveItem(item, true)}
+          color={saveButtonColor(!isSaved, isSaving)}
+          text={isSaving ? 'Saving' : 'Save'}
         />
       }
       {deleteItem &&
@@ -57,6 +56,16 @@ export const ItemAdminNav = props => {
       }
     </Nav>
   )
+}
+
+const saveButtonColor = (needsSave, isSaving) => {
+  if (isSaving) {
+    return 'limegreen'
+  } else if (needsSave) {
+    return 'red'
+  } else {
+    return 'black'
+  }
 }
 
 export const Nav = styled.nav`

@@ -1,7 +1,7 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { Button } from '../button.jsx'
-import { FileInput } from '../../file_input/index.jsx'
+import { FileInput } from 'client/components/forms/file_input'
+import { Button } from '../index'
 
 describe('Button', () => {
   const child = <FileInput onChange={jest.fn()} fetchUpload={jest.fn()} />

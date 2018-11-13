@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Row, Col } from 'react-styled-flexboxgrid'
-import { Button } from 'client/components/forms/buttons/button'
+import { Button } from 'client/components/Button'
 
 export class LinkEdit extends Component {
   static propTypes = {

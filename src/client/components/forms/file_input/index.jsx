@@ -2,8 +2,8 @@ import axios from 'axios'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { Button } from '../buttons/button.jsx'
-import { H5 } from '../../../styles/text.jsx'
+import { Button } from 'client/components/Button'
+import { H5 } from 'client/styles/text'
 import { Loading } from 'client/components/layout/components/loading'
 
 export class FileInput extends Component {

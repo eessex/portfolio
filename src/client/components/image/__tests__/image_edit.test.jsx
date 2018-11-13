@@ -1,8 +1,9 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { FileInput } from 'client/components/forms/file_input/index.jsx'
+import { Button } from 'client/components/Button'
+import { FileInput } from 'client/components/forms/file_input'
 import { RichText } from 'client/components/text/draft/RichText'
-import { ImageEdit } from '../image_edit.jsx'
+import { ImageEdit } from '../image_edit'
 
 describe('ImageEdit', () => {
   const getWrapper = props => {
@@ -27,7 +28,7 @@ describe('ImageEdit', () => {
   it('Renders existing image with remove button', () => {
     const component = getWrapper(props)
     expect(component.find('img').getElement().props.src).toBe(props.item.url)
-    expect(component.find('Button').exists()).toBe(true)
+    expect(component.find(Button).exists()).toBe(true)
   })
 
   it('Renders caption if props.editCaption', () => {

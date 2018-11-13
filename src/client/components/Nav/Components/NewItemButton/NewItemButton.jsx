@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from 'client/components/forms/buttons/button'
+import { Button } from 'client/components/Button'
 import NewItemMenu from 'client/components/Nav/Components/NewItemButton/NewItemMenu'
 
 export class NewItemButton extends React.Component {

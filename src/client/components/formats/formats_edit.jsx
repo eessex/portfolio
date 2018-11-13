@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { Button } from '../forms/buttons/button.jsx'
-import { FormatEdit } from '../format/format_edit.jsx'
+import { Button } from 'client/components/Button'
+import { FormatEdit } from '../format/format_edit'
 
 export class FormatsEdit extends Component {
   static propTypes = {

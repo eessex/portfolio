@@ -4,7 +4,7 @@ import React from 'react'
 import { clone } from 'lodash'
 import { getDate } from 'client/utils'
 import { Formats } from 'client/components/formats/formats'
-import { Image, ImageContainer } from 'client/components/image/image'
+import { Image } from 'client/components/image/image'
 import { ImageEdit } from 'client/components/image/image_edit'
 import { H1, H4 } from 'client/styles/text'
 import { Text } from 'client/components/text/text'
@@ -117,28 +117,23 @@ ItemHeader.propTypes = {
 const ItemHeaderContainer = styled.div`
   margin-bottom: 2em;
 
+  ${VenueContainer} {
+    padding-bottom: 1em;
+  }
+
   ${H1} {
-    margin-top: -6px;
+    margin-top: 0;
     .public-DraftStyleDefault-block,
     .public-DraftEditorPlaceholder-root {
       padding: 0;
     }
     ${props => props.model === 'projects' && `
+      margin-top: -6px;
       font-size: 3em;
     `}
   }
 
   ${H4} {
     margin-bottom: .5em;
-  }
-
-  ${props => props.model !== 'pages' && props.model !== 'projects' && `
-    ${ImageContainer} {
-      margin-top: 2em;
-    }
-  `}
-
-  ${VenueContainer}: {
-    margin-bottom: 1em;
   }
 `

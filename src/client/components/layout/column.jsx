@@ -11,7 +11,7 @@ import { LinksList } from 'client/components/links/links_list'
 import { Social } from 'client/components/social/social_list'
 import { SocialContainer } from './grid'
 
-export const LayoutColumn = (props) => {
+export const LayoutColumn = props => {
   const {
     children,
     item,
@@ -61,7 +61,7 @@ export const LayoutColumn = (props) => {
                 description={item.description}
                 onChange={onChange && onChange}
               />
-              {links &&
+              {links && links.length > 0 &&
                 <LinksList links={links} />
               }
               {social &&
@@ -70,6 +70,7 @@ export const LayoutColumn = (props) => {
                 </SocialContainer>
               }
             </ItemBody>
+
             {embed_codes &&
               <EmbedList embed_codes={embed_codes} />
             }

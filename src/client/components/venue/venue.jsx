@@ -30,7 +30,7 @@ export const Venue = props => {
   )
 }
 
-const VenueContainer = styled.div`
+export const VenueContainer = styled.div`
   position: relative
 `
 

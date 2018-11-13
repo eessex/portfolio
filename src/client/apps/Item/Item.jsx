@@ -7,7 +7,7 @@ import * as url from 'url'
 
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import { NotFound } from 'client/components/NotFound'
-import { Loading } from 'client/components/layout/components/loading'
+import { Loading } from 'client/components/Loading'
 import { Item as ViewItem } from 'client/components/item'
 import * as itemActions from 'client/actions/item'
 const { BASE_URL } = process.env

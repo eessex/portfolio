@@ -5,7 +5,7 @@ import { createUser, logoutUser } from 'client/actions/user'
 import { Button } from 'client/components/Button'
 import { ColumnForm, Input, ErrorContainer } from 'client/styles/forms'
 import { LayoutColumn } from 'client/components/layout/column'
-import { Loading } from 'client/components/layout/components/loading'
+import { Loading } from 'client/components/Loading'
 
 export class NewUser extends Component {
   static propTypes = {

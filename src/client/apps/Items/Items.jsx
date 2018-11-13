@@ -6,7 +6,7 @@ import * as itemsActions from 'client/actions/items'
 import { Events } from './Components/Events'
 import { Projects } from './Components/Projects'
 import { Publications } from './Components/Publications'
-import { Loading } from 'client/components/layout/components/loading'
+import { Loading } from 'client/components/Loading'
 
 export class Items extends Component {
   static propTypes = {

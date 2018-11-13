@@ -1,25 +1,26 @@
 import { mount } from 'enzyme'
 import React from 'react'
 import { Input, ErrorContainer } from 'client/styles/forms'
-import { Loading } from 'client/components/layout/components/loading'
-import { Login } from '../login.jsx'
+import { Loading } from 'client/components/Loading'
+import { NewUser } from '../new'
 
-describe('Login', () => {
+describe('NewUser', () => {
   window.location.replace = jest.fn()
 
   const getWrapper = props => {
     return mount(
-      <Login {...props} />
+      <NewUser {...props} />
     )
   }
-  let props
 
+  let props
   beforeEach(() => {
     props = {
       error: null,
+      createUserAction: jest.fn(),
+      isAuthenticated: true,
       loading: false,
-      loginUserAction: jest.fn(),
-      isAuthenticated: false
+      logoutUserAction: jest.fn()
     }
   })
 
@@ -37,18 +38,22 @@ describe('Login', () => {
     expect(inputs.at(0).getElement().props.required).toBe(true)
     expect(inputs.at(1).getElement().props.placeholder).toBe('password')
     expect(inputs.at(1).getElement().props.required).toBe(true)
+    expect(inputs.at(2).getElement().props.placeholder).toBe('confirm password')
+    expect(inputs.at(2).getElement().props.required).toBe(true)
   })
 
-  it('Calls #loginUserAction on submit', () => {
+  it('Calls #createUserAction on submit', () => {
     let email = 'email@email.com'
     let password = 'password'
+
     const component = getWrapper(props)
     component.instance().email.value = email
     component.instance().password.value = password
+    component.instance().password_confirm.value = password
     component.find('button').simulate('click')
 
-    expect(props.loginUserAction.mock.calls[0][0].email).toBe(email)
-    expect(props.loginUserAction.mock.calls[0][0].password).toBe(password)
+    expect(props.createUserAction.mock.calls[0][0].email).toBe(email)
+    expect(props.createUserAction.mock.calls[0][0].password).toBe(password)
   })
 
   it('Renders errors if present', () => {
@@ -59,8 +64,8 @@ describe('Login', () => {
     expect(component.find(ErrorContainer)).toHaveLength(1)
   })
 
-  xit('Forwards to home if logged in', () => {
-    props.isAuthenticated = true
+  it('Forwards to home if not logged in', () => {
+    props.isAuthenticated = false
     getWrapper(props)
 
     expect(window.location.replace.mock.calls[0][0]).toBe('/')

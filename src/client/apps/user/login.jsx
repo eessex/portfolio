@@ -5,7 +5,7 @@ import { loginUser } from 'client/actions/user'
 import { Button } from 'client/components/Button'
 import { ColumnForm, Input, ErrorContainer } from 'client/styles/forms'
 import { LayoutColumn } from 'client/components/layout/column'
-import { Loading } from 'client/components/layout/components/loading'
+import { Loading } from 'client/components/Loading'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 
 export class Login extends Component {

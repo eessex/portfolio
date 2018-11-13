@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Button } from 'client/components/Button'
 import { H5 } from 'client/styles/text'
-import { Loading } from 'client/components/layout/components/loading'
+import { Loading } from 'client/components/Loading'
 
 export class FileInput extends Component {
   static propTypes = {

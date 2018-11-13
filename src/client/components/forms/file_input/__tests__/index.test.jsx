@@ -1,6 +1,6 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { FileInput, DragZone } from '../index.jsx'
+import { FileInput, DragZone } from '../index'
 
 describe('FileInput', () => {
   let props = {}

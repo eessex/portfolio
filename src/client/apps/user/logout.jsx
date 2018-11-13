@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { logoutUser } from 'client/actions/user'
 import { LayoutColumn } from 'client/components/layout/column'
-import { Loading } from 'client/components/layout/components/loading'
+import { Loading } from 'client/components/Loading'
 
 export class Login extends Component {
   static propTypes = {

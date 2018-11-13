@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import * as pageActions from 'client/actions/page'
-import { Loading } from 'client/components/layout/components/loading'
+import { Loading } from 'client/components/Loading'
 import { Home } from 'client/apps/Page/Components/Home'
 
 export class Page extends Component {

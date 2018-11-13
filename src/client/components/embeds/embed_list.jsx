@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Embed } from './embed'
 import { Button } from 'client/components/forms/buttons/button'
-import { PlainText } from 'client/components/forms/rich_text/plain_text'
+import { PlainText } from 'client/components/text/draft/PlainText'
 import { P } from 'client/styles/text'
 
 export class EmbedList extends Component {

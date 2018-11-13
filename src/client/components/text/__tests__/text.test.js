@@ -1,6 +1,6 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { PlainText } from 'client/components/forms/rich_text/plain_text'
+import { PlainText } from 'client/components/text/draft/PlainText'
 import { Text } from '../text'
 
 describe('Text', () => {

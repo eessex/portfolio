@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 import { Button } from 'client/components/forms/buttons/button'
 import { FileInput } from 'client/components/forms/file_input'
 import { Image, Caption, ImageContainer } from './image'
-import { RichText } from 'client/components/forms/rich_text'
+import { RichText } from 'client/components/text/draft/RichText'
 
 export class ImageEdit extends Component {
   static propTypes = {

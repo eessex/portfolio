@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { PlainText } from './rich_text/plain_text.jsx'
+import { PlainText } from 'client/components/text/draft/PlainText'
 
 export class TextInput extends Component {
   static propTypes = {

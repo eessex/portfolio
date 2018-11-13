@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { RichText } from 'client/components/forms/rich_text'
+import { RichText } from 'client/components/text/draft/RichText'
 import { P } from 'client/styles/text'
 
 export const Description = props => {

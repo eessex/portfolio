@@ -8,9 +8,9 @@ import {
   RichUtils
 } from 'draft-js'
 import { convertFromHTML, convertToHTML } from 'draft-convert'
-import { decorator } from './util.js'
-import UrlInput from './url_input.jsx'
-import { Button } from '../../forms/buttons/button.jsx'
+import { Button } from 'client/components/forms/buttons/button'
+import { decorator } from './util'
+import { UrlInput } from './components/UrlInput'
 
 export class RichText extends Component {
   static editor

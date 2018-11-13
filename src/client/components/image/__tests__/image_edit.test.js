@@ -1,8 +1,8 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { FileInput } from '../../forms/file_input/index.jsx'
+import { FileInput } from 'client/components/forms/file_input/index.jsx'
+import { RichText } from 'client/components/text/draft/RichText'
 import { ImageEdit } from '../image_edit.jsx'
-import { RichText } from '../../forms/rich_text/index.jsx'
 
 describe('ImageEdit', () => {
   const getWrapper = props => {

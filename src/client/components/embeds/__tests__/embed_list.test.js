@@ -1,7 +1,7 @@
 import { embed_codes } from 'client/tests/fixtures/components'
 import { mount } from 'enzyme'
 import React from 'react'
-import { PlainText } from 'client/components/forms/rich_text/plain_text'
+import { PlainText } from 'client/components/text/draft/PlainText'
 import { EmbedList } from '../embed_list'
 import { Embed } from '../embed'
 

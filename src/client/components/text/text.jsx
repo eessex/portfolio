@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { PlainText } from 'client/components/forms/rich_text/plain_text'
+import { PlainText } from 'client/components/text/draft/PlainText'
 
 export const Text = props => {
   const {

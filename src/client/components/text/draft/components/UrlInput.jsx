@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-import { Button } from '../buttons/button.jsx'
+import { Button } from 'client/components/forms/buttons/button'
 
-export default class UrlInput extends Component {
+export class UrlInput extends Component {
+  static url
   static propTypes = {
     confirmLink: PropTypes.func,
     name: PropTypes.string,
@@ -11,7 +12,7 @@ export default class UrlInput extends Component {
 
   onSubmit = e => {
     e.preventDefault()
-    this.props.confirmLink(this.refs.url.value)
+    this.props.confirmLink(this.url.value)
   }
 
   render () {
@@ -21,7 +22,9 @@ export default class UrlInput extends Component {
       <form onSubmit={this.onSubmit}>
         <input
           placeholder={name}
-          ref='url'
+          ref={ref => {
+            this.url = ref
+          }}
           defaultValue={url || ''}
         />
         <Button>

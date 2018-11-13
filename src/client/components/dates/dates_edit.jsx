@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { CheckboxInput } from 'client/components/forms/checkbox_input'
+import { Checkbox } from 'client/components/FormInputs/Checkbox'
 import { DateInput } from './DateInput'
 
 export class DatesEdit extends Component {
@@ -74,7 +74,7 @@ export class DatesEdit extends Component {
 
         <Row>
           <Col>
-            <CheckboxInput
+            <Checkbox
               label='Hide End Date'
               name='end_date'
               value={!hasEndDate}
@@ -82,7 +82,7 @@ export class DatesEdit extends Component {
             />
           </Col>
           <Col>
-            <CheckboxInput
+            <Checkbox
               label='Hide Time'
               name='all_day'
               value={all_day}

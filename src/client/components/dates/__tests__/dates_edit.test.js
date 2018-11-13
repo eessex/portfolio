@@ -1,6 +1,6 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { CheckboxInput } from 'client/components/forms/checkbox_input'
+import { Checkbox } from 'client/components/FormInputs/Checkbox'
 import { DatesEdit } from '../dates_edit'
 import { DateInput } from '../DateInput'
 
@@ -24,7 +24,7 @@ describe('DatesEdit', () => {
   describe('hide end date', () => {
     it('is checked by default', () => {
       const component = getElement(props)
-      const input = component.find(CheckboxInput).at(0).getElement().props
+      const input = component.find(Checkbox).at(0).getElement().props
 
       expect(component.find(DateInput).length).toBe(1)
       expect(input.value).toBe(true)
@@ -33,7 +33,7 @@ describe('DatesEdit', () => {
     it('is unchecked if has end_date', () => {
       props.end_date = '2018-05-03T23:00:00.000Z'
       const component = getElement(props)
-      const input = component.find(CheckboxInput).at(0).getElement().props
+      const input = component.find(Checkbox).at(0).getElement().props
 
       expect(component.find(DateInput).length).toBe(2)
       expect(input.value).toBe(false)
@@ -52,7 +52,7 @@ describe('DatesEdit', () => {
     it('is unchecked by default', () => {
       props.end_date = '2018-05-03T23:00:00.000Z'
       const component = getElement(props)
-      const input = component.find(CheckboxInput).at(1).getElement().props
+      const input = component.find(Checkbox).at(1).getElement().props
 
       expect(component.find('input[type="time"]').length).toBe(2)
       expect(input.value).toBe(false)

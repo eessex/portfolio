@@ -8,7 +8,7 @@ const States = [
   'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
 ]
 
-export class SelectInput extends Component {
+export class Select extends Component {
   static propTypes = {
     label: PropTypes.string,
     name: PropTypes.string,

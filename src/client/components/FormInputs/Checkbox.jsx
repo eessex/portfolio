@@ -1,21 +1,17 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import styled from 'styled-components'
-import { H5 } from '../../styles/text.jsx'
+import { H5 } from 'client/styles/text'
 
-export const CheckboxInput = props => {
-  const {
-    label,
-    value,
-    onChange
-  } = props
+export const Checkbox = props => {
+  const { label, value, onChange } = props
 
   return (
     <CheckboxInputContainer>
       <input
         type='checkbox'
         defaultChecked={value}
-        onChange={(e) => onChange(e.target.checked)}
+        onChange={e => onChange(e.target.checked)}
       />
 
       {label &&
@@ -25,7 +21,7 @@ export const CheckboxInput = props => {
   )
 }
 
-CheckboxInput.propTypes = {
+Checkbox.propTypes = {
   label: PropTypes.string,
   value: PropTypes.bool,
   onChange: PropTypes.func.isRequired

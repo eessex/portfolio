@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { clone } from 'lodash'
 import { Col, Row } from 'react-styled-flexboxgrid'
-import { SelectInput } from 'client/components/forms/select_input'
+import { Select } from 'client/components/FormInputs/Select'
 
 export class VenueEdit extends Component {
   static propTypes = {
@@ -81,7 +81,7 @@ export class VenueEdit extends Component {
           </Col>
 
           <Col xs={12} sm={2}>
-            <SelectInput
+            <Select
               value={state || 0}
               states
               onChange={(key, value) => this.onChange('state', value)}

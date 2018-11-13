@@ -3,8 +3,8 @@ import { mount } from 'enzyme'
 import React from 'react'
 import { formats } from 'client/tests/fixtures/components'
 import { FormatEdit } from '../format_edit'
-import { CheckboxInput } from 'client/components/forms/checkbox_input'
-import { SelectInput } from 'client/components/forms/select_input'
+import { Checkbox } from 'client/components/FormInputs/Checkbox'
+import { Select } from 'client/components/FormInputs/Select'
 import { Input } from 'client/styles/forms'
 
 describe('Format', () => {
@@ -30,7 +30,7 @@ describe('Format', () => {
   it('Can save changed data', () => {
     props.index = 1
     const component = getElement(props)
-    const input = component.find(SelectInput).getElement()
+    const input = component.find(Select).getElement()
 
     input.props.onChange('format', 'CD')
     component.find('button').simulate('click')
@@ -49,7 +49,7 @@ describe('Format', () => {
     it('Renders field', () => {
       props.item = {}
       const component = getElement(props)
-      const input = component.find(SelectInput).getElement()
+      const input = component.find(Select).getElement()
 
       expect(input.props.options).toEqual(
         [ 'LP', '2xLP', 'Cassette', '2xCassette', 'CD', '2xCD', 'Digital' ]
@@ -58,14 +58,14 @@ describe('Format', () => {
 
     it('Renders saved data', () => {
       const component = getElement(props)
-      const input = component.find(SelectInput).getElement()
+      const input = component.find(Select).getElement()
 
       expect(input.props.value).toBe('Cassette')
     })
 
     it('Can change data', () => {
       const component = getElement(props)
-      const input = component.find(SelectInput).getElement()
+      const input = component.find(Select).getElement()
       input.props.onChange('format', 'CD')
 
       expect(component.state().item.format).toBe('CD')
@@ -128,7 +128,7 @@ describe('Format', () => {
   describe('Compilation checkbox', () => {
     it('Renders field', () => {
       const component = getElement(props)
-      const input = component.find(CheckboxInput).at(0)
+      const input = component.find(Checkbox).at(0)
 
       expect(input.getElement().props.label).toBe('Compilation')
       expect(input.getElement().props.value).toBeFalsy()
@@ -137,7 +137,7 @@ describe('Format', () => {
     it('Renders saved data', () => {
       props.item.compilation = true
       const component = getElement(props)
-      const input = component.find(CheckboxInput).at(0)
+      const input = component.find(Checkbox).at(0)
 
       expect(input.getElement().props.value).toBe(true)
     })
@@ -145,7 +145,7 @@ describe('Format', () => {
     it('Can change data', () => {
       props.item.compilation = false
       const component = getElement(props)
-      const input = component.find(CheckboxInput).at(0).getElement()
+      const input = component.find(Checkbox).at(0).getElement()
       input.props.onChange('compilation', true)
 
       expect(component.state().item.compilation).toBe(true)
@@ -156,7 +156,7 @@ describe('Format', () => {
   describe('Featured artist checkbox', () => {
     it('Renders field', () => {
       const component = getElement(props)
-      const input = component.find(CheckboxInput).at(1)
+      const input = component.find(Checkbox).at(1)
 
       expect(input.getElement().props.label).toBe('Featuring')
       expect(input.getElement().props.value).toBeFalsy()
@@ -165,7 +165,7 @@ describe('Format', () => {
     it('Renders saved data', () => {
       props.item.featuring = true
       const component = getElement(props)
-      const input = component.find(CheckboxInput).at(1)
+      const input = component.find(Checkbox).at(1)
 
       expect(input.getElement().props.value).toBe(true)
     })
@@ -173,7 +173,7 @@ describe('Format', () => {
     it('Can change data', () => {
       props.item.featuring = false
       const component = getElement(props)
-      const input = component.find(CheckboxInput).at(1).getElement()
+      const input = component.find(Checkbox).at(1).getElement()
       input.props.onChange('featuring', true)
 
       expect(component.state().item.featuring).toBe(true)

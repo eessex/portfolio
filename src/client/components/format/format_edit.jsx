@@ -4,8 +4,8 @@ import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 
 import { Button } from 'client/components/Button'
-import { CheckboxInput } from 'client/components/forms/checkbox_input'
-import { SelectInput } from 'client/components/forms/select_input'
+import { Checkbox } from 'client/components/FormInputs/Checkbox'
+import { Select } from 'client/components/FormInputs/Select'
 import { Input } from 'client/styles/forms'
 
 export class FormatEdit extends Component {
@@ -71,7 +71,7 @@ export class FormatEdit extends Component {
       <FormatEditContainer>
         <Row>
           <Col>
-            <SelectInput
+            <Select
               name='format'
               value={format}
               options={['LP', '2xLP', 'Cassette', '2xCassette', 'CD', '2xCD', 'Digital']}
@@ -97,14 +97,14 @@ export class FormatEdit extends Component {
             />
           </Col>
           <Col>
-            <CheckboxInput
+            <Checkbox
               label='Compilation'
               value={compilation}
               onChange={() => this.onChangeFormat('compilation', !compilation)}
             />
           </Col>
           <Col>
-            <CheckboxInput
+            <Checkbox
               label='Featuring'
               value={featuring}
               onChange={() => this.onChangeFormat('featuring', !featuring)}
@@ -114,9 +114,9 @@ export class FormatEdit extends Component {
             <Button
               color={needsSave ? 'red' : 'black'}
               onClick={this.saveItem}
-            >
-              Save
-            </Button>
+              text='save'
+            />
+
             {onRemoveFormat &&
               <Button
                 borderless

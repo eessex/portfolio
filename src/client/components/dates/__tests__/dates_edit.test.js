@@ -1,8 +1,8 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { DatesEdit } from '../dates_edit'
 import { CheckboxInput } from 'client/components/forms/checkbox_input'
-import { DateInput } from 'client/components/forms/date_input'
+import { DatesEdit } from '../dates_edit'
+import { DateInput } from '../DateInput'
 
 describe('DatesEdit', () => {
   const getElement = props => {

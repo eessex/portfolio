@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { CheckboxInput } from 'client/components/forms/checkbox_input'
-import { DateInput } from 'client/components/forms/date_input'
+import { DateInput } from './DateInput'
 
 export class DatesEdit extends Component {
   static propTypes = {

@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import moment from 'moment'
-import { Input } from 'client/styles/forms.jsx'
+import { Input } from 'client/styles/forms'
 
 export class DateInput extends Component {
   static date
@@ -47,7 +47,7 @@ export class DateInput extends Component {
         }
         <Input
           type='date'
-          innerRef={(ref) => { this.date = ref }}
+          innerRef={ref => { this.date = ref }}
           required={required || false}
           defaultValue={moment(value).format('YYYY-MM-DD')}
           onKeyUp={this.onKeyUp}
@@ -56,7 +56,7 @@ export class DateInput extends Component {
         {!allDay &&
           <Input
             type='time'
-            innerRef={(ref) => { this.time = ref }}
+            innerRef={ref => { this.time = ref }}
             defaultValue={moment(value).format('HH:mm')}
             onKeyUp={this.onKeyUp}
           />

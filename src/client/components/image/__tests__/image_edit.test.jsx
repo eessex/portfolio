@@ -1,7 +1,7 @@
 import { mount } from 'enzyme'
 import React from 'react'
 import { Button } from 'client/components/Button'
-import { FileInput } from 'client/components/forms/file_input'
+import { FileInput } from 'client/components/FileInput'
 import { RichText } from 'client/components/text/draft/RichText'
 import { ImageEdit } from '../image_edit'
 

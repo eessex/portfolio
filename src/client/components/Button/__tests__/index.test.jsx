@@ -1,6 +1,6 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { FileInput } from 'client/components/forms/file_input'
+import { FileInput } from 'client/components/FileInput'
 import { Button } from '../index'
 
 describe('Button', () => {

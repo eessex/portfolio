@@ -2,7 +2,7 @@ import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Button } from 'client/components/Button'
-import { FileInput } from 'client/components/forms/file_input'
+import { FileInput } from 'client/components/FileInput'
 import { RichText } from 'client/components/text/draft/RichText'
 import { Image, Caption, ImageContainer } from './image'
 

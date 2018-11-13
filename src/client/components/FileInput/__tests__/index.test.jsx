@@ -53,10 +53,9 @@ describe('FileInput', () => {
     const component = mount(
       <FileInput {...props} />
     )
-
     const remove = component.find('.fa-times')
     remove.simulate('click')
-    
+
     expect(props.onDelete.mock.calls.length).toBe(1)
   })
 
@@ -87,7 +86,7 @@ describe('FileInput', () => {
       <FileInput {...props} />
     )
     const input = component.find('input')
-    input.simulate('change', { target: { files: ['files'], file: 'file' } } )
+    input.simulate('change', { target: { files: ['files'], file: 'file' } })
 
     expect(props.fetchUpload.mock.calls[0][0]).toBe('files')
     expect(props.fetchUpload.mock.calls[0][1]).toBe('file')

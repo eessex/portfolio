@@ -4,7 +4,7 @@ import {
   UPDATE_ITEM
 } from '../actions'
 
-import fetch from 'isomorphic-fetch'
+import 'isomorphic-fetch'
 import * as url from 'url'
 const { API_URL } = process.env
 

@@ -37,7 +37,7 @@ describe('Items', () => {
       )
     })
 
-    it('Gets items of expected model (anon)', () => { 
+    it('Gets items of expected model (anon)', () => {
       expect(
         itemsActions.fetchItems('events', {published: false})
       ).toEqual(

@@ -1,6 +1,9 @@
+import { cloneDeep } from 'lodash'
 import * as itemActions from '../item'
 import * as types from '../index'
-import { UpcomingEvent } from '../../tests/fixtures/events'
+import { UpcomingEvent } from 'client/tests/fixtures/events'
+
+jest.mock('isomorphic-fetch')
 
 describe('Item', () => {
   let data
@@ -8,12 +11,20 @@ describe('Item', () => {
   let dispatch
 
   beforeEach(() => {
-    data = UpcomingEvent
+    data = cloneDeep(UpcomingEvent)
     dispatch = jest.fn()
     getState = jest.fn(() => ({
       itemReducer: { item: data }
     }))
   })
+
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      status: 200,
+      ok: true,
+      json: () => Promise.resolve(UpcomingEvent)
+    })
+  )
 
   it('#changeItem gets item of expected model', () => {
     expect(
@@ -29,25 +40,33 @@ describe('Item', () => {
     )
   })
 
-  xit('#fetchItem gets item of expected model', () => {
-    // FIXME
-    // try {
-    itemActions.fetchItem('projects', data._id)(dispatch).then(res =>
-      console.log(res)
-    )
-    // console.log(dispatch.mock.calls)
-    expect(dispatch.mock.calls[0][0].type).toBe('FETCH_ITEM_REQUESTED')
-    // } catch (err) {
-    //   console.log(err)
-    // }
+  it('#fetchItem gets item at expected endpoint', async () => {
+    try {
+      await itemActions.fetchItem('/projects', data._id)(dispatch)
+      expect(global.fetch.mock.calls[0][0]).toMatch('/api/projects/5a0a60d48dcb886c6a1ab1df')
+      expect(dispatch.mock.calls[0][0].type).toBe('FETCH_ITEM_REQUESTED')
+      expect(dispatch.mock.calls[1][0].type).toBe('FETCH_ITEM_SUCCESS')
+      expect(dispatch.mock.calls[1][0].payload.item).toEqual(UpcomingEvent)
+    } catch (err) {
+      console.warn(err)
+    }
   })
 
-  xit('#fetchItem can catch an error', async () => {
-    // FIXME
+  it('#fetchItem can catch an error', async () => {
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        status: 404,
+        ok: false,
+        json: () => Promise.reject(new Error({ message: 'Not found' }))
+      })
+    )
+
     try {
-      await itemActions.fetchItem('projects', data._id)(dispatch)
-      // const theRes = await res(dispatch)
+      await itemActions.fetchItem('/projects', data._id)(dispatch)
+      expect(global.fetch.mock.calls[0][0]).toMatch('/api/projects/5a0a60d48dcb886c6a1ab1df')
+      expect(dispatch.mock.calls[0][0].type).toBe('FETCH_ITEM_REQUESTED')
       expect(dispatch.mock.calls[1][0].type).toBe('FETCH_ITEM_ERROR')
+      expect(dispatch.mock.calls[1][0].payload.error.message).toBe('Error: 404')
     } catch (err) {
       console.log(err)
     }

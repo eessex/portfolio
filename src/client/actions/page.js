@@ -1,4 +1,4 @@
-import fetch from 'isomorphic-fetch'
+import 'isomorphic-fetch'
 const { API_URL } = process.env
 
 export const FETCH_PAGE_SUCCESS = 'FETCH_PAGE_SUCCESS'
@@ -29,11 +29,11 @@ export const fetchPage = (id, query = {}) => dispatch => {
       return page
     })
     .catch(error => {
-      console.error(error)
+      console.warn(error)
       dispatch({
         type: FETCH_PAGE_ERROR,
         payload: {
-          error
+          error: { message: error.toString() }
         }
       })
       return null

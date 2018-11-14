@@ -4,6 +4,7 @@ import React, { Component } from 'react'
 import { clone } from 'lodash'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { Select } from 'client/components/FormInputs/Select'
+import { Input } from 'client/styles/forms'
 
 export class VenueEdit extends Component {
   static propTypes = {
@@ -54,7 +55,7 @@ export class VenueEdit extends Component {
       <VenueEditContainer>
         <Row>
           <Col xs={12} sm={6}>
-            <input
+            <Input
               placeholder='Venue Name'
               value={name || ''}
               onChange={(e) => this.onChange('name', e.target.value)}
@@ -63,7 +64,7 @@ export class VenueEdit extends Component {
           </Col>
 
           <Col xs={12} sm={6}>
-            <input
+            <Input
               placeholder='Address'
               value={address || ''}
               onChange={(e) => this.onChange('address', e.target.value)}
@@ -73,7 +74,7 @@ export class VenueEdit extends Component {
 
         <Row>
           <Col xs={12} sm={4}>
-            <input
+            <Input
               placeholder='City'
               value={city || ''}
               onChange={(e) => this.onChange('city', e.target.value)}
@@ -89,7 +90,7 @@ export class VenueEdit extends Component {
           </Col>
 
           <Col xs={12} sm={6}>
-            <input
+            <Input
               placeholder='Country'
               value={country || ''}
               onChange={(e) => this.onChange('country', e.target.value)}
@@ -107,7 +108,7 @@ const VenueEditContainer = styled.div`
     font-size: 1em;
     width: 100%;
     border: none;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid ${({ theme }) => theme.colors.gray};
   }
 
   select {
@@ -118,6 +119,10 @@ const VenueEditContainer = styled.div`
   ${Row} {
     &:first-child {
       margin: 10px 0 30px 0;
+    }
+    &:last-child {
+      margin-left: 0;
+      margin-right: 0;
     }
     ${Col} {
       padding-left: 0;

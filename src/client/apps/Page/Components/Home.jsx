@@ -28,7 +28,7 @@ const HomeContainer = styled(ColumnContainer)`
 `
 
 export const PageBackground = styled.div`
-  background-color: silver;
+  background-color: ${({ theme }) => theme.colors.gray};
   ${props => props.backgroundImg && `
     background-color: white;
     background: url(${props.backgroundImg});

@@ -1,5 +1,7 @@
 import React from 'react'
 import { mount } from 'enzyme'
+import { ThemeProvider } from 'styled-components'
+import { theme } from 'client/styles/theme'
 import { Home, PageBackground } from '../Home'
 
 describe('Home', () => {
@@ -13,7 +15,9 @@ describe('Home', () => {
   }
   const getWrapper = (passedProps = props) => {
     return mount(
-      <Home {...passedProps} />
+      <ThemeProvider theme={theme}>
+        <Home {...passedProps} />
+      </ThemeProvider>
     )
   }
 

@@ -233,6 +233,6 @@ const RichTextContainer = styled.div`
     left: 0;
     right: 0;
     top: 0;
-    color: gray;
+    color: ${({ theme }) => theme.colors.gray};
   }
 `

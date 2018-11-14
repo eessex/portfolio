@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 export const Input = styled.input`
   font-size: 1em;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.gray};
   border-left: 0;
   border-right: 0;
   border-top: 0;
@@ -13,7 +13,7 @@ export const Input = styled.input`
   }
   &::placeholder,
   .public-DraftEditorPlaceholder-inner {
-    color: #ddd;
+    color: ${({ theme }) => theme.colors.gray};
   }
 `
 
@@ -33,5 +33,5 @@ export const ColumnForm = styled.form`
 `
 
 export const Placeholder = styled.span`
-  color: #ddd;
+  color: ${({ theme }) => theme.colors.gray};
 `

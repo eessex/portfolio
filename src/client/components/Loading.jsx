@@ -26,7 +26,7 @@ const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #ddd;
+  color: ${({ theme }) => theme.colors.gray};
   z-index: -1;
 `
 Loading.propTypes = {

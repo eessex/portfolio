@@ -2,6 +2,8 @@ import { mount } from 'enzyme'
 import configureStore from 'redux-mock-store'
 import { Provider } from 'react-redux'
 import React from 'react'
+import { ThemeProvider } from 'styled-components'
+import { theme } from 'client/styles/theme'
 import { DatesModal } from 'client/components/dates/dates_modal'
 import { EmbedModal } from 'client/components/embeds/embed_modal'
 import { FormatsModal } from 'client/components/formats/formats_modal'
@@ -19,7 +21,9 @@ describe('ItemEditModals', () => {
 
     return mount(
       <Provider store={store}>
-        <ItemEditModals {...props} />
+        <ThemeProvider theme={theme}>
+          <ItemEditModals {...props} />
+        </ThemeProvider>
       </Provider>
     )
   }

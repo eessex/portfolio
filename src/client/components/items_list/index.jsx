@@ -154,7 +154,7 @@ const ItemsListContainer = styled.div`
 
 const LayoutToggle = H6.extend`
   &:hover {
-    color: #ddd;
+    color: ${({ theme }) => theme.colors.gray};
     cursor: pointer;
   }
   .fa {

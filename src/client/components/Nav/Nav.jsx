@@ -194,7 +194,7 @@ export const NavContainer = styled.div`
     top: 0;
     background: white;
     z-index: 10;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid ${({ theme }) => theme.colors.gray};
   `}
 
   @media (max-width: 46rem) {

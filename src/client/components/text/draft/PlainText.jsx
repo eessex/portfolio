@@ -84,7 +84,7 @@ const PlainTextContainer = styled.div`
   position: relative;
   .public-DraftEditorPlaceholder-root {
     position: absolute;
-    color: #ddd;
+    color: ${({ theme }) => theme.colors.gray};
   }
 `
 

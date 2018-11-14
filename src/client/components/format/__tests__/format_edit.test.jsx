@@ -1,16 +1,20 @@
 import { clone } from 'lodash'
 import { mount } from 'enzyme'
 import React from 'react'
+import { ThemeProvider } from 'styled-components'
 import { formats } from 'client/tests/fixtures/components'
 import { FormatEdit } from '../format_edit'
 import { Checkbox } from 'client/components/FormInputs/Checkbox'
 import { Select } from 'client/components/FormInputs/Select'
 import { Input } from 'client/styles/forms'
+import { theme } from 'client/styles/theme'
 
 describe('Format', () => {
   const getElement = props => {
     return mount(
-      <FormatEdit {...props} />
+      <ThemeProvider theme={theme}>
+        <FormatEdit {...props} />
+      </ThemeProvider>
     )
   }
 
@@ -67,9 +71,8 @@ describe('Format', () => {
       const component = getElement(props)
       const input = component.find(Select).getElement()
       input.props.onChange('format', 'CD')
-
-      expect(component.state().item.format).toBe('CD')
-      expect(component.state().needsSave).toBe(true)
+      expect(component.find(FormatEdit).instance().state.item.format).toBe('CD')
+      expect(component.find(FormatEdit).instance().state.needsSave).toBe(true)
     })
   })
 
@@ -94,8 +97,8 @@ describe('Format', () => {
       const input = component.find(Input).at(0)
       input.simulate('change', {target: {value: '2020'}})
 
-      expect(component.state().item.release_year).toBe(2020)
-      expect(component.state().needsSave).toBe(true)
+      expect(component.find(FormatEdit).instance().state.item.release_year).toBe(2020)
+      expect(component.find(FormatEdit).instance().state.needsSave).toBe(true)
     })
   })
 
@@ -120,8 +123,8 @@ describe('Format', () => {
       const input = component.find(Input).at(1)
       input.simulate('change', {target: {value: 'Sky Walking'}})
 
-      expect(component.state().item.publisher).toBe('Sky Walking')
-      expect(component.state().needsSave).toBe(true)
+      expect(component.find(FormatEdit).instance().state.item.publisher).toBe('Sky Walking')
+      expect(component.find(FormatEdit).instance().state.needsSave).toBe(true)
     })
   })
 
@@ -148,8 +151,8 @@ describe('Format', () => {
       const input = component.find(Checkbox).at(0).getElement()
       input.props.onChange('compilation', true)
 
-      expect(component.state().item.compilation).toBe(true)
-      expect(component.state().needsSave).toBe(true)
+      expect(component.find(FormatEdit).instance().state.item.compilation).toBe(true)
+      expect(component.find(FormatEdit).instance().state.needsSave).toBe(true)
     })
   })
 
@@ -176,8 +179,8 @@ describe('Format', () => {
       const input = component.find(Checkbox).at(1).getElement()
       input.props.onChange('featuring', true)
 
-      expect(component.state().item.featuring).toBe(true)
-      expect(component.state().needsSave).toBe(true)
+      expect(component.find(FormatEdit).instance().state.item.featuring).toBe(true)
+      expect(component.find(FormatEdit).instance().state.needsSave).toBe(true)
     })
   })
 })

@@ -2,22 +2,37 @@ import { mount } from 'enzyme'
 import configureStore from 'redux-mock-store'
 import { Provider } from 'react-redux'
 import React from 'react'
-import { ItemAdminNav } from 'client/components/Nav/Components/ItemAdminNav'
+import { ThemeProvider } from 'styled-components'
+import { theme } from 'client/styles/theme'
 import { LayoutColumn } from 'client/components/layout/column'
 import { LayoutGrid } from 'client/components/layout/grid'
+import { Item } from '../index'
 import { ItemEdit } from '../item_edit'
-import { ItemEditModals } from '../item_edit_modals'
 
-describe('ItemEdit', () => {
+describe('Item', () => {
   const getWrapper = props => {
+    return mount(
+      <ThemeProvider theme={theme}>
+        <Item {...props} />
+      </ThemeProvider>
+    )
+  }
+
+  const getConnectedWrapper = props => {
     const mockStore = configureStore([])
     const store = mockStore({
-      itemReducer: { item: props.item }
+      itemReducer: {
+        item: props.item,
+        isSaved: true,
+        isSaving: false
+      }
     })
 
     return mount(
       <Provider store={store}>
-        <ItemEdit {...props} />
+        <ThemeProvider theme={theme}>
+          <Item {...props} />
+        </ThemeProvider>
       </Provider>
     )
   }
@@ -25,35 +40,22 @@ describe('ItemEdit', () => {
   let props
   beforeEach(() => {
     props = {
-      isEditing: null,
-      setEditing: jest.fn(),
-      changeItemAction: jest.fn(),
-      item: {},
-      isSaved: true,
-      isSaving: false,
-      maybeSaveItem: jest.fn(),
-      model: 'events'
+      editing: false,
+      model: 'events',
+      item: {}
     }
-  })
-
-  it('Renders ItemAdminNav', () => {
-    const component = getWrapper(props)
-    expect(component.find(ItemAdminNav).exists()).toBe(true)
-  })
-
-  it('Renders ItemEditModals', () => {
-    const component = getWrapper(props)
-    expect(component.find(ItemEditModals).exists()).toBe(true)
   })
 
   it('Renders LayoutColumn by default', () => {
     const component = getWrapper(props)
+
     expect(component.find(LayoutColumn).exists()).toBe(true)
   })
 
   it('Renders LayoutColumn if item is publications and no images', () => {
     props.model = 'publications'
     const component = getWrapper(props)
+
     expect(component.find(LayoutColumn).exists()).toBe(true)
   })
 
@@ -65,6 +67,7 @@ describe('ItemEdit', () => {
     }
     props.model = 'publications'
     const component = getWrapper(props)
+
     expect(component.find(LayoutGrid).exists()).toBe(true)
   })
 
@@ -75,20 +78,14 @@ describe('ItemEdit', () => {
       }]
     }
     const component = getWrapper(props)
+
     expect(component.find(LayoutGrid).exists()).toBe(true)
   })
 
-  it('#setEditing sets state.isEditing to arg', () => {
-    const component = getWrapper(props)
-    component.childAt(0).instance().setEditing('images')
-    expect(component.childAt(0).instance().state.isEditing).toBe('images')
-  })
+  it('Renders ItemEdit if props.editing', () => {
+    props.editing = true
+    const component = getConnectedWrapper(props)
 
-  it('#onChange calls props.changeItem and props.maybeSaveItem', () => {
-    const component = getWrapper(props)
-    component.childAt(0).instance().onChange('title', 'New Title')
-    expect(props.changeItemAction.mock.calls[0][0]).toBe('title')
-    expect(props.changeItemAction.mock.calls[0][1]).toBe('New Title')
-    expect(props.maybeSaveItem.mock.calls[0][0]).toBe(props.model)
+    expect(component.find(ItemEdit).exists()).toBe(true)
   })
 })

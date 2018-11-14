@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { Checkbox } from 'client/components/FormInputs/Checkbox'
-import { DateInput } from './DateInput'
+import { DateInput } from 'client/components/FormInputs/DateInput'
 
 export class DatesEdit extends Component {
   static propTypes = {
@@ -109,7 +109,7 @@ const DatesEditContainer = styled.div`
   }
   input {
     border: none;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid ${({ theme }) => theme.colors.gray};
     font-size: .9em;
     padding-bottom: 2px;
     font-family: inherit;

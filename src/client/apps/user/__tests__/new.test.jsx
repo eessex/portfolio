@@ -1,5 +1,7 @@
 import { mount } from 'enzyme'
 import React from 'react'
+import { ThemeProvider } from 'styled-components'
+import { theme } from 'client/styles/theme'
 import { Input, ErrorContainer } from 'client/styles/forms'
 import { Loading } from 'client/components/Loading'
 import { NewUser } from '../new'
@@ -9,7 +11,9 @@ describe('NewUser', () => {
 
   const getWrapper = props => {
     return mount(
-      <NewUser {...props} />
+      <ThemeProvider theme={theme}>
+        <NewUser {...props} />
+      </ThemeProvider>
     )
   }
 
@@ -47,9 +51,9 @@ describe('NewUser', () => {
     let password = 'password'
 
     const component = getWrapper(props)
-    component.instance().email.value = email
-    component.instance().password.value = password
-    component.instance().password_confirm.value = password
+    component.find(NewUser).instance().email.value = email
+    component.find(NewUser).instance().password.value = password
+    component.find(NewUser).instance().password_confirm.value = password
     component.find('button').simulate('click')
 
     expect(props.createUserAction.mock.calls[0][0].email).toBe(email)

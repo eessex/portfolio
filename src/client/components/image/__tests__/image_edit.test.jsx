@@ -1,5 +1,7 @@
 import { mount } from 'enzyme'
 import React from 'react'
+import { ThemeProvider } from 'styled-components'
+import { theme } from 'client/styles/theme'
 import { Button } from 'client/components/Button'
 import { FileInput } from 'client/components/FileInput'
 import { RichText } from 'client/components/text/draft/RichText'
@@ -8,7 +10,9 @@ import { ImageEdit } from '../image_edit'
 describe('ImageEdit', () => {
   const getWrapper = props => {
     return mount(
-      <ImageEdit {...props} />
+      <ThemeProvider theme={theme}>
+        <ImageEdit {...props} />
+      </ThemeProvider>
     )
   }
 
@@ -70,7 +74,7 @@ describe('ImageEdit', () => {
   it('Can edit an image caption', () => {
     props.editCaption = true
     const component = getWrapper(props)
-    component.instance().onChangeText('<p>A new caption</p>')
+    component.find(ImageEdit).instance().onChangeText('<p>A new caption</p>')
     const newImage = props.onChange.mock.calls[0][0]
     expect(newImage.url).toBe(props.item.url)
     expect(newImage.caption).toBe('<p>A new caption</p>')

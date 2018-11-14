@@ -1,11 +1,15 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { Image } from '../image.jsx'
+import { ThemeProvider } from 'styled-components'
+import { theme } from 'client/styles/theme'
+import { Image } from '../image'
 
 describe('Image', () => {
   const getWrapper = props => {
     return mount(
-      <Image {...props} />
+      <ThemeProvider theme={theme}>
+        <Image {...props} />
+      </ThemeProvider>
     )
   }
 

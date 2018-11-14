@@ -1,13 +1,17 @@
 import { mount } from 'enzyme'
 import React from 'react'
+import { ThemeProvider } from 'styled-components'
+import { theme } from 'client/styles/theme'
 import { Checkbox } from 'client/components/FormInputs/Checkbox'
+import { DateInput } from 'client/components/FormInputs/DateInput'
 import { DatesEdit } from '../dates_edit'
-import { DateInput } from '../DateInput'
 
 describe('DatesEdit', () => {
   const getElement = props => {
     return mount(
-      <DatesEdit {...props} />
+      <ThemeProvider theme={theme}>
+        <DatesEdit {...props} />
+      </ThemeProvider>
     )
   }
 

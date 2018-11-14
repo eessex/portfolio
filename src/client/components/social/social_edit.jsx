@@ -105,7 +105,7 @@ export const SocialItem = styled.div`
 
 const A = styled.a`
   ${props => props.isPlaceholder && `
-    color: #ddd !important;
+    color: ${({ theme }) => theme.colors.gray} !important;
   `}
 `
 

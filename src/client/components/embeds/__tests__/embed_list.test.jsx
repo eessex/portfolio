@@ -1,6 +1,8 @@
 import { embed_codes } from 'client/tests/fixtures/components'
 import { mount } from 'enzyme'
 import React from 'react'
+import { ThemeProvider } from 'styled-components'
+import { theme } from 'client/styles/theme'
 import { PlainText } from 'client/components/text/draft/PlainText'
 import { EmbedList } from '../embed_list'
 import { Embed } from '../embed'
@@ -8,7 +10,9 @@ import { Embed } from '../embed'
 describe('EmbedList', () => {
   const getElement = props => {
     return mount(
-      <EmbedList {...props} />
+      <ThemeProvider theme={theme}>
+        <EmbedList {...props} />
+      </ThemeProvider>
     )
   }
 

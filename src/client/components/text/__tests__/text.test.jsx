@@ -1,12 +1,16 @@
 import { mount } from 'enzyme'
 import React from 'react'
 import { PlainText } from 'client/components/text/draft/PlainText'
+import { ThemeProvider } from 'styled-components'
+import { theme } from 'client/styles/theme'
 import { Text } from '../text'
 
 describe('Text', () => {
   const getElement = props => {
     return mount(
-      <Text {...props} />
+      <ThemeProvider theme={theme}>
+        <Text {...props} />
+      </ThemeProvider>
     )
   }
 

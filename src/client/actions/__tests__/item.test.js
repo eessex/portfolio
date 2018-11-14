@@ -40,19 +40,20 @@ describe('Item', () => {
     )
   })
 
-  it('#fetchItem gets item at expected endpoint', async () => {
+  it('#fetchItem gets item at expected endpoint', async done => {
     try {
       await itemActions.fetchItem('/projects', data._id)(dispatch)
       expect(global.fetch.mock.calls[0][0]).toMatch('/api/projects/5a0a60d48dcb886c6a1ab1df')
       expect(dispatch.mock.calls[0][0].type).toBe('FETCH_ITEM_REQUESTED')
       expect(dispatch.mock.calls[1][0].type).toBe('FETCH_ITEM_SUCCESS')
       expect(dispatch.mock.calls[1][0].payload.item).toEqual(UpcomingEvent)
+      done()
     } catch (err) {
       console.warn(err)
     }
   })
 
-  it('#fetchItem can catch an error', async () => {
+  it('#fetchItem can catch an error', async done => {
     global.fetch = jest.fn(() =>
       Promise.resolve({
         status: 404,
@@ -67,6 +68,7 @@ describe('Item', () => {
       expect(dispatch.mock.calls[0][0].type).toBe('FETCH_ITEM_REQUESTED')
       expect(dispatch.mock.calls[1][0].type).toBe('FETCH_ITEM_ERROR')
       expect(dispatch.mock.calls[1][0].payload.error.message).toBe('Error: 404')
+      done()
     } catch (err) {
       console.log(err)
     }

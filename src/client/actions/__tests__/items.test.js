@@ -35,7 +35,7 @@ describe('Items', () => {
   })
 
   describe('#fetchItems', () => {
-    it('#fetchItem gets item at expected endpoint', async () => {
+    it('#fetchItem gets item at expected endpoint', async done => {
       try {
         await itemsActions.fetchItems('/events')(dispatch)
 
@@ -43,10 +43,11 @@ describe('Items', () => {
         expect(dispatch.mock.calls[0][0].type).toBe('FETCH_ITEMS_REQUESTED')
         expect(dispatch.mock.calls[1][0].type).toBe('FETCH_ITEMS_SUCCESS')
         expect(dispatch.mock.calls[1][0].payload.items[0]).toEqual(UpcomingEvent)
+        done()
       } catch (err) { console.warn(err) }
     })
 
-    it('#fetchItem can catch an error', async () => {
+    it('#fetchItem can catch an error', async done => {
       global.fetch = jest.fn(() =>
         Promise.resolve({
           status: 500,
@@ -60,6 +61,7 @@ describe('Items', () => {
         expect(dispatch.mock.calls[0][0].type).toBe('FETCH_ITEMS_REQUESTED')
         expect(dispatch.mock.calls[1][0].type).toBe('FETCH_ITEMS_ERROR')
         expect(dispatch.mock.calls[1][0].payload.error.message).toBe('Error: Bad request')
+        done()
       } catch (err) { console.warn(err) }
     })
   })

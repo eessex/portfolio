@@ -1,4 +1,4 @@
-import fetch from 'isomorphic-fetch'
+import 'isomorphic-fetch'
 import {
   API,
   UPDATE_SETTINGS
@@ -33,11 +33,11 @@ export const fetchSettings = () => dispatch => {
       return settings
     })
     .catch(error => {
-      console.error(error)
+      console.warn(error)
       dispatch({
         type: FETCH_SETTINGS_ERROR,
         payload: {
-          error
+          error: { message: error.toString() }
         }
       })
       return null

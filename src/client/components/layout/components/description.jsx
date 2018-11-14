@@ -1,3 +1,4 @@
+import { stripTags } from 'underscore.string'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
@@ -10,6 +11,7 @@ export const Description = props => {
     onChange,
     placeholder
   } = props
+  const hasDescription = stripTags(description).length > 0
 
   return (
     <DescriptionContainer>
@@ -22,14 +24,16 @@ export const Description = props => {
               onChange={(value) => onChange('description', value)}
             />
           </P>
-        ) : <P dangerouslySetInnerHTML={{__html: description}} />
+        ) : hasDescription && <P dangerouslySetInnerHTML={{__html: description}} />
       }
     </DescriptionContainer>
   )
 }
 
 export const DescriptionContainer = styled.div`
-  margin-bottom: 1em;
+  ${P} {
+    margin-bottom: 1em;
+  }
 `
 
 Description.propTypes = {

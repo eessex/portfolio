@@ -36,7 +36,7 @@ export const ItemHeader = props => {
   const date = !isPublication && getDate(model, item)
 
   return (
-    <ItemHeaderContainer model={model}>
+    <ItemHeaderContainer model={model} hasImage={hasImage}>
       {label &&
         <Label
           label={label}
@@ -118,9 +118,10 @@ const ItemHeaderContainer = styled.div`
   margin-bottom: 2em;
 
   ${VenueContainer} {
-    padding-bottom: 1em;
+    ${props => props.hasImage && `
+      padding-bottom: 2em;
+    `}
   }
-
   ${H1} {
     margin-top: 0;
     .public-DraftStyleDefault-block,

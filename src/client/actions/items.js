@@ -1,4 +1,4 @@
-import fetch from 'isomorphic-fetch'
+import 'isomorphic-fetch'
 import * as url from 'url'
 import { API, CREATE_ITEM } from 'client/actions'
 const { API_URL } = process.env
@@ -46,11 +46,11 @@ export const fetchItems = (model = '', query = {}) => dispatch => {
       return items
     })
     .catch(error => {
-      console.error(error)
+      console.warn(error)
       dispatch({
         type: FETCH_ITEMS_ERROR,
         payload: {
-          error
+          error: { message: error.toString() }
         }
       })
       return null

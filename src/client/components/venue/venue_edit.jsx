@@ -8,7 +8,7 @@ import { Input } from 'client/styles/forms'
 
 export class VenueEdit extends Component {
   static propTypes = {
-    onChange: PropTypes.func,
+    onChange: PropTypes.func.isRequired,
     venue: PropTypes.shape({
       address: PropTypes.string,
       city: PropTypes.string,

@@ -12,7 +12,7 @@ export class Select extends Component {
   static propTypes = {
     label: PropTypes.string,
     name: PropTypes.string,
-    onChange: PropTypes.func,
+    onChange: PropTypes.func.isRequired,
     options: PropTypes.array,
     required: PropTypes.bool,
     states: PropTypes.bool,
@@ -46,24 +46,19 @@ export class Select extends Component {
         required={required || false}
         name={name}
         defaultValue={value}
-        onChange={(e) => onChange(name, e.target.value)} >
+        onChange={e => onChange(name, e.target.value)}
+      >
         {this.renderOptions(options)}
       </select>
     )
   }
 
   render () {
-    // const { required, label } = this.props
-
-    // TODO: Required indicators
-    // var group = label ? ' input-group' : ''
-    // var req = required ? ' req' : ''
-
     return (
-      <div>
+      <React.Fragment>
         {this.renderLabel()}
         {this.renderInput()}
-      </div>
+      </React.Fragment>
     )
   }
 }

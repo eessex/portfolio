@@ -22,7 +22,7 @@ export const VenueModal = props => {
 }
 
 VenueModal.propTypes = {
-  onChange: PropTypes.func,
+  onChange: PropTypes.func.isRequired,
   setEditing: PropTypes.func,
   venue: PropTypes.shape({
     address: PropTypes.string,

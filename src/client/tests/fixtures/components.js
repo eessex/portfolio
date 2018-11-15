@@ -9,6 +9,14 @@ export const links = [
   }
 ]
 
+export const Venue = {
+  country: 'USA',
+  state: 'NY',
+  city: 'New York',
+  address: '15 Gramercy Park S.',
+  name: 'National Arts Club'
+}
+
 export const embed_codes = [
   '<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/136440153&color=%23efefef&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>',
   '<iframe width="560" height="315" src="https://www.youtube.com/embed/ekRYnh-Hhq0?rel=0&amp;showinfo=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>',

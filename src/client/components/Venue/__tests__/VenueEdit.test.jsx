@@ -6,7 +6,7 @@ import { theme } from 'client/styles/theme'
 import { Input } from 'client/styles/forms'
 import { Select } from 'client/components/FormInputs/Select'
 import { Venue as VenueFixture } from 'client/tests/fixtures/components'
-import { VenueEdit } from '../venue_edit'
+import { VenueEdit } from '../VenueEdit'
 
 describe('VenueEdit', () => {
   let props

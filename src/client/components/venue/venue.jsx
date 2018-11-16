@@ -4,7 +4,8 @@ import React from 'react'
 import { Placeholder } from 'client/styles/forms'
 
 export const Venue = props => {
-  const { onClick, venue } = props
+  const { onClick } = props
+  const venue = props.venue || {}
   const { address, city, country, state, name } = venue
   const hasVenue = venue && (venue.name || venue.address)
 

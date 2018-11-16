@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Modal } from 'client/components/modal/modal'
-import { VenueEdit } from './venue_edit'
+import { VenueEdit } from './VenueEdit'
 
 export const VenueModal = props => {
   const {

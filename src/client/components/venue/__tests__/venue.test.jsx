@@ -1,13 +1,17 @@
 import { cloneDeep } from 'lodash'
 import { mount } from 'enzyme'
 import React from 'react'
+import { ThemeProvider } from 'styled-components'
+import { theme } from 'client/styles/theme'
 import { Venue as VenueFixture } from 'client/tests/fixtures/components'
-import { Venue } from '../venue'
+import { Venue, VenueContainer } from '../Venue'
 
 describe('Venue', () => {
   const getWrapper = passedProps => {
     return mount(
-      <Venue {...passedProps} />
+      <ThemeProvider theme={theme}>
+        <Venue {...passedProps} />
+      </ThemeProvider>
     )
   }
 
@@ -72,5 +76,23 @@ describe('Venue', () => {
     delete props.venue.state
     const component = getWrapper(props)
     expect(component.text()).toMatch('National Arts Club15 Gramercy Park S.USA')
+  })
+
+  describe('Editing', () => {
+    beforeEach(() => {
+      props.onClick = jest.fn()
+    })
+
+    it('Shows a placeholder if props.onClick and venue is empty', () => {
+      props.venue = null
+      const component = getWrapper(props)
+      expect(component.text()).toMatch('Add Venue')
+    })
+
+    it('Calls onClick on venue click', () => {
+      const component = getWrapper(props)
+      component.find(VenueContainer).simulate('click')
+      expect(props.onClick).toBeCalled()
+    })
   })
 })

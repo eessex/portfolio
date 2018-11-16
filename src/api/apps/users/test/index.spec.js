@@ -115,8 +115,8 @@ describe('Users', () => {
     })
   })
 
-  describe('GET /api/users/:user_id ', () => {
-    it('it should GET a user by id', (done) => {
+  xdescribe('GET /api/users/:user_id ', () => {
+    xit('it should GET a user by id', (done) => {
       let user = new User({
         name_first: 'Dolly',
         name_last: 'Parton',

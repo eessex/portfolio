@@ -1,19 +1,20 @@
-var express = require('express')
-var users = express.Router()
-var User = require('./schema')
-var jwt = require('jsonwebtoken')
-// for /api/users/
+import jwt from 'jsonwebtoken'
+import express from 'express'
+import User from './schema'
+
+const users = express.Router()
+const SESSION_SECRET = process.env.SESSION_SECRET.toString()
 
 users.route('/')
   // create user
   .post((req, res) => {
-    var user = new User()
+    const user = new User()
     Object.assign(user, req.body).save((err, user) => {
       if (err) {
         return res.status(400).send(err)
       }
       const { email, _id } = user
-      const session = jwt.sign({ email, _id }, 'secret', { expiresIn: '30d' })
+      const session = jwt.sign({ email, _id }, SESSION_SECRET, { expiresIn: '30d' })
 
       res.json({
         message: 'User created',
@@ -49,7 +50,7 @@ users.route('/session/create')
             return res.send(400, { error: (err || 'Incorrect password') })
           }
           const { email, _id } = user
-          const session = jwt.sign({ email, _id }, 'secret', { expiresIn: '30d' })
+          const session = jwt.sign({ email, _id }, SESSION_SECRET, { expiresIn: '30d' })
           return res.json({
             currentUser: { email, _id },
             session
@@ -61,14 +62,14 @@ users.route('/session/create')
 
 users.route('/:user_id')
   // single user
-  .get((req, res) => {
-    User.findById(req.params.user_id, (err, user) => {
-      if (err) {
-        return res.send(err)
-      }
-      res.json(user)
-    })
-  })
+  // .get((req, res) => {
+  //   User.findById(req.params.user_id, (err, user) => {
+  //     if (err) {
+  //       return res.send(err)
+  //     }
+  //     res.json(user)
+  //   })
+  // })
   .put((req, res) => {
     User.findById(req.params.user_id, (err, user) => {
       if (err) {

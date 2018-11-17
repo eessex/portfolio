@@ -13,6 +13,8 @@ import { routes } from 'client/routes'
 import { ServerRender } from 'server/render'
 const { MONGODB_URI, MONGODB_TEST_URI, PORT, NODE_ENV } = process.env
 
+mongoose.Promise = global.Promise
+
 const app = express()
 
 let port
@@ -39,8 +41,11 @@ if (NODE_ENV === 'production') {
 }
 
 mongoose.connect(
-  db,
-  { useNewUrlParser: true, useCreateIndex: true }
+  db, {
+    keepAlive: true,
+    reconnectTries: Number.MAX_VALUE,
+    useMongoClient: true
+  }
 ).then(() => {
   console.log('Mongodb connected')
 }).catch((err) => {

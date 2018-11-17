@@ -31,6 +31,7 @@ export const UpcomingEvent = {
   end_date: null,
   all_day: false,
   title: "Eve Essex, Kate Monhanty, Ben Jaffe",
+  slug: "eve-essex-kate-monhanty-ben-jaffe",
   venue: {
     country: "",
     state: "NY",
@@ -43,7 +44,7 @@ export const UpcomingEvent = {
 
 export const PastEvent = {
   _id: "5a028e8e41c58900120bc57c",
-  published: true,
+  published: false,
   start_date: yesterday,
   links: [ 
     {
@@ -60,6 +61,7 @@ export const PastEvent = {
   end_date: null,
   all_day: false,
   title: "Eve Essex",
+  slug: "eve-essex",
   venue: {
     country: "",
     state: "NY",

@@ -95,9 +95,6 @@
       "^.+\\.js$": "babel-jest",
       "^.+\\.jsx$": "babel-jest"
     },
-    "testPathIgnorePatterns": [
-      "<rootDir>/src/api"
-    ],
     "setupFiles": [
       "<rootDir>/test.config.js"
     ],

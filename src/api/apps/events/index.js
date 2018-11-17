@@ -28,21 +28,12 @@ events.route('/')
   })
   // all events
   .get((req, res) => {
-    Event.find(req.query).sort({start_date: 'desc'}).exec(
-      function (err, data) {
-        if (err) {
-          res.send(err)
-        }
-        res.json(data)
+    Event.find(req.query).sort({start_date: 'desc'}).exec((err, data) => {
+      if (err) {
+        res.send(err)
       }
-    )
-  })
-
-events.route('/new')
-  // new event
-  .get((req, res) => {
-    var data = new Event()
-    res.json(data)
+      res.json(data)
+    })
   })
 
 events.route('/:id')

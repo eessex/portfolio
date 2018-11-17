@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 import express from 'express'
 import User from './schema'
 
-const users = express.Router()
+export const users = express.Router()
 const SESSION_SECRET = process.env.SESSION_SECRET.toString()
 
 users.route('/')
@@ -25,16 +25,14 @@ users.route('/')
   })
 
   // all users
-  .get((req, res) => {
-    User.find(
-      function (err, users) {
-        if (err) {
-          return res.send(err)
-        }
-        res.json(users)
-      }
-    )
-  })
+  // .get((req, res) => {
+  //   User.find((err, users) => {
+  //     if (err) {
+  //       return res.send(err)
+  //     }
+  //     res.json(users)
+  //   })
+  // })
 
 users.route('/session/create')
   .post((req, res) => {
@@ -79,7 +77,7 @@ users.route('/:user_id')
         if (err) {
           return res.send(err)
         }
-        res.json({ message: 'User updated', user })
+        res.json({ message: 'User updated' })
       })
     })
   })

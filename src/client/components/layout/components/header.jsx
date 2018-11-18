@@ -8,7 +8,7 @@ import { Image } from 'client/components/image/image'
 import { ImageEdit } from 'client/components/image/image_edit'
 import { H1, H4 } from 'client/styles/text'
 import { Text } from 'client/components/text/text'
-import { Venue, VenueContainer } from 'client/components/Venue/Venue'
+import { Venue, VenueContainer } from 'client/components/venue/venue'
 import { Label } from './label'
 
 export const ItemHeader = props => {

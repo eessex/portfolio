@@ -1,10 +1,10 @@
-var express = require('express')
-var projects = express.Router()
-var Project = require('./schema')
-var { extend } = require('lodash')
+import { extend } from 'lodash'
+import express from 'express'
+import Project from './schema'
+const projects = express.Router()
 
-function queryByIdOrSlug (id, reqQuery = {}) {
-  var query = extend(
+export const queryByIdOrSlug = (id, reqQuery = {}) => {
+  const query = extend(
     reqQuery,
     {$or: [{slug: id}]}
   )
@@ -17,7 +17,7 @@ function queryByIdOrSlug (id, reqQuery = {}) {
 projects.route('/')
   // create project
   .post((req, res) => {
-    var item = new Project()
+    const item = new Project()
     item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
@@ -28,27 +28,18 @@ projects.route('/')
   })
   // all projects
   .get((req, res) => {
-    Project.find(req.query).sort({'list_index': 'asc'}).exec(
-      function (err, data) {
-        if (err) {
-          res.send(err)
-        }
-        res.json(data)
+    Project.find(req.query).sort({'list_index': 'asc'}).exec((err, data) => {
+      if (err) {
+        res.send(err)
       }
-    )
-  })
-
-projects.route('/new')
-  // new projects
-  .get((req, res) => {
-    var data = new Project()
-    res.json(data)
+      res.json(data)
+    })
   })
 
 projects.route('/:id')
   // single projects
   .get((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Project.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -60,7 +51,7 @@ projects.route('/:id')
     })
   })
   .put((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Project.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -74,14 +65,14 @@ projects.route('/:id')
     })
   })
   .delete((req, res) => {
-    var query = queryByIdOrSlug(req.params.id)
+    const query = queryByIdOrSlug(req.params.id)
     Project.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
       Project.remove({
         _id: data._id
-      }, function (err) {
+      }, (err) => {
         if (err) {
           return res.status(400).send(err)
         }

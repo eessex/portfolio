@@ -4,7 +4,7 @@ import React from 'react'
 import { ThemeProvider } from 'styled-components'
 import { theme } from 'client/styles/theme'
 import { Venue as VenueFixture } from 'client/tests/fixtures/components'
-import { Venue, VenueContainer } from '../Venue'
+import { Venue, VenueContainer } from '../venue'
 
 describe('Venue', () => {
   const getWrapper = passedProps => {

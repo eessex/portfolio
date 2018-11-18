@@ -1,10 +1,10 @@
-var express = require('express')
-var events = express.Router()
-var Event = require('./schema')
-var { extend } = require('lodash')
+import { extend } from 'lodash'
+import express from 'express'
+import Event from './schema'
+const events = express.Router()
 
-function queryByIdOrSlug (id, reqQuery = {}) {
-  var query = extend(
+const queryByIdOrSlug = (id, reqQuery = {}) => {
+  const query = extend(
     reqQuery,
     {$or: [{slug: id}]}
   )
@@ -17,7 +17,7 @@ function queryByIdOrSlug (id, reqQuery = {}) {
 events.route('/')
   // create event
   .post((req, res) => {
-    var item = new Event()
+    const item = new Event()
     item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
@@ -28,27 +28,18 @@ events.route('/')
   })
   // all events
   .get((req, res) => {
-    Event.find(req.query).sort({start_date: 'desc'}).exec(
-      function (err, data) {
-        if (err) {
-          res.send(err)
-        }
-        res.json(data)
+    Event.find(req.query).sort({start_date: 'desc'}).exec((err, data) => {
+      if (err) {
+        res.send(err)
       }
-    )
-  })
-
-events.route('/new')
-  // new event
-  .get((req, res) => {
-    var data = new Event()
-    res.json(data)
+      res.json(data)
+    })
   })
 
 events.route('/:id')
   // single event
   .get((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Event.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -60,7 +51,7 @@ events.route('/:id')
     })
   })
   .put((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Event.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -74,14 +65,14 @@ events.route('/:id')
     })
   })
   .delete((req, res) => {
-    var query = queryByIdOrSlug(req.params.id)
+    const query = queryByIdOrSlug(req.params.id)
     Event.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
       Event.remove({
         _id: data._id
-      }, function (err) {
+      }, (err) => {
         if (err) {
           return res.status(400).send(err)
         }

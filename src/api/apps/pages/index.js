@@ -1,10 +1,10 @@
-var express = require('express')
-var pages = express.Router()
-var Page = require('./schema')
-var { extend } = require('lodash')
+import { extend } from 'lodash'
+import express from 'express'
+import Page from './schema'
+const pages = express.Router()
 
-function queryByIdOrSlug (id, reqQuery = {}) {
-  var query = extend(
+const queryByIdOrSlug = (id, reqQuery = {}) => {
+  const query = extend(
     reqQuery,
     {$or: [{slug: id}]}
   )
@@ -17,7 +17,7 @@ function queryByIdOrSlug (id, reqQuery = {}) {
 pages.route('/')
   // create page
   .post((req, res) => {
-    var item = new Page()
+    const item = new Page()
     item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
@@ -28,27 +28,18 @@ pages.route('/')
   })
   // all pages
   .get((req, res) => {
-    Page.find(req.query).exec(
-      function (err, data) {
-        if (err) {
-          res.send(err)
-        }
-        res.json(data)
+    Page.find(req.query).exec((err, data) => {
+      if (err) {
+        res.send(err)
       }
-    )
-  })
-
-pages.route('/new')
-  // new page
-  .get((req, res) => {
-    var data = new Page()
-    res.json(data)
+      res.json(data)
+    })
   })
 
 pages.route('/:id')
   // single page
   .get((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
 
     Page.findOne(query, (err, data) => {
       if (err) {
@@ -61,7 +52,7 @@ pages.route('/:id')
     })
   })
   .put((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Page.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -75,14 +66,14 @@ pages.route('/:id')
     })
   })
   .delete((req, res) => {
-    var query = queryByIdOrSlug(req.params.id)
+    const query = queryByIdOrSlug(req.params.id)
     Page.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
       Page.remove({
         _id: data._id
-      }, function (err) {
+      }, (err) => {
         if (err) {
           return res.status(400).send(err)
         }

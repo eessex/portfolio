@@ -5,7 +5,7 @@ import {
   FETCH_PAGE_SUCCESS,
   RESET_PAGE
 } from 'client/actions/page'
-import { homePage } from 'client/tests/fixtures/pages'
+import { HomePage } from 'client/tests/fixtures/pages'
 import { pageReducer, initialState } from '../page'
 
 describe('pageReducer', () => {
@@ -21,7 +21,7 @@ describe('pageReducer', () => {
     }
   })
 
-  const pagePayload = { page: homePage }
+  const pagePayload = { page: HomePage }
   const pageError = { message: '404 Not found' }
 
   describe('FETCH_ITEM', () => {
@@ -41,7 +41,7 @@ describe('pageReducer', () => {
 
       expect(newState.loading).toBeFalsy()
       expect(newState.error).toBe(null)
-      expect(newState.page).toEqual(homePage)
+      expect(newState.page).toEqual(HomePage)
     })
 
     it('FETCH_PAGE_ERROR', () => {
@@ -57,7 +57,7 @@ describe('pageReducer', () => {
 
   it('RESET_PAGE', () => {
     action.type = RESET_PAGE
-    state.page = homePage
+    state.page = HomePage
     state.error = pageError
     const newState = pageReducer(state, action)
 

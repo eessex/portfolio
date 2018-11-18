@@ -1,5 +1,5 @@
 import * as pageActions from '../page'
-import { homePage } from 'client/tests/fixtures/pages'
+import { HomePage } from 'client/tests/fixtures/pages'
 
 jest.mock('isomorphic-fetch')
 
@@ -14,17 +14,17 @@ describe('Page', () => {
     Promise.resolve({
       status: 200,
       ok: true,
-      json: () => Promise.resolve(homePage)
+      json: () => Promise.resolve(HomePage)
     })
   )
 
-  it('#fetchItem gets homePage at expected endpoint', async done => {
+  it('#fetchItem gets HomePage at expected endpoint', async done => {
     try {
-      await pageActions.fetchPage(`/${homePage.slug}`)(dispatch)
+      await pageActions.fetchPage(`/${HomePage.slug}`)(dispatch)
       expect(global.fetch.mock.calls[0][0]).toMatch('/api/pages/home')
       expect(dispatch.mock.calls[0][0].type).toBe('FETCH_PAGE_REQUESTED')
       expect(dispatch.mock.calls[1][0].type).toBe('FETCH_PAGE_SUCCESS')
-      expect(dispatch.mock.calls[1][0].payload.page).toEqual(homePage)
+      expect(dispatch.mock.calls[1][0].payload.page).toEqual(HomePage)
       done()
     } catch (err) {
       console.warn(err)
@@ -41,7 +41,7 @@ describe('Page', () => {
     )
 
     try {
-      await pageActions.fetchPage(`/${homePage.slug}`)(dispatch)
+      await pageActions.fetchPage(`/${HomePage.slug}`)(dispatch)
       expect(global.fetch.mock.calls[0][0]).toMatch('/api/pages/home')
       expect(dispatch.mock.calls[0][0].type).toBe('FETCH_PAGE_REQUESTED')
       expect(dispatch.mock.calls[1][0].type).toBe('FETCH_PAGE_ERROR')

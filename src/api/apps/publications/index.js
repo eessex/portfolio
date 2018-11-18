@@ -1,10 +1,10 @@
-var express = require('express')
-var publications = express.Router()
-var Publication = require('./schema')
-var { extend } = require('lodash')
+import { extend } from 'lodash'
+import express from 'express'
+import Publication from './schema'
+const publications = express.Router()
 
-function queryByIdOrSlug (id, reqQuery = {}) {
-  var query = extend(
+const queryByIdOrSlug = (id, reqQuery = {}) => {
+  const query = extend(
     reqQuery,
     {$or: [{slug: id}]}
   )
@@ -17,7 +17,7 @@ function queryByIdOrSlug (id, reqQuery = {}) {
 publications.route('/')
   // create publication
   .post((req, res) => {
-    var item = new Publication()
+    const item = new Publication()
     item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
@@ -28,27 +28,18 @@ publications.route('/')
   })
   // all publications
   .get((req, res) => {
-    Publication.find(req.query).exec(
-      function (err, data) {
-        if (err) {
-          res.send(err)
-        }
-        res.json(data)
+    Publication.find(req.query).exec((err, data) => {
+      if (err) {
+        res.send(err)
       }
-    )
-  })
-
-publications.route('/new')
-  // new publication
-  .get((req, res) => {
-    var data = new Publication()
-    res.json(data)
+      res.json(data)
+    })
   })
 
 publications.route('/:id')
   // single publication
   .get((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Publication.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -60,7 +51,7 @@ publications.route('/:id')
     })
   })
   .put((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Publication.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -74,7 +65,7 @@ publications.route('/:id')
     })
   })
   .delete((req, res) => {
-    var query = queryByIdOrSlug(req.params.id)
+    const query = queryByIdOrSlug(req.params.id)
     Publication.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)

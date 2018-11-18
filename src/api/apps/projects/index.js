@@ -1,9 +1,9 @@
-var express = require('express')
-var projects = express.Router()
-var Project = require('./schema')
-var { extend } = require('lodash')
+import { extend } from 'lodash'
+import express from 'express'
+import Project from './schema'
+const projects = express.Router()
 
-function queryByIdOrSlug (id, reqQuery = {}) {
+export const queryByIdOrSlug = (id, reqQuery = {}) => {
   var query = extend(
     reqQuery,
     {$or: [{slug: id}]}

@@ -1,9 +1,9 @@
-var express = require('express')
-var publications = express.Router()
-var Publication = require('./schema')
-var { extend } = require('lodash')
+import { extend } from 'lodash'
+import express from 'express'
+import Publication from './schema'
+const publications = express.Router()
 
-function queryByIdOrSlug (id, reqQuery = {}) {
+const queryByIdOrSlug = (id, reqQuery = {}) => {
   var query = extend(
     reqQuery,
     {$or: [{slug: id}]}
@@ -28,21 +28,12 @@ publications.route('/')
   })
   // all publications
   .get((req, res) => {
-    Publication.find(req.query).exec(
-      function (err, data) {
-        if (err) {
-          res.send(err)
-        }
-        res.json(data)
+    Publication.find(req.query).exec((err, data) => {
+      if (err) {
+        res.send(err)
       }
-    )
-  })
-
-publications.route('/new')
-  // new publication
-  .get((req, res) => {
-    var data = new Publication()
-    res.json(data)
+      res.json(data)
+    })
   })
 
 publications.route('/:id')

@@ -4,7 +4,7 @@ import Publication from './schema'
 const publications = express.Router()
 
 const queryByIdOrSlug = (id, reqQuery = {}) => {
-  var query = extend(
+  const query = extend(
     reqQuery,
     {$or: [{slug: id}]}
   )
@@ -17,7 +17,7 @@ const queryByIdOrSlug = (id, reqQuery = {}) => {
 publications.route('/')
   // create publication
   .post((req, res) => {
-    var item = new Publication()
+    const item = new Publication()
     item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
@@ -39,7 +39,7 @@ publications.route('/')
 publications.route('/:id')
   // single publication
   .get((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Publication.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -51,7 +51,7 @@ publications.route('/:id')
     })
   })
   .put((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Publication.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -65,7 +65,7 @@ publications.route('/:id')
     })
   })
   .delete((req, res) => {
-    var query = queryByIdOrSlug(req.params.id)
+    const query = queryByIdOrSlug(req.params.id)
     Publication.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)

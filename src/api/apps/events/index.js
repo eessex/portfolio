@@ -4,7 +4,7 @@ import Event from './schema'
 const events = express.Router()
 
 const queryByIdOrSlug = (id, reqQuery = {}) => {
-  var query = extend(
+  const query = extend(
     reqQuery,
     {$or: [{slug: id}]}
   )
@@ -17,7 +17,7 @@ const queryByIdOrSlug = (id, reqQuery = {}) => {
 events.route('/')
   // create event
   .post((req, res) => {
-    var item = new Event()
+    const item = new Event()
     item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
@@ -39,7 +39,7 @@ events.route('/')
 events.route('/:id')
   // single event
   .get((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Event.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -51,7 +51,7 @@ events.route('/:id')
     })
   })
   .put((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Event.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -65,14 +65,14 @@ events.route('/:id')
     })
   })
   .delete((req, res) => {
-    var query = queryByIdOrSlug(req.params.id)
+    const query = queryByIdOrSlug(req.params.id)
     Event.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
       Event.remove({
         _id: data._id
-      }, function (err) {
+      }, (err) => {
         if (err) {
           return res.status(400).send(err)
         }

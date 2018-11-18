@@ -1,13 +1,11 @@
-var express = require('express')
-var settings = express.Router()
-var Settings = require('./schema')
-
-// for /api/settings/
+import express from 'express'
+import Settings from './schema'
+const settings = express.Router()
 
 settings.route('/')
-  // create setting
+  // create settings
   .post((req, res) => {
-    var settings = new Settings()
+    const settings = new Settings()
     Object.assign(settings, req.body).save((err, settings) => {
       if (err) {
         return res.status(400).send(err)
@@ -17,14 +15,12 @@ settings.route('/')
   })
   // all settings
   .get((req, res) => {
-    Settings.findOne(req.query).exec(
-      function (err, settings) {
-        if (err) {
-          res.send(err)
-        }
-        res.json(settings)
+    Settings.findOne(req.query).exec((err, settings) => {
+      if (err) {
+        return res.status(400).send(err)
       }
-    )
+      res.json(settings)
+    })
   })
 
 settings.route('/:id')

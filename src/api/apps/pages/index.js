@@ -4,7 +4,7 @@ import Page from './schema'
 const pages = express.Router()
 
 const queryByIdOrSlug = (id, reqQuery = {}) => {
-  var query = extend(
+  const query = extend(
     reqQuery,
     {$or: [{slug: id}]}
   )
@@ -17,7 +17,7 @@ const queryByIdOrSlug = (id, reqQuery = {}) => {
 pages.route('/')
   // create page
   .post((req, res) => {
-    var item = new Page()
+    const item = new Page()
     item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
@@ -39,7 +39,7 @@ pages.route('/')
 pages.route('/:id')
   // single page
   .get((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
 
     Page.findOne(query, (err, data) => {
       if (err) {
@@ -52,7 +52,7 @@ pages.route('/:id')
     })
   })
   .put((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Page.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -66,14 +66,14 @@ pages.route('/:id')
     })
   })
   .delete((req, res) => {
-    var query = queryByIdOrSlug(req.params.id)
+    const query = queryByIdOrSlug(req.params.id)
     Page.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
       Page.remove({
         _id: data._id
-      }, function (err) {
+      }, (err) => {
         if (err) {
           return res.status(400).send(err)
         }

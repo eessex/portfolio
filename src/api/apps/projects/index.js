@@ -4,7 +4,7 @@ import Project from './schema'
 const projects = express.Router()
 
 export const queryByIdOrSlug = (id, reqQuery = {}) => {
-  var query = extend(
+  const query = extend(
     reqQuery,
     {$or: [{slug: id}]}
   )
@@ -17,7 +17,7 @@ export const queryByIdOrSlug = (id, reqQuery = {}) => {
 projects.route('/')
   // create project
   .post((req, res) => {
-    var item = new Project()
+    const item = new Project()
     item.slug = item._id
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
@@ -39,7 +39,7 @@ projects.route('/')
 projects.route('/:id')
   // single projects
   .get((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Project.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -51,7 +51,7 @@ projects.route('/:id')
     })
   })
   .put((req, res) => {
-    var query = queryByIdOrSlug(req.params.id, req.query)
+    const query = queryByIdOrSlug(req.params.id, req.query)
     Project.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
@@ -65,14 +65,14 @@ projects.route('/:id')
     })
   })
   .delete((req, res) => {
-    var query = queryByIdOrSlug(req.params.id)
+    const query = queryByIdOrSlug(req.params.id)
     Project.findOne(query, (err, data) => {
       if (err) {
         return res.status(400).send(err)
       }
       Project.remove({
         _id: data._id
-      }, function (err) {
+      }, (err) => {
         if (err) {
           return res.status(400).send(err)
         }

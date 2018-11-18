@@ -4,25 +4,22 @@ var Schema = mongoose.Schema
 var SettingsSchema = new Schema({
   title: String,
   description: String,
-  about: {
-    embed_codes: { type: Array, default: [] },
+  meta: {
     description: String,
-    social: {
-      bandcamp: String,
-      twitter: String,
-      instagram: String,
-      facebook: String,
-      soundcloud: String
-    },
-    images: [
-      {
-        caption: { type: String },
-        url: { type: String },
-        aspect: { type: Number }
-      }
+    image: String
+  },
+  social: [
+    { service: String, profile: String }
+  ],
+  nav: {
+    type: Array,
+    default: [
+      'events',
+      'releases',
+      'projects',
+      'info'
     ]
   },
-  nav: [],
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now }
 })

@@ -50,7 +50,7 @@ describe('/api/pages', () => {
   }
 
   describe('POST / - New page', () => {
-    it('can creat a page', done => {
+    it('can create a page', done => {
       request(app)
         .post('/')
         .send({ title: 'New Page' })
@@ -58,7 +58,8 @@ describe('/api/pages', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const { data, message } = JSON.parse(res.text)
+          const { data, message } = res.body
+
           expect(message).toBe('Page created')
           expect(data.title).toBe('New Page')
           expect(data.slug).toBe('new-page')
@@ -75,7 +76,8 @@ describe('/api/pages', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const { data, message } = JSON.parse(res.text)
+          const { data, message } = res.body
+
           expect(message).toBe('Page created')
           expect(data.title).toBe('New Page')
           expect(data.slug).toBe('new-page')
@@ -99,10 +101,10 @@ describe('/api/pages', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.length).toBe(2)
-          expect(data[0].title).toBe(InfoPage.title)
-          expect(data[1].title).toBe(page.title)
+
+          expect(res.body.length).toBe(2)
+          expect(res.body[0].title).toBe(InfoPage.title)
+          expect(res.body[1].title).toBe(page.title)
           done()
         })
     })
@@ -115,9 +117,9 @@ describe('/api/pages', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.length).toBe(1)
-          expect(data[0].title).toBe(page.title)
+
+          expect(res.body.length).toBe(1)
+          expect(res.body[0].title).toBe(page.title)
           done()
         })
     })
@@ -135,8 +137,8 @@ describe('/api/pages', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe(InfoPage.title)
+
+          expect(res.body.title).toBe(InfoPage.title)
           done()
         })
     })
@@ -148,8 +150,8 @@ describe('/api/pages', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe(InfoPage.title)
+
+          expect(res.body.title).toBe(InfoPage.title)
           done()
         })
     })
@@ -181,10 +183,10 @@ describe('/api/pages', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe('New Title')
-          expect(data.slug).toBe('new-title')
-          expect(data.description).toBe(InfoPage.description)
+
+          expect(res.body.title).toBe('New Title')
+          expect(res.body.slug).toBe('new-title')
+          expect(res.body.description).toBe(InfoPage.description)
           done()
         })
     })
@@ -197,10 +199,10 @@ describe('/api/pages', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe('New Title')
-          expect(data.slug).toBe('new-title')
-          expect(data.description).toBe(InfoPage.description)
+
+          expect(res.body.title).toBe('New Title')
+          expect(res.body.slug).toBe('new-title')
+          expect(res.body.description).toBe(InfoPage.description)
           done()
         })
     })
@@ -218,8 +220,7 @@ describe('/api/pages', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.message).toBe('Page deleted')
+          expect(res.body.message).toBe('Page deleted')
           done()
         })
     })
@@ -231,8 +232,7 @@ describe('/api/pages', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.message).toBe('Page deleted')
+          expect(res.body.message).toBe('Page deleted')
           done()
         })
     })

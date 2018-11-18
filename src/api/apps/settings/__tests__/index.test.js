@@ -42,7 +42,7 @@ describe('/api/settings', () => {
   }
 
   describe('POST / - New settings', () => {
-    it('can creat settings', done => {
+    it('can create settings', done => {
       request(app)
         .post('/')
         .send({ title: 'New Settings' })

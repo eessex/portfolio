@@ -50,7 +50,7 @@ describe('/api/events', () => {
   }
 
   describe('POST / - New event', () => {
-    it('can creat an event', done => {
+    it('can create an event', done => {
       request(app)
         .post('/')
         .send({ title: 'New Event' })
@@ -58,7 +58,8 @@ describe('/api/events', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const { data, message } = JSON.parse(res.text)
+          const { data, message } = res.body
+
           expect(message).toBe('Event created')
           expect(data.title).toBe('New Event')
           expect(data.slug).toBe('new-event')
@@ -75,7 +76,8 @@ describe('/api/events', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const { data, message } = JSON.parse(res.text)
+          const { data, message } = res.body
+
           expect(message).toBe('Event created')
           expect(data.title).toBe('New Event')
           expect(data.slug).toBe('new-event')
@@ -99,10 +101,10 @@ describe('/api/events', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.length).toBe(2)
-          expect(data[0].title).toBe(event.title)
-          expect(data[1].title).toBe(PastEvent.title)
+
+          expect(res.body.length).toBe(2)
+          expect(res.body[0].title).toBe(event.title)
+          expect(res.body[1].title).toBe(PastEvent.title)
           done()
         })
     })
@@ -115,9 +117,9 @@ describe('/api/events', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.length).toBe(1)
-          expect(data[0].title).toBe(event.title)
+
+          expect(res.body.length).toBe(1)
+          expect(res.body[0].title).toBe(event.title)
           done()
         })
     })
@@ -135,8 +137,8 @@ describe('/api/events', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe(PastEvent.title)
+
+          expect(res.body.title).toBe(PastEvent.title)
           done()
         })
     })
@@ -148,8 +150,8 @@ describe('/api/events', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe(PastEvent.title)
+
+          expect(res.body.title).toBe(PastEvent.title)
           done()
         })
     })
@@ -181,10 +183,10 @@ describe('/api/events', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe('New Title')
-          expect(data.slug).toBe('new-title')
-          expect(data.description).toBe(PastEvent.description)
+
+          expect(res.body.title).toBe('New Title')
+          expect(res.body.slug).toBe('new-title')
+          expect(res.body.description).toBe(PastEvent.description)
           done()
         })
     })
@@ -197,10 +199,10 @@ describe('/api/events', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe('New Title')
-          expect(data.slug).toBe('new-title')
-          expect(data.description).toBe(PastEvent.description)
+
+          expect(res.body.title).toBe('New Title')
+          expect(res.body.slug).toBe('new-title')
+          expect(res.body.description).toBe(PastEvent.description)
           done()
         })
     })
@@ -218,8 +220,7 @@ describe('/api/events', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.message).toBe('Event deleted')
+          expect(res.body.message).toBe('Event deleted')
           done()
         })
     })
@@ -231,8 +232,7 @@ describe('/api/events', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.message).toBe('Event deleted')
+          expect(res.body.message).toBe('Event deleted')
           done()
         })
     })

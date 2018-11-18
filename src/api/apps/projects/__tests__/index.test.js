@@ -50,7 +50,7 @@ describe('/api/projects', () => {
   }
 
   describe('POST / - New project', () => {
-    it('can creat a project', done => {
+    it('can create a project', done => {
       request(app)
         .post('/')
         .send({ title: 'New Project' })
@@ -58,7 +58,8 @@ describe('/api/projects', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const { data, message } = JSON.parse(res.text)
+          const { data, message } = res.body
+
           expect(message).toBe('Project created')
           expect(data.title).toBe('New Project')
           expect(data.slug).toBe('new-project')
@@ -75,7 +76,8 @@ describe('/api/projects', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const { data, message } = JSON.parse(res.text)
+          const { data, message } = res.body
+
           expect(message).toBe('Project created')
           expect(data.title).toBe('New Project')
           expect(data.slug).toBe('new-project')
@@ -99,10 +101,10 @@ describe('/api/projects', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.length).toBe(2)
-          expect(data[0].title).toBe(UnpublishedProject.title)
-          expect(data[1].title).toBe(project.title)
+
+          expect(res.body.length).toBe(2)
+          expect(res.body[0].title).toBe(UnpublishedProject.title)
+          expect(res.body[1].title).toBe(project.title)
           done()
         })
     })
@@ -115,9 +117,9 @@ describe('/api/projects', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.length).toBe(1)
-          expect(data[0].title).toBe(project.title)
+
+          expect(res.body.length).toBe(1)
+          expect(res.body[0].title).toBe(project.title)
           done()
         })
     })
@@ -135,8 +137,7 @@ describe('/api/projects', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe(UnpublishedProject.title)
+          expect(res.body.title).toBe(UnpublishedProject.title)
           done()
         })
     })
@@ -148,8 +149,7 @@ describe('/api/projects', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe(UnpublishedProject.title)
+          expect(res.body.title).toBe(UnpublishedProject.title)
           done()
         })
     })
@@ -181,10 +181,10 @@ describe('/api/projects', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe('New Title')
-          expect(data.slug).toBe('new-title')
-          expect(data.description).toBe(UnpublishedProject.description)
+
+          expect(res.body.title).toBe('New Title')
+          expect(res.body.slug).toBe('new-title')
+          expect(res.body.description).toBe(UnpublishedProject.description)
           done()
         })
     })
@@ -197,10 +197,10 @@ describe('/api/projects', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe('New Title')
-          expect(data.slug).toBe('new-title')
-          expect(data.description).toBe(UnpublishedProject.description)
+
+          expect(res.body.title).toBe('New Title')
+          expect(res.body.slug).toBe('new-title')
+          expect(res.body.description).toBe(UnpublishedProject.description)
           done()
         })
     })
@@ -218,8 +218,7 @@ describe('/api/projects', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.message).toBe('Project deleted')
+          expect(res.body.message).toBe('Project deleted')
           done()
         })
     })
@@ -231,8 +230,7 @@ describe('/api/projects', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.message).toBe('Project deleted')
+          expect(res.body.message).toBe('Project deleted')
           done()
         })
     })

@@ -50,7 +50,7 @@ describe('/api/publications', () => {
   }
 
   describe('POST / - New publication', () => {
-    it('can creat a publication', done => {
+    it('can create a publication', done => {
       request(app)
         .post('/')
         .send({ title: 'New Publication' })
@@ -58,7 +58,8 @@ describe('/api/publications', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const { data, message } = JSON.parse(res.text)
+          const { data, message } = res.body
+
           expect(message).toBe('Publication created')
           expect(data.title).toBe('New Publication')
           expect(data.slug).toBe('new-publication')
@@ -75,7 +76,8 @@ describe('/api/publications', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const { data, message } = JSON.parse(res.text)
+          const { data, message } = res.body
+
           expect(message).toBe('Publication created')
           expect(data.title).toBe('New Publication')
           expect(data.slug).toBe('new-publication')
@@ -99,10 +101,10 @@ describe('/api/publications', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.length).toBe(2)
-          expect(data[0].title).toBe(UnpublishedRelease.title)
-          expect(data[1].title).toBe(publication.title)
+
+          expect(res.body.length).toBe(2)
+          expect(res.body[0].title).toBe(UnpublishedRelease.title)
+          expect(res.body[1].title).toBe(publication.title)
           done()
         })
     })
@@ -115,9 +117,9 @@ describe('/api/publications', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.length).toBe(1)
-          expect(data[0].title).toBe(publication.title)
+
+          expect(res.body.length).toBe(1)
+          expect(res.body[0].title).toBe(publication.title)
           done()
         })
     })
@@ -135,8 +137,7 @@ describe('/api/publications', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe(UnpublishedRelease.title)
+          expect(res.body.title).toBe(UnpublishedRelease.title)
           done()
         })
     })
@@ -148,8 +149,7 @@ describe('/api/publications', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe(UnpublishedRelease.title)
+          expect(res.body.title).toBe(UnpublishedRelease.title)
           done()
         })
     })
@@ -181,10 +181,9 @@ describe('/api/publications', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe('New Title')
-          expect(data.slug).toBe('das-audit-new-title')
-          expect(data.description).toBe(UnpublishedRelease.description)
+          expect(res.body.title).toBe('New Title')
+          expect(res.body.slug).toBe('das-audit-new-title')
+          expect(res.body.description).toBe(UnpublishedRelease.description)
           done()
         })
     })
@@ -197,10 +196,9 @@ describe('/api/publications', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.title).toBe('New Title')
-          expect(data.slug).toBe('das-audit-new-title')
-          expect(data.description).toBe(UnpublishedRelease.description)
+          expect(res.body.title).toBe('New Title')
+          expect(res.body.slug).toBe('das-audit-new-title')
+          expect(res.body.description).toBe(UnpublishedRelease.description)
           done()
         })
     })
@@ -218,8 +216,7 @@ describe('/api/publications', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.message).toBe('Publication deleted')
+          expect(res.body.message).toBe('Publication deleted')
           done()
         })
     })
@@ -231,8 +228,7 @@ describe('/api/publications', () => {
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
-          const data = JSON.parse(res.text)
-          expect(data.message).toBe('Publication deleted')
+          expect(res.body.message).toBe('Publication deleted')
           done()
         })
     })

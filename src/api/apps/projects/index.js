@@ -28,21 +28,12 @@ projects.route('/')
   })
   // all projects
   .get((req, res) => {
-    Project.find(req.query).sort({'list_index': 'asc'}).exec(
-      function (err, data) {
-        if (err) {
-          res.send(err)
-        }
-        res.json(data)
+    Project.find(req.query).sort({'list_index': 'asc'}).exec((err, data) => {
+      if (err) {
+        res.send(err)
       }
-    )
-  })
-
-projects.route('/new')
-  // new projects
-  .get((req, res) => {
-    var data = new Project()
-    res.json(data)
+      res.json(data)
+    })
   })
 
 projects.route('/:id')

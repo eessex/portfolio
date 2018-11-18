@@ -38,7 +38,7 @@ describe('/api/events', () => {
       .end(err => {
         if (err) { console.warn(err) }
 
-        request(testApp.use(events))
+        request(app)
           .post('/')
           .send(event)
           .set('Accept', 'application/json')

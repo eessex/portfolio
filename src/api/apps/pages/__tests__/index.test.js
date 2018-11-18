@@ -1,20 +1,20 @@
 import { cloneDeep } from 'lodash'
 import request from 'supertest'
 import { connectTestDB, disconnectTestDB, testApp } from 'client/tests/dbUtils'
-import { PublishedProject, UnpublishedProject } from 'client/tests/fixtures/projects'
-import projects from '../index'
-import Project from '../schema'
+import { HomePage, InfoPage } from 'client/tests/fixtures/pages'
+import pages from '../index'
+import Page from '../schema'
 
-const app = testApp.use(projects)
+const app = testApp.use(pages)
 
-describe('/api/projects', () => {
-  let project
+describe('/api/pages', () => {
+  let page
   beforeEach(() => {
-    project = cloneDeep(PublishedProject)
+    page = cloneDeep(HomePage)
   })
 
   afterEach(done => {
-    Project.remove({}, err => {
+    Page.remove({}, err => {
       if (err) {
         console.error(err.status)
       }
@@ -33,14 +33,14 @@ describe('/api/projects', () => {
   const seedData = done => {
     request(app)
       .post('/')
-      .send(UnpublishedProject)
+      .send(InfoPage)
       .set('Accept', 'application/json')
       .end(err => {
         if (err) { console.warn(err) }
 
         request(app)
           .post('/')
-          .send(project)
+          .send(page)
           .set('Accept', 'application/json')
           .end(err => {
             if (err) { console.warn(err) }
@@ -49,19 +49,19 @@ describe('/api/projects', () => {
       })
   }
 
-  describe('POST / - New project', () => {
-    it('can creat a project', done => {
+  describe('POST / - New page', () => {
+    it('can creat a page', done => {
       request(app)
         .post('/')
-        .send({ title: 'New Project' })
+        .send({ title: 'New Page' })
         .set('Accept', 'application/json')
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
           const { data, message } = JSON.parse(res.text)
-          expect(message).toBe('Project created')
-          expect(data.title).toBe('New Project')
-          expect(data.slug).toBe('new-project')
+          expect(message).toBe('Page created')
+          expect(data.title).toBe('New Page')
+          expect(data.slug).toBe('new-page')
           expect(data._id).toBeTruthy()
           done()
         })
@@ -70,15 +70,15 @@ describe('/api/projects', () => {
     it('silently rejects fields not in schema', done => {
       request(app)
         .post('/')
-        .send({ title: 'New Project', extra: true, stuff: 'stuff' })
+        .send({ title: 'New Page', extra: true, stuff: 'stuff' })
         .set('Accept', 'application/json')
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
           const { data, message } = JSON.parse(res.text)
-          expect(message).toBe('Project created')
-          expect(data.title).toBe('New Project')
-          expect(data.slug).toBe('new-project')
+          expect(message).toBe('Page created')
+          expect(data.title).toBe('New Page')
+          expect(data.slug).toBe('new-page')
           expect(data._id).toBeTruthy()
           expect(data.extra).toBeFalsy()
           expect(data.stuff).toBeFalsy()
@@ -87,12 +87,12 @@ describe('/api/projects', () => {
     })
   })
 
-  describe('GET / - Fetch all projects', () => {
+  describe('GET / - Fetch all pages', () => {
     beforeEach(done => {
       seedData(done)
     })
 
-    it('can fetch all projects ordered by list_index', done => {
+    it('can fetch all pages', done => {
       request(app)
         .get('/')
         .set('Accept', 'application/json')
@@ -101,13 +101,13 @@ describe('/api/projects', () => {
           if (err) { console.warn(err) }
           const data = JSON.parse(res.text)
           expect(data.length).toBe(2)
-          expect(data[0].title).toBe(UnpublishedProject.title)
-          expect(data[1].title).toBe(project.title)
+          expect(data[0].title).toBe(InfoPage.title)
+          expect(data[1].title).toBe(page.title)
           done()
         })
     })
 
-    it('Can query for published projects only', done => {
+    it('Can query for published pages only', done => {
       request(app)
         .get('/')
         .query({ published: true })
@@ -117,46 +117,46 @@ describe('/api/projects', () => {
           if (err) { console.warn(err) }
           const data = JSON.parse(res.text)
           expect(data.length).toBe(1)
-          expect(data[0].title).toBe(project.title)
+          expect(data[0].title).toBe(page.title)
           done()
         })
     })
   })
 
-  describe('GET /:id - Fetch single project', () => {
+  describe('GET /:id - Fetch single page', () => {
     beforeEach(done => {
       seedData(done)
     })
 
-    it('returns an project by slug', done => {
+    it('returns an page by slug', done => {
       request(app)
-        .get('/das-audit')
+        .get('/info')
         .set('Accept', 'application/json')
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
           const data = JSON.parse(res.text)
-          expect(data.title).toBe(UnpublishedProject.title)
+          expect(data.title).toBe(InfoPage.title)
           done()
         })
     })
 
-    it('returns an project by _id', done => {
+    it('returns an page by _id', done => {
       request(app)
-        .get('/5a0673b00d5cea5c9e6e5d80')
+        .get('/5bdcaadf15f08123420ae6b6')
         .set('Accept', 'application/json')
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
           const data = JSON.parse(res.text)
-          expect(data.title).toBe(UnpublishedProject.title)
+          expect(data.title).toBe(InfoPage.title)
           done()
         })
     })
 
-    it('can query for published projects', done => {
+    it('can query for published pages', done => {
       request(app)
-        .get('/5a0673b00d5cea5c9e6e5d80')
+        .get('/5bdcaadf15f08123420ae6b6')
         .query({ published: true })
         .set('Accept', 'application/json')
         .expect(404)
@@ -168,14 +168,14 @@ describe('/api/projects', () => {
     })
   })
 
-  describe('PUT /:id - Update single project', () => {
+  describe('PUT /:id - Update single page', () => {
     beforeEach(done => {
       seedData(done)
     })
 
-    it('Updates a project by slug', done => {
+    it('Updates a page by slug', done => {
       request(app)
-        .put('/das-audit')
+        .put('/info')
         .send({ title: 'New Title' })
         .set('Accept', 'application/json')
         .expect(200)
@@ -184,14 +184,14 @@ describe('/api/projects', () => {
           const data = JSON.parse(res.text)
           expect(data.title).toBe('New Title')
           expect(data.slug).toBe('new-title')
-          expect(data.description).toBe(UnpublishedProject.description)
+          expect(data.description).toBe(InfoPage.description)
           done()
         })
     })
 
-    it('Updates a project by _id', done => {
+    it('Updates a page by _id', done => {
       request(app)
-        .put('/5a0673b00d5cea5c9e6e5d80')
+        .put('/5bdcaadf15f08123420ae6b6')
         .send({ title: 'New Title' })
         .set('Accept', 'application/json')
         .expect(200)
@@ -200,39 +200,39 @@ describe('/api/projects', () => {
           const data = JSON.parse(res.text)
           expect(data.title).toBe('New Title')
           expect(data.slug).toBe('new-title')
-          expect(data.description).toBe(UnpublishedProject.description)
+          expect(data.description).toBe(InfoPage.description)
           done()
         })
     })
   })
 
-  describe('DELETE /:id - Update single project', () => {
+  describe('DELETE /:id - Update single page', () => {
     beforeEach(done => {
       seedData(done)
     })
 
-    it('Updates a project by slug', done => {
+    it('Updates a page by slug', done => {
       request(app)
-        .delete('/das-audit')
+        .delete('/info')
         .set('Accept', 'application/json')
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
           const data = JSON.parse(res.text)
-          expect(data.message).toBe('Project deleted')
+          expect(data.message).toBe('Page deleted')
           done()
         })
     })
 
-    it('Updates a project by _id', done => {
+    it('Updates a page by _id', done => {
       request(app)
-        .delete('/5a0673b00d5cea5c9e6e5d80')
+        .delete('/5bdcaadf15f08123420ae6b6')
         .set('Accept', 'application/json')
         .expect(200)
         .end((err, res) => {
           if (err) { console.warn(err) }
           const data = JSON.parse(res.text)
-          expect(data.message).toBe('Project deleted')
+          expect(data.message).toBe('Page deleted')
           done()
         })
     })

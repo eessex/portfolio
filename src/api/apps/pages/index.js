@@ -28,21 +28,12 @@ pages.route('/')
   })
   // all pages
   .get((req, res) => {
-    Page.find(req.query).exec(
-      function (err, data) {
-        if (err) {
-          res.send(err)
-        }
-        res.json(data)
+    Page.find(req.query).exec((err, data) => {
+      if (err) {
+        res.send(err)
       }
-    )
-  })
-
-pages.route('/new')
-  // new page
-  .get((req, res) => {
-    var data = new Page()
-    res.json(data)
+      res.json(data)
+    })
   })
 
 pages.route('/:id')

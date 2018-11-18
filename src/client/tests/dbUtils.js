@@ -17,7 +17,6 @@ export const connectTestDB = done => {
       useMongoClient: true
     }
   ).then(() => {
-    console.log('Mongodb connected')
     done()
   }).catch((err) => {
     console.warn('Mongodb error', err)

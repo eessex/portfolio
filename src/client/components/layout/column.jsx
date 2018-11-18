@@ -120,5 +120,5 @@ LayoutColumn.propTypes = {
   model: PropTypes.string,
   onChange: PropTypes.func,
   setEditing: PropTypes.func,
-  social: PropTypes.object
+  social: PropTypes.array
 }

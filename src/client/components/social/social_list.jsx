@@ -5,11 +5,12 @@ import FontAwesome from 'react-fontawesome'
 import { capitalize } from 'lodash'
 
 export class Social extends Component {
-  renderSocial = (social, service, i) => {
-    if (social[service]) {
+  renderSocial = (account, i) => {
+    const { service, profile } = account
+    if (profile) {
       const href = service === 'bandcamp'
-        ? `https://${social[service]}.${service}.com/`
-        : `https://${service}.com/${social[service]}`
+        ? `https://${profile}.${service}.com/`
+        : `https://${service}.com/${profile}`
       const icon = service === 'discogs' ? 'compact-disc' : service
 
       return (
@@ -25,31 +26,17 @@ export class Social extends Component {
     }
   }
 
-  renderSocialList = social => {
-    if (social) {
-      const services = [
-        'bandcamp',
-        'discogs',
-        'soundcloud',
-        'facebook',
-        'instagram',
-        'twitter'
-      ]
-
-      return services.map((service, i) => {
-        return this.renderSocial(social, service, i)
-      })
-    }
-  }
-
   render () {
     const { social } = this.props
-
-    return (
-      <SocialContainer>
-        {this.renderSocialList(social)}
-      </SocialContainer>
-    )
+    if (social.length > 0) {
+      return (
+        <SocialContainer>
+          {social.map((account, i) => this.renderSocial(account, i))}
+        </SocialContainer>
+      )
+    } else {
+      return null
+    }
   }
 }
 
@@ -70,5 +57,5 @@ export const SocialContainer = styled.div`
 `
 
 Social.propTypes = {
-  social: PropTypes.object
+  social: PropTypes.array
 }

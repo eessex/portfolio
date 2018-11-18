@@ -13,14 +13,32 @@ describe('Social', () => {
   beforeEach(() => {
     props = {
       onChange: jest.fn(),
-      social: {
-        bandcamp: 'my-profile',
-        discogs: 'my-profile',
-        soundcloud: 'my-profile',
-        instagram: 'my-profile',
-        facebook: 'my-profile',
-        twitter: 'my-profile'
-      }
+      social: [
+        {
+          service: 'bandcamp',
+          profile: 'my-profile'
+        },
+        {
+          service: 'discogs',
+          profile: 'my-profile'
+        },
+        {
+          service: 'soundcloud',
+          profile: 'my-profile'
+        },
+        {
+          service: 'instagram',
+          profile: 'my-profile'
+        },
+        {
+          service: 'facebook',
+          profile: 'my-profile'
+        },
+        {
+          service: 'twitter',
+          profile: 'my-profile'
+        }
+      ]
     }
   })
 
@@ -48,17 +66,26 @@ describe('Social', () => {
   })
 
   it('Only renders active services', () => {
-    props.social = {
-      bandcamp: 'my-profile',
-      discogs: 'my-profile'
-    }
+    props.social = [
+      {
+        service: 'bandcamp',
+        profile: 'my-profile'
+      },
+      {
+        service: 'discogs',
+        profile: 'my-profile'
+      }
+    ]
     const component = getWrapper(props)
 
     expect(component.find('a')).toHaveLength(2)
   })
 
   it('Renders Bandcamp', () => {
-    props.social = { bandcamp: 'my-profile' }
+    props.social = [{
+      service: 'bandcamp',
+      profile: 'my-profile'
+    }]
     const link = getWrapper(props).find('a').getElement().props
 
     expect(link.children[1]).toBe('Bandcamp')
@@ -66,7 +93,10 @@ describe('Social', () => {
   })
 
   it('Renders Discogs', () => {
-    props.social = { discogs: 'my-profile' }
+    props.social = [{
+      service: 'discogs',
+      profile: 'my-profile'
+    }]
     const link = getWrapper(props).find('a').getElement().props
 
     expect(link.children[1]).toBe('Discogs')
@@ -74,7 +104,10 @@ describe('Social', () => {
   })
 
   it('Renders Soundcloud', () => {
-    props.social = { soundcloud: 'my-profile' }
+    props.social = [{
+      service: 'soundcloud',
+      profile: 'my-profile'
+    }]
     const link = getWrapper(props).find('a').getElement().props
 
     expect(link.children[1]).toBe('Soundcloud')
@@ -82,7 +115,10 @@ describe('Social', () => {
   })
 
   it('Renders Instagram', () => {
-    props.social = { instagram: 'my-profile' }
+    props.social = [{
+      service: 'instagram',
+      profile: 'my-profile'
+    }]
     const link = getWrapper(props).find('a').getElement().props
 
     expect(link.children[1]).toBe('Instagram')
@@ -90,7 +126,10 @@ describe('Social', () => {
   })
 
   it('Renders Facebook', () => {
-    props.social = { facebook: 'my-profile' }
+    props.social = [{
+      service: 'facebook',
+      profile: 'my-profile'
+    }]
     const link = getWrapper(props).find('a').getElement().props
 
     expect(link.children[1]).toBe('Facebook')
@@ -98,7 +137,10 @@ describe('Social', () => {
   })
 
   it('Renders Twitter', () => {
-    props.social = { twitter: 'my-profile' }
+    props.social = [{
+      service: 'twitter',
+      profile: 'my-profile'
+    }]
     const link = getWrapper(props).find('a').getElement().props
 
     expect(link.children[1]).toBe('Twitter')

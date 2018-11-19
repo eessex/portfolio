@@ -8,7 +8,7 @@ import { routes } from 'client/routes'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import Nav from 'client/components/Nav/Nav'
 import { NotFound } from 'client/components/NotFound'
-const { PAGE_TITLE } = process.env
+const { PAGE_TITLE, GOOGLE_FONTS_FAMILY } = process.env
 
 export class App extends Component {
   render () {
@@ -55,7 +55,7 @@ const Main = styled.main`
 `
 
 const Content = styled.div`
-  font-family: 'Roboto', 'helvetica neue', 'helvetica', 'arial', 'sans-serif';
+  font-family: ${GOOGLE_FONTS_FAMILY}, 'helvetica neue', 'helvetica', 'arial', 'sans-serif';
   font-size: 16px;
   line-height: 1.2em;
   letter-spacing: .015em;

@@ -7,6 +7,7 @@ mongoose.plugin(slug)
 var PageSchema = new Schema({
   title: String,
   description: String,
+  lead_text: String,
   slug: {
     type: String,
     slug: ['title'],

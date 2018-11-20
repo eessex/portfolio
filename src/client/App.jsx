@@ -8,7 +8,8 @@ import { routes } from 'client/routes'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import Nav from 'client/components/Nav/Nav'
 import { NotFound } from 'client/components/NotFound'
-const { PAGE_TITLE, GOOGLE_FONTS_FAMILY } = process.env
+const { PAGE_TITLE } = process.env
+const GOOGLE_FONTS_FAMILY = process.env.GOOGLE_FONTS_FAMILY
 
 export class App extends Component {
   render () {

@@ -33,7 +33,6 @@ var browserConfig = {
     new webpack.DefinePlugin({
       'process.env.API_URL': JSON.stringify(process.env.API_URL),
       'process.env.PROCESS_ENV': JSON.stringify(process.env.PROCESS_ENV),
-      'process.env.GOOGLE_FONTS_FAMILY': JSON.stringify(process.env.GOOGLE_FONTS_FAMILY),
       'process.env.GOOGLE_ANALYTICS_ID': JSON.stringify(process.env.GOOGLE_ANALYTICS_ID)
     })
   ],
@@ -80,7 +79,8 @@ var serverConfig = {
     }),
     new webpack.DefinePlugin({
       'process.env.API_URL': JSON.stringify(process.env.API_URL),
-      'process.env.PROCESS_ENV': JSON.stringify(process.env.PROCESS_ENV)
+      'process.env.PROCESS_ENV': JSON.stringify(process.env.PROCESS_ENV),
+      'process.env.GOOGLE_ANALYTICS_ID': JSON.stringify(process.env.GOOGLE_ANALYTICS_ID)
     })
   ],
   resolve: {

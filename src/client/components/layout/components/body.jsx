@@ -13,6 +13,7 @@ export const ItemBody = props => {
   const {
     item,
     images,
+    displayImages,
     model,
     onChange,
     setEditing,
@@ -42,7 +43,12 @@ export const ItemBody = props => {
         />
       }
       {hasSecondaryImages &&
-        <ImagesShow images={images} isGrid />
+        <ImagesShow
+          images={images}
+          displayImages={displayImages}
+          isGrid
+          onClick={setEditing ? () => setEditing('images') : undefined}
+        />
       }
       <Description
         description={item.description}

@@ -12,6 +12,7 @@ export const Image = props => {
       <img
         src={url}
         alt={alt}
+        title={alt}
         width='100%'
       />
       {editCaption &&

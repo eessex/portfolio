@@ -9,11 +9,12 @@ export const ImagesRow = props => {
 
   const images = isGrid ? fillwidth(props.images) : props.images
   const isMultiple = images.length > 1
-  console.log('isGrid', isGrid, 'isMultiple', isMultiple)
+
   return (
     <ImagesRowContainer isGrid={isGrid}>
       {images.map((image, i) => {
         const hasGutter = isGrid && isMultiple && i !== (images.length - 1)
+
         return (
           <ImageContainer
             key={i}
@@ -30,6 +31,7 @@ export const ImagesRow = props => {
 }
 
 const ImagesRowContainer = styled.div`
+  max-width: 100%;
   ${props => props.isGrid && `
     display: flex;
     align-items: center;

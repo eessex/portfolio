@@ -22,13 +22,13 @@ export const LayoutColumn = props => {
   let coverImage
   let embed_codes
   let images
-  let otherImages
+  let displayImages
 
   if (item) {
     embed_codes = item.embed_codes || []
     images = clone(item.images) || []
     coverImage = images.length && images.splice(0, 1)
-    otherImages = coverImage && images
+    displayImages = coverImage && images
   }
 
   return (
@@ -53,7 +53,7 @@ export const LayoutColumn = props => {
               setEditing={setEditing}
             />
 
-            <ItemBody {...props} images={otherImages || undefined} />
+            <ItemBody {...props} images={item.images} displayImages={displayImages || undefined} />
 
             {embed_codes &&
               <EmbedList embed_codes={embed_codes} />

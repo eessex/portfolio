@@ -27,7 +27,6 @@ export class ImagesEdit extends Component {
 
     images.push(image)
     onChange(images)
-    this.forceUpdate()
   }
 
   onDeleteImage = index => {
@@ -61,16 +60,17 @@ export class ImagesEdit extends Component {
               />
             </ImagesEditList>
           }
-
-          <div>
-            <ImageEdit
-              fetchUpload={fetchUpload}
-              index={-1}
-              item={{}}
-              onChange={this.onNewImage}
-              showInput
-            />
-          </div>
+          {images.length < 9 &&
+            <div>
+              <ImageEdit
+                fetchUpload={fetchUpload}
+                index={-1}
+                item={{}}
+                onChange={this.onNewImage}
+                showInput
+              />
+            </div>
+          }
 
         </div>
       </Modal>
@@ -83,7 +83,6 @@ const ImagesEditList = styled.div`
   justify-content: space-around;
 
   ${ImageContainer} {
-    max-width: 35%;
     padding-bottom: 20px;
   }
 `

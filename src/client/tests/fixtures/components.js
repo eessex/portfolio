@@ -39,3 +39,49 @@ export const formats = [
     compilation: false
   }
 ]
+
+export const images = [
+  {
+    url: 'https://davidwatsun.s3.amazonaws.com/dwatson_pipes_downtown_net.jpg',
+    aspect: 1.36867088607595,
+    caption: ''
+  },
+  {
+    url: 'https://davidwatsun.s3.amazonaws.com/DavidWatson_by_PeterGanushkin.jpg',
+    aspect: 1.33333333333333,
+    caption: '<p>David Watson by Peter Ganushkin</p>'
+  },
+  {
+    url: 'https://davidwatsun.s3.amazonaws.com/David-Watson_curved-steps copy.jpg',
+    aspect: 2.43252595155709,
+    caption: ''
+  }
+]
+
+export const imagesLong = [
+  {
+    url: 'https://davidwatsun.s3.amazonaws.com/dwatson_pipes_downtown_net.jpg',
+    aspect: 1.36867088607595,
+    caption: ''
+  },
+  {
+    url: 'https://davidwatsun.s3.amazonaws.com/DavidWatson_by_PeterGanushkin.jpg',
+    aspect: 1.33333333333333,
+    caption: ''
+  },
+  {
+    url: 'https://davidwatsun.s3.amazonaws.com/David-Watson_curved-steps copy.jpg',
+    aspect: 2.43252595155709,
+    caption: ''
+  },
+  {
+    url: 'https://eve-portfolio.s3.amazonaws.com/EveEssex_byLenaShkoda.png',
+    aspect: 0.993162393162393,
+    caption: '<p>Eve Essex by Lena Shkoda</p>'
+  },
+  {
+    url: 'https://eve-portfolio.s3.amazonaws.com/EveEssex_byAnnaZanes.jpg',
+    aspect: 1.49068322981366,
+    caption: '<p>Eve Essex by Anna Zanes</p>'
+  }
+]

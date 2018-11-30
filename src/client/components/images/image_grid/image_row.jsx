@@ -6,28 +6,28 @@ import { ImageEdit } from 'client/components/image/image_edit'
 import { fillwidth } from 'client/utils/fillwidth'
 
 export const ImageRow = props => {
-  const { onClick, onChange, onDelete } = props
-  const isGrid = props.images.length > 1
-  const images = isGrid ? fillwidth(props.images) : props.images
-  const isMultiple = images.length > 1
+  const { getTrueIndex, images, onClick, onChange, onDelete } = props
+  const isGrid = images.length > 1
+  const sizedImages = isGrid && fillwidth(images)
 
   return (
     <ImagesRowContainer isGrid={isGrid}>
       {images.map((image, i) => {
-        const hasGutter = isGrid && isMultiple && i !== (images.length - 1)
+        const hasGutter = isGrid && i !== (images.length - 1)
+        const width = sizedImages && sizedImages[i] && sizedImages[i].width
 
         return (
           <ImageContainer
             key={i}
-            width={image.width ? `${image.width}px` : '100%'}
-            height={image.height ? `${image.height}px` : 'auto'}
+            width={width ? `${width}px` : '100%'}
             hasGutter={hasGutter}
             onClick={() => onClick && onClick(i)}
           >
-            {onChange
+            {onChange && onDelete
               ? <ImageEdit
-                index={i}
                 item={image}
+                index={i}
+                getTrueIndex={getTrueIndex}
                 onChange={onChange}
                 onDelete={onDelete}
                 editCaption
@@ -43,20 +43,23 @@ export const ImageRow = props => {
 
 const ImagesRowContainer = styled.div`
   max-width: 100%;
+
   ${props => props.isGrid && `
     display: flex;
     align-items: flex-start;
   `}
 `
 
-const ImageContainer = styled.div`
+export const ImageContainer = styled.div`
   ${props => props.hasGutter && `
     margin-right: 10px;
   `}
   width: ${props => props.width};
+  height: auto;
 `
 
 ImageRow.propTypes = {
+  getTrueIndex: PropTypes.func,
   images: PropTypes.array,
   onChange: PropTypes.func,
   onClick: PropTypes.func,

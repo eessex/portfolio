@@ -1,51 +1,20 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { cloneDeep, extend, map } from 'lodash'
+import { cloneDeep, extend } from 'lodash'
 import React from 'react'
 import { ImageRow } from './image_row'
 
 export class ImageGrid extends React.Component {
-  // TODO: add slideshow controls to redux actions
-  constructor (props) {
-    super(props)
-    const {
-      displayImages,
-      increment,
-      firstRow,
-      secondRow
-    } = this.setImages()
-
-    this.state = {
-      displayImages,
-      increment,
-      firstRow,
-      secondRow
-    }
-  }
-
-  componentWillUpdate (nextProps) {
-    const { images, hasCover } = this.props
-    const { displayImages, increment } = this.state
-    const displayImagesLength = displayImages.length + increment
-
-    const imagesLengthChanged = nextProps.images.length !== displayImagesLength
-    const coverChanged = hasCover && nextProps.images[0] !== images[0]
-    // const captionHasChanged = map(images, 'caption') !== map(nextProps.images, 'caption')
-
-    if (imagesLengthChanged || coverChanged) {
-      this.setState(this.setImages())
-    }
-  }
-
   getTrueIndex = (i, isSecondRow) => {
-    const { firstRow, increment } = this.state
+    const { firstRow, increment } = this.getImageRows()
     let indexWithCover = i + increment
+
     return isSecondRow
       ? indexWithCover + firstRow.length
       : indexWithCover
   }
 
-  setImages = () => {
+  getImageRows = () => {
     const { images, hasCover } = this.props
     let increment = 0
     const displayImages = cloneDeep(images)
@@ -68,19 +37,21 @@ export class ImageGrid extends React.Component {
     const { images, onChange } = this.props
     const index = this.getTrueIndex(i, isSecondRow)
     const newImage = extend(images[index], image)
+
     onChange(newImage, index)
-    this.setState(this.setImages())
   }
 
   onDelete = (i, isSecondRow) => {
     const index = this.getTrueIndex(i, isSecondRow)
     this.props.onDelete(index)
-    this.setState(this.setImages())
   }
 
   render () {
     const { onClick, onChange, onDelete } = this.props
-    const { firstRow, secondRow } = this.state
+    const {
+      firstRow,
+      secondRow
+    } = this.getImageRows()
 
     return (
       <ImagesContainer isOverflow={secondRow} onClick={onClick && onClick}>
@@ -102,14 +73,14 @@ export class ImageGrid extends React.Component {
   }
 }
 
-const getFirstRowLength = images => {
+export const getFirstRowLength = (images = []) => {
   const length = images.length
   const isEven = length % 2 === 0
   const isByThree = length % 3 === 0
   const isOverflow = length > 3
 
   if (isOverflow) {
-    if (isEven && length !== 6) {
+    if (isEven) {
       return length / 2
     } else if (isByThree) {
       return length / 3
@@ -122,7 +93,7 @@ const getFirstRowLength = images => {
   return 0
 }
 
-const getRows = (images = []) => {
+export const getRows = (images = []) => {
   const increment = getFirstRowLength(images)
   let firstRow = cloneDeep(images)
   let secondRow

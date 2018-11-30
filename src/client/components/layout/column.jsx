@@ -1,7 +1,6 @@
 import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React from 'react'
-import styled from 'styled-components'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { ItemHeader } from './components/header'
 import { ItemBody } from './components/body'
@@ -90,6 +89,7 @@ export const LabelContainer = Col.extend`
 export const ContentContainer = Col.extend`
   margin: 0 auto 0 0;
   padding: 0;
+  max-width: 800px !important;
 `
 
 LayoutColumn.propTypes = {

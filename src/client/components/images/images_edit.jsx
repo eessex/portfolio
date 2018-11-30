@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ImageEdit, ImageContainer } from 'client/components/image/image_edit'
 import { Modal } from 'client/components/modal/modal'
+import { ImageGrid } from './image_grid/image_grid'
 
 export class ImagesEdit extends Component {
   static propTypes = {
@@ -53,16 +54,11 @@ export class ImagesEdit extends Component {
 
           {images.length > 0 &&
             <ImagesEditList>
-              {images.map((image, index) =>
-                <ImageEdit
-                  index={index}
-                  item={image}
-                  key={index}
-                  onChange={this.onChangeImage}
-                  onDelete={this.onDeleteImage}
-                  editCaption
-                />
-              )}
+              <ImageGrid
+                images={images}
+                onChange={this.onChangeImage}
+                onDelete={this.onDeleteImage}
+              />
             </ImagesEditList>
           }
 

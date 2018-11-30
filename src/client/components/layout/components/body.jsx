@@ -1,4 +1,3 @@
-import { clone } from 'lodash'
 import PropTypes from 'prop-types'
 import React from 'react'
 import styled from 'styled-components'
@@ -7,13 +6,12 @@ import { LinksList } from 'client/components/links/links_list'
 import { Social } from 'client/components/social/social_list'
 import { SocialContainer } from '../grid'
 import { Description } from './description'
-import { ImagesShow } from 'client/components/images/images_show'
+import { ImageGrid } from 'client/components/images/image_grid/image_grid'
 
 export const ItemBody = props => {
   const {
     item,
     images,
-    displayImages,
     model,
     onChange,
     setEditing,
@@ -28,10 +26,6 @@ export const ItemBody = props => {
   const isPage = model === 'pages'
   const hasSecondaryImages = images && images.length !== 0
 
-  const descriptionPlaceholder = isPage && hasSecondaryImages
-    ? 'Primary text (additional images display below)'
-    : 'Primary text (displays above images)'
-
   return (
     <ItemBodyContainer>
       {isPage &&
@@ -39,15 +33,15 @@ export const ItemBody = props => {
           description={item.lead_text}
           onChange={onChange && onChange}
           fieldName='lead_text'
-          placeholder={descriptionPlaceholder}
+          placeholder='Primary text (additional images display below)'
         />
       }
       {hasSecondaryImages &&
-        <ImagesShow
+        <ImageGrid
           images={images}
-          displayImages={displayImages}
           isGrid
           onClick={setEditing ? () => setEditing('images') : undefined}
+          hasCover
         />
       }
       <Description

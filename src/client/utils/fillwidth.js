@@ -1,10 +1,10 @@
 // Adapted from https://github.com/artsy/reaction/blob/master/src/Utils/fillwidth.ts
 
-import { reduce } from 'lodash'
+import { extend, reduce } from 'lodash'
 
 const MAX_ITERATIONS = 1000
 const DEFAULT_WIDTH = 650
-const TARGET_HEIGHT = 250
+const TARGET_HEIGHT = 350
 
 const resizeHeight = (img, dir) => {
   img.width += (img.width / img.height) * dir
@@ -33,11 +33,11 @@ export const fillwidth = (
 
   // Get initial dimensions based on the targetHeight
   const dimensions = items.map(item => {
-    return {
-      url: item.url,
+    const newItem = extend(item, {
       width: targetHeight * (item.aspect || 1),
       height: targetHeight
-    }
+    })
+    return newItem
   })
 
   // If the total width difference is too small or negative we need to scale down. If not, scale up.

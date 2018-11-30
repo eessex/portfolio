@@ -2,11 +2,12 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Image } from 'client/components/image/image'
+import { ImageEdit } from 'client/components/image/image_edit'
 import { fillwidth } from 'client/utils/fillwidth'
 
-export const ImagesRow = props => {
-  const { isGrid, onClick } = props
-
+export const ImageRow = props => {
+  const { onClick, onChange, onDelete } = props
+  const isGrid = props.images.length > 1
   const images = isGrid ? fillwidth(props.images) : props.images
   const isMultiple = images.length > 1
 
@@ -19,10 +20,20 @@ export const ImagesRow = props => {
           <ImageContainer
             key={i}
             width={image.width ? `${image.width}px` : '100%'}
+            height={image.height ? `${image.height}px` : 'auto'}
             hasGutter={hasGutter}
             onClick={() => onClick && onClick(i)}
           >
-            <Image {...image} />
+            {onChange
+              ? <ImageEdit
+                index={i}
+                item={image}
+                onChange={onChange}
+                onDelete={onDelete}
+                editCaption
+              />
+              : <Image {...image} />
+            }
           </ImageContainer>
         )
       })}
@@ -34,7 +45,7 @@ const ImagesRowContainer = styled.div`
   max-width: 100%;
   ${props => props.isGrid && `
     display: flex;
-    align-items: center;
+    align-items: flex-start;
   `}
 `
 
@@ -45,8 +56,9 @@ const ImageContainer = styled.div`
   width: ${props => props.width};
 `
 
-ImagesRow.propTypes = {
-  isGrid: PropTypes.bool,
+ImageRow.propTypes = {
   images: PropTypes.array,
-  onClick: PropTypes.func
+  onChange: PropTypes.func,
+  onClick: PropTypes.func,
+  onDelete: PropTypes.func
 }

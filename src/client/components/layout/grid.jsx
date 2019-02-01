@@ -34,13 +34,17 @@ export const LayoutGrid = props => {
     <GridContainer>
       <MediaContainer xs={12} sm={gridCoverImage ? 5 : 2}>
         {gridCoverImage &&
-          <Image {...gridCoverImage} />
+          <Image
+            onClick={setEditing ? () => setEditing('images') : undefined}  
+            {...gridCoverImage}
+          />
         }
         {images.length > 1 &&
           <ImageGrid
             hasCover
             isGrid
             images={images}
+            onClick={setEditing ? () => setEditing('images') : undefined}
           />
         }
         {embed_codes &&

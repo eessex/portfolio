@@ -6,8 +6,8 @@ import { theme } from 'client/styles/theme'
 import { images } from 'client/tests/fixtures/components'
 import { Image } from 'client/components/image/image'
 import { ImageEdit } from 'client/components/image/image_edit'
-import { ImageRow, ImageContainer } from '../image_row'
 import { RichText } from 'client/components/text/draft/RichText'
+import { ImageRow, ImageContainer } from '../image_row'
 
 describe('ImageRow', () => {
   const getWrapper = passedProps => {
@@ -39,8 +39,8 @@ describe('ImageRow', () => {
 
     expect(component.find(ImageContainer).length).toBe(3)
     expect(component.find(Image).length).toBe(3)
-    expect(component.find(ImageContainer).first().props().width).toBe('166px')
-    expect(component.find(ImageContainer).last().props().width).toBe('299px')
+    expect(component.find(ImageContainer).first().props().width).toBe('206px')
+    expect(component.find(ImageContainer).last().props().width).toBe('369px')
   })
 
   it('Calls #onClick if provided', () => {

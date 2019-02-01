@@ -3,7 +3,7 @@
 import { extend, reduce } from 'lodash'
 
 const MAX_ITERATIONS = 1000
-const DEFAULT_WIDTH = 650
+const DEFAULT_WIDTH = 800
 const TARGET_HEIGHT = 350
 
 const resizeHeight = (img, dir) => {

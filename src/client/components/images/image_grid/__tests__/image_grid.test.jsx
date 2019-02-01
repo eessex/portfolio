@@ -246,6 +246,8 @@ describe('ImageGrid', () => {
   })
 
   describe('#getFirstRowLength', () => {
+    const image = clone(images[0])
+
     it('Returns 0 by default', () => {
       const firstRowLength = getFirstRowLength()
 
@@ -253,13 +255,18 @@ describe('ImageGrid', () => {
     })
 
     it('Returns half of length for even rows', () => {
-      const firstRowLength = getFirstRowLength(flatten([images, {}]))
+      let input = flatten([images, image])
+      const firstRowLength = getFirstRowLength(input)
+
       expect(firstRowLength).toBe(2)
+      expect(firstRowLength).toBe(input.length / 2)
     })
 
     it('Returns third of length for rows divisible by three', () => {
-      const firstRowLength = getFirstRowLength(flatten([imagesLong, {}, {}, {}, {}]))
+      let input = flatten([imagesLong, images, image])
+      const firstRowLength = getFirstRowLength(input)
 
+      expect(firstRowLength).toBe(input.length / 3)
       expect(firstRowLength).toBe(3)
     })
 
@@ -270,35 +277,46 @@ describe('ImageGrid', () => {
     })
 
     it('Returns 3 if length is 7', () => {
-      const firstRowLength = getFirstRowLength(flatten([imagesLong, {}, {}]))
+      const firstRowLength = getFirstRowLength(flatten([imagesLong, image, image]))
 
       expect(firstRowLength).toBe(3)
     })
   })
 
   describe('#getRows', () => {
-    it('Returns half of length for even rows', () => {
-      const rows = getRows(flatten([images, {}]))
-      console.log(rows)
-      // expect(rows).toBe(2)
+    const image = images[0]
+
+    it('Returns correct increments for even arrays', () => {
+      const input = flatten([images, image])
+      const { firstRow, secondRow, increment } = getRows(input)
+
+      expect(firstRow.length).toBe(2)
+      expect(secondRow.length).toBe(2)
+      expect(increment).toBe(2)
     })
 
-    xit('Returns third of length for rows divisible by three', () => {
-      const rows = getRows(flatten([imagesLong, {}, {}, {}, {}]))
+    it('Returns correct increments for arrays divisible by three', () => {
+      const { firstRow, secondRow, increment } = getRows(flatten([imagesLong, image]))
 
-      expect(rows).toBe(3)
+      expect(firstRow.length).toBe(3)
+      expect(secondRow.length).toBe(3)
+      expect(increment).toBe(3)
     })
 
-    xit('Returns 2 if length is 5', () => {
-      const rows = getRows(imagesLong)
+    it('Returns correct increments for arrays of 5', () => {
+      const { firstRow, secondRow, increment } = getRows(imagesLong)
 
-      expect(rows).toBe(2)
+      expect(firstRow.length).toBe(2)
+      expect(secondRow.length).toBe(3)
+      expect(increment).toBe(2)
     })
 
-    xit('Returns rows for 7 images', () => {
-      const rows = getRows(flatten([imagesLong, {}, {}]))
+    it('Returns rows for 7 images', () => {
+      const { firstRow, secondRow, increment } = getRows(flatten([imagesLong, image, image]))
 
-      expect(rows).toBe(3)
+      expect(firstRow.length).toBe(3)
+      expect(secondRow.length).toBe(4)
+      expect(increment).toBe(3)
     })
   })
 })

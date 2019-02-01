@@ -9,9 +9,11 @@ export const Description = props => {
   const {
     description,
     onChange,
-    placeholder
+    placeholder,
+    fieldName
   } = props
   const hasDescription = stripTags(description).length > 0
+  const key = fieldName || 'description'
 
   return (
     <DescriptionContainer>
@@ -21,7 +23,7 @@ export const Description = props => {
             <RichText
               html={description}
               placeholder={placeholder || 'Start typing...'}
-              onChange={(value) => onChange('description', value)}
+              onChange={(value) => onChange(key, value)}
             />
           </P>
         ) : hasDescription && <P dangerouslySetInnerHTML={{__html: description}} />
@@ -38,6 +40,7 @@ export const DescriptionContainer = styled.div`
 
 Description.propTypes = {
   description: PropTypes.string,
+  fieldName: PropTypes.string,
   onChange: PropTypes.func,
   placeholder: PropTypes.string
 }

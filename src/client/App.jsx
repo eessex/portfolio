@@ -3,11 +3,12 @@ import React, { Component } from 'react'
 import { Helmet } from 'react-helmet'
 import { Route, Switch } from 'react-router-dom'
 
-import { theme } from 'client/styles/theme.jsx'
+import { theme } from 'client/styles/theme'
 import { routes } from 'client/routes'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import Nav from 'client/components/Nav/Nav'
 import { NotFound } from 'client/components/NotFound'
+
 const { PAGE_TITLE } = process.env
 const GOOGLE_FONTS_FAMILY = process.env.GOOGLE_FONTS_FAMILY
 

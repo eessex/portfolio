@@ -79,25 +79,10 @@ export const ItemHeader = props => {
           onClick={setEditing ? () => setEditing('venue') : undefined}
         />
       }
-      {hasImage && onChange
-        ? (
-          <ImageEdit
-            item={coverImage}
-            index={0}
-            onChange={(image) => {
-              const newImages = clone(item.images) || []
-              if (image) {
-                newImages[0] = image
-              } else {
-                newImages.splice(0, 1)
-              }
-              onChange('images', newImages)
-            }}
-            editCaption
+      { hasImage &&
+          <Image {...coverImage}
+            onClick={setEditing ? () => setEditing('images') : undefined}
           />
-        ) : hasImage && (
-          <Image {...coverImage} />
-        )
       }
     </ItemHeaderContainer>
   )

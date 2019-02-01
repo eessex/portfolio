@@ -5,7 +5,8 @@ import { Col, Row } from 'react-styled-flexboxgrid'
 import { Description } from './components/description'
 import { ItemHeader } from './components/header'
 import { EmbedList } from 'client/components/embeds/embed_list'
-import { ImagesShow } from 'client/components/images/images_show'
+import { Image } from 'client/components/image/image'
+import { ImageGrid } from 'client/components/images/image_grid/image_grid'
 import { LinksList } from 'client/components/links/links_list'
 import { Social } from 'client/components/social/social_list'
 import { ContentContainer } from './column'
@@ -25,15 +26,26 @@ export const LayoutGrid = props => {
     description,
     embed_codes
   } = item
-
+  const hasImages = item.images && item.images.length > 0
   const images = item.images || []
-  const gridCoverImage = images.length > 0 ? images[0] : undefined
+  const gridCoverImage = hasImages ? images[0] : undefined
 
   return (
     <GridContainer>
       <MediaContainer xs={12} sm={gridCoverImage ? 5 : 2}>
         {gridCoverImage &&
-          <ImagesShow images={images} />
+          <Image
+            onClick={setEditing ? () => setEditing('images') : undefined}  
+            {...gridCoverImage}
+          />
+        }
+        {images.length > 1 &&
+          <ImageGrid
+            hasCover
+            isGrid
+            images={images}
+            onClick={setEditing ? () => setEditing('images') : undefined}
+          />
         }
         {embed_codes &&
           <EmbedList embed_codes={embed_codes} />

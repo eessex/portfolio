@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ImageEdit, ImageContainer } from 'client/components/image/image_edit'
 import { Modal } from 'client/components/modal/modal'
+import { ImageGrid } from './image_grid/image_grid'
 
 export class ImagesEdit extends Component {
   static propTypes = {
@@ -26,7 +27,6 @@ export class ImagesEdit extends Component {
 
     images.push(image)
     onChange(images)
-    this.forceUpdate()
   }
 
   onDeleteImage = index => {
@@ -53,28 +53,24 @@ export class ImagesEdit extends Component {
 
           {images.length > 0 &&
             <ImagesEditList>
-              {images.map((image, index) =>
-                <ImageEdit
-                  index={index}
-                  item={image}
-                  key={index}
-                  onChange={this.onChangeImage}
-                  onDelete={this.onDeleteImage}
-                  editCaption
-                />
-              )}
+              <ImageGrid
+                images={images}
+                onChange={this.onChangeImage}
+                onDelete={this.onDeleteImage}
+              />
             </ImagesEditList>
           }
-
-          <div>
-            <ImageEdit
-              fetchUpload={fetchUpload}
-              index={-1}
-              item={{}}
-              onChange={this.onNewImage}
-              showInput
-            />
-          </div>
+          {images.length < 9 &&
+            <div>
+              <ImageEdit
+                fetchUpload={fetchUpload}
+                index={-1}
+                item={{}}
+                onChange={this.onNewImage}
+                showInput
+              />
+            </div>
+          }
 
         </div>
       </Modal>
@@ -87,7 +83,6 @@ const ImagesEditList = styled.div`
   justify-content: space-around;
 
   ${ImageContainer} {
-    max-width: 35%;
     padding-bottom: 20px;
   }
 `

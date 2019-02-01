@@ -13,7 +13,7 @@ export const ModalBackground = props => {
   )
 }
 
-const ModalBackgroundContainer = styled.div`
+export const ModalBackgroundContainer = styled.div`
   position: fixed;
   left: 0;
   right: 0;

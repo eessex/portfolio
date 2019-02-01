@@ -2,7 +2,7 @@
   "name": "portfolio",
   "version": "0.0.1",
   "engines": {
-    "node": "8.4.0",
+    "node": "10.x.x",
     "yarn": "1.x.x"
   },
   "main": "index.js",
@@ -19,7 +19,7 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
     "babel-runtime": "^6.26.0",
-    "bcrypt": "^1.0.2",
+    "bcrypt": "^2.0.0",
     "body-parser": "^1.17.2",
     "connected-react-router": "^4.5.0",
     "cors": "^2.8.5",
@@ -83,6 +83,7 @@
     "test": "NODE_ENV=test jest"
   },
   "jest": {
+    "testURL": "http://localhost/",
     "transform": {
       "^.+\\.js$": "babel-jest",
       "^.+\\.jsx$": "babel-jest"

@@ -4,14 +4,15 @@ import PropTypes from 'prop-types'
 import React from 'react'
 
 export const Image = props => {
-  const { editCaption, caption, url } = props
+  const { editCaption, caption, url, onClick } = props
   const alt = stripTags(caption) || ''
 
   return (
-    <ImageContainer>
+    <ImageContainer onClick={onClick}>
       <img
         src={url}
         alt={alt}
+        title={alt}
         width='100%'
       />
       {editCaption &&
@@ -57,5 +58,6 @@ export const ImageContainer = styled.div`
 Image.propTypes = {
   editCaption: PropTypes.any,
   caption: PropTypes.string,
-  url: PropTypes.string
+  url: PropTypes.string,
+  onClick: PropTypes.func
 }

@@ -89,7 +89,7 @@ export const LabelContainer = Col.extend`
 export const ContentContainer = Col.extend`
   margin: 0 auto 0 0;
   padding: 0;
-  max-width: 800px !important;
+  width: 800px;
 `
 
 LayoutColumn.propTypes = {

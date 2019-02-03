@@ -97,8 +97,11 @@ const GridContainer = Row.extend`
 
 const MediaContainer = Col.extend`
   margin-right: 30px;
-  max-width: 450px !important;
   padding-bottom: 30px;
+
+  @media (min-width: 1200px) {
+    max-width: 450px !important;
+  }
 
   @media (max-width: 46rem) {
     max-width: 100% !important;

@@ -1,27 +1,39 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
+import { getDate, getVenue } from 'client/utils'
 import { Formats } from 'client/components/formats/formats'
-import { H1, H3, H5, P } from 'client/styles/text'
+import { H1, H3, H5 } from 'client/styles/text'
+import { Col } from 'react-styled-flexboxgrid'
 
 export const ItemGrid = props => {
   const {
-    artist,
     condensed,
-    date,
-    description,
-    formats,
-    image,
-    title,
-    venue
+    model,
+    item: {
+      artist,
+      formats,
+      images,
+      title,
+    }
   } = props
-  const hasImage = image && image.url.length
+
+  const date = getDate(model, props.item)
+  const venue = getVenue(props.item.venue)
+  const image = images.length ? images[0] : undefined
+  const hasImage = image && image.url.length > 0
+
   const formattedTitle = artist
     ? `${artist}: ${title || 'Missing Title'}`
     : title || 'Missing Title'
 
   return (
-    <GridItem condensed={condensed}>
+    <GridItemContainer
+      xs={12}
+      sm={condensed ? 4 : 6}
+      lg={condensed ? 3 : 5}
+      condensed={condensed}
+    >
       {hasImage &&
         <img src={image.url} />
       }
@@ -44,21 +56,18 @@ export const ItemGrid = props => {
           <Formats formats={formats} />
         </H5>
       }
-      {description &&
-        <P>
-          {description}
-        </P>
-      }
-    </GridItem>
+    </GridItemContainer>
   )
 }
 
-const GridItem = styled.div`
+export const GridItemContainer = styled(Col)`
   margin-bottom: 4em;
+  max-width: 45%;
 
   ${H1} {
     font-size: 3.5em;
     margin-top: 0;
+
     ${props => props.condensed && `
       font-size: 2.5em;
     `}
@@ -83,6 +92,7 @@ const GridItem = styled.div`
     margin-top: 20px;
     margin-bottom: 50px;
     padding: 0 10px;
+
     @media (max-width: 76rem) {
       margin-top: 10px;
       margin-bottom: 30px;
@@ -98,12 +108,7 @@ const GridItem = styled.div`
 `
 
 ItemGrid.propTypes = {
-  artist: PropTypes.string,
   condensed: PropTypes.bool,
-  date: PropTypes.string,
-  description: PropTypes.string,
-  formats: PropTypes.array,
-  image: PropTypes.object,
-  title: PropTypes.string,
-  venue: PropTypes.string
+  item: PropTypes.object,
+  model: PropTypes.string
 }

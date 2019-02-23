@@ -1,6 +1,11 @@
 import moment from 'moment'
 import { pluck, uniq } from 'underscore'
 
+export const getSlug = (model, item) => {
+  const slug = item.published ? item.slug || item._id : item._id
+  return `/${model}/${slug}`
+}
+
 export const sortByDate = (items, dateField) => {
   let upcoming = []
   let past = []

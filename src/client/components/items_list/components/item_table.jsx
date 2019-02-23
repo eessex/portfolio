@@ -1,11 +1,20 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
+import { getDate, getVenue } from 'client/utils'
 import { Formats, FormatsContainer } from 'client/components/formats/formats'
 import { H4 } from 'client/styles/text'
 
 export const ItemTable = props => {
-  const { artist, date, formats, title, venue } = props
+  const {
+    model,
+    item: {
+      artist, formats, title
+    }
+  } = props
+
+  const date = getDate(model, props.item)
+  const venue = getVenue(props.item.venue)
 
   return (
     <TableItem>
@@ -62,9 +71,6 @@ const TableItem = Row.extend`
 `
 
 ItemTable.propTypes = {
-  artist: PropTypes.string,
-  date: PropTypes.string,
-  formats: PropTypes.array,
-  title: PropTypes.string,
-  venue: PropTypes.string
+  item: PropTypes.object,
+  model: PropTypes.string,
 }

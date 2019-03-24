@@ -24,7 +24,7 @@ export class EmbedList extends Component {
     this.setState({ lastUpdated: new Date() })
   }
 
-  onRemoveEmbed = (_embed, index) => {
+  onRemoveEmbed = (index) => {
     const { embed_codes, onChange } = this.props
     const newEmbeds = clone(embed_codes)
 
@@ -48,7 +48,7 @@ export class EmbedList extends Component {
               {editing &&
                 <Button
                   icon='times'
-                  onClick={() => this.onRemoveEmbed(embed_code, i)}
+                  onClick={() => this.onRemoveEmbed(i)}
                 />
               }
             </EmbedItem>

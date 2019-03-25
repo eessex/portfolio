@@ -122,16 +122,17 @@ export const getReleaseDate = item => {
 }
 
 export const getVenue = venue => {
-  const { address, city, country, name } = venue || {}
+  const { address, city, country, name, state } = venue || {}
 
   if (venue) {
+    const State = state ? `, ${state}` : ''
     const City = city && city.length ? `, ${city}` : ''
     const Country = country ? `, ${country}` : ''
 
     if (venue && name && name.length) {
-      return name + City + Country
+      return name + City + State + Country
     } else if (venue && address && address.length) {
-      return address + City + Country
+      return address + City + State + Country
     }
   }
 }

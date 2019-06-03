@@ -4,12 +4,12 @@
     "baseUrl": "./src",
     "experimentalDecorators": true,
     "jsx": "react",
-    "module": "es2015",
+    "allowSyntheticDefaultImports": true,
+    "lib": ["es2015"],
     "moduleResolution": "node",
     "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "outDir": "./public/",
   },
-  "include": ["./src"]
 }

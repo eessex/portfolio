@@ -15,6 +15,7 @@ var browserConfig = {
       {
         test: /(\.(ts|tsx|jsx|js)?$)/,
         loader: 'babel-loader',
+        exclude: /node_modules/,
         query: {
           plugins: ['transform-runtime']
         }
@@ -40,10 +41,7 @@ var browserConfig = {
     modules: [
       path.resolve('./src'),
       path.resolve('./node_modules')
-    ],
-    alias: {
-      'styled-components': path.resolve('./node_modules/styled-components')
-    }
+    ]
   }
 }
 
@@ -61,7 +59,7 @@ var serverConfig = {
       {
         include: path.resolve('./src'),
         test: /(\.(ts|tsx|jsx|js)?$)/,
-        include: path.resolve('./src'),
+        exclude: /node_modules/,
         loader: 'babel-loader',
         query: {
           plugins: ['transform-runtime']
@@ -89,9 +87,6 @@ var serverConfig = {
       path.resolve('./src'),
       path.resolve('./node_modules')
     ],
-    alias: {
-      'styled-components': path.resolve('./node_modules/styled-components')
-    }
   }
 }
 

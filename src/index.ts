@@ -74,7 +74,7 @@ app.get('*', async (req, res, next) => {
   const session = cookies.get('portfolio.session')
 
   const { store } = createStore({ entry: req.url, session })
-
+  // @ts-ignore
   const settings = await store.dispatch(fetchSettings())
   const activeRoute = routes.find(route => matchPath(req.url, route))
 

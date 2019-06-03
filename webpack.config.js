@@ -13,8 +13,7 @@ var browserConfig = {
   module: {
     rules: [
       {
-        test: /(\.(js|jsx)?$)/,
-        include: path.resolve('./src'),
+        test: /(\.(ts|tsx|jsx|js)?$)/,
         loader: 'babel-loader',
         query: {
           plugins: ['transform-runtime']
@@ -37,7 +36,7 @@ var browserConfig = {
     })
   ],
   resolve: {
-    extensions: ['.js', '.jsx'],
+    extensions: ['.tsx', '.ts', '.jsx', '.js'],
     modules: [
       path.resolve('./src'),
       path.resolve('./node_modules')
@@ -49,7 +48,7 @@ var browserConfig = {
 }
 
 var serverConfig = {
-  entry: ['babel-polyfill', './src/index.js'],
+  entry: ['babel-polyfill', './src/index.ts'],
   target: 'node',
   externals: [nodeExternals(), 'react-helmet'],
   output: {
@@ -60,7 +59,8 @@ var serverConfig = {
   module: {
     rules: [
       {
-        test: /(\.(js|jsx)?$)/,
+        include: path.resolve('./src'),
+        test: /(\.(ts|tsx|jsx|js)?$)/,
         include: path.resolve('./src'),
         loader: 'babel-loader',
         query: {
@@ -84,7 +84,7 @@ var serverConfig = {
     })
   ],
   resolve: {
-    extensions: ['.js', '.jsx'],
+    extensions: ['.tsx', '.ts', '.jsx', '.js'],
     modules: [
       path.resolve('./src'),
       path.resolve('./node_modules')

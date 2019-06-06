@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import React from 'react'
 import Waypoint from 'react-waypoint'
 import { NavLink } from 'react-router-dom'
-
+import { resetItem } from 'client/actions/item'
 import { resetItems } from 'client/actions/items'
 import AdminNav, { AdminNavContainer } from './Components/AdminNav'
 import { H1 } from 'client/styles/text'
@@ -24,6 +24,7 @@ const links = [
 export class Nav extends React.Component {
   static propTypes = {
     isAuthenticated: PropTypes.bool,
+    resetItemAction: PropTypes.func,
     resetItemsAction: PropTypes.func,
     location: PropTypes.object
   }
@@ -70,7 +71,9 @@ export class Nav extends React.Component {
 
   onClick = param => {
     const linkIsActive = this.linkIsActive(param)
-
+    if (param === "info") {
+      this.props.resetItemAction()
+    }
     if (!linkIsActive) {
       this.props.resetItemsAction()
     }
@@ -158,6 +161,7 @@ const mapStateToProps = ({ userReducer }) => ({
 })
 
 const mapDispatchToProps = {
+  resetItemAction: resetItem,
   resetItemsAction: resetItems
 }
 

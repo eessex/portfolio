@@ -1,4 +1,6 @@
-export const Settings = {
+import { Settings } from 'client/typings'
+
+export const settings: Settings = {
   _id: '5999f935bc41cbb936d7ec7a',
   title: 'Eve Essex',
   nav: [

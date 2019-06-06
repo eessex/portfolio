@@ -22,7 +22,7 @@ const fetchInitialItem = (path = '', store, model) => {
   return store.dispatch(fetchItem(`/${model}`, param, query))
 }
 
-const fetchInitialItems = (path = '', store, model) => {
+const fetchInitialItems = (_path = '', store, model) => {
   const query = getQuery(store)
   return store.dispatch(fetchItems(`/${model}`, query))
 }
@@ -33,7 +33,7 @@ const HomeRoute = {
   component: HOMEPAGE_ENABLED ? Page : Items,
   model: HOMEPAGE_ENABLED ? undefined : 'events',
   title: 'Home',
-  fetchInitialData: (path = '', store) => {
+  fetchInitialData: (_path = '', store) => {
     if (HOMEPAGE_ENABLED) {
       return store.dispatch(fetchPage('/home'))
     } else {

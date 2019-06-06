@@ -1,4 +1,6 @@
-export const PublishedRelease = {
+import { Item } from 'client/typings'
+
+export const PublishedRelease: Item = {
   _id: '5a4966f3e5ee8c07868e69e6',
   links: [
     {
@@ -13,7 +15,6 @@ export const PublishedRelease = {
   ],
   project_ids: [],
   published: true,
-  compilation: true,
   artist: 'James K & Eve Essex',
   title: '"Stretch Deep" on "Mono No Aware"',
   description: '<p>mono no aware (もののあわれ) is the first compilation to be released on PAN, collating \u0003unreleased ambient tracks from both new and existing PAN artists.</p>',
@@ -32,7 +33,7 @@ export const PublishedRelease = {
   slug: 'james-k-and-eve-essex-stretch-deep-on-mono-no-aware'
 }
 
-export const UnpublishedRelease = {
+export const UnpublishedRelease: Item = {
   _id: '5a496f9c688c1114024b497c',
   links: [],
   images: [
@@ -40,7 +41,6 @@ export const UnpublishedRelease = {
       url: 'https://eve-portfolio.s3.amazonaws.com/2016-Das-Audit-pioneer-works.jpg'
     }
   ],
-  project_ids: [],
   published: false,
   artist: 'Das Audit',
   title: 'Pioneer Works (live)',
@@ -57,6 +57,6 @@ export const UnpublishedRelease = {
       compilation: false
     }
   ],
-  project_id: '5a0673b00d5cea5c9e6e5d80',
+  project_ids: ['5a0673b00d5cea5c9e6e5d80'],
   slug: 'das-audit-pioneer-works-live'
 }

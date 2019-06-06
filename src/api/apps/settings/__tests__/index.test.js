@@ -1,7 +1,7 @@
 import { cloneDeep } from 'lodash'
 import request from 'supertest'
 import { connectTestDB, disconnectTestDB, testApp } from 'client/tests/dbUtils'
-import { Settings as SettingsFixture } from 'client/tests/fixtures/settings'
+import { settings as SettingsFixture } from 'client/tests/fixtures/settings'
 import { settings } from '../index'
 import Settings from '../schema'
 

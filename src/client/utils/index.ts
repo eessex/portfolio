@@ -1,5 +1,6 @@
 import moment from 'moment'
 import { pluck, uniq } from 'underscore'
+import { Venue } from "client/typings"
 
 export const sortByDate = (items, dateField) => {
   let upcoming = []
@@ -65,7 +66,7 @@ export const formatEventDates = (item, format) => {
   }
 }
 
-export const formatEventDate = (date, allDay, hasYear) => {
+export const formatEventDate = (date, allDay, hasYear, _format) => {
   const getYear = hasYear ? ', YYYY' : ''
 
   if (allDay) {
@@ -121,18 +122,15 @@ export const getReleaseDate = item => {
   }
 }
 
-export const getVenue = venue => {
-  const { address, city, country, name, state } = venue || {}
+export const getVenue = (venue: Venue = {}) => {
+  const { address, city, country, name, state } = venue
+  const State = state ? `, ${state}` : ''
+  const City = city && city.length ? `, ${city}` : ''
+  const Country = country ? `, ${country}` : ''
 
-  if (venue) {
-    const State = state ? `, ${state}` : ''
-    const City = city && city.length ? `, ${city}` : ''
-    const Country = country ? `, ${country}` : ''
-
-    if (venue && name && name.length) {
-      return name + City + State + Country
-    } else if (venue && address && address.length) {
-      return address + City + State + Country
-    }
+  if (venue && name && name.length) {
+    return name + City + State + Country
+  } else if (venue && address && address.length) {
+    return address + City + State + Country
   }
 }

@@ -1,4 +1,6 @@
-export const PublishedProject = {
+import { Item } from 'client/typings'
+
+export const PublishedProject: Item = {
   _id: '5a07412b0d5cea5c9e6e5d83',
   links: [
     {
@@ -29,7 +31,7 @@ export const PublishedProject = {
   slug: 'essex-olivares'
 }
 
-export const UnpublishedProject = {
+export const UnpublishedProject: Item = {
   _id: '5a0673b00d5cea5c9e6e5d80',
   title: 'Das Audit',
   links: [],

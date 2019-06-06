@@ -1,4 +1,6 @@
-export const HomePage = {
+import { Item } from 'client/typings'
+
+export const HomePage: Item = {
   _id: '5bdcb86015f08123420b12a0',
   slug: 'home',
   title: 'Home',
@@ -9,7 +11,7 @@ export const HomePage = {
   published: true
 }
 
-export const InfoPage = {
+export const InfoPage: Item = {
   _id: '5bdcaadf15f08123420ae6b6',
   title: 'Info',
   slug: 'info',

@@ -1,10 +1,10 @@
 import moment from 'moment'
+import { Item, ItemShort } from 'client/typings'
 
-const today = moment().toISOString()
 const tomorrow = moment().add(1, 'day').toISOString()
 const yesterday = moment().subtract(1, 'day').toISOString()
 
-export const ListItemEvent = {
+export const ListItemEvent: ItemShort = {
   date: 'Dec 6, 2017',
   description: '<p>Here is a description.</p>',
   image: {url: 'http://image.jpg'},
@@ -12,7 +12,7 @@ export const ListItemEvent = {
   venue: 'The Sump, Ridgewood'
 }
 
-export const UpcomingEvent = {
+export const UpcomingEvent: Item = {
   _id: "5a0a60d48dcb886c6a1ab1df",
   published: true,
   start_date: tomorrow,
@@ -24,7 +24,7 @@ export const UpcomingEvent = {
   ],
   images: [
     {
-      title: "<p>A caption for an upcoming event</p>",
+      caption: "<p>A caption for an upcoming event</p>",
       url: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/20170117-cixous72-eve-essex-honeys.jpg`
     }
   ],

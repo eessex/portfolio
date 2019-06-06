@@ -2,7 +2,7 @@ import { mount } from 'enzyme'
 import React from 'react'
 import { LinkEdit } from '../link_edit.jsx'
 import { LinksEdit } from '../links_edit.jsx'
-import { links } from '../../../tests/fixtures/components.js'
+import { links } from 'client/tests/fixtures/components'
 
 describe('LinksEdit', () => {
   const getWrapper = props => {

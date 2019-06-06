@@ -1,9 +1,13 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React from 'react'
 import { ColumnContainer } from 'client/components/layout/column'
+import { Item } from 'client/typings'
 
-export const Home = props => {
+interface HomeProps {
+  page: Item
+}
+
+export const Home = (props: HomeProps) => {
   const { description, images } = props.page
   const backgroundImg = images && images[0] && images[0].url
 
@@ -27,7 +31,7 @@ const HomeContainer = styled(ColumnContainer)`
   text-shadow: 0.015em 0.015em 0.05em #fff;
 `
 
-export const PageBackground = styled.div`
+export const PageBackground = styled.div<{backgroundImg?: string}>`
   background-color: ${({ theme }) => theme.colors.gray};
   ${props => props.backgroundImg && `
     background-color: white;
@@ -57,7 +61,3 @@ const PageDescription = styled.div`
     font-size: 1.65em;
   }
 `
-
-Home.propTypes = {
-  page: PropTypes.object
-}

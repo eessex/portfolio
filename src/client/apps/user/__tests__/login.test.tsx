@@ -66,7 +66,7 @@ describe('Login', () => {
   xit('Forwards to home if logged in', () => {
     props.isAuthenticated = true
     getWrapper(props)
-
+    // @ts-ignore
     expect(window.location.replace.mock.calls[0][0]).toBe('/')
   })
 })

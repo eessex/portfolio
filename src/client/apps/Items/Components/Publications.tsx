@@ -1,15 +1,16 @@
 import { filter, sortBy } from 'lodash'
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ItemsList } from 'client/components/items_list'
+import { Item } from 'client/typings'
 
-export class Publications extends Component {
-  static propTypes = {
-    items: PropTypes.array
-  }
+interface PublicationsProps {
+  items: Item[]
+  title: string
+}
 
-  getReleases = type => {
+export class Publications extends Component<PublicationsProps> {
+  getReleases = (type?: 'compilation' | 'featuring') => {
     const { items } = this.props
     let releases = []
 

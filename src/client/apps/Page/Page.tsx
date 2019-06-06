@@ -1,27 +1,34 @@
 import { connect } from 'react-redux'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import * as pageActions from 'client/actions/page'
 import { Loading } from 'client/components/Loading'
 import { Home } from 'client/apps/Page/Components/Home'
+import { Error, Item } from 'client/typings'
 
-export class Page extends Component {
-  static propTypes = {
-    error: PropTypes.object,
-    fetchPageAction: PropTypes.func,
-    page: PropTypes.object,
-    loading: PropTypes.bool,
-    match: PropTypes.any,
-    staticContext: PropTypes.any
-  }
+interface PageProps {
+  error: Error
+  fetchPageAction: (path: string) => void
+  page: Item
+  loading: boolean
+  match: any
+  staticContext: any
+}
 
+interface PageState {
+  data: any
+}
+
+export class Page extends Component<PageProps, PageState> {
   constructor (props) {
     super(props)
 
     let data
+    // @ts-ignore
     if (__isBrowser__) {
+      // @ts-ignore
       data = window.__INITIAL_DATA__
+      // @ts-ignore
       delete window.__INITIAL_DATA__
     } else {
       data = props.staticContext.data

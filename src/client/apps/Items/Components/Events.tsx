@@ -1,13 +1,13 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { sortByDate } from 'client/utils'
 import { ItemsList } from 'client/components/items_list'
+import { Item } from 'client/typings'
 
-export class Events extends Component {
-  static propTypes = {
-    items: PropTypes.array
-  }
+interface EventsProps {
+  items: Item[]
+}
 
+export class Events extends Component<EventsProps> {
   render () {
     const { items } = this.props
     const upcoming = sortByDate(items, 'start_date').upcoming.reverse()

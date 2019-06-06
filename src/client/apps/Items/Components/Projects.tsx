@@ -1,13 +1,13 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ItemsList } from 'client/components/items_list'
 import { LayoutColumn } from 'client/components/layout/column'
+import { Item } from 'client/typings'
 
-export class Projects extends Component {
-  static propTypes = {
-    items: PropTypes.array
-  }
+interface ProjectsProps {
+  items: Item[]
+}
 
+export class Projects extends Component<ProjectsProps> {
   render () {
     const { items } = this.props
 

@@ -34,5 +34,6 @@ Item.propTypes = {
   label: PropTypes.string,
   labelLink: PropTypes.bool,
   layout: PropTypes.string,
-  model: PropTypes.string
+  model: PropTypes.string,
+  social: PropTypes.any
 }

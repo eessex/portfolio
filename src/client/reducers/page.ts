@@ -4,11 +4,18 @@ import {
   FETCH_PAGE_SUCCESS,
   RESET_PAGE
 } from 'client/actions/page'
+import { Error, Item } from 'client/typings'
 
-export const initialState = {
+export interface PageInitialState {
+  error: null | Error
+  loading: boolean
+  page: Item
+}
+
+export const initialState: PageInitialState = {
   loading: false,
   error: null,
-  page: {}
+  page: {} as Item
 }
 
 export const pageReducer = (state = initialState, action) => {

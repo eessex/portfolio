@@ -1,5 +1,6 @@
 import { cloneDeep } from 'lodash'
 import { CREATE_ITEM } from '../actions'
+import { Error, Item } from 'client/typings'
 import {
   FETCH_ITEMS_ERROR,
   FETCH_ITEMS_REQUESTED,
@@ -7,9 +8,16 @@ import {
   RESET_ITEMS
 } from 'client/actions/items'
 
-export const initialState = {
-  loading: false,
-  list: []
+export interface ItemsInitialState {
+  error: null | Error
+  list: Item[]
+  loading: boolean
+}
+
+export const initialState: ItemsInitialState = {
+  error: null,
+  list: [],
+  loading: false
 }
 
 export const itemsReducer = (state = initialState, action) => {

@@ -3,13 +3,22 @@ import {
   LOGIN_USER,
   LOGOUT_USER
 } from '../actions'
+import { Error } from 'client/typings'
 
-export const initialState = {
-  loading: false,
-  isAuthenticated: false,
+export interface UserInitialState {
+  currentUser: null
+  error: null | Error
+  isAuthenticated: boolean
+  loading: boolean
+  session: null
+}
+
+export const initialState: UserInitialState = {
   currentUser: null,
-  session: null,
-  error: null
+  error: null,
+  isAuthenticated: false,
+  loading: false,
+  session: null
 }
 
 export const userReducer = (state = initialState, action) => {

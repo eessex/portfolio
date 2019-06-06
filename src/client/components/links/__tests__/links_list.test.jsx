@@ -1,7 +1,7 @@
 import { mount } from 'enzyme'
 import React from 'react'
 import { LinksList } from '../links_list.jsx'
-import { links } from '../../../tests/fixtures/components.js'
+import { links } from 'client/tests/fixtures/components'
 
 describe('LinksList', () => {
   let props = links

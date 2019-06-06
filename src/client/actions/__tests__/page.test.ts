@@ -9,7 +9,7 @@ describe('Page', () => {
   beforeEach(() => {
     dispatch = jest.fn()
   })
-
+  // @ts-ignore
   global.fetch = jest.fn(() =>
     Promise.resolve({
       status: 200,
@@ -21,6 +21,7 @@ describe('Page', () => {
   it('#fetchItem gets HomePage at expected endpoint', async done => {
     try {
       await pageActions.fetchPage(`/${HomePage.slug}`)(dispatch)
+      // @ts-ignore
       expect(global.fetch.mock.calls[0][0]).toMatch('/api/pages/home')
       expect(dispatch.mock.calls[0][0].type).toBe('FETCH_PAGE_REQUESTED')
       expect(dispatch.mock.calls[1][0].type).toBe('FETCH_PAGE_SUCCESS')
@@ -32,6 +33,7 @@ describe('Page', () => {
   })
 
   it('#fetchItem can catch an error', async done => {
+    // @ts-ignore
     global.fetch = jest.fn(() =>
       Promise.resolve({
         status: 404,
@@ -42,10 +44,11 @@ describe('Page', () => {
 
     try {
       await pageActions.fetchPage(`/${HomePage.slug}`)(dispatch)
+      // @ts-ignore
       expect(global.fetch.mock.calls[0][0]).toMatch('/api/pages/home')
       expect(dispatch.mock.calls[0][0].type).toBe('FETCH_PAGE_REQUESTED')
       expect(dispatch.mock.calls[1][0].type).toBe('FETCH_PAGE_ERROR')
-      expect(dispatch.mock.calls[1][0].payload.error.message).toBe('Error: Not found')
+      expect(dispatch.mock.calls[1][0].payload.error.message).toBe('Error: 404')
       done()
     } catch (err) {
       console.log(err)

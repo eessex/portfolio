@@ -1,4 +1,5 @@
 import { clone } from 'lodash'
+import { Error, Item } from 'client/typings'
 import {
   DELETE_ITEM,
   UPDATE_ITEM
@@ -12,11 +13,22 @@ import {
   RESET_ITEM
 } from '../actions/item'
 
-export const initialState = {
-  item: {},
+interface ItemInitialState {
+  error: null | Error
+  item: Item
+  isSaved: boolean
+  isSaving: boolean
+  loading: boolean
+  model: string
+}
+
+export const initialState: ItemInitialState = {
+  error: null,
+  item: {} as Item,
   isSaved: true,
   isSaving: false,
-  loading: false
+  loading: false,
+  model: ""
 }
 
 export const itemReducer = (state = initialState, action) => {

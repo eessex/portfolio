@@ -20,6 +20,7 @@ export default ({ entry, session }) => {
   const enhancers = []
 
   if (process.env.NODE_ENV === 'development' && !isServer) {
+    // @ts-ignore
     const devToolsExtension = window.devToolsExtension
 
     if (typeof devToolsExtension === 'function') {
@@ -38,7 +39,7 @@ export default ({ entry, session }) => {
     applyMiddleware(...middleware),
     ...enhancers
   )
-
+  // @ts-ignore
   const initialState = !isServer ? window.__INITIAL_DATA__ : {
     userReducer: {
       isAuthenticated: session && true,
@@ -47,6 +48,7 @@ export default ({ entry, session }) => {
   }
 
   if (!isServer) {
+    // @ts-ignore
     delete window.__INITIAL_DATA__
   }
 

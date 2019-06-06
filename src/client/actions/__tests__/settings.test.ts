@@ -10,7 +10,7 @@ describe('Settings', () => {
   beforeEach(() => {
     dispatch = jest.fn()
   })
-
+  // @ts-ignore
   global.fetch = jest.fn(() =>
     Promise.resolve({
       status: 200,
@@ -22,6 +22,7 @@ describe('Settings', () => {
   it('#fetchSettings gets settings at expected endpoint', async done => {
     try {
       await settingsActions.fetchSettings()(dispatch)
+      // @ts-ignore
       expect(global.fetch.mock.calls[0][0]).toMatch('/api/settings')
       expect(dispatch.mock.calls[0][0].type).toBe('FETCH_SETTINGS_REQUESTED')
       expect(dispatch.mock.calls[1][0].type).toBe('FETCH_SETTINGS_SUCCESS')
@@ -33,6 +34,7 @@ describe('Settings', () => {
   })
 
   it('#fetchSettings can catch an error', async done => {
+    // @ts-ignore
     global.fetch = jest.fn(() =>
       Promise.resolve({
         status: 404,
@@ -43,10 +45,11 @@ describe('Settings', () => {
 
     try {
       await settingsActions.fetchSettings()(dispatch)
+      // @ts-ignore
       expect(global.fetch.mock.calls[0][0]).toMatch('/api/settings')
       expect(dispatch.mock.calls[0][0].type).toBe('FETCH_SETTINGS_REQUESTED')
       expect(dispatch.mock.calls[1][0].type).toBe('FETCH_SETTINGS_ERROR')
-      expect(dispatch.mock.calls[1][0].payload.error.message).toBe('Error: Not found')
+      expect(dispatch.mock.calls[1][0].payload.error.message).toBe('Error: 404')
       done()
     } catch (err) {
       console.log(err)

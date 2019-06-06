@@ -21,7 +21,9 @@ export class App extends Component {
           <ErrorBoundary>
             <Main>
               <Switch>
-                {routes.map(({ path, exact, component: Component, title, ...rest }) => (
+                {
+                  // @ts-ignore
+                  routes.map(({ path, exact, component: Component, title, ...rest }) => (
                   <Route key={path} path={path} exact={exact} render={
                     props => {
                       return (
@@ -37,7 +39,7 @@ export class App extends Component {
                     }
                   } />
                 ))}
-                <Route render={props => <NotFound {...props} />} />
+                <Route render={() => <NotFound />} />
               </Switch>
             </Main>
           </ErrorBoundary>

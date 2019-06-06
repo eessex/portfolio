@@ -1,9 +1,9 @@
 import { mount } from 'enzyme'
 import React from 'react'
 import { ItemsList } from '../index.jsx'
-import { ListItem } from '../components/list_item.jsx'
-import { getDate } from '../../../utils/index.js'
-import { UpcomingEvent, PastEvent } from '../../../tests/fixtures/events.js'
+import { ListItem } from '../components/list_item'
+import { getDate } from 'client/utils'
+import { UpcomingEvent, PastEvent } from 'client/tests/fixtures/events'
 
 describe('ItemsList', () => {
   let props = {}

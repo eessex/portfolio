@@ -85,7 +85,7 @@ export const Item = styled.div`
   `}
 `
 
-const GridItem = Col.extend`
+const GridItem = styled(Col)`
   padding: 0;
 `
 

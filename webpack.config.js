@@ -4,7 +4,7 @@ var nodeExternals = require('webpack-node-externals')
 var Dotenv = require('dotenv-webpack')
 
 var browserConfig = {
-  entry: ['babel-polyfill', './src/client/index.js'],
+  entry: ["@babel/polyfill", './src/client/index.js'],
   output: {
     path: path.resolve(__dirname, 'public'),
     filename: 'bundle.js',
@@ -15,10 +15,7 @@ var browserConfig = {
       {
         test: /(\.(js|jsx)?$)/,
         include: path.resolve('./src'),
-        loader: 'babel-loader',
-        query: {
-          plugins: ['transform-runtime']
-        }
+        loader: 'babel-loader'
       }
     ]
   },
@@ -49,7 +46,7 @@ var browserConfig = {
 }
 
 var serverConfig = {
-  entry: ['babel-polyfill', './src/index.js'],
+  entry: ["@babel/polyfill", './src/index.js'],
   target: 'node',
   externals: [nodeExternals(), 'react-helmet'],
   output: {
@@ -62,10 +59,7 @@ var serverConfig = {
       {
         test: /(\.(js|jsx)?$)/,
         include: path.resolve('./src'),
-        loader: 'babel-loader',
-        query: {
-          plugins: ['transform-runtime']
-        }
+        loader: 'babel-loader'
       }
     ]
   },

@@ -152,7 +152,7 @@ const ItemsListContainer = styled.div`
   }
 `
 
-const LayoutToggle = H6.extend`
+const LayoutToggle = styled(H6)`
   &:hover {
     color: ${({ theme }) => theme.colors.gray};
     cursor: pointer;
@@ -194,7 +194,7 @@ const ItemsListHeader = styled.div`
   `}
 `
 
-const ItemGridContainer = Row.extend`
+const ItemGridContainer = styled(Row)`
   margin: 0;
   padding: 0 10px;
   @media (max-width: 76rem) {
@@ -202,7 +202,7 @@ const ItemGridContainer = Row.extend`
   }
 `
 
-const Content = Col.extend`
+const Content = styled(Col)`
   padding: 0;
   ${ItemGridContainer} {
     padding: 0 20px;

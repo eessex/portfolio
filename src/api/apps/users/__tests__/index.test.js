@@ -1,7 +1,11 @@
 import request from 'supertest'
 import { connectTestDB, disconnectTestDB, testApp } from 'client/tests/dbUtils'
-import users from '../index'
+import { users } from '../index'
 import User from '../schema'
+
+jest.mock('jsonwebtoken', () => ({
+  sign: jest.fn().mockReturnValue('sessionstring')
+}))
 
 const app = testApp.use(users)
 

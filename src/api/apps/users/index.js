@@ -2,7 +2,8 @@ import express from 'express'
 import jwt from 'jsonwebtoken'
 import User from './schema'
 const { SESSION_SECRET } = process.env
-const users = express.Router()
+
+export const users = express.Router()
 
 users.route('/')
   // create user
@@ -30,12 +31,12 @@ users.route('/session/create')
       if (err) {
         return res.send(err)
       } else if (!user) {
-        return res.send(400, { error: 'User not found' })
+        return res.status(400).send({ error: 'User not found' })
       } else {
         // test password match
         user.comparePassword(req.body.password, (err, isMatch) => {
           if (!isMatch || err) {
-            return res.send(400, { error: (err || 'Incorrect password') })
+            return res.status(400).send({ error: (err || 'Incorrect password') })
           }
           const { email, _id } = user
           const session = jwt.sign({ email, _id }, SESSION_SECRET, { expiresIn: '30d' })
@@ -73,5 +74,3 @@ users.route('/:user_id')
       res.json({ message: 'User deleted' })
     })
   })
-
-module.exports = users

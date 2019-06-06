@@ -2,7 +2,7 @@ import { cloneDeep } from 'lodash'
 import request from 'supertest'
 import { connectTestDB, disconnectTestDB, testApp } from 'client/tests/dbUtils'
 import { PublishedProject, UnpublishedProject } from 'client/tests/fixtures/projects'
-import projects from '../index'
+import { projects } from '../index'
 import Project from '../schema'
 
 const app = testApp.use(projects)

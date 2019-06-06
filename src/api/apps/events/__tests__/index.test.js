@@ -2,7 +2,7 @@ import { cloneDeep } from 'lodash'
 import request from 'supertest'
 import { connectTestDB, disconnectTestDB, testApp } from 'client/tests/dbUtils'
 import { UpcomingEvent, PastEvent } from 'client/tests/fixtures/events'
-import events from '../index'
+import { events } from '../index'
 import Event from '../schema'
 
 const app = testApp.use(events)

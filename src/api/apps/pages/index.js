@@ -1,7 +1,8 @@
 import { extend } from 'lodash'
 import express from 'express'
 import Page from './schema'
-const pages = express.Router()
+
+export const pages = express.Router()
 
 const queryByIdOrSlug = (id, reqQuery = {}) => {
   const query = extend(
@@ -81,5 +82,3 @@ pages.route('/:id')
       })
     })
   })
-
-module.exports = pages

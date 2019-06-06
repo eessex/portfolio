@@ -1,6 +1,7 @@
 import express from 'express'
 import Settings from './schema'
-const settings = express.Router()
+
+export const settings = express.Router()
 
 settings.route('/')
   // create settings
@@ -38,5 +39,3 @@ settings.route('/:id')
       })
     })
   })
-
-module.exports = settings

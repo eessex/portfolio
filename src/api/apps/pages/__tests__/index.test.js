@@ -2,7 +2,7 @@ import { cloneDeep } from 'lodash'
 import request from 'supertest'
 import { connectTestDB, disconnectTestDB, testApp } from 'client/tests/dbUtils'
 import { HomePage, InfoPage } from 'client/tests/fixtures/pages'
-import pages from '../index'
+import { pages } from '../index'
 import Page from '../schema'
 
 const app = testApp.use(pages)

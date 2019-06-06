@@ -5,10 +5,19 @@ import {
   FETCH_SETTINGS_SUCCESS,
   RESET_SETTINGS
 } from 'client/actions/settings'
+import { Error, Settings } from 'client/typings'
 
-export const initialState = {
+export interface SettingsInitialState {
+  error: null | Error
+  isSaved: boolean
+  isSaving: boolean 
+  loading: boolean
+  settings: Settings
+}
+
+export const initialState: SettingsInitialState = {
   error: null,
-  settings: {},
+  settings: {} as Settings,
   loading: false,
   isSaved: true,
   isSaving: false

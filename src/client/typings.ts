@@ -1,3 +1,9 @@
+//  system
+export interface Error {
+  message?: string
+  status?: number
+}
+
 // Item properties
 export interface Format {
   _id?: string

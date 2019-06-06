@@ -64,7 +64,7 @@ const ItemBodyContainer = styled.div`
   padding-bottom: 2em;
 `
 
-export const ColumnContainer = Row.extend`
+export const ColumnContainer = styled(Row)`
   padding: 0 20px;
   margin-left: 0;
   margin-right: 0;
@@ -80,12 +80,12 @@ export const ColumnContainer = Row.extend`
   }
 `
 
-export const LabelContainer = Col.extend`
+export const LabelContainer = styled(Col)`
   margin-bottom: 1em;
   padding: 0;
 `
 
-export const ContentContainer = Col.extend`
+export const ContentContainer = styled(Col)`
   margin: 0 auto 0 0;
   padding: 0;
 `

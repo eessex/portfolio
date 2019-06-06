@@ -47,7 +47,7 @@ export class DateInput extends Component {
         }
         <Input
           type='date'
-          innerRef={ref => { this.date = ref }}
+          ref={ref => { this.date = ref }}
           required={required || false}
           defaultValue={moment(value).format('YYYY-MM-DD')}
           onKeyUp={this.onKeyUp}
@@ -56,7 +56,7 @@ export class DateInput extends Component {
         {!allDay &&
           <Input
             type='time'
-            innerRef={ref => { this.time = ref }}
+            ref={ref => { this.time = ref }}
             defaultValue={moment(value).format('HH:mm')}
             onKeyUp={this.onKeyUp}
           />

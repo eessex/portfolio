@@ -40,12 +40,12 @@ export class Login extends Component {
             <ErrorBoundary>
               <ColumnForm onSubmit={this.onSubmit}>
                 <Input
-                  innerRef={email => (this.email = email)}
+                  ref={email => (this.email = email)}
                   placeholder='email'
                   required
                 />
                 <Input
-                  innerRef={password => (this.password = password)}
+                  ref={password => (this.password = password)}
                   placeholder='password'
                   type='password'
                   required

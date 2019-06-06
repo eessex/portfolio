@@ -3,6 +3,7 @@ import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { Formats, FormatsContainer } from 'client/components/formats/formats'
 import { H4 } from 'client/styles/text'
+import styled from 'styled-components'
 
 export const ItemTable = props => {
   const { artist, date, formats, title, venue } = props
@@ -36,7 +37,7 @@ export const ItemTable = props => {
   )
 }
 
-const Title = H4.extend`
+const Title = styled(H4)`
   @media (max-width: 76em) {
     max-width: 100%;
     font-size: 1.3em;
@@ -44,7 +45,7 @@ const Title = H4.extend`
   }
 `
 
-const TableItem = Row.extend`
+const TableItem = styled(Row)`
   margin-left: 0;
   margin-right: 0;
   padding: 12px 20px;

@@ -79,7 +79,7 @@ export const LayoutGrid = props => {
   )
 }
 
-const GridContainer = Row.extend`
+const GridContainer = styled(Row)`
   padding: 0 20px;
   margin-left: 0;
   margin-right: 0;
@@ -95,7 +95,7 @@ const GridContainer = Row.extend`
   }
 `
 
-const MediaContainer = Col.extend`
+const MediaContainer = styled(Col)`
   margin-right: 30px;
   padding-bottom: 30px;
 

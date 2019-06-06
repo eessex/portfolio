@@ -2,6 +2,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Row, Col } from 'react-styled-flexboxgrid'
 import { Button } from 'client/components/Button'
+import styled from 'styled-components'
 
 export class LinkEdit extends Component {
   static propTypes = {
@@ -89,7 +90,7 @@ export class LinkEdit extends Component {
   }
 }
 
-const LinkEditContainer = Row.extend`
+const LinkEditContainer = styled(Row)`
   padding-bottom: 20px !important;
   justify-content: flex-start !important;
 

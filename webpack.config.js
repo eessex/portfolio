@@ -4,7 +4,7 @@ var nodeExternals = require('webpack-node-externals')
 var Dotenv = require('dotenv-webpack')
 
 var browserConfig = {
-  entry: ["@babel/polyfill", './src/client/index.js'],
+  entry: ["@babel/polyfill", './src/client/index.tsx'],
   output: {
     path: path.resolve(__dirname, 'public'),
     filename: 'bundle.js',
@@ -13,9 +13,10 @@ var browserConfig = {
   module: {
     rules: [
       {
-        test: /(\.(js|jsx)?$)/,
+        test: /\.(js|ts)x?$/,
         include: path.resolve('./src'),
-        loader: 'babel-loader'
+        loader: 'babel-loader',
+        exclude: /node_modules/,
       }
     ]
   },
@@ -34,8 +35,8 @@ var browserConfig = {
     })
   ],
   resolve: {
-    extensions: ['.js', '.jsx'],
-    modules: [
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      modules: [
       path.resolve('./src'),
       path.resolve('./node_modules')
     ],
@@ -46,7 +47,7 @@ var browserConfig = {
 }
 
 var serverConfig = {
-  entry: ["@babel/polyfill", './src/index.js'],
+  entry: ["@babel/polyfill", './src/index.ts'],
   target: 'node',
   externals: [nodeExternals(), 'react-helmet'],
   output: {
@@ -57,9 +58,10 @@ var serverConfig = {
   module: {
     rules: [
       {
-        test: /(\.(js|jsx)?$)/,
+        test: /\.(js|ts)x?$/,
         include: path.resolve('./src'),
-        loader: 'babel-loader'
+        loader: 'babel-loader',
+        exclude: /node_modules/
       }
     ]
   },
@@ -78,7 +80,7 @@ var serverConfig = {
     })
   ],
   resolve: {
-    extensions: ['.js', '.jsx'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
     modules: [
       path.resolve('./src'),
       path.resolve('./node_modules')

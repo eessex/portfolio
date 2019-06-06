@@ -2,7 +2,8 @@ import express from 'express'
 import jwt from 'jsonwebtoken'
 import User from './schema'
 const { SESSION_SECRET } = process.env
-const users = express.Router()
+
+export const users = express.Router()
 
 users.route('/')
   // create user
@@ -73,5 +74,3 @@ users.route('/:user_id')
       res.json({ message: 'User deleted' })
     })
   })
-
-module.exports = users

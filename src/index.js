@@ -1,3 +1,4 @@
+import "@babel/polyfill"
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import express from 'express'
@@ -12,7 +13,6 @@ import { fetchSettings } from 'client/actions/settings'
 import { routes } from 'client/routes'
 import { ServerRender } from 'server/render'
 const { MONGODB_URI, MONGODB_TEST_URI, PORT, NODE_ENV } = process.env
-
 mongoose.Promise = global.Promise
 
 const app = express()
@@ -67,7 +67,7 @@ app.use('/robots.txt', function (_req, res, _next) {
 
 app.use(cors())
 app.use(express.static('public'))
-app.use('/api', require('./api'))
+app.use('/api', require('./api').apiV1)
 
 app.get('*', async (req, res, next) => {
   const cookies = new Cookies(req.headers.cookie)

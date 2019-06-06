@@ -14,8 +14,11 @@ export const fetchPage = (id, query = {}) => dispatch => {
   })
 
   return fetch(encodedURI, query)
-    .then(res => {
+    .then((res: any) => { // FIXME: add real typing
       if (res) {
+        if (!res.ok) {
+          throw Error(res.status)
+        }
         return res.json()
       }
     })
@@ -29,7 +32,6 @@ export const fetchPage = (id, query = {}) => dispatch => {
       return page
     })
     .catch(error => {
-      console.warn(error)
       dispatch({
         type: FETCH_PAGE_ERROR,
         payload: {

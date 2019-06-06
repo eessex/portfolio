@@ -2,7 +2,7 @@ import {
   createUser,
   loginUser,
   logoutUser
-} from '../user.js'
+} from '../user'
 
 const mockRemoveCookie = jest.fn()
 jest.mock('universal-cookie', () => () => {

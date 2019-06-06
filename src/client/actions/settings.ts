@@ -2,7 +2,7 @@ import 'isomorphic-fetch'
 import {
   API,
   UPDATE_SETTINGS
-} from '../actions'
+} from '.'
 const { API_URL } = process.env
 
 export const FETCH_SETTINGS_SUCCESS = 'FETCH_SETTINGS_SUCCESS'
@@ -18,8 +18,11 @@ export const fetchSettings = () => dispatch => {
   })
 
   return fetch(encodedURI)
-    .then(res => {
+    .then((res: any) => { // FIXME: add real typing
       if (res) {
+        if (!res.ok) {
+          throw Error(res.status)
+        }
         return res.json()
       }
     })
@@ -33,7 +36,6 @@ export const fetchSettings = () => dispatch => {
       return settings
     })
     .catch(error => {
-      console.warn(error)
       dispatch({
         type: FETCH_SETTINGS_ERROR,
         payload: {

@@ -1,6 +1,6 @@
 import { API, FETCH_UPLOAD } from '../actions'
 
-export const getUploadSignature = (file, data, cb) => {
+export const getUploadSignature = (file, _data, cb) => {
   const { name, type } = file
 
   return {
@@ -16,7 +16,7 @@ export const getUploadSignature = (file, data, cb) => {
   }
 }
 
-export const fetchUpload = (file, data, cb) => {
+export const fetchUpload = (file, _data, cb) => {
   const { name, type } = file
 
   return {

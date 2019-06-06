@@ -1,10 +1,12 @@
 //  system
 export interface Error {
   message?: string
-  status?: number
+  status?: string
 }
 
 // Item properties
+export type Model = 'events' | 'publications' | 'projects' | 'pages'
+
 export interface Format {
   _id?: string
   compilation: boolean

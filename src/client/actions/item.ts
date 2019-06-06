@@ -3,7 +3,6 @@ import {
   DELETE_ITEM,
   UPDATE_ITEM
 } from '../actions'
-
 import 'isomorphic-fetch'
 import * as url from 'url'
 const { API_URL } = process.env
@@ -16,6 +15,7 @@ export const RESET_ITEM = 'RESET_ITEM'
 
 export const fetchItem = (model = '', id, query = {}) => dispatch => {
   const encodedURI = url.parse(`${API_URL}${model}/${id}`)
+  // @ts-ignore FIXME: not sure
   encodedURI.query = query
   const formattedURI = url.format(encodedURI)
 
@@ -24,7 +24,7 @@ export const fetchItem = (model = '', id, query = {}) => dispatch => {
   })
 
   return fetch(formattedURI)
-    .then(res => {
+    .then((res: any) => { // FIXME: add real typing
       if (res) {
         if (!res.ok) {
           throw Error(res.status)

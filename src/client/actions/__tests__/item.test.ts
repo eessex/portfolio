@@ -17,7 +17,7 @@ describe('Item', () => {
       itemReducer: { item: data }
     }))
   })
-
+  // @ts-ignore
   global.fetch = jest.fn(() =>
     Promise.resolve({
       status: 200,
@@ -43,6 +43,7 @@ describe('Item', () => {
   it('#fetchItem gets item at expected endpoint', async done => {
     try {
       await itemActions.fetchItem('/projects', data._id)(dispatch)
+      // @ts-ignore
       expect(global.fetch.mock.calls[0][0]).toMatch('/api/projects/5a0a60d48dcb886c6a1ab1df')
       expect(dispatch.mock.calls[0][0].type).toBe('FETCH_ITEM_REQUESTED')
       expect(dispatch.mock.calls[1][0].type).toBe('FETCH_ITEM_SUCCESS')
@@ -54,16 +55,18 @@ describe('Item', () => {
   })
 
   it('#fetchItem can catch an error', async done => {
+    // @ts-ignore
     global.fetch = jest.fn(() =>
       Promise.resolve({
         status: 404,
         ok: false,
-        json: () => Promise.reject(new Error({ message: 'Not found' }))
+        json: () => Promise.reject(new Error('Not found'))
       })
     )
 
     try {
       await itemActions.fetchItem('/projects', data._id)(dispatch)
+      // @ts-ignore
       expect(global.fetch.mock.calls[0][0]).toMatch('/api/projects/5a0a60d48dcb886c6a1ab1df')
       expect(dispatch.mock.calls[0][0].type).toBe('FETCH_ITEM_REQUESTED')
       expect(dispatch.mock.calls[1][0].type).toBe('FETCH_ITEM_ERROR')

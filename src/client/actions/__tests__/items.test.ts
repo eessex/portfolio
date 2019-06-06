@@ -10,10 +10,11 @@ describe('Items', () => {
   beforeEach(() => {
     dispatch = jest.fn()
   })
-
+  // @ts-ignore
   global.fetch = jest.fn(() =>
     Promise.resolve({
       status: 200,
+      ok: true,
       json: () => Promise.resolve([UpcomingEvent])
     })
   )
@@ -38,7 +39,7 @@ describe('Items', () => {
     it('#fetchItem gets item at expected endpoint', async done => {
       try {
         await itemsActions.fetchItems('/events')(dispatch)
-
+        // @ts-ignore
         expect(global.fetch.mock.calls[0][0]).toMatch('/api/events')
         expect(dispatch.mock.calls[0][0].type).toBe('FETCH_ITEMS_REQUESTED')
         expect(dispatch.mock.calls[1][0].type).toBe('FETCH_ITEMS_SUCCESS')
@@ -48,6 +49,7 @@ describe('Items', () => {
     })
 
     it('#fetchItem can catch an error', async done => {
+      // @ts-ignore
       global.fetch = jest.fn(() =>
         Promise.resolve({
           status: 500,
@@ -56,11 +58,11 @@ describe('Items', () => {
       )
       try {
         await itemsActions.fetchItems('/events')(dispatch)
-
+        // @ts-ignore
         expect(global.fetch.mock.calls[0][0]).toMatch('/api/events')
         expect(dispatch.mock.calls[0][0].type).toBe('FETCH_ITEMS_REQUESTED')
         expect(dispatch.mock.calls[1][0].type).toBe('FETCH_ITEMS_ERROR')
-        expect(dispatch.mock.calls[1][0].payload.error.message).toBe('Error: Bad request')
+        expect(dispatch.mock.calls[1][0].payload.error.message).toBe('Error: 500')
         done()
       } catch (err) { console.warn(err) }
     })

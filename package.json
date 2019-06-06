@@ -49,6 +49,8 @@
     "redux-thunk": "^2.2.0",
     "serialize-javascript": "^1.5.0",
     "styled-components": "^4.3.0",
+    "ts-loader": "^6.0.2",
+    "typescript-styled-plugin": "^0.14.0",
     "underscore": "^1.8.3",
     "underscore.string": "^3.3.4",
     "universal-cookie-express": "^3.0.4",
@@ -58,6 +60,11 @@
   "devDependencies": {
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.5",
+    "@babel/preset-typescript": "^7.3.3",
+    "@types/react": "^16.8.19",
+    "@types/react-router": "^5.0.1",
+    "@types/react-router-dom": "^4.3.3",
+    "@types/styled-components": "^4.1.16",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^24.8.0",
     "enzyme": "^3.10.0",
@@ -85,7 +92,9 @@
     "testURL": "http://localhost/",
     "transform": {
       "^.+\\.js$": "babel-jest",
-      "^.+\\.jsx$": "babel-jest"
+      "^.+\\.jsx$": "babel-jest",
+      "^.+\\.ts$": "babel-jest",
+      "^.+\\.tsx$": "babel-jest"
     },
     "setupFiles": [
       "<rootDir>/test.config.js"

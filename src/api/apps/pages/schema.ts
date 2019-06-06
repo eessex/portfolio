@@ -1,10 +1,10 @@
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
-var slug = require('mongoose-slug-generator')
+import mongoose from 'mongoose'
+import slug from 'mongoose-slug-generator'
 
+const Schema = mongoose.Schema
 mongoose.plugin(slug)
 
-var PageSchema = new Schema({
+const PageSchema = new Schema({
   title: String,
   description: String,
   lead_text: String,
@@ -21,4 +21,4 @@ var PageSchema = new Schema({
   published: { type: Boolean, default: false }
 })
 
-module.exports = mongoose.model('Page', PageSchema)
+export default mongoose.model('Page', PageSchema)

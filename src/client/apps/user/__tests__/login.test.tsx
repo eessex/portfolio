@@ -7,8 +7,6 @@ import { Loading } from 'client/components/Loading'
 import { Login } from '../login'
 
 describe('Login', () => {
-  window.location.replace = jest.fn()
-
   const getWrapper = props => {
     return mount(
       <ThemeProvider theme={theme}>
@@ -61,12 +59,5 @@ describe('Login', () => {
 
     expect(component.text()).toMatch('Password did not match')
     expect(component.find(ErrorContainer)).toHaveLength(1)
-  })
-
-  xit('Forwards to home if logged in', () => {
-    props.isAuthenticated = true
-    getWrapper(props)
-    // @ts-ignore
-    expect(window.location.replace.mock.calls[0][0]).toBe('/')
   })
 })

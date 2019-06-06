@@ -1,10 +1,10 @@
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
-var slug = require('mongoose-slug-generator')
+import mongoose from 'mongoose'
+import slug from 'mongoose-slug-generator'
 
+const Schema = mongoose.Schema
 mongoose.plugin(slug)
 
-var EventSchema = new Schema({
+const EventSchema = new Schema({
   all_day: { type: Boolean, default: false },
   created_at: { type: Date, default: Date.now },
   end_date: { type: Date, default: null },
@@ -46,4 +46,4 @@ var EventSchema = new Schema({
   published: { type: Boolean, default: false }
 })
 
-module.exports = mongoose.model('Event', EventSchema)
+export default mongoose.model('Event', EventSchema)

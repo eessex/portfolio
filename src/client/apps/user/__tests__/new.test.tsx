@@ -71,7 +71,6 @@ describe('NewUser', () => {
   it('Forwards to home if not logged in', () => {
     props.isAuthenticated = false
     getWrapper(props)
-
-    expect(window.location.replace.mock.calls[0][0]).toBe('/')
+    expect(window.location.replace).toBeCalledWith('/')
   })
 })

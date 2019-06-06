@@ -5,7 +5,7 @@ export interface Error {
 }
 
 // Item properties
-export type Model = 'events' | 'publications' | 'projects' | 'pages'
+export type Model = 'events' | 'publications' | 'projects' | 'pages' | 'releases'
 
 export interface Format {
   _id?: string
@@ -44,7 +44,7 @@ export interface Social {
 
 // Item
 export interface Item {
-  _id: string
+  _id?: string
   all_day?: boolean
   artist?: string
   created_at?: string
@@ -55,12 +55,12 @@ export interface Item {
   images: Image[]
   links?: Link[]
   list_index?: number
-  slug: string
+  slug?: string
   start_date?: string
-  title: string
+  title?: string
   venue?: Venue
   project_ids?: string[]
-  published: boolean
+  published?: boolean
   updated_at?: string
 }
 

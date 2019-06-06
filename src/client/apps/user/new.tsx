@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { createUser, logoutUser } from 'client/actions/user'
@@ -7,18 +6,18 @@ import { ColumnForm, Input, ErrorContainer } from 'client/styles/forms'
 import { LayoutColumn } from 'client/components/layout/column'
 import { Loading } from 'client/components/Loading'
 
-export class NewUser extends Component {
-  static propTypes = {
-    createUserAction: PropTypes.func,
-    error: PropTypes.string,
-    isAuthenticated: PropTypes.bool,
-    loading: PropTypes.bool,
-    logoutUserAction: PropTypes.func
-  }
+interface NewUserProps {
+  createUserAction: (creds: any) => void
+  error: any
+  isAuthenticated: boolean
+  loading: boolean
+  logoutUserAction: () => void
+}
 
-  static email
-  static password
-  static password_confirm
+export class NewUser extends Component<NewUserProps> {
+  public email
+  public password
+  public password_confirm
 
   componentDidMount () {
     if (!this.props.isAuthenticated) {

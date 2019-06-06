@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { loginUser } from 'client/actions/user'
@@ -7,16 +6,17 @@ import { ColumnForm, Input, ErrorContainer } from 'client/styles/forms'
 import { LayoutColumn } from 'client/components/layout/column'
 import { Loading } from 'client/components/Loading'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
+import { Error } from 'client/typings'
 
-export class Login extends Component {
-  static propTypes = {
-    error: PropTypes.string,
-    loading: PropTypes.bool,
-    loginUserAction: PropTypes.func
-  }
+interface LoginProps {
+  error: Error
+  loading: boolean
+  loginUserAction: (creds: any) => void
+}
 
-  static email
-  static password
+export class Login extends Component<LoginProps> {
+  public email
+  public password
 
   onSubmit = () => {
     const { loginUserAction } = this.props

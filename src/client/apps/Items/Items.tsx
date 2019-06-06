@@ -1,5 +1,4 @@
 import { connect } from 'react-redux'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ErrorBoundary } from 'client/components/ErrorBoundary'
 import * as itemsActions from 'client/actions/items'
@@ -7,26 +6,34 @@ import { Events } from './Components/Events'
 import { Projects } from './Components/Projects'
 import { Publications } from './Components/Publications'
 import { Loading } from 'client/components/Loading'
+import { Error, Model, Item } from 'client/typings'
 
-export class Items extends Component {
-  static propTypes = {
-    error: PropTypes.object,
-    fetchItemsAction: PropTypes.func,
-    isAuthenticated: PropTypes.bool,
-    items: PropTypes.array,
-    title: PropTypes.string,
-    loading: PropTypes.bool,
-    match: PropTypes.any,
-    model: PropTypes.string,
-    staticContext: PropTypes.any
-  }
+interface ItemsProps {
+  error: Error
+  fetchItemsAction: (model: string, query: any) => void
+  isAuthenticated: boolean
+  items: Item[]
+  title: string
+  loading: boolean
+  match: any
+  model: Model
+  staticContext: any
+}
 
+interface ItemsState {
+  data: any
+}
+
+export class Items extends Component<ItemsProps, ItemsState> {
   constructor (props) {
     super(props)
 
     let data
+    // @ts-ignore
     if (__isBrowser__) {
+      // @ts-ignore
       data = window.__INITIAL_DATA__
+      // @ts-ignore
       delete window.__INITIAL_DATA__
     } else {
       data = props.staticContext.data
@@ -62,7 +69,7 @@ export class Items extends Component {
     fetchItemsAction(formattedPath, query)
   }
 
-  getApp = items => {
+  getApp = (items: Item[]) => {
     const { model, title } = this.props
 
     switch (model) {

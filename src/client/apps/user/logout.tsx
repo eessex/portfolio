@@ -1,16 +1,15 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { logoutUser } from 'client/actions/user'
 import { LayoutColumn } from 'client/components/layout/column'
 import { Loading } from 'client/components/Loading'
 
-export class Login extends Component {
-  static propTypes = {
-    loading: PropTypes.bool,
-    logoutUserAction: PropTypes.func
-  }
+interface LogoutProps {
+  loading: boolean
+  logoutUserAction: () => void
+}
 
+export class Logout extends Component<LogoutProps> {
   componentDidMount () {
     this.props.logoutUserAction()
   }
@@ -45,4 +44,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Login)
+)(Logout)

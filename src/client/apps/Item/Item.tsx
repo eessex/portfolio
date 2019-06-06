@@ -1,6 +1,5 @@
 import { connect } from 'react-redux'
 import { stripTags, truncate } from 'underscore.string'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Helmet } from 'react-helmet'
 import * as url from 'url'
@@ -10,13 +9,15 @@ import { NotFound } from 'client/components/NotFound'
 import { Loading } from 'client/components/Loading'
 import { Item as ViewItem } from 'client/components/item'
 import * as itemActions from 'client/actions/item'
+import { Error, Settings, Meta, Model, Item as ItemType } from 'client/typings'
+
 const { BASE_URL } = process.env
 
 const prettyDescription = html => {
   return truncate(stripTags(html), 150)
 }
 
-const getMetaData = (meta, item = {}) => {
+const getMetaData = (meta, item: ItemType) => {
   const { description, title } = item
 
   const metaDescription = description ? prettyDescription(description) : meta.description
@@ -26,27 +27,37 @@ const getMetaData = (meta, item = {}) => {
   ]
 }
 
-export class Item extends Component {
-  static propTypes = {
-    error: PropTypes.object,
-    fetchItemAction: PropTypes.func,
-    isAuthenticated: PropTypes.any,
-    item: PropTypes.object,
-    loading: PropTypes.bool,
-    match: PropTypes.any,
-    model: PropTypes.string,
-    staticContext: PropTypes.any,
-    settings: PropTypes.object
-  }
+interface ItemProps {
+  error: Error
+  fetchItemAction: (model: string, param: string) => void
+  isAuthenticated: boolean
+  item: ItemType
+  loading: boolean
+  match: any
+  model: Model
+  staticContext: any
+  settings: Settings
+}
 
+interface ItemState {
+  data: any
+  isEditing: boolean
+  meta: Meta
+}
+
+export class Item extends Component<ItemProps, ItemState> {
   constructor (props) {
     super(props)
 
     let data
     let meta
+    // @ts-ignore
     if (__isBrowser__) {
+      // @ts-ignore
       data = window.__INITIAL_DATA__ && window.__INITIAL_DATA__.data
+      // @ts-ignore
       meta = window.__INITIAL_DATA__ && window.__INITIAL_DATA__.settings
+      // @ts-ignore
       delete window.__INITIAL_DATA__
     } else {
       data = props.staticContext.data
@@ -64,6 +75,7 @@ export class Item extends Component {
   }
 
   componentDidMount () {
+    // @ts-ignore
     if (this.props.isAuthenticated && __isBrowser__) {
       this.setState({ isEditing: true })
     }

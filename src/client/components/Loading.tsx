@@ -3,7 +3,7 @@ import React from 'react'
 import FontAwesome from 'react-fontawesome'
 
 interface LoadingProps {
-  isAbsolute: boolean
+  isAbsolute?: boolean
 }
 
 export const Loading = (props: LoadingProps) => {

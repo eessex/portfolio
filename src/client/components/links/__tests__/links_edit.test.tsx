@@ -1,7 +1,7 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { LinkEdit } from '../LinkEdit'
-import { LinksEdit } from '../LinksEdit'
+import { LinkEdit } from '../link_edit'
+import { LinksEdit } from '../links_edit'
 import { links } from 'client/tests/fixtures/components'
 
 describe('LinksEdit', () => {

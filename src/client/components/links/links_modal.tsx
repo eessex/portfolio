@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 import React from 'react'
-import { Modal } from 'client/components/Modal/Modal'
+import { Modal } from 'client/components/modal/modal'
 import { Link } from 'client/typings'
-import { LinksEdit } from './LinksEdit'
+import { LinksEdit } from './links_edit'
 
 interface LinksModalProps {
   links?: Link[]

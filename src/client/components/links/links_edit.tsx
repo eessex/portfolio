@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { clone } from 'lodash'
-import { LinkEdit } from './LinkEdit'
+import { LinkEdit } from './link_edit'
 import { Link } from 'client/typings'
 
 interface LinksEditProps {

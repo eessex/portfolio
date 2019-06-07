@@ -1,6 +1,6 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { LinksList } from '../LinksList'
+import { LinksList } from '../links_list'
 import { links } from 'client/tests/fixtures/components'
 
 describe('LinksList', () => {

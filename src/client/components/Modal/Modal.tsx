@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import React from 'react'
-import { ModalBackground } from './ModalBackground'
+import { ModalBackground } from './modal_background'
 
 interface  ModalProps {
   children: any

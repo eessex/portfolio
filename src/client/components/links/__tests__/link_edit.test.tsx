@@ -2,7 +2,7 @@ import { mount } from 'enzyme'
 import React from 'react'
 import { Button } from 'client/components/Button'
 import { links } from 'client/tests/fixtures/components'
-import { LinkEdit } from '../LinkEdit'
+import { LinkEdit } from '../link_edit'
 
 describe('LinkEdit', () => {
   let props

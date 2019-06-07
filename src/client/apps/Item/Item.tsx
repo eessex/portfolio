@@ -53,12 +53,9 @@ export class Item extends Component<ItemProps, ItemState> {
     let meta
     // @ts-ignore
     if (__isBrowser__) {
-      // @ts-ignore
-      data = window.__INITIAL_DATA__ && window.__INITIAL_DATA__.data
-      // @ts-ignore
-      meta = window.__INITIAL_DATA__ && window.__INITIAL_DATA__.settings
-      // @ts-ignore
-      delete window.__INITIAL_DATA__
+      data = (window as any).__INITIAL_DATA__ && (window as any).__INITIAL_DATA__.data
+      meta = (window as any).__INITIAL_DATA__ && (window as any).__INITIAL_DATA__.settings
+      delete (window as any).__INITIAL_DATA__
     } else {
       data = props.staticContext.data
       meta = props.staticContext.settings

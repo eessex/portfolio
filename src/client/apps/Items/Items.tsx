@@ -31,10 +31,8 @@ export class Items extends Component<ItemsProps, ItemsState> {
     let data
     // @ts-ignore
     if (__isBrowser__) {
-      // @ts-ignore
-      data = window.__INITIAL_DATA__
-      // @ts-ignore
-      delete window.__INITIAL_DATA__
+      data = (window as any).__INITIAL_DATA__
+      delete (window as any).__INITIAL_DATA__
     } else {
       data = props.staticContext.data
     }

@@ -21,14 +21,12 @@ var browserConfig = {
     ]
   },
   plugins: [
-    new webpack.DefinePlugin({
-      __isBrowser__: 'true'
-    }),
     new Dotenv({
       path: path.resolve(__dirname, './.env'),
       systemvars: true
     }),
     new webpack.DefinePlugin({
+      __isBrowser__: 'true',
       'process.env.API_URL': JSON.stringify(process.env.API_URL),
       'process.env.PROCESS_ENV': JSON.stringify(process.env.PROCESS_ENV),
       'process.env.GOOGLE_ANALYTICS_ID': JSON.stringify(process.env.GOOGLE_ANALYTICS_ID)
@@ -66,14 +64,12 @@ var serverConfig = {
     ]
   },
   plugins: [
-    new webpack.DefinePlugin({
-      __isBrowser__: 'false'
-    }),
     new Dotenv({
       path: path.resolve(__dirname, './.env'),
       systemvars: true
     }),
     new webpack.DefinePlugin({
+      __isBrowser__: 'false',
       'process.env.API_URL': JSON.stringify(process.env.API_URL),
       'process.env.PROCESS_ENV': JSON.stringify(process.env.PROCESS_ENV),
       'process.env.GOOGLE_ANALYTICS_ID': JSON.stringify(process.env.GOOGLE_ANALYTICS_ID)

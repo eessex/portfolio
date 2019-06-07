@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 import { capitalize, cloneDeep } from 'lodash'
 import { SocialContainer } from './social_list'
-import { ModalBackground } from 'client/components/Modal/ModalBackground'
+import { ModalBackground } from 'client/components/modal/modal_background'
 
 export class SocialEdit extends Component {
   static propTypes = {

@@ -1,7 +1,7 @@
 import { mount } from 'enzyme'
 import React from 'react'
 import { Modal } from '../Modal'
-import { ModalBackground } from '../ModalBackground'
+import { ModalBackground } from '../modal_background'
 
 describe('Modal', () => {
   const getWrapper = () => {

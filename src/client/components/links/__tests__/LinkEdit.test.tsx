@@ -2,16 +2,16 @@ import { mount } from 'enzyme'
 import React from 'react'
 import { Button } from 'client/components/Button'
 import { links } from 'client/tests/fixtures/components'
-import { LinkEdit } from '../link_edit'
+import { LinkEdit } from '../LinkEdit'
 
 describe('LinkEdit', () => {
-  const getWrapper = props => {
+  let props
+  const getWrapper = (passedProps = props) => {
     return mount(
-      <LinkEdit {...props} />
+      <LinkEdit {...passedProps} />
     )
   }
 
-  let props
   describe('New Link', () => {
     beforeEach(() => {
       props = {
@@ -22,7 +22,7 @@ describe('LinkEdit', () => {
     })
 
     it('Renders expected fields', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
 
       const titleInput = component.find('input').first().props()
       const urlInput = component.find('input').last().props()
@@ -40,7 +40,7 @@ describe('LinkEdit', () => {
     })
 
     it('Can edit a URL', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       const urlInput = component.find('input').last()
       const value = 'http://mylink.com'
 
@@ -49,7 +49,7 @@ describe('LinkEdit', () => {
     })
 
     it('Can edit a title', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       const titleInput = component.find('input').first()
       const value = 'Cool link'
 
@@ -58,7 +58,7 @@ describe('LinkEdit', () => {
     })
 
     it('Can save a link', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       const urlInput = component.find('input').last()
       const saveButton = component.find(Button).first()
       const value = 'http://mylink.com'
@@ -85,7 +85,7 @@ describe('LinkEdit', () => {
     })
 
     it('Renders expected fields', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       const titleInput = component.find('input').first().props()
       const urlInput = component.find('input').last().props()
       const button = component.find(Button)
@@ -102,7 +102,7 @@ describe('LinkEdit', () => {
     })
 
     it('Can edit a URL', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       const urlInput = component.find('input').last()
       const value = 'http://mylink.com'
       urlInput.simulate('change', {target: { value }})
@@ -115,7 +115,7 @@ describe('LinkEdit', () => {
     })
 
     it('Can edit a title', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       const titleInput = component.find('input').first()
       const value = 'New Link'
       titleInput.simulate('change', {target: { value }})
@@ -128,7 +128,7 @@ describe('LinkEdit', () => {
     })
 
     it('Can delete a link', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       const deleteButton = component.find(Button).first()
       deleteButton.simulate('click')
 

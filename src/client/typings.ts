@@ -25,7 +25,7 @@ export interface Image {
 
 export interface Link {
   _id?: string
-  url: string
+  url?: string
   title?: string
 }
 

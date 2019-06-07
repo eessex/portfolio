@@ -7,7 +7,7 @@ import { ItemHeader } from './components/header'
 import { EmbedList } from 'client/components/embeds/embed_list'
 import { Image } from 'client/components/image/image'
 import { ImageGrid } from 'client/components/images/image_grid/image_grid'
-import { LinksList } from 'client/components/links/links_list'
+import { LinksList } from 'client/components/links/LinksList'
 import { Social } from 'client/components/social/social_list'
 import { ContentContainer } from './column'
 

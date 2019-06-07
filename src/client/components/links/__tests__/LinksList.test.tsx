@@ -1,19 +1,19 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { LinksList } from '../links_list.jsx'
+import { LinksList } from '../LinksList'
 import { links } from 'client/tests/fixtures/components'
 
 describe('LinksList', () => {
-  let props = links
+  let props = { links }
 
-  const getWrapper = (props) => {
+  const getWrapper = (passedProps = props) => {
     return mount(
-      <LinksList links={props} />
+      <LinksList {...passedProps} />
     )
   }
 
   it('Renders a list of links', () => {
-    const component = getWrapper(props)
+    const component = getWrapper()
     const renderedLinks = component.find('a')
     const firstLink = renderedLinks.first().getElement().props
 

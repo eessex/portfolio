@@ -6,7 +6,7 @@ import { DatesModal } from 'client/components/dates/dates_modal'
 import { EmbedModal } from 'client/components/embeds/embed_modal'
 import { FormatsModal } from 'client/components/formats/formats_modal'
 import { ImagesEdit } from 'client/components/images/images_edit'
-import { LinksModal } from 'client/components/links/links_modal'
+import { LinksModal } from 'client/components/links/LinksModal'
 import { VenueModal } from 'client/components/Venue/VenueModal'
 
 export class ItemEditModals extends Component {

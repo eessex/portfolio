@@ -1,14 +1,14 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { clone } from 'lodash'
-import { LinkEdit } from './link_edit'
+import { LinkEdit } from './LinkEdit'
+import { Link } from 'client/typings'
 
-export class LinksEdit extends Component {
-  static propTypes = {
-    links: PropTypes.array,
-    onChange: PropTypes.func
-  }
+interface LinksEditProps {
+  links: Link[]
+  onChange: (links: Link[]) => void
+}
 
+export class LinksEdit extends Component<LinksEditProps> {
   componentWillUnmount = () => {
     const { links, onChange } = this.props
     const cleanedLinks = this.checkEmpty()
@@ -66,7 +66,6 @@ export class LinksEdit extends Component {
           />
         )}
         <LinkEdit
-          link={{}}
           onChange={this.onChange}
           autoFocus={links.length === 0}
         />

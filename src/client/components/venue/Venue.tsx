@@ -1,11 +1,14 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React from 'react'
 import { Placeholder } from 'client/styles/forms'
+import { Venue as VenueType } from 'client/typings'
 
-export const Venue = props => {
-  const { onClick } = props
-  const venue = props.venue || {}
+export interface VenueProps {
+  onClick?: () => void
+  venue?: VenueType
+}
+
+export const Venue: React.SFC<VenueProps> = ({onClick, venue = {}}) => {
   const { address, city, country, state, name } = venue
   const hasVenue = venue && (venue.name || venue.address)
 
@@ -34,14 +37,3 @@ export const Venue = props => {
 export const VenueContainer = styled.div`
   position: relative
 `
-
-Venue.propTypes = {
-  onClick: PropTypes.func,
-  venue: PropTypes.shape({
-    address: PropTypes.string,
-    city: PropTypes.string,
-    country: PropTypes.string,
-    name: PropTypes.string,
-    state: PropTypes.string
-  })
-}

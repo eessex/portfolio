@@ -6,9 +6,7 @@ interface LoadingProps {
   isAbsolute?: boolean
 }
 
-export const Loading = (props: LoadingProps) => {
-  const { isAbsolute } = props
-
+export const Loading: React.SFC<LoadingProps> = ({ isAbsolute }) => {
   return (
     <LoadingContainer isAbsolute={isAbsolute}>
       <FontAwesome

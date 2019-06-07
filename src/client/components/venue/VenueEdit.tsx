@@ -1,26 +1,24 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { clone } from 'lodash'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { Select } from 'client/components/FormInputs/Select'
 import { Input } from 'client/styles/forms'
+import { Venue } from 'client/typings'
 
-export class VenueEdit extends Component {
-  static propTypes = {
-    onChange: PropTypes.func.isRequired,
-    venue: PropTypes.shape({
-      address: PropTypes.string,
-      city: PropTypes.string,
-      country: PropTypes.string,
-      name: PropTypes.string,
-      state: PropTypes.string
-    })
-  }
+interface VenueEditProps {
+  onChange: (val: Venue) => void
+  venue?: Venue
+}
 
+interface VenueEditState {
+  venue: Venue
+}
+
+export class VenueEdit extends Component<VenueEditProps, VenueEditState> {
   constructor (props) {
     super(props)
-    const { venue } = this.props
+    const venue = props.venue || {}
 
     this.state = {
       venue: {

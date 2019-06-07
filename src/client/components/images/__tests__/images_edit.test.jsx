@@ -6,7 +6,7 @@ import { theme } from 'client/styles/theme'
 import { ImageEdit } from 'client/components/image/image_edit'
 import { ImageGrid } from '../image_grid/image_grid'
 import { ImageRow } from '../image_grid/image_row'
-import { ModalBackgroundContainer } from 'client/components/modal/modal_background'
+import { ModalBackgroundContainer } from 'client/components/Modal/ModalBackground'
 import {
   images as imagesFixture,
   imagesLong as imagesLongFixture

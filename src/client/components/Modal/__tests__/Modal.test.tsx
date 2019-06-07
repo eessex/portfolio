@@ -1,7 +1,7 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { Modal } from '../modal'
-import { ModalBackground } from '../modal_background'
+import { Modal } from '../Modal'
+import { ModalBackground } from '../ModalBackground'
 
 describe('Modal', () => {
   const getWrapper = () => {
@@ -23,6 +23,6 @@ describe('Modal', () => {
     const component = getWrapper()
     component.find(ModalBackground).simulate('click')
 
-    expect(component.props().onClick.mock.calls).toHaveLength(1)
+    expect(component.props().onClick).toBeCalled()
   })
 })

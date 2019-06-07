@@ -1,20 +1,19 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React from 'react'
-import { ModalBackground } from './modal_background'
+import { ModalBackground } from './ModalBackground'
 
-export const Modal = props => {
-  const { children, onClick } = props
+interface  ModalProps {
+  children: any
+  onClick: () => void
+}
 
+export const Modal: React.SFC<ModalProps> = ({ children, onClick }) => {
   return (
     <ModalContainer>
       <ModalContainerInner>
         {children}
       </ModalContainerInner>
-      <ModalBackground
-        backgroundColor='rgba(0,0,0,.5)'
-        onClick={onClick}
-      />
+      <ModalBackground onClick={onClick} />
     </ModalContainer>
   )
 }
@@ -46,8 +45,3 @@ const ModalContainerInner = styled.div`
     display: block;
   }
 `
-
-Modal.propTypes = {
-  children: PropTypes.any.isRequired,
-  onClick: PropTypes.func.isRequired
-}

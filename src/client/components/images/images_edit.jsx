@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ImageEdit } from 'client/components/image/image_edit'
 import { ImageContainer } from 'client/components/image/image'
-import { Modal } from 'client/components/modal/modal'
+import { Modal } from 'client/components/Modal/Modal'
 import { ImageGrid } from './image_grid/image_grid'
 
 export class ImagesEdit extends Component {

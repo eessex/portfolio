@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal } from 'client/components/modal/modal'
+import { Modal } from 'client/components/Modal/Modal'
 import { VenueEdit } from './VenueEdit'
 import { Venue } from 'client/typings'
 

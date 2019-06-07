@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Modal } from '../modal/modal.jsx'
-import { FormatsEdit } from './formats_edit.jsx'
+import { Modal } from 'client/components/Modal/Modal'
+import { FormatsEdit } from './formats_edit'
 
 export const FormatsModal = (props) => {
   const { setEditing } = props

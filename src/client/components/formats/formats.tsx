@@ -1,15 +1,19 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React from 'react'
 import { Button } from 'client/components/Button'
 import { Format } from 'client/components/format/format'
+import { Format as FormatType } from 'client/typings'
 
-export const Formats = props => {
-  const { formats, short, onClick } = props
+export interface FormatsProps {
+  formats?: FormatType[]
+  isShort?: boolean
+  onClick?: () => void
+}
 
+export const Formats: React.SFC<FormatsProps> = ({ formats, isShort, onClick }) => {
   return (
     <FormatsContainer
-      condensed={short}
+      isShort={isShort}
       onClick={onClick && onClick}
     >
       {formats && formats.length
@@ -17,7 +21,7 @@ export const Formats = props => {
           <Format
             key={index}
             item={item}
-            short={short}
+            isShort={isShort}
           />
         )
         : onClick && <Button text='Add Format' />
@@ -26,17 +30,11 @@ export const Formats = props => {
   )
 }
 
-export const FormatsContainer = styled.div`
-  ${props => props.condensed && `
+export const FormatsContainer = styled.div<FormatsProps>`
+  ${({ isShort }) => isShort && `
     display: flex;
     div:first-child {
       margin-right: 20px;
     }
   `}
 `
-
-Formats.propTypes = {
-  formats: PropTypes.array,
-  onClick: PropTypes.func,
-  short: PropTypes.bool
-}

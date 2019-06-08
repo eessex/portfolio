@@ -1,21 +1,21 @@
 import { mount } from 'enzyme'
 import React from 'react'
 import { ThemeProvider } from 'styled-components'
+import { theme } from 'client/styles/theme'
 import { formats } from 'client/tests/fixtures/components'
 import { FormatEdit } from 'client/components/format/format_edit'
 import { FormatsEdit } from '../formats_edit'
-import { theme } from 'client/styles/theme'
 
 describe('FormatsEdit', () => {
-  const getElement = props => {
+  let props
+  const getElement = (passedProps = props) => {
     return mount(
       <ThemeProvider theme={theme}>
-        <FormatsEdit {...props} />
+        <FormatsEdit {...passedProps} />
       </ThemeProvider>
     )
   }
 
-  let props
   beforeEach(() => {
     props = {
       formats,

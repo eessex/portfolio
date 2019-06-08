@@ -4,16 +4,16 @@ import { formats } from 'client/tests/fixtures/components'
 import { Formats, FormatsContainer } from '../formats'
 
 describe('Formats', () => {
-  const getElement = props => {
+  let props
+  const getElement = (passedProps = props) => {
     return mount(
-      <Formats {...props} />
+      <Formats {...passedProps} />
     )
   }
 
-  let props
   beforeEach(() => {
     props = {
-      short: false,
+      isShort: false,
       formats
     }
   })
@@ -26,7 +26,7 @@ describe('Formats', () => {
   })
 
   it('Renders short formats', () => {
-    props.short = true
+    props.isShort = true
     const component = getElement(props)
 
     expect(component.html()).toMatch('Cassette, Soap Library')

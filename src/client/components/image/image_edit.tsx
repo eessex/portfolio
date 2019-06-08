@@ -1,53 +1,53 @@
 import { clone } from 'lodash'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Button } from 'client/components/Button'
 import { FileInput } from 'client/components/FileInput'
 import { RichText } from 'client/components/text/draft/RichText'
 import { Image, Caption, ImageContainer } from './image'
+import { Image as ImageType } from 'client/typings'
 
-export class ImageEdit extends Component {
-  static propTypes = {
-    editCaption: PropTypes.bool,
-    fetchUpload: PropTypes.func,
-    onChange: PropTypes.func.isRequired,
-    onDelete: PropTypes.func,
-    index: PropTypes.number,
-    item: PropTypes.object,
-    showInput: PropTypes.bool
-  }
+interface ImageEditProps {
+  editCaption?: boolean
+  fetchUpload?: () => void
+  getTrueIndex?: () => void
+  onChange: (image?: ImageType, index?: number) => void
+  onDelete?: (index: number) => void
+  index: number
+  image?: ImageType
+  showInput?: boolean
+}
 
+interface ImageEditState {
+  image: ImageType
+}
+
+export class ImageEdit extends Component<ImageEditProps, ImageEditState> {
   constructor (props) {
     super(props)
-
-    const {
-      aspect,
-      caption,
-      url
-    } = props.item
+    const image = props.image || {}
 
     this.state = {
-      item: {
-        aspect: aspect || null,
-        caption: caption || '',
-        url: url || false
+      image: {
+        aspect: image.aspect,
+        caption: image.caption,
+        url: image.url || undefined
       }
     }
   }
 
-  onChangeImage = item => {
+  onChangeImage = (image: ImageType) => {
     const { index, onChange } = this.props
 
-    this.setState({ item })
-    onChange(item, index)
+    this.setState({ image })
+    onChange(image, index)
   }
 
-  onChangeText = caption => {
-    const { index, item } = this.props
-    let newImage = clone(item)
+  onChangeText = (caption: string) => {
+    const { image } = this.props
+    let newImage = clone(image)
 
     newImage.caption = caption
-    this.onChangeImage(newImage, index)
+    this.onChangeImage(newImage)
   }
 
   onDeleteImage = () => {
@@ -61,7 +61,7 @@ export class ImageEdit extends Component {
   }
 
   editCaption = () => {
-    const { caption } = this.state.item
+    const { caption } = this.state.image
 
     return (
       <Caption>
@@ -82,12 +82,12 @@ export class ImageEdit extends Component {
       showInput
     } = this.props
 
-    const { item } = this.state
+    const { image } = this.state
 
     const {
       caption,
       url
-    } = item
+    } = image
 
     return (
       <div>
@@ -96,9 +96,9 @@ export class ImageEdit extends Component {
             <FileInput
               hasPreview={index !== -1}
               fetchUpload={fetchUpload}
-              onChange={(image) => this.onChangeImage(image, index)}
+              onChange={(image) => this.onChangeImage(image)}
               onDelete={() => this.onDeleteImage()}
-              file={item}
+              file={image}
             />
           ) : (
             <ImageContainer>
@@ -107,7 +107,7 @@ export class ImageEdit extends Component {
                 onClick={this.onDeleteImage}
               />
               <Image
-                url={url}
+                url={url || ''}
                 caption={!editCaption && caption || ''}
                 editCaption={editCaption && this.editCaption()}
               />

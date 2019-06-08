@@ -1,19 +1,20 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ImageEdit } from 'client/components/image/image_edit'
 import { ImageContainer } from 'client/components/image/image'
 import { Modal } from 'client/components/modal/modal'
 import { ImageGrid } from './image_grid/image_grid'
+import { Item, Image } from 'client/typings'
 
-export class ImagesEdit extends Component {
-  static propTypes = {
-    fetchUpload: PropTypes.func.isRequired,
-    item: PropTypes.object.isRequired,
-    onChange: PropTypes.func.isRequired,
-    setEditing: PropTypes.func.isRequired
-  }
 
+interface ImagesEditProps {
+  fetchUpload: () => void
+  onChange: (images: Image[]) => void
+  item: Item
+  setEditing: (editing: string | null) => void
+}
+
+export class ImagesEdit extends Component<ImagesEditProps> {
   onChangeImage = (image, index) => {
     const { item, onChange } = this.props
     const images = item.images || []
@@ -66,7 +67,6 @@ export class ImagesEdit extends Component {
               <ImageEdit
                 fetchUpload={fetchUpload}
                 index={-1}
-                image={{}}
                 onChange={this.onNewImage}
                 showInput
               />

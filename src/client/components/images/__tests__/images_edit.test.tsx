@@ -4,17 +4,18 @@ import { clone, extend, map } from 'lodash'
 import { ThemeProvider } from 'styled-components'
 import { theme } from 'client/styles/theme'
 import { ImageEdit } from 'client/components/image/image_edit'
-import { ImageGrid } from '../image_grid/image_grid'
-import { ImageRow } from '../image_grid/image_row'
 import { ModalBackgroundContainer } from 'client/components/modal/modal_background'
 import {
   images as imagesFixture,
   imagesLong as imagesLongFixture
 } from 'client/tests/fixtures/components'
+import { ImageGrid } from '../image_grid/image_grid'
+import { ImageRow } from '../image_grid/image_row'
 import { ImagesEdit } from '../images_edit'
 
 describe('ImageEdit', () => {
-  const getWrapper = passedProps => {
+  let props
+  const getWrapper = (passedProps = props) => {
     return mount(
       <ThemeProvider theme={theme}>
         <ImagesEdit {...passedProps} />
@@ -22,7 +23,6 @@ describe('ImageEdit', () => {
     )
   }
 
-  let props
   beforeEach(() => {
     props = {
       fetchUpload: jest.fn(),
@@ -35,7 +35,7 @@ describe('ImageEdit', () => {
   describe('Rendering', () => {
     it('It renders with empty images', () => {
       delete props.item.images
-      const component = getWrapper(props)
+      const component = getWrapper()
       expect(component.find('label').text()).toMatch('Images')
       expect(component.text()).toMatch('Click or Drag to Upload')
       expect(component.find(ImageEdit).length).toBe(1)
@@ -44,7 +44,7 @@ describe('ImageEdit', () => {
     })
 
     it('It renders with saved data', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
 
       expect(component.text()).toMatch('Click or Drag to Upload')
       expect(component.find(ImageEdit).length).toBe(4)
@@ -54,7 +54,7 @@ describe('ImageEdit', () => {
 
     it('It renders with many images', () => {
       props.item.images = clone(imagesLongFixture)
-      const component = getWrapper(props)
+      const component = getWrapper()
 
       expect(component.text()).toMatch('Click or Drag to Upload')
       expect(component.find(ImageEdit).length).toBe(6)
@@ -67,7 +67,7 @@ describe('ImageEdit', () => {
     let newImage = extend(props.item.images[1], {
       caption: '<p>New caption</p>'
     })
-    const component = getWrapper(props).find(ImagesEdit).instance()
+    const component = getWrapper().find(ImagesEdit).instance()
     component.onChangeImage(newImage, 1)
     const newImages = props.onChange.mock.calls[0][0]
 
@@ -93,7 +93,7 @@ describe('ImageEdit', () => {
 
   it('#onDeleteImage removes an image by index', () => {
     const removedImage = props.item.images[1]
-    const component = getWrapper(props).find(ImagesEdit).instance()
+    const component = getWrapper().find(ImagesEdit).instance()
     component.onDeleteImage(1)
     const newImages = props.onChange.mock.calls[0][0]
 
@@ -102,7 +102,7 @@ describe('ImageEdit', () => {
   })
 
   it('Calls #setEditing when closing modal', () => {
-    const component = getWrapper(props)
+    const component = getWrapper()
     component.find(ModalBackgroundContainer).simulate('click')
     expect(props.setEditing).toBeCalledWith(null)
   })

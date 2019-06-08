@@ -7,12 +7,12 @@ import { Image, Caption, ImageContainer } from './image'
 import { Image as ImageType } from 'client/typings'
 
 interface ImageEditProps {
-  editCaption: React.ElementType
+  editCaption?: React.FunctionComponent
   fetchUpload: () => void
   onChange: (image?: ImageType, index?: number) => void
-  onDelete: (index: number) => void
+  onDelete?: (index: number) => void
   index: number
-  image: ImageType
+  image?: ImageType
   showInput?: boolean
 }
 

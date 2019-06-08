@@ -1,21 +1,19 @@
 import styled from 'styled-components'
 import { clone } from 'lodash'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
-
 import { Button } from 'client/components/Button'
 import { PlainText } from 'client/components/text/draft/PlainText'
 import { P } from 'client/styles/text'
 import { Embed } from './embed'
 
-export class EmbedList extends Component {
-  static propTypes = {
-    editing: PropTypes.bool,
-    embed_codes: PropTypes.array,
-    hasNew: PropTypes.bool,
-    onChange: PropTypes.func
-  }
+interface EmbedListProps {
+  editing?: boolean
+  embed_codes: string[]
+  hasNew?: boolean
+  onChange?: (embeds: string[]) => void
+}
 
+export class EmbedList extends Component<EmbedListProps> {
   onNewEmbed = embed => {
     const { embed_codes, onChange } = this.props
 

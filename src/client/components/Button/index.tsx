@@ -1,9 +1,23 @@
 import styled from 'styled-components'
 import FontAwesome from 'react-fontawesome'
-import PropTypes from 'prop-types'
 import React from 'react'
 
-export const Button = props => {
+interface ButtonContainerProps {
+  borderless?: boolean
+  className?: string
+  color?: string
+  onClick: () => void
+}
+
+interface ButtonProps extends ButtonContainerProps {
+  children?: any
+  onClick: () => void
+  icon?: string
+  text?: string
+}
+
+
+export const Button: React.SFC<ButtonProps> = props => {
   const {
     borderless,
     children,
@@ -21,20 +35,19 @@ export const Button = props => {
       color={color}
       className={className}
       onClick={onClick}
-      icon={icon}
     >
       {icon &&
         <FontAwesome name={icon} />
       }
       {child &&
-        <ButtonText icon={icon}>{child}</ButtonText>
+        <ButtonText icon={Boolean(icon)}>{child}</ButtonText>
       }
       {text && children && children}
     </ButtonContainer>
   )
 }
 
-export const ButtonContainer = styled.button`
+export const ButtonContainer = styled.button<ButtonContainerProps>`
   font-size: .85em;
   border: 1px solid;
   background: white;
@@ -44,22 +57,12 @@ export const ButtonContainer = styled.button`
   position: relative;
   border-radius: 0;
   transition: color 0.25s;
-  color: ${props => props.color || 'black'};
-  border-width: ${props => props.borderless ? '0' : '1px'};
+  color: ${({ color }) => color || 'black'};
+  border-width: ${({ borderless }) => borderless ? '0' : '1px'};
 `
 
-const ButtonText = styled.span`
-  ${props => props.icon && `
+const ButtonText = styled.span<{ icon?: boolean}>`
+  ${({ icon }) => icon && `
     margin-left: 8px;
   `}
 `
-
-Button.propTypes = {
-  borderless: PropTypes.bool,
-  children: PropTypes.any,
-  className: PropTypes.string,
-  color: PropTypes.string,
-  icon: PropTypes.string,
-  onClick: PropTypes.func,
-  text: PropTypes.string
-}

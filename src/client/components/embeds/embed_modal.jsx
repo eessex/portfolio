@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { EmbedList } from './embed_list'
-import { Modal } from 'client/components/Modal/Modal'
+import { Modal } from 'client/components/modal/modal'
 
 export const EmbedModal = (props) => {
   const {

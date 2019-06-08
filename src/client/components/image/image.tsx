@@ -1,9 +1,14 @@
 import { stripTags } from 'underscore.string'
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React from 'react'
+import { Image as ImageType } from 'client/typings'
 
-export const Image = props => {
+interface ImageProps extends ImageType {
+  editCaption?: React.ElementType
+  onClick?: () => void
+}
+
+export const Image: React.SFC<ImageProps> = props => {
   const { editCaption, caption, url, onClick } = props
   const alt = stripTags(caption) || ''
 
@@ -54,10 +59,3 @@ export const ImageContainer = styled.div`
     }
   }
 `
-
-Image.propTypes = {
-  editCaption: PropTypes.any,
-  caption: PropTypes.string,
-  url: PropTypes.string,
-  onClick: PropTypes.func
-}

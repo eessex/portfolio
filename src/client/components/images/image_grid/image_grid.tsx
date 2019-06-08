@@ -3,8 +3,18 @@ import PropTypes from 'prop-types'
 import { cloneDeep, extend } from 'lodash'
 import React from 'react'
 import { ImageRow } from './image_row'
+import { Image as ImageType } from 'client/typings'
 
-export class ImageGrid extends React.Component {
+interface ImageGridProps {
+  hasCover?: boolean
+  images: ImageType[]
+  onChange?: () => void
+  onClick?: () => void
+  onDelete?: () => void
+}
+
+
+export class ImageGrid extends React.Component<ImageGridProps> {
   getTrueIndex = (i, isSecondRow) => {
     const { firstRow, increment } = this.getImageRows()
     let indexWithCover = i + increment
@@ -119,11 +129,3 @@ const ImagesContainer = styled.div`
     flex-direction: column;
   `}
 `
-
-ImageGrid.propTypes = {
-  hasCover: PropTypes.bool,
-  images: PropTypes.array,
-  onChange: PropTypes.func,
-  onClick: PropTypes.func,
-  onDelete: PropTypes.func
-}

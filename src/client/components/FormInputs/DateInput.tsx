@@ -1,21 +1,20 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import moment from 'moment'
 import { Input } from 'client/styles/forms'
 
-export class DateInput extends Component {
-  static date
-  static time
+interface DateInputProps {
+  autoFocus?: boolean
+  allDay: boolean
+  label?: string
+  onChange: (date: string) => void
+  required?: boolean
+  value?: string
+}
 
-  static propTypes = {
-    autoFocus: PropTypes.bool,
-    allDay: PropTypes.bool,
-    label: PropTypes.string,
-    required: PropTypes.bool,
-    onChange: PropTypes.func,
-    value: PropTypes.any
-  }
+export class DateInput extends Component<DateInputProps> {
+  public date
+  public time
 
   onKeyUp = () => {
     const { onChange } = this.props
@@ -66,8 +65,8 @@ export class DateInput extends Component {
   }
 }
 
-const Label = styled.label`
-  ${props => props.required && `
+const Label = styled.label<{ required: boolean }>`
+  ${({ required }) => required && `
     &::after {
       content: '*';
       color: red;

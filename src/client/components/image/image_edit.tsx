@@ -7,8 +7,9 @@ import { Image, Caption, ImageContainer } from './image'
 import { Image as ImageType } from 'client/typings'
 
 interface ImageEditProps {
-  editCaption?: React.FunctionComponent
-  fetchUpload: () => void
+  editCaption?: boolean
+  fetchUpload?: () => void
+  getTrueIndex?: () => void
   onChange: (image?: ImageType, index?: number) => void
   onDelete?: (index: number) => void
   index: number
@@ -23,30 +24,25 @@ interface ImageEditState {
 export class ImageEdit extends Component<ImageEditProps, ImageEditState> {
   constructor (props) {
     super(props)
-
-    const {
-      aspect,
-      caption,
-      url
-    } = props.image
+    const image = props.image || {}
 
     this.state = {
       image: {
-        aspect: aspect,
-        caption: caption || '',
-        url: url || false
+        aspect: image.aspect,
+        caption: image.caption,
+        url: image.url || undefined
       }
     }
   }
 
-  onChangeImage = image => {
+  onChangeImage = (image: ImageType) => {
     const { index, onChange } = this.props
 
     this.setState({ image })
     onChange(image, index)
   }
 
-  onChangeText = caption => {
+  onChangeText = (caption: string) => {
     const { image } = this.props
     let newImage = clone(image)
 
@@ -111,7 +107,7 @@ export class ImageEdit extends Component<ImageEditProps, ImageEditState> {
                 onClick={this.onDeleteImage}
               />
               <Image
-                url={url}
+                url={url || ''}
                 caption={!editCaption && caption || ''}
                 editCaption={editCaption && this.editCaption()}
               />

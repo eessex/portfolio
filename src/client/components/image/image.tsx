@@ -4,7 +4,7 @@ import React from 'react'
 import { Image as ImageType } from 'client/typings'
 
 interface ImageProps extends ImageType {
-  editCaption?: React.FunctionComponent
+  editCaption?: React.ReactNode
   onClick?: () => void
 }
 

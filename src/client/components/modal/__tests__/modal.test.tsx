@@ -1,6 +1,6 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { Modal } from '../Modal'
+import { Modal } from '../modal'
 import { ModalBackground } from '../modal_background'
 
 describe('Modal', () => {

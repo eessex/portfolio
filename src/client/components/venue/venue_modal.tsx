@@ -1,6 +1,6 @@
 import React from 'react'
-import { Modal } from 'client/components/Modal/Modal'
-import { VenueEdit } from './VenueEdit'
+import { Modal } from 'client/components/modal/modal'
+import { VenueEdit } from './venue_edit'
 import { Venue } from 'client/typings'
 
 interface VenueModalProps {

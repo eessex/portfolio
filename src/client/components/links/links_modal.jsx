@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { Modal } from 'client/components/Modal/Modal'
+import { Modal } from 'client/components/modal/modal'
 import { LinksEdit } from './links_edit'
 
 export const LinksModal = props => {

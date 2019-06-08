@@ -1,19 +1,21 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Row, Col } from 'react-styled-flexboxgrid'
 import { Button } from 'client/components/Button'
+import { Link } from 'client/typings'
 import styled from 'styled-components'
 
-export class LinkEdit extends Component {
-  static propTypes = {
-    autoFocus: PropTypes.bool,
-    index: PropTypes.number,
-    onChange: PropTypes.func.isRequired,
-    onDelete: PropTypes.func,
-    title: PropTypes.string,
-    url: PropTypes.string
-  }
+interface LinkEditProps extends Link {
+  autoFocus?: boolean
+  index?: number
+  onChange: (link: Link, i?: number) => void
+  onDelete?: (i: number) => void
+}
 
+interface LinkEditState {
+  link: Link
+}
+
+export class LinkEdit extends Component<LinkEditProps, LinkEditState> {
   state = {
     link: {
       title: this.props.title || '',
@@ -108,7 +110,7 @@ const LinkEditContainer = styled(Row)`
     border-bottom: 1px solid;
   }
 
-  .IconButton {
+  button {
     padding: 0;
     font-size: 1.15em;
     transition: color .3s;

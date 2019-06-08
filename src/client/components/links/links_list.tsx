@@ -1,10 +1,8 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React from 'react'
+import { Link } from 'client/typings'
 
-export const LinksList = props => {
-  const { links } = props
-
+export const LinksList: React.SFC<{ links: Link[] }> = ({ links }) => {
   return (
     <LinksContainer>
       {links.length > 0 && links.map((link, i) =>
@@ -16,10 +14,6 @@ export const LinksList = props => {
       )}
     </LinksContainer>
   )
-}
-
-LinksList.propTypes = {
-  links: PropTypes.array.isRequired
 }
 
 const LinksContainer = styled.div`

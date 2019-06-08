@@ -9,7 +9,6 @@ import { Image as ImageType } from 'client/typings'
 interface ImageEditProps {
   editCaption?: boolean
   fetchUpload?: () => void
-  getTrueIndex?: () => void
   onChange: (image?: ImageType, index?: number) => void
   onDelete?: (index: number) => void
   index: number

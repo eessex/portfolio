@@ -8,15 +8,14 @@ import { Image as ImageType } from 'client/typings'
 
 export interface ImageRowProps {
   fetchUpload: () => void
-  getTrueIndex: () => void
   images: ImageType[]
-  onClick: (i: number) => void
-  onChange: () => void 
-  onDelete: () => void
+  onClick?: (i: number) => void
+  onChange?: (img: ImageType, i: number, isSecondRow?: boolean) => void
+  onDelete?: (i: number, isSecondRow?: boolean) => void
 }
 
 export const ImageRow: React.SFC<ImageRowProps> = props => {
-  const { fetchUpload, getTrueIndex, images, onClick, onChange, onDelete } = props
+  const { fetchUpload, images, onClick, onChange, onDelete } = props
   const isGrid = images.length > 1
   const sizedImages = isGrid && fillwidth(clone(images))
 
@@ -38,7 +37,6 @@ export const ImageRow: React.SFC<ImageRowProps> = props => {
                   image={image}
                   index={i}
                   fetchUpload={fetchUpload}
-                  getTrueIndex={getTrueIndex}
                   onChange={onChange}
                   onDelete={onDelete}
                   editCaption

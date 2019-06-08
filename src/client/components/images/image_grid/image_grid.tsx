@@ -1,10 +1,20 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import { cloneDeep, extend } from 'lodash'
 import React from 'react'
 import { ImageRow } from './image_row'
+import { Image as ImageType } from 'client/typings'
 
-export class ImageGrid extends React.Component {
+interface ImageGridProps {
+  fetchUpload: () => void
+  hasCover?: boolean
+  images: ImageType[]
+  onChange?: (img: ImageType, i: number) => void
+  onClick?: () => void
+  onDelete?: (i: number) => void
+}
+
+
+export class ImageGrid extends React.Component<ImageGridProps> {
   getTrueIndex = (i, isSecondRow) => {
     const { firstRow, increment } = this.getImageRows()
     let indexWithCover = i + increment
@@ -47,7 +57,7 @@ export class ImageGrid extends React.Component {
   }
 
   render () {
-    const { onClick, onChange, onDelete } = this.props
+    const { fetchUpload, onClick, onChange, onDelete } = this.props
     const {
       firstRow,
       secondRow
@@ -57,12 +67,14 @@ export class ImageGrid extends React.Component {
       <ImagesContainer isOverflow={secondRow} onClick={onClick && onClick}>
         <ImageRow
           images={firstRow}
-          onChange={onChange ? (img, i) => this.onChange(img, i) : undefined}
-          onDelete={onDelete ? (i) => this.onDelete(i) : undefined}
+          fetchUpload={fetchUpload}
+          onChange={onChange ? (img, i) => this.onChange(img, i, false) : undefined}
+          onDelete={onDelete ? (i) => this.onDelete(i, false) : undefined}
         />
 
         {secondRow &&
           <ImageRow
+            fetchUpload={fetchUpload}
             images={secondRow}
             onChange={onChange ? (img, i) => this.onChange(img, i, true) : undefined}
             onDelete={onDelete ? (i) => this.onDelete(i, true) : undefined}
@@ -110,20 +122,12 @@ export const getRows = (images = []) => {
   }
 }
 
-const ImagesContainer = styled.div`
+const ImagesContainer = styled.div<{ isOverflow?: boolean }>`
   display: flex;
   align-items: center;
   max-width: 100%;
 
-  ${props => props.isOverflow && `
+  ${({ isOverflow }) => isOverflow && `
     flex-direction: column;
   `}
 `
-
-ImageGrid.propTypes = {
-  hasCover: PropTypes.bool,
-  images: PropTypes.array,
-  onChange: PropTypes.func,
-  onClick: PropTypes.func,
-  onDelete: PropTypes.func
-}

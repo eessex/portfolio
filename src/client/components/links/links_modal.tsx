@@ -1,16 +1,20 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React from 'react'
 import { Modal } from 'client/components/modal/modal'
+import { Link } from 'client/typings'
 import { LinksEdit } from './links_edit'
 
-export const LinksModal = props => {
-  const {
-    onChange,
-    setEditing,
-    links
-  } = props
+interface LinksModalProps {
+  links: Link[]
+  onChange: () => void
+  setEditing: (editing: string | null) => void
+}
 
+export const LinksModal: React.SFC<LinksModalProps> = ({
+  onChange,
+  setEditing,
+  links
+}) => {
   return (
     <Modal onClick={() => setEditing(null)}>
       <Label>Links</Label>
@@ -25,9 +29,3 @@ export const LinksModal = props => {
 const Label = styled.label`
   padding-bottom: 10px;
 `
-
-LinksModal.propTypes = {
-  links: PropTypes.array,
-  onChange: PropTypes.func,
-  setEditing: PropTypes.func
-}

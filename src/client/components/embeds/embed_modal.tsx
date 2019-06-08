@@ -1,15 +1,18 @@
-import PropTypes from 'prop-types'
 import React from 'react'
-import { EmbedList } from './embed_list'
 import { Modal } from 'client/components/modal/modal'
+import { EmbedList } from './embed_list'
 
-export const EmbedModal = (props) => {
-  const {
-    embed_codes,
-    onChange,
-    setEditing
-  } = props
+interface EmbedModalProps {
+  embed_codes: string[]
+  setEditing: (editing: string | null) => void
+  onChange: (embeds: string[]) => void
+}
 
+export const EmbedModal: React.SFC<EmbedModalProps> = ({
+  embed_codes,
+  onChange,
+  setEditing
+}) => {
   return (
     <Modal onClick={() => setEditing(null)}>
       <label>
@@ -24,10 +27,4 @@ export const EmbedModal = (props) => {
       />
     </Modal>
   )
-}
-
-EmbedModal.propTypes = {
-  embed_codes: PropTypes.array,
-  onChange: PropTypes.func,
-  setEditing: PropTypes.func
 }

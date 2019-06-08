@@ -1,9 +1,15 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { clone } from 'lodash'
+import { Link } from 'client/typings'
 import { LinkEdit } from './link_edit'
 
-export class LinksEdit extends Component {
+interface LinksEditProps {
+  links: Link[]
+  onChange: (links: Link[]) => void
+}
+
+export class LinksEdit extends Component<LinksEditProps> {
   static propTypes = {
     links: PropTypes.array,
     onChange: PropTypes.func
@@ -66,9 +72,9 @@ export class LinksEdit extends Component {
           />
         )}
         <LinkEdit
-          link={{}}
           onChange={this.onChange}
           autoFocus={links.length === 0}
+          url=''
         />
       </div>
     )

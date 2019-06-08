@@ -56,6 +56,7 @@ export class ImagesEdit extends Component<ImagesEditProps> {
           {images.length > 0 &&
             <ImagesEditList>
               <ImageGrid
+                fetchUpload={fetchUpload}
                 images={images}
                 onChange={this.onChangeImage}
                 onDelete={this.onDeleteImage}

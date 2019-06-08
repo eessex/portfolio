@@ -7,6 +7,7 @@ export const Button = props => {
   const {
     borderless,
     children,
+    className,
     color,
     icon,
     onClick,
@@ -18,6 +19,7 @@ export const Button = props => {
     <ButtonContainer
       borderless={borderless}
       color={color}
+      className={className}
       onClick={onClick}
       icon={icon}
     >
@@ -55,6 +57,7 @@ const ButtonText = styled.span`
 Button.propTypes = {
   borderless: PropTypes.bool,
   children: PropTypes.any,
+  className: PropTypes.string,
   color: PropTypes.string,
   icon: PropTypes.string,
   onClick: PropTypes.func,

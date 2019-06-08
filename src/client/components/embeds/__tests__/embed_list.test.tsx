@@ -8,15 +8,15 @@ import { EmbedList } from '../embed_list'
 import { Embed } from '../embed'
 
 describe('EmbedList', () => {
-  const getElement = props => {
+  let props
+  const getElement = (passedProps = props) => {
     return mount(
       <ThemeProvider theme={theme}>
-        <EmbedList {...props} />
+        <EmbedList {...passedProps} />
       </ThemeProvider>
     )
   }
 
-  let props
   beforeEach(() => {
     props = {
       editing: false,
@@ -27,7 +27,7 @@ describe('EmbedList', () => {
   })
 
   it('Renders a list of embeds', () => {
-    const component = getElement(props)
+    const component = getElement()
     expect(component.find(Embed).length).toBe(3)
   })
 
@@ -37,12 +37,12 @@ describe('EmbedList', () => {
     })
 
     it('Renders a list of embeds', () => {
-      const component = getElement(props)
+      const component = getElement()
       expect(component.find(Embed).length).toBe(3)
     })
 
     it('Can remove an embed', () => {
-      const component = getElement(props)
+      const component = getElement()
       component.find('button').at(0).simulate('click')
 
       expect(props.onChange.mock.calls[0][0].length).toBe(2)
@@ -50,14 +50,14 @@ describe('EmbedList', () => {
 
     it('Shows new input if props.hasNew', () => {
       props.hasNew = true
-      const component = getElement(props)
+      const component = getElement()
 
       expect(component.find(PlainText).length).toBe(1)
     })
 
     it('Can add a new embed', () => {
       props.hasNew = true
-      const component = getElement(props)
+      const component = getElement()
       component.find(PlainText).getElement().props.onChange('<iframe>')
 
       expect(props.onChange.mock.calls[0][0].length).toBe(4)

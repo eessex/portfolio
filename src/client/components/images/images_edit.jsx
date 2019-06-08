@@ -66,7 +66,7 @@ export class ImagesEdit extends Component {
               <ImageEdit
                 fetchUpload={fetchUpload}
                 index={-1}
-                item={{}}
+                image={{}}
                 onChange={this.onNewImage}
                 showInput
               />

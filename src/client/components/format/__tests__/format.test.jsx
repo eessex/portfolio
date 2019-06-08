@@ -23,7 +23,7 @@ describe('Format', () => {
   })
 
   it('Renders expected data in short format', () => {
-    props.short = true
+    props.isShort = true
     const component = getElement(props)
     expect(component.text()).toBe('Cassette, Soap Library')
   })

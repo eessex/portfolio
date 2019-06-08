@@ -1,9 +1,12 @@
-import PropTypes from 'prop-types'
 import React from 'react'
 import { Modal } from 'client/components/modal/modal'
-import { FormatsEdit } from './formats_edit'
+import { FormatsEdit, FormatsEditProps } from './formats_edit'
 
-export const FormatsModal = (props) => {
+interface FormatsModalProps extends FormatsEditProps {
+  setEditing: (editing: string | null) => void
+}
+
+export const FormatsModal: React.SFC<FormatsModalProps> = props => {
   const { setEditing } = props
 
   return (
@@ -14,8 +17,4 @@ export const FormatsModal = (props) => {
       />
     </Modal>
   )
-}
-
-FormatsModal.propTypes = {
-  setEditing: PropTypes.func.isRequired
 }

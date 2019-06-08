@@ -25,13 +25,13 @@ export const ImageRow = props => {
           >
             {onChange && onDelete
               ? <ImageEdit
-                item={image}
-                index={i}
-                getTrueIndex={getTrueIndex}
-                onChange={onChange}
-                onDelete={onDelete}
-                editCaption
-              />
+                  image={image}
+                  index={i}
+                  getTrueIndex={getTrueIndex}
+                  onChange={onChange}
+                  onDelete={onDelete}
+                  editCaption
+                />
               : <Image {...image} />
             }
           </ImageContainer>

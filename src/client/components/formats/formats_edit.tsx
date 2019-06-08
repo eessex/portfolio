@@ -1,14 +1,18 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Button } from 'client/components/Button'
 import { FormatEdit } from '../format/format_edit'
+import { Format as FormatType } from 'client/typings'
 
-export class FormatsEdit extends Component {
-  static propTypes = {
-    formats: PropTypes.array.isRequired,
-    onChange: PropTypes.func.isRequired
-  }
+export interface FormatsEditProps {
+  formats?: FormatType[]
+  onChange: (key: string, val: FormatType[]) => void
+}
 
+interface FormatsEditState {
+  showNewForm: boolean
+}
+
+export class FormatsEdit extends Component<FormatsEditProps, FormatsEditState> {
   state = {
     showNewForm: this.props.formats.length === 0
   }
@@ -73,9 +77,4 @@ export class FormatsEdit extends Component {
       </div>
     )
   }
-}
-
-FormatsEdit.propTypes = {
-  formats: PropTypes.array.isRequired,
-  onChange: PropTypes.func.isRequired
 }

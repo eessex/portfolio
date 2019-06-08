@@ -20,7 +20,7 @@ describe('ImageEdit', () => {
   beforeEach(() => {
     props = {
       onChange: jest.fn(),
-      item: {
+      image: {
         aspect: 1,
         caption: 'A caption',
         url: '/image.jpg'
@@ -31,14 +31,14 @@ describe('ImageEdit', () => {
 
   it('Renders existing image with remove button', () => {
     const component = getWrapper()
-    expect(component.find('img').getElement().props.src).toBe(props.item.url)
+    expect(component.find('img').getElement().props.src).toBe(props.image.url)
     expect(component.find(Button).exists()).toBe(true)
   })
 
   it('Renders caption if props.editCaption', () => {
     props.editCaption = true
     const component = getWrapper()
-    expect(component.text()).toMatch(props.item.caption)
+    expect(component.text()).toMatch(props.image.caption)
     expect(component.find(RichText).exists()).toBe(true)
   })
 
@@ -76,7 +76,7 @@ describe('ImageEdit', () => {
     const component = getWrapper()
     component.find(ImageEdit).instance().onChangeText('<p>A new caption</p>')
     const newImage = props.onChange.mock.calls[0][0]
-    expect(newImage.url).toBe(props.item.url)
+    expect(newImage.url).toBe(props.image.url)
     expect(newImage.caption).toBe('<p>A new caption</p>')
   })
 })

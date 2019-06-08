@@ -3,39 +3,39 @@ import PropTypes from 'prop-types'
 import React from 'react'
 
 export const Format = props => {
-  const { item, short, onClick } = props
+  const { item, isShort, onClick } = props
   const {
     format,
     publisher,
     release_year
   } = item
 
-  const formattedFormat = format && (publisher || (release_year && !short))
+  const formattedFormat = format && (publisher || (release_year && !isShort))
     ? `${format}, `
     : format
-  const formattedPublisher = release_year && !short ? `${publisher}, ` : publisher
+  const formattedPublisher = release_year && !isShort ? `${publisher}, ` : publisher
 
   return (
     <FormatContainer
       onClick={onClick && onClick}
-      short={short}
+      isShort={isShort}
     >
       {formattedFormat}
       {publisher && formattedPublisher}
-      {!short && release_year}
+      {!isShort && release_year}
     </FormatContainer>
   )
 }
 
 export const FormatContainer = styled.div`
   margin-bottom: .35em;
-  ${props => props.short && `
+  ${props => props.isShort && `
     margin-bottom: 0;
   `}
 `
 
 Format.propTypes = {
   item: PropTypes.object,
-  short: PropTypes.bool,
+  isShort: PropTypes.bool,
   onClick: PropTypes.func
 }

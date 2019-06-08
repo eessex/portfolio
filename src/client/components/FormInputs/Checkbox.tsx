@@ -1,11 +1,18 @@
-import PropTypes from 'prop-types'
 import React from 'react'
 import styled from 'styled-components'
 import { H5 } from 'client/styles/text'
 
-export const Checkbox = props => {
-  const { label, value, onChange } = props
+interface CheckboxProps {
+  label?: string
+  value: boolean
+  onChange: (val: boolean) => void
+}
 
+export const Checkbox: React.SFC<CheckboxProps> = ({
+  label,
+  value,
+  onChange
+}) => {
   return (
     <CheckboxInputContainer>
       <input
@@ -19,12 +26,6 @@ export const Checkbox = props => {
       }
     </CheckboxInputContainer>
   )
-}
-
-Checkbox.propTypes = {
-  label: PropTypes.string,
-  value: PropTypes.bool,
-  onChange: PropTypes.func.isRequired
 }
 
 const CheckboxInputContainer = styled.div`

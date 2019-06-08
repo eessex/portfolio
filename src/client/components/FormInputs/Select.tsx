@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 
 const States = [
@@ -8,17 +7,17 @@ const States = [
   'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
 ]
 
-export class Select extends Component {
-  static propTypes = {
-    label: PropTypes.string,
-    name: PropTypes.string,
-    onChange: PropTypes.func.isRequired,
-    options: PropTypes.array,
-    required: PropTypes.bool,
-    states: PropTypes.bool,
-    value: PropTypes.any
-  }
+interface SelectProps {
+  label?: string
+  name: string
+  onChange: (name: string, val: any) => void
+  options: any[]
+  required?: boolean
+  states?: boolean
+  value: any
+}
 
+export class Select extends Component<SelectProps> {
   renderLabel = () => {
     const { label, name } = this.props
 

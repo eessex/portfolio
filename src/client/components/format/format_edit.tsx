@@ -1,37 +1,41 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
-
 import { Button } from 'client/components/Button'
 import { Checkbox } from 'client/components/FormInputs/Checkbox'
 import { Select } from 'client/components/FormInputs/Select'
 import { Input } from 'client/styles/forms'
+import { Format as FormatType } from 'client/typings'
 
-export class FormatEdit extends Component {
-  static propTypes = {
-    index: PropTypes.number,
-    item: PropTypes.object.isRequired,
-    onChange: PropTypes.func.isRequired,
-    onRemoveFormat: PropTypes.func
-  }
+interface FormatEditProps {
+  format?: FormatType
+  index?: number
+  onChange: (format: FormatType, i?: number) => void
+  onRemoveFormat?: (i: number) => void
+}
 
+interface FormatEditState {
+  format: FormatType
+  needsSave: boolean
+}
+
+
+export class FormatEdit extends Component<FormatEditProps, FormatEditState>  {
   constructor (props) {
     super(props)
 
     const {
       compilation,
       featuring,
-      format,
       publisher,
       release_year
-    } = props.item
+    } = props.format || {} as FormatType
 
     this.state = {
-      item: {
+      format: {
         compilation: compilation || false,
         featuring: featuring || false,
-        format: format || '',
+        format: props.format && props.format.format || '',
         publisher: publisher || '',
         release_year: release_year || null
       },
@@ -40,32 +44,31 @@ export class FormatEdit extends Component {
   }
 
   onChangeFormat = (key, value) => {
-    const { item } = this.props
+    const { format } = this.props
     const needsSave = true
 
-    item[key] = value
-    this.setState({ item, needsSave })
+    format[key] = value
+    this.setState({ format, needsSave })
   }
 
-  saveItem = () => {
+  saveFormat = () => {
     const { index, onChange } = this.props
-    const { item } = this.state
+    const { format } = this.state
     const needsSave = false
 
     this.setState({ needsSave })
-    onChange(item, index)
+    onChange(format, index)
   }
 
   render () {
-    const { item, needsSave } = this.state
+    const { format, needsSave } = this.state
     const { onRemoveFormat, index } = this.props
     const {
       compilation,
       featuring,
-      format,
       publisher,
       release_year
-    } = item
+    } = format
 
     return (
       <FormatEditContainer>
@@ -73,7 +76,7 @@ export class FormatEdit extends Component {
           <Col>
             <Select
               name='format'
-              value={format}
+              value={format.format}
               options={['LP', '2xLP', 'Cassette', '2xCassette', 'CD', '2xCD', 'Digital']}
               onChange={(key, value) => this.onChangeFormat(key, value)}
             />
@@ -81,9 +84,9 @@ export class FormatEdit extends Component {
           <Col>
             <Input
               placeholder='YYYY'
-              maxLength='4'
+              maxLength={4}
               name='release_year'
-              defaultValue={release_year}
+              defaultValue={release_year && release_year.toString()}
               onChange={(e) => {
                 this.onChangeFormat('release_year', parseInt(e.target.value))
               }}
@@ -113,7 +116,7 @@ export class FormatEdit extends Component {
           <Col>
             <Button
               color={needsSave ? 'red' : 'black'}
-              onClick={this.saveItem}
+              onClick={this.saveFormat}
               text='save'
             />
 

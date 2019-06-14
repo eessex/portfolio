@@ -19,7 +19,7 @@ describe('Formats', () => {
   })
 
   it('Renders a list of formats', () => {
-    const component = getElement(props)
+    const component = getElement()
 
     expect(component.html()).toMatch('Cassette, Soap Library, 2018')
     expect(component.html()).toMatch('LP, Sky Walking, 2018')
@@ -27,7 +27,7 @@ describe('Formats', () => {
 
   it('Renders short formats', () => {
     props.isShort = true
-    const component = getElement(props)
+    const component = getElement()
 
     expect(component.html()).toMatch('Cassette, Soap Library')
     expect(component.html()).toMatch('LP, Sky Walking')
@@ -36,7 +36,7 @@ describe('Formats', () => {
 
   it('Calls onClick if provided', () => {
     props.onClick = jest.fn()
-    const component = getElement(props)
+    const component = getElement()
 
     component.find(FormatsContainer).simulate('click')
     expect(props.onClick).toHaveBeenCalled()

@@ -9,9 +9,9 @@ export type Model = 'events' | 'publications' | 'projects' | 'pages' | 'releases
 
 export interface Format {
   _id?: string
-  compilation: boolean
+  compilation?: boolean
   format?: string
-  featuring: boolean
+  featuring?: boolean
   publisher?: string
   release_year?: number
 }

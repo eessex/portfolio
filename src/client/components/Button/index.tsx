@@ -6,12 +6,12 @@ interface ButtonContainerProps {
   borderless?: boolean
   className?: string
   color?: string
-  onClick: () => void
+  onClick?: () => void
 }
 
 interface ButtonProps extends ButtonContainerProps {
   children?: any
-  onClick: () => void
+  onClick?: () => void
   icon?: string
   text?: string
 }

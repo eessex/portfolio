@@ -4,7 +4,7 @@ import { FormatEdit } from '../format/format_edit'
 import { Format as FormatType } from 'client/typings'
 
 export interface FormatsEditProps {
-  formats?: FormatType[]
+  formats: FormatType[]
   onChange: (key: string, val: FormatType[]) => void
 }
 
@@ -17,24 +17,22 @@ export class FormatsEdit extends Component<FormatsEditProps, FormatsEditState> {
     showNewForm: this.props.formats.length === 0
   }
 
-  // TODO: Remove format
-
-  onChangeFormat = (item, index) => {
+  onChangeFormat = (format: FormatType, index: number) => {
     const { onChange, formats } = this.props
 
-    formats[index] = item
+    formats[index] = format
     onChange('formats', formats)
   }
 
-  onNewFormat = item => {
+  onNewFormat = (format: FormatType) => {
     const { onChange, formats } = this.props
 
-    formats.push(item)
+    formats.push(format)
     onChange('formats', formats)
     this.setState({ showNewForm: false })
   }
 
-  onRemoveFormat = index => {
+  onRemoveFormat = (index: number) => {
     const { onChange, formats } = this.props
     formats.splice(index, 1)
 
@@ -43,10 +41,8 @@ export class FormatsEdit extends Component<FormatsEditProps, FormatsEditState> {
   }
 
   renderNew = () => {
-    const { showNewForm } = this.state
-
-    if (showNewForm) {
-      return <FormatEdit onChange={this.onNewFormat} item={{}} />
+    if (this.state.showNewForm) {
+      return <FormatEdit onChange={this.onNewFormat} />
     } else {
       return (
         <Button
@@ -59,14 +55,12 @@ export class FormatsEdit extends Component<FormatsEditProps, FormatsEditState> {
   }
 
   render () {
-    const { formats } = this.props
-
     return (
       <div>
-        {formats.map((format, index) =>
+        {this.props.formats.map((format, index) =>
           <FormatEdit
             index={index}
-            item={format}
+            format={format}
             key={index}
             onChange={this.onChangeFormat}
             onRemoveFormat={this.onRemoveFormat}

@@ -10,17 +10,17 @@ export interface FormatsProps {
   onClick?: () => void
 }
 
-export const Formats: React.SFC<FormatsProps> = ({ formats, isShort, onClick }) => {
+export const Formats: React.SFC<FormatsProps> = ({ formats = [], isShort, onClick }) => {
   return (
     <FormatsContainer
       isShort={isShort}
       onClick={onClick && onClick}
     >
-      {formats && formats.length
-        ? formats.map((item, index) =>
+      {formats.length
+        ? formats.map((format, index) =>
           <Format
             key={index}
-            item={item}
+            format={format}
             isShort={isShort}
           />
         )

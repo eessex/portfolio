@@ -10,30 +10,30 @@ import { Input } from 'client/styles/forms'
 import { theme } from 'client/styles/theme'
 
 describe('Format', () => {
-  const getElement = props => {
+  let props
+  const getElement = (passedProps = props) => {
     return mount(
       <ThemeProvider theme={theme}>
-        <FormatEdit {...props} />
+        <FormatEdit {...passedProps} />
       </ThemeProvider>
     )
   }
 
-  let props
   beforeEach(() => {
     props = {
-      item: clone(formats[0]),
+      format: clone(formats[0]),
       onChange: jest.fn()
     }
   })
 
   it('Renders a save button if existing data', () => {
-    const component = getElement(props)
+    const component = getElement()
     expect(component.find('button')).toHaveLength(1)
   })
 
   it('Can save changed data', () => {
     props.index = 1
-    const component = getElement(props)
+    const component = getElement()
     const input = component.find(Select).getElement()
 
     input.props.onChange('format', 'CD')
@@ -45,14 +45,14 @@ describe('Format', () => {
   describe('Formats select', () => {
     beforeEach(() => {
       props = {
-        item: formats[0],
+        format: formats[0],
         onChange: jest.fn()
       }
     })
 
     it('Renders field', () => {
-      props.item = {}
-      const component = getElement(props)
+      props.format = {}
+      const component = getElement()
       const input = component.find(Select).getElement()
 
       expect(input.props.options).toEqual(
@@ -61,24 +61,24 @@ describe('Format', () => {
     })
 
     it('Renders saved data', () => {
-      const component = getElement(props)
+      const component = getElement()
       const input = component.find(Select).getElement()
 
       expect(input.props.value).toBe('Cassette')
     })
 
     it('Can change data', () => {
-      const component = getElement(props)
+      const component = getElement()
       const input = component.find(Select).getElement()
       input.props.onChange('format', 'CD')
-      expect(component.find(FormatEdit).instance().state.item.format).toBe('CD')
+      expect(component.find(FormatEdit).instance().state.format.format).toBe('CD')
       expect(component.find(FormatEdit).instance().state.needsSave).toBe(true)
     })
   })
 
   describe('Release year', () => {
     it('Renders field', () => {
-      props.item = {}
+      props.format = {}
       const component = getElement(props)
       const input = component.find(Input).at(0).getElement()
 
@@ -86,51 +86,51 @@ describe('Format', () => {
     })
 
     it('Renders saved data', () => {
-      const component = getElement(props)
+      const component = getElement()
       const input = component.find(Input).at(0).getElement()
 
-      expect(input.props.defaultValue).toBe(2018)
+      expect(input.props.defaultValue).toBe("2018")
     })
 
     it('Can change data', () => {
-      const component = getElement(props)
+      const component = getElement()
       const input = component.find(Input).at(0)
       input.simulate('change', {target: {value: '2020'}})
 
-      expect(component.find(FormatEdit).instance().state.item.release_year).toBe(2020)
+      expect(component.find(FormatEdit).instance().state.format.release_year).toBe(2020)
       expect(component.find(FormatEdit).instance().state.needsSave).toBe(true)
     })
   })
 
   describe('Publisher', () => {
     it('Renders field', () => {
-      props.item = {}
-      const component = getElement(props)
+      props.format = {}
+      const component = getElement()
       const input = component.find(Input).at(1).getElement()
 
       expect(input.props.placeholder).toBe('publisher')
     })
 
     it('Renders saved data', () => {
-      const component = getElement(props)
+      const component = getElement()
       const input = component.find(Input).at(1).getElement()
 
       expect(input.props.defaultValue).toBe('Soap Library')
     })
 
     it('Can change data', () => {
-      const component = getElement(props)
+      const component = getElement()
       const input = component.find(Input).at(1)
       input.simulate('change', {target: {value: 'Sky Walking'}})
 
-      expect(component.find(FormatEdit).instance().state.item.publisher).toBe('Sky Walking')
+      expect(component.find(FormatEdit).instance().state.format.publisher).toBe('Sky Walking')
       expect(component.find(FormatEdit).instance().state.needsSave).toBe(true)
     })
   })
 
   describe('Compilation checkbox', () => {
     it('Renders field', () => {
-      const component = getElement(props)
+      const component = getElement()
       const input = component.find(Checkbox).at(0)
 
       expect(input.getElement().props.label).toBe('Compilation')
@@ -138,27 +138,27 @@ describe('Format', () => {
     })
 
     it('Renders saved data', () => {
-      props.item.compilation = true
-      const component = getElement(props)
+      props.format.compilation = true
+      const component = getElement()
       const input = component.find(Checkbox).at(0)
 
       expect(input.getElement().props.value).toBe(true)
     })
 
     it('Can change data', () => {
-      props.item.compilation = false
-      const component = getElement(props)
+      props.format.compilation = false
+      const component = getElement()
       const input = component.find(Checkbox).at(0).getElement()
       input.props.onChange('compilation', true)
 
-      expect(component.find(FormatEdit).instance().state.item.compilation).toBe(true)
+      expect(component.find(FormatEdit).instance().state.format.compilation).toBe(true)
       expect(component.find(FormatEdit).instance().state.needsSave).toBe(true)
     })
   })
 
   describe('Featured artist checkbox', () => {
     it('Renders field', () => {
-      const component = getElement(props)
+      const component = getElement()
       const input = component.find(Checkbox).at(1)
 
       expect(input.getElement().props.label).toBe('Featuring')
@@ -166,20 +166,20 @@ describe('Format', () => {
     })
 
     it('Renders saved data', () => {
-      props.item.featuring = true
-      const component = getElement(props)
+      props.format.featuring = true
+      const component = getElement()
       const input = component.find(Checkbox).at(1)
 
       expect(input.getElement().props.value).toBe(true)
     })
 
     it('Can change data', () => {
-      props.item.featuring = false
-      const component = getElement(props)
+      props.format.featuring = false
+      const component = getElement()
       const input = component.find(Checkbox).at(1).getElement()
       input.props.onChange('featuring', true)
 
-      expect(component.find(FormatEdit).instance().state.item.featuring).toBe(true)
+      expect(component.find(FormatEdit).instance().state.format.featuring).toBe(true)
       expect(component.find(FormatEdit).instance().state.needsSave).toBe(true)
     })
   })

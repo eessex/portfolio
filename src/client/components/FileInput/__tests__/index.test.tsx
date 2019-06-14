@@ -5,7 +5,7 @@ import { theme } from 'client/styles/theme'
 import { FileInput, DragZone } from '../index'
 
 describe('FileInput', () => {
-  let props = {}
+  let props
 
   beforeEach(() => {
     props = {
@@ -14,34 +14,34 @@ describe('FileInput', () => {
     }
   })
 
-  const getWrapper = props => {
+  const getWrapper = (passedProps = props) => {
     return mount(
       <ThemeProvider theme={theme}>
-        <FileInput {...props} />
+        <FileInput {...passedProps} />
       </ThemeProvider>
     )
   }
 
   it('renders an upload prompt by default', () => {
-    const component = getWrapper(props)
+    const component = getWrapper()
     expect(component.html()).toMatch('Click or Drag to Upload')
   })
 
   it('accepts images and video by default', () => {
-    const component = getWrapper(props)
+    const component = getWrapper()
     expect(component.html()).toMatch('accept="image/*, video/mp4"')
   })
 
   it('can limit filetypes if props.accept', () => {
     props.accept = 'image/jpg'
-    const component = getWrapper(props)
+    const component = getWrapper()
     expect(component.html()).toMatch('accept="image/jpg"')
   })
 
   it('shows a preview if props.hasPreview and props.file', () => {
     props.file = { url: 'image.jpg' }
     props.hasPreview = true
-    const component = getWrapper(props)
+    const component = getWrapper()
 
     expect(component.html()).toMatch('<img src="image.jpg">')
     expect(component.html()).toMatch('opacity: 1')
@@ -52,7 +52,7 @@ describe('FileInput', () => {
     props.file = { url: 'image.jpg' }
     props.hasPreview = true
     props.onDelete = jest.fn()
-    const component = getWrapper(props)
+    const component = getWrapper()
     const remove = component.find('.fa-times')
     remove.simulate('click')
 
@@ -60,7 +60,7 @@ describe('FileInput', () => {
   })
 
   it('sets state.dragover on dragEnter', () => {
-    const component = getWrapper(props)
+    const component = getWrapper()
     const dragZone = component.find(DragZone)
     dragZone.simulate('dragEnter')
 
@@ -69,7 +69,7 @@ describe('FileInput', () => {
 
   it('sets state.dragover on dragLeave', () => {
     props.accept = 'image/jpg'
-    const component = getWrapper(props)
+    const component = getWrapper()
     component.instance().setState({isDragOver: true})
     const dragZone = component.find(DragZone)
     dragZone.simulate('dragLeave')
@@ -78,7 +78,7 @@ describe('FileInput', () => {
   })
 
   it('Calls props.fetchUpload when file is added', () => {
-    const component = getWrapper(props)
+    const component = getWrapper()
     const input = component.find('input')
     input.simulate('change', { target: { files: ['files'], file: 'file' } })
 

@@ -1,32 +1,33 @@
 import axios from 'axios'
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Button } from 'client/components/Button'
 import { H5 } from 'client/styles/text'
 import { Loading } from 'client/components/Loading'
 
-export class FileInput extends Component {
-  static propTypes = {
-    accept: PropTypes.string,
-    fetchUpload: PropTypes.func.isRequired,
-    hasPreview: PropTypes.bool,
-    label: PropTypes.string,
-    onChange: PropTypes.func.isRequired,
-    onDelete: PropTypes.func,
-    file: PropTypes.object
-  }
+interface FileInputProps {
+  accept?: string,
+  fetchUpload:(files: any, file: any, cb: any) => void
+  hasPreview?: boolean
+  label?: string,
+  onChange: (image: any) => void
+  onDelete?: () => void
+  file?: any
+}
 
+interface FileInputState {
+  fileUrl?: string
+  isDragOver: boolean
+  loading: boolean
+}
+
+export class FileInput extends Component<FileInputProps, FileInputState> {
   state = {
     isDragOver: false,
     loading: false
   }
 
-  static defaultProps = {
-    file: {
-      url: ''
-    }
-  }
+  public fileContainer
 
   onChangeImage = newImage => {
     const { onChange, hasPreview } = this.props
@@ -48,7 +49,7 @@ export class FileInput extends Component {
           headers: {
             'Content-Type': data.type
           },
-          crossDomain: true
+          // crossDomain: true
         }
       ).then(() => {
         const img = new Image()

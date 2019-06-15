@@ -1,17 +1,17 @@
 import { connect } from 'react-redux'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import React from 'react'
 import { createItem } from 'client/actions/items'
 import { Button, ButtonContainer } from 'client/components/Button'
 import { H2, H3 } from 'client/styles/text'
+import { Model } from 'client/typings'
 
-export class NewItemMenu extends React.Component {
-  static propTypes = {
-    createItemAction: PropTypes.func,
-    onClose: PropTypes.func
-  }
+interface NewItemMenuProps {
+  createItemAction: (type: Model) => void
+  onClose: () => void
+}
 
+export class NewItemMenu extends React.Component<NewItemMenuProps> {
   newItem = async model => {
     try {
       await this.props.createItemAction(model)
@@ -57,7 +57,7 @@ const mapDispatchToProps = {
 }
 
 export default connect(
-  () => ({}),
+  state => (state),
   mapDispatchToProps
 )(NewItemMenu)
 
@@ -101,7 +101,7 @@ const NewItemContainer = styled.div`
 
 const NewItemInner = styled.div`
   display: flex;
-  max-width 700px;
+  max-width: 700px;
   margin: auto;
   width: 100%;
 `

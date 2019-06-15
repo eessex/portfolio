@@ -1,15 +1,15 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { Social } from '../social_list.jsx'
+import { Social } from '../social_list'
 
 describe('Social', () => {
-  const getWrapper = props => {
+  let props
+  const getWrapper = (passedProps = props) => {
     return mount(
-      <Social {...props} />
+      <Social {...passedProps} />
     )
   }
 
-  let props
   beforeEach(() => {
     props = {
       onChange: jest.fn(),
@@ -43,7 +43,7 @@ describe('Social', () => {
   })
 
   it('Renders all social profiles', () => {
-    const component = getWrapper(props)
+    const component = getWrapper()
 
     expect(component.find('a')).toHaveLength(6)
     expect(component.text()).toMatch('Bandcamp')
@@ -55,7 +55,7 @@ describe('Social', () => {
   })
 
   it('Renders social icons', () => {
-    const component = getWrapper(props)
+    const component = getWrapper()
 
     expect(component.html()).toMatch('fa-bandcamp')
     expect(component.html()).toMatch('fa-compact-disc')
@@ -76,7 +76,7 @@ describe('Social', () => {
         profile: 'my-profile'
       }
     ]
-    const component = getWrapper(props)
+    const component = getWrapper()
 
     expect(component.find('a')).toHaveLength(2)
   })
@@ -86,7 +86,7 @@ describe('Social', () => {
       service: 'bandcamp',
       profile: 'my-profile'
     }]
-    const link = getWrapper(props).find('a').getElement().props
+    const link = getWrapper().find('a').getElement().props
 
     expect(link.children[1]).toBe('Bandcamp')
     expect(link.href).toBe('https://my-profile.bandcamp.com/')
@@ -97,7 +97,7 @@ describe('Social', () => {
       service: 'discogs',
       profile: 'my-profile'
     }]
-    const link = getWrapper(props).find('a').getElement().props
+    const link = getWrapper().find('a').getElement().props
 
     expect(link.children[1]).toBe('Discogs')
     expect(link.href).toBe('https://discogs.com/my-profile')
@@ -108,7 +108,7 @@ describe('Social', () => {
       service: 'soundcloud',
       profile: 'my-profile'
     }]
-    const link = getWrapper(props).find('a').getElement().props
+    const link = getWrapper().find('a').getElement().props
 
     expect(link.children[1]).toBe('Soundcloud')
     expect(link.href).toBe('https://soundcloud.com/my-profile')
@@ -119,7 +119,7 @@ describe('Social', () => {
       service: 'instagram',
       profile: 'my-profile'
     }]
-    const link = getWrapper(props).find('a').getElement().props
+    const link = getWrapper().find('a').getElement().props
 
     expect(link.children[1]).toBe('Instagram')
     expect(link.href).toBe('https://instagram.com/my-profile')
@@ -130,7 +130,7 @@ describe('Social', () => {
       service: 'facebook',
       profile: 'my-profile'
     }]
-    const link = getWrapper(props).find('a').getElement().props
+    const link = getWrapper().find('a').getElement().props
 
     expect(link.children[1]).toBe('Facebook')
     expect(link.href).toBe('https://facebook.com/my-profile')
@@ -141,7 +141,7 @@ describe('Social', () => {
       service: 'twitter',
       profile: 'my-profile'
     }]
-    const link = getWrapper(props).find('a').getElement().props
+    const link = getWrapper().find('a').getElement().props
 
     expect(link.children[1]).toBe('Twitter')
     expect(link.href).toBe('https://twitter.com/my-profile')

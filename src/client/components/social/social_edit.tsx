@@ -3,10 +3,15 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 import { capitalize, cloneDeep } from 'lodash'
-import { SocialContainer } from './social_list'
+import { SocialContainer, SocialProps } from './social_list'
 import { ModalBackground } from 'client/components/modal/modal_background'
+import { Social, SocialProfile } from 'client/typings'
 
-export class SocialEdit extends Component {
+interface SocialEditProps extends SocialProps {
+  onChange: (key: string, val: Social[]) => void
+}
+
+export class SocialEdit extends Component<SocialEditProps> {
   static propTypes = {
     onChange: PropTypes.func,
     social: PropTypes.object
@@ -68,7 +73,7 @@ export class SocialEdit extends Component {
   }
 
   renderSocialList = social => {
-    const services = [
+    const services: SocialProfile[] = [
       'bandcamp',
       'discogs',
       'soundcloud',
@@ -103,8 +108,8 @@ export const SocialItem = styled.div`
   position: relative;
 `
 
-const A = styled.a`
-  ${props => props.isPlaceholder && `
+const A = styled.a<{ isPlaceholder?: boolean }>`
+  ${({ isPlaceholder }) => isPlaceholder && `
     color: ${({ theme }) => theme.colors.gray} !important;
   `}
 `

@@ -37,8 +37,16 @@ export interface Venue {
   state?: string
 }
 
-export interface Social {
-  profile: string
+export type SocialProfile =
+  'facebook' |
+  'twitter' |
+  'soundcloud' |
+  'bandcamp' |
+  'instagram' |
+  'discogs'
+
+  export interface Social {
+  profile: SocialProfile
   service: string
 }
 
@@ -52,7 +60,7 @@ export interface Item {
   embed_codes?: string[]
   end_date?: string 
   formats?: Format[]
-  images: Image[]
+  images?: Image[]
   links?: Link[]
   list_index?: number
   slug?: string

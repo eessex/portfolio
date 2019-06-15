@@ -1,14 +1,18 @@
 import styled from 'styled-components'
 import { capitalize } from 'underscore.string'
-import PropTypes from 'prop-types'
 import React from 'react'
 
-export const Label = props => {
-  const {
-    label,
-    labelLink,
-    model
-  } = props
+interface LabelProps {
+  label: string
+  labelLink?: string
+  model?: string
+}
+
+export const Label: React.SFC<LabelProps> = ({
+  label,
+  labelLink,
+  model
+}) => {
   const formattedLabel = capitalize(label)
   let formattedModel = model ? `/${model}` : undefined
 
@@ -34,9 +38,3 @@ const LabelContainer = styled.label`
     text-decoration: none;
   }
 `
-
-Label.propTypes = {
-  label: PropTypes.string,
-  labelLink: PropTypes.bool,
-  model: PropTypes.string
-}

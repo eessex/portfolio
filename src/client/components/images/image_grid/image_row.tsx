@@ -7,7 +7,7 @@ import { fillwidth } from 'client/utils/fillwidth'
 import { Image as ImageType } from 'client/typings'
 
 export interface ImageRowProps {
-  fetchUpload: () => void
+  fetchUpload?: () => void
   images: ImageType[]
   onClick?: (i: number) => void
   onChange?: (img: ImageType, i: number, isSecondRow?: boolean) => void

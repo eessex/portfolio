@@ -61,6 +61,7 @@ export interface Item {
   end_date?: string 
   formats?: Format[]
   images?: Image[]
+  lead_text?: string
   links?: Link[]
   list_index?: number
   slug?: string

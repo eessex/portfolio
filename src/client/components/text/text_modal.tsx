@@ -1,9 +1,16 @@
-import PropTypes from 'prop-types'
 import React from 'react'
 import { Modal } from 'client/components/modal/modal'
 import { PlainText } from 'client/components/text/draft/PlainText'
 
-export const TextModal = props => {
+interface TextModalProps {
+  label?: string
+  placeholder?: string
+  onChange: (val: string) => void
+  setEditing: (isEditing: string | null) => void
+  text?: string
+}
+
+export const TextModal: React.SFC<TextModalProps> = props => {
   const {
     label,
     onChange,
@@ -25,12 +32,4 @@ export const TextModal = props => {
 
     </Modal>
   )
-}
-
-TextModal.propTypes = {
-  label: PropTypes.string,
-  placeholder: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-  setEditing: PropTypes.func.isRequired,
-  text: PropTypes.string
 }

@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import React from 'react'
 import styled from 'styled-components'
 import { Col, Row } from 'react-styled-flexboxgrid'
@@ -7,8 +6,19 @@ import { Social } from 'client/components/social/social_list'
 import { SocialContainer } from '../grid'
 import { Description } from './description'
 import { ImageGrid } from 'client/components/images/image_grid/image_grid'
+import { Item, Image, Model, Social as SocialType} from 'client/typings'
 
-export const ItemBody = props => {
+interface ItemBodyProps {
+  displayImages?: Image[]
+  item: Item
+  images: Image[]
+  model: Model
+  onChange: (key: string, val: any) => void
+  setEditing: (isEditing: string | null) => void
+  social: SocialType[]
+}
+
+export const ItemBody: React.SFC<ItemBodyProps> = props => {
   const {
     item,
     images,
@@ -39,7 +49,6 @@ export const ItemBody = props => {
       {hasSecondaryImages &&
         <ImageGrid
           images={images}
-          isGrid
           onClick={setEditing ? () => setEditing('images') : undefined}
           hasCover
         />
@@ -89,12 +98,3 @@ export const ContentContainer = styled(Col)`
   margin: 0 auto 0 0;
   padding: 0;
 `
-
-ItemBody.propTypes = {
-  item: PropTypes.object,
-  images: PropTypes.array,
-  model: PropTypes.string,
-  onChange: PropTypes.func,
-  setEditing: PropTypes.func,
-  social: PropTypes.array
-}

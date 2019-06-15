@@ -5,7 +5,7 @@ import { ImageRow } from './image_row'
 import { Image as ImageType } from 'client/typings'
 
 interface ImageGridProps {
-  fetchUpload: () => void
+  fetchUpload?: () => void
   hasCover?: boolean
   images: ImageType[]
   onChange?: (img: ImageType, i: number) => void

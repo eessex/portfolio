@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import React from 'react'
 import styled from 'styled-components'
 import { Col, Row } from 'react-styled-flexboxgrid'
@@ -10,8 +9,9 @@ import { ImageGrid } from 'client/components/images/image_grid/image_grid'
 import { LinksList } from 'client/components/links/links_list'
 import { Social } from 'client/components/social/social_list'
 import { ContentContainer } from './column'
+import { LayoutProps } from 'client/typings'
 
-export const LayoutGrid = props => {
+export const LayoutGrid: React.SFC<LayoutProps> = props => {
   const {
     item,
     label,
@@ -42,7 +42,6 @@ export const LayoutGrid = props => {
         {images.length > 1 &&
           <ImageGrid
             hasCover
-            isGrid
             images={images}
             onClick={setEditing ? () => setEditing('images') : undefined}
           />
@@ -112,13 +111,3 @@ export const SocialContainer = styled.div`
   font-size: 90%;
   padding: 1em 0 4em;
 `
-
-LayoutGrid.propTypes = {
-  item: PropTypes.object,
-  label: PropTypes.string,
-  labelLink: PropTypes.any,
-  model: PropTypes.string,
-  onChange: PropTypes.func,
-  setEditing: PropTypes.func,
-  social: PropTypes.object
-}

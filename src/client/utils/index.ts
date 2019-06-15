@@ -1,8 +1,8 @@
 import moment from 'moment'
 import { pluck, uniq } from 'underscore'
-import { Venue } from "client/typings"
+import { Item, Model, Venue } from 'client/typings'
 
-export const sortByDate = (items, dateField) => {
+export const sortByDate = (items: Item[], dateField: string) => {
   let upcoming = []
   let past = []
 
@@ -30,7 +30,7 @@ export const imageIsVertical = image => {
   return image && image.aspect && image.aspect < 1.1
 }
 
-export const formatEventDates = (item, format) => {
+export const formatEventDates = (item: Item, format) => {
   const { end_date, start_date, all_day } = item
   let formattedStart
   let formattedEnd
@@ -89,7 +89,7 @@ export const yearsMatch = (date1, date2) => {
   return moment(date1).format('YYYY') === moment(date2).format('YYYY')
 }
 
-export const getDate = (model, item, format) => {
+export const getDate = (model: Model, item: Item, format?: string) => {
   switch (model) {
     case 'events':
       return formatEventDates(item, format)
@@ -101,7 +101,7 @@ export const getDate = (model, item, format) => {
   }
 }
 
-export const getReleaseDate = item => {
+export const getReleaseDate = (item: Item) => {
   const { formats } = item
   let dates = uniq(pluck(formats, 'release_year'))
 

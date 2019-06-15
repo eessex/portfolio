@@ -61,6 +61,7 @@ export interface Item {
   end_date?: string 
   formats?: Format[]
   images?: Image[]
+  lead_text?: string
   links?: Link[]
   list_index?: number
   slug?: string
@@ -92,4 +93,15 @@ export interface Settings {
   social: Social[]
   title?: string
   meta: Meta
+}
+
+export interface LayoutProps {
+  children?: any
+  item: Item
+  label: string
+  labelLink: string
+  model: Model
+  onChange: (key: string, val: any) => void
+  setEditing: (isEditing: string | null) => void
+  social: Social[]
 }

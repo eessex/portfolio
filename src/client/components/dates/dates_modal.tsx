@@ -1,9 +1,12 @@
-import PropTypes from 'prop-types'
 import React from 'react'
 import { Modal } from 'client/components/modal/modal'
-import { DatesEdit } from './dates_edit'
+import { DatesEdit, DatesEditProps } from './dates_edit'
 
-export const DatesModal = props => {
+interface DatesModalProps extends DatesEditProps {
+  setEditing: (isEditing: null | string) => void
+}
+
+export const DatesModal: React.SFC<DatesModalProps> = props => {
   const {
     all_day,
     end_date,
@@ -26,12 +29,4 @@ export const DatesModal = props => {
       />
     </Modal>
   )
-}
-
-DatesModal.propTypes = {
-  all_day: PropTypes.bool,
-  end_date: PropTypes.string,
-  onChange: PropTypes.func,
-  setEditing: PropTypes.func,
-  start_date: PropTypes.string
 }

@@ -9,7 +9,7 @@ interface DateInputProps {
   label?: string
   onChange: (date: string) => void
   required?: boolean
-  value?: string
+  value?: string | Date
 }
 
 export class DateInput extends Component<DateInputProps> {

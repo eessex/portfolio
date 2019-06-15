@@ -7,15 +7,16 @@ import { DateInput } from 'client/components/FormInputs/DateInput'
 import { DatesEdit } from '../dates_edit'
 
 describe('DatesEdit', () => {
-  const getElement = props => {
+  let props
+
+  const getElement = (passedProps = props) => {
     return mount(
       <ThemeProvider theme={theme}>
-        <DatesEdit {...props} />
+        <DatesEdit {...passedProps} />
       </ThemeProvider>
     )
   }
 
-  let props
   beforeEach(() => {
     props = {
       all_day: false,
@@ -27,7 +28,7 @@ describe('DatesEdit', () => {
 
   describe('hide end date', () => {
     it('is checked by default', () => {
-      const component = getElement(props)
+      const component = getElement()
       const input = component.find(Checkbox).at(0).getElement().props
 
       expect(component.find(DateInput).length).toBe(1)
@@ -36,7 +37,7 @@ describe('DatesEdit', () => {
 
     it('is unchecked if has end_date', () => {
       props.end_date = '2018-05-03T23:00:00.000Z'
-      const component = getElement(props)
+      const component = getElement()
       const input = component.find(Checkbox).at(0).getElement().props
 
       expect(component.find(DateInput).length).toBe(2)
@@ -44,7 +45,7 @@ describe('DatesEdit', () => {
     })
 
     it('can toggle show end date', () => {
-      const component = getElement(props)
+      const component = getElement()
       const input = component.find('input[type="checkbox"]').at(0)
       input.simulate('change', { target: { checked: true } })
 
@@ -55,7 +56,7 @@ describe('DatesEdit', () => {
   describe('all_day', () => {
     it('is unchecked by default', () => {
       props.end_date = '2018-05-03T23:00:00.000Z'
-      const component = getElement(props)
+      const component = getElement()
       const input = component.find(Checkbox).at(1).getElement().props
 
       expect(component.find('input[type="time"]').length).toBe(2)
@@ -63,7 +64,7 @@ describe('DatesEdit', () => {
     })
 
     it('can toggle all_day', () => {
-      const component = getElement(props)
+      const component = getElement()
       const input = component.find('input[type="checkbox"]').at(1)
       input.simulate('change', { target: { checked: true } })
 
@@ -75,14 +76,14 @@ describe('DatesEdit', () => {
   describe('start_date', () => {
     describe('rendering', () => {
       it('renders a start_date input with data', () => {
-        const component = getElement(props)
+        const component = getElement()
         const input = component.find(DateInput).at(0).instance().date
 
         expect(input.defaultValue).toBe('2018-05-02')
       })
 
       xit('renders a start_time input with data', () => {
-        const component = getElement(props)
+        const component = getElement()
         const input = component.find(DateInput).at(0).instance().time
 
         expect(input.defaultValue).toBe('19:00')
@@ -91,7 +92,7 @@ describe('DatesEdit', () => {
 
     describe('editing', () => {
       it('can change start_date', () => {
-        const component = getElement(props)
+        const component = getElement()
         const input = component.find(DateInput).at(0).instance()
         input.date.value = '2018-05-03'
         input.onKeyUp()
@@ -102,7 +103,7 @@ describe('DatesEdit', () => {
       })
 
       xit('can change start_time', () => {
-        const component = getElement(props)
+        const component = getElement()
         const input = component.find(DateInput).at(0).instance()
         input.time.value = '12:00'
         input.onKeyUp()
@@ -120,7 +121,7 @@ describe('DatesEdit', () => {
 
     describe('rendering', () => {
       it('renders a date input with data', () => {
-        const component = getElement(props)
+        const component = getElement()
         const input = component.find(DateInput).at(1).instance().date
 
         expect(input.type).toBe('date')
@@ -128,7 +129,7 @@ describe('DatesEdit', () => {
       })
 
       xit('renders a time input with data', () => {
-        const component = getElement(props)
+        const component = getElement()
         const input = component.find('input').at(1).getElement().props
 
         expect(input.type).toBe('time')
@@ -138,7 +139,7 @@ describe('DatesEdit', () => {
 
     describe('editing', () => {
       it('can change end_date', () => {
-        const component = getElement(props)
+        const component = getElement()
         const input = component.find(DateInput).at(1).instance()
         input.date.value = '2018-05-04'
         input.onKeyUp()
@@ -149,7 +150,7 @@ describe('DatesEdit', () => {
       })
 
       xit('can change end_date', () => {
-        const component = getElement(props)
+        const component = getElement()
         const input = component.find(DateInput).at(1).instance()
         input.time.value = '12:00'
         input.onKeyUp()

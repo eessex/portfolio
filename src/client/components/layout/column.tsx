@@ -1,5 +1,4 @@
 import { clone } from 'lodash'
-import PropTypes from 'prop-types'
 import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { ItemHeader } from './components/header'
@@ -7,8 +6,9 @@ import { ItemBody } from './components/body'
 import { Label } from './components/label'
 import { EmbedList } from 'client/components/embeds/embed_list'
 import styled from 'styled-components'
+import { LayoutProps } from 'client/typings'
 
-export const LayoutColumn = props => {
+export const LayoutColumn: React.SFC<LayoutProps> = props => {
   const {
     children,
     item,
@@ -96,14 +96,3 @@ export const ContentContainer = styled(Col)`
     max-width: 100% !important;
   }
 `
-
-LayoutColumn.propTypes = {
-  children: PropTypes.any,
-  item: PropTypes.object,
-  label: PropTypes.string,
-  labelLink: PropTypes.any,
-  model: PropTypes.string,
-  onChange: PropTypes.func,
-  setEditing: PropTypes.func,
-  social: PropTypes.array
-}

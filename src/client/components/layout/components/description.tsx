@@ -1,11 +1,17 @@
 import { stripTags } from 'underscore.string'
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React from 'react'
 import { RichText } from 'client/components/text/draft/RichText'
 import { P } from 'client/styles/text'
 
-export const Description = props => {
+interface DescriptionProps {
+  description?: string
+  fieldName?: string
+  onChange: (key: string, val: any) => void
+  placeholder?: string
+}
+
+export const Description: React.SFC<DescriptionProps> = props => {
   const {
     description,
     onChange,
@@ -37,10 +43,3 @@ export const DescriptionContainer = styled.div`
     margin-bottom: 1em;
   }
 `
-
-Description.propTypes = {
-  description: PropTypes.string,
-  fieldName: PropTypes.string,
-  onChange: PropTypes.func,
-  placeholder: PropTypes.string
-}

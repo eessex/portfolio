@@ -1,5 +1,5 @@
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
+import mongoose from 'mongoose'
+const Schema = mongoose.Schema
 
 var SettingsSchema = new Schema({
   title: String,
@@ -24,4 +24,4 @@ var SettingsSchema = new Schema({
   updated_at: { type: Date, default: Date.now }
 })
 
-module.exports = mongoose.model('Settings', SettingsSchema)
+export default mongoose.model('Settings', SettingsSchema)

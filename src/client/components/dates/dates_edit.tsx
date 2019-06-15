@@ -1,29 +1,33 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { Checkbox } from 'client/components/FormInputs/Checkbox'
 import { DateInput } from 'client/components/FormInputs/DateInput'
 
-export class DatesEdit extends Component {
-  static propTypes = {
-    all_day: PropTypes.bool,
-    end_date: PropTypes.string,
-    onChange: PropTypes.func,
-    start_date: PropTypes.string
-  }
+export interface DatesEditProps {
+  all_day?: boolean,
+  end_date: string | Date,
+  onChange: (key: string, val: any) => void
+  start_date: string | Date
+}
 
+interface DatesEditState {
+  allDay: boolean
+  hasEndDate: boolean
+}
+
+export class DatesEdit extends Component<DatesEditProps, DatesEditState> {
   state = {
     allDay: this.props.all_day === true,
     hasEndDate: this.props.end_date !== null
   }
 
   toggleAllDay = () => {
-    const { all_day } = this.state
+    const { allDay } = this.state
     const { onChange } = this.props
 
-    onChange('all_day', !all_day)
-    this.setState({ all_day: !all_day })
+    onChange('all_day', !allDay)
+    this.setState({ allDay: !allDay })
   }
 
   toggleEndDate = () => {
@@ -38,13 +42,12 @@ export class DatesEdit extends Component {
 
   render () {
     const {
-      all_day,
       end_date,
       onChange,
       start_date
     } = this.props
 
-    const { hasEndDate } = this.state
+    const { allDay, hasEndDate } = this.state
 
     return (
       <DatesEditContainer>
@@ -54,7 +57,7 @@ export class DatesEdit extends Component {
               label='Start Date'
               value={start_date || new Date()}
               required
-              allDay={all_day}
+              allDay={allDay}
               onChange={(date) => onChange('start_date', date)}
               autoFocus
             />
@@ -65,7 +68,7 @@ export class DatesEdit extends Component {
               <DateInput
                 label='End Date'
                 value={end_date || null}
-                allDay={all_day}
+                allDay={allDay}
                 onChange={(date) => onChange('end_date', date)}
               />
             </Col>
@@ -76,7 +79,6 @@ export class DatesEdit extends Component {
           <Col>
             <Checkbox
               label='Hide End Date'
-              name='end_date'
               value={!hasEndDate}
               onChange={this.toggleEndDate}
             />
@@ -84,9 +86,8 @@ export class DatesEdit extends Component {
           <Col>
             <Checkbox
               label='Hide Time'
-              name='all_day'
-              value={all_day}
-              onChange={() => onChange('all_day', !all_day)}
+              value={allDay}
+              onChange={() => onChange('all_day', !allDay)}
             />
           </Col>
         </Row>

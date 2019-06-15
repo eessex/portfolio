@@ -1,10 +1,10 @@
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
-var slug = require('mongoose-slug-generator')
+import mongoose from 'mongoose'
+import slug from 'mongoose-slug-generator'
 
+const Schema = mongoose.Schema
 mongoose.plugin(slug)
 
-var ProjectSchema = new Schema({
+const ProjectSchema = new Schema({
   active: Boolean,
   created_at: { type: Date, default: Date.now },
   description: String,
@@ -36,4 +36,4 @@ var ProjectSchema = new Schema({
   list_index: Number
 })
 
-module.exports = mongoose.model('Project', ProjectSchema)
+export default mongoose.model('Project', ProjectSchema)

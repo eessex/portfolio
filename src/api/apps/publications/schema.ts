@@ -1,10 +1,10 @@
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
-var slug = require('mongoose-slug-generator')
+import mongoose from 'mongoose'
+import slug from 'mongoose-slug-generator'
 
+const Schema = mongoose.Schema
 mongoose.plugin(slug)
 
-var PublicationSchema = new Schema({
+const PublicationSchema = new Schema({
   artist: String,
   title: String,
   formats: [
@@ -43,4 +43,4 @@ var PublicationSchema = new Schema({
   }
 })
 
-module.exports = mongoose.model('Publication', PublicationSchema)
+export default mongoose.model('Publication', PublicationSchema)

@@ -1,10 +1,21 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { ContentState, Editor, EditorState } from 'draft-js'
 
-export class PlainText extends Component {
-  static editor
+interface PlainTextProps {
+  content?: string
+  forceUpdate?: boolean
+  name?: string
+  onChange: (key: string, val?: string) => void
+  placeholder?: string
+}
+
+interface PlainTextState {
+  editorState: EditorState
+}
+
+export class PlainText extends Component<PlainTextProps, PlainTextState> {
+  public editor
   state = {
     editorState: this.setEditorState()
   }
@@ -55,14 +66,10 @@ export class PlainText extends Component {
   }
 
   render () {
-    const {
-      name,
-      placeholder
-    } = this.props
+    const { placeholder } = this.props
 
     return (
       <PlainTextContainer
-        name={name}
         onClick={this.focus}
       >
         <Editor
@@ -82,16 +89,9 @@ export class PlainText extends Component {
 
 const PlainTextContainer = styled.div`
   position: relative;
+
   .public-DraftEditorPlaceholder-root {
     position: absolute;
     color: ${({ theme }) => theme.colors.gray};
   }
 `
-
-PlainText.propTypes = {
-  content: PropTypes.string,
-  forceUpdate: PropTypes.bool,
-  name: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-  placeholder: PropTypes.string
-}

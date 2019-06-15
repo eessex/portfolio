@@ -10,10 +10,10 @@ import { Label } from './label'
 import { Image as ImageType, Item, Model } from 'client/typings'
 
 interface ItemHeaderProps {
-  coverImage: ImageType
+  coverImage?: ImageType
   item: Item
-  label: string
-  labelLink: string
+  label?: string
+  labelLink?: string
   model: Model
   onChange: (key: string, val: any) => void
   setEditing: (isEditing: string | null) => void

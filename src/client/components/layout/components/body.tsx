@@ -9,6 +9,7 @@ import { ImageGrid } from 'client/components/images/image_grid/image_grid'
 import { Item, Image, Model, Social as SocialType} from 'client/typings'
 
 interface ItemBodyProps {
+  displayImages?: Image[]
   item: Item
   images: Image[]
   model: Model

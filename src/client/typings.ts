@@ -94,3 +94,14 @@ export interface Settings {
   title?: string
   meta: Meta
 }
+
+export interface LayoutProps {
+  children?: any
+  item: Item
+  label: string
+  labelLink: string
+  model: Model
+  onChange: (key: string, val: any) => void
+  setEditing: (isEditing: string | null) => void
+  social: Social[]
+}

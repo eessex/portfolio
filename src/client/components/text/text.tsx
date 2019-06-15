@@ -1,8 +1,14 @@
-import PropTypes from 'prop-types'
 import React from 'react'
 import { PlainText } from 'client/components/text/draft/PlainText'
 
-export const Text = props => {
+interface TextProps {
+  placeholder?: string
+  onChange?: (val: string) => void
+  onClick?: () => void
+  text?: string
+}
+
+export const Text: React.SFC<TextProps> = props => {
   const {
     onClick,
     onChange,
@@ -27,11 +33,4 @@ export const Text = props => {
       }
     </div>
   )
-}
-
-Text.propTypes = {
-  text: PropTypes.string,
-  onClick: PropTypes.func,
-  onChange: PropTypes.func,
-  placeholder: PropTypes.string
 }

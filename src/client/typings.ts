@@ -37,8 +37,16 @@ export interface Venue {
   state?: string
 }
 
-export interface Social {
-  profile: string
+export type SocialProfile =
+  'facebook' |
+  'twitter' |
+  'soundcloud' |
+  'bandcamp' |
+  'instagram' |
+  'discogs'
+
+  export interface Social {
+  profile: SocialProfile
   service: string
 }
 

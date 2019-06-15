@@ -1,12 +1,16 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
-import React, { Component } from 'react'
+import React from 'react'
 import FontAwesome from 'react-fontawesome'
 import { capitalize } from 'lodash'
+import { Social as SocialType } from 'client/typings'
 const { SOCIAL_FIXED } = process.env
 
-export class Social extends Component {
-  renderSocial = (account, i) => {
+export interface SocialProps {
+  social: SocialType[]
+}
+
+export class Social extends React.Component<SocialProps> {
+  renderSocial = (account: SocialType, i: number) => {
     const { service, profile } = account
     if (profile) {
       const href = service === 'bandcamp'
@@ -31,7 +35,7 @@ export class Social extends Component {
     const { social } = this.props
     if (social.length > 0) {
       return (
-        <SocialContainer isFixed={SOCIAL_FIXED}>
+        <SocialContainer isFixed={Boolean(SOCIAL_FIXED)}>
           {social.map((account, i) => this.renderSocial(account, i))}
         </SocialContainer>
       )
@@ -41,7 +45,7 @@ export class Social extends Component {
   }
 }
 
-export const SocialContainer = styled.div`
+export const SocialContainer = styled.div<{ isFixed?: boolean }>`
   display: flex;
   a {
     margin-right: 1em;
@@ -57,7 +61,7 @@ export const SocialContainer = styled.div`
     flex-direction: column;
   }
 
-  ${props => props.isFixed && `
+  ${({ isFixed }) => isFixed && `
     justify-content: flex-end;
     position: fixed;
     padding: 5px 0 5px;
@@ -74,7 +78,3 @@ export const SocialContainer = styled.div`
     }
   `}
 `
-
-Social.propTypes = {
-  social: PropTypes.array
-}

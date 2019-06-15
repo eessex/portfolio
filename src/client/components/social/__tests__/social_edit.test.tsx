@@ -1,15 +1,15 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { SocialEdit, SocialItem } from '../social_edit.jsx'
+import { SocialEdit, SocialItem } from '../social_edit'
 
 describe('SocialEdit', () => {
-  const getWrapper = props => {
+  let props
+  const getWrapper = (passedProps = props) => {
     return mount(
-      <SocialEdit {...props} />
+      <SocialEdit {...passedProps} />
     )
   }
 
-  let props
   beforeEach(() => {
     props = {
       onChange: jest.fn(),
@@ -18,7 +18,7 @@ describe('SocialEdit', () => {
   })
 
   it('Renders all possible social options', () => {
-    const component = getWrapper(props)
+    const component = getWrapper()
 
     expect(component.find(SocialItem)).toHaveLength(6)
     expect(component.text()).toMatch('Bandcamp')
@@ -30,7 +30,7 @@ describe('SocialEdit', () => {
   })
 
   it('Renders social icons', () => {
-    const component = getWrapper(props)
+    const component = getWrapper()
 
     expect(component.html()).toMatch('fa-bandcamp')
     expect(component.html()).toMatch('fa-compact-disc')
@@ -42,14 +42,14 @@ describe('SocialEdit', () => {
 
   describe('Bandcamp', () => {
     it('Renders the edit panel on click', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       component.find(SocialItem).at(0).simulate('click')
 
       expect(component.state().isEditing).toBe('bandcamp')
     })
 
     it('Can edit profile handle', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       component.find(SocialItem).at(0).simulate('click')
       const input = component.find('input').at(0)
       expect(input.getElement().props.placeholder).toBe('username')
@@ -62,14 +62,14 @@ describe('SocialEdit', () => {
 
   describe('Discogs', () => {
     it('Renders the edit panel on click', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       component.find(SocialItem).at(1).simulate('click')
 
       expect(component.state().isEditing).toBe('discogs')
     })
 
     it('Can edit profile handle', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       component.find(SocialItem).at(1).simulate('click')
       const input = component.find('input').at(0)
       expect(input.getElement().props.placeholder).toBe('username')
@@ -82,14 +82,14 @@ describe('SocialEdit', () => {
 
   describe('Soundcloud', () => {
     it('Renders the edit panel on click', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       component.find(SocialItem).at(2).simulate('click')
 
       expect(component.state().isEditing).toBe('soundcloud')
     })
 
     it('Can edit profile handle', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       component.find(SocialItem).at(2).simulate('click')
       const input = component.find('input').at(0)
       expect(input.getElement().props.placeholder).toBe('username')
@@ -102,14 +102,14 @@ describe('SocialEdit', () => {
 
   describe('Facebook', () => {
     it('Renders the edit panel on click', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       component.find(SocialItem).at(3).simulate('click')
 
       expect(component.state().isEditing).toBe('facebook')
     })
 
     it('Can edit profile handle', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       component.find(SocialItem).at(3).simulate('click')
       const input = component.find('input').at(0)
       expect(input.getElement().props.placeholder).toBe('username')
@@ -122,14 +122,14 @@ describe('SocialEdit', () => {
 
   describe('Instagram', () => {
     it('Renders the edit panel on click', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       component.find(SocialItem).at(4).simulate('click')
 
       expect(component.state().isEditing).toBe('instagram')
     })
 
     it('Can edit profile handle', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       component.find(SocialItem).at(4).simulate('click')
       const input = component.find('input').at(0)
       expect(input.getElement().props.placeholder).toBe('username')
@@ -142,14 +142,14 @@ describe('SocialEdit', () => {
 
   describe('Twitter', () => {
     it('Renders the edit panel on click', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       component.find(SocialItem).at(5).simulate('click')
 
       expect(component.state().isEditing).toBe('twitter')
     })
 
     it('Can edit profile handle', () => {
-      const component = getWrapper(props)
+      const component = getWrapper()
       component.find(SocialItem).at(5).simulate('click')
       const input = component.find('input').at(0)
       expect(input.getElement().props.placeholder).toBe('username')

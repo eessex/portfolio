@@ -1,9 +1,20 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React from 'react'
 import { Button, ButtonContainer } from 'client/components/Button'
+import { Item } from 'client/typings'
 
-export const ItemAdminNav = props => {
+interface ItemAdminNavProps {
+  deleteItem: () => void
+  isSaved: boolean
+  isSaving: boolean
+  item: Item
+  noLinks: boolean
+  onPublish: (key: 'published', val: boolean) => void
+  saveItem: (item: Item, isPublishing: boolean) => void
+  setEditing: (isEditing: string | null) => void
+}
+
+export const ItemAdminNav: React.SFC<ItemAdminNavProps> = props => {
   const {
     deleteItem,
     isSaved,
@@ -97,14 +108,3 @@ const ModalNav = styled.div`
     }
   }
 `
-
-ItemAdminNav.propTypes = {
-  deleteItem: PropTypes.func,
-  isSaved: PropTypes.bool,
-  isSaving: PropTypes.bool,
-  item: PropTypes.object,
-  noLinks: PropTypes.bool,
-  onPublish: PropTypes.func,
-  saveItem: PropTypes.func,
-  setEditing: PropTypes.func
-}

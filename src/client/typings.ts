@@ -52,7 +52,7 @@ export interface Item {
   embed_codes?: string[]
   end_date?: string 
   formats?: Format[]
-  images: Image[]
+  images?: Image[]
   links?: Link[]
   list_index?: number
   slug?: string

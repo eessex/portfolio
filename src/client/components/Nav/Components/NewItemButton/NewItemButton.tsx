@@ -2,7 +2,11 @@ import React from 'react'
 import { Button } from 'client/components/Button'
 import NewItemMenu from 'client/components/Nav/Components/NewItemButton/NewItemMenu'
 
-export class NewItemButton extends React.Component {
+interface NewItemButtonState {
+  menuIsOpen: boolean
+}
+
+export class NewItemButton extends React.Component<{}, NewItemButtonState> {
   state = {
     menuIsOpen: false
   }
@@ -12,8 +16,6 @@ export class NewItemButton extends React.Component {
   }
 
   render () {
-    const { menuIsOpen } = this.state
-
     return (
       <React.Fragment>
         <Button
@@ -21,7 +23,7 @@ export class NewItemButton extends React.Component {
           icon='file'
           onClick={() => this.toggleNewItemMenu(true)}
         />
-        {menuIsOpen &&
+        {this.state.menuIsOpen &&
           <NewItemMenu onClose={() => this.toggleNewItemMenu(false)} />
         }
       </React.Fragment>

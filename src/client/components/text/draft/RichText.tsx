@@ -1,5 +1,4 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import {
   Editor,
@@ -12,14 +11,24 @@ import { Button } from 'client/components/Button'
 import { decorator } from './util'
 import { UrlInput } from './components/UrlInput'
 
-export class RichText extends Component {
-  static editor
-  static propTypes = {
-    html: PropTypes.string,
-    name: PropTypes.string,
-    onChange: PropTypes.func,
-    placeholder: PropTypes.string
-  }
+interface RichTextProps {
+  html: string
+  name: string
+  onChange: (key: string, val?: string) => void
+  placeholder?: string
+}
+
+interface RichTextState {
+  editorState: EditorState
+  html: string | null
+  showUrlInput: boolean
+  showMenu: boolean
+  urlValue: string
+}
+
+export class RichText extends Component<RichTextProps, RichTextState> {
+  public editor
+  private focus
 
   constructor (props) {
     super(props)
@@ -228,6 +237,7 @@ export class RichText extends Component {
 
 const RichTextContainer = styled.div`
   position: relative;
+
   .public-DraftEditorPlaceholder-root {
     position: absolute;
     left: 0;

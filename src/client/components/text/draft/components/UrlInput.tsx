@@ -1,14 +1,14 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Button } from 'client/components/Button'
 
-export class UrlInput extends Component {
-  static url
-  static propTypes = {
-    confirmLink: PropTypes.func,
-    name: PropTypes.string,
-    url: PropTypes.string
-  }
+interface UrlInputProps {
+  confirmLink: (val: string) => void
+  name?: string
+  url: string
+}
+
+export class UrlInput extends Component<UrlInputProps> {
+  private url
 
   onSubmit = e => {
     e.preventDefault()

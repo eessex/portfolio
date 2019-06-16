@@ -98,10 +98,16 @@ export interface Settings {
 export interface LayoutProps {
   children?: any
   item: Item
-  label: string
-  labelLink: string
+  label?: string
+  labelLink?: string
   model: Model
-  onChange: (key: string, val: any) => void
-  setEditing: (isEditing: string | null) => void
-  social: Social[]
+  onChange?: (key: string, val: any) => void
+  setEditing?: (isEditing: string | null) => void
+  social?: Social[]
 }
+
+export interface ItemProps extends LayoutProps {
+  editing?: boolean
+}
+
+export type isEditing = 'dates' | 'embed_codes' | 'formats' | 'images' | 'links' | 'venue'

@@ -10,19 +10,20 @@ import { Item } from '../index'
 import { ItemEdit } from '../item_edit'
 
 describe('Item', () => {
-  const getWrapper = props => {
+  let props
+  const getWrapper = (passedProps = props) => {
     return mount(
       <ThemeProvider theme={theme}>
-        <Item {...props} />
+        <Item {...passedProps} />
       </ThemeProvider>
     )
   }
 
-  const getConnectedWrapper = props => {
+  const getConnectedWrapper = (passedProps = props) => {
     const mockStore = configureStore([])
     const store = mockStore({
       itemReducer: {
-        item: props.item,
+        item: passedProps.item,
         isSaved: true,
         isSaving: false
       }
@@ -31,13 +32,12 @@ describe('Item', () => {
     return mount(
       <Provider store={store}>
         <ThemeProvider theme={theme}>
-          <Item {...props} />
+          <Item {...passedProps} />
         </ThemeProvider>
       </Provider>
     )
   }
 
-  let props
   beforeEach(() => {
     props = {
       editing: false,
@@ -47,14 +47,14 @@ describe('Item', () => {
   })
 
   it('Renders LayoutColumn by default', () => {
-    const component = getWrapper(props)
+    const component = getWrapper()
 
     expect(component.find(LayoutColumn).exists()).toBe(true)
   })
 
   it('Renders LayoutColumn if item is publications and no images', () => {
     props.model = 'publications'
-    const component = getWrapper(props)
+    const component = getWrapper()
 
     expect(component.find(LayoutColumn).exists()).toBe(true)
   })
@@ -66,7 +66,7 @@ describe('Item', () => {
       }]
     }
     props.model = 'publications'
-    const component = getWrapper(props)
+    const component = getWrapper()
 
     expect(component.find(LayoutGrid).exists()).toBe(true)
   })
@@ -77,14 +77,14 @@ describe('Item', () => {
         aspect: 0.9
       }]
     }
-    const component = getWrapper(props)
+    const component = getWrapper()
 
     expect(component.find(LayoutGrid).exists()).toBe(true)
   })
 
   it('Renders ItemEdit if props.editing', () => {
     props.editing = true
-    const component = getConnectedWrapper(props)
+    const component = getConnectedWrapper()
 
     expect(component.find(ItemEdit).exists()).toBe(true)
   })

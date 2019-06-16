@@ -6,7 +6,7 @@ import { LinksEdit } from './links_edit'
 
 interface LinksModalProps {
   links: Link[]
-  onChange: () => void
+  onChange: (val: Link[]) => void
   setEditing: (editing: string | null) => void
 }
 

@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import * as itemActions from 'client/actions/item'
@@ -8,17 +7,19 @@ import { LayoutColumn } from 'client/components/layout/column'
 import { LayoutGrid } from 'client/components/layout/grid'
 import ItemEditModals from './item_edit_modals'
 
-export class ItemEdit extends Component {
-  static propTypes = {
-    changeItemAction: PropTypes.func,
-    deleteItem: PropTypes.func,
-    item: PropTypes.object,
-    isSaved: PropTypes.bool,
-    isSaving: PropTypes.bool,
-    maybeSaveItem: PropTypes.func,
-    model: PropTypes.string
-  }
+import { Item, Model } from 'client/typings'
 
+interface ItemEditProps {
+  changeItemAction: (key: string, val: any) => void
+  deleteItem: (model: Model, item: Item) => void
+  item: Item
+  isSaved: boolean
+  isSaving: boolean
+  maybeSaveItem: (model: Model, forceSave?: boolean) => void
+  model: Model
+}
+
+export class ItemEdit extends Component<ItemEditProps> {
   state = {
     isEditing: null
   }
@@ -50,7 +51,6 @@ export class ItemEdit extends Component {
           isSaved={isSaved}
           isSaving={isSaving}
           item={item}
-          model={model}
           setEditing={this.setEditing}
           onPublish={model !== 'pages' ? () => this.onChange('published', !item.published) : undefined}
           saveItem={() => maybeSaveItem(model, true)}

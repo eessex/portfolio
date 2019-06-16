@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import React from 'react'
 import { Button, ButtonContainer } from 'client/components/Button'
-import { Item } from 'client/typings'
+import { Item, isEditing } from 'client/typings'
 
 interface ItemAdminNavProps {
   deleteItem: () => void
@@ -11,7 +11,7 @@ interface ItemAdminNavProps {
   noLinks: boolean
   onPublish: (key: 'published', val: boolean) => void
   saveItem: (item: Item, isPublishing: boolean) => void
-  setEditing: (isEditing: string | null) => void
+  setEditing: (isEditing: isEditing | null) => void
 }
 
 export const ItemAdminNav: React.SFC<ItemAdminNavProps> = props => {
@@ -36,7 +36,7 @@ export const ItemAdminNav: React.SFC<ItemAdminNavProps> = props => {
           />
           <Button
             icon='code'
-            onClick={() => setEditing('embeds')}
+            onClick={() => setEditing('embed_codes')}
           />
           {!noLinks &&
             <Button

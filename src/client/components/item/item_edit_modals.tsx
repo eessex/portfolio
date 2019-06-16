@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { fetchUpload } from 'client/actions/upload'
@@ -8,18 +7,19 @@ import { FormatsModal } from 'client/components/formats/formats_modal'
 import { ImagesEdit } from 'client/components/images/images_edit'
 import { LinksModal } from 'client/components/links/links_modal'
 import { VenueModal } from 'client/components/venue/venue_modal'
+import { Item, isEditing } from 'client/typings'
 
-export class ItemEditModals extends Component {
-  static propTypes = {
-    fetchUploadAction: PropTypes.func,
-    isEditing: PropTypes.string,
-    item: PropTypes.object,
-    isSaved: PropTypes.bool,
-    isSaving: PropTypes.bool,
-    onChange: PropTypes.func,
-    setEditing: PropTypes.func
-  }
+interface ItemEditModalsProps {
+  fetchUploadAction: () => void
+  isEditing: isEditing
+  item: Item
+  isSaved: boolean
+  isSaving: boolean
+  onChange: (key: isEditing, val?: any) => void
+  setEditing: () => void
+}
 
+export class ItemEditModals extends Component<ItemEditModalsProps> {
   getDateProps = () => {
     const {
       all_day,
@@ -47,7 +47,7 @@ export class ItemEditModals extends Component {
           />
         }
 
-        {isEditing === 'embeds' &&
+        {isEditing === 'embed_codes' &&
           <EmbedModal
             embed_codes={item.embed_codes || []}
             onChange={(value) => onChange('embed_codes', value)}
@@ -66,7 +66,6 @@ export class ItemEditModals extends Component {
 
         {isEditing === 'formats' &&
           <FormatsModal
-            label='Formats'
             formats={item.formats || []}
             onChange={onChange}
             setEditing={setEditing}

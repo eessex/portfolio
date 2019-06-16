@@ -1,11 +1,11 @@
-import PropTypes from 'prop-types'
 import React from 'react'
 import { imageIsVertical } from 'client/utils'
 import { LayoutColumn } from 'client/components/layout/column'
 import { LayoutGrid } from 'client/components/layout/grid'
 import ItemEdit from './item_edit'
+import { ItemProps } from 'client/typings'
 
-export const Item = props => {
+export const Item: React.SFC<ItemProps> = props => {
   const {
     editing,
     model,
@@ -26,14 +26,4 @@ export const Item = props => {
       }
     </div>
   )
-}
-
-Item.propTypes = {
-  editing: PropTypes.bool,
-  item: PropTypes.object,
-  label: PropTypes.string,
-  labelLink: PropTypes.bool,
-  layout: PropTypes.string,
-  model: PropTypes.string,
-  social: PropTypes.any
 }

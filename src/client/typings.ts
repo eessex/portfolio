@@ -74,11 +74,22 @@ export interface Item {
 }
 
 export interface ItemShort {
+  artist?: string
   date: string
-  description: string
+  description?: string
+  formats?: Format[]
   image: Image
+  published?: boolean
+  slug: string
   title: string
   venue: string
+}
+
+export type ItemListLayout = 'grid' | 'list' | 'table'
+
+export interface ListItemProps extends ItemShort {
+  condensed?: boolean
+  layout: ItemListLayout
 }
 
 // Settings

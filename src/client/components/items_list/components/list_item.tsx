@@ -1,12 +1,12 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React from 'react'
 import { Col } from 'react-styled-flexboxgrid'
 import { ItemTable } from './item_table'
 import { ItemGrid } from './item_grid'
 import { H1 } from 'client/styles/text'
+import { ItemListLayout, ListItemProps } from 'client/typings'
 
-export const ListItem = props => {
+export const ListItem: React.SFC<ListItemProps> = props => {
   const {
     condensed,
     layout,
@@ -53,17 +53,21 @@ export const ListItem = props => {
   }
 }
 
-export const Item = styled.div`
+export const Item = styled.div<{
+  condensed?: boolean,
+  published?: boolean,
+  layout: ItemListLayout
+}>`
   a {
     text-decoration: none;
   }
 
-  ${props => props.published === false && `
+  ${({ published }) => published === false && `
     opacity: .45;
   `}
 
   // layouts
-  ${props => props.layout === 'list' && `
+  ${({ layout }) => layout === 'list' && `
     &:first-child {
       h1 {
         margin-top: 0;
@@ -71,13 +75,14 @@ export const Item = styled.div`
     }
   `}
 
-  ${props => props.layout === 'table' && `
+  ${({ condensed, layout }) => layout === 'table' && `
     border-top: 1px solid black;
 
     &:last-child {
       border-bottom: 1px solid black;
     }
-    ${props.condensed === true && `
+
+    ${condensed === true && `
       &:first-child {
         border-top: none;
       }
@@ -85,17 +90,6 @@ export const Item = styled.div`
   `}
 `
 
-const GridItem = styled(Col)`
+const GridItem = styled(Col)<{ condensed?: boolean }>`
   padding: 0;
 `
-
-ListItem.propTypes = {
-  artist: PropTypes.string,
-  date: PropTypes.string,
-  formats: PropTypes.array,
-  image: PropTypes.object,
-  layout: PropTypes.string,
-  slug: PropTypes.string.isRequired,
-  title: PropTypes.string,
-  venue: PropTypes.string
-}

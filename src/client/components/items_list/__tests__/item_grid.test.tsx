@@ -1,9 +1,9 @@
 import { mount } from 'enzyme'
 import React from 'react'
-import { ItemTable } from '../components/item_table.jsx'
+import { ItemGrid } from '../components/item_grid'
 
-describe('ItemTable', () => {
-  let props = {}
+describe('ItemGrid', () => {
+  let props
   
   beforeEach(() => {
     props = {
@@ -17,13 +17,13 @@ describe('ItemTable', () => {
 
   it('renders expected data', () => {
     const component = mount(
-      <ItemTable {...props} />
+      <ItemGrid {...props} />
     )
+    expect(component.html()).toMatch(props.image.url)
     expect(component.text()).toMatch(props.title)
     expect(component.text()).toMatch(props.date)
     expect(component.text()).toMatch(props.venue)
-    expect(component.html()).not.toMatch(props.image.url)
-    expect(component.text()).not.toMatch(
+    expect(component.text()).toMatch(
       props.description
         .replace('<p>', '')
         .replace('</p>', '')

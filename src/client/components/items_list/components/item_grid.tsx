@@ -1,10 +1,10 @@
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import React from 'react'
 import { Formats } from 'client/components/formats/formats'
 import { H1, H3, H5, P } from 'client/styles/text'
+import { ListItemProps } from 'client/typings'
 
-export const ItemGrid = props => {
+export const ItemGrid: React.SFC<ListItemProps> = props => {
   const {
     artist,
     condensed,
@@ -53,19 +53,19 @@ export const ItemGrid = props => {
   )
 }
 
-const GridItem = styled.div`
+const GridItem = styled.div<{ condensed?: boolean }>`
   margin-bottom: 4em;
 
   ${H1} {
     font-size: 3.5em;
     margin-top: 0;
-    ${props => props.condensed && `
+    ${({ condensed }) => condensed && `
       font-size: 2.5em;
     `}
   }
 
   ${H3} {
-    ${props => props.condensed && `
+    ${({ condensed }) => condensed && `
       margin-bottom: .5em;
       font-size: 1.25em;
     `}
@@ -79,10 +79,11 @@ const GridItem = styled.div`
     object-position: center;
   }
 
-  ${props => props.condensed && `
+  ${({ condensed }) => condensed && `
     margin-top: 20px;
     margin-bottom: 50px;
     padding: 0 10px;
+
     @media (max-width: 76rem) {
       margin-top: 10px;
       margin-bottom: 30px;
@@ -96,14 +97,3 @@ const GridItem = styled.div`
     }
   }
 `
-
-ItemGrid.propTypes = {
-  artist: PropTypes.string,
-  condensed: PropTypes.bool,
-  date: PropTypes.string,
-  description: PropTypes.string,
-  formats: PropTypes.array,
-  image: PropTypes.object,
-  title: PropTypes.string,
-  venue: PropTypes.string
-}

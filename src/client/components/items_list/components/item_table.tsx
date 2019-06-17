@@ -1,11 +1,11 @@
-import PropTypes from 'prop-types'
 import React from 'react'
 import { Col, Row } from 'react-styled-flexboxgrid'
 import { Formats, FormatsContainer } from 'client/components/formats/formats'
 import { H4 } from 'client/styles/text'
 import styled from 'styled-components'
+import { ListItemProps } from 'client/typings'
 
-export const ItemTable = props => {
+export const ItemTable: React.SFC<ListItemProps> = props => {
   const { artist, date, formats, title, venue } = props
 
   return (
@@ -61,11 +61,3 @@ const TableItem = styled(Row)`
     }
   }
 `
-
-ItemTable.propTypes = {
-  artist: PropTypes.string,
-  date: PropTypes.string,
-  formats: PropTypes.array,
-  title: PropTypes.string,
-  venue: PropTypes.string
-}

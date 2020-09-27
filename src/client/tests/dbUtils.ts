@@ -13,8 +13,8 @@ export const connectTestDB = done => {
     MONGODB_TEST_URI,
     {
       keepAlive: true,
-      reconnectTries: Number.MAX_VALUE,
-      useNewUrlParser: true
+      useNewUrlParser: true,
+      useUnifiedTopology: true
     }
   ).then(() => {
     done()

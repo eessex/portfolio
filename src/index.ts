@@ -43,8 +43,8 @@ if (NODE_ENV === 'production') {
 mongoose.connect(
   db, {
     keepAlive: true,
-    reconnectTries: Number.MAX_VALUE,
-    useNewUrlParser: true
+    useNewUrlParser: true,
+    useUnifiedTopology: true
   }
 ).then(() => {
   console.log('Mongodb connected')

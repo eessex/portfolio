@@ -57,23 +57,20 @@ export class Item extends Component<ItemProps, ItemState> {
       meta = (window as any).__INITIAL_DATA__ && (window as any).__INITIAL_DATA__.settings
       delete (window as any).__INITIAL_DATA__
     } else {
-      data = props.staticContext.data
-      meta = props.staticContext.settings
+      data = props && props.staticContext && props.staticContext.data
+      meta = props && props.staticContext && props.staticContext.settings
     }
     this.state = { data, meta, isEditing: false }
   }
 
-  componentWillMount () {
-    const { item, loading } = this.props
+  componentDidMount () {
+    const { item, isAuthenticated, loading } = this.props
 
     if ((!item || !Object.keys(item).length) && !loading) {
       this.fetchItem()
     }
-  }
-
-  componentDidMount () {
     // @ts-ignore
-    if (this.props.isAuthenticated && __isBrowser__) {
+    if (isAuthenticated && __isBrowser__) {
       this.setState({ isEditing: true })
     }
   }

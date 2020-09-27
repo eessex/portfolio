@@ -34,12 +34,12 @@ export class Items extends Component<ItemsProps, ItemsState> {
       data = (window as any).__INITIAL_DATA__
       delete (window as any).__INITIAL_DATA__
     } else {
-      data = props.staticContext.data
+      data = props && props.staticContext && props.staticContext.data
     }
     this.state = { data }
   }
 
-  componentWillMount () {
+  componentDidMount () {
     const { items, loading } = this.props
 
     if ((!items || items.length === 0) && !loading) {

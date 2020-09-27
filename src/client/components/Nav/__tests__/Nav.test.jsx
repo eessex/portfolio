@@ -1,7 +1,7 @@
 import React from 'react'
 import configureStore from 'redux-mock-store'
 import { mount } from 'enzyme'
-import { MemoryRouter as Router, NavLink } from 'react-router-dom'
+import { MemoryRouter as Router } from 'react-router-dom'
 import { Provider } from 'react-redux'
 
 import Nav from '../Nav'
@@ -45,20 +45,22 @@ describe('Nav', () => {
 
   it('Renders the nav items', () => {
     const component = getWrapper(props)
-    const links = component.find(NavLink)
-    expect(links.length).toBe(4)
+    const links = component.find('a')
+    expect(links.length).toBe(5)
 
-    expect(links.at(0).props().to).toMatch('/events')
-    expect(links.at(0).props().children).toMatch('Events')
+    expect(links.at(0).props().href).toMatch('/')
 
-    expect(links.at(1).props().to).toMatch('/releases')
-    expect(links.at(1).props().children).toMatch('Releases')
+    expect(links.at(1).props().href).toMatch('/events')
+    expect(links.at(1).props().children).toMatch('Events')
 
-    expect(links.at(2).props().to).toMatch('/projects')
-    expect(links.at(2).props().children).toMatch('Projects')
+    expect(links.at(2).props().href).toMatch('/releases')
+    expect(links.at(2).props().children).toMatch('Releases')
 
-    expect(links.at(3).props().to).toMatch('/info')
-    expect(links.at(3).props().children).toMatch('Info')
+    expect(links.at(3).props().href).toMatch('/projects')
+    expect(links.at(3).props().children).toMatch('Projects')
+
+    expect(links.at(4).props().href).toMatch('/info')
+    expect(links.at(4).props().children).toMatch('Info')
   })
 
   it('Shows AdminNav if authenticated', () => {

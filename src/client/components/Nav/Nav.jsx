@@ -6,7 +6,6 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import React from 'react'
 import Waypoint from 'react-waypoint'
-import { NavLink } from 'react-router-dom'
 import { resetItem } from 'client/actions/item'
 import { resetItems } from 'client/actions/items'
 import AdminNav, { AdminNavContainer } from './Components/AdminNav'
@@ -131,12 +130,12 @@ export class Nav extends React.Component {
 
                 return (
                   <NavItem linkIsActive={linkIsActive} key={param}>
-                    <NavLink
-                      to={`/${param}`}
+                    <a
+                      href={`/${param}`}
                       onClick={() => this.onClick(param)}
                     >
                       {capitalize(param)}
-                    </NavLink>
+                    </a>
                   </NavItem>
                 )
               })}

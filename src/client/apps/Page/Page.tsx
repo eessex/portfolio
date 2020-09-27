@@ -29,12 +29,12 @@ export class Page extends Component<PageProps, PageState> {
       data = (window as any).__INITIAL_DATA__
       delete (window as any).__INITIAL_DATA__
     } else {
-      data = props.staticContext.data
+      data = props && props.staticContext && props.staticContext.data
     }
     this.state = { data }
   }
 
-  componentWillMount () {
+  componentDidMount () {
     const { page, loading } = this.props
 
     if ((!page || page && !page._id) && !loading) {

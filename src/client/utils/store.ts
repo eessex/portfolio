@@ -1,10 +1,10 @@
 import apiMiddleware from 'client/middleware/api'
 import { logMiddleware } from 'client/middleware/log'
 import { applyMiddleware, createStore, compose } from 'redux'
-import { connectRouter, routerMiddleware } from 'connected-react-router'
+import { routerMiddleware } from 'connected-react-router'
 import thunk from 'redux-thunk'
 import { createBrowserHistory, createMemoryHistory } from 'history'
-import { rootReducer } from 'client/reducers'
+import { createRootReducer } from 'client/reducers'
 
 export const isServer = !(
   typeof window !== 'undefined' &&
@@ -51,7 +51,7 @@ export default ({ entry, session }) => {
   }
 
   const store = createStore(
-    connectRouter(history)(rootReducer),
+    createRootReducer(history),
     initialState,
     composedEnhancers
   )

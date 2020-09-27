@@ -47,7 +47,7 @@ export class Items extends Component<ItemsProps, ItemsState> {
     }
   }
 
-  componentWillUpdate (prevProps) {
+  UNSAFE_componentWillUpdate (prevProps) {
     const { match: { path } } = this.props
 
     if (prevProps.match.path !== path) {

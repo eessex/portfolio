@@ -75,7 +75,7 @@ export class Item extends Component<ItemProps, ItemState> {
     }
   }
 
-  componentWillUpdate (prevProps) {
+  UNSAFE_componentWillUpdate (prevProps) {
     const { item, loading, model } = this.props
     const prevSlug = url.parse(BASE_URL + prevProps.match.url).href.split('/').pop()
 

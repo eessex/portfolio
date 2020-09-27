@@ -42,7 +42,7 @@ export class Page extends Component<PageProps, PageState> {
     }
   }
 
-  componentWillUpdate (prevProps) {
+  UNSAFE_componentWillUpdate (prevProps) {
     const { match: { path } } = this.props
 
     if (prevProps.match.path !== path) {

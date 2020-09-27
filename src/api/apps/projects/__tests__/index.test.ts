@@ -14,7 +14,7 @@ describe('/api/projects', () => {
   })
 
   afterEach(done => {
-    Project.remove({}, err => {
+    Project.deleteOne({}, err => {
       if (err) {
         console.error(err.status)
       }

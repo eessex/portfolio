@@ -14,7 +14,7 @@ describe('/api/events', () => {
   })
 
   afterEach(done => {
-    Event.remove({}, err => {
+    Event.deleteOne({}, err => {
       if (err) {
         console.error(err.status)
       }

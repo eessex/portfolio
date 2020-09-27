@@ -65,7 +65,7 @@ users.route('/:user_id')
     })
   })
   .delete((req, res) => {
-    User.remove({
+    User.deleteOne({
       _id: req.params.user_id
     }, (err) => {
       if (err) {

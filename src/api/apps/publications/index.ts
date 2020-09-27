@@ -71,7 +71,7 @@ publications.route('/:id')
       if (err) {
         return res.status(400).send(err)
       }
-      Publication.remove({
+      Publication.deleteOne({
         _id: data._id
       }, function (err) {
         if (err) {

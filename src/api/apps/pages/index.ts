@@ -72,7 +72,7 @@ pages.route('/:id')
       if (err) {
         return res.status(400).send(err)
       }
-      Page.remove({
+      Page.deleteOne({
         _id: data._id
       }, (err) => {
         if (err) {

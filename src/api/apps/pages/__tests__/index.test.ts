@@ -14,7 +14,7 @@ describe('/api/pages', () => {
   })
 
   afterEach(done => {
-    Page.remove({}, err => {
+    Page.deleteOne({}, err => {
       if (err) {
         console.error(err.status)
       }

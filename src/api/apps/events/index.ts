@@ -71,7 +71,7 @@ events.route('/:id')
       if (err) {
         return res.status(400).send(err)
       }
-      Event.remove({
+      Event.deleteOne({
         _id: data._id
       }, (err) => {
         if (err) {

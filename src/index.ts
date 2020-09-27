@@ -44,7 +44,7 @@ mongoose.connect(
   db, {
     keepAlive: true,
     reconnectTries: Number.MAX_VALUE,
-    // useMongoClient: true
+    useNewUrlParser: true
   }
 ).then(() => {
   console.log('Mongodb connected')

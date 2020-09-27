@@ -22,7 +22,7 @@ describe('/api/users', () => {
   })
 
   afterEach(done => {
-    User.remove({}, err => {
+    User.deleteOne({}, err => {
       if (err) {
         console.error(err.status)
       }

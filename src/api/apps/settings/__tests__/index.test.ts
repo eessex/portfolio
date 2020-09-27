@@ -14,7 +14,7 @@ describe('/api/settings', () => {
   })
 
   afterEach(done => {
-    Settings.remove({}, err => {
+    Settings.deleteOne({}, err => {
       if (err) {
         console.error(err.status)
       }

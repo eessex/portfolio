@@ -14,7 +14,7 @@ describe('/api/publications', () => {
   })
 
   afterEach(done => {
-    Publication.remove({}, err => {
+    Publication.deleteOne({}, err => {
       if (err) {
         console.error(err.status)
       }

@@ -71,7 +71,7 @@ projects.route('/:id')
       if (err) {
         return res.status(400).send(err)
       }
-      Project.remove({
+      Project.deleteOne({
         _id: data._id
       }, (err) => {
         if (err) {

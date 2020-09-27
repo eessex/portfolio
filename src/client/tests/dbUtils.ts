@@ -14,7 +14,7 @@ export const connectTestDB = done => {
     {
       keepAlive: true,
       reconnectTries: Number.MAX_VALUE,
-      useMongoClient: true
+      // useMongoClient: true
     }
   ).then(() => {
     done()

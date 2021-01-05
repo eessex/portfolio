@@ -16,7 +16,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.3.3",
     "aws-sdk": "^2.100.0",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "babel-loader": "^8.0.6",
     "babel-plugin-styled-components": "^1.10.0",
     "bcrypt": "^2.0.0",

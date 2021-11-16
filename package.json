@@ -15,7 +15,7 @@
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.3.3",
-    "aws-sdk": "^2.100.0",
+    "aws-sdk": "^2.814.0",
     "axios": "^0.18.0",
     "babel-loader": "^8.0.6",
     "babel-plugin-styled-components": "^1.10.0",

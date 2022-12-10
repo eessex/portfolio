@@ -27,7 +27,7 @@
     "dotenv-webpack": "^1.5.7",
     "draft-convert": "^2.1.5",
     "draft-js": "^0.10.5",
-    "express": "^4.15.3",
+    "express": "^4.17.3",
     "helmet": "^3.14.0",
     "immutable": "^3.8.2",
     "jsonwebtoken": "^8.3.0",

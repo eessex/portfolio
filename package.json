@@ -1,10 +1,6 @@
 {
   "name": "portfolio",
   "version": "0.0.1",
-  "engines": {
-    "node": "10.x.x",
-    "yarn": "1.x.x"
-  },
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
@@ -19,7 +15,7 @@
     "axios": "^0.18.0",
     "babel-loader": "^8.0.6",
     "babel-plugin-styled-components": "^1.10.0",
-    "bcrypt": "^2.0.0",
+    "bcrypt": "^4.0.0",
     "body-parser": "^1.17.2",
     "connected-react-router": "^4.5.0",
     "cors": "^2.8.5",

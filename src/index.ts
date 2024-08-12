@@ -56,7 +56,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookiesMiddleware())
 
-app.use((req, res, next) => {
+app.use((_req, _res, next) => {
   next()
 })
 

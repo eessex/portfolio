@@ -19,7 +19,7 @@ events.route('/')
   // create event
   .post((req, res) => {
     const item = new Event()
-    item.slug = item._id
+    item.slug = item._id.toString()
     Object.assign(item, req.body).save((err, data) => {
       if (err) {
         return res.status(400).send(err)

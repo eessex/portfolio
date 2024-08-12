@@ -38,7 +38,7 @@ export const ItemBody: React.SFC<ItemBodyProps> = props => {
 
   return (
     <ItemBodyContainer>
-      {isPage &&
+      {isPage && item.lead_text &&
         <Description
           description={item.lead_text}
           onChange={onChange && onChange}
@@ -53,10 +53,12 @@ export const ItemBody: React.SFC<ItemBodyProps> = props => {
           hasCover
         />
       }
+      {item.description &&
       <Description
         description={item.description}
         onChange={onChange && onChange}
       />
+      }
       {links && links.length > 0 &&
         <LinksList links={links} />
       }

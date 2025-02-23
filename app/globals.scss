@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --accent-light: #32e3ae;
+  --accent-dark: #1f9673;
+  --accent-primary: var(--accent-dark);
+  --accent-secondary: var(--accent-light);
+  --default-padding-x: 1rem;
+  --default-padding-y: 1rem;
+}
+
+body {
+  font: 16px / 1.5 Helvetica Neue, Arial, sans-serif;
+  font-variant: proportional-nums;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 400;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0 0 var(--default-padding-y);
+  font-weight: 600;
+  text-wrap: pretty;
+}
+
+h1 {
+  font-size: larger;
+}
+
+ul {
+  list-style: none;
+}
+
+li, p {
+  margin: 0 0 0.5rem;
+  max-width: 700px;
+  text-wrap: pretty;
+}
+
+button, a[href].button {
+  --button-hover: var(--accent-dark);
+  --button-active: var(--accent-light);
+
+  color: var(--background);
+  background: var(--foreground);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  display: flex;
+  align-items: center;
+  transition-property: color, background, fill, stroke;
+  transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+  transition-duration: .15s;
+
+  svg {
+    fill: var(--background);
+  }
+
+  &.rounded {
+    border-radius: 0.25rem;
+  }
+
+  &#skip-to-content {
+    outline-offset: -2px;
+  }
+
+  @media (hover: hover) {
+   &:hover {
+      background: var(--accent-primary);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-secondary);
+    outline-offset: 2px;
+    text-decoration: underline;
+  }
+}
+
+@media (hover: hover) {
+  a[href]:hover, button:hover {
+    text-decoration: underline;
+  }
+}
+
+*:focus-visible {
+  outline-color: var(--accent-secondary);
+  outline-offset: 2px;
+}
+
+.visually-hidden:not(:focus,:focus-visible,:active), .visible-focus-only:not(:focus,:focus-visible,:active,:focus-within) {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed; 
+    --accent-primary: var(--accent-light);
+    --accent-secondary: var(--accent-dark);
+  }
+
+  input {
+    background: #171717;
+    color: #ededed;
+  }
+}

@@ -30,6 +30,7 @@
     "neostandard": "^0.12",
     "postcss": "^8",
     "postgres": "^3",
+    "sass": "^1.85",
     "tailwindcss": "^3.4",
     "typescript": "^5"
   }

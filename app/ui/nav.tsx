@@ -10,7 +10,7 @@ export default function Nav () {
           {siteTitle}
         </Link>
       </h1>
-      <ul className='flex flex-row space-x-2 md:space-x-0 md:space-x-4'>
+      <ul className='flex flex-row space-x-2 md:space-x-0 md:space-x-4 font-bold'>
         <li>
           <Link href='/events'>
             Events

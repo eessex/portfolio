@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { geistSans, geistMono } from '@/ui/fonts'
 import Nav from '@/ui/nav'
 import Footer from '@/ui/footer'
-import '@/globals.css'
+import '@/globals.scss'
 
 const siteTitle = process.env.NEXT_PUBLIC_SITE_TITLE || 'Site Title'
 const siteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Site Description'
@@ -23,11 +23,13 @@ export default function RootLayout ({
   return (
     <html lang='en'>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
+        <a className='button visible-focus-only' id='skip-to-content' href='#content'>Skip to content</a>
+
         <header className='p-4 md:2'>
           <Nav />
         </header>
 
-        <main className='grow h-full'>
+        <main className='grow h-full' id='content'>
           {children}
         </main>
 

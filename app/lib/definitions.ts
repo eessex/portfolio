@@ -19,7 +19,10 @@ interface Image {
   caption?: string
 }
 
-interface Link {
+export interface Link {
+  id: string
+  isPress?: boolean
+  isSocialProfile?: boolean
   title?: string
   url: string
 }

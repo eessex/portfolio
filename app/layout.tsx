@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
-import { geistSans, geistMono } from './ui/fonts'
-import Nav from './ui/nav'
-import './globals.css'
+import { geistSans, geistMono } from '@/ui/fonts'
+import Nav from '@/ui/nav'
+import Footer from '@/ui/footer'
+import '@/globals.css'
 
 const siteTitle = process.env.NEXT_PUBLIC_SITE_TITLE || 'Site Title'
 const siteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Site Description'
@@ -30,9 +31,7 @@ export default function RootLayout ({
           {children}
         </main>
 
-        <footer className='p-4 md:2'>
-          <p>© {new Date().getFullYear()}</p>
-        </footer>
+        <Footer />
       </body>
     </html>
   )

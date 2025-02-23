@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2",
+    "@vercel/postgres": "^0.10",
     "bcrypt": "^5.1",
     "clsx": "^2.1",
     "next": "15.1",

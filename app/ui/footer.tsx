@@ -1,7 +1,7 @@
-import { fetchFooterLinks } from '@/lib/data'
+import { fetchSocialLinks } from '@/lib/data'
 
 export default async function asyncFooter () {
-  const socialLinks = await fetchFooterLinks()
+  const socialLinks = await fetchSocialLinks()
 
   return (
     <footer className='md:flex md:justify-between py-4 px-6 text-sm'>

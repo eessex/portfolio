@@ -6,6 +6,7 @@ export interface User {
 }
 
 export interface Venue {
+  id: string
   address?: string
   city: string
   country?: string
@@ -13,7 +14,8 @@ export interface Venue {
   state?: string
 }
 
-interface Image {
+export interface Image {
+  id: string
   url: string
   aspect: number
   caption?: string
@@ -27,23 +29,32 @@ export interface Link {
   url: string
 }
 
+/** Data returned to client */
+export interface EventClient extends Omit<Event,
+  'venueId' | 'imageIds' | 'linkIds' | 'projectIds'
+> {
+  venue: Omit<Venue, 'id'>
+  images: Omit<Image, 'id'>[]
+  // links: Link[]
+}
+
+/** DB schema */
 export interface Event {
   _id: string
+  id: string
   createdAt: string
   endDate?: string
   embedCodes: string[]
   description?: string
-  images: Image[]
   imageIds: string[]
   isAllDay?: boolean
   isPublished: boolean
-  links: Link[]
-  linkIds: Link[]
+  linkIds: string[]
   projectIds: string[]
   slug: string
   startDate: string
+  ticketLink?: string
   title: string
-  updatedAt: string
-  venue: Venue
+  updatedAt?: string
   venueId: string
 }

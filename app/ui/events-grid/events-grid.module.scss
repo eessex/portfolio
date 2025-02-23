@@ -1,0 +1,19 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  
+  h3, h4 {
+    margin: 0.5rem 0;
+  }
+
+  h4 {
+    font-weight: normal;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 0.75rem;
+  } 
+}

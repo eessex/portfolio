@@ -8,6 +8,8 @@
   --accent-dark: #1f9673;
   --accent-primary: var(--accent-dark);
   --accent-secondary: var(--accent-light);
+  --transparency-dark: rgba(0, 0, 0, 0.15);
+  --transparency-light: rgba(255, 255, 255, 0.15);
   --default-padding-x: 1rem;
   --default-padding-y: 1rem;
 }
@@ -110,6 +112,10 @@ button, a[href].button {
   width: 1px;
 }
 
+img {
+  background: var(--transparency-dark);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -121,5 +127,9 @@ button, a[href].button {
   input {
     background: #171717;
     color: #ededed;
+  }
+
+  img {
+    background: var(--transparency-light);
   }
 }

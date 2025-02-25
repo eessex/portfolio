@@ -10,28 +10,22 @@
   --accent-secondary: var(--accent-light);
   --transparency-dark: rgba(0, 0, 0, 0.15);
   --transparency-light: rgba(255, 255, 255, 0.15);
-  --default-padding-x: 1rem;
-  --default-padding-y: 1rem;
 }
 
 body {
+  max-width: 1900px;
+  margin: 0 auto;
+  padding: 0;
   font: 16px / 1.5 Helvetica Neue, Arial, sans-serif;
   font-variant: proportional-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 400;
-  margin: 0;
-  padding: 0;
-}
-
-body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  margin: 0 0 var(--default-padding-y);
   font-weight: 600;
   text-wrap: pretty;
 }

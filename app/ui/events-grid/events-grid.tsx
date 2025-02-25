@@ -10,7 +10,7 @@ export default function EventsGrid ({
   isUpcoming?: boolean;
 }) {
   return (
-    <section>
+    <section className='p-6'>
       <h2>{isUpcoming ? 'Upcoming Events' : 'Past Events'}</h2>
 
       <ul className={styles.grid}>

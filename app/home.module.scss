@@ -1,0 +1,23 @@
+.cover {
+  min-height: 80vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  position: relative;
+  margin: 0 0 3rem;
+
+  h2 {
+    margin: 4rem 0;
+    max-width: 500px;
+    font-size: larger;
+  }
+
+  img {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: auto;
+    left: 0;
+    z-index: -1;
+  }
+}

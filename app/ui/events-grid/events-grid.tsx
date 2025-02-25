@@ -1,5 +1,5 @@
 import { EventClient } from '@/lib/definitions'
-import { VenueInline } from '@/ui/venue'
+import EventsGridItem from '@/ui/events-grid/events-grid-item'
 import styles from '@/ui/events-grid/events-grid.module.scss'
 
 export default function EventsGrid ({
@@ -14,21 +14,9 @@ export default function EventsGrid ({
       <h2>{isUpcoming ? 'Upcoming Events' : 'Past Events'}</h2>
 
       <ul className={styles.grid}>
-        {events.map(({ images, venue, ...event }, index) => (
-          <li key={index}>
-            {images[0].url && (
-            // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={images[0].url}
-                alt={images[0].caption || 'Event image'}
-                style={{ aspectRatio: images[0].aspect }}
-                loading={index > 8 ? 'lazy' : undefined}
-              />
-            )}
-            <h3 style={{ fontSize: !images[0].url ? 'xx-large' : undefined }}>{event.title}</h3>
-            <h4>
-              <VenueInline venue={venue} />
-            </h4>
+        {events.map((event, index) => (
+          <li key={event.id}>
+            <EventsGridItem event={event} index={index} />
           </li>
         ))}
       </ul>

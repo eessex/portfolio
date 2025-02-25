@@ -60,6 +60,8 @@ export async function fetchEvents () {
     `
     const parsedEvents: EventClient[] = data.rows.map((event) => ({
       ...event,
+      // @ts-expect-error FIXME: camelize db columns?
+      startDate: new Date(event.start_date).toISOString(),
       venue: {
         name: event.venue_name,
         address: event.venue_address,

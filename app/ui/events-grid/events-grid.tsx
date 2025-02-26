@@ -11,7 +11,7 @@ export default function EventsGrid ({
 }) {
   return (
     <section className='p-6'>
-      <h2>{isUpcoming ? 'Upcoming Events' : 'Past Events'}</h2>
+      <h2 className='py-2'>{isUpcoming ? 'Upcoming Events' : 'Past Events'}</h2>
 
       <ul className={styles.grid}>
         {events.map((event, index) => (

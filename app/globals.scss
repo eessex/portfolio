@@ -10,6 +10,9 @@
   --accent-secondary: var(--accent-light);
   --transparency-dark: rgba(0, 0, 0, 0.15);
   --transparency-light: rgba(255, 255, 255, 0.15);
+
+  --menubar-height: 3.27rem;
+  --footer-height: 3.25rem;
 }
 
 body {
@@ -38,10 +41,12 @@ ul {
   list-style: none;
 }
 
-li, p {
-  margin: 0 0 0.5rem;
-  max-width: 700px;
-  text-wrap: pretty;
+main {
+  li, p {
+    margin: 0 0 0.5rem;
+    max-width: 700px;
+    text-wrap: pretty;
+  }
 }
 
 button, a[href].button {
@@ -124,6 +129,13 @@ img {
   }
 
   img {
-    background: var(--transparency-light);
+    // FIXME: reenable once cover image is pulled from DB (needs aspect)
+    // background: var(--transparency-light);
   }
+}
+
+footer {
+  position: sticky;
+  bottom: 0;
+  background: var(--background);
 }

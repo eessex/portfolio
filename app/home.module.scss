@@ -1,5 +1,5 @@
 .cover {
-  min-height: 80vh;
+  height: calc(100vh - var(--menubar-height) - var(--footer-height) - 2rem); // 2rem for figcaption
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
@@ -7,17 +7,31 @@
   margin: 0 0 3rem;
 
   h2 {
-    margin: 4rem 0;
+    margin: 4rem 2rem;
     max-width: 500px;
     font-size: larger;
+    color: var(--background);
+    background: var(--foreground);
+    z-index: 1;
   }
 
-  img {
+  figure {
     position: absolute;
-    top: 0;
     height: 100%;
-    width: auto;
+    max-height: 100%;
+    margin-left: .25rem;
     left: 0;
-    z-index: -1;
+
+    img {
+      height: 100%;
+      width: auto;
+      object-fit: contain;
+    }
+
+    figcaption {
+      margin: 0.25rem 0.5rem;
+      font-size: small;
+      opacity: 0.7;
+    }
   }
 }

@@ -1,5 +1,7 @@
 import { EventClient } from '@/lib/definitions'
 import { VenueInline } from '@/ui/venue'
+import { formattedDateTime } from '@/ui/util'
+import Link from 'next/link'
 
 export default function EventsGridItem ({
   event,
@@ -9,46 +11,34 @@ export default function EventsGridItem ({
   index: number;
   isUpcoming?: boolean;
 }) {
-  function formattedDateTime () {
-    const startDate = new Date(event.startDate)
-    // FIXME: offset is a hack to adjust for timezone after posgres migration
-    startDate.setHours(startDate.getHours() - 4)
-    const date = new Date(startDate).toLocaleDateString('en-us', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      timeZone: 'America/New_York',
-    })
-
-    return date
-  }
-
   return (
     <article>
       {event.images[0].url && (
-      // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={event.images[0].url}
-          alt={event.images[0].caption || 'Event image'}
-          style={{ aspectRatio: event.images[0].aspect }}
-          loading={index > 8 ? 'lazy' : undefined}
-        />
+        <Link href={`/events/${event.slug}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={event.images[0].url}
+            alt={event.images[0].caption || 'Event image'}
+            style={{ aspectRatio: event.images[0].aspect }}
+            loading={index > 8 ? 'lazy' : undefined}
+            title={event.images[0].caption || undefined}
+          />
+        </Link>
       )}
+      <Link href={`/events/${event.slug}`}>
 
-      <h3 style={{ fontSize: !event.images[0].url ? 'xx-large' : undefined }}>
-        {event.title}
-      </h3>
+        <h3 style={{ fontSize: !event.images[0].url ? 'xx-large' : undefined }}>
+          {event.title}
+        </h3>
 
-      <h4>
-        {formattedDateTime()}
-      </h4>
+        <h4>
+          {formattedDateTime(event.startDate)}
+        </h4>
 
-      <h5>
-        <VenueInline venue={event.venue} />
-      </h5>
+        <h5>
+          <VenueInline venue={event.venue} />
+        </h5>
+      </Link>
     </article>
   )
 }

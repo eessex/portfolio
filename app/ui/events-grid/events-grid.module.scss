@@ -1,7 +1,8 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+  gap: 4rem 2.25rem;
+  min-height: 35vh;
   
   h3, h4 {
     margin: 0.5rem 0;
@@ -15,5 +16,10 @@
     width: 100%;
     height: auto;
     margin-bottom: 0.75rem;
-  } 
+  }
+}
+
+
+.upcoming {
+  grid-template-columns: repeat(auto-fill, minmax(425px, 1fr));
 }

@@ -1,5 +1,5 @@
 .cover {
-  height: calc(100vh - var(--menubar-height) - var(--footer-height) - 2rem); // 2rem for figcaption
+  height: calc(100vh - var(--menubar-height) - var(--footer-height) - 4rem); // 4rem for figcaption
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
@@ -8,7 +8,7 @@
 
   h2 {
     margin: 4rem 2rem;
-    max-width: 500px;
+    max-width: 475px;
     font-size: larger;
     color: var(--background);
     background: var(--foreground);

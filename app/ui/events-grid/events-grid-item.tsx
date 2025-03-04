@@ -6,14 +6,15 @@ import Link from 'next/link'
 export default function EventsGridItem ({
   event,
   index,
+  isTextOnly = false,
 }: {
   event: EventClient;
   index: number;
-  isUpcoming?: boolean;
+  isTextOnly?: boolean;
 }) {
   return (
     <article>
-      {event.images[0].url && (
+      {event.images[0].url && !isTextOnly && (
         <Link href={`/events/${event.slug}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -27,7 +28,7 @@ export default function EventsGridItem ({
       )}
       <Link href={`/events/${event.slug}`}>
 
-        <h3 style={{ fontSize: !event.images[0].url ? 'xx-large' : undefined }}>
+        <h3 style={{ fontSize: (!event.images[0].url || isTextOnly) ? 'xx-large' : undefined }}>
           {event.title}
         </h3>
 

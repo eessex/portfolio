@@ -1,14 +1,40 @@
 import { fetchEventBySlug, fetchEvents } from '@/lib/data'
-import { formattedDateTime } from '@/ui/util'
+import { formattedDateTime, isUpcomingDate } from '@/ui/util'
 import { VenueInline } from '@/ui/venue'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import styles from '@/events/[slug]/event.module.scss'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
+import EventsGrid from '@/ui/events-grid/events-grid'
 
-const title = 'Event'
-export const metadata: Metadata = { title }
+type Props = {
+  params: Promise<{ slug: string }>
+}
 
-// FIXME: just get the whole event when generating param?
+export async function generateMetadata (
+  { params }: Props
+): Promise<Metadata> {
+  const { slug } = await params
+  const event = await fetchEventBySlug(slug)
+
+  const images = event?.images[0]
+    ? [{
+        url: event.images[0].url,
+        width: 1200,
+        height: 1200 * event.images[0].aspect,
+        alt: event.images[0].caption,
+      }]
+    : []
+
+  const meta: Metadata = {
+    title: `Event: ${event?.title}`,
+    openGraph: { images }
+  }
+
+  return meta
+}
+
 export async function generateStaticParams () {
   const { upcomingEvents, pastEvents } = await fetchEvents()
 
@@ -24,29 +50,55 @@ export default async function EventsPage ({
 }) {
   const { slug } = await params
   const event = await fetchEventBySlug(slug)
+  const { upcomingEvents } = await fetchEvents()
+
+  if (!event) {
+    notFound()
+  }
+
+  const isUpcoming = isUpcomingDate(event.startDate)
+  const category = isUpcoming ? 'Upcoming Event' : 'Event'
+
+  const moreEvents = upcomingEvents.filter((e) => e.id !== event.id)
 
   return (
-    <article className={`p-4 md:2 ${styles.event}`}>
-      <header>
-        <div className={styles.category}>
-          <Link href='/events'>Event</Link>
-        </div>
-        <h1>{event.title}</h1>
-        <h2>{formattedDateTime(event.startDate)}</h2>
-        <h3>
-          <VenueInline venue={event.venue} />
-        </h3>
+    <div>
+      <article className={`p-4 md:2 ${styles.event}`}>
+        <header>
+          <div className={styles.category}>
+            <Link href='/events'>{category}</Link>
+          </div>
+          <h1>{event.title}</h1>
+          <h2>{formattedDateTime(event.startDate)}</h2>
+          <h3>
+            {event.venue.url
+              ? (
+                <a href={event.venue.url} target='_blank' rel='noopener noreferrer'>
+                  <VenueInline venue={event.venue} />
+                </a>
+                )
+              : (
+                <VenueInline venue={event.venue} />
+                )}
+          </h3>
 
-        <figure>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={event.images[0].url} alt={event.images[0].caption} />
-          <figcaption>{event.images[0].caption}</figcaption>
-        </figure>
-      </header>
+          <figure>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={event.images[0].url} alt={event.images[0].caption} />
+            <figcaption>{event.images[0].caption}</figcaption>
+          </figure>
+        </header>
 
-      <section>
-        {event.description && <p>{event.description}</p>}
-      </section>
-    </article>
+        <section>
+          {event.description && (
+            <p>{event.description}</p>
+          )}
+        </section>
+      </article>
+
+      <Suspense fallback={<p className='p-4 md:2'>Loading...</p>}>
+        <EventsGrid events={moreEvents} isUpcoming isTextOnly />
+      </Suspense>
+    </div>
   )
 }

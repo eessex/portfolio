@@ -1,5 +1,6 @@
 import { fetchEvents } from '@/lib/data'
 import EventsGrid from '@/ui/events-grid/events-grid'
+import EventsList from '@/ui/events-list/events-list'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 
@@ -15,9 +16,9 @@ export default async function EventsPage () {
         {title}
       </h1>
 
-      <Suspense fallback={<p>Loading...</p>}>
-        <EventsGrid events={upcomingEvents} isUpcoming />
-        <EventsGrid events={pastEvents} />
+      <Suspense fallback={<p className='p-4 md:2'>Loading...</p>}>
+        <EventsGrid events={upcomingEvents} isUpcoming isColumn />
+        <EventsList events={pastEvents} />
       </Suspense>
     </div>
   )

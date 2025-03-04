@@ -5,19 +5,23 @@ import styles from '@/ui/events-grid/events-grid.module.scss'
 
 export default function EventsGrid ({
   events,
+  isColumn = false,
+  isTextOnly = false,
   isUpcoming = false
 }: {
   events: EventClient[];
+  isColumn?: boolean;
+  isTextOnly?: boolean;
   isUpcoming?: boolean;
 }) {
   return (
-    <section className='p-4 md:2 '>
+    <section className='p-4 md:2'>
       <h2 className='py-2'>{isUpcoming ? 'Upcoming Events' : 'Past Events'}</h2>
 
-      <ul className={clsx(styles.grid, isUpcoming && styles.upcoming)}>
+      <ul className={clsx(styles.grid, isUpcoming && styles.upcoming, isColumn && styles.column)}>
         {events.map((event, index) => (
           <li key={event.id}>
-            <EventsGridItem event={event} index={index} />
+            <EventsGridItem event={event} index={index} isTextOnly={isTextOnly} />
           </li>
         ))}
       </ul>

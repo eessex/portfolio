@@ -4,8 +4,8 @@ import { Suspense } from 'react'
 import styles from '@/home.module.scss'
 import Link from 'next/link'
 
-const siteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Eve Essex is a composer, songwriter and multi-instrumentalist based in New York City.'
 // TODO: pull from DB
+const siteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Eve Essex is a composer, songwriter and multi-instrumentalist based in New York City.'
 const siteImage = process.env.NEXT_PUBLIC_SITE_IMAGE_LG
 const siteImageAlt = process.env.NEXT_PUBLIC_SITE_IMAGE_LG_ALT || 'Photo by Alice Plati'
 
@@ -21,8 +21,7 @@ export default async function Home () {
 
         <figure>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={siteImage} alt='' className='cover-img' />
-          <figcaption className='px-6'>{siteImageAlt}</figcaption>
+          <img src={siteImage} alt={siteImageAlt} title={siteImageAlt} className='cover-img' />
         </figure>
 
         {siteDescription && (
@@ -32,8 +31,8 @@ export default async function Home () {
         )}
       </section>
 
-      <Suspense fallback={<p>Loading...</p>}>
-        <EventsGrid events={upcomingEvents} isUpcoming />
+      <Suspense fallback={<p className='p-4 md:2'>Loading...</p>}>
+        <EventsGrid events={upcomingEvents} isUpcoming isTextOnly />
       </Suspense>
     </div>
   )

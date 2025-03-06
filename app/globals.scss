@@ -23,13 +23,13 @@ body {
   font-variant: proportional-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-weight: 400;
+  font-weight: normal;
   color: var(--foreground);
   background: var(--background);
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
+  font-weight: bold;
   text-wrap: pretty;
 }
 
@@ -46,6 +46,7 @@ main {
 
   li, p {
     margin: 0 0 0.5rem;
+    width: 100%;
     max-width: 780px;
     text-wrap: pretty;
   }

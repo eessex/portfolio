@@ -1,12 +1,13 @@
+import styles from '@/events/[slug]/event.module.scss'
 import { fetchEventBySlug, fetchEvents } from '@/lib/data'
+import EventsGrid from '@/ui/events-grid/events-grid'
+import Loading from '@/ui/loading'
 import { formattedDateTime, isUpcomingDate } from '@/ui/util'
 import { VenueInline } from '@/ui/venue'
 import type { Metadata } from 'next'
-import styles from '@/events/[slug]/event.module.scss'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
-import EventsGrid from '@/ui/events-grid/events-grid'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -63,7 +64,7 @@ export default async function EventsPage ({
 
   return (
     <div>
-      <article className={`p-4 md:2 ${styles.event}`}>
+      <article className={styles.event}>
         <header>
           <div className={styles.category}>
             <Link href='/events'>{category}</Link>
@@ -81,13 +82,13 @@ export default async function EventsPage ({
                 <VenueInline venue={event.venue} />
                 )}
           </h3>
-
-          <figure>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={event.images[0].url} alt={event.images[0].caption} />
-            <figcaption>{event.images[0].caption}</figcaption>
-          </figure>
         </header>
+
+        <figure>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={event.images[0].url} alt={event.images[0].caption} />
+          <figcaption>{event.images[0].caption}</figcaption>
+        </figure>
 
         <section>
           {event.description && (
@@ -96,7 +97,7 @@ export default async function EventsPage ({
         </section>
       </article>
 
-      <Suspense fallback={<p className='p-4 md:2'>Loading...</p>}>
+      <Suspense fallback={<Loading />}>
         <EventsGrid events={moreEvents} isUpcoming isTextOnly />
       </Suspense>
     </div>

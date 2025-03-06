@@ -1,8 +1,9 @@
+import styles from '@/home.module.scss'
 import { fetchEvents } from '@/lib/data'
 import EventsGrid from '@/ui/events-grid/events-grid'
-import { Suspense } from 'react'
-import styles from '@/home.module.scss'
+import Loading from '@/ui/loading'
 import Link from 'next/link'
+import { Suspense } from 'react'
 
 // TODO: pull from DB
 const siteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Eve Essex is a composer, songwriter and multi-instrumentalist based in New York City.'
@@ -31,7 +32,7 @@ export default async function Home () {
         )}
       </section>
 
-      <Suspense fallback={<p className='p-4 md:2'>Loading...</p>}>
+      <Suspense fallback={<Loading />}>
         <EventsGrid events={upcomingEvents} isUpcoming isTextOnly />
       </Suspense>
     </div>

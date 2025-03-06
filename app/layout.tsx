@@ -25,7 +25,7 @@ export default function RootLayout ({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
         <a className='button visible-focus-only' id='skip-to-content' href='#content'>Skip to content</a>
 
-        <header className='p-4 md:2'>
+        <header className='p-4'>
           <Nav />
         </header>
 

@@ -1,8 +1,8 @@
 import { EventClient } from '@/lib/definitions'
-import { VenueInline } from '@/ui/venue'
-import { formattedDateTime } from '@/ui/util'
-import Link from 'next/link'
 import styles from '@/ui/events-list/events-list.module.scss'
+import { formattedDateTime } from '@/ui/util'
+import { VenueInline } from '@/ui/venue'
+import Link from 'next/link'
 
 export default function EventsGridItem ({
   event,
@@ -12,7 +12,7 @@ export default function EventsGridItem ({
   index: number;
 }) {
   return (
-    <article className={styles.item}>
+    <article>
       {/* {event.images[0].url && !isTextOnly && (
         <Link href={`/events/${event.slug}`}>
           <img
@@ -31,7 +31,7 @@ export default function EventsGridItem ({
             {formattedDateTime(event.startDate)}
           </div>
 
-          <div>
+          <div className='font-bold md:font-normal'>
             {event.title}
           </div>
         </div>

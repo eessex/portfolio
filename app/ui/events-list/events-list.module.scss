@@ -1,3 +1,5 @@
+@use '@/ui/breakpoints';
+
 .li {
   min-width: 100%;
   border-bottom: 1px solid;
@@ -7,13 +9,17 @@
   &:first-child {
     border-top: 1px solid;
   }
-}
 
-.item {
   a {
     display: grid;
     grid-template-columns: 7fr 3fr;
-    gap: 2rem;
+    gap: 4rem;
+
+    @include breakpoints.mobile {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
   }
 }
 
@@ -21,6 +27,12 @@
   display: grid;
   grid-template-columns: min(250px) 8fr;
   gap: 1rem;
+
+  @include breakpoints.mobile {
+    display: flex;
+    gap: 0;
+    flex-direction: column-reverse;
+  }
 
   * {
     overflow: hidden;

@@ -1,7 +1,7 @@
-import clsx from 'clsx'
 import { EventClient } from '@/lib/definitions'
 import EventsGridItem from '@/ui/events-grid/events-grid-item'
 import styles from '@/ui/events-grid/events-grid.module.scss'
+import clsx from 'clsx'
 
 export default function EventsGrid ({
   events,
@@ -15,7 +15,7 @@ export default function EventsGrid ({
   isUpcoming?: boolean;
 }) {
   return (
-    <section className='p-4 md:2'>
+    <section className='px-4 pt-4 pb-8'>
       <h2 className='py-2'>{isUpcoming ? 'Upcoming Events' : 'Past Events'}</h2>
 
       <ul className={clsx(styles.grid, isUpcoming && styles.upcoming, isColumn && styles.column)}>

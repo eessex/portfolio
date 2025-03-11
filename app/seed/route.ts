@@ -1,14 +1,87 @@
-// // // import bcrypt from 'bcrypt'
+// import bcrypt from 'bcrypt'
 // import postgres from 'postgres'
 // import {
-//   events,
-// // // links
-// // // images,
-// // // venues,
-// // // users
+// about,
+// siteSettings
+// events,
+// links
+// images,
+// venues,
+// users
 // } from '../../placeholder-data'
 
 // const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
+
+// async function seedSiteSettings () {
+//   // await sql`
+//   //   CREATE TABLE IF NOT EXISTS site_settings (
+//   //     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+//   //     created_at TIMESTAMP NOT NULL,
+//   //     cover_image_id UUID,
+//   //     description TEXT,
+//   //     title VARCHAR(255) NOT NULL,
+//   //     updated_at TIMESTAMP
+//   //   );
+//   // `
+//   const insertedSiteSettings = await Promise.all(
+//     siteSettings.map(async (a) => {
+//       return sql`
+//         INSERT INTO site_settings (
+//           created_at,
+//           cover_image_id,
+//           description,
+//           title
+//         )
+//         VALUES (
+//           current_timestamp,
+//           ${a.coverImageId || null},
+//           ${a.description || ''},
+//           ${a.title}
+//         )
+//         ON CONFLICT (id) DO NOTHING;
+//       `
+//     })
+//   )
+
+//   return insertedSiteSettings
+// }
+
+// async function seedAbout () {
+//   // await sql`
+//   //   CREATE TABLE IF NOT EXISTS about (
+//   //     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+//   //     created_at TIMESTAMP NOT NULL,
+//   //     cover_image_id UUID,
+//   //     description TEXT,
+//   //     slug VARCHAR(255) NOT NULL,
+//   //     title VARCHAR(255) NOT NULL,
+//   //     updated_at TIMESTAMP
+//   //   );
+//   // `
+//   const insertedAbout = await Promise.all(
+//     about.map(async (a) => {
+//       return sql`
+//         INSERT INTO about (
+//           created_at,
+//           cover_image_id,
+//           description,
+//           slug,
+//           title
+//         )
+//         VALUES (
+//           current_timestamp,
+//           ${a.coverImageId || null},
+//           ${a.description || ''},
+//           ${a.slug},
+//           ${a.title}
+//         )
+//         ON CONFLICT (id) DO NOTHING;
+//       `
+//     })
+//   )
+
+//   return insertedAbout
+// }
 
 // async function seedEvents () {
 //   // await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
@@ -209,17 +282,19 @@
 // // // }
 
 export async function GET () {
-//   try {
-//     const result = await sql.begin((sql) => [
-//       seedEvents()
-//       // seedImages(),
-//     //   seedUsers(),
-//     //   seedVenues()
-//     ])
+  // try {
+  //   const result = await sql.begin((sql) => [
+  //   // seedEvents(),
+  //   // seedAbout(),
+  //   // seedSiteSettings()
+  //   // seedImages(),
+  //   //   seedUsers(),
+  //   //   seedVenues()
+  //   ])
 
-  //     return Response.json({ message: 'Database seeded successfully', result: result.flat() })
-  //   } catch (error) {
-  //     return Response.json({ error }, { status: 500 })
-  //   }
+  //   return Response.json({ message: 'Database seeded successfully', result: result.flat() })
+  // } catch (error) {
+  //   return Response.json({ error }, { status: 500 })
+  // }
   return Response.json({ ok: true }, { status: 200 })
 }

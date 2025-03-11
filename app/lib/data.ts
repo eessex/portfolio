@@ -1,6 +1,81 @@
-import type { Event, EventClient, Image, Link } from '@/lib/definitions'
-import { isUpcomingDate } from '@/ui/util'
+import type { About, Event, EventClient, Image, Link, SiteSettings } from '@/lib/definitions'
+import { isUpcomingDate, camelizeKeys } from '@/ui/util'
 import { sql } from '@vercel/postgres'
+
+/** main page meta & image etc */
+export async function fetchSiteSettings () {
+  try {
+    const data = await sql<SiteSettings & { cover_image_url: string, cover_image_aspect: number, cover_image_caption?: string }>`
+      SELECT 
+        s.title,
+        s.description,
+        i.url as cover_image_url,
+        i.aspect as cover_image_aspect,
+        i.caption as cover_image_caption
+      FROM site_settings as s
+      JOIN images as i ON i.id = s.cover_image_id
+    `
+    if (data.rowCount === 0) {
+      return
+    }
+    return {
+      title: data.rows[0].title,
+      description: data.rows[0].description,
+      coverImage: {
+        url: data.rows[0].cover_image_url,
+        aspect: data.rows[0].cover_image_aspect,
+        caption: data.rows[0].cover_image_caption
+      }
+    }
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch links.')
+  }
+}
+
+export async function fetchAboutPage () {
+  try {
+    const data = await sql<About & { cover_image_url: string, cover_image_aspect: number, cover_image_caption?: string }>`
+      SELECT 
+        s.title,
+        s.description,
+        i.url as cover_image_url,
+        i.aspect as cover_image_aspect,
+        i.caption as cover_image_caption
+      FROM about as s
+      JOIN images as i ON i.id = s.cover_image_id
+    `
+    if (data.rowCount === 0) {
+      return
+    }
+    return {
+      title: data.rows[0].title,
+      description: data.rows[0].description,
+      coverImage: {
+        url: data.rows[0].cover_image_url,
+        aspect: data.rows[0].cover_image_aspect,
+        caption: data.rows[0].cover_image_caption
+      }
+    }
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch about page data.')
+  }
+}
+
+/** Only the press photos */
+export async function fetchPressImages () {
+  try {
+    const data = await sql<Image>`
+      SELECT aspect, caption, url FROM images
+      WHERE is_press = true
+    `
+    return data.rows
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch press images.')
+  }
+}
 
 /** links to social media profiles */
 export async function fetchSocialLinks () {
@@ -32,6 +107,7 @@ export async function fetchImages () {
 }
 
 interface EventMetaProperties {
+  end_date?: string
   start_date: string
   venue_name: string
   venue_address: string
@@ -42,6 +118,7 @@ interface EventMetaProperties {
   image_url: string
   image_caption: string
   image_aspect: number
+  ticket_link?: string
 }
 
 export async function fetchEvents () {
@@ -107,9 +184,10 @@ export const fetchEventBySlug = async (slug: string) => {
 }
 
 // TODO: standardize camel / snake formats
-function formatEvent (event: Event & EventMetaProperties) {
+function formatEvent (event: Event & EventMetaProperties): EventClient {
   return {
-    ...event,
+    ...camelizeKeys(event),
+    endDate: event.end_date ? new Date(event.end_date).toISOString() : undefined,
     startDate: new Date(event.start_date).toISOString(),
     venue: {
       name: event.venue_name,

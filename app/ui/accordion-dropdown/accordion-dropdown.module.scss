@@ -1,0 +1,21 @@
+
+.accordion-dropdown:last-child {
+  border-bottom: 1px solid var(--transparency-primary);
+}
+
+.accordion-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--transparency-primary);
+  padding: .5rem 0;
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.accordion-panel {
+  margin: .5rem 0 2rem;
+}

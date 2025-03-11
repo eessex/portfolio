@@ -5,6 +5,25 @@ export interface User {
   password: string
 }
 
+export interface SiteSettings {
+  id: string
+  coverImageId?: string,
+  description?: string,
+  title: string,
+}
+
+export interface SiteSettingsClient extends Omit<SiteSettings, 'coverImageId'> {
+  coverImage: Omit<Image, 'id'>
+}
+
+export interface About {
+  id: string
+  coverImageId?: string,
+  description?: string,
+  slug: string,
+  title: string,
+}
+
 export interface Venue {
   id: string
   address?: string
@@ -12,6 +31,7 @@ export interface Venue {
   country?: string
   name?: string
   state?: string
+  url?: string
 }
 
 export interface Image {

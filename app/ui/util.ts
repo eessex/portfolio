@@ -18,3 +18,19 @@ export function formattedDateTime (date: string) {
 export function isUpcomingDate (date: string) {
   return new Date(date) > new Date()
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function camelizeKeys (obj: any): any {
+  if (typeof obj !== 'object' || obj === null) {
+    return obj
+  }
+
+  const camelizedObject: Record<string, unknown> = {}
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const camelKey = key.replace(/_([a-z])/g, (_match, letter) => letter.toUpperCase())
+      camelizedObject[camelKey] = camelizeKeys(obj[key])
+    }
+  }
+  return camelizedObject
+}

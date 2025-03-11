@@ -1,7 +1,7 @@
 .event {
   max-width: 680px;
   margin: auto;
-  padding: 1rem 1rem 6rem;
+  padding: 1.5rem 1rem 6rem;
   min-height: 80vh;
 
   header {
@@ -16,6 +16,10 @@
     h2, h3 {
       font-weight: normal;
     }
+
+    .ticket-link {
+      margin: 1rem 0 0.5rem;
+    }
   }
 
   figure {
@@ -24,6 +28,10 @@
     img {
       margin: auto;
       max-height: 70vh;
+    }
+
+    figcaption {
+      text-align: center;
     }
   }
 }

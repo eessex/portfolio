@@ -21,7 +21,11 @@ export default function EventsGrid ({
       <ul className={clsx(styles.grid, isUpcoming && styles.upcoming, isColumn && styles.column)}>
         {events.map((event, index) => (
           <li key={event.id}>
-            <EventsGridItem event={event} index={index} isTextOnly={isTextOnly} />
+            <EventsGridItem
+              event={event}
+              index={index}
+              isTextOnly={isTextOnly || (isUpcoming && index !== 0)}
+            />
           </li>
         ))}
       </ul>

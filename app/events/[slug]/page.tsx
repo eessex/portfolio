@@ -4,6 +4,7 @@ import EventsGrid from '@/ui/events-grid/events-grid'
 import Loading from '@/ui/loading'
 import { formattedDateTime, isUpcomingDate } from '@/ui/util'
 import { VenueInline } from '@/ui/venue'
+import { TicketIcon } from '@heroicons/react/24/outline'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -82,6 +83,11 @@ export default async function EventsPage ({
                 <VenueInline venue={event.venue} />
                 )}
           </h3>
+          {event.ticketLink && (
+            <a className={'button ' + styles['ticket-link']} href={event.ticketLink} target='_blank' rel='noreferrer'>
+              <TicketIcon />Tickets
+            </a>
+          )}
         </header>
 
         <figure>

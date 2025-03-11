@@ -1,16 +1,30 @@
 import styles from '@/home.module.scss'
-import { fetchEvents } from '@/lib/data'
+import { fetchEvents, fetchSiteSettings } from '@/lib/data'
 import EventsGrid from '@/ui/events-grid/events-grid'
 import Loading from '@/ui/loading'
 import Link from 'next/link'
 import { Suspense } from 'react'
 
-// TODO: pull from DB
-const siteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Eve Essex is a composer, songwriter and multi-instrumentalist based in New York City.'
-const siteImage = process.env.NEXT_PUBLIC_SITE_IMAGE_LG
-const siteImageAlt = process.env.NEXT_PUBLIC_SITE_IMAGE_LG_ALT || 'Photo by Alice Plati'
+export async function generateMetadata () {
+  const settings = await fetchSiteSettings()
+  const images = settings?.coverImage
+    ? [{
+        url: settings?.coverImage.url,
+        width: 1200,
+        height: 1200 * settings?.coverImage.aspect,
+        alt: settings?.coverImage.caption,
+      }]
+    : []
+
+  return {
+    title: settings?.title,
+    description: settings?.description,
+    openGraph: { images }
+  }
+}
 
 export default async function Home () {
+  const settings = await fetchSiteSettings()
   const { upcomingEvents } = await fetchEvents()
 
   return (
@@ -20,15 +34,21 @@ export default async function Home () {
           Homepage
         </h1>
 
-        <figure>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={siteImage} alt={siteImageAlt} title={siteImageAlt} className='cover-img' />
-        </figure>
+        {settings?.coverImage && (
+          <figure>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={settings.coverImage.url}
+              alt={settings.coverImage.caption}
+              title={settings.coverImage.caption}
+              style={{ aspectRatio: settings.coverImage.aspect }}
+              className='cover-img'
+            />
+          </figure>
+        )}
 
-        {siteDescription && (
-          <h2 className='p-6'>
-            <Link href='/about'>{siteDescription}</Link>
-          </h2>
+        {settings?.description && (
+          <Link href='/about' className={'button ' + styles.description}>{settings.description}</Link>
         )}
       </section>
 

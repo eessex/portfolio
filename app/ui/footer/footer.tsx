@@ -1,13 +1,15 @@
 import { fetchSocialLinks } from '@/lib/data'
+import EmailSubscribe from '@/ui/email-subscribe/email-subscribe'
+import styles from '@/ui/footer/footer.module.scss'
 
 export default async function asyncFooter () {
   const socialLinks = await fetchSocialLinks()
 
   return (
-    <footer className='md:flex md:justify-between p-4 text-sm'>
+    <footer className={`text-sm ${styles.footer}`}>
       {socialLinks.length > 0 && (
         <nav>
-          <ul className='flex space-x-4'>
+          <ul className='flex'>
             {socialLinks.map((link, index) => (
               <li key={index}>
                 <a href={link.url} target='_blank' rel='noreferrer'>
@@ -19,7 +21,7 @@ export default async function asyncFooter () {
         </nav>
       )}
 
-      <p>© {new Date().getFullYear()}</p>
+      <EmailSubscribe />
     </footer>
   )
 }

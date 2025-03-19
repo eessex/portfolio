@@ -10,9 +10,10 @@
   border-top: 1px solid var(--transparency-primary);
   padding: .5rem 0;
 
-  svg {
-    width: 24px;
-    height: 24px;
+  @media (hover: hover) {
+    &:hover {
+      background: none;
+    }
   }
 }
 

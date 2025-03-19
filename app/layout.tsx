@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { geistSans, geistMono } from '@/ui/fonts'
 import Nav from '@/ui/nav'
-import Footer from '@/ui/footer'
+import Footer from '@/ui/footer/footer'
 import '@/globals.scss'
 
 const siteTitle = process.env.NEXT_PUBLIC_SITE_TITLE || 'Site Title'

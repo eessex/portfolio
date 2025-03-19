@@ -1,0 +1,26 @@
+@use '@/ui/breakpoints';
+
+.footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0.75rem 0.75rem 0.75rem 0.25rem;
+
+  > * {
+    align-self: center;
+
+    a {
+      padding: .5em .75em;
+    }
+  }
+
+  @include breakpoints.mobile {
+    flex-direction: column;
+    gap: 1rem;
+
+    > * {
+      align-self: flex-start;
+      margin-left: .25rem;
+    }
+  }
+}

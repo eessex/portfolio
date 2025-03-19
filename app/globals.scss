@@ -52,22 +52,18 @@ main {
   }
 }
 
-button.button, a[href].button {
-  --button-hover: var(--accent-dark);
-  --button-active: var(--accent-light);
 
-  color: var(--background);
-  background: var(--foreground);
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+button, a[href].button {
   display: inline-flex;
   gap: 0.5rem;
   align-items: center;
   transition-property: color, background, fill, stroke;
   transition-timing-function: cubic-bezier(.4, 0, .2, 1);
   transition-duration: .15s;
+
+  &:has(svg) {
+    padding-left: 1rem;
+  }
 
   svg {
     fill: var(--background);
@@ -76,19 +72,8 @@ button.button, a[href].button {
     max-height: 1.25rem;
     max-width: 1.25rem;
   }
-
-  &.rounded {
-    border-radius: 0.25rem;
-  }
-
   &#skip-to-content {
     outline-offset: -2px;
-  }
-
-  @media (hover: hover) {
-   &:hover {
-      background: var(--accent-primary);
-    }
   }
 
   &:focus-visible {
@@ -96,6 +81,33 @@ button.button, a[href].button {
     outline-offset: 2px;
     text-decoration: underline;
   }
+
+  &:active:not(:hover) {
+    background: var(--accent-primary);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--accent-secondary);
+    }
+  }
+
+  &.button {
+    color: var(--background);
+    background: var(--foreground);
+    padding: 0.75rem 1.25rem;
+
+    &:active:not(:hover) {
+      background: var(--accent-secondary);
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        background: var(--accent-primary);
+      }
+    }
+  }
+
 }
 
 @media (hover: hover) {
@@ -109,7 +121,8 @@ button.button, a[href].button {
   outline-offset: 2px;
 }
 
-.visually-hidden:not(:focus,:focus-visible,:active), .visible-focus-only:not(:focus,:focus-visible,:active,:focus-within) {
+.visually-hidden:not(:focus,:focus-visible,:active),
+.visible-focus-only:not(:focus,:focus-visible,:active,:focus-within) {
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
   height: 1px;
@@ -121,6 +134,11 @@ button.button, a[href].button {
 
 img {
   background: var(--transparency-secondary);
+}
+
+input {
+  padding: 0.5em 0.75em;
+  background: #eee;
 }
 
 @media (prefers-color-scheme: dark) {

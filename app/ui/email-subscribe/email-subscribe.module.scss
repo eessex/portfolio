@@ -1,0 +1,17 @@
+@use '@/ui/breakpoints';
+
+.email-subscribe {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+
+  button {
+    padding: .5em .75em;
+  }
+
+  @include breakpoints.mobile {
+    padding: 0 .75em;
+  }
+}

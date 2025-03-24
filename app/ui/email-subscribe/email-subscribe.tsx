@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from 'react'
 import { Toast } from '@/ui/toast/toast'
-import { emailSubscribe } from '@/lib/data'
+import { createEmailSubscription } from '@/lib/actions'
 import styles from '@/ui/email-subscribe/email-subscribe.module.scss'
 
 export default function EmailSubscribe () {
@@ -14,8 +14,9 @@ export default function EmailSubscribe () {
   )
 
   async function onSubscribe (_state: void | null, payload: FormData) {
+    setError(false)
     try {
-      await emailSubscribe(payload.get('email') as string)
+      await createEmailSubscription(payload.get('email') as string)
       setSuccess(true)
     } catch (error) {
       setError(true)
@@ -53,6 +54,7 @@ export default function EmailSubscribe () {
         <input
           id='email'
           type='email'
+          name='email'
           placeholder='email'
           required
         />

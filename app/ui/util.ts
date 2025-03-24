@@ -15,6 +15,13 @@ export function formattedDateTime (date: string) {
   return formattedDate
 }
 
+export const escapeHtml = (s: string) => {
+  return s.replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
 export function isUpcomingDate (date: string) {
   return new Date(date) > new Date()
 }

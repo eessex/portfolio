@@ -2,13 +2,6 @@ import type { About, Event, EventClient, Image, Link, SiteSettings } from '@/lib
 import { isUpcomingDate, camelizeKeys } from '@/ui/util'
 import { sql } from '@vercel/postgres'
 
-export async function emailSubscribe (email: string) {
-  console.info(`Subscribing email: ${email}`)
-  return { ok: true }
-  // TODO: implement email subscription
-  // throw new Error('Failed to fetch links.')
-}
-
 /** main page meta & image etc */
 export async function fetchSiteSettings () {
   try {

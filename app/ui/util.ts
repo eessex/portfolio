@@ -8,8 +8,7 @@ export function formattedDateTime (date: string) {
     month: 'short',
     day: 'numeric',
     hour: 'numeric',
-    minute: '2-digit',
-    timeZone: 'America/New_York',
+    minute: '2-digit'
   })
 
   return formattedDate

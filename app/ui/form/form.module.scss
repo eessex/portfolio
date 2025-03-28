@@ -1,0 +1,17 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 680px;
+  margin: auto;
+
+  label {
+    margin-bottom: .25em;
+    display: block;
+    font-weight: bold;
+  }
+
+  input {
+    width: 100%;
+  }
+}

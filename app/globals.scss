@@ -60,6 +60,7 @@ button, a[href].button {
   transition-property: color, background, fill, stroke;
   transition-timing-function: cubic-bezier(.4, 0, .2, 1);
   transition-duration: .15s;
+  padding: .5em .75em;
 
   &:has(svg) {
     padding-left: 1rem;
@@ -72,13 +73,13 @@ button, a[href].button {
     max-height: 1.25rem;
     max-width: 1.25rem;
   }
+
   &#skip-to-content {
     outline-offset: -2px;
   }
 
   &:focus-visible {
     outline: 2px solid var(--accent-secondary);
-    outline-offset: 2px;
     text-decoration: underline;
   }
 
@@ -116,9 +117,8 @@ button, a[href].button {
   }
 }
 
-*:focus-visible {
+*:focus-visible, *:focus {
   outline-color: var(--accent-secondary);
-  outline-offset: 2px;
 }
 
 .visually-hidden:not(:focus,:focus-visible,:active),
@@ -152,7 +152,7 @@ input {
   }
 
   input {
-    background: #171717;
+    background: #202020;
     color: #ededed;
   }
 

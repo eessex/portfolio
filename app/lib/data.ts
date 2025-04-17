@@ -1,35 +1,45 @@
-import type { About, Event, EventClient, Image, Link, SiteSettings } from '@/lib/definitions'
+import type { About, Event, EventClient, Image, Link, SiteSettings, SiteSettingsClient } from '@/lib/definitions'
 import { isUpcomingDate, camelizeKeys } from '@/ui/util'
 import { sql } from '@vercel/postgres'
 
 /** main page meta & image etc */
-export async function fetchSiteSettings () {
+export async function fetchSiteSettings (): Promise<SiteSettingsClient> {
   try {
-    const data = await sql<SiteSettings & { cover_image_url: string, cover_image_aspect: number, cover_image_caption?: string }>`
+    const data = await sql<SiteSettings & { cover_image_id?: string, cover_image_url?: string, cover_image_aspect?: number, cover_image_caption?: string }>`
       SELECT 
         s.title,
         s.description,
+        s.id,
+        s.cover_image_id,
         i.url as cover_image_url,
         i.aspect as cover_image_aspect,
         i.caption as cover_image_caption
       FROM site_settings as s
       JOIN images as i ON i.id = s.cover_image_id
     `
-    if (data.rowCount === 0) {
-      return
+    const settings = data.rows[0]
+    if (!settings) {
+      throw new Error('Failed to fetch site settings.')
     }
+
+    const coverImg: Image | undefined = settings.cover_image_id
+      ? {
+          id: settings.cover_image_id!,
+          url: settings.cover_image_url!,
+          aspect: settings.cover_image_aspect!,
+          caption: settings.cover_image_caption
+        }
+      : undefined
+
     return {
-      title: data.rows[0].title,
-      description: data.rows[0].description,
-      coverImage: {
-        url: data.rows[0].cover_image_url,
-        aspect: data.rows[0].cover_image_aspect,
-        caption: data.rows[0].cover_image_caption
-      }
+      id: settings.id,
+      title: settings.title,
+      description: settings.description,
+      coverImage: coverImg
     }
   } catch (error) {
     console.error('Database Error:', error)
-    throw new Error('Failed to fetch links.')
+    throw new Error('Failed to fetch site settings.')
   }
 }
 

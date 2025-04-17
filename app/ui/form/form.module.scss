@@ -5,13 +5,26 @@
   max-width: 680px;
   margin: auto;
 
-  label {
+  label, legend {
     margin-bottom: .25em;
     display: block;
     font-weight: bold;
   }
 
-  input {
+  input, textarea, select {
     width: 100%;
+  }
+
+  figure {
+    position: relative;
+    max-height: 65vh;
+
+    button {
+      position: absolute;
+      top: -5px;
+      z-index: 1;
+      right: -5px;
+      padding: .75em .8em;
+    }
   }
 }

@@ -12,8 +12,8 @@ export interface SiteSettings {
   title: string,
 }
 
-export interface SiteSettingsClient extends Omit<SiteSettings, 'coverImageId'> {
-  coverImage: Omit<Image, 'id'>
+export interface SiteSettingsClient extends SiteSettings {
+  coverImage?: Image
 }
 
 export interface About {

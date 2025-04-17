@@ -1,6 +1,7 @@
 import { fetchSocialLinks } from '@/lib/data'
 import EmailSubscribe from '@/ui/email-subscribe/email-subscribe'
 import styles from '@/ui/footer/footer.module.scss'
+import Link from 'next/link'
 import { auth } from '../../../auth'
 import LogoutButton from '../logout-button'
 
@@ -25,7 +26,16 @@ export default async function asyncFooter () {
       )}
       {session?.user
         ? (
-          <LogoutButton />
+          <ul>
+            <li>
+              <Link href='/dashboard'>
+                Dashboard
+              </Link>
+            </li>
+            <li>
+              <LogoutButton />
+            </li>
+          </ul>
           )
         : (
           <EmailSubscribe />

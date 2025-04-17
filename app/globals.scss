@@ -10,6 +10,7 @@
   --accent-secondary: var(--accent-light);
   --transparency-primary: rgba(0, 0, 0, 0.15);
   --transparency-secondary: rgba(0, 0, 0, 0.35);
+  --error-color: #e65225;
 
   --menubar-height: 3.27rem;
   --footer-height: 3.25rem;
@@ -119,6 +120,10 @@ button, a[href].button {
 
 *:focus-visible, *:focus {
   outline-color: var(--accent-secondary);
+
+  &:invalid {
+    outline-color: var(--error-color);
+  }
 }
 
 .visually-hidden:not(:focus,:focus-visible,:active),
@@ -136,9 +141,14 @@ img {
   background: var(--transparency-secondary);
 }
 
-input {
+input, textarea, select {
   padding: 0.5em 0.75em;
   background: #eee;
+  border: 2px solid transparent;
+
+  &:invalid {
+    border-color: var(--error-color);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -151,7 +161,7 @@ input {
     --transparency-secondary: rgba(255, 255, 255, 0.15);
   }
 
-  input {
+  input, textarea, select {
     background: #202020;
     color: #ededed;
   }

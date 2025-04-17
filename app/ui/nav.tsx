@@ -1,13 +1,14 @@
+import { fetchSiteSettings } from '@/lib/data'
 import Link from 'next/link'
 
-const siteTitle = process.env.NEXT_PUBLIC_SITE_TITLE || 'Site Title'
+export default async function Nav () {
+  const settings = await fetchSiteSettings()
 
-export default function Nav () {
   return (
     <nav className='flex flex-row'>
       <h1 className='md:space-x-2 flex-1'>
         <Link href='/'>
-          {siteTitle}
+          {settings?.title || 'Site Title'}
         </Link>
       </h1>
 

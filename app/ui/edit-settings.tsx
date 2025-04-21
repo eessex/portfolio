@@ -6,17 +6,67 @@ import styles from '@/ui/form/form.module.scss'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useActionState, useState } from 'react'
 import { Toast } from './toast/toast'
+import clsx from 'clsx'
+
+function Input ({
+  label,
+  description,
+  defaultValue,
+  value,
+  attributes,
+  onChange
+}: {
+  label: string
+  description?: string
+  defaultValue?: string | number,
+  value?: string | number,
+  attributes: React.InputHTMLAttributes<HTMLTextAreaElement | HTMLInputElement>,
+  onChange?: (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, isDirty: boolean) => void
+}) {
+  const [isDirty, setIsDirty] = useState<boolean>(false)
+
+  const onBlur = (event: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    if (event.target.value !== defaultValue && !isDirty) {
+      setIsDirty(true)
+    }
+  }
+
+  const onChangeHandler = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    if (!isDirty) {
+      setIsDirty(event.target.value !== defaultValue)
+    }
+    onChange?.(event, event.target.value !== defaultValue)
+  }
+
+  const props = {
+    ...attributes,
+    defaultValue,
+    value,
+    className: clsx(styles.input, isDirty && 'dirty'),
+    onChange: onChangeHandler,
+    onBlur
+  }
+
+  return (
+    <div>
+      <label>{label}</label>
+      {description && (
+        <p>
+          {description}
+        </p>
+      )}
+      {attributes?.type === 'textarea'
+        ? <textarea {...props} />
+        : <input {...props} />}
+    </div>
+  )
+}
 
 export default function EditSettingsForm ({ settings }: { settings: SiteSettingsClient }) {
   const [error, setError] = useState<boolean>(false)
   const [success, setSuccess] = useState<boolean>(false)
+  const [isDirty, setIsDirty] = useState<boolean>(false)
   const [coverImageId, setCoverImageId] = useState<string | undefined>(settings?.coverImage?.id)
-
-  const defaultValues = {
-    title: settings?.title,
-    description: settings?.description,
-    coverImageId: settings?.coverImage?.id
-  }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_state, formAction, isPending] = useActionState(
@@ -24,14 +74,12 @@ export default function EditSettingsForm ({ settings }: { settings: SiteSettings
     null
   )
 
+  function onChange (_event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, isDirty: boolean) {
+    setIsDirty(isDirty)
+  }
+
   async function onSubmit (_state: void | null, formData: FormData) {
     setError(false)
-
-    const isDirty = Object.keys(defaultValues).some((key) => {
-      const defaultValue = defaultValues[key as keyof typeof defaultValues]
-      return defaultValue !== formData.get(key)
-    })
-
     if (!isDirty) {
       setSuccess(true)
       console.info('No changes made.')
@@ -49,36 +97,55 @@ export default function EditSettingsForm ({ settings }: { settings: SiteSettings
 
   return (
     <form className={styles.form} action={formAction}>
+      <Input
+        label='Site title'
+        description='Shown in menubar and as meta title for search engines.'
+        defaultValue={settings?.title}
+        onChange={onChange}
+        attributes={{
+          name: 'title',
+          required: true,
+          maxLength: 100,
+          minLength: 3
+        }}
+      />
+
+      <Input
+        label='Site description'
+        description='Shown on homepage and as meta description for search engines.'
+        defaultValue={settings?.description}
+        onChange={onChange}
+        attributes={{
+          name: 'description',
+          type: 'textarea',
+          maxLength: 300,
+          rows: 4,
+        } as React.InputHTMLAttributes<HTMLTextAreaElement>}
+      />
       <div>
-        <label>Site title</label>
-        <p>Shown in menubar and as meta title for search engines.</p>
-        <input type='text' name='title' defaultValue={settings?.title} required maxLength={100} minLength={3} />
+        <Input
+          label='Cover image'
+          description='Shown on homepage and as meta image for search engines.'
+          value={settings?.coverImageId}
+          onChange={() => setCoverImageId(undefined)}
+          attributes={{
+            type: 'hidden',
+            name: 'coverImageId',
+            value: coverImageId,
+            readOnly: true
+          }}
+        />
+
+        {coverImageId && (
+          <figure style={{ aspectRatio: settings?.coverImage?.aspect }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={settings?.coverImage?.url} alt={settings?.coverImage?.caption} title={settings?.coverImage?.caption} />
+            <button type='button' onClick={() => setCoverImageId(undefined)} className='button' aria-label='Remove cover image'>
+              <XMarkIcon />
+            </button>
+          </figure>
+        )}
       </div>
-
-      <div>
-        <label>Site description</label>
-        <p>Shown on homepage and as meta description for search engines.</p>
-        <textarea name='description' rows={4} defaultValue={settings?.description} maxLength={300} />
-      </div>
-
-      <fieldset>
-        <legend>Cover image</legend>
-        <div>
-          <label className='visually-hidden'>Cover image</label>
-          <p>Shown on homepage and as meta image for search engines.</p>
-          <input type='hidden' name='coverImageId' defaultValue={coverImageId} readOnly />
-
-          {coverImageId && (
-            <figure style={{ aspectRatio: settings?.coverImage?.aspect }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={settings?.coverImage?.url} alt={settings?.coverImage?.caption} title={settings?.coverImage?.caption} />
-              <button type='button' onClick={() => setCoverImageId(undefined)} className='button' aria-label='Remove image'>
-                <XMarkIcon />
-              </button>
-            </figure>
-          )}
-        </div>
-      </fieldset>
 
       <button className='button' type='submit' disabled={isPending}>
         {isPending ? 'Loading...' : 'Save'}

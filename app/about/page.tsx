@@ -1,9 +1,10 @@
-import { fetchAboutPage, fetchPressImages, fetchSiteSettings } from '@/lib/data'
+import { fetchAboutPage, fetchPressImages, fetchPressLinks, fetchSiteSettings } from '@/lib/data'
 import AccordionDropdown from '@/ui/accordion-dropdown/accordion-dropdown'
 import styles from '@/about/about.module.scss'
 import ImageGrid from '@/ui/image-grid/image-grid'
 import { Suspense } from 'react'
 import Loading from '@/ui/loading'
+import { formattedDateTime } from '@/ui/util'
 
 const title = 'About'
 
@@ -30,6 +31,7 @@ export async function generateMetadata () {
 export default async function AboutPage () {
   const about = await fetchAboutPage()
   const pressImages = await fetchPressImages()
+  const links = await fetchPressLinks()
 
   return (
     <article className={`${styles.about} px-4`}>
@@ -71,9 +73,25 @@ export default async function AboutPage () {
           </AccordionDropdown>
         </Suspense>
 
-        <AccordionDropdown title='Press Links'>
-          <p>Under construction 🚧</p>
-        </AccordionDropdown>
+        {!!links.length && (
+          <AccordionDropdown title='Press Links'>
+            <ul>
+              {links?.map((link, index) => (
+                <li key={index}>
+                  <a href={link.url} target='_blank' rel='noopener noreferrer'>
+                    <div>
+                      <b>{link.title || link.url}</b>
+                      <div>
+                        {link.attribution && (<em>— {link.attribution}, </em>)}
+                        {formattedDateTime(link.publishedDate || link.createdAt!, 'xs')}
+                      </div>
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </AccordionDropdown>
+        )}
       </div>
     </article>
   )

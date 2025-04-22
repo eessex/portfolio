@@ -77,6 +77,21 @@ export async function fetchPressImages () {
   }
 }
 
+/** Only the press links */
+export async function fetchPressLinks (): Promise<Link[]> {
+  try {
+    const data = await sql`
+      SELECT * FROM links
+      WHERE is_press = true
+      ORDER BY published_date DESC, created_at DESC
+    `
+    return data.rows.map(link => ({ ...camelizeKeys(link) }))
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch press links.')
+  }
+}
+
 /** links to social media profiles */
 export async function fetchSocialLinks () {
   try {

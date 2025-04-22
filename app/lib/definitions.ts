@@ -42,9 +42,12 @@ export interface Image {
 }
 
 export interface Link {
+  attribution?: string
+  createdAt?: string
   id: string
   isPress?: boolean
   isSocialProfile?: boolean
+  publishedDate?: string
   title?: string
   url: string
 }

@@ -92,7 +92,7 @@ export default async function EventsPage ({
 
         <figure>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={event.images[0].url} alt={event.images[0].caption} />
+          <img src={event.images[0].url} alt={event.images[0].caption} style={{ aspectRatio: event.images[0].aspect }} />
           <figcaption>{event.images[0].caption}</figcaption>
         </figure>
 

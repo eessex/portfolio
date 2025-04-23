@@ -1,3 +1,5 @@
+@use '@/ui/breakpoints';
+
 .event {
   max-width: 680px;
   margin: auto;
@@ -11,6 +13,10 @@
       font-size: xx-large;
       line-height: normal;
       margin: 0.5rem 0;
+
+      @include breakpoints.sm-width {
+        font-size: x-large;
+      }
     }
 
     h2, h3 {
@@ -23,11 +29,17 @@
   }
 
   figure {
-    margin: 1rem;
+    margin: 1rem 0;
 
     img {
       margin: auto;
       max-height: 70vh;
+
+      @include breakpoints.sm-width {
+        max-height: unset;
+        width: 100%;
+        height: auto;
+      }
     }
 
     figcaption {

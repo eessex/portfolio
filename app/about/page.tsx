@@ -34,7 +34,7 @@ export default async function AboutPage () {
   const links = await fetchPressLinks()
 
   return (
-    <article className={`${styles.about} px-4`}>
+    <article className={`${styles.about} px-4 pt-4 pb-8`}>
       <header>
         <h1 className='py-2'>{title}</h1>
       </header>

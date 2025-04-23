@@ -1,13 +1,34 @@
 import { Venue } from '@/lib/definitions'
 
-export function VenueInline ({ venue: { name, address, city, country, state } }: { venue: Omit<Venue, 'id'> }) {
-  return (
-    <>
-      {name && `${name}: `}
-      {address && `${address}`}
-      {address && city ? `, ${city}` : city}
-      {state && `, ${state}`}
-      {country && `, ${country}`}
-    </>
-  )
+type VenueFormat = 'sm' | 'lg'
+
+export function VenueInline ({
+  venue: {
+    name, address, city, country, state
+  },
+  format,
+}: {
+  venue: Omit<Venue, 'id'>,
+  format?: VenueFormat
+}) {
+  if (format && format === 'sm') {
+    return (
+      <>
+        {name && `${name}: `}
+        {city && ` ${city}`}
+        {state && `, ${state}`}
+        {country && `, ${country}`}
+      </>
+    )
+  } else {
+    return (
+      <>
+        {name && `${name}: `}
+        {address && `${address}`}
+        {address && city ? `, ${city}` : city}
+        {state && `, ${state}`}
+        {country && `, ${country}`}
+      </>
+    )
+  }
 }

@@ -25,7 +25,7 @@ export default function EventsListItem ({
         </div>
 
         <div className={styles.contentRight}>
-          <VenueInline venue={event.venue} />
+          <VenueInline venue={event.venue} format='sm' />
         </div>
       </Link>
     </article>

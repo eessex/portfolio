@@ -1,10 +1,11 @@
+import styles from '@/about/about.module.scss'
 import { fetchAboutPage, fetchPressImages, fetchPressLinks, fetchSiteSettings } from '@/lib/data'
 import AccordionDropdown from '@/ui/accordion-dropdown/accordion-dropdown'
-import styles from '@/about/about.module.scss'
+import { EditButton } from '@/ui/edit-button/edit-button'
 import ImageGrid from '@/ui/image-grid/image-grid'
-import { Suspense } from 'react'
 import Loading from '@/ui/loading'
 import { formattedDateTime } from '@/ui/util'
+import { Suspense } from 'react'
 
 const title = 'About'
 
@@ -37,6 +38,7 @@ export default async function AboutPage () {
     <article className={`${styles.about} px-4 pt-4 pb-8`}>
       <header>
         <h1 className='py-2'>{title}</h1>
+        <EditButton path='/about' />
       </header>
 
       {about?.coverImage && (

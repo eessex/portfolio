@@ -21,7 +21,7 @@ export interface About {
   coverImageId?: string,
   description?: string,
   slug: string,
-  title: string,
+  title?: string,
 }
 
 export interface Venue {

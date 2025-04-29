@@ -136,7 +136,7 @@ img {
   background: var(--transparency-secondary);
 }
 
-input {
+input, textarea {
   padding: 0.5em 0.75em;
   background: #eee;
 }
@@ -151,7 +151,7 @@ input {
     --transparency-secondary: rgba(255, 255, 255, 0.15);
   }
 
-  input {
+  input, textarea {
     background: #202020;
     color: #ededed;
   }

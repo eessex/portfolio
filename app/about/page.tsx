@@ -69,7 +69,7 @@ export default async function AboutPage () {
       <div className={styles['press-info']}>
         <Suspense fallback={<Loading />}>
           <AccordionDropdown title='Press Images'>
-            <ImageGrid images={pressImages.filter(i => i.url !== about?.coverImage.url)} />
+            <ImageGrid images={pressImages.filter(i => i.url !== about?.coverImage?.url)} />
           </AccordionDropdown>
         </Suspense>
 

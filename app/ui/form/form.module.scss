@@ -16,6 +16,10 @@
     field-sizing: content;
   }
 
+  textarea {
+    min-height: 5em;
+  }
+
   figure {
     position: relative;
     max-height: 65vh;

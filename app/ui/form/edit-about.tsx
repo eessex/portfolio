@@ -14,8 +14,7 @@ export function EditAboutForm ({ about }: { about: Omit<About, 'slug'> & { cover
         isTextarea
         attributes={{
           name: 'description',
-          maxLength: 15000,
-          rows: 10
+          maxLength: 15000
         }}
       />
 

@@ -7,7 +7,7 @@ interface CoverImage { cover_image_url: string, cover_image_aspect: number, cove
 /** main page meta & image etc */
 export async function fetchSiteSettings (): Promise<SiteSettingsClient> {
   try {
-    const data = await sql<SiteSettings & CoverImage>`
+    const data = await sql<SiteSettings & { cover_image_id?: string } & CoverImage>`
       SELECT 
         s.title,
         s.description,

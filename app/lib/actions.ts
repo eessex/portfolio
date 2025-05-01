@@ -47,17 +47,17 @@ export async function createEmailSubscription (email: string) {
 }
 
 const EditSettingsSchema = z.object({
-  title: z.string(),
-  description: z.string().optional(),
-  coverImageId: z.string().optional(),
+  title: z.string().max(255).optional(),
+  description: z.string().max(400).optional(),
+  coverImageId: z.string()
 })
 
 export async function editSiteSettings (formData: FormData, id: string) {
-  const validatedFields = EditSettingsSchema.safeParse({
-    title: formData.get('title'),
-    description: formData.get('description'),
-    coverImageId: formData.get('coverImageId'),
-  })
+  const data: Record<FormData['entries']['name'], unknown> = {}
+  formData.entries().forEach(([n, v]) => { data[n] = v })
+
+  const validatedFields = EditSettingsSchema.safeParse(data)
+  console.info('validatedFields', validatedFields)
 
   if (!validatedFields.success) {
     return {
@@ -65,17 +65,22 @@ export async function editSiteSettings (formData: FormData, id: string) {
       message: 'Missing Fields. Failed to save.',
     }
   } else {
-    const { title, description, coverImageId } = validatedFields.data
+    const [title, description, coverImageId] = Object.entries(validatedFields.data).map(([_key, value]) => value)
 
     try {
       await sql`
         UPDATE site_settings
-        SET title = ${title}, description = ${description || ''}, cover_image_id = ${coverImageId || ''}, updated_at = current_timestamp
+        SET title = ${title},
+            description = ${description},
+            cover_image_id = ${coverImageId},
+            updated_at = current_timestamp
         WHERE id = ${id}
       `
       revalidatePath('/dashboard')
-    } catch (error) {
-      throw new Error('Database Error: Failed to update settings.')
+      return { ok: true }
+    } catch (err) {
+      console.error('Database Error', err)
+      throw new Error('Database Error: Failed to save.')
     }
   }
 }

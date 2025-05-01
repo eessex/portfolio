@@ -8,7 +8,7 @@ export function Form ({
   action,
   children
 }: {
-  action: (formData: FormData) => Promise<{ ok: boolean; } | { message: string }>,
+  action: (formData: FormData) => Promise<{ ok: boolean; } | { errors: Record<string, string[] | undefined>, message: string } | undefined>,
   children: React.ReactNode
 }) {
   const [error, setError] = useState<boolean>(false)

@@ -3,6 +3,13 @@
     max-width: 680px;
     margin: 0 auto;
   }
+
+  header {
+    display: flex;
+    gap: 2rem;
+    justify-content: space-between;
+    align-items: center;
+  }
 }
 
 .cover-image {

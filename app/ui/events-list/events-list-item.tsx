@@ -4,7 +4,7 @@ import { formattedDateTime } from '@/ui/util'
 import { VenueInline } from '@/ui/venue'
 import Link from 'next/link'
 
-export default function EventsGridItem ({
+export default function EventsListItem ({
   event,
   index,
 }: {
@@ -13,22 +13,10 @@ export default function EventsGridItem ({
 }) {
   return (
     <article>
-      {/* {event.images[0].url && !isTextOnly && (
-        <Link href={`/events/${event.slug}`}>
-          <img
-            src={event.images[0].url}
-            alt={event.images[0].caption || 'Event image'}
-            style={{ aspectRatio: event.images[0].aspect }}
-            loading={index > 8 ? 'lazy' : undefined}
-            title={event.images[0].caption || undefined}
-          />
-        </Link>
-      )}
-      */}
       <Link href={`/events/${event.slug}`}>
         <div className={styles.contentLeft}>
           <div>
-            {formattedDateTime(event.startDate)}
+            {formattedDateTime(event.startDate, 'md')}
           </div>
 
           <div className='font-bold md:font-normal'>
@@ -37,7 +25,7 @@ export default function EventsGridItem ({
         </div>
 
         <div className={styles.contentRight}>
-          <VenueInline venue={event.venue} />
+          <VenueInline venue={event.venue} format='sm' />
         </div>
       </Link>
     </article>

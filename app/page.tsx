@@ -35,7 +35,7 @@ export default async function Home () {
         </h1>
 
         {settings?.coverImage && (
-          <figure>
+          <figure style={{ aspectRatio: settings.coverImage.aspect }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={settings.coverImage.url}

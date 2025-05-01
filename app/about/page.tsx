@@ -1,9 +1,11 @@
-import { fetchAboutPage, fetchPressImages, fetchSiteSettings } from '@/lib/data'
-import AccordionDropdown from '@/ui/accordion-dropdown/accordion-dropdown'
 import styles from '@/about/about.module.scss'
+import { fetchAboutPage, fetchPressImages, fetchPressLinks, fetchSiteSettings } from '@/lib/data'
+import AccordionDropdown from '@/ui/accordion-dropdown/accordion-dropdown'
+import { EditButton } from '@/ui/edit-button/edit-button'
 import ImageGrid from '@/ui/image-grid/image-grid'
-import { Suspense } from 'react'
 import Loading from '@/ui/loading'
+import { formattedDateTime } from '@/ui/util'
+import { Suspense } from 'react'
 
 const title = 'About'
 
@@ -30,11 +32,13 @@ export async function generateMetadata () {
 export default async function AboutPage () {
   const about = await fetchAboutPage()
   const pressImages = await fetchPressImages()
+  const links = await fetchPressLinks()
 
   return (
-    <article className={`${styles.about} px-4`}>
+    <article className={`${styles.about} px-4 pt-4 pb-8`}>
       <header>
         <h1 className='py-2'>{title}</h1>
+        <EditButton path='/about' />
       </header>
 
       {about?.coverImage && (
@@ -67,13 +71,29 @@ export default async function AboutPage () {
       <div className={styles['press-info']}>
         <Suspense fallback={<Loading />}>
           <AccordionDropdown title='Press Images'>
-            <ImageGrid images={pressImages.filter(i => i.url !== about?.coverImage.url)} />
+            <ImageGrid images={pressImages.filter(i => i.url !== about?.coverImage?.url)} />
           </AccordionDropdown>
         </Suspense>
 
-        <AccordionDropdown title='Press Links'>
-          <p>Under construction 🚧</p>
-        </AccordionDropdown>
+        {!!links.length && (
+          <AccordionDropdown title='Press Links'>
+            <ul>
+              {links?.map((link, index) => (
+                <li key={index}>
+                  <a href={link.url} target='_blank' rel='noopener noreferrer'>
+                    <div>
+                      <b>{link.title || link.url}</b>
+                      <div>
+                        {link.attribution && (<em>— {link.attribution}, </em>)}
+                        {formattedDateTime(link.publishedDate || link.createdAt!, 'xs')}
+                      </div>
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </AccordionDropdown>
+        )}
       </div>
     </article>
   )

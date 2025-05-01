@@ -37,7 +37,7 @@ export default function EmailSubscribe () {
   function SubmitButton () {
     return (
       <button type='submit' disabled={isPending}>
-        {isPending ? 'Loading...' : 'Submit'}
+        {isPending ? 'Loading...' : 'Subscribe'}
       </button>
     )
   }

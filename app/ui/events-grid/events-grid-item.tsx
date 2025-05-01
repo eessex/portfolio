@@ -17,7 +17,7 @@ export default function EventsGridItem ({
   return (
     <article>
       {event.images[0].url && !isTextOnly && (
-        <figure>
+        <figure style={{ aspectRatio: event.images[0].aspect }}>
           <Link href={`/events/${event.slug}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -33,7 +33,7 @@ export default function EventsGridItem ({
       <section>
         <Link href={`/events/${event.slug}`}>
 
-          <h3 style={{ fontSize: (!event.images[0].url || isTextOnly) ? 'xx-large' : undefined }}>
+          <h3>
             {event.title}
           </h3>
 

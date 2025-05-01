@@ -1,3 +1,5 @@
+@use '@/ui/breakpoints';
+
 .cover {
   height: calc(100vh - var(--menubar-height) - var(--footer-height) - 4rem); // 4rem for figcaption
   display: flex;
@@ -28,6 +30,22 @@
       object-fit: contain;
     }
   }
+
+  @include breakpoints.mobile {
+    figure{
+      margin: 0 auto;
+      height: auto;
+      width: auto;
+      min-width: 100%;
+      max-width: 100%;
+      align-self: center;
+
+      img {
+        height: auto;
+        width: 100%;
+      }
+    }
+  }
 }
 
 .description {
@@ -36,4 +54,8 @@
   font-size: larger;
   font-weight: bold;
   z-index: 1;
+
+  @include breakpoints.mobile {
+    margin: 1.5rem;
+  }
 }

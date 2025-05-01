@@ -5,6 +5,11 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 4rem 2.25rem;
   min-height: 35vh;
+
+  @include breakpoints.sm-width {
+    min-height: unset;
+    gap: 2.25rem;
+  }
   
   h3, h4 {
     margin: 0.5rem 0;
@@ -29,12 +34,28 @@
     a[href].button {
       display: flex-start;
     }
+
+    h3 {
+      font-size: xx-large;
+
+      @include breakpoints.sm-width {
+        font-size: x-large;
+      }
+    }
   }
 }
 
 .upcoming {
   grid-template-columns: repeat(auto-fill, minmax(425px, 1fr));
   margin-top: 1em;
+
+  @include breakpoints.sm-width {
+    grid-template-columns: 1fr;
+
+    figure {
+      width: 100%;
+    }
+  }
 }
 
 .column {
@@ -59,6 +80,10 @@
 
       h3 {
         font-size: xx-large;
+
+        @include breakpoints.sm-width {
+          font-size: x-large;
+        }
       }
 
       figure {

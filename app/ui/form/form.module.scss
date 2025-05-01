@@ -11,8 +11,9 @@
     font-weight: bold;
   }
 
-  input, textarea, select {
+  input, textarea {
     width: 100%;
+    field-sizing: content;
   }
 
   figure {

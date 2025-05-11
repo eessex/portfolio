@@ -19,6 +19,11 @@ export default async function Nav () {
           </Link>
         </li>
         <li>
+          <Link href='/releases'>
+            Releases
+          </Link>
+        </li>
+        <li>
           <Link href='/about'>
             About
           </Link>

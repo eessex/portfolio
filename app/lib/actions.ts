@@ -57,8 +57,6 @@ export async function editSiteSettings (formData: FormData, id: string) {
   formData.entries().forEach(([n, v]) => { data[n] = v })
 
   const validatedFields = EditSettingsSchema.safeParse(data)
-  console.info('validatedFields', validatedFields)
-
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,

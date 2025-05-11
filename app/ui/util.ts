@@ -19,10 +19,16 @@ const dateFormatXs: Intl.DateTimeFormatOptions = {
   month: 'short'
 }
 
-type DateFormatSize = 'xs' | 'sm' | 'md' | 'lg'
+const dateFormatXxs: Intl.DateTimeFormatOptions = {
+  year: 'numeric'
+}
+
+type DateFormatSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg'
 
 const getTimeFormat = (format: DateFormatSize = 'lg') => {
   switch (format) {
+    case 'xxs':
+      return dateFormatXxs
     case 'xs':
       return dateFormatXs
     case 'md':

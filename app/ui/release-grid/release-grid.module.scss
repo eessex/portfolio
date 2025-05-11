@@ -1,0 +1,55 @@
+@use '@/ui/breakpoints';
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 4rem 2.25rem;
+  min-height: 35vh;
+  margin-top: 0.5em;
+
+  @include breakpoints.sm-width {
+    min-height: unset;
+    gap: 2.25rem;
+  }
+  
+  @include breakpoints.sm-width {
+    grid-template-columns: 1fr;
+
+    figure {
+      width: 100%;
+    }
+  }
+
+  h3, h4 {
+    margin: 0.5rem 0;
+  }
+
+  h4, h5 {
+    font-weight: normal;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 0.75rem;
+  }
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+
+    a[href].button {
+      display: flex-start;
+    }
+
+    h3 {
+      font-size: x-large;
+
+      @include breakpoints.sm-width {
+        font-size: x-large;
+      }
+    }
+  }
+}

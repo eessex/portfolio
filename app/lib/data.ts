@@ -1,4 +1,13 @@
-import type { About, Event, EventClient, Image, Link, SiteSettings, SiteSettingsClient } from '@/lib/definitions'
+import type {
+  About,
+  Event,
+  EventClient,
+  Image,
+  Link,
+  ReleaseClient,
+  SiteSettings,
+  SiteSettingsClient
+} from '@/lib/definitions'
 import { isUpcomingDate, camelizeKeys } from '@/ui/util'
 import { sql } from '@vercel/postgres'
 
@@ -236,5 +245,62 @@ function formatEvent (event: Event & EventMetaProperties): EventClient {
       caption: event.image_caption,
       aspect: event.image_aspect
     }]
+  }
+}
+
+export async function fetchReleases (): Promise<ReleaseClient[]> {
+  try {
+    const data = await sql`
+      SELECT
+        r.*,
+        i.url as image_url,
+        i.caption as image_caption,
+        i.aspect as image_aspect
+      FROM releases as r
+      LEFT JOIN images as i ON i.id = ANY(r.image_ids)
+      ORDER BY r.release_date DESC
+    `
+    const res = data.rows.map(release => ({
+      ...camelizeKeys(release),
+      images: [{
+        url: release.image_url,
+        caption: release.image_caption,
+        aspect: release.image_aspect
+      }]
+    }))
+    return res.filter(release => release.isPublished)
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch releases.')
+  }
+}
+
+export async function fetchReleaseBySlug (slug: string): Promise<ReleaseClient | undefined> {
+  try {
+    const data = await sql`
+      SELECT
+        r.*,
+        i.url as image_url,
+        i.caption as image_caption,
+        i.aspect as image_aspect
+      FROM releases as r
+      LEFT JOIN images as i ON i.id = ANY(r.image_ids)
+      WHERE r.slug = ${slug}
+    `
+    if (data.rowCount === 0) {
+      return
+    }
+    const release = data.rows[0]
+    return {
+      ...camelizeKeys(release),
+      images: [{
+        url: release.image_url,
+        caption: release.image_caption,
+        aspect: release.image_aspect
+      }]
+    }
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch releases.')
   }
 }

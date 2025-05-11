@@ -52,6 +52,29 @@ export interface Link {
   url: string
 }
 
+export interface Release {
+  artist: string
+  buyLink?: string
+  description?: string
+  format: string
+  id: string
+  imageIds: string[]
+  isCollaboration?: boolean
+  isCompilation?: boolean
+  isFeature?: boolean
+  isPublished: boolean
+  isSingle?: boolean
+  label?: string
+  releaseDate: string
+  slug: string
+  streamLink?: string
+  title: string
+}
+
+export interface ReleaseClient extends Omit<Release, 'imageIds'> {
+  images: Image[]
+}
+
 /** Data returned to client */
 export interface EventClient extends Omit<Event,
   'venueId' | 'imageIds' | 'linkIds' | 'projectIds'

@@ -104,7 +104,7 @@ export default async function EventsPage ({
       </article>
 
       <Suspense fallback={<Loading />}>
-        <EventsGrid events={moreEvents} isUpcoming isTextOnly />
+        {upcomingEvents.length > 0 && <EventsGrid events={moreEvents} isUpcoming isTextOnly />}
       </Suspense>
     </div>
   )

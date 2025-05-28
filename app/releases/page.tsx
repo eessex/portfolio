@@ -26,11 +26,11 @@ export default async function ReleasesPage () {
 
       <Suspense fallback={<Loading />}>
         <div className='flex flex-col space-y-8'>
-          {soloReleases && <ReleaseList title='Solo releases' releases={soloReleases} />}
+          {soloReleases && <ReleaseList title='Solo Releases' releases={soloReleases} />}
           {singles && <ReleaseList title='Singles' releases={singles} />}
           {compilations && <ReleaseList title='Compilations' releases={compilations} />}
-          {collaborations && <ReleaseList title='Collaborative releases' releases={collaborations} />}
-          {featureReleases && <ReleaseList title='Featured on' releases={featureReleases} />}
+          {collaborations && <ReleaseList title='Collaborative Releases' releases={collaborations} />}
+          {featureReleases && <ReleaseList title='Featured On' releases={featureReleases} />}
         </div>
       </Suspense>
     </div>

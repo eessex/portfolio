@@ -19,7 +19,7 @@ export default async function EventsPage () {
 
       <Suspense fallback={<Loading />}>
         <div className='flex flex-col space-y-8'>
-          <EventsGrid events={upcomingEvents} isUpcoming isColumn />
+          {upcomingEvents.length > 0 && <EventsGrid events={upcomingEvents} isUpcoming isColumn />}
           <EventsList events={pastEvents} />
         </div>
       </Suspense>

@@ -29,7 +29,7 @@ export default function RootLayout ({
           <Nav />
         </header>
 
-        <main className='grow h-full' id='content'>
+        <main id='content'>
           {children}
         </main>
 

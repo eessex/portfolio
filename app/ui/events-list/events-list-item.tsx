@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 export default function EventsListItem ({
   event,
-  index,
+  index: _index,
 }: {
   event: EventClient;
   index: number;

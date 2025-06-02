@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 export default function ReleaseListItem ({
   release,
-  index,
+  index: _index,
 }: {
   release: ReleaseClient;
   index: number;

@@ -23,7 +23,6 @@ export function Form ({
     }
   }, [formRef, initialState])
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_state, formAction, isPending] = useActionState(
     onSubmit,
     null

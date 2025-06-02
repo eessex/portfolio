@@ -43,6 +43,8 @@ ul {
 }
 
 main {
+  flex: 1;
+
   li, p {
     margin: 0 0 1em;
     width: 100%;
@@ -50,7 +52,6 @@ main {
     text-wrap: pretty;
   }
 }
-
 
 button, a[href].button {
   display: inline-flex;

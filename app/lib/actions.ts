@@ -10,7 +10,7 @@ import { signIn } from '../../auth'
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 export async function authenticate (
-  prevState: string | undefined,
+  _prevState: string | undefined,
   formData: FormData
 ) {
   try {

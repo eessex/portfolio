@@ -47,7 +47,8 @@ export default async function ReleasesPage ({
 }) {
   const { slug } = await params
   const release = await fetchReleaseBySlug(slug)
-  const [featuredImage, ..._images] = release?.images || []
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [featuredImage, ...images] = release?.images || []
   const [featuredEmbed, ...embedCodes] = release?.embedCodes || []
 
   if (!release) {

@@ -83,7 +83,7 @@ export default async function EventsPage ({
                 <VenueInline venue={event.venue} />
                 )}
           </h3>
-          {event.ticketLink && (
+          {event.ticketLink && isUpcoming && (
             <a className={'button ' + styles['ticket-link']} href={event.ticketLink} target='_blank' rel='noreferrer'>
               <TicketIcon />Tickets
             </a>

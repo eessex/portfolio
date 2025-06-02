@@ -46,10 +46,25 @@
       text-align: center;
     }
   }
+
+  .links {
+    margin: 2em 0;
+  }
+
+  .embed-codes {
+    margin-bottom: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+
+    iframe {
+      width: 100%;
+    }
+  }
 }
 
 .category {
-  font-size: smaller;
+  font-size: small;
   text-transform: uppercase;
   letter-spacing: 0.07em;
   font-weight: bold;

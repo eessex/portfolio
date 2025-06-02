@@ -47,6 +47,8 @@ export default async function ReleasesPage ({
 }) {
   const { slug } = await params
   const release = await fetchReleaseBySlug(slug)
+  const [featuredImage, ..._images] = release?.images || []
+  const [featuredEmbed, ...embedCodes] = release?.embedCodes || []
 
   if (!release) {
     notFound()
@@ -77,22 +79,44 @@ export default async function ReleasesPage ({
           <h2>
             {release.format}, {release.label}, {formattedDateTime(release.releaseDate, 'xxs')}
           </h2>
-          {release.buyLink && (
-            <a className={'button ' + styles['ticket-link']} href={release.buyLink} target='_blank' rel='noreferrer'>
-              Bandcamp
-            </a>
-          )}
         </header>
 
-        <figure>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={release.images[0].url} alt={release.images[0].caption} style={{ aspectRatio: release.images[0].aspect }} />
-          <figcaption>{release.images[0].caption}</figcaption>
-        </figure>
+        {featuredImage && (
+          <figure>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={featuredImage.url} alt={featuredImage.caption} style={{ aspectRatio: featuredImage.aspect }} />
+            <figcaption>{featuredImage.caption}</figcaption>
+          </figure>
+        )}
 
         <section>
+          {featuredEmbed && (
+            <div className={styles['embed-codes']}>
+              <div dangerouslySetInnerHTML={{ __html: featuredEmbed }} />
+            </div>
+          )}
+
           {release.description && (
             <p>{release.description}</p>
+          )}
+          {release.links && (
+            <ul className={styles.links}>
+              {release.links.map((link, index) => (
+                <li key={index}>
+                  <a href={link.url} target='_blank' rel='noreferrer'>
+                    {link.title || link.url}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {!!embedCodes?.length && (
+            <div className={styles['embed-codes']}>
+              {embedCodes.map((embedCode, index) => (
+                <div key={index} dangerouslySetInnerHTML={{ __html: embedCode }} />
+              ))}
+            </div>
           )}
         </section>
       </article>

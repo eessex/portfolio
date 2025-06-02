@@ -278,26 +278,29 @@ export async function fetchReleases (): Promise<ReleaseClient[]> {
 export async function fetchReleaseBySlug (slug: string): Promise<ReleaseClient | undefined> {
   try {
     const data = await sql`
-      SELECT
-        r.*,
-        i.url as image_url,
-        i.caption as image_caption,
-        i.aspect as image_aspect
-      FROM releases as r
-      LEFT JOIN images as i ON i.id = ANY(r.image_ids)
-      WHERE r.slug = ${slug}
+      SELECT * FROM releases
+      WHERE slug = ${slug}
     `
     if (data.rowCount === 0) {
       return
     }
+
     const release = data.rows[0]
+    const { rows: images } = await sql`
+      SELECT aspect, caption, url, id
+      FROM images
+      WHERE id = ANY(${release.image_ids})
+    `
+    const { rows: links } = await sql`
+      SELECT title, url, id
+      FROM links
+      WHERE id = ANY(${release.link_ids})
+    `
+
     return {
       ...camelizeKeys(release),
-      images: [{
-        url: release.image_url,
-        caption: release.image_caption,
-        aspect: release.image_aspect
-      }]
+      links,
+      images: images.map(i => camelizeKeys(i)),
     }
   } catch (error) {
     console.error('Database Error:', error)

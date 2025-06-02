@@ -72,7 +72,9 @@ export interface Release {
 }
 
 export interface ReleaseClient extends Omit<Release, 'imageIds'> {
-  images: Image[]
+  embedCodes?: string[],
+  images: Image[],
+  links: Link[]
 }
 
 /** Data returned to client */

@@ -98,8 +98,11 @@ export default async function ReleasesPage ({
           )}
 
           {release.description && (
-            <p>{release.description}</p>
+            <p style={{ whiteSpace: 'pre-line' }}>
+              {release.description}
+            </p>
           )}
+
           {release.links && (
             <ul className={styles.links}>
               {release.links.map((link, index) => (

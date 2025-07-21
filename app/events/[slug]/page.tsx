@@ -98,7 +98,9 @@ export default async function EventsPage ({
 
         <section>
           {event.description && (
-            <p>{event.description}</p>
+            <p style={{ whiteSpace: 'pre-line' }}>
+              {event.description}
+            </p>
           )}
         </section>
       </article>

@@ -59,7 +59,9 @@ export default async function AboutPage () {
 
       <section>
         {about?.description && (
-          <p>{about.description}</p>
+          <p style={{ whiteSpace: 'pre-line' }}>
+            {about.description}
+          </p>
         )}
 
         {/* FIXME: rename/add contact column */}

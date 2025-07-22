@@ -49,7 +49,7 @@ export async function createEmailSubscription (email: string) {
 const EditSettingsSchema = z.object({
   title: z.string().max(255).optional(),
   description: z.string().max(400).optional(),
-  coverImageId: z.string()
+  coverImageId: z.string().uuid()
 })
 
 export async function editSiteSettings (formData: FormData, id: string) {
@@ -86,7 +86,7 @@ export async function editSiteSettings (formData: FormData, id: string) {
 const EditAboutSchema = z.object({
   title: z.string().max(255).optional(),
   description: z.string().max(15000).optional(),
-  coverImageId: z.string()
+  coverImageId: z.string().uuid()
 })
 
 export async function editAbout (formData: FormData, id: string) {

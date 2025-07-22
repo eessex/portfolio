@@ -4,6 +4,7 @@ import { formattedDateTime } from '@/ui/util'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -82,19 +83,17 @@ export default async function ReleasesPage ({
           </h2>
         </header>
 
-        {featuredImage && (
-          <figure>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={featuredImage.url} alt={featuredImage.caption} style={{ aspectRatio: featuredImage.aspect }} />
-            <figcaption>{featuredImage.caption}</figcaption>
-          </figure>
-        )}
-
         <section>
           {featuredEmbed && (
-            <div className={styles['embed-codes']}>
-              <div dangerouslySetInnerHTML={{ __html: featuredEmbed }} />
-            </div>
+            <EmbedCodes embedCodes={[featuredEmbed]} />
+          )}
+
+          {featuredImage && (
+            <figure>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={featuredImage.url} alt={featuredImage.caption} style={{ aspectRatio: featuredImage.aspect }} />
+              <figcaption>{featuredImage.caption}</figcaption>
+            </figure>
           )}
 
           {release.description && (
@@ -116,11 +115,7 @@ export default async function ReleasesPage ({
           )}
 
           {!!embedCodes?.length && (
-            <div className={styles['embed-codes']}>
-              {embedCodes.map((embedCode, index) => (
-                <div key={index} dangerouslySetInnerHTML={{ __html: embedCode }} />
-              ))}
-            </div>
+            <EmbedCodes embedCodes={embedCodes} />
           )}
         </section>
       </article>

@@ -1,0 +1,10 @@
+
+  .embed-codes {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+
+    iframe {
+      width: 100%;
+    }
+  }

@@ -1,5 +1,6 @@
 import type {
   About,
+  EmbedCode,
   Event,
   EventClient,
   Image,
@@ -9,7 +10,7 @@ import type {
   SiteSettingsClient
 } from '@/lib/definitions'
 import { isUpcomingDate, camelizeKeys } from '@/ui/util'
-import { sql } from '@vercel/postgres'
+import { QueryResultRow, sql } from '@vercel/postgres'
 
 interface CoverImage { cover_image_url: string, cover_image_aspect: number, cover_image_caption?: string }
 
@@ -275,6 +276,8 @@ export async function fetchReleases (): Promise<ReleaseClient[]> {
   }
 }
 
+type ItemArrays = EmbedCode | Image | Link
+
 export async function fetchReleaseBySlug (slug: string): Promise<ReleaseClient | undefined> {
   try {
     const data = await sql`
@@ -286,24 +289,66 @@ export async function fetchReleaseBySlug (slug: string): Promise<ReleaseClient |
     }
 
     const release = data.rows[0]
-    const { rows: images } = await sql`
-      SELECT aspect, caption, url, id
-      FROM images
-      WHERE id = ANY(${release.image_ids})
-    `
-    const { rows: links } = await sql`
-      SELECT title, url, id
-      FROM links
-      WHERE id = ANY(${release.link_ids})
-    `
+    const embedCodes = await fetchEmbedCodesByIds(release.embed_code_ids)
+    const images = await fetchImagesByIds(release.image_ids)
+    const links = await fetchLinksByIds(release.link_ids)
 
     return {
       ...camelizeKeys(release),
-      links,
-      images: images.map(i => camelizeKeys(i)),
+      embedCodes,
+      images,
+      links
     }
   } catch (error) {
     console.error('Database Error:', error)
-    throw new Error('Failed to fetch releases.')
+    throw new Error(`Failed to fetch release ${slug}.`)
   }
+}
+
+const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]): Promise<EmbedCode[]> => {
+  try {
+    const { rows } = await sql`
+      SELECT * FROM embed_codes
+      WHERE id = ANY(${ids})
+    `
+    return formatItemArrayRows<EmbedCode>(rows, ids)
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch embed codes.')
+  }
+}
+
+const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Image[]> => {
+  try {
+    const { rows } = await sql`
+      SELECT * FROM images
+      WHERE id = ANY(${ids})
+    `
+    return formatItemArrayRows<Image>(rows, ids)
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch images.')
+  }
+}
+
+const fetchLinksByIds = async (ids: QueryResultRow[string]): Promise<Link[]> => {
+  try {
+    const { rows } = await sql`
+      SELECT * FROM links
+      WHERE id = ANY(${ids})
+    `
+    return formatItemArrayRows<Link>(rows, ids)
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch links.')
+  }
+}
+
+function formatItemArrayRows<T extends ItemArrays> (rows: QueryResultRow[], ids: QueryResultRow[string]): T[] {
+  const sortedRows = rows.sort((a, b) => {
+    const indexA = ids.findIndex((id: string) => id === a.id)
+    const indexB = ids.findIndex((id: string) => id === b.id)
+    return ids[indexA] - ids[indexB]
+  })
+  return sortedRows.map(i => camelizeKeys(i)) || []
 }

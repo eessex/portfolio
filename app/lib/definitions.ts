@@ -1,3 +1,6 @@
+import { z } from 'zod'
+import { type EmbedCodeSchema } from './scemas'
+
 export interface User {
   id: string
   name: string
@@ -56,6 +59,7 @@ export interface Release {
   artist: string
   buyLink?: string
   description?: string
+  embedCodeIds?: string[]
   format: string
   id: string
   imageIds: string[]
@@ -65,14 +69,15 @@ export interface Release {
   isPublished: boolean
   isSingle?: boolean
   label?: string
+  linkIds?: string[]
   releaseDate: string
   slug: string
   streamLink?: string
   title: string
 }
 
-export interface ReleaseClient extends Omit<Release, 'imageIds'> {
-  embedCodes?: string[],
+export interface ReleaseClient extends Omit<Release, 'embedCodeIds' | 'imageIds' | 'linkIds'> {
+  embedCodes: EmbedCode[],
   images: Image[],
   links: Link[]
 }
@@ -84,6 +89,10 @@ export interface EventClient extends Omit<Event,
   venue: Omit<Venue, 'id'>
   images: Omit<Image, 'id'>[]
   // links: Link[]
+}
+
+export type EmbedCode = z.infer<typeof EmbedCodeSchema> & {
+  createdAt?: string
 }
 
 /** DB schema */

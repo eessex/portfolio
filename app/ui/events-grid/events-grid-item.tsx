@@ -14,18 +14,20 @@ export default function EventsGridItem ({
   index: number;
   isTextOnly?: boolean;
 }) {
+  const [featuredImage, ..._images] = event?.images || []
+
   return (
     <article>
-      {event.images[0].url && !isTextOnly && (
-        <figure style={{ aspectRatio: event.images[0].aspect }}>
+      {featuredImage?.url && !isTextOnly && (
+        <figure style={{ aspectRatio: featuredImage.aspect }}>
           <Link href={`/events/${event.slug}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={event.images[0].url}
-              alt={event.images[0].caption || 'Event image'}
-              style={{ aspectRatio: event.images[0].aspect }}
+              src={featuredImage.url}
+              alt={featuredImage.caption || ''}
+              style={{ aspectRatio: featuredImage.aspect }}
               loading={index > 8 ? 'lazy' : undefined}
-              title={event.images[0].caption || undefined}
+              title={featuredImage.caption || undefined}
             />
           </Link>
         </figure>

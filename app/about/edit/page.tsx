@@ -40,20 +40,6 @@ export default async function AboutPage () {
         <h1 className='py-2'>{title}</h1>
       </header>
 
-      {/* {about?.coverImage && (
-        <figure className={styles['cover-image']}>
-          <img
-            src={about.coverImage.url}
-            alt={about.coverImage.caption}
-            title={about.coverImage.caption}
-            style={{ aspectRatio: about.coverImage.aspect }}
-            className='cover-img'
-          />
-          {about.coverImage.caption && (
-            <figcaption>{about.coverImage.caption}</figcaption>
-          )}
-        </figure>
-      )} */}
       {about && (
         <section>
           <EditAboutForm about={{ ...about, coverImageId: about.coverImageId, coverImage: about.coverImage }} />

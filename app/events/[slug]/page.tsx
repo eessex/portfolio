@@ -20,13 +20,13 @@ export async function generateMetadata (
 ): Promise<Metadata> {
   const { slug } = await params
   const event = await fetchEventBySlug(slug)
-
-  const images = event?.images[0]
+  const [featuredImage, ..._images] = event?.images || []
+  const images = featuredImage
     ? [{
-        url: event.images[0].url,
+        url: featuredImage.url,
         width: 1200,
-        height: 1200 * event.images[0].aspect,
-        alt: event.images[0].caption,
+        height: 1200 * featuredImage.aspect,
+        alt: featuredImage.caption,
       }]
     : []
 
@@ -54,6 +54,7 @@ export default async function EventsPage ({
   const { slug } = await params
   const event = await fetchEventBySlug(slug)
   const { upcomingEvents } = await fetchEvents()
+  const [featuredImage, ..._images] = event?.images || []
 
   if (!event) {
     notFound()
@@ -91,7 +92,7 @@ export default async function EventsPage ({
           )}
         </header>
 
-        <FigureImage image={event.images[0]} />
+        <FigureImage image={featuredImage} />
 
         <section>
           {event.description && (

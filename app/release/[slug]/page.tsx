@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
+import { FigureImage } from '@/ui/image-grid/image-figure'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -48,8 +49,7 @@ export default async function ReleasesPage ({
 }) {
   const { slug } = await params
   const release = await fetchReleaseBySlug(slug)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [featuredImage, ...images] = release?.images || []
+  const [featuredImage, ..._images] = release?.images || []
   const [featuredEmbed, ...embedCodes] = release?.embedCodes || []
 
   if (!release) {
@@ -88,13 +88,7 @@ export default async function ReleasesPage ({
             <EmbedCodes embedCodes={[featuredEmbed]} />
           )}
 
-          {featuredImage && (
-            <figure>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={featuredImage.url} alt={featuredImage.caption} style={{ aspectRatio: featuredImage.aspect }} />
-              <figcaption>{featuredImage.caption}</figcaption>
-            </figure>
-          )}
+          <FigureImage image={featuredImage} />
 
           {release.description && (
             <p style={{ whiteSpace: 'pre-line' }}>

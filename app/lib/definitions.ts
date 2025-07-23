@@ -98,7 +98,7 @@ export interface Event {
   id: string
   createdAt: string
   endDate?: string
-  embedCodes: string[]
+  embedCodeIds: string[]
   description?: string
   imageIds: string[]
   isAllDay?: boolean

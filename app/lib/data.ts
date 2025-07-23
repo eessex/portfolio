@@ -198,7 +198,7 @@ export async function fetchEvents () {
 
 export const fetchEventBySlug = async (slug: string) => {
   try {
-    const data = await sql<Event & EventMetaProperties>`
+    const data = await sql`
       SELECT
         e.*,
         v.name as venue_name,
@@ -206,28 +206,34 @@ export const fetchEventBySlug = async (slug: string) => {
         v.city as venue_city,
         v.state as venue_state,
         v.country as venue_country,
-        v.url as venue_url,
-        i.url as image_url,
-        i.caption as image_caption,
-        i.aspect as image_aspect
+        v.url as venue_url
       FROM events as e
       LEFT JOIN venues v ON v.id = e.venue_id
-      LEFT JOIN images i ON i.id = ANY(e.image_ids)
       WHERE e.slug = ${slug};
     `
 
     if (data.rowCount === 0) {
       return
     }
-    return formatEvent(data.rows[0])
+    const event = data.rows[0]
+    const embedCodes = await fetchEmbedCodesByIds(event.embed_code_ids)
+    const images = await fetchImagesByIds(event.image_ids)
+    const links = await fetchLinksByIds(event.link_ids)
+
+    return {
+      ...formatEvent(event),
+      embedCodes,
+      images,
+      links
+    }
   } catch (error) {
     console.error('Database Error:', error)
-    throw new Error('Failed to fetch events.')
+    throw new Error(`Failed to fetch event ${slug}.`)
   }
 }
 
 // TODO: standardize camel / snake formats
-function formatEvent (event: Event & EventMetaProperties): EventClient {
+function formatEvent (event: QueryResultRow): EventClient {
   return {
     ...camelizeKeys(event),
     endDate: event.end_date ? new Date(event.end_date).toISOString() : undefined,
@@ -239,13 +245,7 @@ function formatEvent (event: Event & EventMetaProperties): EventClient {
       state: event.venue_state,
       country: event.venue_country,
       url: event.venue_url
-    },
-    // TODO: handling for multiple images
-    images: [{
-      url: event.image_url,
-      caption: event.image_caption,
-      aspect: event.image_aspect
-    }]
+    }
   }
 }
 

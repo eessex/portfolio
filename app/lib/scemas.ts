@@ -7,6 +7,7 @@ export const EmbedCodeSchema = z.object({
 })
 
 export const ImageSchema = z.object({
+  alt: z.string().max(255).optional(),
   aspect: z.number().min(0.1).max(10),
   caption: z.string().max(255).optional(),
   id: z.string().uuid().optional(),

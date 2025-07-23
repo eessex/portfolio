@@ -1,6 +1,7 @@
 import styles from '@/events/[slug]/event.module.scss'
 import { fetchEventBySlug, fetchEvents } from '@/lib/data'
 import EventsGrid from '@/ui/events-grid/events-grid'
+import { FigureImage } from '@/ui/image-grid/image-figure'
 import Loading from '@/ui/loading'
 import { formattedDateTime, isUpcomingDate } from '@/ui/util'
 import { VenueInline } from '@/ui/venue'
@@ -90,11 +91,7 @@ export default async function EventsPage ({
           )}
         </header>
 
-        <figure>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={event.images[0].url} alt={event.images[0].caption} style={{ aspectRatio: event.images[0].aspect }} />
-          <figcaption>{event.images[0].caption}</figcaption>
-        </figure>
+        <FigureImage image={event.images[0]} />
 
         <section>
           {event.description && (

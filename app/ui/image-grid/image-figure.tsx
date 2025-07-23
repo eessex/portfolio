@@ -1,14 +1,24 @@
 import type { Image } from '@/lib/definitions'
 
-export const FigureImage = ({ image }: { image: Image }) => {
+export const FigureImage = ({
+  image,
+  isLazy,
+  className
+}: {
+  image: Image,
+  isLazy?: boolean,
+  className?: string
+}) => {
   if (!image) {
     return null
   }
   return (
-    <figure>
+    <figure className={className}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={image.url} alt={image.caption} style={{ aspectRatio: image.aspect }} />
-      <figcaption>{image.caption}</figcaption>
+      <img src={image.url} alt={image.alt || ''} style={{ aspectRatio: image.aspect }} loading={isLazy ? 'lazy' : 'eager'} />
+      {image.caption && (
+        <figcaption>{image.caption}</figcaption>
+      )}
     </figure>
   )
 }

@@ -6,6 +6,7 @@ import ImageGrid from '@/ui/image-grid/image-grid'
 import Loading from '@/ui/loading'
 import { formattedDateTime } from '@/ui/util'
 import { Suspense } from 'react'
+import { FigureImage } from '@/ui/image-grid/image-figure'
 
 const title = 'About'
 
@@ -41,23 +42,12 @@ export default async function AboutPage () {
         <EditButton path='/about' />
       </header>
 
-      {about?.coverImage && (
-        <figure className={styles['cover-image']}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={about.coverImage.url}
-            alt={about.coverImage.caption}
-            title={about.coverImage.caption}
-            style={{ aspectRatio: about.coverImage.aspect }}
-            className='cover-img'
-          />
-          {about.coverImage.caption && (
-            <figcaption>{about.coverImage.caption}</figcaption>
-          )}
-        </figure>
-      )}
-
       <section>
+
+        {about?.coverImage && (
+          <FigureImage image={about.coverImage} className={styles['cover-image']} />
+        )}
+
         {about?.description && (
           <p style={{ whiteSpace: 'pre-line' }}>
             {about.description}

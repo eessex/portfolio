@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import { type EmbedCodeSchema } from './scemas'
+import { type z } from 'zod'
+import { type ImageSchema, type EmbedCodeSchema } from './scemas'
 
 export interface User {
   id: string
@@ -37,11 +37,8 @@ export interface Venue {
   url?: string
 }
 
-export interface Image {
-  id: string
-  url: string
-  aspect: number
-  caption?: string
+export type Image = z.infer<typeof ImageSchema> & {
+  createdAt?: string
 }
 
 export interface Link {

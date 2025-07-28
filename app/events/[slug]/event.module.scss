@@ -8,6 +8,7 @@
 
   header {
     text-align: center;
+    margin-bottom: 1em;
   
     h1 {
       font-size: xx-large;
@@ -33,7 +34,8 @@
 
     img {
       margin: auto;
-      max-height: 70vh;
+      max-height: 85vh;
+      width: 100%;
 
       @include breakpoints.sm-width {
         max-height: unset;

@@ -2,6 +2,7 @@ import styles from '@/events/[slug]/event.module.scss'
 import { fetchEventBySlug, fetchEvents } from '@/lib/data'
 import EventsGrid from '@/ui/events-grid/events-grid'
 import { FigureImage } from '@/ui/image-grid/image-figure'
+import { LinksList } from '@/ui/links/link-list'
 import Loading from '@/ui/loading'
 import { formattedDateTime, isUpcomingDate } from '@/ui/util'
 import { VenueInline } from '@/ui/venue'
@@ -100,6 +101,9 @@ export default async function EventsPage ({
               {event.description}
             </p>
           )}
+
+          <LinksList links={event.links} />
+
         </section>
       </article>
 

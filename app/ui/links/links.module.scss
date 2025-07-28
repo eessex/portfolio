@@ -1,0 +1,22 @@
+.links-list {
+  a:not(.press-link) {
+    text-decoration: underline;
+
+    @media (hover: hover) {
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+}
+  
+
+.press-link {
+  text-decoration: none;
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}

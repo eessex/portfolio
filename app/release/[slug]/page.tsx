@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { FigureImage } from '@/ui/image-grid/image-figure'
+import { LinksList } from '@/ui/links/link-list'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -96,16 +97,8 @@ export default async function ReleasesPage ({
             </p>
           )}
 
-          {release.links && (
-            <ul className={styles.links}>
-              {release.links.map((link, index) => (
-                <li key={index}>
-                  <a href={link.url} target='_blank' rel='noreferrer'>
-                    {link.title || link.url}
-                  </a>
-                </li>
-              ))}
-            </ul>
+          {!!release.links.length && (
+            <LinksList links={release.links} />
           )}
 
           {!!embedCodes?.length && (

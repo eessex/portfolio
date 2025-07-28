@@ -1,5 +1,9 @@
 import { type z } from 'zod'
-import { type ImageSchema, type EmbedCodeSchema } from './scemas'
+import type {
+  EmbedCodeSchema,
+  ImageSchema,
+  LinkSchema
+} from './scemas'
 
 export interface User {
   id: string
@@ -37,19 +41,14 @@ export interface Venue {
   url?: string
 }
 
-export type Image = z.infer<typeof ImageSchema> & {
-  createdAt?: string
-}
-
-export interface Link {
-  attribution?: string
+export interface Image extends z.infer<typeof ImageSchema> {
   createdAt?: string
   id: string
-  isPress?: boolean
-  isSocialProfile?: boolean
-  publishedDate?: string
-  title?: string
-  url: string
+}
+
+export interface Link extends z.infer<typeof LinkSchema> {
+  createdAt?: string
+  id: string
 }
 
 export interface Release {
@@ -85,7 +84,7 @@ export interface EventClient extends Omit<Event,
 > {
   venue: Omit<Venue, 'id'>
   images: Omit<Image, 'id'>[]
-  // links: Link[]
+  links: Link[]
 }
 
 export type EmbedCode = z.infer<typeof EmbedCodeSchema> & {

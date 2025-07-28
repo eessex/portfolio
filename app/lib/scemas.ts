@@ -14,3 +14,13 @@ export const ImageSchema = z.object({
   isPress: z.boolean().optional(),
   url: z.string().url()
 })
+
+export const LinkSchema = z.object({
+  attribution: z.string().max(255).optional(),
+  id: z.string().uuid().optional(),
+  isPress: z.boolean().optional(),
+  isSocialProfile: z.boolean().optional(),
+  publishedDate: z.string().datetime().optional(),
+  title: z.string().max(255).optional(),
+  url: z.string().url(),
+})

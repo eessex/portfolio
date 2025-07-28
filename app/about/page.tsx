@@ -4,9 +4,9 @@ import AccordionDropdown from '@/ui/accordion-dropdown/accordion-dropdown'
 import { EditButton } from '@/ui/edit-button/edit-button'
 import ImageGrid from '@/ui/image-grid/image-grid'
 import Loading from '@/ui/loading'
-import { formattedDateTime } from '@/ui/util'
 import { Suspense } from 'react'
 import { FigureImage } from '@/ui/image-grid/image-figure'
+import { LinksList } from '@/ui/links/link-list'
 
 const title = 'About'
 
@@ -44,8 +44,8 @@ export default async function AboutPage () {
 
       <section>
 
-        {about?.coverImage && (
-          <FigureImage image={about.coverImage} className={styles['cover-image']} />
+        {about?.coverImageId && about.coverImage && (
+          <FigureImage image={{ ...about.coverImage, id: about.coverImageId }} className={styles['cover-image']} />
         )}
 
         {about?.description && (
@@ -69,21 +69,7 @@ export default async function AboutPage () {
 
         {!!links.length && (
           <AccordionDropdown title='Press Links'>
-            <ul>
-              {links?.map((link, index) => (
-                <li key={index}>
-                  <a href={link.url} target='_blank' rel='noopener noreferrer'>
-                    <div>
-                      <b>{link.title || link.url}</b>
-                      <div>
-                        {link.attribution && (<em>— {link.attribution}, </em>)}
-                        {formattedDateTime(link.publishedDate || link.createdAt!, 'xs')}
-                      </div>
-                    </div>
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <LinksList links={links} />
           </AccordionDropdown>
         )}
       </div>

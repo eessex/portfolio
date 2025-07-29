@@ -1,8 +1,10 @@
 import { type z } from 'zod'
 import type {
   EmbedCodeSchema,
+  EventSchema,
   ImageSchema,
-  LinkSchema
+  LinkSchema,
+  ReleaseSchema
 } from './scemas'
 
 export interface User {
@@ -51,39 +53,11 @@ export interface Link extends z.infer<typeof LinkSchema> {
   id: string
 }
 
-export interface Release {
-  artist: string
-  buyLink?: string
-  description?: string
-  embedCodeIds?: string[]
-  format: string
-  id: string
-  imageIds: string[]
-  isCollaboration?: boolean
-  isCompilation?: boolean
-  isFeature?: boolean
-  isPublished: boolean
-  isSingle?: boolean
-  label?: string
-  linkIds?: string[]
-  releaseDate: string
-  slug: string
-  streamLink?: string
-  title: string
-}
+type EmbeddedItemArrayKeys = 'embedCodes' | 'images' | 'links'
 
-export interface ReleaseClient extends Omit<Release, 'embedCodeIds' | 'imageIds' | 'linkIds'> {
-  embedCodes: EmbedCode[],
-  images: Image[],
-  links: Link[]
-}
-
-/** Data returned to client */
-export interface EventClient extends Omit<Event,
-  'venueId' | 'imageIds' | 'linkIds' | 'projectIds'
-> {
-  venue: Omit<Venue, 'id'>
-  images: Omit<Image, 'id'>[]
+interface EmbeddedItemArrays {
+  embedCodes: EmbedCode[]
+  images: Image[]
   links: Link[]
 }
 
@@ -91,23 +65,16 @@ export type EmbedCode = z.infer<typeof EmbedCodeSchema> & {
   createdAt?: string
 }
 
-/** DB schema */
-export interface Event {
-  _id: string
-  id: string
-  createdAt: string
-  endDate?: string
-  embedCodeIds: string[]
-  description?: string
-  imageIds: string[]
-  isAllDay?: boolean
-  isPublished: boolean
-  linkIds: string[]
-  projectIds: string[]
-  slug: string
-  startDate: string
-  ticketLink?: string
-  title: string
-  updatedAt?: string
-  venueId: string
+export type Event = z.infer<typeof EventSchema> & {
+  createdAt?: string
 }
+
+export type EventClient = Omit<Event, 'projectIds' | 'venueIds' | EmbeddedItemArrayKeys> & EmbeddedItemArrays & {
+  venue: Venue
+}
+
+export type Release = z.infer<typeof ReleaseSchema> & {
+  createdAt?: string
+}
+
+export type ReleaseClient = Omit<Release, EmbeddedItemArrayKeys> & EmbeddedItemArrays

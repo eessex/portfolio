@@ -4,8 +4,8 @@ import { escapeHtml } from '@/ui/util'
 import { AuthError } from 'next-auth'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
-import { z } from 'zod'
 import { signIn } from '../../auth'
+import { AboutSchema, SettingsSchema } from './scemas'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
@@ -46,17 +46,11 @@ export async function createEmailSubscription (email: string) {
   }
 }
 
-const EditSettingsSchema = z.object({
-  title: z.string().max(255).optional(),
-  description: z.string().max(400).optional(),
-  coverImageId: z.string().uuid()
-})
-
 export async function editSiteSettings (formData: FormData, id: string) {
   const data: Record<FormData['entries']['name'], unknown> = {}
   formData.entries().forEach(([n, v]) => { data[n] = v })
 
-  const validatedFields = EditSettingsSchema.safeParse(data)
+  const validatedFields = SettingsSchema.safeParse(data)
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
@@ -83,17 +77,11 @@ export async function editSiteSettings (formData: FormData, id: string) {
   }
 }
 
-const EditAboutSchema = z.object({
-  title: z.string().max(255).optional(),
-  description: z.string().max(15000).optional(),
-  coverImageId: z.string().uuid()
-})
-
 export async function editAbout (formData: FormData, id: string) {
   const data: Record<FormData['entries']['name'], unknown> = {}
   formData.entries().forEach(([n, v]) => { data[n] = v })
 
-  const validatedFields = EditAboutSchema.safeParse(data)
+  const validatedFields = AboutSchema.safeParse(data)
   console.info('validatedFields', validatedFields)
   if (!validatedFields.success) {
     console.error('Validation error', validatedFields.error.format())

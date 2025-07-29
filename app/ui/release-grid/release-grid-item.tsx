@@ -40,11 +40,6 @@ export default function ReleaseGridItem ({
           </h4>
 
         </Link>
-        {release.buyLink && (
-          <a className='button' href={release.buyLink} target='_blank' rel='noreferrer'>
-            Bandcamp
-          </a>
-        )}
       </section>
     </article>
   )

@@ -123,6 +123,11 @@ button, a[href].button {
   &.dirty:invalid {
     outline-color: var(--error-color);
   }
+
+  &:disabled {
+    background: #ddd;
+    color: #777;
+  }
 }
 
 .visually-hidden:not(:focus,:focus-visible,:active),
@@ -163,6 +168,11 @@ input, textarea {
   input, textarea {
     background: #202020;
     color: #ededed;
+
+    &:disabled {
+      background: #444;
+      color: #a3a3a3;
+    }
   }
 
   img {

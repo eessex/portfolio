@@ -1,90 +1,59 @@
 import type {
-  About,
+  AboutClient,
   EmbedCode,
   Event,
   EventClient,
   Image,
   Link,
   ReleaseClient,
-  SiteSettings,
   SiteSettingsClient
 } from '@/lib/definitions'
 import { isUpcomingDate, camelizeKeys } from '@/ui/util'
 import { QueryResultRow, sql } from '@vercel/postgres'
 
-interface CoverImage { cover_image_url: string, cover_image_aspect: number, cover_image_caption?: string }
-
 /** main page meta & image etc */
-export async function fetchSiteSettings (): Promise<SiteSettingsClient> {
+export async function fetchSiteSettings (): Promise<SiteSettingsClient | undefined> {
   try {
-    const data = await sql<SiteSettings & { cover_image_id?: string } & CoverImage>`
-      SELECT 
-        s.title,
-        s.description,
-        s.id,
-        s.cover_image_id,
-        i.url as cover_image_url,
-        i.aspect as cover_image_aspect,
-        i.caption as cover_image_caption
-      FROM site_settings as s
-      JOIN images as i ON i.id = s.cover_image_id
+    const data = await sql`
+      SELECT * FROM site_settings
     `
+    if (data.rowCount === 0) {
+      return
+    }
     const settings = data.rows[0]
-    if (!settings) {
-      throw new Error('Failed to fetch site settings.')
+    let coverImage: Image | undefined
+    if (settings.cover_image_id) {
+      coverImage = await fetchImage(settings.cover_image_id)
     }
-
-    const coverImg: Image | undefined = settings.cover_image_id
-      ? {
-          id: settings.cover_image_id!,
-          url: settings.cover_image_url!,
-          aspect: settings.cover_image_aspect!,
-          caption: settings.cover_image_caption
-        }
-      : undefined
-
-    return {
-      id: settings.id,
-      title: settings.title,
-      description: settings.description,
-      coverImage: coverImg
+    const settingsClient: SiteSettingsClient = {
+      ...camelizeKeys(settings),
+      coverImage,
     }
+    return settingsClient
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch site settings.')
   }
 }
 
-export async function fetchAboutPage () {
+export async function fetchAboutPage (): Promise<AboutClient | undefined> {
   try {
-    const data = await sql<About & { cover_image_id?: string } & CoverImage>`
-      SELECT 
-        a.id,
-        a.title,
-        a.description,
-        i.id as cover_image_id,
-        i.url as cover_image_url,
-        i.aspect as cover_image_aspect,
-        i.caption as cover_image_caption
-      FROM about as a
-      JOIN images as i ON i.id = a.cover_image_id
+    const data = await sql`
+      SELECT * FROM about
     `
     if (data.rowCount === 0) {
       return
     }
-    return {
-      id: data.rows[0].id,
-      title: data.rows[0].title,
-      description: data.rows[0].description,
-      coverImageId: data.rows[0].cover_image_id,
-      coverImage: data.rows[0].cover_image_id
-        ? {
-            url: data.rows[0].cover_image_url,
-            aspect: data.rows[0].cover_image_aspect,
-            caption: data.rows[0].cover_image_caption
-          }
-        : undefined
+    const about = data.rows[0]
+    let coverImage: Image | undefined
+    if (about.cover_image_id) {
+      coverImage = await fetchImage(about.cover_image_id)
     }
+    const aboutClient: AboutClient = {
+      ...camelizeKeys(about),
+      coverImage,
+    }
+    return aboutClient
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch about page data.')
@@ -95,7 +64,7 @@ export async function fetchAboutPage () {
 export async function fetchPressImages () {
   try {
     const data = await sql<Image>`
-      SELECT aspect, caption, url FROM images
+      SELECT * FROM images
       WHERE is_press = true
     `
     return data.rows
@@ -140,12 +109,29 @@ export async function fetchSocialLinks () {
 export async function fetchImages () {
   try {
     const data = await sql<Image>`
-      SELECT caption, url, id FROM images
+      SELECT * FROM images
     `
     return data.rows
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch images.')
+  }
+}
+
+export async function fetchImage (id: string) {
+  try {
+    const data = await sql<Image>`
+      SELECT * FROM images
+      WHERE id = ${id}
+    `
+    if (data.rowCount === 0) {
+      console.debug(`Image with id ${id} not found.`)
+      return
+    }
+    return data.rows[0]
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error(`Failed to fetch image ${id}.`)
   }
 }
 

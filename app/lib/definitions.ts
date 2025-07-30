@@ -1,10 +1,12 @@
 import { type z } from 'zod'
 import type {
+  AboutSchema,
   EmbedCodeSchema,
   EventSchema,
   ImageSchema,
   LinkSchema,
-  ReleaseSchema
+  ReleaseSchema,
+  SettingsSchema
 } from './scemas'
 
 export interface User {
@@ -12,25 +14,6 @@ export interface User {
   name: string
   email: string
   password: string
-}
-
-export interface SiteSettings {
-  id: string
-  coverImageId?: string,
-  description?: string,
-  title: string,
-}
-
-export interface SiteSettingsClient extends SiteSettings {
-  coverImage?: Image
-}
-
-export interface About {
-  id: string
-  coverImageId?: string,
-  description?: string,
-  slug: string,
-  title?: string,
 }
 
 export interface Venue {
@@ -78,3 +61,15 @@ export type Release = z.infer<typeof ReleaseSchema> & {
 }
 
 export type ReleaseClient = Omit<Release, EmbeddedItemArrayKeys> & EmbeddedItemArrays
+
+export type SiteSettings = z.infer<typeof SettingsSchema>
+
+export type SiteSettingsClient = z.infer<typeof SettingsSchema> & {
+  coverImage?: Image
+}
+
+export type About = z.infer<typeof AboutSchema>
+
+export interface AboutClient extends About {
+  coverImage?: Image
+}

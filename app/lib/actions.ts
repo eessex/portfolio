@@ -80,22 +80,25 @@ export async function editSiteSettings (formData: FormData, id: string) {
 export async function editAbout (formData: FormData, id: string) {
   const data: Record<FormData['entries']['name'], unknown> = {}
   formData.entries().forEach(([n, v]) => { data[n] = v })
-
   const validatedFields = AboutSchema.safeParse(data)
-  console.info('validatedFields', validatedFields)
+
   if (!validatedFields.success) {
     console.error('Validation error', validatedFields.error.format())
     throw new Error('Validation error')
   } else {
-    const [title, description, coverImageId] = Object.entries(validatedFields.data).map(([_key, value]) => value)
+    const {
+      coverImageId,
+      description,
+      title,
+    } = validatedFields.data
 
     try {
       await sql`
         UPDATE about
         SET updated_at = current_timestamp,
-            title = ${title},
-            description = ${description},
-            cover_image_id = ${coverImageId}
+            title = ${title || ''},
+            description = ${description || ''},
+            cover_image_id = ${coverImageId || null}
         WHERE id = ${id}
       `
       revalidatePath('/about')

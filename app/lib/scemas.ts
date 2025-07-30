@@ -98,15 +98,18 @@ export const ReleaseSchema = z.object({
 })
 
 export const SettingsSchema = z.object({
-  title,
+  coverImageId,
   description,
-  coverImageId
+  id: z.string().uuid(),
+  title
 })
 
 export const AboutSchema = z.object({
-  title,
+  coverImageId,
   description,
-  coverImageId
+  id: z.string().uuid(),
+  slug,
+  title
 })
 
 /**

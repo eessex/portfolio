@@ -1,11 +1,11 @@
 'use client'
 
-import { About, Image } from '@/lib/definitions'
+import type { About, Image } from '@/lib/definitions'
 import { Input } from '@/ui/form/input'
 import { Form } from '@/ui/form/form'
 import { editAbout } from '@/lib/actions'
 
-export function EditAboutForm ({ about }: { about: Omit<About, 'slug'> & { coverImage?: Omit<Image, 'id'> } }) {
+export function EditAboutForm ({ about }: { about: About & { coverImage?: Image } }) {
   return (
     <Form action={(formData: FormData) => editAbout(formData, about.id)}>
       <Input
@@ -29,11 +29,22 @@ export function EditAboutForm ({ about }: { about: Omit<About, 'slug'> & { cover
       />
 
       <Input
-        label='Cover image'
+        label='Cover image id'
         defaultValue={about?.coverImageId}
         attributes={{
           name: 'coverImageId',
           type: 'hidden',
+          readOnly: true
+        }}
+      />
+
+      <Input
+        label='Id'
+        defaultValue={about?.id}
+        attributes={{
+          name: 'id',
+          type: 'hidden',
+          readOnly: true
         }}
       />
     </Form>

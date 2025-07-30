@@ -6,7 +6,6 @@
   align-items: flex-end;
   justify-content: flex-end;
   position: relative;
-  margin: 0 0 3rem;
 
   h2 {
     margin: 4rem 2rem;
@@ -39,6 +38,7 @@
       min-width: 100%;
       max-width: 100%;
       align-self: center;
+      overflow: hidden;
 
       img {
         height: auto;

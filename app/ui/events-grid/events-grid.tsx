@@ -15,7 +15,7 @@ export default function EventsGrid ({
   isUpcoming?: boolean;
 }) {
   return (
-    <section className='px-4 pt-4 pb-8'>
+    <section className='px-4 pt-8 pb-8'>
       <h2 className='py-2'>{isUpcoming ? 'Upcoming Events' : 'Past Events'}</h2>
 
       <ul className={clsx(styles.grid, isUpcoming && styles.upcoming, isColumn && styles.column)}>

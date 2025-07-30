@@ -52,19 +52,24 @@ export async function editSiteSettings (formData: FormData, id: string) {
 
   const validatedFields = SettingsSchema.safeParse(data)
   if (!validatedFields.success) {
+    console.error('Validation error', validatedFields.error.format())
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Missing Fields. Failed to save.',
     }
   } else {
-    const [title, description, coverImageId] = Object.entries(validatedFields.data).map(([_key, value]) => value)
+    const {
+      coverImageId,
+      description,
+      title,
+    } = validatedFields.data
 
     try {
       await sql`
         UPDATE site_settings
-        SET title = ${title},
-            description = ${description},
-            cover_image_id = ${coverImageId},
+        SET title = ${title || ''},
+            description = ${description || ''},
+            cover_image_id = ${coverImageId || null},
             updated_at = current_timestamp
         WHERE id = ${id}
       `

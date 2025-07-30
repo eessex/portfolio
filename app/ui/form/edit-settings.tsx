@@ -36,15 +36,17 @@ export default function EditSettingsForm ({ settings }: { settings: SiteSettings
       />
 
       <div>
+        <h2>Cover Image</h2>
+
         <Input
           label='Cover image'
           description='Shown on homepage and as meta image for search engines.'
           value={coverImageId}
-          defaultValue={settings?.coverImageId}
           onChange={() => setCoverImageId(undefined)}
           attributes={{
             name: 'coverImageId',
             type: 'hidden',
+            readOnly: true
           }}
         />
 
@@ -58,6 +60,16 @@ export default function EditSettingsForm ({ settings }: { settings: SiteSettings
           </figure>
         )}
       </div>
+
+      <Input
+        label='Id'
+        value={settings.id}
+        attributes={{
+          name: 'id',
+          type: 'hidden',
+          readOnly: true
+        }}
+      />
     </Form>
   )
 }

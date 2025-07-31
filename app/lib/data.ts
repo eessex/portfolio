@@ -150,7 +150,7 @@ interface EventMetaProperties {
   ticket_link?: string
 }
 
-export async function fetchEvents () {
+export async function fetchEvents (isAuthed: boolean = false) {
   try {
     const data = await sql<Event & EventMetaProperties>`
       SELECT
@@ -169,11 +169,17 @@ export async function fetchEvents () {
       ORDER BY e.start_date DESC;
     `
     const parsedEvents: EventClient[] = data.rows.map((event) => formatEvent(event))
-    const upcomingEvents = parsedEvents.filter(event => isUpcomingDate(event.startDate))
+    const authedEvents = isAuthed
+      ? parsedEvents
+      : parsedEvents.filter(event => event.isPublished)
+    if (authedEvents.length === 0) {
+      return { upcomingEvents: [], pastEvents: [] }
+    }
+    const upcomingEvents = authedEvents.filter(event => isUpcomingDate(event.startDate))
       .sort((a, b) => {
         return new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
       })
-    const pastEvents = parsedEvents.filter(event => !isUpcomingDate(event.startDate))
+    const pastEvents = authedEvents.filter(event => !isUpcomingDate(event.startDate))
 
     return { upcomingEvents, pastEvents }
   } catch (error) {
@@ -235,7 +241,7 @@ function formatEvent (event: QueryResultRow): EventClient {
   }
 }
 
-export async function fetchReleases (): Promise<ReleaseClient[]> {
+export async function fetchReleases (isAuthed: boolean): Promise<ReleaseClient[]> {
   try {
     const data = await sql`
       SELECT
@@ -255,7 +261,11 @@ export async function fetchReleases (): Promise<ReleaseClient[]> {
         aspect: release.image_aspect
       }]
     }))
-    return res.filter(release => release.isPublished)
+    if (isAuthed) {
+      return res
+    } else {
+      return res.filter(release => release.isPublished)
+    }
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch releases.')

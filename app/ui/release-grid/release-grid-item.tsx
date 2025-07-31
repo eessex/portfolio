@@ -2,6 +2,7 @@ import { ReleaseClient } from '@/lib/definitions'
 import { formattedDateTime } from '@/ui/util'
 
 import Link from 'next/link'
+import { DraftBadge } from '../draft-badge'
 
 export default function ReleaseGridItem ({
   release,
@@ -33,10 +34,12 @@ export default function ReleaseGridItem ({
             {release.artist}: {release.title}
           </h3>
 
+          {!release.isPublished && <DraftBadge />}
+
           <h4>
             {`${release.format}, `}
-            {release.label && `${release.label}, `}
-            {formattedDateTime(release.releaseDate, 'xs')}
+            {release.label && `${release.label}`}
+            <br />{formattedDateTime(release.releaseDate, 'xs')}
           </h4>
 
         </Link>

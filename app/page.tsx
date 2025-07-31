@@ -4,6 +4,7 @@ import EventsGrid from '@/ui/events-grid/events-grid'
 import Loading from '@/ui/loading'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { auth } from '../auth'
 
 export async function generateMetadata () {
   const settings = await fetchSiteSettings()
@@ -25,7 +26,8 @@ export async function generateMetadata () {
 
 export default async function Home () {
   const settings = await fetchSiteSettings()
-  const { upcomingEvents } = await fetchEvents()
+  const session = await auth()
+  const { upcomingEvents } = await fetchEvents(!!session?.user)
 
   return (
     <div>

@@ -3,6 +3,7 @@ import styles from '@/ui/events-list/events-list.module.scss'
 import { formattedDateTime } from '@/ui/util'
 import { VenueInline } from '@/ui/venue'
 import Link from 'next/link'
+import { DraftBadge } from '../draft-badge'
 
 export default function EventsListItem ({
   event,
@@ -20,7 +21,7 @@ export default function EventsListItem ({
           </div>
 
           <div className='font-bold md:font-normal'>
-            {event.title}
+            {event.title} {!event.isPublished && <DraftBadge />}
           </div>
         </div>
 

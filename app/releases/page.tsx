@@ -4,19 +4,28 @@ import Loading from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 import { ReleaseClient } from '@/lib/definitions'
+import { auth } from '../../auth'
 
 const title = 'Releases'
 export const metadata: Metadata = { title }
 
 export default async function ReleasesPage () {
-  const releases = await fetchReleases()
+  const session = await auth()
+  const releases = await fetchReleases(!!session?.user)
 
   const featureReleases = releases.filter((release) => release.isFeature)
   const compilations = releases.filter((release) => release.isCompilation)
   const collaborations = releases.filter((release) => release.isCollaboration)
   const singles = releases.filter((release) => release.isSingle)
 
-  const soloReleases = releases.map((release) => ![...featureReleases, ...compilations, ...collaborations, ...singles].includes(release) ? release : undefined).filter(Boolean) as ReleaseClient[]
+  const soloReleases = releases.map((release) => ![
+    ...featureReleases,
+    ...compilations,
+    ...collaborations,
+    ...singles
+  ].includes(release)
+    ? release
+    : undefined).filter(Boolean) as ReleaseClient[]
 
   return (
     <div>

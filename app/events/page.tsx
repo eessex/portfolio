@@ -4,12 +4,14 @@ import EventsList from '@/ui/events-list/events-list'
 import Loading from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
+import { auth } from '../../auth'
 
 const title = 'Events'
 export const metadata: Metadata = { title }
 
 export default async function EventsPage () {
-  const { upcomingEvents, pastEvents } = await fetchEvents()
+  const session = await auth()
+  const { upcomingEvents, pastEvents } = await fetchEvents(!!session?.user)
 
   return (
     <div>

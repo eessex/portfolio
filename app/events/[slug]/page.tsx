@@ -11,6 +11,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
+import { auth } from '../../../auth'
+import { DraftBadge } from '@/ui/draft-badge'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -53,11 +55,12 @@ export default async function EventsPage ({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
+  const session = await auth()
   const event = await fetchEventBySlug(slug)
-  const { upcomingEvents } = await fetchEvents()
+  const { upcomingEvents } = await fetchEvents(!!session?.user)
   const [featuredImage, ..._images] = event?.images || []
 
-  if (!event) {
+  if (!event || (!event.isPublished && !session?.user)) {
     notFound()
   }
 
@@ -72,6 +75,9 @@ export default async function EventsPage ({
         <header>
           <div className={styles.category}>
             <Link href='/events'>{category}</Link>
+            {!event.isPublished && (
+              <DraftBadge />
+            )}
           </div>
           <h1>{event.title}</h1>
           <h2>{formattedDateTime(event.startDate)}</h2>
@@ -103,12 +109,11 @@ export default async function EventsPage ({
           )}
 
           <LinksList links={event.links} />
-
         </section>
       </article>
 
       <Suspense fallback={<Loading />}>
-        {upcomingEvents.length > 0 && <EventsGrid events={moreEvents} isUpcoming isTextOnly />}
+        {moreEvents.length > 0 && <EventsGrid events={moreEvents} isUpcoming isTextOnly />}
       </Suspense>
     </div>
   )

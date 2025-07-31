@@ -2,8 +2,8 @@ import { EventClient } from '@/lib/definitions'
 import { VenueInline } from '@/ui/venue'
 import { formattedDateTime } from '@/ui/util'
 import { TicketIcon } from '@heroicons/react/24/outline'
-
 import Link from 'next/link'
+import { DraftBadge } from '../draft-badge'
 
 export default function EventsGridItem ({
   event,
@@ -38,6 +38,8 @@ export default function EventsGridItem ({
           <h3>
             {event.title}
           </h3>
+
+          {!event.isPublished && <DraftBadge />}
 
           <h4>
             {formattedDateTime(event.startDate)}

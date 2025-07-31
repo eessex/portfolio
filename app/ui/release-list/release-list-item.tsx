@@ -2,6 +2,7 @@ import { ReleaseClient } from '@/lib/definitions'
 import styles from '@/ui/release-list/release-list.module.scss'
 import { formattedDateTime } from '@/ui/util'
 import Link from 'next/link'
+import { DraftBadge } from '../draft-badge'
 
 export default function ReleaseListItem ({
   release,
@@ -19,7 +20,7 @@ export default function ReleaseListItem ({
           </div>
 
           <div className='font-bold md:font-normal'>
-            {release.artist}: {release.title}
+            {release.artist}: {release.title} {!release.isPublished && <DraftBadge />}
           </div>
         </div>
 

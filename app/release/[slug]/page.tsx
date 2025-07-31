@@ -7,6 +7,8 @@ import { notFound } from 'next/navigation'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { FigureImage } from '@/ui/image-grid/image-figure'
 import { LinksList } from '@/ui/links/link-list'
+import { auth } from '../../../auth'
+import { DraftBadge } from '@/ui/draft-badge'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -36,7 +38,7 @@ export async function generateMetadata (
 }
 
 export async function generateStaticParams () {
-  const releases = await fetchReleases()
+  const releases = await fetchReleases(true)
 
   return releases.map((release) => ({
     slug: release.slug,
@@ -50,18 +52,20 @@ export default async function ReleasesPage ({
 }) {
   const { slug } = await params
   const release = await fetchReleaseBySlug(slug)
-  const [featuredImage, ..._images] = release?.images || []
-  const [featuredEmbed, ...embedCodes] = release?.embedCodes || []
+  const session = await auth()
 
-  if (!release) {
+  if (!release || (!release.isPublished && !session?.user)) {
     notFound()
   }
+
+  const [featuredImage, ..._images] = release?.images || []
+  const [featuredEmbed, ...embedCodes] = release?.embedCodes || []
 
   const releaseCategory = () => {
     if (release.isCollaboration) {
       return 'Collaborative Release'
     } else if (release.isFeature) {
-      return 'Featured on'
+      return 'Featured On'
     } else if (release.isSingle) {
       return 'Single'
     } else if (release.isCompilation) {
@@ -77,6 +81,7 @@ export default async function ReleasesPage ({
         <header>
           <div className={styles.category}>
             <Link href='/releases'>{releaseCategory()}</Link>
+            {!release.isPublished && <DraftBadge />}
           </div>
           <h1>{release.artist}: {release.title}</h1>
           <h2>

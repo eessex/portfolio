@@ -1,7 +1,11 @@
-import type { Metadata } from 'next'
-import { geistSans, geistMono } from '@/ui/fonts'
-import Nav from '@/ui/nav'
+import Nav from '@/ui/nav/nav'
 import Footer from '@/ui/footer/footer'
+import { AdminSidebar } from './ui/admin-sidebar/admin-sidebar'
+import { auth } from '../auth'
+import { fetchSiteSettings } from './lib/data'
+import { geistSans, geistMono } from '@/ui/fonts'
+import type { Metadata } from 'next'
+import clsx from 'clsx'
 import '@/globals.scss'
 
 const siteTitle = process.env.NEXT_PUBLIC_SITE_TITLE || 'Site Title'
@@ -15,25 +19,33 @@ export const metadata: Metadata = {
   description: siteDescription
 }
 
-export default function RootLayout ({
+export default async function RootLayout ({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const siteSettings = await fetchSiteSettings()
+  const session = await auth()
+  const isAdmin = !!session?.user
+
   return (
     <html lang='en'>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <a className='button visible-focus-only' id='skip-to-content' href='#content'>Skip to content</a>
 
-        <header className='p-4'>
-          <Nav />
-        </header>
+        <Nav title={siteSettings?.title} />
 
-        <main id='content'>
-          {children}
-        </main>
+        <div className={clsx('body-container', isAdmin && 'admin')}>
+          {isAdmin && <AdminSidebar />}
+          <div>
+            <main>
+              <div id='content' />
+              {children}
+            </main>
 
-        <Footer />
+            <Footer />
+          </div>
+        </div>
       </body>
     </html>
   )

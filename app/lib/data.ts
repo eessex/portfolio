@@ -314,6 +314,27 @@ const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]): Promise<EmbedC
   }
 }
 
+export const fetchEmbedCodes = async (): Promise<EmbedCode[]> => {
+  try {
+    const { rows } = await sql`
+      SELECT 
+      embed_codes.*,
+      ARRAY(
+        SELECT slug FROM releases as r WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
+      ) AS release_slugs,
+      ARRAY(
+        SELECT slug FROM events as e WHERE e.embed_code_ids @> ARRAY[embed_codes.id]
+      ) AS event_slugs
+      FROM embed_codes
+      ORDER BY embed_codes.updated_at DESC
+    `
+    return formatItemArrayRows<EmbedCode>(rows, rows.map(row => row.id))
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch embed codes.')
+  }
+}
+
 const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Image[]> => {
   try {
     const { rows } = await sql`

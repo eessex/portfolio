@@ -1,0 +1,40 @@
+.admin-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: space-between;
+  position: sticky;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 1px 1px 2px var(--transparency-primary);
+  background-color: var(--transparency-extra-light);
+  border: 1px solid var(--transparency-extra-light);
+
+  nav {
+    top: var(--menubar-height);
+    position: sticky;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: calc(100vh - var(--menubar-height) - 0.75rem);
+  }
+
+  li, li > form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  li {
+    border-bottom: 1px solid var(--transparency-extra-light);
+  }
+
+  ul:last-child li:last-child{
+    border-bottom: none;
+  }
+}
+
+.button {
+  // FIXME
+  border-width: 0 !important;
+}
+

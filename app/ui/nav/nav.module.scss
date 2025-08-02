@@ -1,0 +1,24 @@
+.menubar {
+  position: sticky;
+  top: 0;
+  transition: all 0.25s ease-in-out;
+  background-color: var(--background);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  nav {
+    max-width: var(--max-body-width);
+    margin: 0 auto;
+    padding: 1rem;
+  }
+}
+
+.sticky {
+  box-shadow: 1px 0 5px var(--transparency-extra-light);
+}
+
+.hide {
+  top: calc(-1 * var(--menubar-height));
+  box-shadow: none;
+}

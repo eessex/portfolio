@@ -34,7 +34,7 @@ export default async function ReleasesPage () {
       </h1>
 
       <Suspense fallback={<Loading />}>
-        <div className='flex flex-col space-y-8'>
+        <div>
           {soloReleases && <ReleaseList title='Solo Releases' releases={soloReleases} />}
           {singles && <ReleaseList title='Singles' releases={singles} />}
           {compilations && <ReleaseList title='Compilations' releases={compilations} />}

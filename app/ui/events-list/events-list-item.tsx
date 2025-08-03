@@ -1,5 +1,5 @@
 import { EventClient } from '@/lib/definitions'
-import styles from '@/ui/events-list/events-list.module.scss'
+import styles from '@/ui/items-list/items-list.module.scss'
 import { formattedDateTime } from '@/ui/util'
 import { VenueInline } from '@/ui/venue'
 import Link from 'next/link'

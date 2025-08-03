@@ -10,14 +10,17 @@
   --accent-secondary: var(--accent-light);
   --transparency-primary: rgba(0, 0, 0, 0.15);
   --transparency-secondary: rgba(0, 0, 0, 0.35);
+  --transparency-extra-light: rgba(0, 0, 0, 0.075);
+  --transparency-light: rgba(0, 0, 0, 0.25);
   --error-color: #e65225;
 
-  --menubar-height: 3.27rem;
+  --menubar-height: 3.25rem;
   --footer-height: 3.25rem;
+  --max-body-width: 1950px;
 }
 
 body {
-  max-width: 1900px;
+  max-width: var(--max-body-width);
   margin: 0 auto;
   padding: 0;
   font: 16px / 1.5 Helvetica Neue, Arial, sans-serif;
@@ -27,6 +30,11 @@ body {
   font-weight: normal;
   color: var(--foreground);
   background: var(--background);
+  position: absolute;
+  inset: 0;
+  overflow: scroll;
+  display: flex;
+  flex-direction: column;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -45,11 +53,33 @@ ul {
 main {
   flex: 1;
 
+  > article {
+    padding: 1.5em 1em 2em 1em;
+  }
+
   li, p {
     margin: 0 0 1em;
     width: 100%;
     max-width: 780px;
     text-wrap: pretty;
+  }
+}
+
+.body-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+
+  > div:has(main) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #content {
+    width: 100%;
+    height: 1px;
   }
 }
 
@@ -100,20 +130,42 @@ button, a[href].button {
 
     &:active:not(:hover) {
       background: var(--accent-secondary);
+
+      &.button-secondary.button{
+        background: var(--accent-primary);
+      }
     }
 
     @media (hover: hover) {
       &:hover {
         background: var(--accent-primary);
       }
+
+      &.button-secondary {
+        background: var(--accent-primary);
+      }
+    }
+
+    &.button-secondary {
+      color: var(--foreground);
+      background: none;
+      border: 1px solid var(--foreground);
+      padding: 0 .75rem;
+      min-height: 44px;
+
+      svg {
+        fill: var(--foreground);
+      }
     }
   }
-
 }
 
-@media (hover: hover) {
-  a[href]:hover, button:hover {
-    text-decoration: underline;
+a[href],
+button {
+  @media (hover: hover) {
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
@@ -163,6 +215,8 @@ input, textarea {
     --accent-secondary: var(--accent-dark);
     --transparency-primary: rgba(255, 255, 255, 0.35);
     --transparency-secondary: rgba(255, 255, 255, 0.15);
+    --transparency-extra-light: rgba(255, 255, 255, 0.1);
+    --transparency-light: rgba(255, 255, 255, 0.25);
   }
 
   input, textarea {

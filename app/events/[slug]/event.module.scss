@@ -34,11 +34,9 @@
 
     img {
       margin: auto;
-      max-height: 85vh;
       width: 100%;
 
       @include breakpoints.sm-width {
-        max-height: unset;
         width: 100%;
         height: auto;
       }

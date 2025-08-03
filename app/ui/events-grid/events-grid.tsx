@@ -1,7 +1,8 @@
 import { EventClient } from '@/lib/definitions'
 import EventsGridItem from '@/ui/events-grid/events-grid-item'
-import styles from '@/ui/events-grid/events-grid.module.scss'
+import styles from '@/ui/items-grid/items-grid.module.scss'
 import clsx from 'clsx'
+import { useId } from 'react'
 
 export default function EventsGrid ({
   events,
@@ -14,11 +15,14 @@ export default function EventsGrid ({
   isTextOnly?: boolean;
   isUpcoming?: boolean;
 }) {
+  const id = useId()
   return (
-    <section className='px-4 pt-8 pb-8'>
-      <h2 className='py-2'>{isUpcoming ? 'Upcoming Events' : 'Past Events'}</h2>
+    <section aria-labelledby={id} className={styles['items-grid']}>
+      <h2 id={id}>
+        {isUpcoming ? 'Upcoming Events' : 'Past Events'}
+      </h2>
 
-      <ul className={clsx(styles.grid, isUpcoming && styles.upcoming, isColumn && styles.column)}>
+      <ul className={clsx(isUpcoming && styles.upcoming, isColumn && styles.column)}>
         {events.map((event, index) => (
           <li key={event.id}>
             <EventsGridItem

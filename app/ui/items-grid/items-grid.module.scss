@@ -1,10 +1,18 @@
 @use '@/ui/breakpoints';
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 4rem 2.25rem;
-  min-height: 35vh;
+.items-grid {
+  margin: 1.5em 1em 3.5rem 1em;
+
+  h2 {
+    margin: 1.5rem 0 1em;
+  }
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 4rem 2.25rem;
+    min-height: 35vh;
+  }
 
   @include breakpoints.sm-width {
     min-height: unset;

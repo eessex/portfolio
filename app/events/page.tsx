@@ -15,12 +15,12 @@ export default async function EventsPage () {
 
   return (
     <div>
-      <h1 className='p-4 visually-hidden'>
+      <h1 className='visually-hidden'>
         {title}
       </h1>
 
       <Suspense fallback={<Loading />}>
-        <div className='flex flex-col space-y-8'>
+        <div>
           {upcomingEvents.length > 0 && <EventsGrid events={upcomingEvents} isUpcoming isColumn />}
           <EventsList events={pastEvents} />
         </div>

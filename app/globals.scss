@@ -10,6 +10,8 @@
   --accent-secondary: var(--accent-light);
   --transparency-primary: rgba(0, 0, 0, 0.15);
   --transparency-secondary: rgba(0, 0, 0, 0.35);
+  --transparency-extra-light: rgba(255, 255, 255, 0.05);
+  --transparency-light: rgba(255, 255, 255, 0.25);
   --error-color: #e65225;
 
   --menubar-height: 3.27rem;
@@ -100,20 +102,42 @@ button, a[href].button {
 
     &:active:not(:hover) {
       background: var(--accent-secondary);
+
+      &.button-secondary.button{
+        background: var(--accent-primary);
+      }
     }
 
     @media (hover: hover) {
       &:hover {
         background: var(--accent-primary);
       }
+
+      &.button-secondary {
+        background: var(--accent-primary);
+      }
+    }
+
+    &.button-secondary {
+      color: var(--foreground);
+      background: none;
+      border: 1px solid var(--foreground);
+      padding: 0 .75rem;
+      min-height: 44px;
+
+      svg {
+        fill: var(--foreground);
+      }
     }
   }
-
 }
 
-@media (hover: hover) {
-  a[href]:hover, button:hover {
-    text-decoration: underline;
+a[href],
+button {
+  @media (hover: hover) {
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
@@ -163,6 +187,8 @@ input, textarea {
     --accent-secondary: var(--accent-dark);
     --transparency-primary: rgba(255, 255, 255, 0.35);
     --transparency-secondary: rgba(255, 255, 255, 0.15);
+    --transparency-extra-light: rgba(255, 255, 255, 0.075);
+    --transparency-light: rgba(255, 255, 255, 0.25);
   }
 
   input, textarea {

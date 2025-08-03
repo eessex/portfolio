@@ -1,0 +1,56 @@
+@use '@/ui/breakpoints';
+
+.items-list {
+  margin-bottom: 3.5rem;
+
+  h2 {
+    margin: 1.5rem 1rem 1em;
+  }
+
+  li {
+    min-width: 100%;
+    border-bottom: 1px solid var(--transparency-primary);;
+    margin: 0;
+
+    &:first-child {
+      border-top: 1px solid var(--transparency-primary);;
+    }
+
+    a {
+      padding: .75rem 1rem;
+      display: grid;
+      grid-template-columns: 7fr 3fr;
+      gap: 4rem;
+
+      @include breakpoints.mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+  }
+}
+
+.contentLeft {
+  display: grid;
+  grid-template-columns: min(250px) 8fr;
+  gap: 1rem;
+
+  @include breakpoints.mobile {
+    display: flex;
+    gap: 0;
+    flex-direction: column-reverse;
+  }
+
+  * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.contentRight  {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

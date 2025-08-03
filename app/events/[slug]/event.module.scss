@@ -37,7 +37,6 @@
       width: 100%;
 
       @include breakpoints.sm-width {
-        max-height: unset;
         width: 100%;
         height: auto;
       }

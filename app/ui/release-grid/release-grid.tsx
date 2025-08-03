@@ -1,7 +1,8 @@
 import { ReleaseClient } from '@/lib/definitions'
 import Link from 'next/link'
 import ReleaseGridItem from '@/ui/release-grid/release-grid-item'
-import styles from '@/ui/release-grid/release-grid.module.scss'
+import { useId } from 'react'
+import styles from '@/ui/items-grid/items-grid.module.scss'
 
 export default function ReleaseGrid ({
   releases,
@@ -10,15 +11,17 @@ export default function ReleaseGrid ({
   releases: ReleaseClient[];
   title?: string;
 }) {
+  const id = useId()
+
   return (
-    <section className='px-4 pt-4 pb-8'>
-      <h2 className='py-2'>
+    <section aria-labelledby={id} className={styles['items-grid']}>
+      <h2 id={id}>
         {title || (
           <Link href='/releases'>Releases</Link>
         )}
       </h2>
 
-      <ul className={styles.grid}>
+      <ul>
         {releases.map((release, index) => (
           <li key={`${release.id}-${index}`}>
             <ReleaseGridItem

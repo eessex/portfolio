@@ -1,4 +1,4 @@
-import Nav from '@/ui/nav/nav'
+import { Nav } from '@/ui/nav/nav'
 import Footer from '@/ui/footer/footer'
 import { AdminSidebar } from './ui/admin-sidebar/admin-sidebar'
 import { auth } from '../auth'

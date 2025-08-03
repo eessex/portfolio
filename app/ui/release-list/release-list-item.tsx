@@ -1,5 +1,5 @@
 import { ReleaseClient } from '@/lib/definitions'
-import styles from '@/ui/release-list/release-list.module.scss'
+import styles from '@/ui/items-list/items-list.module.scss'
 import { formattedDateTime } from '@/ui/util'
 import Link from 'next/link'
 import { DraftBadge } from '../draft-badge'

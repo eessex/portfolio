@@ -40,9 +40,9 @@ export default async function AboutPage () {
   ])
 
   return (
-    <article className={`${styles.about} px-4 pt-4 pb-8`}>
+    <article className={styles.about}>
       <header>
-        <h1 className='py-2'>{title}</h1>
+        <h1>{title}</h1>
       </header>
 
       <section>

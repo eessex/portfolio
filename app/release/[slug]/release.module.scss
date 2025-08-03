@@ -32,12 +32,10 @@
     margin: 1rem 0;
 
     img {
-      margin: auto;
       width: 100%;
       height: auto;
 
       @include breakpoints.sm-width {
-        max-height: unset;
         width: 100%;
         height: auto;
       }

@@ -14,7 +14,7 @@
   --transparency-light: rgba(0, 0, 0, 0.25);
   --error-color: #e65225;
 
-  --menubar-height: 3.75rem;
+  --menubar-height: 3.25rem;
   --footer-height: 3.25rem;
   --max-body-width: 1950px;
 }
@@ -30,6 +30,11 @@ body {
   font-weight: normal;
   color: var(--foreground);
   background: var(--background);
+  position: absolute;
+  inset: 0;
+  overflow: scroll;
+  display: flex;
+  flex-direction: column;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -48,6 +53,10 @@ ul {
 main {
   flex: 1;
 
+  > article {
+    padding: 1.5em 1em 2em 1em;
+  }
+
   li, p {
     margin: 0 0 1em;
     width: 100%;
@@ -58,8 +67,7 @@ main {
 
 .body-container {
   display: flex;
-  min-height: calc(100% - var(--menubar-height));
-  height: 100%;
+  flex-direction: column;
   flex: 1;
 
   > div:has(main) {
@@ -153,15 +161,34 @@ button, a[href].button {
 
     &:active:not(:hover) {
       background: var(--accent-secondary);
+
+      &.button-secondary.button{
+        background: var(--accent-primary);
+      }
     }
 
     @media (hover: hover) {
       &:hover {
         background: var(--accent-primary);
       }
+
+      &.button-secondary {
+        background: var(--accent-primary);
+      }
+    }
+
+    &.button-secondary {
+      color: var(--foreground);
+      background: none;
+      border: 1px solid var(--foreground);
+      padding: 0 .75rem;
+      min-height: 44px;
+
+      svg {
+        fill: var(--foreground);
+      }
     }
   }
-
 }
 
 a[href],
@@ -219,7 +246,7 @@ input, textarea {
     --accent-secondary: var(--accent-dark);
     --transparency-primary: rgba(255, 255, 255, 0.35);
     --transparency-secondary: rgba(255, 255, 255, 0.15);
-    --transparency-extra-light: rgba(255, 255, 255, 0.05);
+    --transparency-extra-light: rgba(255, 255, 255, 0.1);
     --transparency-light: rgba(255, 255, 255, 0.25);
   }
 

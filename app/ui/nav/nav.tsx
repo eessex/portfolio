@@ -1,10 +1,10 @@
 'use client'
 import Link from 'next/link'
-import { useWindowScrollPosition } from '@/ui/scroll-position'
+import { useWindowScrollPosition } from '@/ui/nav/scroll-position'
 import clsx from 'clsx'
 import style from './nav.module.scss'
 
-export default function Nav ({ title }: { title?: string }) {
+export function Nav ({ title }: { title?: string }) {
   const {
     isAtContentTop,
     isScrollingDown
@@ -18,7 +18,7 @@ export default function Nav ({ title }: { title?: string }) {
     `)}
     >
 
-      <nav className={clsx('flex flex-row')}>
+      <nav>
         <h1 className='md:space-x-2 flex-1'>
           <Link href='/'>
             {title || 'Site Title'}

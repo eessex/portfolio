@@ -68,7 +68,6 @@ main {
 .body-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
   flex: 1;
 
   > div:has(main) {
@@ -77,9 +76,20 @@ main {
     flex-direction: column;
   }
 
+  &.admin {
+    flex-direction: row-reverse;
+  }
+
   #content {
     width: 100%;
     height: 1px;
+  }
+}
+
+body:has(.menubar.hide) {
+  .admin-sidebar {
+    top: 0;
+    height: 100vh;
   }
 }
 

@@ -12,8 +12,8 @@ export function Nav ({ title }: { title?: string }) {
 
   return (
     <header className={clsx(`
-      ${style['menubar']} 
-      ${!isAtContentTop && style['sticky']} 
+      ${style['menubar']} menubar
+      ${!isAtContentTop && style['sticky'] + ' sticky'}
       ${(isScrollingDown && !isAtContentTop) && style['hide'] + ' hide'}
     `)}
     >

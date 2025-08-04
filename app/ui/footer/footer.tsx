@@ -1,13 +1,9 @@
 import { fetchSocialLinks } from '@/lib/data'
 import EmailSubscribe from '@/ui/email-subscribe/email-subscribe'
 import styles from '@/ui/footer/footer.module.scss'
-import Link from 'next/link'
-import { auth } from '../../../auth'
-import LogoutButton from '../logout-button'
 
 export default async function asyncFooter () {
   const socialLinks = await fetchSocialLinks()
-  const session = await auth()
 
   return (
     <footer className={`text-sm ${styles.footer}`}>
@@ -24,22 +20,7 @@ export default async function asyncFooter () {
           </ul>
         </nav>
       )}
-      {session?.user
-        ? (
-          <ul>
-            <li>
-              <Link href='/dashboard'>
-                Dashboard
-              </Link>
-            </li>
-            <li>
-              <LogoutButton />
-            </li>
-          </ul>
-          )
-        : (
-          <EmailSubscribe />
-          )}
+      <EmailSubscribe />
     </footer>
   )
 }

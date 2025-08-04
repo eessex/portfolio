@@ -1,7 +1,8 @@
+import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
 import { Nav } from '@/ui/nav/nav'
 import Footer from '@/ui/footer/footer'
 import { auth } from '../auth'
-import { fetchSiteSettings } from './lib/data'
+import { fetchSiteSettings } from '@/lib/data'
 import { geistSans, geistMono } from '@/ui/fonts'
 import type { Metadata } from 'next'
 import clsx from 'clsx'
@@ -35,6 +36,9 @@ export default async function RootLayout ({
         <Nav title={siteSettings?.title} />
 
         <div className={clsx('body-container', isAdmin && 'admin')}>
+          {isAdmin && <AdminSidebar />}
+
+          {/* Main content area */}
           <div>
             <main>
               <div id='content' />

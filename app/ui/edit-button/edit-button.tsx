@@ -1,15 +1,24 @@
+'use client'
 import { PencilIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
-import { auth } from '../../../auth'
+import { usePathname } from 'next/navigation'
 
-export async function EditButton ({ path }: { path: string }) {
-  const session = await auth()
+const editablePaths = [
+  'about',
+  'events',
+  'release'
+]
 
-  if (session?.user) {
-    return (
-      <Link href={`${path}/edit`} className='button'>
-        <PencilIcon /> Edit
-      </Link>
-    )
-  }
+export function EditButton ({ className }: { className?: string }) {
+  const pathname = usePathname()
+  const pathnameParts = pathname.split('/')
+  const firstPart = pathnameParts[1]
+  const isEditablePath = editablePaths.includes(firstPart)
+  if (!isEditablePath || (pathnameParts.length === 2 && firstPart !== 'about')) return null
+
+  return (
+    <Link href='/edit' className={`button ${className}`}>
+      <PencilIcon /> Edit Page
+    </Link>
+  )
 }

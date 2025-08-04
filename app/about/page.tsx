@@ -1,7 +1,6 @@
 import styles from '@/about/about.module.scss'
 import { fetchAboutPage, fetchPressImages, fetchPressLinks, fetchSiteSettings } from '@/lib/data'
 import AccordionDropdown from '@/ui/accordion-dropdown/accordion-dropdown'
-import { EditButton } from '@/ui/edit-button/edit-button'
 import ImageGrid from '@/ui/image-grid/image-grid'
 import Loading from '@/ui/loading'
 import { Suspense } from 'react'
@@ -39,7 +38,6 @@ export default async function AboutPage () {
     <article className={styles.about}>
       <header>
         <h1>{title}</h1>
-        <EditButton path='/about' />
       </header>
 
       <section>

@@ -1,6 +1,6 @@
 import { signOut } from '../../auth'
 
-export default function LogoutButton () {
+export function LogoutButton ({ className }: { className?: string }) {
   return (
     <form
       action={async () => {
@@ -8,7 +8,7 @@ export default function LogoutButton () {
         await signOut({ redirectTo: '/' }) // redirect to home page after sign out
       }}
     >
-      <button type='submit'>Sign Out</button>
+      <button type='submit' className={className}>Sign Out</button>
     </form>
   )
 }

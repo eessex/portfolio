@@ -19,28 +19,8 @@ export async function AdminSidebar () {
             </Link>
           </li>
           <li>
-            <Link href='/projects' className={buttonClasses}>
-              Projects
-            </Link>
-          </li>
-          <li>
             <Link href='/embed-codes' className={buttonClasses}>
               Embed Codes
-            </Link>
-          </li>
-          <li>
-            <Link href='/images' className={buttonClasses}>
-              Images
-            </Link>
-          </li>
-          <li>
-            <Link href='/links' className={buttonClasses}>
-              Links
-            </Link>
-          </li>
-          <li>
-            <Link href='/venues' className={buttonClasses}>
-              Venues
             </Link>
           </li>
         </ul>

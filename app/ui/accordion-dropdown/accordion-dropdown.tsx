@@ -1,13 +1,17 @@
 'use client'
 
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import styles from '@/ui/accordion-dropdown/accordion-dropdown.module.scss'
 
-export default function AccordionDropdown ({ title, children }: { title: string, children: React.ReactNode }) {
+export default function AccordionDropdown ({ title, children, isExpanded }: { title: string, children: React.ReactNode, isExpanded?: boolean }) {
   const triggerId = useId()
   const panelId = useId()
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(isExpanded || false)
+
+  useEffect(() => {
+    setIsOpen(isExpanded || false)
+  }, [isExpanded])
 
   return (
     <section className={styles['accordion-dropdown']}>

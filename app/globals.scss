@@ -118,18 +118,6 @@ button, a[href].button {
     outline-offset: -2px;
   }
 
-  &.button-secondary.button {
-    color: var(--foreground);
-    background: none;
-    border: 1px solid var(--foreground);
-    padding: 0 .75rem;
-    min-height: 44px;
-
-    svg {
-      fill: var(--foreground);
-    }
-  }
-
   &:focus-visible {
     outline: 2px solid var(--accent-secondary);
     text-decoration: underline;
@@ -137,20 +125,11 @@ button, a[href].button {
 
   &:active:not(:hover) {
     background: var(--accent-primary);
-
-    &.button-secondary.button{
-      background: var(--accent-primary);
-    }
   }
 
   @media (hover: hover) {
     &:hover {
       background: var(--accent-secondary);
-
-
-      &.button-secondary {
-        background: var(--accent-primary);
-      }
     }
   }
 
@@ -159,10 +138,24 @@ button, a[href].button {
     background: var(--foreground);
     padding: 0.75rem 1.25rem;
 
-    &:active:not(:hover) {
-      background: var(--accent-secondary);
 
-      &.button-secondary.button{
+    &.button-secondary {
+      color: var(--foreground);
+      background: none;
+      border: 1px solid var(--foreground);
+
+      svg {
+        fill: var(--foreground);
+      }
+    }
+
+    &.sm {
+      padding: 0 .75em;
+      height: 40px;
+    }
+
+    &:active:not(:hover) {
+      &.button-secondary {
         background: var(--accent-primary);
       }
     }
@@ -170,22 +163,10 @@ button, a[href].button {
     @media (hover: hover) {
       &:hover {
         background: var(--accent-primary);
-      }
 
-      &.button-secondary {
-        background: var(--accent-primary);
-      }
-    }
-
-    &.button-secondary {
-      color: var(--foreground);
-      background: none;
-      border: 1px solid var(--foreground);
-      padding: 0 .75rem;
-      min-height: 44px;
-
-      svg {
-        fill: var(--foreground);
+        &.button-secondary {
+          background: var(--accent-secondary);
+        }
       }
     }
   }

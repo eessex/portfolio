@@ -19,7 +19,7 @@ export async function AdminSidebar () {
             </Link>
           </li>
           <li>
-            <Link href='/embed-codes' className={buttonClasses}>
+            <Link href='/dashboard/embed_codes' className={buttonClasses}>
               Embed Codes
             </Link>
           </li>

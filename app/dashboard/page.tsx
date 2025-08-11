@@ -7,9 +7,7 @@ const title = 'Dashboard'
 export const metadata: Metadata = { title }
 
 export default async function DashboardPage () {
-  const [settings] = await Promise.all([
-    fetchSiteSettings(),
-  ])
+  const settings = await fetchSiteSettings()
 
   return (
     <div>

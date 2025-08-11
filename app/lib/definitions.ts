@@ -46,6 +46,8 @@ interface EmbeddedItemArrays {
 
 export type EmbedCode = z.infer<typeof EmbedCodeSchema> & {
   createdAt?: string
+  eventSlugs?: string[]
+  releaseSlugs?: string[]
 }
 
 export type Event = z.infer<typeof EventSchema> & {

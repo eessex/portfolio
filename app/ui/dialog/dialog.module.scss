@@ -1,0 +1,19 @@
+.dialog {
+  position: fixed;
+  inset: 60px;
+  background: var(--background);
+  z-index: 1000;
+  padding: 2em;
+  outline: 1px solid var(--transparency-extra-light);
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1em;
+
+    h2 {
+      margin: 0;
+    }
+  }
+}

@@ -4,10 +4,23 @@ import { escapeHtml } from '@/ui/util'
 import { AuthError } from 'next-auth'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
-import { signIn } from '../../auth'
-import { AboutSchema, SettingsSchema } from './scemas'
+import { signIn } from '../../../auth'
+import {
+  AboutSchema,
+  EmbedCodeSchema,
+  ImageSchema,
+  LinkSchema,
+  SettingsSchema
+} from '../scemas'
+import { z } from 'zod'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
+
+const embeddedItems = {
+  embedCode: EmbedCodeSchema,
+  image: ImageSchema,
+  link: LinkSchema,
+}
 
 export async function authenticate (
   _prevState: string | undefined,
@@ -113,4 +126,31 @@ export async function editAbout (formData: FormData, id: string) {
       throw new Error('Database Error: Failed to save.')
     }
   }
+}
+
+export async function validatedItemArray (
+  formData: FormData,
+  prefix: keyof typeof embeddedItems
+): Promise<z.infer<typeof embeddedItems[keyof typeof embeddedItems]>[]> {
+  const items: Record<string, unknown>[] = []
+  const prefixRegex = new RegExp(`^${prefix}\\[(\\d+)\\]\\.(\\w+)$`)
+  await formData.entries().forEach(([k, v]) => {
+    const match = k.match(prefixRegex)
+    if (match) {
+      const index = parseInt(match[1])
+      const key = match[2] // 'title', 'url', etc.
+      const newEntry: Record<string, unknown> = items[index] || {}
+
+      newEntry[key] = v.toString()
+      items[index] = newEntry
+    }
+  })
+
+  const validatedItems = z.array(embeddedItems[prefix]).safeParse(items)
+  if (!validatedItems.success) {
+    console.error(`Failed to validate ${prefix}s`, validatedItems.error.flatten().fieldErrors)
+    throw new Error(`Failed to validate ${prefix}s.`)
+  }
+
+  return validatedItems.data
 }

@@ -10,8 +10,11 @@ import { LinksList } from '@/ui/links/link-list'
 const title = 'About'
 
 export async function generateMetadata () {
-  const about = await fetchAboutPage()
-  const settings = await fetchSiteSettings()
+  const [settings, about] = await Promise.all([
+    fetchSiteSettings(),
+    fetchAboutPage()
+  ])
+
   const image = (about || settings)?.coverImage
   const images = image
     ? [{
@@ -30,9 +33,11 @@ export async function generateMetadata () {
 }
 
 export default async function AboutPage () {
-  const about = await fetchAboutPage()
-  const pressImages = await fetchPressImages()
-  const links = await fetchPressLinks()
+  const [about, pressImages, links] = await Promise.all([
+    fetchAboutPage(),
+    fetchPressImages(),
+    fetchPressLinks()
+  ])
 
   return (
     <article className={styles.about}>

@@ -37,8 +37,6 @@ export default async function RootLayout ({
 
         <div className={clsx('body-container', isAdmin && 'admin')}>
           {isAdmin && <AdminSidebar />}
-
-          {/* Main content area */}
           <div>
             <main>
               <div id='content' />

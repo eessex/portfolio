@@ -16,8 +16,9 @@ export function EditButton ({ className }: { className?: string }) {
   const isEditablePath = editablePaths.includes(firstPart)
   if (!isEditablePath || (pathnameParts.length === 2 && firstPart !== 'about')) return null
 
+  if (!pathname) return null
   return (
-    <Link href='/edit' className={`button ${className}`}>
+    <Link href={`${pathname}/edit`} className={`button ${className}`}>
       <PencilIcon /> Edit Page
     </Link>
   )

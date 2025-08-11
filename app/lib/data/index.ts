@@ -10,6 +10,7 @@ import type {
 } from '@/lib/definitions'
 import { isUpcomingDate, camelizeKeys } from '@/ui/util'
 import { QueryResultRow, sql } from '@vercel/postgres'
+import { fetchEmbedCodesByIds } from './embed-codes'
 
 /** main page meta & image etc */
 export async function fetchSiteSettings (): Promise<SiteSettingsClient | undefined> {
@@ -301,40 +302,6 @@ export async function fetchReleaseBySlug (slug: string): Promise<ReleaseClient |
   }
 }
 
-const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]): Promise<EmbedCode[]> => {
-  try {
-    const { rows } = await sql`
-      SELECT * FROM embed_codes
-      WHERE id = ANY(${ids})
-    `
-    return formatItemArrayRows<EmbedCode>(rows, ids)
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch embed codes.')
-  }
-}
-
-export const fetchEmbedCodes = async (): Promise<EmbedCode[]> => {
-  try {
-    const { rows } = await sql`
-      SELECT 
-      embed_codes.*,
-      ARRAY(
-        SELECT slug FROM releases as r WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
-      ) AS release_slugs,
-      ARRAY(
-        SELECT slug FROM events as e WHERE e.embed_code_ids @> ARRAY[embed_codes.id]
-      ) AS event_slugs
-      FROM embed_codes
-      ORDER BY embed_codes.updated_at DESC
-    `
-    return formatItemArrayRows<EmbedCode>(rows, rows.map(row => row.id))
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch embed codes.')
-  }
-}
-
 const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Image[]> => {
   try {
     const { rows } = await sql`
@@ -361,7 +328,7 @@ const fetchLinksByIds = async (ids: QueryResultRow[string]): Promise<Link[]> => 
   }
 }
 
-function formatItemArrayRows<T extends ItemArrays> (rows: QueryResultRow[], ids: QueryResultRow[string]): T[] {
+export function formatItemArrayRows<T extends ItemArrays> (rows: QueryResultRow[], ids: QueryResultRow[string]): T[] {
   const sortedRows = rows.sort((a, b) => {
     const indexA = ids.findIndex((id: string) => id === a.id)
     const indexB = ids.findIndex((id: string) => id === b.id)

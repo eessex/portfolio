@@ -1,33 +1,107 @@
 'use client'
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { type EmbedCode } from '@/lib/definitions'
 import { useCallback, useState } from 'react'
 import AccordionDropdown from '../accordion-dropdown/accordion-dropdown'
 import { EmbedCodeItem } from './embed-code'
 import Link from 'next/link'
 import styles from './embed-codes.module.scss'
+import { Dialog } from '@/ui/dialog/dialog'
+import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
+import { Form } from '../form/form'
+import { editEmbedCode, deleteEmbedCode } from '@/lib/actions/embed-codes'
+
+type SavedEmbedCode = EmbedCode & { id: string }
 
 export function EmbedCodeDashboard ({ embedCodes }: { embedCodes: EmbedCode[] }) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [embedCodeToEdit, setEmbedCodeToEdit] = useState<EmbedCode | undefined>(undefined)
+
   const toggleExpand = () => setIsExpanded(!isExpanded)
+
+  async function onSubmit (formData: FormData) {
+    // handle form submission
+    console.log('Form submitted:', formData)
+    try {
+      const res = await editEmbedCode(formData)
+      setIsEditDialogOpen(false)
+      setEmbedCodeToEdit(undefined)
+      return res
+    } catch (error) {
+      console.error('Failed to submit form:', error)
+    }
+  }
+
+  const onEdit = useCallback((id: string) => {
+    const embedCode = embedCodes.find(code => code.id === id)
+    if (embedCode) {
+      setEmbedCodeToEdit(embedCode)
+      setIsEditDialogOpen(true)
+    }
+  }, [embedCodes])
+
+  const onDelete = useCallback(async (id: string) => {
+    try {
+      await deleteEmbedCode(id)
+      console.log('Delete embed code with id:', id)
+    } catch (error) {
+      console.error('Failed to delete embed code:', error)
+    }
+  }, [])
 
   return (
     <div>
       <header className={styles['embed-code-header']}>
-        <h2>All embed Codes</h2>
-        <button onClick={toggleExpand}>{isExpanded ? 'Collapse all' : 'Expand all'}</button>
+        <h2>All embed Codes ({embedCodes.length})</h2>
+        <ul>
+          <li>
+            <button className='button' onClick={() => setIsEditDialogOpen(true)}>
+              <PlusIcon /> Add Embed Code
+            </button>
+          </li>
+          <li>
+            <button onClick={toggleExpand}>{isExpanded ? 'Collapse all' : 'Expand all'}</button>
+          </li>
+        </ul>
       </header>
 
+      {isEditDialogOpen && (
+        <Dialog
+          title='Add Embed Code'
+          onClose={() => setIsEditDialogOpen(false)}
+        >
+          <Form action={onSubmit}>
+            <EditEmbedCode
+              embed={embedCodeToEdit}
+            />
+          </Form>
+        </Dialog>
+      )}
+
       <ul>
-        {embedCodes.map((code) => (
-          <EmbedCodeListItem key={code.id} embedCode={code} isExpanded={isExpanded} />
-        ))}
+        {embedCodes
+          .filter((code) => !!code.id)
+          .map((code) => (
+            <EmbedCodeListItem
+              key={code.id}
+              embedCode={(code as SavedEmbedCode)}
+              isExpanded={isExpanded}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))}
       </ul>
     </div>
   )
 }
 
-function EmbedCodeListItem ({ embedCode, isExpanded }: { embedCode: EmbedCode, isExpanded: boolean }) {
+function EmbedCodeListItem ({
+  embedCode, isExpanded, onEdit, onDelete
+
+}: {
+  embedCode: SavedEmbedCode, isExpanded?: boolean, onEdit: (id: string) => void, onDelete: (id: string) => void
+}) {
   const [_src, setSrc] = useState<string | null>(null)
   const [iframeHost, setIframeHost] = useState<string | null>(null)
   const containerRef = useCallback((node: HTMLElement | null) => {
@@ -47,14 +121,23 @@ function EmbedCodeListItem ({ embedCode, isExpanded }: { embedCode: EmbedCode, i
     return [...events, ...releases]
   }
 
+  function embedTitle () {
+    const usedOn = usedOnPages()
+    const count = usedOn.length > 0 ? ` (${usedOn.length})` : ''
+
+    if (embedCode.title) return embedCode.title + count
+    if (iframeHost) return `Embed Code from ${iframeHost}${count}`
+    return 'Embed Code'
+  }
+
   return (
     <li key={embedCode.id} className={styles['embed-code-list-item']} ref={containerRef}>
-      <AccordionDropdown title={embedCode.title || 'Embed Code from ' + iframeHost} isExpanded={isExpanded}>
-        <EditItemNav onEdit={() => {}} onDelete={() => {}} />
+      <AccordionDropdown title={embedTitle()} isExpanded={isExpanded}>
+        <EditItemNav id={embedCode.id} onEdit={onEdit} onDelete={onDelete} />
         <EmbedCodeItem embedCode={embedCode} />
 
         <div>
-          <h2>Visible on</h2>
+          <h2>Visible on:</h2>
           <ul>
             {usedOnPages().length > 0
               ? (
@@ -67,7 +150,7 @@ function EmbedCodeListItem ({ embedCode, isExpanded }: { embedCode: EmbedCode, i
                   ))
                 )
               : (
-                <li>No pages found</li>
+                <li>No pages yet.</li>
                 )}
           </ul>
         </div>
@@ -76,16 +159,16 @@ function EmbedCodeListItem ({ embedCode, isExpanded }: { embedCode: EmbedCode, i
   )
 }
 
-export function EditItemNav ({ onEdit, onDelete }: { onEdit: () => void, onDelete: () => void }) {
+export function EditItemNav ({ id, onEdit, onDelete }: { id: string, onEdit: (id: string) => void, onDelete: (id: string) => void }) {
   return (
     <ul className={styles['edit-button']}>
       <li>
-        <button className='button sm' onClick={onEdit}>
+        <button className='button sm' onClick={() => onEdit(id)}>
           <PencilIcon /> Edit
         </button>
       </li>
       <li>
-        <button className='button button-secondary sm' onClick={onDelete}>
+        <button className='button button-secondary sm' onClick={() => onDelete(id)}>
           <TrashIcon /> Delete
         </button>
       </li>

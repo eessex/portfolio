@@ -1,6 +1,6 @@
 'use client'
 import XMarkIcon from '@heroicons/react/24/solid/esm/XMarkIcon'
-import styles from './dialog.module.scss'
+import styles from '@/ui/dialog/dialog.module.scss'
 import { useEffect } from 'react'
 
 export const Dialog = ({
@@ -52,10 +52,6 @@ export const Dialog = ({
           <slot />
         </div>
       </div>
-      {/* <OverlayBackground
-      :background-color='overlayBackgroundColor'
-      @click='$emit("close")'
-    /> */}
     </div>
   )
 }

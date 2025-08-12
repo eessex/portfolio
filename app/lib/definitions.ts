@@ -7,7 +7,7 @@ import type {
   LinkSchema,
   ReleaseSchema,
   SettingsSchema
-} from './scemas'
+} from '@/lib/scemas'
 
 export interface User {
   id: string

@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useWindowScrollPosition } from '@/ui/nav/scroll-position'
 import clsx from 'clsx'
-import style from './nav.module.scss'
+import style from '@/ui/nav/nav.module.scss'
 
 export function Nav ({ title }: { title?: string }) {
   const {

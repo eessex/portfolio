@@ -10,7 +10,7 @@ import type {
 } from '@/lib/definitions'
 import { isUpcomingDate, camelizeKeys } from '@/ui/util'
 import { QueryResultRow, sql } from '@vercel/postgres'
-import { fetchEmbedCodesByIds } from './embed-codes'
+import { fetchEmbedCodesByIds } from '@/lib/data/embed-codes'
 
 /** main page meta & image etc */
 export async function fetchSiteSettings (): Promise<SiteSettingsClient | undefined> {

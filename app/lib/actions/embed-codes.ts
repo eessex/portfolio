@@ -6,7 +6,7 @@ import {
   EmbedCodeSchema,
 } from '../scemas'
 import { EmbedCode } from '../definitions'
-import { validatedItemArray } from './index'
+import { validatedItemArray } from '@/lib/actions'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 

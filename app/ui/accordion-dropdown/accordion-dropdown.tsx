@@ -4,7 +4,15 @@ import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import { useEffect, useId, useState } from 'react'
 import styles from '@/ui/accordion-dropdown/accordion-dropdown.module.scss'
 
-export default function AccordionDropdown ({ title, children, isExpanded }: { title: string, children: React.ReactNode, isExpanded?: boolean }) {
+export default function AccordionDropdown ({
+  title,
+  children,
+  isExpanded
+}: {
+  title: string,
+  children: React.ReactNode,
+  isExpanded?: boolean
+}) {
   const triggerId = useId()
   const panelId = useId()
   const [isOpen, setIsOpen] = useState(isExpanded || false)

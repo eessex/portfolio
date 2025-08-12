@@ -1,6 +1,6 @@
 import type { Link } from '@/lib/definitions'
-import { LinkItem } from './link-item'
-import styles from './links.module.scss'
+import { LinkItem } from '@/ui/links//link-item'
+import styles from '@/ui/links/links.module.scss'
 import { clsx } from 'clsx'
 
 export function LinksList ({ links }: { links: Link[] }) {

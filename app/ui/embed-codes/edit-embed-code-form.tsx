@@ -121,7 +121,6 @@ export const EditEmbedCodesFieldset = ({
   }, [])
 
   function handleAddEmbed () {
-    // Logic to add a new embed
     const newEmbed = { iframe: '', caption: '', id: '' }
     if (!embedList.some(embed => (!embed.iframe && !embed.caption && !embed.id))) {
       setEmbedList([...embedList, newEmbed])

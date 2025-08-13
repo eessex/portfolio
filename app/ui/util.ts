@@ -40,8 +40,7 @@ const getTimeFormat = (format: DateFormatSize = 'lg') => {
 
 export function formattedDateTime (date: string, format?: DateFormatSize) {
   const startDate = new Date(date)
-  // FIXME: offset is a hack to adjust for timezone after posgres migration
-  startDate.setHours(startDate.getHours() - 4)
+  startDate.setHours(startDate.getHours())
   const formattedDate = new Date(startDate).toLocaleDateString('en-us', getTimeFormat(format))
 
   return formattedDate

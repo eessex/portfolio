@@ -161,6 +161,7 @@ export async function fetchEvents (isAuthed: boolean = false) {
         v.city as venue_city,
         v.state as venue_state,
         v.country as venue_country,
+        i.id as image_id,
         i.url as image_url,
         i.caption as image_caption,
         i.aspect as image_aspect
@@ -227,10 +228,22 @@ export const fetchEventBySlug = async (slug: string) => {
 
 // TODO: standardize camel / snake formats
 function formatEvent (event: QueryResultRow): EventClient {
-  return {
+  const images: Array<EventClient['images'][number]> = []
+
+  if (event.image_url) {
+    images.push({
+      url: event.image_url,
+      caption: event.image_caption || '',
+      aspect: event.image_aspect || 1,
+      id: event.image_id || '',
+    })
+  }
+
+  const formattedEvent: EventClient = {
     ...camelizeKeys(event),
     endDate: event.end_date ? new Date(event.end_date).toISOString() : undefined,
     startDate: new Date(event.start_date).toISOString(),
+    images,
     venue: {
       name: event.venue_name,
       address: event.venue_address,
@@ -240,6 +253,7 @@ function formatEvent (event: QueryResultRow): EventClient {
       url: event.venue_url
     }
   }
+  return formattedEvent
 }
 
 export async function fetchReleases (isAuthed: boolean): Promise<ReleaseClient[]> {

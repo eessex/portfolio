@@ -52,17 +52,18 @@ ul {
 
 main {
   flex: 1;
+  position: relative;
 
   > article {
     padding: 1.5em 1em 2em 1em;
   }
+}
 
-  li, p {
-    margin: 0 0 1em;
-    width: 100%;
-    max-width: 780px;
-    text-wrap: pretty;
-  }
+li, p {
+  margin: 0 0 1em;
+  width: 100%;
+  max-width: 780px;
+  text-wrap: pretty;
 }
 
 .body-container {
@@ -263,4 +264,23 @@ figcaption {
   text-transform: uppercase;
   letter-spacing: 0.07em;
   font-weight: bold;
+}
+
+blockquote {
+  font-size: x-large;
+  font-weight: bold;
+  line-height: normal;
+  position: relative;
+
+  &::before {
+    content: '“';
+    position: absolute;
+    left: -.65em;
+    top: 0;
+  }
+
+  &::after {
+    content: '”';
+    margin-left: 0.15em;
+  }
 }

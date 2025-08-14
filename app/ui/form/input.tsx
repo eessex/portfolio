@@ -6,7 +6,7 @@ import clsx from 'clsx'
 
 export type InputType = HTMLInputElement | HTMLTextAreaElement
 
-interface InputProps {
+export interface InputProps {
   label: string
   className?: string,
   description?: string

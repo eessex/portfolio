@@ -47,7 +47,8 @@ export const Dialog = ({
             <XMarkIcon />
           </button>
         </header>
-        <div className='dialog-content'>
+
+        <div className={styles['dialog-content']}>
           {children}
           <slot />
         </div>

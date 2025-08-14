@@ -1,15 +1,17 @@
 'use client'
-import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
+
+import { PlusIcon } from '@heroicons/react/24/outline'
 import { type EmbedCode } from '@/lib/definitions'
 import { useCallback, useState } from 'react'
-import AccordionDropdown from '../accordion-dropdown/accordion-dropdown'
+import AccordionDropdown from '@/ui/accordion-dropdown/accordion-dropdown'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import Link from 'next/link'
 import styles from '@/ui/embed-codes//embed-codes.module.scss'
 import { Dialog } from '@/ui/dialog/dialog'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
-import { Form } from '../form/form'
+import { Form } from '@/ui/form/form'
 import { editEmbedCode, deleteEmbedCode } from '@/lib/actions/embed-codes'
+import { EditItemNav } from '@/ui/form/edit-item-nav'
 
 type SavedEmbedCode = EmbedCode & { id: string }
 
@@ -21,8 +23,6 @@ export function EmbedCodeDashboard ({ embedCodes }: { embedCodes: EmbedCode[] })
   const toggleExpand = () => setIsExpanded(!isExpanded)
 
   async function onSubmit (formData: FormData) {
-    // handle form submission
-    console.log('Form submitted:', formData)
     try {
       const res = await editEmbedCode(formData)
       setIsEditDialogOpen(false)
@@ -52,18 +52,15 @@ export function EmbedCodeDashboard ({ embedCodes }: { embedCodes: EmbedCode[] })
 
   return (
     <div>
-      <header className={styles['embed-code-header']}>
-        <h2>All embed Codes ({embedCodes.length})</h2>
-        <ul>
-          <li>
-            <button className='button' onClick={() => setIsEditDialogOpen(true)}>
-              <PlusIcon /> Add Embed Code
-            </button>
-          </li>
-          <li>
-            <button onClick={toggleExpand}>{isExpanded ? 'Collapse all' : 'Expand all'}</button>
-          </li>
-        </ul>
+      <header>
+        <button className={`button ${styles['new-item']}`} onClick={() => setIsEditDialogOpen(true)}>
+          <PlusIcon /> Add Embed Code
+        </button>
+
+        <div className={styles['embed-code-header']}>
+          <h2>All embed Codes ({embedCodes.length})</h2>
+          <button onClick={toggleExpand}>{isExpanded ? 'Collapse all' : 'Expand all'}</button>
+        </div>
       </header>
 
       {isEditDialogOpen && (
@@ -116,7 +113,7 @@ function EmbedCodeListItem ({
   }, [embedCode.iframe, embedCode.title])
 
   function usedOnPages () {
-    const events = embedCode.eventSlugs?.map((slug) => `/event/${slug}`) || []
+    const events = embedCode.eventSlugs?.map((slug) => `/events/${slug}`) || []
     const releases = embedCode.releaseSlugs?.map((slug) => `/release/${slug}`) || []
     return [...events, ...releases]
   }
@@ -156,22 +153,5 @@ function EmbedCodeListItem ({
         </div>
       </AccordionDropdown>
     </li>
-  )
-}
-
-export function EditItemNav ({ id, onEdit, onDelete }: { id: string, onEdit: (id: string) => void, onDelete: (id: string) => void }) {
-  return (
-    <ul className={styles['edit-button']}>
-      <li>
-        <button className='button sm' onClick={() => onEdit(id)}>
-          <PencilIcon /> Edit
-        </button>
-      </li>
-      <li>
-        <button className='button button-secondary sm' onClick={() => onDelete(id)}>
-          <TrashIcon /> Delete
-        </button>
-      </li>
-    </ul>
   )
 }

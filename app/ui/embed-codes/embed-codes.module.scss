@@ -27,21 +27,12 @@
 .embed-code-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   margin-bottom: 0.5rem;
 }
 
-.edit-button {
+.new-item {
   position: absolute;
-  right: -1px;
-  top: -1px;
-  display: flex;
-  border: 1px solid var(--background);
-  background-color: var(--background);
-  z-index: 10;
-
-  li {
-    margin: 0;
-    width: auto;
-  }
+  right: 1rem;
+  top: 0;
 }

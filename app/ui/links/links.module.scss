@@ -9,7 +9,18 @@
     }
   }
 }
-  
+
+
+.links-dashboard-list-item {
+  margin: 0 auto;
+  max-width: 100%;
+
+  [class$="accordion-panel"]:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+  }
+}
 
 .press-link {
   text-decoration: none;
@@ -19,4 +30,17 @@
       text-decoration: none;
     }
   }
+}
+
+.links-dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+
+.new-item {
+  position: absolute;
+  right: 1rem;
+  top: 0;
 }

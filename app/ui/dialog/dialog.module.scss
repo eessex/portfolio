@@ -5,6 +5,8 @@
   z-index: 1000;
   padding: 2em;
   outline: 1px solid var(--transparency-extra-light);
+  display: flex;
+  flex-direction: column;
 
   header {
     display: flex;
@@ -16,4 +18,9 @@
       margin: 0;
     }
   }
+}
+
+.dialog-content {
+  height: 100%;
+  overflow: scroll;
 }

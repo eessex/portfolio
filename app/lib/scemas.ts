@@ -32,7 +32,8 @@ export const LinkSchema = z.object({
   id,
   isPress: z.boolean().optional(),
   isSocialProfile: z.boolean().optional(),
-  publishedDate: z.string().datetime().optional(),
+  publishedDate: z.string().date().optional(),
+  quotation: z.string().max(255).optional(),
   title,
   url: z.string().url(),
 })

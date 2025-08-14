@@ -8,11 +8,27 @@ export function LinkItem ({ link, className }: { link: Link, className?: string 
       {link.isPress
         ? (
           <div>
-            <b>{link.title || link.url}</b>
-            <div>
-              {link.attribution && (<em>— {link.attribution}, </em>)}
-              {formattedDateTime(link.publishedDate || link.createdAt!, 'xs')}
-            </div>
+            {link.quotation
+              ? (
+                <>
+                  <blockquote cite={link.url}>{link.quotation}</blockquote>
+                  <cite>
+                    {link.attribution && (
+                      <>{link.title ? `— ${link.title} in ` : '— '}{link.attribution}, </>
+                    )}
+                    {formattedDateTime(link.publishedDate || link.createdAt!, 'xs')}
+                  </cite>
+                </>
+                )
+              : (
+                <>
+                  <b>{link.title || link.url}</b>
+                  <div>
+                    {link.attribution && (<em>— {link.attribution}, </em>)}
+                    {formattedDateTime(link.publishedDate || link.createdAt!, 'xs')}
+                  </div>
+                </>
+                )}
           </div>
           )
         : (

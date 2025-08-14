@@ -16,6 +16,11 @@
     field-sizing: content;
   }
 
+  input[type='checkbox'] {
+    width: auto;
+    margin-right: .5rem;
+  }
+
   textarea {
     min-height: 5em;
   }
@@ -32,5 +37,46 @@
       padding: .75em .8em;
       height: auto;
     }
+  }
+}
+
+.edit-item-nav {
+  position: absolute;
+  right: -1px;
+  top: -1px;
+  display: flex;
+  border: 1px solid var(--background);
+  background-color: var(--background);
+  z-index: 10;
+
+  li {
+    margin: 0;
+    width: auto;
+  }
+}
+
+.checkbox {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  > p:last-child {
+    margin-bottom: 0;
+  }
+
+  input {
+    width: auto;
+    margin: .35rem 1rem 0.35rem 0rem;
+  }
+}
+
+.press-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+
+  input, textarea {
+    width: 100%;
   }
 }

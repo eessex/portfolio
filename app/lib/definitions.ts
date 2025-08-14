@@ -34,6 +34,8 @@ export interface Image extends z.infer<typeof ImageSchema> {
 export interface Link extends z.infer<typeof LinkSchema> {
   createdAt?: string
   id: string
+  eventSlugs?: string[]
+  releaseSlugs?: string[]
 }
 
 type EmbeddedItemArrayKeys = 'embedCodes' | 'images' | 'links'

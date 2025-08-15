@@ -1,4 +1,4 @@
-import styles from '@/release/[slug]/release.module.scss'
+import styles from '@/releases/[slug]/release.module.scss'
 import { fetchReleaseBySlug, fetchReleases } from '@/lib/data'
 import { formattedDateTime } from '@/ui/util'
 import type { Metadata } from 'next'

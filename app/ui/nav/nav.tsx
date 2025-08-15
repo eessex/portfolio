@@ -1,4 +1,5 @@
 'use client'
+
 import Link from 'next/link'
 import { useWindowScrollPosition } from '@/ui/nav/scroll-position'
 import clsx from 'clsx'
@@ -19,7 +20,7 @@ export function Nav ({ title }: { title?: string }) {
     >
 
       <nav>
-        <h1 className='md:space-x-2 flex-1'>
+        <h1>
           <Link href='/'>
             {title || 'Site Title'}
           </Link>

@@ -11,6 +11,7 @@ import type {
 import { isUpcomingDate, camelizeKeys } from '@/ui/util'
 import { QueryResultRow, sql } from '@vercel/postgres'
 import { fetchEmbedCodesByIds } from '@/lib/data/embed-codes'
+import { fetchLinksByIds } from '@/lib/data/links'
 
 /** main page meta & image etc */
 export async function fetchSiteSettings (): Promise<SiteSettingsClient | undefined> {
@@ -329,24 +330,11 @@ const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Image[]> =
   }
 }
 
-const fetchLinksByIds = async (ids: QueryResultRow[string]): Promise<Link[]> => {
-  try {
-    const { rows } = await sql`
-      SELECT * FROM links
-      WHERE id = ANY(${ids})
-    `
-    return formatItemArrayRows<Link>(rows, ids)
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch links.')
-  }
-}
-
 export function formatItemArrayRows<T extends ItemArrays> (rows: QueryResultRow[], ids: QueryResultRow[string]): T[] {
-  const sortedRows = rows.sort((a, b) => {
-    const indexA = ids.findIndex((id: string) => id === a.id)
-    const indexB = ids.findIndex((id: string) => id === b.id)
-    return ids[indexA] - ids[indexB]
-  })
+  if (!ids) return []
+
+  const sortedRows = ids
+    .map((id: string) => rows.find(row => row.id === id))
+    .filter(Boolean) as QueryResultRow[]
   return sortedRows.map(i => camelizeKeys(i)) || []
 }

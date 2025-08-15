@@ -15,7 +15,7 @@ export default function ReleaseGridItem ({
     <article>
       {release.images && release.images[0].url && (
         <figure style={{ aspectRatio: release.images[0].aspect }}>
-          <Link href={`/release/${release.slug}`}>
+          <Link href={`/releases/${release.slug}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={release.images[0].url}
@@ -28,7 +28,7 @@ export default function ReleaseGridItem ({
         </figure>
       )}
       <section>
-        <Link href={`/release/${release.slug}`}>
+        <Link href={`/releases/${release.slug}`}>
 
           <h3>
             {release.artist}: {release.title}

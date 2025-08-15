@@ -39,6 +39,14 @@ export default async function AboutPage () {
     fetchPressLinks()
   ])
 
+  const [pressLinksWithQuotes, pressLinksWithoutQuotes] = links.reduce(
+    ([withQuotes, withoutQuotes], link) =>
+      link.quotation
+        ? [[...withQuotes, link], withoutQuotes]
+        : [withQuotes, [...withoutQuotes, link]],
+    [[], []] as [typeof links, typeof links]
+  )
+
   return (
     <article className={styles.about}>
       <header>
@@ -61,18 +69,20 @@ export default async function AboutPage () {
         {about?.title && (
           <p><b>{about.title}</b></p>
         )}
+        <LinksList links={pressLinksWithQuotes} />
+
       </section>
 
       <div className={styles['press-info']}>
         <Suspense fallback={<Loading />}>
-          <AccordionDropdown title='Press Images'>
+          <AccordionDropdown title='More Images'>
             <ImageGrid images={pressImages.filter(i => i.url !== about?.coverImage?.url)} />
           </AccordionDropdown>
         </Suspense>
 
-        {!!links.length && (
-          <AccordionDropdown title='Press Links'>
-            <LinksList links={links} />
+        {!!pressLinksWithoutQuotes.length && (
+          <AccordionDropdown title='More Press'>
+            <LinksList links={pressLinksWithoutQuotes} />
           </AccordionDropdown>
         )}
       </div>

@@ -7,6 +7,10 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]): Promise<Link
     const { rows } = await sql`
       SELECT * FROM links
       WHERE id = ANY(${ids})
+      ORDER BY 
+      is_press DESC,
+      (is_press = true AND quotation IS NOT NULL) DESC,
+      COALESCE(published_date, created_at) DESC
     `
     return formatItemArrayRows<Link>(rows, ids)
   } catch (error) {

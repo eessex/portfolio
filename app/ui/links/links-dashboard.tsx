@@ -101,7 +101,7 @@ function LinkListItem ({
 }) {
   function usedOnPages () {
     const events = link.eventSlugs?.map((slug) => `/events/${slug}`) || []
-    const releases = link.releaseSlugs?.map((slug) => `/release/${slug}`) || []
+    const releases = link.releaseSlugs?.map((slug) => `/releases/${slug}`) || []
     return [...events, ...releases]
   }
 

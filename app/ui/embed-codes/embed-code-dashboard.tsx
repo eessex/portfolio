@@ -114,7 +114,7 @@ function EmbedCodeListItem ({
 
   function usedOnPages () {
     const events = embedCode.eventSlugs?.map((slug) => `/events/${slug}`) || []
-    const releases = embedCode.releaseSlugs?.map((slug) => `/release/${slug}`) || []
+    const releases = embedCode.releaseSlugs?.map((slug) => `/releases/${slug}`) || []
     return [...events, ...releases]
   }
 

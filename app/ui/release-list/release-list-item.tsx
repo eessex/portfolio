@@ -13,7 +13,7 @@ export default function ReleaseListItem ({
 }) {
   return (
     <article>
-      <Link href={`/release/${release.slug}`}>
+      <Link href={`/releases/${release.slug}`}>
         <div className={styles.contentLeft}>
           <div>
             {formattedDateTime(release.releaseDate, 'xxs')}

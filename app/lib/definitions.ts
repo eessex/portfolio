@@ -57,14 +57,17 @@ export type Event = z.infer<typeof EventSchema> & {
 }
 
 export type EventClient = Omit<Event, 'projectIds' | 'venueIds' | EmbeddedItemArrayKeys> & EmbeddedItemArrays & {
-  venue: Venue
+  venue: Venue,
+  slug: string
 }
 
 export type Release = z.infer<typeof ReleaseSchema> & {
   createdAt?: string
 }
 
-export type ReleaseClient = Omit<Release, EmbeddedItemArrayKeys> & EmbeddedItemArrays
+export type ReleaseClient = Omit<Release, EmbeddedItemArrayKeys> & EmbeddedItemArrays & {
+  slug: string
+}
 
 export type SiteSettings = z.infer<typeof SettingsSchema>
 

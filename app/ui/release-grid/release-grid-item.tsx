@@ -1,8 +1,7 @@
 import { ReleaseClient } from '@/lib/definitions'
-import { formattedDateTime } from '@/ui/util'
-
+import { formattedDateTime, releaseUrl } from '@/ui/util'
+import { DraftBadge } from '@/ui/draft-badge'
 import Link from 'next/link'
-import { DraftBadge } from '../draft-badge'
 
 export default function ReleaseGridItem ({
   release,
@@ -15,7 +14,7 @@ export default function ReleaseGridItem ({
     <article>
       {release.images && release.images[0].url && (
         <figure style={{ aspectRatio: release.images[0].aspect }}>
-          <Link href={`/releases/${release.slug}`}>
+          <Link href={releaseUrl(release.slug)}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={release.images[0].url}
@@ -28,8 +27,7 @@ export default function ReleaseGridItem ({
         </figure>
       )}
       <section>
-        <Link href={`/releases/${release.slug}`}>
-
+        <Link href={releaseUrl(release.slug)}>
           <h3>
             {release.artist}: {release.title}
           </h3>
@@ -41,7 +39,6 @@ export default function ReleaseGridItem ({
             {release.label && `${release.label}`}
             <br />{formattedDateTime(release.releaseDate, 'xs')}
           </h4>
-
         </Link>
       </section>
     </article>

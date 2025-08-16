@@ -181,6 +181,10 @@ button {
   }
 }
 
+button.icon-button {
+  padding: .45rem .5rem;
+}
+
 *:focus-visible, *:focus {
   outline-color: var(--accent-secondary);
 

@@ -55,7 +55,12 @@ export default async function Home () {
       </section>
 
       <Suspense fallback={<Loading />}>
-        {upcomingEvents.length > 0 && <EventsGrid events={upcomingEvents} isUpcoming isTextOnly />}
+        {upcomingEvents.length > 0 &&
+        (
+          <div className='pt-4'>
+            <EventsGrid events={upcomingEvents} isUpcoming isTextOnly />
+          </div>
+        )}
       </Suspense>
     </div>
   )

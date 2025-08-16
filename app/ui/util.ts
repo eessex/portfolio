@@ -75,3 +75,11 @@ export function camelizeKeys (obj: any): any {
   }
   return camelizedObject
 }
+
+export function eventUrl (slug: string) {
+  return `/events/${slug}`
+}
+
+export function releaseUrl (slug: string) {
+  return `/releases/${slug}`
+}

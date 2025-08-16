@@ -1,8 +1,8 @@
 import { ReleaseClient } from '@/lib/definitions'
 import styles from '@/ui/items-list/items-list.module.scss'
-import { formattedDateTime } from '@/ui/util'
+import { formattedDateTime, releaseUrl } from '@/ui/util'
+import { DraftBadge } from '@/ui/draft-badge'
 import Link from 'next/link'
-import { DraftBadge } from '../draft-badge'
 
 export default function ReleaseListItem ({
   release,
@@ -13,7 +13,7 @@ export default function ReleaseListItem ({
 }) {
   return (
     <article>
-      <Link href={`/releases/${release.slug}`}>
+      <Link href={releaseUrl(release.slug)}>
         <div className={styles.contentLeft}>
           <div>
             {formattedDateTime(release.releaseDate, 'xxs')}

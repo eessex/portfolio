@@ -1,9 +1,9 @@
 import { EventClient } from '@/lib/definitions'
 import styles from '@/ui/items-list/items-list.module.scss'
-import { formattedDateTime } from '@/ui/util'
+import { eventUrl, formattedDateTime } from '@/ui/util'
 import { VenueInline } from '@/ui/venue'
 import Link from 'next/link'
-import { DraftBadge } from '../draft-badge'
+import { DraftBadge } from '@/ui/draft-badge'
 
 export default function EventsListItem ({
   event,
@@ -14,7 +14,7 @@ export default function EventsListItem ({
 }) {
   return (
     <article>
-      <Link href={`/events/${event.slug}`}>
+      <Link href={eventUrl(event.slug)}>
         <div className={styles.contentLeft}>
           <div>
             {formattedDateTime(event.startDate, 'md')}

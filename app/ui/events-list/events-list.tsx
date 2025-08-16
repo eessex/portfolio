@@ -1,22 +1,30 @@
 import { EventClient } from '@/lib/definitions'
 import EventsListItem from '@/ui/events-list/events-list-item'
 import styles from '@/ui/items-list/items-list.module.scss'
+import { ExpandCollapseButton } from '@/ui/expand-collapse-button'
 import { useId } from 'react'
 
 export default function EventsGrid ({
   events,
-  isUpcoming = false
+  isExpanded = false,
+  isUpcoming = false,
+  onExpand
 }: {
   events: EventClient[];
+  isExpanded?: boolean;
   isUpcoming?: boolean;
+  onExpand?: () => void;
 }) {
   const id = useId()
 
   return (
     <section aria-labelledby={id} className={styles['items-list']}>
-      <h2 id={id}>
-        {isUpcoming ? 'Upcoming Events' : 'Past Events'}
-      </h2>
+      <header>
+        <h2 id={id}>
+          {isUpcoming ? 'Upcoming Events' : 'Past Events'}
+        </h2>
+        {onExpand && <ExpandCollapseButton isExpanded={isExpanded} onExpand={onExpand} />}
+      </header>
 
       <ul>
         {events.map((event, index) => (

@@ -12,6 +12,7 @@ import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
 import { Form } from '@/ui/form/form'
 import { editEmbedCode, deleteEmbedCode } from '@/lib/actions/embed-codes'
 import { EditItemNav } from '@/ui/form/edit-item-nav'
+import { eventUrl, releaseUrl } from '@/ui/util'
 
 type SavedEmbedCode = EmbedCode & { id: string }
 
@@ -113,8 +114,8 @@ function EmbedCodeListItem ({
   }, [embedCode.iframe, embedCode.title])
 
   function usedOnPages () {
-    const events = embedCode.eventSlugs?.map((slug) => `/events/${slug}`) || []
-    const releases = embedCode.releaseSlugs?.map((slug) => `/releases/${slug}`) || []
+    const events = embedCode.eventSlugs?.map((slug) => eventUrl(slug)) || []
+    const releases = embedCode.releaseSlugs?.map((slug) => releaseUrl(slug)) || []
     return [...events, ...releases]
   }
 
@@ -132,6 +133,7 @@ function EmbedCodeListItem ({
       <AccordionDropdown title={embedTitle()} isExpanded={isExpanded}>
         <EditItemNav id={embedCode.id} onEdit={onEdit} onDelete={onDelete} />
         <EmbedCodeItem embedCode={embedCode} />
+        <div>ID: {embedCode.id}</div>
 
         <div>
           <h2>Visible on:</h2>

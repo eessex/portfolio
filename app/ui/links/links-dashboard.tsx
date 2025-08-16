@@ -1,16 +1,18 @@
 'use client'
+
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { type Link as _Link } from '@/lib/definitions'
 import { useCallback, useState } from 'react'
-import AccordionDropdown from '../accordion-dropdown/accordion-dropdown'
+import AccordionDropdown from '@/ui/accordion-dropdown/accordion-dropdown'
 import { LinkItem } from '@/ui/links/link-item'
-import Link from 'next/link'
-import styles from '@/ui/links//links.module.scss'
 import { Dialog } from '@/ui/dialog/dialog'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { Form } from '@/ui/form/form'
 import { editLink, deleteLink } from '@/lib/actions/links'
 import { EditItemNav } from '@/ui/form/edit-item-nav'
+import { eventUrl, releaseUrl } from '@/ui/util'
+import Link from 'next/link'
+import styles from '@/ui/links//links.module.scss'
 
 type SavedLink = _Link & { id: string }
 
@@ -100,8 +102,8 @@ function LinkListItem ({
   link: SavedLink, isExpanded?: boolean, onEdit: (id: string) => void, onDelete: (id: string) => void
 }) {
   function usedOnPages () {
-    const events = link.eventSlugs?.map((slug) => `/events/${slug}`) || []
-    const releases = link.releaseSlugs?.map((slug) => `/releases/${slug}`) || []
+    const events = link.eventSlugs?.map(slug => eventUrl(slug)) || []
+    const releases = link.releaseSlugs?.map(slug => releaseUrl(slug)) || []
     return [...events, ...releases]
   }
 

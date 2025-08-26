@@ -1,7 +1,7 @@
 'use client'
 
 import { deleteLink, editLink } from '@/lib/actions/links'
-import type { Link as _Link } from '@/lib/definitions'
+import type { FormResponse, Link as _Link } from '@/lib/definitions'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { Dialog } from '@/ui/dialog/dialog'
 import { EditItemNav } from '@/ui/form/edit-item-nav'
@@ -23,7 +23,7 @@ export function LinksDashboard ({ links }: { links: _Link[] }) {
 
   const toggleExpand = () => setIsExpanded(!isExpanded)
 
-  async function onSubmit (formData: FormData) {
+  async function onSubmit (formData: FormData): Promise<FormResponse<SavedLink> | undefined> {
     // handle form submission
     console.log('Form submitted:', formData)
     try {

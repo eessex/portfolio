@@ -1,7 +1,7 @@
 'use server'
 
 import { validatedItemArray } from '@/lib/actions'
-import type { Link } from '@/lib/definitions'
+import type { FormResponse, Link } from '@/lib/definitions'
 import { LinkSchema } from '@/lib/scemas'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
@@ -60,7 +60,7 @@ async function createLink (link: Link) {
   return null
 }
 
-export async function editLink (formData: FormData) {
+export async function editLink (formData: FormData): Promise<FormResponse<Link>> {
   const data: Record<FormData['entries']['name'], unknown> = {}
   formData.entries().forEach(([n, v]) => {
     // checkboxes are always 'on' when checked, so we convert them to true
@@ -89,7 +89,7 @@ export async function editLink (formData: FormData) {
       if (updatedLinks) {
         console.debug('Link saved successfully:', updatedLinks)
         revalidatePath('/dashboard/links')
-        return { ok: true, link: updatedLinks[0] }
+        return { ok: true, res: updatedLinks[0] }
       }
     } catch (err) {
       console.error('Failed to save Link:', err)
@@ -162,7 +162,7 @@ async function updateLink (link: Link) {
   }
 }
 
-export async function deleteLink (id: string) {
+export async function deleteLink (id: string): Promise<FormResponse<Link>> {
   try {
     await sql`
       DELETE FROM links

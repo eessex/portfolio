@@ -1,14 +1,15 @@
 'use client'
 
-import { useActionState, useState, useRef, useEffect } from 'react'
-import { Toast } from '@/ui/toast/toast'
+import { FormResponse } from '@/lib/definitions'
 import styles from '@/ui/form/form.module.scss'
+import { Toast } from '@/ui/toast/toast'
+import { useActionState, useEffect, useRef, useState } from 'react'
 
-export function Form ({
+export function Form<T> ({
   action,
   children
 }: {
-  action: (formData: FormData) => Promise<{ ok: boolean; } | { errors: Record<string, string[] | undefined>, message: string } | undefined>,
+  action: (formData: FormData) => Promise<FormResponse<T> | undefined>,
   children: React.ReactNode
 }) {
   const [error, setError] = useState<boolean>(false)

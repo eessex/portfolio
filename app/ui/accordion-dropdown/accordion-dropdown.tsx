@@ -4,7 +4,7 @@ import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import { useEffect, useId, useState } from 'react'
 import styles from '@/ui/accordion-dropdown/accordion-dropdown.module.scss'
 
-export default function AccordionDropdown ({
+export function AccordionDropdown ({
   title,
   children,
   isExpanded

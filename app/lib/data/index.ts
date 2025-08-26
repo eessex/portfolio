@@ -6,7 +6,8 @@ import type {
   Image,
   Link,
   ReleaseClient,
-  SiteSettingsClient
+  SiteSettingsClient,
+  Venue
 } from '@/lib/definitions'
 import { isUpcomingDate, camelizeKeys } from '@/ui/util'
 import { QueryResultRow, sql } from '@vercel/postgres'
@@ -288,7 +289,7 @@ export async function fetchReleases (isAuthed: boolean): Promise<ReleaseClient[]
   }
 }
 
-type ItemArrays = EmbedCode | Image | Link
+export type ItemArrays = EmbedCode | Image | Link
 
 export async function fetchReleaseBySlug (slug: string): Promise<ReleaseClient | undefined> {
   try {
@@ -330,11 +331,17 @@ const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Image[]> =
   }
 }
 
-export function formatItemArrayRows<T extends ItemArrays> (rows: QueryResultRow[], ids: QueryResultRow[string]): T[] {
+export function formatItemArrayRows<T extends ItemArrays | Venue> (
+  rows: QueryResultRow[],
+  ids: QueryResultRow[string],
+  isSorted: boolean = true
+): T[] {
   if (!ids) return []
 
-  const sortedRows = ids
-    .map((id: string) => rows.find(row => row.id === id))
-    .filter(Boolean) as QueryResultRow[]
+  const sortedRows = isSorted
+    ? ids
+      .map((id: string) => rows.find(row => row.id === id))
+      .filter(Boolean) as QueryResultRow[]
+    : rows
   return sortedRows.map(i => camelizeKeys(i)) || []
 }

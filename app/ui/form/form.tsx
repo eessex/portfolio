@@ -3,12 +3,13 @@
 import { useActionState, useState, useRef, useEffect } from 'react'
 import { Toast } from '@/ui/toast/toast'
 import styles from '@/ui/form/form.module.scss'
+import { FormResponse } from '@/lib/definitions'
 
-export function Form ({
+export function Form<T> ({
   action,
   children
 }: {
-  action: (formData: FormData) => Promise<{ ok: boolean; } | { errors: Record<string, string[] | undefined>, message: string } | undefined>,
+  action: (formData: FormData) => Promise<FormResponse<T> | undefined>,
   children: React.ReactNode
 }) {
   const [error, setError] = useState<boolean>(false)

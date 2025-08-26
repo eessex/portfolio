@@ -53,11 +53,11 @@ export const EditLink = ({ link, index, ref, onRemoveLink }: LinkProps) => {
           ref={ref}
           attributes={{
             autoFocus: !link?.url && !link?.id,
-            maxLength: 1500,
+            maxLength: 255,
             name: hasIndex ? `link[${index}].url` : 'url',
             placeholder: 'https://example.com',
             required: true,
-            type: link?.id && hasIndex ? 'hidden' : undefined
+            type: link?.id && hasIndex ? 'hidden' : 'url'
           }}
         />
         {/* FIXME: necessary? */}
@@ -141,7 +141,7 @@ export const EditLink = ({ link, index, ref, onRemoveLink }: LinkProps) => {
       </fieldset>
       {link?.id && (
         <Input
-          label='Link code ID'
+          label='Link ID'
           defaultValue={link.id}
           attributes={{
             name: hasIndex ? `link[${index}].id` : 'id',

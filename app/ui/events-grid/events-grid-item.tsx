@@ -1,5 +1,5 @@
 import { EventClient } from '@/lib/definitions'
-import { VenueInline } from '@/ui/venue'
+import { VenueInline } from '@/ui/venues/venue'
 import { formattedDateTime, eventUrl } from '@/ui/util'
 import { TicketIcon } from '@heroicons/react/24/outline'
 import { DraftBadge } from '@/ui/draft-badge'

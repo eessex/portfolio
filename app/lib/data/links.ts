@@ -8,11 +8,10 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]): Promise<Link
       SELECT * FROM links
       WHERE id = ANY(${ids})
       ORDER BY 
-      is_press DESC,
-      (is_press = true AND quotation IS NOT NULL) DESC,
+      (is_press AND quotation IS NOT NULL) DESC,
       COALESCE(published_date, created_at) DESC
     `
-    return formatItemArrayRows<Link>(rows, ids)
+    return formatItemArrayRows<Link>(rows, ids, false)
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')

@@ -6,8 +6,17 @@ import type {
   ImageSchema,
   LinkSchema,
   ReleaseSchema,
-  SettingsSchema
+  SettingsSchema,
+  VenueSchema
 } from '@/lib/scemas'
+
+export type FormResponse<T> = Promise<{
+  ok: boolean;
+  res?: T | T[]
+} | {
+  errors: Record<string, string[] | undefined> | string[],
+  message: string
+} | undefined>
 
 export interface User {
   id: string
@@ -16,19 +25,16 @@ export interface User {
   password: string
 }
 
-export interface Venue {
+export interface Venue extends z.infer<typeof VenueSchema> {
   id: string
-  address?: string
-  city: string
-  country?: string
-  name?: string
-  state?: string
-  url?: string
+  eventSlugs?: string[]
 }
 
 export interface Image extends z.infer<typeof ImageSchema> {
   createdAt?: string
   id: string
+  eventSlugs?: string[]
+  releaseSlugs?: string[]
 }
 
 export interface Link extends z.infer<typeof LinkSchema> {
@@ -38,7 +44,7 @@ export interface Link extends z.infer<typeof LinkSchema> {
   releaseSlugs?: string[]
 }
 
-type EmbeddedItemArrayKeys = 'embedCodes' | 'images' | 'links'
+export type EmbeddedItemArrayKeys = 'embedCodes' | 'images' | 'links'
 
 interface EmbeddedItemArrays {
   embedCodes: EmbedCode[]

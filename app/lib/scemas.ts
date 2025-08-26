@@ -40,11 +40,12 @@ export const LinkSchema = z.object({
 
 export const VenueSchema = z.object({
   id,
-  name: z.string().max(255),
+  name: z.string().max(255).optional(),
   address: z.string().max(255).optional(),
-  city: z.string().max(100).optional(),
+  city: z.string().max(100),
   state: z.string().max(100).optional(),
-  country: z.string().max(100).optional()
+  country: z.string().max(100).optional(),
+  url: z.string().url().optional()
 })
 
 const embeddedItemSchemas = {

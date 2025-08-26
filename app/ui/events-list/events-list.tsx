@@ -4,7 +4,7 @@ import styles from '@/ui/items-list/items-list.module.scss'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button'
 import { useId } from 'react'
 
-export default function EventsGrid ({
+export function EventsList ({
   events,
   isExpanded = false,
   isUpcoming = false,

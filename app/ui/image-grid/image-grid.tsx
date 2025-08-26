@@ -2,7 +2,7 @@ import { type Image } from '@/lib/definitions'
 import styles from '@/ui/image-grid/image-grid.module.scss'
 import { FigureImage } from './image-figure'
 
-export default function ImageGrid ({ images }: { images: Image[] }) {
+export function ImageGrid ({ images }: { images: Image[] }) {
   return (
     <ul className={styles['image-grid']}>
       {images.map((image, i) => (

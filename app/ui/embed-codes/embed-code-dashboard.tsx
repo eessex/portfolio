@@ -1,9 +1,9 @@
 'use client'
 
 import { PlusIcon } from '@heroicons/react/24/outline'
-import { type EmbedCode } from '@/lib/definitions'
+import { FormResponse, type EmbedCode } from '@/lib/definitions'
 import { useCallback, useState } from 'react'
-import AccordionDropdown from '@/ui/accordion-dropdown/accordion-dropdown'
+import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import Link from 'next/link'
 import styles from '@/ui/embed-codes//embed-codes.module.scss'
@@ -23,7 +23,7 @@ export function EmbedCodeDashboard ({ embedCodes }: { embedCodes: EmbedCode[] })
 
   const toggleExpand = () => setIsExpanded(!isExpanded)
 
-  async function onSubmit (formData: FormData) {
+  async function onSubmit (formData: FormData): Promise<FormResponse<EmbedCode> | undefined> {
     try {
       const res = await editEmbedCode(formData)
       setIsEditDialogOpen(false)
@@ -59,7 +59,7 @@ export function EmbedCodeDashboard ({ embedCodes }: { embedCodes: EmbedCode[] })
         </button>
 
         <div className={styles['embed-code-header']}>
-          <h2>All embed Codes ({embedCodes.length})</h2>
+          <h2>All Embed Codes ({embedCodes.length})</h2>
           <button onClick={toggleExpand}>{isExpanded ? 'Collapse all' : 'Expand all'}</button>
         </div>
       </header>
@@ -71,7 +71,7 @@ export function EmbedCodeDashboard ({ embedCodes }: { embedCodes: EmbedCode[] })
         >
           <Form action={onSubmit}>
             <EditEmbedCode
-              embed={embedCodeToEdit}
+              embedCode={embedCodeToEdit}
             />
           </Form>
         </Dialog>

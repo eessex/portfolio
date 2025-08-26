@@ -28,6 +28,11 @@ export async function AdminSidebar () {
               Links
             </Link>
           </li>
+          <li>
+            <Link href='/dashboard/venues' className={buttonClasses}>
+              Venues
+            </Link>
+          </li>
         </ul>
         <ul>
           <li>

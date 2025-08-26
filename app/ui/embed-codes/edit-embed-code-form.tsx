@@ -5,23 +5,23 @@ import type { EmbedCode } from '@/lib/definitions'
 import { useCallback, useRef, useState } from 'react'
 
 interface EmbedCodeProps {
-  embed?: EmbedCode,
+  embedCode?: EmbedCode,
   index?: number,
   isFielset?: boolean,
   ref?: (el: InputType) => InputType | null,
   onRemoveEmbed?: (index: number) => void
 }
 
-export const EditEmbedCodeFieldset = ({ embed, index, ref, onRemoveEmbed }: EmbedCodeProps) => {
+export const EditEmbedCodeFieldset = ({ embedCode, index, ref, onRemoveEmbed }: EmbedCodeProps) => {
   return (
     <fieldset key={index}>
       <legend className='visually-hidden'>
-        {`Embed code: ${embed?.title || index || 0 + 1}`}
+        {`Embed code: ${embedCode?.title || index || 0 + 1}`}
       </legend>
 
-      <EditEmbedCode embed={embed} index={index} ref={ref} onRemoveEmbed={onRemoveEmbed} />
+      <EditEmbedCode embedCode={embedCode} index={index} ref={ref} onRemoveEmbed={onRemoveEmbed} />
 
-      {embed && !embed.iframe && onRemoveEmbed && index && (
+      {embedCode && !embedCode.iframe && onRemoveEmbed && index && (
         <button
           title='Remove embed code'
           aria-label='Remove embed code'
@@ -36,7 +36,7 @@ export const EditEmbedCodeFieldset = ({ embed, index, ref, onRemoveEmbed }: Embe
   )
 }
 
-export const EditEmbedCode = ({ embed, index, ref, onRemoveEmbed }: EmbedCodeProps) => {
+export const EditEmbedCode = ({ embedCode, index, ref, onRemoveEmbed }: EmbedCodeProps) => {
   const hasIndex = typeof index === 'number' && index >= 0
   return (
     <>
@@ -44,21 +44,21 @@ export const EditEmbedCode = ({ embed, index, ref, onRemoveEmbed }: EmbedCodePro
         <Input
           label='Embed iframe code'
           description='Paste the full iframe embed code from a service like YouTube, Bandcamp, or Spotify'
-          defaultValue={embed?.iframe}
-          isTextarea={!embed?.id}
+          defaultValue={embedCode?.iframe}
+          isTextarea={!embedCode?.id}
           ref={ref}
           attributes={{
-            autoFocus: !embed?.iframe && !embed?.id,
+            autoFocus: !embedCode?.iframe && !embedCode?.id,
             maxLength: 1500,
             name: hasIndex ? `embedCode[${index}].iframe` : 'iframe',
             placeholder: '<iframe></iframe>',
             required: true,
-            type: embed?.id && hasIndex ? 'hidden' : undefined
+            type: embedCode?.id && hasIndex ? 'hidden' : undefined
           }}
         />
-        {embed?.iframe.length && onRemoveEmbed && index && (
+        {embedCode?.iframe.length && onRemoveEmbed && index && (
           <figure>
-            <div dangerouslySetInnerHTML={{ __html: embed.iframe }} />
+            <div dangerouslySetInnerHTML={{ __html: embedCode.iframe }} />
             <button
               title='Remove embed code'
               aria-label='Remove embed'
@@ -74,7 +74,7 @@ export const EditEmbedCode = ({ embed, index, ref, onRemoveEmbed }: EmbedCodePro
       <Input
         label='Caption'
         description='Displayed below the iframe wherever it appears'
-        defaultValue={embed?.caption}
+        defaultValue={embedCode?.caption}
         attributes={{
           maxLength: 255,
           name: hasIndex ? `embedCode[${index}].caption` : 'caption',
@@ -84,17 +84,17 @@ export const EditEmbedCode = ({ embed, index, ref, onRemoveEmbed }: EmbedCodePro
       <Input
         label='Title'
         description='Used for internal search only, never displayed publicly'
-        defaultValue={embed?.title}
+        defaultValue={embedCode?.title}
         attributes={{
           maxLength: 255,
           name: hasIndex ? `embedCode[${index}].title` : 'title',
           placeholder: 'Title'
         }}
       />
-      {embed?.id && (
+      {embedCode?.id && (
         <Input
           label='Embed code ID'
-          defaultValue={embed.id}
+          defaultValue={embedCode.id}
           attributes={{
             name: hasIndex ? `embedCode[${index}].id` : 'id',
             type: 'hidden'
@@ -106,12 +106,12 @@ export const EditEmbedCode = ({ embed, index, ref, onRemoveEmbed }: EmbedCodePro
 }
 
 export const EditEmbedCodesFieldset = ({
-  embeds
+  embedCodes
 }: {
-  embeds: EmbedCode[]
+  embedCodes: EmbedCode[]
 }) => {
-  const initialEmbeds = embeds || []
-  const [embedList, setEmbedList] = useState(initialEmbeds)
+  const initialEmbedCodes = embedCodes || []
+  const [embedCodeList, setEmbedCodeList] = useState(initialEmbedCodes)
   const inputRefs = useRef<InputType[]>([])
 
   const addToRefs = useCallback((el: InputType | null) => {
@@ -122,25 +122,25 @@ export const EditEmbedCodesFieldset = ({
 
   function handleAddEmbed () {
     const newEmbed = { iframe: '', caption: '', id: '' }
-    if (!embedList.some(embed => (!embed.iframe && !embed.caption && !embed.id))) {
-      setEmbedList([...embedList, newEmbed])
+    if (!embedCodeList.some(embedCode => (!embedCode.iframe && !embedCode.caption && !embedCode.id))) {
+      setEmbedCodeList([...embedCodeList, newEmbed])
     } else {
-      const lastIndex = embedList.length - 1
+      const lastIndex = embedCodeList.length - 1
       inputRefs.current[lastIndex]?.focus()
     }
   }
 
   function handleRemoveEmbed (index: number) {
-    const updatedEmbeds = [...embedList]
-    updatedEmbeds.splice(index, 1)
-    setEmbedList(updatedEmbeds)
+    const updatedEmbedCodes = [...embedCodeList]
+    updatedEmbedCodes.splice(index, 1)
+    setEmbedCodeList(updatedEmbedCodes)
   }
 
   return (
     <fieldset className={styles['link-group']}>
-      <legend>Embeds</legend>
-      {embedList?.map((embed, index) => (
-        <EditEmbedCode key={index} embed={embed} index={index} ref={addToRefs} onRemoveEmbed={handleRemoveEmbed} />
+      <legend>EmbedCodes</legend>
+      {embedCodeList?.map((embedCode, index) => (
+        <EditEmbedCode key={index} embedCode={embedCode} index={index} ref={addToRefs} onRemoveEmbed={handleRemoveEmbed} />
       ))}
 
       <button type='button' className='button button-secondary text-sm' onClick={handleAddEmbed}>

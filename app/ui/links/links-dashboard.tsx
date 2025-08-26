@@ -3,7 +3,7 @@
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { type Link as _Link } from '@/lib/definitions'
 import { useCallback, useState } from 'react'
-import AccordionDropdown from '@/ui/accordion-dropdown/accordion-dropdown'
+import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { LinkItem } from '@/ui/links/link-item'
 import { Dialog } from '@/ui/dialog/dialog'
 import { EditLink } from '@/ui/links/edit-link-form'

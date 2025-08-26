@@ -1,7 +1,7 @@
 import { deleteLink, editLink } from '@/lib/actions/links'
 import { fetchLinks } from '@/lib/data/links'
 import { Dashboard } from '@/ui/dashboard/dashboard'
-import Loading from '@/ui/loading'
+import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 

@@ -1,8 +1,8 @@
 import { ReleaseClient } from '@/lib/definitions'
-import ReleaseListItem from '@/ui/release-list/release-list-item'
-import styles from '@/ui/items-list/items-list.module.scss'
-import { useId } from 'react'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button'
+import styles from '@/ui/items-list/items-list.module.scss'
+import { ReleaseListItem } from '@/ui/release-list/release-list-item'
+import { useId } from 'react'
 
 export function ReleaseList ({
   releases,

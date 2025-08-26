@@ -4,8 +4,8 @@ import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 import {
   LinkSchema,
-} from '../scemas'
-import { FormResponse, Link } from '../definitions'
+} from '@/lib/scemas'
+import type { FormResponse, Link } from '@/lib/definitions'
 import { validatedItemArray } from '@/lib/actions'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })

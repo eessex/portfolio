@@ -1,7 +1,7 @@
 import { EventClient } from '@/lib/definitions'
-import EventsListItem from '@/ui/events-list/events-list-item'
-import styles from '@/ui/items-list/items-list.module.scss'
+import { EventsListItem } from '@/ui/events-list/events-list-item'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button'
+import styles from '@/ui/items-list/items-list.module.scss'
 import { useId } from 'react'
 
 export function EventsList ({

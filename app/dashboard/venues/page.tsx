@@ -1,5 +1,5 @@
 import { fetchVenues } from '@/lib/data/venues'
-import Loading from '@/ui/loading'
+import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 import { Dashboard } from '@/ui/dashboard/dashboard'

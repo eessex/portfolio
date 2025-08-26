@@ -1,9 +1,9 @@
 import { fetchReleases } from '@/lib/data'
-import Loading from '@/ui/loading'
+import { ReleaseLists } from '@/releases/release-lists'
+import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 import { auth } from '../../auth'
-import ReleaseLists from './release-lists'
 
 const title = 'Releases'
 export const metadata: Metadata = { title }

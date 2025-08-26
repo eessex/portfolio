@@ -1,9 +1,10 @@
 import styles from '@/events/[slug]/event.module.scss'
 import { fetchEventBySlug, fetchEvents } from '@/lib/data'
-import EventsGrid from '@/ui/events-grid/events-grid'
+import { DraftBadge } from '@/ui/draft-badge'
+import { EventsGrid } from '@/ui/events-grid/events-grid'
 import { FigureImage } from '@/ui/image-grid/image-figure'
 import { LinksList } from '@/ui/links/link-list'
-import Loading from '@/ui/loading'
+import { Loading } from '@/ui/loading'
 import { formattedDateTime, isUpcomingDate } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
 import { TicketIcon } from '@heroicons/react/24/outline'
@@ -12,7 +13,6 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { auth } from '../../../auth'
-import { DraftBadge } from '@/ui/draft-badge'
 
 type Props = {
   params: Promise<{ slug: string }>

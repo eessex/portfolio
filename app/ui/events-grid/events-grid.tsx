@@ -1,11 +1,11 @@
-import { useId } from 'react'
 import { EventClient } from '@/lib/definitions'
-import EventsGridItem from '@/ui/events-grid/events-grid-item'
+import { EventsGridItem } from '@/ui/events-grid/events-grid-item'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button'
-import clsx from 'clsx'
 import styles from '@/ui/items-grid/items-grid.module.scss'
+import clsx from 'clsx'
+import { useId } from 'react'
 
-export default function EventsGrid ({
+export function EventsGrid ({
   events,
   isColumn = false,
   isExpanded = false,

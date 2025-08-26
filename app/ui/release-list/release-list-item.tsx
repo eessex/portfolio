@@ -1,10 +1,10 @@
 import { ReleaseClient } from '@/lib/definitions'
+import { DraftBadge } from '@/ui/draft-badge'
 import styles from '@/ui/items-list/items-list.module.scss'
 import { formattedDateTime, releaseUrl } from '@/ui/util'
-import { DraftBadge } from '@/ui/draft-badge'
 import Link from 'next/link'
 
-export default function ReleaseListItem ({
+export function ReleaseListItem ({
   release,
   index: _index,
 }: {

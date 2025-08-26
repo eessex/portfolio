@@ -2,12 +2,12 @@
 
 import { editSiteSettings } from '@/lib/actions'
 import { SiteSettingsClient } from '@/lib/definitions'
-import { XMarkIcon } from '@heroicons/react/24/outline'
-import { useState } from 'react'
 import { Form } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useState } from 'react'
 
-export default function EditSettingsForm ({ settings }: { settings: SiteSettingsClient }) {
+export function EditSettings ({ settings }: { settings: SiteSettingsClient }) {
   const [coverImageId, setCoverImageId] = useState<string | undefined>(settings?.coverImage?.id)
 
   return (

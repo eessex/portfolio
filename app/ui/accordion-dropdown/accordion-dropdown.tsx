@@ -1,8 +1,8 @@
 'use client'
 
-import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
-import { useEffect, useId, useState } from 'react'
 import styles from '@/ui/accordion-dropdown/accordion-dropdown.module.scss'
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
+import { useEffect, useId, useState } from 'react'
 
 export function AccordionDropdown ({
   title,

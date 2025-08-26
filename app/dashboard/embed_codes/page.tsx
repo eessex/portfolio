@@ -1,7 +1,7 @@
 import { deleteEmbedCode, editEmbedCode } from '@/lib/actions/embed-codes'
 import { fetchEmbedCodes } from '@/lib/data/embed-codes'
 import { Dashboard } from '@/ui/dashboard/dashboard'
-import Loading from '@/ui/loading'
+import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 

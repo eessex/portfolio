@@ -38,7 +38,7 @@ function Img ({ image, index }: { image: EventClient['images'][number], index: n
   )
 }
 
-export default function EventsGridItem ({
+export function EventsGridItem ({
   event,
   index,
   isTextOnly = false,

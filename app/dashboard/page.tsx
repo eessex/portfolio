@@ -1,6 +1,6 @@
 import { fetchSiteSettings } from '@/lib/data'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
-import EditSettings from '@/ui/form/edit-settings'
+import { EditSettings } from '@/ui/form/edit-settings'
 import { Metadata } from 'next'
 
 const title = 'Dashboard'

@@ -13,8 +13,8 @@ import { PlusIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
-import { EditEmbedCode } from '../embed-codes/edit-embed-code-form'
-import { EditLink } from '../links/edit-link-form'
+import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
+import { EditLink } from '@/ui/links/edit-link-form'
 
 interface DashboardProps <T extends ItemArrays | Venue> {
   itemType: EmbeddedItemKey | 'venue'

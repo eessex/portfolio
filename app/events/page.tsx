@@ -1,6 +1,6 @@
 import { fetchEvents } from '@/lib/data'
-import EventsGrid from '@/ui/events-grid/events-grid'
-import Loading from '@/ui/loading'
+import { EventsGrid } from '@/ui/events-grid/events-grid'
+import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 import { auth } from '../../auth'

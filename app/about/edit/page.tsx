@@ -3,7 +3,7 @@ import {
   // fetchPressImages, fetchPressLinks,
   fetchSiteSettings
 } from '@/lib/data'
-// import AccordionDropdown from '@/ui/accordion-dropdown/accordion-dropdown'
+// import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import styles from '@/about/about.module.scss'
 import { EditAboutForm } from '@/ui/form/edit-about'
 

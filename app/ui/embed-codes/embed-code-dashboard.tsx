@@ -1,18 +1,18 @@
 'use client'
 
-import { PlusIcon } from '@heroicons/react/24/outline'
+import { deleteEmbedCode, editEmbedCode } from '@/lib/actions/embed-codes'
 import { type EmbedCode } from '@/lib/definitions'
-import { useCallback, useState } from 'react'
-import AccordionDropdown from '@/ui/accordion-dropdown/accordion-dropdown'
-import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
-import Link from 'next/link'
-import styles from '@/ui/embed-codes//embed-codes.module.scss'
+import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { Dialog } from '@/ui/dialog/dialog'
+import styles from '@/ui/embed-codes//embed-codes.module.scss'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
-import { Form } from '@/ui/form/form'
-import { editEmbedCode, deleteEmbedCode } from '@/lib/actions/embed-codes'
+import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { EditItemNav } from '@/ui/form/edit-item-nav'
+import { Form } from '@/ui/form/form'
 import { eventUrl, releaseUrl } from '@/ui/util'
+import { PlusIcon } from '@heroicons/react/24/outline'
+import Link from 'next/link'
+import { useCallback, useState } from 'react'
 
 type SavedEmbedCode = EmbedCode & { id: string }
 

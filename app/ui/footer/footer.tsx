@@ -1,8 +1,8 @@
 import { fetchSocialLinks } from '@/lib/data'
-import EmailSubscribe from '@/ui/email-subscribe/email-subscribe'
+import { EmailSubscribe } from '@/ui/email-subscribe/email-subscribe'
 import styles from '@/ui/footer/footer.module.scss'
 
-export default async function asyncFooter () {
+export async function Footer () {
   const socialLinks = await fetchSocialLinks()
 
   return (

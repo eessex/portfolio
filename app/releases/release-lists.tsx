@@ -1,11 +1,11 @@
 'use client'
 
-import { ReleaseList } from '@/ui/release-list/release-list'
-import { useState } from 'react'
 import { ReleaseClient } from '@/lib/definitions'
 import { ReleaseGrid } from '@/ui/release-grid/release-grid'
+import { ReleaseList } from '@/ui/release-list/release-list'
+import { useState } from 'react'
 
-export default function ReleasesPage ({
+export function ReleaseLists ({
   releases
 }: {
   releases: ReleaseClient[]

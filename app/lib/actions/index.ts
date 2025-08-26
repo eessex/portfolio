@@ -11,7 +11,7 @@ import {
   ImageSchema,
   LinkSchema,
   SettingsSchema
-} from '../scemas'
+} from '@/lib/scemas'
 import { z } from 'zod'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })

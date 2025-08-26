@@ -1,3 +1,5 @@
+import { fetchEmbedCodesByIds } from '@/lib/data/embed-codes'
+import { fetchLinksByIds } from '@/lib/data/links'
 import type {
   AboutClient,
   EmbedCode,
@@ -9,10 +11,8 @@ import type {
   SiteSettingsClient,
   Venue
 } from '@/lib/definitions'
-import { isUpcomingDate, camelizeKeys } from '@/ui/util'
-import { QueryResultRow, sql } from '@vercel/postgres'
-import { fetchEmbedCodesByIds } from '@/lib/data/embed-codes'
-import { fetchLinksByIds } from '@/lib/data/links'
+import { camelizeKeys, isUpcomingDate } from '@/ui/util'
+import { type QueryResultRow, sql } from '@vercel/postgres'
 
 /** main page meta & image etc */
 export async function fetchSiteSettings (): Promise<SiteSettingsClient | undefined> {

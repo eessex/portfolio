@@ -1,6 +1,6 @@
-import { ReleaseClient } from '@/lib/definitions'
-import { formattedDateTime, releaseUrl } from '@/ui/util'
+import type { ReleaseClient } from '@/lib/definitions'
 import { DraftBadge } from '@/ui/draft-badge'
+import { formattedDateTime, releaseUrl } from '@/ui/util'
 import Link from 'next/link'
 
 export function ReleaseGridItem ({

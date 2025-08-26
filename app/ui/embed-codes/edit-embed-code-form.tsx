@@ -1,7 +1,7 @@
+import type { EmbedCode } from '@/lib/definitions'
 import styles from '@/ui/form/form.module.scss'
 import { Input, type InputType } from '@/ui/form/input'
-import { XMarkIcon, PlusIcon } from '@heroicons/react/24/outline'
-import type { EmbedCode } from '@/lib/definitions'
+import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useCallback, useRef, useState } from 'react'
 
 interface EmbedCodeProps {

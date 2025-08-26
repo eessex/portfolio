@@ -1,6 +1,6 @@
 'use client'
 
-import { ReleaseClient } from '@/lib/definitions'
+import type { ReleaseClient } from '@/lib/definitions'
 import { ReleaseGrid } from '@/ui/release-grid/release-grid'
 import { ReleaseList } from '@/ui/release-list/release-list'
 import { useState } from 'react'

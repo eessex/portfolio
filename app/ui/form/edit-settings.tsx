@@ -1,7 +1,7 @@
 'use client'
 
 import { editSiteSettings } from '@/lib/actions'
-import { SiteSettingsClient } from '@/lib/definitions'
+import type { SiteSettingsClient } from '@/lib/definitions'
 import { Form } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 import { XMarkIcon } from '@heroicons/react/24/outline'

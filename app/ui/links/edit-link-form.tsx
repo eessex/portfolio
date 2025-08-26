@@ -1,11 +1,11 @@
+import type { Link as _Link } from '@/lib/definitions'
+import { Checkbox } from '@/ui/form/checkbox'
 import styles from '@/ui/form/form.module.scss'
 import { Input, type InputType } from '@/ui/form/input'
-import { XMarkIcon, PlusIcon } from '@heroicons/react/24/outline'
-import type { Link as _Link } from '@/lib/definitions'
-import { useCallback, useRef, useState } from 'react'
-import { Checkbox } from '@/ui/form/checkbox'
-import Link from 'next/link'
+import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
+import Link from 'next/link'
+import { useCallback, useRef, useState } from 'react'
 
 interface LinkProps {
   link?: _Link,

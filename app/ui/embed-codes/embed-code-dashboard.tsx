@@ -1,7 +1,7 @@
 'use client'
 
 import { deleteEmbedCode, editEmbedCode } from '@/lib/actions/embed-codes'
-import { type EmbedCode } from '@/lib/definitions'
+import type { EmbedCode } from '@/lib/definitions'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { Dialog } from '@/ui/dialog/dialog'
 import styles from '@/ui/embed-codes//embed-codes.module.scss'

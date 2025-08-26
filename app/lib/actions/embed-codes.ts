@@ -1,12 +1,10 @@
 'use server'
 
+import { validatedItemArray } from '@/lib/actions'
+import type { EmbedCode } from '@/lib/definitions'
+import { EmbedCodeSchema } from '@/lib/scemas'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
-import {
-  EmbedCodeSchema,
-} from '../scemas'
-import { EmbedCode } from '../definitions'
-import { validatedItemArray } from '@/lib/actions'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 

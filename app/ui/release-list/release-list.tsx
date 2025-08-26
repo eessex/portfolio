@@ -1,4 +1,4 @@
-import { ReleaseClient } from '@/lib/definitions'
+import type { ReleaseClient } from '@/lib/definitions'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button'
 import styles from '@/ui/items-list/items-list.module.scss'
 import { ReleaseListItem } from '@/ui/release-list/release-list-item'

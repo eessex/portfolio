@@ -1,6 +1,6 @@
 'use client'
 
-import { EventClient } from '@/lib/definitions'
+import type { EventClient } from '@/lib/definitions'
 import { EventsGrid } from '@/ui/events-grid/events-grid'
 import { EventsList } from '@/ui/events-list/events-list'
 import { useState } from 'react'

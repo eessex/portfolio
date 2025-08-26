@@ -1,6 +1,6 @@
-import { QueryResultRow, sql } from '@vercel/postgres'
-import { type EmbedCode } from '@/lib/definitions'
 import { formatItemArrayRows } from '@/lib/data'
+import type { EmbedCode } from '@/lib/definitions'
+import { type QueryResultRow, sql } from '@vercel/postgres'
 
 export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]): Promise<EmbedCode[]> => {
   try {

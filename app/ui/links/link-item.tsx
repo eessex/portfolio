@@ -1,5 +1,5 @@
-import { formattedDateTime } from '@/ui/util'
 import type { Link } from '@/lib/definitions'
+import { formattedDateTime } from '@/ui/util'
 
 export function LinkItem ({ link, className }: { link: Link, className?: string }) {
   return (

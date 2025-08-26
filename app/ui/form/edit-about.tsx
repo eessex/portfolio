@@ -1,9 +1,9 @@
 'use client'
 
-import type { About, Image } from '@/lib/definitions'
-import { Input } from '@/ui/form/input'
-import { Form } from '@/ui/form/form'
 import { editAbout } from '@/lib/actions'
+import type { About, Image } from '@/lib/definitions'
+import { Form } from '@/ui/form/form'
+import { Input } from '@/ui/form/input'
 
 export function EditAboutForm ({ about }: { about: About & { coverImage?: Image } }) {
   return (

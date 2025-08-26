@@ -1,4 +1,4 @@
-import { EventClient } from '@/lib/definitions'
+import type { EventClient } from '@/lib/definitions'
 import { EventsListItem } from '@/ui/events-list/events-list-item'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button'
 import styles from '@/ui/items-list/items-list.module.scss'

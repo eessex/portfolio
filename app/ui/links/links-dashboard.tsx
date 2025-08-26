@@ -1,7 +1,7 @@
 'use client'
 
 import { deleteLink, editLink } from '@/lib/actions/links'
-import { type Link as _Link } from '@/lib/definitions'
+import type { Link as _Link } from '@/lib/definitions'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { Dialog } from '@/ui/dialog/dialog'
 import { EditItemNav } from '@/ui/form/edit-item-nav'

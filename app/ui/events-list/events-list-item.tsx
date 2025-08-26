@@ -1,4 +1,4 @@
-import { EventClient } from '@/lib/definitions'
+import type { EventClient } from '@/lib/definitions'
 import { DraftBadge } from '@/ui/draft-badge'
 import styles from '@/ui/items-list/items-list.module.scss'
 import { eventUrl, formattedDateTime } from '@/ui/util'

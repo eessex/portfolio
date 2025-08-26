@@ -1,6 +1,6 @@
-import { QueryResultRow, sql } from '@vercel/postgres'
-import { type Link } from '@/lib/definitions'
 import { formatItemArrayRows } from '@/lib/data'
+import type { Link } from '@/lib/definitions'
+import { type QueryResultRow, sql } from '@vercel/postgres'
 
 export const fetchLinksByIds = async (ids: QueryResultRow[string]): Promise<Link[]> => {
   try {

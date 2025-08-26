@@ -1,8 +1,8 @@
 'use client'
 
-import EventsGrid from '@/ui/events-grid/events-grid'
-import EventsList from '@/ui/events-list/events-list'
 import { EventClient } from '@/lib/definitions'
+import { EventsGrid } from '@/ui/events-grid/events-grid'
+import { EventsList } from '@/ui/events-list/events-list'
 import { useState } from 'react'
 
 export function PastEvents ({ events }: { events: EventClient[] }) {

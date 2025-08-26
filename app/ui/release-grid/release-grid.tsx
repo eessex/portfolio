@@ -1,9 +1,9 @@
 import { ReleaseClient } from '@/lib/definitions'
-import Link from 'next/link'
-import ReleaseGridItem from '@/ui/release-grid/release-grid-item'
-import { useId } from 'react'
-import styles from '@/ui/items-grid/items-grid.module.scss'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button'
+import styles from '@/ui/items-grid/items-grid.module.scss'
+import { ReleaseGridItem } from '@/ui/release-grid/release-grid-item'
+import Link from 'next/link'
+import { useId } from 'react'
 
 export function ReleaseGrid ({
   releases,

@@ -1,6 +1,6 @@
 import { fetchEmbedCodes } from '@/lib/data/embed-codes'
 import { EmbedCodeDashboard } from '@/ui/embed-codes/embed-code-dashboard'
-import Loading from '@/ui/loading'
+import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 

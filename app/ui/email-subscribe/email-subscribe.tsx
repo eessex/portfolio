@@ -6,7 +6,7 @@ import { Toast } from '@/ui/toast/toast'
 import Cookies from 'js-cookie'
 import { useActionState, useEffect, useState } from 'react'
 
-export default function EmailSubscribe () {
+export function EmailSubscribe () {
   const [error, setError] = useState<boolean>(false)
   const [success, setSuccess] = useState<boolean>(false)
   const [errorMessage, formAction, isPending] = useActionState(onSubscribe, null)

@@ -1,11 +1,11 @@
 import styles from '@/about/about.module.scss'
 import { fetchAboutPage, fetchPressImages, fetchPressLinks, fetchSiteSettings } from '@/lib/data'
-import AccordionDropdown from '@/ui/accordion-dropdown/accordion-dropdown'
-import ImageGrid from '@/ui/image-grid/image-grid'
-import Loading from '@/ui/loading'
-import { Suspense } from 'react'
+import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { FigureImage } from '@/ui/image-grid/image-figure'
+import { ImageGrid } from '@/ui/image-grid/image-grid'
 import { LinksList } from '@/ui/links/link-list'
+import { Loading } from '@/ui/loading'
+import { Suspense } from 'react'
 
 const title = 'About'
 

@@ -3,7 +3,7 @@ import { formattedDateTime, releaseUrl } from '@/ui/util'
 import { DraftBadge } from '@/ui/draft-badge'
 import Link from 'next/link'
 
-export default function ReleaseGridItem ({
+export function ReleaseGridItem ({
   release,
   index
 }: {

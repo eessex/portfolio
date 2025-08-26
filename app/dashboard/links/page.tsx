@@ -1,6 +1,6 @@
 import { fetchLinks } from '@/lib/data/links'
 import { LinksDashboard } from '@/ui/links/links-dashboard'
-import Loading from '@/ui/loading'
+import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 

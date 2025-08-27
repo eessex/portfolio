@@ -23,7 +23,7 @@ export function EmbedCodeDashboard ({ embedCodes }: { embedCodes: EmbedCode[] })
 
   const toggleExpand = () => setIsExpanded(!isExpanded)
 
-  async function onSubmit (formData: FormData): Promise<FormResponse<EmbedCode> | undefined> {
+  async function onSubmit (formData: FormData): Promise<FormResponse<EmbedCode>> {
     try {
       const res = await editEmbedCode(formData)
       setIsEditDialogOpen(false)

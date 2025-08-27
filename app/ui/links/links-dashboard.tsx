@@ -23,7 +23,7 @@ export function LinksDashboard ({ links }: { links: _Link[] }) {
 
   const toggleExpand = () => setIsExpanded(!isExpanded)
 
-  async function onSubmit (formData: FormData): Promise<FormResponse<SavedLink> | undefined> {
+  async function onSubmit (formData: FormData): Promise<FormResponse<SavedLink>> {
     // handle form submission
     console.log('Form submitted:', formData)
     try {
@@ -43,6 +43,11 @@ export function LinksDashboard ({ links }: { links: _Link[] }) {
       setIsEditDialogOpen(true)
     }
   }, [links])
+
+  function onCloseDialog () {
+    setIsEditDialogOpen(false)
+    setLinkToEdit(undefined)
+  }
 
   const onDelete = useCallback(async (id: string) => {
     try {
@@ -69,7 +74,7 @@ export function LinksDashboard ({ links }: { links: _Link[] }) {
       {isEditDialogOpen && (
         <Dialog
           title='Add Link'
-          onClose={() => setIsEditDialogOpen(false)}
+          onClose={onCloseDialog}
         >
           <Form action={onSubmit}>
             <EditLink

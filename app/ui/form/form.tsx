@@ -9,7 +9,7 @@ export function Form<T> ({
   action,
   children
 }: {
-  action: (formData: FormData) => Promise<FormResponse<T> | undefined>,
+  action: (formData: FormData) => Promise<FormResponse<T>>,
   children: React.ReactNode
 }) {
   const [error, setError] = useState<boolean>(false)

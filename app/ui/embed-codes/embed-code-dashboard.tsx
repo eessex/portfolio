@@ -5,7 +5,7 @@ import type { EmbedCode, FormResponse } from '@/lib/definitions'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { Dialog } from '@/ui/dialog/dialog'
 import styles from '@/ui/embed-codes//embed-codes.module.scss'
-import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
+import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { EditItemNav } from '@/ui/form/edit-item-nav'
 import { Form } from '@/ui/form/form'
@@ -75,9 +75,7 @@ export function EmbedCodeDashboard ({ embedCodes }: { embedCodes: EmbedCode[] })
           onClose={onCloseDialog}
         >
           <Form action={onSubmit}>
-            <EditEmbedCode
-              embedCode={embedCodeToEdit}
-            />
+            <EditEmbedCode embedCode={embedCodeToEdit} />
           </Form>
         </Dialog>
       )}

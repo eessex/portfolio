@@ -13,7 +13,7 @@ import { PlusIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
-import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
+import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code'
 import { EditLink } from '@/ui/links/edit-link-form'
 
 interface DashboardProps <T extends ItemArrays | Venue> {
@@ -34,7 +34,7 @@ export function Dashboard<T extends ItemArrays | Venue> (
 
   const toggleExpand = () => setIsExpanded(!isExpanded)
 
-  async function onSubmit (formData: FormData): Promise<FormResponse<T> | undefined> {
+  async function onSubmit (formData: FormData): Promise<FormResponse<T>> {
     console.log('Form submitted:', formData)
     try {
       const res = await editItem(formData)

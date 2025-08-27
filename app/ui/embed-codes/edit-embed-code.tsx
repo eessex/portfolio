@@ -1,5 +1,4 @@
 import type { EmbedCode } from '@/lib/definitions'
-import styles from '@/ui/form/form.module.scss'
 import { Input, type InputType } from '@/ui/form/input'
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useCallback, useRef, useState } from 'react'
@@ -9,24 +8,24 @@ interface EmbedCodeProps {
   index?: number,
   isFielset?: boolean,
   ref?: (el: InputType) => InputType | null,
-  onRemoveEmbed?: (index: number) => void
+  onRemoveEmbedCode?: (index: number) => void
 }
 
-export const EditEmbedCodeFieldset = ({ embedCode, index, ref, onRemoveEmbed }: EmbedCodeProps) => {
+export const EditEmbedCodeFieldset = ({ embedCode, index, ref, onRemoveEmbedCode }: EmbedCodeProps) => {
   return (
     <fieldset key={index}>
       <legend className='visually-hidden'>
         {`Embed code: ${embedCode?.title || index || 0 + 1}`}
       </legend>
 
-      <EditEmbedCode embedCode={embedCode} index={index} ref={ref} onRemoveEmbed={onRemoveEmbed} />
+      <EditEmbedCode embedCode={embedCode} index={index} ref={ref} onRemoveEmbedCode={onRemoveEmbedCode} />
 
-      {embedCode && !embedCode.iframe && onRemoveEmbed && index && (
+      {embedCode && !embedCode.iframe && onRemoveEmbedCode && index && (
         <button
           title='Remove embed code'
           aria-label='Remove embed code'
           type='button'
-          onClick={(() => onRemoveEmbed(index))}
+          onClick={(() => onRemoveEmbedCode(index))}
           className='button'
         >
           <XMarkIcon />
@@ -36,7 +35,7 @@ export const EditEmbedCodeFieldset = ({ embedCode, index, ref, onRemoveEmbed }: 
   )
 }
 
-export const EditEmbedCode = ({ embedCode, index, ref, onRemoveEmbed }: EmbedCodeProps) => {
+export const EditEmbedCode = ({ embedCode, index, ref, onRemoveEmbedCode }: EmbedCodeProps) => {
   const hasIndex = typeof index === 'number' && index >= 0
   return (
     <>
@@ -56,14 +55,14 @@ export const EditEmbedCode = ({ embedCode, index, ref, onRemoveEmbed }: EmbedCod
             type: embedCode?.id && hasIndex ? 'hidden' : undefined
           }}
         />
-        {embedCode?.iframe.length && onRemoveEmbed && index && (
+        {embedCode?.iframe.length && onRemoveEmbedCode && index && (
           <figure>
             <div dangerouslySetInnerHTML={{ __html: embedCode.iframe }} />
             <button
               title='Remove embed code'
               aria-label='Remove embed'
               type='button'
-              onClick={(() => onRemoveEmbed(index))}
+              onClick={(() => onRemoveEmbedCode(index))}
               className='button'
             >
               <XMarkIcon />
@@ -93,7 +92,7 @@ export const EditEmbedCode = ({ embedCode, index, ref, onRemoveEmbed }: EmbedCod
       />
       {embedCode?.id && (
         <Input
-          label='Embed code ID'
+          label='Embed Code ID'
           defaultValue={embedCode.id}
           attributes={{
             name: hasIndex ? `embedCode[${index}].id` : 'id',
@@ -120,7 +119,7 @@ export const EditEmbedCodesFieldset = ({
     return el
   }, [])
 
-  function handleAddEmbed () {
+  function handleAddEmbedCode () {
     const newEmbed = { iframe: '', caption: '', id: '' }
     if (!embedCodeList.some(embedCode => (!embedCode.iframe && !embedCode.caption && !embedCode.id))) {
       setEmbedCodeList([...embedCodeList, newEmbed])
@@ -130,21 +129,21 @@ export const EditEmbedCodesFieldset = ({
     }
   }
 
-  function handleRemoveEmbed (index: number) {
+  function handleRemoveEmbedCode (index: number) {
     const updatedEmbedCodes = [...embedCodeList]
     updatedEmbedCodes.splice(index, 1)
     setEmbedCodeList(updatedEmbedCodes)
   }
 
   return (
-    <fieldset className={styles['link-group']}>
-      <legend>EmbedCodes</legend>
+    <fieldset>
+      <legend>Embed codes</legend>
       {embedCodeList?.map((embedCode, index) => (
-        <EditEmbedCode key={index} embedCode={embedCode} index={index} ref={addToRefs} onRemoveEmbed={handleRemoveEmbed} />
+        <EditEmbedCode key={index} embedCode={embedCode} index={index} ref={addToRefs} onRemoveEmbedCode={handleRemoveEmbedCode} />
       ))}
 
-      <button type='button' className='button button-secondary text-sm' onClick={handleAddEmbed}>
-        <PlusIcon />Add new embed
+      <button type='button' className='button button-secondary text-sm' onClick={handleAddEmbedCode}>
+        <PlusIcon />Add new embed code
       </button>
     </fieldset>
   )

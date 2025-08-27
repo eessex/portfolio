@@ -23,7 +23,7 @@ export function EmbedCodeDashboard ({ embedCodes }: { embedCodes: EmbedCode[] })
 
   const toggleExpand = () => setIsExpanded(!isExpanded)
 
-  async function onSubmit (formData: FormData): Promise<FormResponse<EmbedCode> | undefined> {
+  async function onSubmit (formData: FormData): Promise<FormResponse<EmbedCode>> {
     try {
       const res = await editEmbedCode(formData)
       setIsEditDialogOpen(false)
@@ -32,6 +32,11 @@ export function EmbedCodeDashboard ({ embedCodes }: { embedCodes: EmbedCode[] })
     } catch (error) {
       console.error('Failed to submit form:', error)
     }
+  }
+
+  function onCloseDialog () {
+    setIsEditDialogOpen(false)
+    setEmbedCodeToEdit(undefined)
   }
 
   const onEdit = useCallback((id: string) => {
@@ -67,7 +72,7 @@ export function EmbedCodeDashboard ({ embedCodes }: { embedCodes: EmbedCode[] })
       {isEditDialogOpen && (
         <Dialog
           title='Add Embed Code'
-          onClose={() => setIsEditDialogOpen(false)}
+          onClose={onCloseDialog}
         >
           <Form action={onSubmit}>
             <EditEmbedCode

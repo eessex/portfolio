@@ -1,4 +1,3 @@
-import { type z } from 'zod'
 import type {
   AboutSchema,
   EmbedCodeSchema,
@@ -9,6 +8,7 @@ import type {
   SettingsSchema,
   VenueSchema
 } from '@/lib/scemas'
+import { type z } from 'zod'
 
 export type FormResponse<T> = Promise<{
   ok: boolean;

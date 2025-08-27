@@ -1,14 +1,15 @@
-import styles from '@/releases/[slug]/release.module.scss'
 import { fetchReleaseBySlug, fetchReleases } from '@/lib/data'
+import type { Link as _Link } from '@/lib/definitions'
+import styles from '@/releases/[slug]/release.module.scss'
+import { DraftBadge } from '@/ui/draft-badge'
+import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
+import { FigureImage } from '@/ui/image-grid/image-figure'
+import { LinksList } from '@/ui/links/link-list'
 import { formattedDateTime } from '@/ui/util'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
-import { FigureImage } from '@/ui/image-grid/image-figure'
-import { LinksList } from '@/ui/links/link-list'
 import { auth } from '../../../auth'
-import { DraftBadge } from '@/ui/draft-badge'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -75,6 +76,12 @@ export default async function ReleasesPage ({
     }
   }
 
+  function filteredLinksByPress (links: Array<{ isPress?: boolean }>) {
+    const pressLinks = links.filter(link => link.isPress).filter(Boolean) as _Link[]
+    const otherLinks = links.filter(link => !link.isPress).filter(Boolean) as _Link[]
+    return [pressLinks, otherLinks]
+  }
+
   return (
     <div>
       <article className={styles.release}>
@@ -102,8 +109,12 @@ export default async function ReleasesPage ({
             </p>
           )}
 
-          {!!release.links.length && (
-            <LinksList links={release.links} />
+          {!!filteredLinksByPress(release.links)[0].length && (
+            <LinksList links={filteredLinksByPress(release.links)[0]} />
+          )}
+
+          {!!filteredLinksByPress(release.links)[1].length && (
+            <LinksList links={filteredLinksByPress(release.links)[1]} />
           )}
 
           {!!embedCodes?.length && (

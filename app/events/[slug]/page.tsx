@@ -1,5 +1,6 @@
 import styles from '@/events/[slug]/event.module.scss'
 import { fetchEventBySlug, fetchEvents } from '@/lib/data'
+import type { Link as _Link } from '@/lib/definitions'
 import { DraftBadge } from '@/ui/draft-badge'
 import { EventsGrid } from '@/ui/events-grid/events-grid'
 import { FigureImage } from '@/ui/image-grid/image-figure'
@@ -69,6 +70,12 @@ export default async function EventsPage ({
 
   const moreEvents = upcomingEvents.filter((e) => e.id !== event.id)
 
+  function filteredLinksByPress (links: Array<{ isPress?: boolean }>) {
+    const pressLinks = links.filter(link => link.isPress).filter(Boolean) as _Link[]
+    const otherLinks = links.filter(link => !link.isPress).filter(Boolean) as _Link[]
+    return [pressLinks, otherLinks]
+  }
+
   return (
     <div>
       <article className={styles.event}>
@@ -108,7 +115,13 @@ export default async function EventsPage ({
             </p>
           )}
 
-          <LinksList links={event.links} />
+          {!!filteredLinksByPress(event.links)[0].length && (
+            <LinksList links={filteredLinksByPress(event.links)[0]} />
+          )}
+
+          {!!filteredLinksByPress(event.links)[1].length && (
+            <LinksList links={filteredLinksByPress(event.links)[1]} />
+          )}
         </section>
       </article>
 

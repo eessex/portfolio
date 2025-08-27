@@ -1,7 +1,7 @@
 'use server'
 
 import { validatedItemArray } from '@/lib/actions'
-import type { EmbedCode } from '@/lib/definitions'
+import type { EmbedCode, FormResponse } from '@/lib/definitions'
 import { EmbedCodeSchema } from '@/lib/scemas'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
@@ -34,7 +34,7 @@ async function createEmbedCode (embedCode: EmbedCode) {
   return null
 }
 
-export async function editEmbedCode (formData: FormData) {
+export async function editEmbedCode (formData: FormData): Promise<FormResponse<EmbedCode>> {
   const data: Record<FormData['entries']['name'], unknown> = {}
   formData.entries().forEach(([n, v]) => { data[n] = v })
   const validatedFields = EmbedCodeSchema.safeParse(data)
@@ -51,7 +51,7 @@ export async function editEmbedCode (formData: FormData) {
     if (updatedEmbedCodes) {
       console.debug('Embed code saved successfully:', updatedEmbedCodes)
       revalidatePath('/dashboard/embed_codes')
-      return { ok: true, embedCode: updatedEmbedCodes[0] }
+      return { ok: true, res: updatedEmbedCodes[0] }
     }
   } catch (err) {
     console.error('Failed to save EmbedCode:', err)
@@ -96,7 +96,7 @@ async function updateEmbedCode (embedCode: EmbedCode) {
   }
 }
 
-export async function deleteEmbedCode (id: string) {
+export async function deleteEmbedCode (id: string): Promise<FormResponse<EmbedCode>> {
   try {
     await sql`
       DELETE FROM embed_codes

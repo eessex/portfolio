@@ -13,14 +13,21 @@ import {
   SettingsSchema
 } from '@/lib/scemas'
 import { z } from 'zod'
+import type {
+  About,
+  FormResponse,
+  SiteSettings
+} from '@/lib/definitions'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 const embeddedItems = {
   embedCode: EmbedCodeSchema,
   image: ImageSchema,
-  link: LinkSchema,
+  link: LinkSchema
 }
+
+export type EmbeddedItemKey = keyof typeof embeddedItems
 
 export async function authenticate (
   _prevState: string | undefined,
@@ -59,7 +66,7 @@ export async function createEmailSubscription (email: string) {
   }
 }
 
-export async function editSiteSettings (formData: FormData, id: string) {
+export async function editSiteSettings (formData: FormData, id: string): Promise<FormResponse<SiteSettings>> {
   const data: Record<FormData['entries']['name'], unknown> = {}
   formData.entries().forEach(([n, v]) => { data[n] = v })
 
@@ -95,7 +102,7 @@ export async function editSiteSettings (formData: FormData, id: string) {
   }
 }
 
-export async function editAbout (formData: FormData, id: string) {
+export async function editAbout (formData: FormData, id: string): Promise<FormResponse<About>> {
   const data: Record<FormData['entries']['name'], unknown> = {}
   formData.entries().forEach(([n, v]) => { data[n] = v })
   const validatedFields = AboutSchema.safeParse(data)
@@ -131,7 +138,7 @@ export async function editAbout (formData: FormData, id: string) {
 export async function validatedItemArray (
   formData: FormData,
   prefix: keyof typeof embeddedItems
-): Promise<z.infer<typeof embeddedItems[keyof typeof embeddedItems]>[]> {
+): Promise<z.infer<typeof embeddedItems[EmbeddedItemKey]>[]> {
   const items: Record<string, unknown>[] = []
   const prefixRegex = new RegExp(`^${prefix}\\[(\\d+)\\]\\.(\\w+)$`)
   await formData.entries().forEach(([k, v]) => {

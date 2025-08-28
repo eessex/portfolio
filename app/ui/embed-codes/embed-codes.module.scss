@@ -1,37 +1,13 @@
 
-  .embed-codes {
-    display: flex;
-    flex-direction: column;
-
-    li {
-      margin: 0;
-    }
-
-    iframe {
-      width: 100%;
-    }
-  }
-
-.embed-code-list-item {
-  margin: 0 auto;
-  max-width: 100%;
-
-  [class$="accordion-panel"]:not([hidden]) {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5em;
-  }
-}
-
-.embed-code-header {
+.embed-codes {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 0.5rem;
-}
+  flex-direction: column;
 
-.new-item {
-  position: absolute;
-  right: 1rem;
-  top: 0;
+  li {
+    margin: 0;
+  }
+
+  iframe {
+    width: 100%;
+  }
 }

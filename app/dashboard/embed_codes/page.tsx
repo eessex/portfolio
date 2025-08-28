@@ -1,6 +1,7 @@
+import { deleteEmbedCode, editEmbedCode } from '@/lib/actions/embed-codes'
 import { fetchEmbedCodes } from '@/lib/data/embed-codes'
+import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
-import { EmbedCodeDashboard } from '@/ui/embed-codes/embed-code-dashboard'
 import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
@@ -14,7 +15,12 @@ export default async function EmbedCodesPage () {
   return (
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading />}>
-        <EmbedCodeDashboard embedCodes={embedCodes} />
+        <DashboardItems
+          items={embedCodes}
+          itemType='embedCode'
+          editItem={editEmbedCode}
+          deleteItem={deleteEmbedCode}
+        />
       </Suspense>
     </DashboardLayout>
   )

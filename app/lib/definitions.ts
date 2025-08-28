@@ -1,4 +1,3 @@
-import { type z } from 'zod'
 import type {
   AboutSchema,
   EmbedCodeSchema,
@@ -8,6 +7,7 @@ import type {
   ReleaseSchema,
   SettingsSchema
 } from '@/lib/scemas'
+import { type z } from 'zod'
 
 export interface User {
   id: string
@@ -34,19 +34,17 @@ export interface Venue {
   url?: string
 }
 
-export interface Image extends z.infer<typeof ImageSchema> {
+type EmbeddedItemArrayKeys = 'embedCodes' | 'images' | 'links'
+
+interface SavedItemAttributes {
   createdAt?: string
   id: string
 }
 
-export interface Link extends z.infer<typeof LinkSchema> {
-  createdAt?: string
-  id: string
+interface EmbeddedItemSlugs {
   eventSlugs?: string[]
   releaseSlugs?: string[]
 }
-
-type EmbeddedItemArrayKeys = 'embedCodes' | 'images' | 'links'
 
 interface EmbeddedItemArrays {
   embedCodes: EmbedCode[]
@@ -54,24 +52,20 @@ interface EmbeddedItemArrays {
   links: Link[]
 }
 
-export type EmbedCode = z.infer<typeof EmbedCodeSchema> & {
-  createdAt?: string
-  eventSlugs?: string[]
-  releaseSlugs?: string[]
-}
+export type EmbedCode = z.infer<typeof EmbedCodeSchema> & EmbeddedItemSlugs & SavedItemAttributes
 
-export type Event = z.infer<typeof EventSchema> & {
-  createdAt?: string
-}
+export type Image = z.infer<typeof ImageSchema> & EmbeddedItemSlugs & SavedItemAttributes
+
+export type Link = z.infer<typeof LinkSchema> & EmbeddedItemSlugs & SavedItemAttributes
+
+export type Event = z.infer<typeof EventSchema> & SavedItemAttributes
 
 export type EventClient = Omit<Event, 'projectIds' | 'venueIds' | EmbeddedItemArrayKeys> & EmbeddedItemArrays & {
   venue: Venue,
   slug: string
 }
 
-export type Release = z.infer<typeof ReleaseSchema> & {
-  createdAt?: string
-}
+export type Release = z.infer<typeof ReleaseSchema> & SavedItemAttributes
 
 export type ReleaseClient = Omit<Release, EmbeddedItemArrayKeys> & EmbeddedItemArrays & {
   slug: string

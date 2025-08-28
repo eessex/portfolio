@@ -19,15 +19,15 @@ export const EditLinkFieldset = ({ link, index, ref, onRemoveLink }: LinkProps) 
   return (
     <fieldset key={index}>
       <legend className='visually-hidden'>
-        {`Link code: ${link?.title || index || 0 + 1}`}
+        {`Link: ${link?.title || index || 0 + 1}`}
       </legend>
 
       <EditLink link={link} index={index} ref={ref} onRemoveLink={onRemoveLink} />
 
       {link && !link.url && onRemoveLink && index && (
         <button
-          title='Remove link code'
-          aria-label='Remove link code'
+          title='Remove link'
+          aria-label='Remove link'
           type='button'
           onClick={(() => onRemoveLink(index))}
           className='button'
@@ -131,7 +131,6 @@ export const EditLink = ({ link, index, ref, onRemoveLink }: LinkProps) => {
             label='Publish date'
             defaultValue={link?.publishedDate ? new Date(link.publishedDate).toISOString().split('T')[0] : ''}
             attributes={{
-              maxLength: 250,
               name: hasIndex ? `link[${index}].publishedDate` : 'publishedDate',
               placeholder: 'YYYY-MM-DD',
               type: 'date'

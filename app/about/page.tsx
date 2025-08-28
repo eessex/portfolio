@@ -70,7 +70,6 @@ export default async function AboutPage () {
           <p><b>{about.title}</b></p>
         )}
         <LinksList links={pressLinksWithQuotes} />
-
       </section>
 
       <div className={styles['press-info']}>

@@ -62,11 +62,11 @@ export function LinksDashboard ({ links }: { links: _Link[] }) {
     <div>
       <header>
         <button className={`button ${styles['new-item']}`} onClick={() => setIsEditDialogOpen(true)}>
-          <PlusIcon /> Add Link
+          <PlusIcon /> Add link
         </button>
 
         <div className={styles['links-dashboard-header']}>
-          <h2>All Links ({links.length})</h2>
+          <h2>All links ({links.length})</h2>
           <button onClick={toggleExpand}>{isExpanded ? 'Collapse all' : 'Expand all'}</button>
         </div>
       </header>

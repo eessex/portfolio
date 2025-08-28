@@ -4,7 +4,7 @@ import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 
-const title = 'Dashboard: Embed Codes'
+const title = 'Dashboard: Embed codes'
 export const metadata: Metadata = { title }
 
 export default async function EmbedCodesPage () {

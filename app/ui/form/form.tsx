@@ -1,6 +1,6 @@
 'use client'
 
-import { FormResponse } from '@/lib/definitions'
+import type { FormResponse } from '@/lib/definitions'
 import styles from '@/ui/form/form.module.scss'
 import { Toast } from '@/ui/toast/toast'
 import { useActionState, useEffect, useRef, useState } from 'react'

@@ -60,18 +60,18 @@ export function EmbedCodeDashboard ({ embedCodes }: { embedCodes: EmbedCode[] })
     <div>
       <header>
         <button className={`button ${styles['new-item']}`} onClick={() => setIsEditDialogOpen(true)}>
-          <PlusIcon /> Add Embed Code
+          <PlusIcon /> Add embed code
         </button>
 
         <div className={styles['embed-code-header']}>
-          <h2>All embed Codes ({embedCodes.length})</h2>
+          <h2>All embed codes ({embedCodes.length})</h2>
           <button onClick={toggleExpand}>{isExpanded ? 'Collapse all' : 'Expand all'}</button>
         </div>
       </header>
 
       {isEditDialogOpen && (
         <Dialog
-          title='Add Embed Code'
+          title='Add embed code'
           onClose={onCloseDialog}
         >
           <Form action={onSubmit}>

@@ -18,7 +18,7 @@ export default async function ReleasesPage () {
         {title}
       </h1>
 
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<Loading className='p-4' />}>
         <ReleaseLists releases={releases} />
       </Suspense>
     </div>

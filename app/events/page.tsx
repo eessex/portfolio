@@ -19,7 +19,7 @@ export default async function EventsPage () {
         {title}
       </h1>
 
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<Loading className='p-4' />}>
         <div>
           {upcomingEvents.length > 0 && <EventsGrid events={upcomingEvents} isUpcoming isColumn />}
           <PastEvents events={pastEvents} />

@@ -54,7 +54,7 @@ export default async function Home () {
         )}
       </section>
 
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<Loading className='pt-4' />}>
         {upcomingEvents.length > 0 &&
         (
           <div className='pt-4'>

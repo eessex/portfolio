@@ -23,7 +23,7 @@ export function AccordionDropdown ({
 
   return (
     <section className={styles['accordion-dropdown']}>
-      <h3>
+      <h2>
         <button
           aria-expanded={isOpen}
           className={styles['accordion-trigger']}
@@ -37,7 +37,7 @@ export function AccordionDropdown ({
 
           {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
         </button>
-      </h3>
+      </h2>
 
       <div
         id={panelId}

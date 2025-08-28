@@ -60,10 +60,17 @@ main {
 }
 
 li, p {
-  margin: 0 0 1em;
   width: 100%;
   max-width: 780px;
   text-wrap: pretty;
+}
+
+li {
+  margin: 0 0 .5em;
+}
+
+p {
+  margin: 0 0 1em;
 }
 
 .body-container {

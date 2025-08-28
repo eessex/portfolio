@@ -1,5 +1,9 @@
 .links-list {
-  margin: 2.5em 0;
+  margin: 2em 0;
+
+  li:has(div) {
+    margin: 1.25em 0;
+  }
 
   a:not(.press-link) {
     text-decoration: underline;

@@ -1,0 +1,24 @@
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1em;
+  margin-bottom: 1em;
+}
+
+.dashboard-new-item {
+  position: absolute;
+  right: 1em;
+  top: 0.25em;
+}
+
+.dashboard-list-item {
+  margin: 0 auto;
+  max-width: 100%;
+
+  [class$="accordion-panel"]:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+  }
+}

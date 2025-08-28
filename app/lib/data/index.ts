@@ -288,7 +288,7 @@ export async function fetchReleases (isAuthed: boolean): Promise<ReleaseClient[]
   }
 }
 
-type ItemArrays = EmbedCode | Image | Link
+export type ItemArrays = EmbedCode | Image | Link
 
 export async function fetchReleaseBySlug (slug: string): Promise<ReleaseClient | undefined> {
   try {
@@ -330,8 +330,8 @@ const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Image[]> =
   }
 }
 
-export function formatItemArrayRows<T extends ItemArrays> (rows: QueryResultRow[], ids: QueryResultRow[string]): T[] {
-  if (!ids) return []
+export function formatItemArrayRows<T extends ItemArrays> (rows: QueryResultRow[], ids?: QueryResultRow[string]): T[] {
+  if (!ids) return rows.map(i => camelizeKeys(i)) || []
 
   const sortedRows = ids
     .map((id: string) => rows.find(row => row.id === id))

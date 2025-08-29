@@ -1,5 +1,15 @@
 @use '@/ui/breakpoints';
 
+.home {
+  > .loading {
+    padding: 2rem 1rem 0;
+  }
+
+  > section:nth-child(2) {
+    padding-top: 2rem;
+  }
+}
+
 .cover {
   height: calc(100vh - var(--menubar-height) - var(--footer-height) - 4rem); // 4rem for figcaption
   display: flex;

@@ -1,7 +1,7 @@
 import type { EventClient } from '@/lib/definitions'
 import { EventsListItem } from '@/ui/events-list/events-list-item'
-import { ExpandCollapseButton } from '@/ui/expand-collapse-button'
-import styles from '@/ui/items-list/items-list.module.scss'
+import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
+import styles from '@/ui/items/items.module.scss'
 import { useId } from 'react'
 
 export function EventsList ({
@@ -19,7 +19,7 @@ export function EventsList ({
 
   return (
     <section aria-labelledby={id} className={styles['items-list']}>
-      <header>
+      <header className={styles['items-header']}>
         <h2 id={id}>
           {isUpcoming ? 'Upcoming Events' : 'Past Events'}
         </h2>

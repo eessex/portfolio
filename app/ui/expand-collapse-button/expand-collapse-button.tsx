@@ -1,3 +1,4 @@
+import styles from '@/ui/expand-collapse-button/expand-collapse-button.module.scss'
 import { ArrowsPointingInIcon, ArrowsPointingOutIcon } from '@heroicons/react/24/outline'
 
 export function ExpandCollapseButton ({
@@ -8,7 +9,12 @@ export function ExpandCollapseButton ({
   onExpand: () => void
 }) {
   return (
-    <button onClick={onExpand} aria-label={isExpanded ? 'Collapse' : 'Expand'} className='icon-button' style={{ marginBottom: '-.5rem' }}>
+    // FIXME: add controls attribute
+    <button
+      onClick={onExpand}
+      aria-label={isExpanded ? 'Collapse' : 'Expand'}
+      className={`icon-button ${styles['expand-collapse-button']}`}
+    >
       {isExpanded ? <ArrowsPointingInIcon /> : <ArrowsPointingOutIcon />}
     </button>
   )

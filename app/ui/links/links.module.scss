@@ -1,5 +1,9 @@
 .links-list {
-  margin: 2.5em 0;
+  margin: 2em 0;
+
+  li:has(div) {
+    margin: 1.25em 0;
+  }
 
   a:not(.press-link) {
     text-decoration: underline;
@@ -12,18 +16,6 @@
   }
 }
 
-
-.links-dashboard-list-item {
-  margin: 0 auto;
-  max-width: 100%;
-
-  [class$="accordion-panel"]:not([hidden]) {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5em;
-  }
-}
-
 .press-link {
   text-decoration: none;
 
@@ -32,17 +24,4 @@
       text-decoration: none;
     }
   }
-}
-
-.links-dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 0.5rem;
-}
-
-.new-item {
-  position: absolute;
-  right: 1rem;
-  top: 0;
 }

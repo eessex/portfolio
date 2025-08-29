@@ -1,6 +1,7 @@
 import { deleteLink, editLink } from '@/lib/actions/links'
 import { fetchLinks } from '@/lib/data/links'
-import { Dashboard } from '@/ui/dashboard/dashboard'
+import { DashboardItems } from '@/ui/dashboard/dashboard-items'
+import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
@@ -12,21 +13,15 @@ export default async function LinksPage () {
   const links = await fetchLinks()
 
   return (
-    <div>
-      <h1 className='p-4'>
-        {title}
-      </h1>
-
-      <div className='p-4'>
-        <Suspense fallback={<Loading />}>
-          <Dashboard
-            items={links}
-            itemType='link'
-            editItem={editLink}
-            deleteItem={deleteLink}
-          />
-        </Suspense>
-      </div>
-    </div>
+    <DashboardLayout title={title} itemType='link'>
+      <Suspense fallback={<Loading />}>
+        <DashboardItems
+          items={links}
+          itemType='link'
+          editItem={editLink}
+          deleteItem={deleteLink}
+        />
+      </Suspense>
+    </DashboardLayout>
   )
 }

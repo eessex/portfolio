@@ -1,6 +1,7 @@
 import { deleteEmbedCode, editEmbedCode } from '@/lib/actions/embed-codes'
 import { fetchEmbedCodes } from '@/lib/data/embed-codes'
-import { Dashboard } from '@/ui/dashboard/dashboard'
+import { DashboardItems } from '@/ui/dashboard/dashboard-items'
+import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
@@ -12,21 +13,15 @@ export default async function EmbedCodesPage () {
   const embedCodes = await fetchEmbedCodes()
 
   return (
-    <div>
-      <h1 className='p-4'>
-        {title}
-      </h1>
-
-      <div className='p-4'>
-        <Suspense fallback={<Loading />}>
-          <Dashboard
-            itemType='embedCode'
-            items={embedCodes}
-            editItem={editEmbedCode}
-            deleteItem={deleteEmbedCode}
-          />
-        </Suspense>
-      </div>
-    </div>
+    <DashboardLayout title={title} itemType='embedCode'>
+      <Suspense fallback={<Loading />}>
+        <DashboardItems
+          items={embedCodes}
+          itemType='embedCode'
+          editItem={editEmbedCode}
+          deleteItem={deleteEmbedCode}
+        />
+      </Suspense>
+    </DashboardLayout>
   )
 }

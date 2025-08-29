@@ -333,12 +333,12 @@ const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Image[]> =
 
 export function formatItemArrayRows<T extends ItemArrays | Venue> (
   rows: QueryResultRow[],
-  ids: QueryResultRow[string],
-  isSorted: boolean = true
+  ids?: QueryResultRow[string],
+  isUnsorted?: boolean
 ): T[] {
-  if (!ids) return []
+  if (!ids) return rows.map(i => camelizeKeys(i)) || []
 
-  const sortedRows = isSorted
+  const sortedRows = !isUnsorted
     ? ids
       .map((id: string) => rows.find(row => row.id === id))
       .filter(Boolean) as QueryResultRow[]

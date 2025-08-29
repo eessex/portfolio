@@ -1,20 +1,26 @@
 @use '@/ui/breakpoints';
 
-.items-grid {
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin: 1.5rem .4rem 1em 1rem;
-  }
+.items-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: .5rem .4rem .5rem 1rem;
+  background: var(--background);
+  position: sticky;
+  top: var(--header-height);
+  transition: all 0.25s ease-in-out;
+  z-index: 1000;
+}
 
+// GRID LAYOUT
+
+.items-grid {
   ul {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
     gap: 4rem 2.25rem;
     min-height: 35vh;
     padding: 1em 1em 3.5rem;
-    border-top: 1px solid var(--transparency-light);
   }
 
   @include breakpoints.sm-width {
@@ -65,7 +71,7 @@
 ul.upcoming {
   grid-template-columns: repeat(auto-fill, minmax(425px, 1fr));
   border: none;
-  padding-top: 0;
+  padding-top: 0.5rem;
 
   @include breakpoints.sm-width {
     grid-template-columns: 1fr;
@@ -122,4 +128,58 @@ ul.upcoming {
       }
     }
   }
+}
+
+// LIST LAYOUT
+
+.items-list {
+  margin-bottom: 3.5rem;
+
+  header {
+    border-bottom: var(--items-list-border);;
+  }
+
+  li {
+    min-width: 100%;
+    border-bottom: var(--items-list-border);
+    margin: 0;
+
+
+    a {
+      padding: var(--items-list-padding);
+      display: grid;
+      grid-template-columns: 7fr 3fr;
+      gap: 4rem;
+
+      @include breakpoints.mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+  }
+}
+
+.contentLeft {
+  display: grid;
+  grid-template-columns: min(250px) 8fr;
+  gap: 1rem;
+
+  @include breakpoints.mobile {
+    display: flex;
+    gap: 0;
+    flex-direction: column-reverse;
+  }
+
+  * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.contentRight  {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

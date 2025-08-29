@@ -13,8 +13,8 @@ export default async function ReleasesPage () {
   const releases = await fetchReleases(!!session?.user)
 
   return (
-    <div>
-      <h1 className='p-4 visually-hidden'>
+    <div className='index-page'>
+      <h1 className='visually-hidden'>
         {title}
       </h1>
 

@@ -17,6 +17,15 @@
   --menubar-height: 3.25rem;
   --footer-height: 3.25rem;
   --max-body-width: 1950px;
+
+  --header-height: var(--menubar-height);
+  --items-list-padding: .75rem 1rem;
+  --items-list-border: 1px solid var(--transparency-primary);
+}
+
+html {
+  position: absolute;
+  inset: 0;
 }
 
 body {
@@ -30,11 +39,11 @@ body {
   font-weight: normal;
   color: var(--foreground);
   background: var(--background);
-  position: absolute;
-  inset: 0;
-  overflow: scroll;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  overflow-x: visible;
+  min-height: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -55,15 +64,30 @@ main {
   position: relative;
 
   > article {
-    padding: 1.5em 1em 2em 1em;
+    padding: 1.5em 1em 2em;
+  }
+
+  .index-page {
+    padding-top: 1rem;
+
+    > .loading {
+      padding: 0.5rem 1rem;
+    }
   }
 }
 
 li, p {
-  margin: 0 0 1em;
   width: 100%;
   max-width: 780px;
   text-wrap: pretty;
+}
+
+li {
+  margin: 0 0 .5em;
+}
+
+p {
+  margin: 0 0 1em;
 }
 
 .body-container {
@@ -88,6 +112,8 @@ li, p {
 }
 
 body:has(.menubar.hide) {
+  --header-height: -1px;
+
   .admin-sidebar {
     top: 0;
     height: 100vh;
@@ -244,17 +270,13 @@ input, textarea {
       color: #a3a3a3;
     }
   }
-
-  img {
-    // FIXME: reenable once cover image is pulled from DB (needs aspect)
-    // background: var(--transparency-secondary);
-  }
 }
 
 footer {
   position: sticky;
   bottom: 0;
   background: var(--background);
+  z-index: 1001;
 }
 
 figcaption {
@@ -290,6 +312,5 @@ blockquote {
 }
 
 .loading {
-  padding: 1.5rem .4rem 1em 1rem;
   font-weight: bold;
 }

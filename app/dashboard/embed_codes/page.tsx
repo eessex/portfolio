@@ -13,7 +13,7 @@ export default async function EmbedCodesPage () {
   const embedCodes = await fetchEmbedCodes()
 
   return (
-    <DashboardLayout title={title}>
+    <DashboardLayout title={title} itemType='embedCode'>
       <Suspense fallback={<Loading />}>
         <DashboardItems
           items={embedCodes}

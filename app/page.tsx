@@ -30,7 +30,7 @@ export default async function Home () {
   const { upcomingEvents } = await fetchEvents(!!session?.user)
 
   return (
-    <div>
+    <div className={styles.home}>
       <section className={styles.cover}>
         <h1 className='visually-hidden'>
           Homepage
@@ -54,12 +54,10 @@ export default async function Home () {
         )}
       </section>
 
-      <Suspense fallback={<Loading className='pt-4' />}>
+      <Suspense fallback={<Loading />}>
         {upcomingEvents.length > 0 &&
         (
-          <div className='pt-4'>
-            <EventsGrid events={upcomingEvents} isUpcoming isTextOnly />
-          </div>
+          <EventsGrid events={upcomingEvents} isUpcoming isTextOnly />
         )}
       </Suspense>
     </div>

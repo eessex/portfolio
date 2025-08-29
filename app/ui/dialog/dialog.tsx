@@ -1,6 +1,6 @@
 'use client'
-import XMarkIcon from '@heroicons/react/24/solid/esm/XMarkIcon'
 import styles from '@/ui/dialog/dialog.module.scss'
+import XMarkIcon from '@heroicons/react/24/solid/esm/XMarkIcon'
 import { useEffect } from 'react'
 
 export const Dialog = ({
@@ -39,7 +39,7 @@ export const Dialog = ({
         <header className='dialog-header'>
           <h2 className='dialog-title'>{title}</h2>
           <button
-            className='close-button'
+            className='icon-button'
             aria-label='Close dialog'
             onClick={onClose}
           >

@@ -11,12 +11,19 @@ import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
 import { EditItemNav } from '@/ui/form/edit-item-nav'
 import { Form } from '@/ui/form/form'
+import itemsStyles from '@/ui/items/items.module.scss'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
 import { eventUrl, releaseUrl } from '@/ui/util'
-import { PlusIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { OpenNewItemFormDetail } from './dashboard-layout'
+
+declare global {
+  interface DocumentEventMap {
+    openNewItemForm: CustomEvent<OpenNewItemFormDetail>
+  }
+}
 
 interface DashboardProps <T extends ItemArrays> {
   itemType: EmbeddedItemKey
@@ -65,16 +72,25 @@ export function DashboardItems<T extends ItemArrays> (
     }
   }, [itemType, deleteItem])
 
+  // Listen for "Add item" button clicks from DashboardLayout
+  useEffect(() => {
+    function handleOpenNewItemForm (event: CustomEvent<OpenNewItemFormDetail>) {
+      if (event.detail.itemType === itemType) {
+        setItemToEdit(undefined)
+        setIsEditDialogOpen(true)
+      }
+    }
+    document.addEventListener('openNewItemForm', handleOpenNewItemForm)
+    return () => {
+      document.removeEventListener('openNewItemForm', handleOpenNewItemForm)
+    }
+  }, [itemType])
+
   return (
     <div>
-      <header>
-        <div className={styles['dashboard-header']}>
-          <h2>All {itemType}s ({items.length})</h2>
-          <button className={`button sm ${styles['dashboard-new-item']}`} onClick={() => setIsEditDialogOpen(true)}>
-            <PlusIcon /> Add {itemType}
-          </button>
-          <ExpandCollapseButton isExpanded={isExpanded} onExpand={toggleExpand} />
-        </div>
+      <header className={itemsStyles['items-header']}>
+        <h2>All {itemType}s ({items.length})</h2>
+        <ExpandCollapseButton isExpanded={isExpanded} onExpand={toggleExpand} />
       </header>
 
       {isEditDialogOpen && (

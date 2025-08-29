@@ -1,6 +1,6 @@
 import styles from '@/ui/form/form.module.scss'
-import TrashIcon from '@heroicons/react/24/outline/TrashIcon'
 import PencilIcon from '@heroicons/react/24/outline/PencilIcon'
+import TrashIcon from '@heroicons/react/24/outline/TrashIcon'
 
 export function EditItemNav ({ id, onEdit, onDelete }: { id: string, onEdit: (id: string) => void, onDelete: (id: string) => void }) {
   return (

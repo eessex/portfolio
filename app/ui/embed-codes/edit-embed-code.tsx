@@ -137,7 +137,7 @@ export const EditEmbedCodesFieldset = ({
   }
 
   return (
-    <fieldset className={styles['link-group']}>
+    <fieldset>
       <legend>Embed codes</legend>
       {embedCodeList?.map((embedCode, index) => (
         <EditEmbedCode key={index} embedCode={embedCode} index={index} ref={addToRefs} onRemoveEmbedCode={handleRemoveEmbedCode} />

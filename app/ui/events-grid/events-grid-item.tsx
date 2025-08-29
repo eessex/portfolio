@@ -1,8 +1,8 @@
 import type { EventClient } from '@/lib/definitions'
-import { VenueInline } from '@/ui/venue'
-import { formattedDateTime, eventUrl } from '@/ui/util'
-import { TicketIcon } from '@heroicons/react/24/outline'
 import { DraftBadge } from '@/ui/draft-badge'
+import { eventUrl, formattedDateTime } from '@/ui/util'
+import { VenueInline } from '@/ui/venue'
+import { TicketIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 
 function Metadata ({ event }: { event: EventClient }) {

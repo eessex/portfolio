@@ -57,7 +57,7 @@ export const EditLink = ({ link, index, ref, onRemoveLink }: LinkProps) => {
             name: hasIndex ? `link[${index}].url` : 'url',
             placeholder: 'https://example.com',
             required: true,
-            type: link?.id && hasIndex ? 'hidden' : undefined
+            type: link?.id && hasIndex ? 'hidden' : 'url'
           }}
         />
         {/* FIXME: necessary? */}
@@ -184,7 +184,7 @@ export const EditLinksFieldset = ({
   }
 
   return (
-    <fieldset className={styles['link-group']}>
+    <fieldset>
       <legend>Links</legend>
       {linkList?.map((link, index) => (
         <EditLink key={index} link={link} index={index} ref={addToRefs} onRemoveLink={handleRemoveLink} />

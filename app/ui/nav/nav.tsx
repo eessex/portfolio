@@ -1,9 +1,9 @@
 'use client'
 
-import Link from 'next/link'
+import style from '@/ui/nav/nav.module.scss'
 import { useWindowScrollPosition } from '@/ui/nav/scroll-position'
 import clsx from 'clsx'
-import style from '@/ui/nav/nav.module.scss'
+import Link from 'next/link'
 
 export function Nav ({ title }: { title?: string }) {
   const {
@@ -14,7 +14,6 @@ export function Nav ({ title }: { title?: string }) {
   return (
     <header className={clsx(`
       ${style['menubar']} menubar
-      ${!isAtContentTop && style['sticky'] + ' sticky'}
       ${(isScrollingDown && !isAtContentTop) && style['hide'] + ' hide'}
     `)}
     >

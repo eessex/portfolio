@@ -6,9 +6,10 @@
   align-items: flex-end;
   padding: .5rem .4rem .5rem 1rem;
   background: var(--background);
-  margin: 0.5rem 0;
   position: sticky;
-  top: 0;
+  top: var(--header-height);
+  transition: all 0.25s ease-in-out;
+  z-index: 1000;
 }
 
 // GRID LAYOUT
@@ -20,7 +21,6 @@
     gap: 4rem 2.25rem;
     min-height: 35vh;
     padding: 1em 1em 3.5rem;
-    border-top: 1px solid var(--transparency-light);
   }
 
   @include breakpoints.sm-width {
@@ -71,7 +71,7 @@
 ul.upcoming {
   grid-template-columns: repeat(auto-fill, minmax(425px, 1fr));
   border: none;
-  padding-top: 0;
+  padding-top: 0.5rem;
 
   @include breakpoints.sm-width {
     grid-template-columns: 1fr;
@@ -135,17 +135,18 @@ ul.upcoming {
 .items-list {
   margin-bottom: 3.5rem;
 
+  header {
+    border-bottom: var(--items-list-border);;
+  }
+
   li {
     min-width: 100%;
-    border-bottom: 1px solid var(--transparency-primary);;
+    border-bottom: var(--items-list-border);
     margin: 0;
 
-    &:first-child {
-      border-top: 1px solid var(--transparency-primary);;
-    }
 
     a {
-      padding: .75rem 1rem;
+      padding: var(--items-list-padding);
       display: grid;
       grid-template-columns: 7fr 3fr;
       gap: 4rem;

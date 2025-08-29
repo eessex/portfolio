@@ -137,7 +137,7 @@ export async function editAbout (formData: FormData, id: string): Promise<FormRe
 
 export async function validatedItemArray (
   formData: FormData,
-  prefix: keyof typeof embeddedItems
+  prefix: EmbeddedItemKey
 ): Promise<z.infer<typeof embeddedItems[EmbeddedItemKey]>[]> {
   const items: Record<string, unknown>[] = []
   const prefixRegex = new RegExp(`^${prefix}\\[(\\d+)\\]\\.(\\w+)$`)

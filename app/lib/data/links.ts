@@ -7,7 +7,7 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]): Promise<Link
     const { rows } = await sql`
       SELECT * FROM links
       WHERE id = ANY(${ids})
-      ORDER BY 
+      ORDER BY
       COALESCE(published_date, created_at) DESC
     `
     return formatItemArrayRows<Link>(rows)
@@ -20,7 +20,7 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]): Promise<Link
 export async function fetchLinks () {
   try {
     const { rows } = await sql`
-          SELECT 
+          SELECT
           links.*,
           ARRAY(
             SELECT slug FROM releases as r WHERE r.link_ids @> ARRAY[links.id]

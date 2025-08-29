@@ -18,7 +18,7 @@ export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]): Promise
 export async function fetchEmbedCodes () {
   try {
     const { rows } = await sql`
-          SELECT 
+          SELECT
           embed_codes.*,
           ARRAY(
             SELECT slug FROM releases as r WHERE r.embed_code_ids @> ARRAY[embed_codes.id]

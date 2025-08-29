@@ -1,6 +1,23 @@
-import { QueryResultRow, sql } from '@vercel/postgres'
-import { type Image } from '@/lib/definitions'
 import { formatItemArrayRows } from '@/lib/data'
+import { type Image } from '@/lib/definitions'
+import { QueryResultRow, sql } from '@vercel/postgres'
+
+export async function fetchImage (id: string) {
+  try {
+    const data = await sql<Image>`
+      SELECT * FROM images
+      WHERE id = ${id}
+    `
+    if (data.rowCount === 0) {
+      console.debug(`Image with id ${id} not found.`)
+      return
+    }
+    return data.rows[0]
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error(`Failed to fetch image ${id}.`)
+  }
+}
 
 export const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Image[]> => {
   try {
@@ -15,6 +32,7 @@ export const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Ima
   }
 }
 
+/** dashboard: fetch all the images */
 export async function fetchImages () {
   try {
     const { rows } = await sql`
@@ -33,5 +51,19 @@ export async function fetchImages () {
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch images.')
+  }
+}
+
+/** Only the press photos */
+export async function fetchPressImages () {
+  try {
+    const data = await sql<Image>`
+      SELECT * FROM images
+      WHERE is_press = true
+    `
+    return data.rows
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch press images.')
   }
 }

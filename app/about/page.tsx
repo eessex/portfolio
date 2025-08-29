@@ -1,5 +1,7 @@
 import styles from '@/about/about.module.scss'
-import { fetchAboutPage, fetchPressImages, fetchPressLinks, fetchSiteSettings } from '@/lib/data'
+import { fetchAboutPage, fetchSiteSettings } from '@/lib/data'
+import { fetchPressImages } from '@/lib/data/images'
+import { fetchPressLinks } from '@/lib/data/links'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { FigureImage } from '@/ui/image-grid/image-figure'
 import { ImageGrid } from '@/ui/image-grid/image-grid'

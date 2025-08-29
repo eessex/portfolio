@@ -20,7 +20,7 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]): Promise<Link
 export async function fetchLinks () {
   try {
     const { rows } = await sql`
-          SELECT 
+          SELECT
           links.*,
           ARRAY(
             SELECT slug FROM releases as r WHERE r.link_ids @> ARRAY[links.id]

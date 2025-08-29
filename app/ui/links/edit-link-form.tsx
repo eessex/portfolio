@@ -184,7 +184,7 @@ export const EditLinksFieldset = ({
   }
 
   return (
-    <fieldset className={styles['link-group']}>
+    <fieldset>
       <legend>Links</legend>
       {linkList?.map((link, index) => (
         <EditLink key={index} link={link} index={index} ref={addToRefs} onRemoveLink={handleRemoveLink} />

@@ -1,7 +1,7 @@
 export function Loading ({ className }: { className?: string }) {
   return (
     <div className={className}>
-      <p>Loading...</p>
+      <p><b>Loading...</b></p>
     </div>
   )
 }

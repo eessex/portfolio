@@ -1,7 +1,7 @@
 import type { EventClient } from '@/lib/definitions'
 import { EventsGridItem } from '@/ui/events-grid/events-grid-item'
-import { ExpandCollapseButton } from '@/ui/expand-collapse-button'
-import styles from '@/ui/items-grid/items-grid.module.scss'
+import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
+import styles from '@/ui/items/items.module.scss'
 import clsx from 'clsx'
 import { useId } from 'react'
 
@@ -23,7 +23,7 @@ export function EventsGrid ({
   const id = useId()
   return (
     <section aria-labelledby={id} className={styles['items-grid']}>
-      <header>
+      <header className={styles['items-header']}>
         <h2 id={id}>
           {isUpcoming ? 'Upcoming Events' : 'Past Events'}
         </h2>

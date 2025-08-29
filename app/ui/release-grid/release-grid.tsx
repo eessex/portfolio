@@ -1,6 +1,6 @@
 import type { ReleaseClient } from '@/lib/definitions'
-import { ExpandCollapseButton } from '@/ui/expand-collapse-button'
-import styles from '@/ui/items-grid/items-grid.module.scss'
+import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
+import styles from '@/ui/items/items.module.scss'
 import { ReleaseGridItem } from '@/ui/release-grid/release-grid-item'
 import Link from 'next/link'
 import { useId } from 'react'
@@ -20,7 +20,7 @@ export function ReleaseGrid ({
 
   return (
     <section aria-labelledby={id} className={styles['items-grid']}>
-      <header>
+      <header className={styles['items-header']}>
         <h2 id={id}>
           {title || (
             <Link href='/releases'>Releases</Link>

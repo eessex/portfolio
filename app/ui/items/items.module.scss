@@ -1,13 +1,19 @@
 @use '@/ui/breakpoints';
 
-.items-grid {
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin: 1.5rem .4rem 1em 1rem;
-  }
+.items-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: .5rem .4rem .5rem 1rem;
+  background: var(--background);
+  margin: 0.5rem 0;
+  position: sticky;
+  top: 0;
+}
 
+// GRID LAYOUT
+
+.items-grid {
   ul {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
@@ -122,4 +128,57 @@ ul.upcoming {
       }
     }
   }
+}
+
+// LIST LAYOUT
+
+.items-list {
+  margin-bottom: 3.5rem;
+
+  li {
+    min-width: 100%;
+    border-bottom: 1px solid var(--transparency-primary);;
+    margin: 0;
+
+    &:first-child {
+      border-top: 1px solid var(--transparency-primary);;
+    }
+
+    a {
+      padding: .75rem 1rem;
+      display: grid;
+      grid-template-columns: 7fr 3fr;
+      gap: 4rem;
+
+      @include breakpoints.mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+  }
+}
+
+.contentLeft {
+  display: grid;
+  grid-template-columns: min(250px) 8fr;
+  gap: 1rem;
+
+  @include breakpoints.mobile {
+    display: flex;
+    gap: 0;
+    flex-direction: column-reverse;
+  }
+
+  * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.contentRight  {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

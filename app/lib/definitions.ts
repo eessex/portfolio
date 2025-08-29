@@ -25,18 +25,11 @@ export type FormResponse<T> = Promise<{
   message: string
 } | undefined>
 
-export interface Venue extends z.infer<typeof VenueSchema> {
-  id: string
-  eventSlugs?: string[]
-}
-
 type EmbeddedItemArrayKeys = 'embedCodes' | 'images' | 'links'
 
 interface SavedItemAttributes {
   createdAt?: string
   id: string
-  eventSlugs?: string[]
-  releaseSlugs?: string[]
 }
 
 interface EmbeddedItemSlugs {
@@ -49,6 +42,8 @@ interface EmbeddedItemArrays {
   images: Image[]
   links: Link[]
 }
+
+export type Venue = z.infer<typeof VenueSchema> & SavedItemAttributes & EmbeddedItemSlugs
 
 export type EmbedCode = z.infer<typeof EmbedCodeSchema> & EmbeddedItemSlugs & SavedItemAttributes
 

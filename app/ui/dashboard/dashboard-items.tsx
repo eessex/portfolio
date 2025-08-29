@@ -2,7 +2,7 @@
 
 import type { EmbeddedItemKey } from '@/lib/actions'
 import type { ItemArrays } from '@/lib/data'
-import type { Link as _Link, EmbedCode, FormResponse } from '@/lib/definitions'
+import type { Link as _Link, EmbedCode, FormResponse, Venue } from '@/lib/definitions'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import styles from '@/ui/dashboard/dashboard.module.scss'
 import { Dialog } from '@/ui/dialog/dialog'
@@ -15,6 +15,8 @@ import itemsStyles from '@/ui/items/items.module.scss'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
 import { eventUrl, releaseUrl } from '@/ui/util'
+import { EditVenue } from '@/ui/venues/edit-venue-form'
+import { VenueInline } from '@/ui/venues/venue'
 import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 import { OpenNewItemFormDetail } from './dashboard-layout'
@@ -25,14 +27,17 @@ declare global {
   }
 }
 
-interface DashboardProps <T extends ItemArrays> {
-  itemType: EmbeddedItemKey
+export type DashboardItem = ItemArrays | Venue
+export type DashboardItemType = EmbeddedItemKey | 'venue'
+
+interface DashboardProps <T extends DashboardItem> {
+  itemType: DashboardItemType,
   items: T[],
   editItem: (item: FormData) => Promise<FormResponse<T> | undefined>,
   deleteItem: (id: string)=> Promise<FormResponse<T> | undefined>
 }
 
-export function DashboardItems<T extends ItemArrays> (
+export function DashboardItems<T extends DashboardItem> (
   { itemType, items, editItem, deleteItem }: DashboardProps<T>
 ) {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -125,14 +130,14 @@ export function DashboardItems<T extends ItemArrays> (
   )
 }
 
-function DashboardListItem<T extends ItemArrays> ({
+function DashboardListItem<T extends DashboardItem> ({
   itemType,
   item,
   isExpanded,
   onEdit,
   onDelete
 }: {
-  itemType: EmbeddedItemKey,
+  itemType: DashboardItemType,
   item: T,
   isExpanded?: boolean,
   onEdit: (id: string) => void,
@@ -153,13 +158,17 @@ function DashboardListItem<T extends ItemArrays> ({
 
   function title () {
     switch (itemType) {
+      case 'embedCode': {
+        const embedItem = item as EmbedCode
+        return embedItem.title || 'Untitled'
+      }
       case 'link': {
         const linkItem = item as _Link
         return linkItem.title || 'Untitled'
       }
-      case 'embedCode': {
-        const embedItem = item as EmbedCode
-        return embedItem.title || 'Untitled'
+      case 'venue': {
+        const venueItem = item as Venue & { id: string }
+        return `${venueItem.name || venueItem.address}, ${venueItem.city}, ${venueItem.state || venueItem.country}`
       }
     }
   }
@@ -202,14 +211,16 @@ export function EditItem ({
   item,
   itemType
 }: {
-  item?: ItemArrays
-  itemType: EmbeddedItemKey
+  item?: DashboardItem
+  itemType: DashboardItemType
 }) {
   switch (itemType) {
-    case 'link':
-      return <EditLink link={item as _Link | undefined} />
     case 'embedCode':
       return <EditEmbedCode embedCode={item as EmbedCode | undefined} />
+    case 'link':
+      return <EditLink link={item as _Link | undefined} />
+    case 'venue':
+      return <EditVenue venue={item as Venue | undefined} />
     default:
       return <div>Unknown item type: {itemType}</div>
   }
@@ -219,10 +230,12 @@ export function ItemDisplay ({
   item,
   itemType
 }: {
-  item?: ItemArrays
-  itemType: EmbeddedItemKey
+  item?: DashboardItem
+  itemType: DashboardItemType
 }) {
   switch (itemType) {
+    case 'embedCode':
+      return <EmbedCodeItem embedCode={item as EmbedCode} />
     case 'link':
       if ((item as _Link).quotation || (item as _Link).attribution) {
         return (
@@ -236,9 +249,21 @@ export function ItemDisplay ({
           </div>
         )
       }
-
-    case 'embedCode':
-      return <EmbedCodeItem embedCode={item as EmbedCode} />
+    case 'venue':
+      return (
+        <>
+          <div>
+            <h3>Address:</h3>
+            <p><VenueInline venue={item as Venue} isNameHidden /></p>
+          </div>
+          {(item as Venue).url && (
+            <div>
+              <h3>Website:</h3>
+              <p>{(item as Venue).url}</p>
+            </div>
+          )}
+        </>
+      )
     default:
       return <div>Unknown item type: {itemType}</div>
   }

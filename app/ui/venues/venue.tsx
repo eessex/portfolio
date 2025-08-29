@@ -7,11 +7,22 @@ export function VenueInline ({
     name, address, city, country, state
   },
   format,
+  isNameHidden
 }: {
   venue: Omit<Venue, 'id'>,
-  format?: VenueFormat
+  format?: VenueFormat,
+  isNameHidden?: boolean
 }) {
-  if (format && format === 'sm') {
+  if (isNameHidden) {
+    return (
+      <>
+        {address && `${address}`}
+        {address && city ? `, ${city}` : city}
+        {state && `, ${state}`}
+        {country && `, ${country}`}
+      </>
+    )
+  } else if (format && format === 'sm') {
     return (
       <>
         {name && `${name}: `}

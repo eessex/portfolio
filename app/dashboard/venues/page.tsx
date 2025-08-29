@@ -1,9 +1,10 @@
+import { deleteVenue, editVenue } from '@/lib/actions/venues'
 import { fetchVenues } from '@/lib/data/venues'
+import { DashboardItems } from '@/ui/dashboard/dashboard-items'
+import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
-import { Dashboard } from '@/ui/dashboard/dashboard'
-import { deleteVenue, editVenue } from '@/lib/actions/venues'
 
 const title = 'Dashboard: Venues'
 export const metadata: Metadata = { title }
@@ -12,21 +13,15 @@ export default async function VenuesPage () {
   const venues = await fetchVenues()
 
   return (
-    <div>
-      <h1 className='p-4'>
-        {title}
-      </h1>
-
-      <div className='p-4'>
-        <Suspense fallback={<Loading />}>
-          <Dashboard
-            itemType='venue'
-            items={venues}
-            editItem={editVenue}
-            deleteItem={deleteVenue}
-          />
-        </Suspense>
-      </div>
-    </div>
+    <DashboardLayout title={title} itemType='venue'>
+      <Suspense fallback={<Loading />}>
+        <DashboardItems
+          items={venues}
+          itemType='venue'
+          editItem={editVenue}
+          deleteItem={deleteVenue}
+        />
+      </Suspense>
+    </DashboardLayout>
   )
 }

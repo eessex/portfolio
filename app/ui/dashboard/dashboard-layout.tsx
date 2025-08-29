@@ -1,14 +1,14 @@
 'use client'
 
-import type { EmbeddedItemKey } from '@/lib/actions'
+import type { DashboardItemType } from '@/ui/dashboard/dashboard-items'
 import styles from '@/ui/dashboard/dashboard.module.scss'
 import { PlusIcon } from '@heroicons/react/24/outline'
 
-export type OpenNewItemFormDetail = { itemType: EmbeddedItemKey }
+export type OpenNewItemFormDetail = { itemType: DashboardItemType }
 
 interface DashboardLayoutProps {
   children: React.ReactNode
-  itemType?: EmbeddedItemKey
+  itemType?: DashboardItemType
   title: string
 }
 

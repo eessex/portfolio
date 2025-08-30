@@ -33,7 +33,7 @@ export async function fetchLinks () {
           FROM links
           ORDER BY links.updated_at DESC
         `
-    return formatItemArrayRows<Link>(rows, rows.map(row => row.id))
+    return formatItemArrayRows<Link>(rows)
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')

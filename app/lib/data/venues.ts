@@ -13,7 +13,7 @@ export async function fetchVenues () {
       FROM venues
       ORDER BY LOWER(venues.name) ASC
     `
-    return formatItemArrayRows<Venue>(rows, rows.map(row => row.id), false)
+    return formatItemArrayRows<Venue>(rows)
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch venues.')

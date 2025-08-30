@@ -25,7 +25,7 @@ export const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Ima
       SELECT * FROM images
       WHERE id = ANY(${ids})
     `
-    return formatItemArrayRows<Image>(rows, ids, false)
+    return formatItemArrayRows<Image>(rows, ids)
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch images.')
@@ -36,18 +36,18 @@ export const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Ima
 export async function fetchImages () {
   try {
     const { rows } = await sql`
-          SELECT 
-          images.*,
-          ARRAY(
-            SELECT slug FROM releases as r WHERE r.link_ids @> ARRAY[images.id]
-          ) AS release_slugs,
-          ARRAY(
-            SELECT slug FROM events as e WHERE e.link_ids @> ARRAY[images.id]
-          ) AS event_slugs
-          FROM images
-          ORDER BY images.updated_at DESC
-        `
-    return formatItemArrayRows<Image>(rows, rows.map(row => row.id))
+      SELECT 
+      images.*,
+      ARRAY(
+        SELECT slug FROM releases as r WHERE r.link_ids @> ARRAY[images.id]
+      ) AS release_slugs,
+      ARRAY(
+        SELECT slug FROM events as e WHERE e.link_ids @> ARRAY[images.id]
+      ) AS event_slugs
+      FROM images
+      ORDER BY images.updated_at DESC
+    `
+    return formatItemArrayRows<Image>(rows)
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch images.')

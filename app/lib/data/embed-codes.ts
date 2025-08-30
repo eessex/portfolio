@@ -18,18 +18,18 @@ export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]): Promise
 export async function fetchEmbedCodes () {
   try {
     const { rows } = await sql`
-          SELECT
-          embed_codes.*,
-          ARRAY(
-            SELECT slug FROM releases as r WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
-          ) AS release_slugs,
-          ARRAY(
-            SELECT slug FROM events as e WHERE e.embed_code_ids @> ARRAY[embed_codes.id]
-          ) AS event_slugs
-          FROM embed_codes
-          ORDER BY embed_codes.updated_at DESC
-        `
-    return formatItemArrayRows<EmbedCode>(rows, rows.map(row => row.id))
+      SELECT
+      embed_codes.*,
+      ARRAY(
+        SELECT slug FROM releases as r WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
+      ) AS release_slugs,
+      ARRAY(
+        SELECT slug FROM events as e WHERE e.embed_code_ids @> ARRAY[embed_codes.id]
+      ) AS event_slugs
+      FROM embed_codes
+      ORDER BY embed_codes.updated_at DESC
+    `
+    return formatItemArrayRows<EmbedCode>(rows)
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch embed codes.')

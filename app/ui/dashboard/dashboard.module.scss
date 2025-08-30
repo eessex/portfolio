@@ -37,5 +37,10 @@
     figure {
       margin-bottom: 1rem;
     }
+
+    a:has(blockquote,div) {
+      max-width: 75%;
+      margin-bottom: 1rem;
+    }
   }
 }

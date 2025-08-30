@@ -179,6 +179,13 @@ function DashboardListItem<T extends DashboardItem> ({
         <EditItemNav id={item.id!} onEdit={onEdit} onDelete={onDelete} />
         <ItemDisplay item={item} itemType={itemType} />
 
+        {(item as _Link | Venue).url && (
+          <div>
+            <h3>URL:</h3>
+            <p>{(item as _Link | Venue).url}</p>
+          </div>
+        )}
+
         <div>
           <h3>ID:</h3>
           <p>{item.id}</p>
@@ -241,14 +248,8 @@ export function ItemDisplay ({
         return (
           <LinkItem link={item as _Link} />
         )
-      } else {
-        return (
-          <div>
-            <h3>URL:</h3>
-            <p>{(item as _Link).url}</p>
-          </div>
-        )
       }
+      break
     case 'venue':
       return (
         <>
@@ -256,12 +257,6 @@ export function ItemDisplay ({
             <h3>Address:</h3>
             <p><VenueInline venue={item as Venue} isNameHidden /></p>
           </div>
-          {(item as Venue).url && (
-            <div>
-              <h3>Website:</h3>
-              <p>{(item as Venue).url}</p>
-            </div>
-          )}
         </>
       )
     default:

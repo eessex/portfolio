@@ -246,15 +246,13 @@ export async function fetchReleaseBySlug (slug: string): Promise<ReleaseClient |
 
 export function formatItemArrayRows<T extends ItemArrays | Venue> (
   rows: QueryResultRow[],
-  ids?: QueryResultRow[string],
-  isUnsorted?: boolean
+  ids?: QueryResultRow[string]
 ): T[] {
   if (!ids || !ids.length) return rows.map(i => camelizeKeys(i)) || []
 
-  const sortedRows = !isUnsorted
-    ? ids
-      .map((id: string) => rows.find(row => row.id === id))
-      .filter(Boolean) as QueryResultRow[]
-    : rows
+  const sortedRows = ids
+    .map((id: string) => rows.find(row => row.id === id))
+    .filter(Boolean) as QueryResultRow[]
+
   return sortedRows.map(i => camelizeKeys(i)) || []
 }

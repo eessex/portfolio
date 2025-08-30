@@ -249,7 +249,7 @@ export function formatItemArrayRows<T extends ItemArrays | Venue> (
   ids?: QueryResultRow[string],
   isUnsorted?: boolean
 ): T[] {
-  if (!ids) return rows.map(i => camelizeKeys(i)) || []
+  if (!ids || !ids.length) return rows.map(i => camelizeKeys(i)) || []
 
   const sortedRows = !isUnsorted
     ? ids

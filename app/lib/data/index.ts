@@ -1,4 +1,5 @@
 import { fetchEmbedCodesByIds } from '@/lib/data/embed-codes'
+import { fetchImage, fetchImagesByIds } from '@/lib/data/images'
 import { fetchLinksByIds } from '@/lib/data/links'
 import type {
   AboutClient,
@@ -59,81 +60,6 @@ export async function fetchAboutPage (): Promise<AboutClient | undefined> {
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch about page data.')
-  }
-}
-
-/** Only the press photos */
-export async function fetchPressImages () {
-  try {
-    const data = await sql<Image>`
-      SELECT * FROM images
-      WHERE is_press = true
-    `
-    return data.rows
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch press images.')
-  }
-}
-
-/** Only the press links */
-export async function fetchPressLinks (): Promise<Link[]> {
-  try {
-    const data = await sql`
-      SELECT * FROM links
-      WHERE is_press = true
-      ORDER BY published_date DESC, created_at DESC
-    `
-    return data.rows.map(link => ({ ...camelizeKeys(link) }))
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch press links.')
-  }
-}
-
-/** links to social media profiles */
-export async function fetchSocialLinks () {
-  try {
-    const data = await sql<Link>`
-      SELECT title, url FROM links
-      WHERE is_social_profile = true 
-      AND title IS NOT NULL
-      ORDER BY title ASC
-    `
-    return data.rows
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch links.')
-  }
-}
-
-/** dev-only for now, show all the images */
-export async function fetchImages () {
-  try {
-    const data = await sql<Image>`
-      SELECT * FROM images
-    `
-    return data.rows
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch images.')
-  }
-}
-
-export async function fetchImage (id: string) {
-  try {
-    const data = await sql<Image>`
-      SELECT * FROM images
-      WHERE id = ${id}
-    `
-    if (data.rowCount === 0) {
-      console.debug(`Image with id ${id} not found.`)
-      return
-    }
-    return data.rows[0]
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error(`Failed to fetch image ${id}.`)
   }
 }
 
@@ -314,19 +240,6 @@ export async function fetchReleaseBySlug (slug: string): Promise<ReleaseClient |
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error(`Failed to fetch release ${slug}.`)
-  }
-}
-
-const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Image[]> => {
-  try {
-    const { rows } = await sql`
-      SELECT * FROM images
-      WHERE id = ANY(${ids})
-    `
-    return formatItemArrayRows<Image>(rows, ids)
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch images.')
   }
 }
 

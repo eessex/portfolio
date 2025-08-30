@@ -1,5 +1,6 @@
 import { formatItemArrayRows } from '@/lib/data'
 import type { Link } from '@/lib/definitions'
+import { camelizeKeys } from '@/ui/util'
 import { type QueryResultRow, sql } from '@vercel/postgres'
 
 export const fetchLinksByIds = async (ids: QueryResultRow[string]): Promise<Link[]> => {
@@ -32,6 +33,37 @@ export async function fetchLinks () {
           ORDER BY links.updated_at DESC
         `
     return formatItemArrayRows<Link>(rows, rows.map(row => row.id))
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch links.')
+  }
+}
+
+/** Only the press links */
+export async function fetchPressLinks (): Promise<Link[]> {
+  try {
+    const data = await sql`
+      SELECT * FROM links
+      WHERE is_press = true
+      ORDER BY published_date DESC, created_at DESC
+    `
+    return data.rows.map(link => ({ ...camelizeKeys(link) }))
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch press links.')
+  }
+}
+
+/** links to social media profiles */
+export async function fetchSocialLinks () {
+  try {
+    const data = await sql<Link>`
+      SELECT title, url FROM links
+      WHERE is_social_profile = true 
+      AND title IS NOT NULL
+      ORDER BY title ASC
+    `
+    return data.rows
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')

@@ -56,7 +56,7 @@ export function EventsGridItem ({
 
   return (
     <article>
-      {isColumn() && (
+      {isColumn() && !isTextOnly && (
         <figure style={{ aspectRatio: featuredImage.aspect }}>
           <Link href={eventUrl(event.slug)}>
             <Img image={featuredImage} index={index} />
@@ -65,7 +65,7 @@ export function EventsGridItem ({
       )}
       <section>
         <Link href={eventUrl(event.slug)}>
-          {!isColumn() && featuredImage?.url && (
+          {!isColumn() && featuredImage?.url && !isTextOnly && (
             <figure style={{ aspectRatio: featuredImage.aspect }}>
               <Img image={featuredImage} index={index} />
             </figure>

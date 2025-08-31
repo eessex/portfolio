@@ -1,42 +1,34 @@
 import type { EventClient } from '@/lib/definitions'
 import { EventsGridItem } from '@/ui/events-grid/events-grid-item'
-import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
 import styles from '@/ui/items/items.module.scss'
 import clsx from 'clsx'
 import { useId } from 'react'
 
 export function EventsGrid ({
   events,
-  isColumn = false,
-  isExpanded = false,
   isTextOnly = false,
   isUpcoming = false,
-  onExpand
 }: {
   events: EventClient[];
-  isColumn?: boolean;
-  isExpanded?: boolean;
   isTextOnly?: boolean;
   isUpcoming?: boolean;
-  onExpand?: () => void;
 }) {
   const id = useId()
   return (
-    <section aria-labelledby={id} className={styles['items-grid']}>
+    <section aria-labelledby={id}>
       <header className={styles['items-header']}>
         <h2 id={id}>
           {isUpcoming ? 'Upcoming Events' : 'Past Events'}
         </h2>
-        {onExpand && <ExpandCollapseButton isExpanded={isExpanded} onExpand={onExpand} />}
       </header>
 
-      <ul className={clsx(isUpcoming && styles.upcoming, isColumn && styles.column)}>
+      <ul className={clsx(styles['items-grid'])}>
         {events.map((event, index) => (
           <li key={event.id}>
             <EventsGridItem
               event={event}
               index={index}
-              isTextOnly={isTextOnly || (isUpcoming && index !== 0)}
+              isTextOnly={isTextOnly}
               isUpcoming={isUpcoming}
             />
           </li>

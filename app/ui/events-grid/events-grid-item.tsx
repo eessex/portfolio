@@ -32,7 +32,7 @@ function Img ({ image, index }: { image: EventClient['images'][number], index: n
       src={image.url}
       alt={image.caption || ''}
       style={{ aspectRatio: image.aspect }}
-      loading={index > 8 ? 'lazy' : undefined}
+      loading={index > 4 ? 'lazy' : undefined}
       title={image.caption || undefined}
     />
   )

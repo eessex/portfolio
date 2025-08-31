@@ -31,7 +31,13 @@ export default async function RootLayout ({
   return (
     <html lang='en'>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <a className='button visible-focus-only' id='skip-to-content' href='#content'>Skip to content</a>
+        <a
+          className='button visible-focus-only'
+          id='skip-to-content'
+          href='#content'
+        >
+          Skip to content
+        </a>
 
         <Nav title={siteSettings?.title} />
 

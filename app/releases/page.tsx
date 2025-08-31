@@ -1,5 +1,6 @@
-import { fetchReleases } from '@/lib/data'
-import { ReleaseLists } from '@/releases/release-lists'
+import { fetchReleases, type FetchReleasesResult } from '@/lib/data'
+import type { ReleaseClient } from '@/lib/definitions'
+import { ItemsIndex } from '@/ui/items/items-index'
 import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
@@ -13,13 +14,16 @@ export default async function ReleasesPage () {
   const releases = await fetchReleases(!!session?.user)
 
   return (
-    <div className='index-page'>
+    <div>
       <h1 className='visually-hidden'>
         {title}
       </h1>
 
-      <Suspense fallback={<Loading />}>
-        <ReleaseLists releases={releases} />
+      <Suspense fallback={<Loading className='p-4 mt-2' />}>
+        <ItemsIndex<ReleaseClient, FetchReleasesResult>
+          pageType='release'
+          items={releases}
+        />
       </Suspense>
     </div>
   )

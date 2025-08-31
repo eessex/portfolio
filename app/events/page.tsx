@@ -1,6 +1,6 @@
-import { PastEvents } from '@/events/past-events'
-import { fetchEvents } from '@/lib/data'
-import { EventsGrid } from '@/ui/events-grid/events-grid'
+import { fetchEvents, type FetchEventsResult } from '@/lib/data'
+import type { EventClient } from '@/lib/definitions'
+import { ItemsIndex } from '@/ui/items/items-index'
 import { Loading } from '@/ui/loading'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
@@ -11,19 +11,19 @@ export const metadata: Metadata = { title }
 
 export default async function EventsPage () {
   const session = await auth()
-  const { upcomingEvents, pastEvents } = await fetchEvents(!!session?.user)
+  const items = await fetchEvents(!!session?.user)
 
   return (
-    <div className='index-page'>
+    <div>
       <h1 className='visually-hidden'>
         {title}
       </h1>
 
-      <Suspense fallback={<Loading />}>
-        <div>
-          {upcomingEvents.length > 0 && <EventsGrid events={upcomingEvents} isUpcoming isColumn />}
-          <PastEvents events={pastEvents} />
-        </div>
+      <Suspense fallback={<Loading className='p-4 mt-2' />}>
+        <ItemsIndex<EventClient, FetchEventsResult>
+          pageType='event'
+          items={items}
+        />
       </Suspense>
     </div>
   )

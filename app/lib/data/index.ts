@@ -8,6 +8,7 @@ import type {
   EventClient,
   Image,
   Link,
+  Release,
   ReleaseClient,
   SiteSettingsClient,
   Venue
@@ -64,7 +65,14 @@ export async function fetchAboutPage (): Promise<AboutClient | undefined> {
   }
 }
 
-interface EventMetaProperties {
+export interface ImageMetaProperties {
+  image_id: string
+  image_url: string
+  image_caption?: string
+  image_aspect: number
+}
+
+interface EventMetaProperties extends ImageMetaProperties {
   end_date?: string
   start_date: string
   venue_name: string
@@ -73,13 +81,24 @@ interface EventMetaProperties {
   venue_state: string
   venue_country: string
   venue_url?: string
-  image_url: string
-  image_caption: string
-  image_aspect: number
   ticket_link?: string
 }
 
-export async function fetchEvents (isAuthed: boolean = false) {
+export interface FetchEventsResult {
+  upcomingEvents: EventClient[]
+  pastEvents: EventClient[]
+}
+
+export interface FetchReleasesResult {
+  upcomingReleases: ReleaseClient[]
+  soloReleases: ReleaseClient[]
+  singles: ReleaseClient[]
+  compilations: ReleaseClient[]
+  collaborativeReleases: ReleaseClient[]
+  featuredOn: ReleaseClient[]
+}
+
+export async function fetchEvents (isAuthed: boolean = false): Promise<FetchEventsResult> {
   try {
     const data = await sql<Event & EventMetaProperties>`
       SELECT
@@ -102,20 +121,25 @@ export async function fetchEvents (isAuthed: boolean = false) {
     const authedEvents = isAuthed
       ? parsedEvents
       : parsedEvents.filter(event => event.isPublished)
-    if (authedEvents.length === 0) {
-      return { upcomingEvents: [], pastEvents: [] }
-    }
-    const upcomingEvents = authedEvents.filter(event => isUpcomingDate(event.startDate))
-      .sort((a, b) => {
-        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-      })
-    const pastEvents = authedEvents.filter(event => !isUpcomingDate(event.startDate))
+    const sortedEvents = sortEventsByCategory(authedEvents)
 
-    return { upcomingEvents, pastEvents }
+    return sortedEvents
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch events.')
   }
+}
+
+function sortEventsByCategory (events: EventClient[]): FetchEventsResult {
+  const upcomingEvents = events.filter(event => isUpcomingDate(event.startDate))
+    .sort((a, b) => {
+      return new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+    })
+  const pastEvents = events.filter(event => !isUpcomingDate(event.startDate))
+    .sort((a, b) => {
+      return new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+    })
+  return { upcomingEvents, pastEvents }
 }
 
 export const fetchEventBySlug = async (slug: string) => {
@@ -184,11 +208,12 @@ function formatEvent (event: QueryResultRow): EventClient {
   return formattedEvent
 }
 
-export async function fetchReleases (isAuthed: boolean): Promise<ReleaseClient[]> {
+export async function fetchReleases (isAuthed: boolean): Promise<FetchReleasesResult> {
   try {
-    const data = await sql`
+    const data = await sql<Release & ImageMetaProperties>`
       SELECT
         r.*,
+        i.id as image_id,
         i.url as image_url,
         i.caption as image_caption,
         i.aspect as image_aspect
@@ -196,23 +221,43 @@ export async function fetchReleases (isAuthed: boolean): Promise<ReleaseClient[]
       LEFT JOIN images as i ON i.id = ANY(r.image_ids)
       ORDER BY r.release_date DESC
     `
-    const res = data.rows.map(release => ({
+    const res: ReleaseClient[] = data.rows.map(release => ({
       ...camelizeKeys(release),
       images: [{
+        id: release.image_id,
         url: release.image_url,
         caption: release.image_caption,
         aspect: release.image_aspect
       }]
     }))
-    if (isAuthed) {
-      return res
-    } else {
-      return res.filter(release => release.isPublished)
-    }
+    const authedEvents = isAuthed ? res : res.filter(release => release.isPublished)
+    return sortReleasesByCategory(authedEvents)
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch releases.')
   }
+}
+
+const sortReleasesByCategory = (releases: ReleaseClient[]) => {
+  const result: FetchReleasesResult = {
+    upcomingReleases: releases.filter(release => isUpcomingDate(release.releaseDate))
+      .sort((a, b) => new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime()),
+    soloReleases: [],
+    singles: [],
+    collaborativeReleases: [],
+    compilations: [],
+    featuredOn: []
+  }
+
+  for (const release of releases) {
+    if (release.isSingle) result.singles.push(release)
+    else if (release.isCollaboration) result.collaborativeReleases.push(release)
+    else if (release.isCompilation) result.compilations.push(release)
+    else if (release.isFeature) result.featuredOn.push(release)
+    else result.soloReleases.push(release)
+  }
+
+  return result
 }
 
 export type ItemArrays = EmbedCode | Image | Link

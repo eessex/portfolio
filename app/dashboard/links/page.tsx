@@ -13,8 +13,8 @@ export default async function LinksPage () {
   const links = await fetchLinks()
 
   return (
-    <DashboardLayout title={title} itemType='link'>
-      <Suspense fallback={<Loading />}>
+    <DashboardLayout title={title}>
+      <Suspense fallback={<Loading className='p-4 mt-2' />}>
         <DashboardItems
           items={links}
           itemType='link'

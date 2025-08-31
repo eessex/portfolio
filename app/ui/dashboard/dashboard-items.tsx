@@ -4,22 +4,22 @@ import type { EmbeddedItemKey } from '@/lib/actions'
 import type { ItemArrays } from '@/lib/data'
 import type { Link as _Link, EmbedCode, FormResponse, Venue } from '@/lib/definitions'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
+import type { OpenNewItemFormDetail } from '@/ui/admin-sidebar/add-item-button'
 import styles from '@/ui/dashboard/dashboard.module.scss'
 import { Dialog } from '@/ui/dialog/dialog'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
-import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
 import { EditItemNav } from '@/ui/form/edit-item-nav'
 import { Form } from '@/ui/form/form'
+import { ItemsFilterNav } from '@/ui/items/items-index'
 import itemsStyles from '@/ui/items/items.module.scss'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
-import { eventUrl, releaseUrl } from '@/ui/util'
+import { camelToSentence, eventUrl, releaseUrl } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 import { VenueInline } from '@/ui/venues/venue'
 import Link from 'next/link'
-import { useCallback, useEffect, useState } from 'react'
-import { OpenNewItemFormDetail } from './dashboard-layout'
+import { useCallback, useEffect, useId, useState } from 'react'
 
 declare global {
   interface DocumentEventMap {
@@ -43,8 +43,19 @@ export function DashboardItems<T extends DashboardItem> (
   const [isExpanded, setIsExpanded] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [itemToEdit, setItemToEdit] = useState<T | undefined>(undefined)
+  const [searchTerm, setSearchTerm] = useState('')
 
-  type SavedItem = T & { id: string }
+  const filteredItems = () => {
+    const savedItems = items.filter(item => !!item.id)
+    const term = searchTerm.toLowerCase()
+    if (!searchTerm) return savedItems
+
+    return savedItems.filter(item =>
+      Object.values(item)
+        .filter(val => typeof val === 'string')
+        .some(val => (val as string).toLowerCase().includes(term))
+    )
+  }
 
   const toggleExpand = () => setIsExpanded(!isExpanded)
 
@@ -91,12 +102,51 @@ export function DashboardItems<T extends DashboardItem> (
     }
   }, [itemType])
 
+  function formattedItemType () {
+    return camelToSentence(itemType) + 's'
+  }
+
+  function headingTitle () {
+    if (searchTerm.length > 0) {
+      return `${formattedItemType()} matching "${searchTerm}" (${filteredItems().length})`
+    }
+    return `All ${formattedItemType()} (${filteredItems().length})`
+  }
+
+  const headingId = useId()
+
   return (
     <div>
-      <header className={itemsStyles['items-header']}>
-        <h2>All {itemType}s ({items.length})</h2>
-        <ExpandCollapseButton isExpanded={isExpanded} onExpand={toggleExpand} />
-      </header>
+      <ItemsFilterNav
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        isExpanded={isExpanded}
+        onExpand={toggleExpand}
+        itemType={itemType}
+      />
+
+      <div className={itemsStyles['items-section']}>
+        <section
+          aria-labelledby={headingId}
+        >
+          <header className={itemsStyles['items-section-header']}>
+            <h2 id={headingId}>{headingTitle()}</h2>
+          </header>
+
+          <ul>
+            {filteredItems().map((item) => (
+              <DashboardListItem
+                key={item.id}
+                item={item}
+                itemType={itemType}
+                isExpanded={isExpanded}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            ))}
+          </ul>
+        </section>
+      </div>
 
       {isEditDialogOpen && (
         <Dialog
@@ -111,21 +161,6 @@ export function DashboardItems<T extends DashboardItem> (
           </Form>
         </Dialog>
       )}
-
-      <ul>
-        {items
-          .filter(item => !!item.id)
-          .map((item) => (
-            <DashboardListItem
-              key={item.id}
-              item={(item as SavedItem)}
-              itemType={itemType}
-              isExpanded={isExpanded}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
-          ))}
-      </ul>
     </div>
   )
 }

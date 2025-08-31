@@ -1,0 +1,155 @@
+'use client'
+
+import type { FetchEventsResult, FetchReleasesResult } from '@/lib/data'
+import type { EventClient, PageType, ReleaseClient } from '@/lib/definitions'
+import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
+import { ItemsList } from '@/ui/items/items-list'
+import itemsStyles from '@/ui/items/items.module.scss'
+import { SearchInput } from '@/ui/search-input/search-input'
+import { camelToSentence } from '@/ui/util'
+import { useState } from 'react'
+
+type PageIndexProps<V extends FetchEventsResult | FetchReleasesResult> = {
+  pageType: PageType,
+  items: V
+}
+
+const featuredKeys: (keyof FetchEventsResult | keyof FetchReleasesResult)[] = ['upcomingEvents', 'upcomingReleases']
+
+export function ItemsIndex<T extends EventClient | ReleaseClient, V extends FetchEventsResult | FetchReleasesResult> ({
+  pageType,
+  items
+}: PageIndexProps<V>) {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  function allItems () {
+    return Object.values(items).flat()
+  }
+
+  function filteredItems () {
+    const term = searchTerm.toLowerCase()
+    if (!searchTerm) return []
+
+    const matchedItems: T[] = allItems().filter(item =>
+      Object.values(item)
+        .filter(val => typeof val === 'string')
+        .some(val => (val as string).toLowerCase().includes(term))
+    )
+    return matchedItems
+  }
+
+  function featuredItems () {
+    const featuredItems: { items: T[], title: string }[] = []
+    featuredKeys.forEach(key => {
+      if (items[key as keyof V] && (items[key as keyof V] as T[]).length > 0) {
+        featuredItems.push({ items: items[key as keyof V] as T[], title: key })
+      }
+    })
+    return featuredItems
+  }
+
+  function categorizedItems () {
+    const categorizedItems: { items: T[], title: string }[] = []
+
+    Object.entries(items).forEach(([key, value]) => {
+      if (value.length === 0) return
+      if (featuredKeys.includes(key as keyof FetchEventsResult | keyof FetchReleasesResult)) return
+
+      categorizedItems.push({ items: value as T[], title: key })
+    })
+    return Object.values(categorizedItems) || []
+  }
+
+  function itemType () {
+    return camelToSentence(pageType) + 's'
+  }
+
+  function searchResultsTitle () {
+    return `${itemType()} matching "${searchTerm}" (${filteredItems().length})`
+  }
+
+  return (
+    <div>
+      <>
+        {featuredItems().map(({ items, title }, i) => (
+          <ItemsList<T>
+            key={i}
+            items={items}
+            title={camelToSentence(title)}
+            itemType={pageType}
+            isExpanded
+            isFeatured
+          />
+        ))}
+      </>
+
+      <ItemsFilterNav
+        itemType={itemType()}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        isExpanded={isExpanded}
+        onExpand={() => setIsExpanded(!isExpanded)}
+      />
+
+      <div className={itemsStyles['items-section']}>
+        {searchTerm.length > 0
+          ? (
+            <ItemsList<T>
+              title={searchResultsTitle()}
+              items={filteredItems()}
+              itemType={pageType}
+              isExpanded={isExpanded}
+            />
+            )
+          : (
+            <>
+              {categorizedItems().map(({ items, title }, i) => (
+                <ItemsList<T>
+                  key={i}
+                  items={items}
+                  title={camelToSentence(title)}
+                  itemType={pageType}
+                  isExpanded={isExpanded}
+                />
+              ))}
+            </>
+            )}
+      </div>
+    </div>
+  )
+}
+
+export function ItemsFilterNav ({
+  searchTerm,
+  setSearchTerm,
+  isExpanded,
+  onExpand,
+  itemType
+}: {
+  searchTerm: string,
+  setSearchTerm: (term: string) => void,
+  isExpanded: boolean,
+  onExpand: () => void,
+  itemType: string
+}) {
+  return (
+    <nav className={itemsStyles['items-header-controls']}>
+      <ul>
+        <li>
+          <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            label={`Search ${itemType}`}
+          />
+        </li>
+        <li>
+          <ExpandCollapseButton
+            isExpanded={isExpanded}
+            onExpand={onExpand}
+          />
+        </li>
+      </ul>
+    </nav>
+  )
+}

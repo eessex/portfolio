@@ -40,8 +40,9 @@ export async function generateMetadata (
 
 export async function generateStaticParams () {
   const releases = await fetchReleases(true)
+  const allReleases = Object.values(releases).flat()
 
-  return releases.map((release) => ({
+  return allReleases.map((release) => ({
     slug: release.slug,
   }))
 }

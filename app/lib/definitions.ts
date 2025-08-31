@@ -10,6 +10,8 @@ import type {
 } from '@/lib/scemas'
 import { type z } from 'zod'
 
+export type PageType = 'event' | 'release'
+
 export interface User {
   id: string
   name: string

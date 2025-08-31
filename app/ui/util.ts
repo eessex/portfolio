@@ -60,6 +60,15 @@ export function isUpcomingDate (date: string) {
   return new Date(date) > new Date()
 }
 
+export function camelToSentence (str: string) {
+  const result = str.replace(/([A-Z])/g, ' $1')
+  return result.charAt(0).toUpperCase() + result.slice(1)
+}
+
+export function snakeToCamel (str: string) {
+  return str.replace(/_([a-z])/g, (_match, letter) => letter.toUpperCase())
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function camelizeKeys (obj: any): any {
   if (typeof obj !== 'object' || obj === null) {
@@ -69,7 +78,7 @@ export function camelizeKeys (obj: any): any {
   const camelizedObject: Record<string, unknown> = {}
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key.toString())) {
-      const camelKey = key.replace(/_([a-z])/g, (_match, letter) => letter.toUpperCase())
+      const camelKey = snakeToCamel(key)
       // FIXME: recursive failing on date values
       // camelizedObject[camelKey] = camelizeKeys(obj[key])
 

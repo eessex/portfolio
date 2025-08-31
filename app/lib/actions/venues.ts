@@ -1,11 +1,9 @@
 'use server'
 
+import { FormResponse, Venue } from '@/lib/definitions'
+import { VenueSchema } from '@/lib/scemas'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
-import {
-  VenueSchema,
-} from '../scemas'
-import { FormResponse, Venue } from '@/lib/definitions'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 

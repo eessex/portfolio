@@ -1,7 +1,8 @@
-import Link from 'next/link'
+import { AddItemButton } from '@/ui/admin-sidebar/add-item-button'
+import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
 import { EditButton } from '@/ui/edit-button/edit-button'
 import { LogoutButton } from '@/ui/logout-button'
-import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
+import Link from 'next/link'
 
 export async function AdminSidebar () {
   const buttonClasses = `button button-secondary ${styles['button']}`
@@ -10,9 +11,8 @@ export async function AdminSidebar () {
     <section className={`admin-sidebar ${styles['admin-sidebar']}`}>
       <nav>
         <ul>
-          <li>
-            <EditButton />
-          </li>
+          <AddItemButton />
+          <EditButton />
           <li>
             <Link href='/dashboard' className={buttonClasses}>
               Dashboard

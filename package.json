@@ -11,7 +11,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2",
     "@vercel/postgres": "^0.10",
-    "bcrypt": "^5.1",
+    "bcrypt": "^6.0",
     "clsx": "^2.1",
     "js-cookie": "^3.0.5",
     "next": "15.1",
@@ -23,7 +23,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4.0",
-    "@types/bcrypt": "^5.0",
+    "@types/bcrypt": "^6.0",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^19",

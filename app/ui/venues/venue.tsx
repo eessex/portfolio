@@ -25,7 +25,7 @@ export function VenueInline ({
   } else if (format && format === 'sm') {
     return (
       <>
-        {name && `${name}: `}
+        {name ? `${name}: ` : `${address}, `}
         {city && ` ${city}`}
         {state && `, ${state}`}
         {country && `, ${country}`}

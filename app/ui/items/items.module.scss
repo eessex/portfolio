@@ -23,7 +23,7 @@
 
   ul {
     margin-top: .35em;
-    margin-right: 0.45rem;
+    margin-right: 0.35rem;
     width: min-content;
     display: flex;
     gap: 0.35rem;
@@ -37,6 +37,27 @@
 
   input[type='search'] {
     height: 36px;
+  }
+
+  @include breakpoints.sm-width {
+    background: var(--background);
+
+    ul {
+      padding-left: 1rem;
+      width: 100%;
+    }
+
+    li:first-child {
+      flex: 1;
+    }
+
+    li:last-child {
+      flex: 0;
+    }
+
+    input[type='search'] {
+      width: 100%;
+    }
   }
 }
 
@@ -96,7 +117,6 @@
       font-size: xx-large;
       line-height: normal;
 
-
       @include breakpoints.sm-width {
         font-size: x-large;
       }
@@ -111,6 +131,14 @@
 .items-section {
   min-height: 70vh;
   margin-top: -40px;
+
+  @include breakpoints.sm-width {
+    margin-top: 0;
+
+    section > header {
+      top: calc(var(--header-height) + 40px);
+    }
+  }
 
   section > p {
     padding: var(--items-list-padding);

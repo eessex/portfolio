@@ -33,6 +33,17 @@
     li {
       margin: 0;
     }
+
+    button {
+      // this button is a little fussy to avoid layout shift when
+      // toggling between 'expand' and 'collapse' content of different widths
+      min-width: 101px;
+      width: max-content;
+      height: 36px;
+      padding-left: .5rem;
+      justify-content: end;
+      gap: .45rem;
+    }
   }
 
   input[type='search'] {

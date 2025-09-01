@@ -7,7 +7,7 @@ import { ItemsList } from '@/ui/items/items-list'
 import itemsStyles from '@/ui/items/items.module.scss'
 import { SearchInput } from '@/ui/search-input/search-input'
 import { camelToSentence } from '@/ui/util'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 type PageIndexProps<V extends FetchEventsResult | FetchReleasesResult> = {
   pageType: PageType,
@@ -22,6 +22,20 @@ export function ItemsIndex<T extends EventClient | ReleaseClient, V extends Fetc
 }: PageIndexProps<V>) {
   const [searchTerm, setSearchTerm] = useState('')
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpandedByDefault, setIsExpandedByDefault] = useState(false)
+
+  useEffect(() => {
+    if (pageType === 'release') {
+      setIsExpandedByDefault(true)
+    }
+  }, [pageType])
+
+  function onSetExpanded () {
+    setIsExpanded(!isExpanded)
+    if (isExpandedByDefault) {
+      setIsExpandedByDefault(false)
+    }
+  }
 
   function allItems () {
     return Object.values(items).flat()
@@ -89,7 +103,7 @@ export function ItemsIndex<T extends EventClient | ReleaseClient, V extends Fetc
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         isExpanded={isExpanded}
-        onExpand={() => setIsExpanded(!isExpanded)}
+        onExpand={onSetExpanded}
       />
 
       <div className={itemsStyles['items-section']}>
@@ -110,7 +124,7 @@ export function ItemsIndex<T extends EventClient | ReleaseClient, V extends Fetc
                   items={items}
                   title={camelToSentence(title)}
                   itemType={pageType}
-                  isExpanded={isExpanded}
+                  isExpanded={(isExpandedByDefault && i === 0) || isExpanded}
                 />
               ))}
             </>

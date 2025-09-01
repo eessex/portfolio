@@ -12,8 +12,9 @@ export function ExpandCollapseButton ({
     <button
       onClick={onExpand}
       aria-label={isExpanded ? 'Collapse all items' : 'Expand all items'}
-      className='icon-button'
+      className='text-sm'
     >
+      {isExpanded ? 'Collapse' : 'Expand'}
       {isExpanded ? <ArrowsPointingInIcon /> : <ArrowsPointingOutIcon />}
     </button>
   )

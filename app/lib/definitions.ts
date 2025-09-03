@@ -20,11 +20,13 @@ export interface User {
 }
 
 export type FormResponse<T> = Promise<{
-  ok: boolean;
+  ok: true
   res?: T | T[]
+  message?: string
 } | {
-  errors: Record<string, string[] | undefined> | string[],
-  message: string
+  ok?: false
+  errors?: Record<string, string[] | undefined> | string[]
+  message?: string
 } | undefined>
 
 type EmbeddedItemArrayKeys = 'embedCodes' | 'images' | 'links'

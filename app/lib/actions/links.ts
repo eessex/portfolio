@@ -17,6 +17,7 @@ async function createLink (link: Link) {
     } else {
       const {
         attribution,
+        isHiddenOnAboutPage,
         isPress,
         isSocialProfile,
         publishedDate,
@@ -29,6 +30,7 @@ async function createLink (link: Link) {
       INSERT INTO links (
         attribution,
         created_at,
+        is_hidden_on_about_page,
         is_press,
         is_social_profile,
         published_date,
@@ -39,6 +41,7 @@ async function createLink (link: Link) {
       VALUES (
         ${attribution || null},
         current_timestamp,
+        ${isHiddenOnAboutPage || null},
         ${isPress || null},
         ${isSocialProfile || null},
         ${publishedDate || null},
@@ -105,6 +108,7 @@ async function updateLink (link: Link) {
       const {
         attribution,
         id,
+        isHiddenOnAboutPage,
         isPress,
         isSocialProfile,
         publishedDate,
@@ -128,6 +132,7 @@ async function updateLink (link: Link) {
             UPDATE links
             SET (
               attribution,
+              is_hidden_on_about_page,
               is_press,
               is_social_profile,
               published_date,
@@ -138,6 +143,7 @@ async function updateLink (link: Link) {
             )
             = (
               ${attribution || null},
+              ${isHiddenOnAboutPage || null},
               ${isPress || null},
               ${isSocialProfile || null},
               ${publishedDate || null},

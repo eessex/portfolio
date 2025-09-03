@@ -39,10 +39,10 @@ export async function fetchImages () {
       SELECT 
       images.*,
       ARRAY(
-        SELECT slug FROM releases as r WHERE r.link_ids @> ARRAY[images.id]
+        SELECT slug FROM releases as r WHERE r.image_ids @> ARRAY[images.id]
       ) AS release_slugs,
       ARRAY(
-        SELECT slug FROM events as e WHERE e.link_ids @> ARRAY[images.id]
+        SELECT slug FROM events as e WHERE e.image_ids @> ARRAY[images.id]
       ) AS event_slugs
       FROM images
       ORDER BY images.updated_at DESC

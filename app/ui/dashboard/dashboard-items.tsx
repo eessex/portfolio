@@ -2,7 +2,7 @@
 
 import type { EmbeddedItemKey } from '@/lib/actions'
 import type { ItemArrays } from '@/lib/data'
-import type { Link as _Link, EmbedCode, FormResponse, Venue } from '@/lib/definitions'
+import type { Link as _Link, EmbedCode, FormResponse, Image, Venue } from '@/lib/definitions'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import type { OpenNewItemFormDetail } from '@/ui/admin-sidebar/add-item-button'
 import styles from '@/ui/dashboard/dashboard.module.scss'
@@ -11,6 +11,8 @@ import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { EditItemNav } from '@/ui/form/edit-item-nav'
 import { Form } from '@/ui/form/form'
+import { EditImage } from '@/ui/images/edit-image-form'
+import { FigureImage } from '@/ui/images/image-figure'
 import { ItemsFilterNav } from '@/ui/items/items-index'
 import itemsStyles from '@/ui/items/items.module.scss'
 import { EditLink } from '@/ui/links/edit-link-form'
@@ -63,6 +65,11 @@ export function DashboardItems<T extends DashboardItem> (
     console.log('Form submitted:', formData)
     try {
       const res = await editItem(formData)
+      if (!res || !res.ok) {
+        const message = res?.message || `Failed to edit ${itemType}.`
+        console.error(message)
+        return res || { ok: false, message }
+      }
       setIsEditDialogOpen(false)
       setItemToEdit(undefined)
       return res
@@ -191,11 +198,31 @@ function DashboardListItem<T extends DashboardItem> ({
     return title() + count
   }
 
+  function badges () {
+    const badges: { text: string, color?: 'green' | 'blue' }[] = []
+    const link = item as _Link
+    const image = item as Image
+
+    if (link.isPress || image.isPress) {
+      badges.push({ text: 'Press' })
+    }
+    if (link.isSocialProfile) {
+      badges.push({ text: 'Footer link', color: 'blue' })
+    }
+    return badges
+  }
+
   function title () {
     switch (itemType) {
       case 'embedCode': {
         const embedItem = item as EmbedCode
         return embedItem.title || 'Untitled'
+      }
+      case 'image': {
+        const imageItem = item as Image
+        const fileName = imageItem.url ? imageItem.url.split('/').pop() : 'Untitled'
+        const imageTitle = imageItem.title || imageItem.caption || 'Untitled image'
+        return `${imageTitle}${fileName ? `: ${fileName}` : ''}`
       }
       case 'link': {
         const linkItem = item as _Link
@@ -210,7 +237,11 @@ function DashboardListItem<T extends DashboardItem> ({
 
   return (
     <li key={item.id} className={styles['dashboard-list-item']}>
-      <AccordionDropdown title={titleWithCount()} isExpanded={isExpanded}>
+      <AccordionDropdown
+        badges={badges()}
+        isExpanded={isExpanded}
+        title={titleWithCount()}
+      >
         <EditItemNav id={item.id!} onEdit={onEdit} onDelete={onDelete} />
         <ItemDisplay item={item} itemType={itemType} />
 
@@ -259,6 +290,8 @@ export function EditItem ({
   switch (itemType) {
     case 'embedCode':
       return <EditEmbedCode embedCode={item as EmbedCode | undefined} />
+    case 'image':
+      return <EditImage image={item as Image | undefined} />
     case 'link':
       return <EditLink link={item as _Link | undefined} />
     case 'venue':
@@ -278,6 +311,10 @@ export function ItemDisplay ({
   switch (itemType) {
     case 'embedCode':
       return <EmbedCodeItem embedCode={item as EmbedCode} />
+    case 'image':
+      return (
+        <FigureImage image={item as Image} />
+      )
     case 'link':
       if ((item as _Link).quotation || (item as _Link).attribution) {
         return (

@@ -27,6 +27,10 @@
 
     figure {
       margin-bottom: 1rem;
+
+      &:has(img) {
+        max-width: 450px;
+      }
     }
 
     a:has(blockquote,div) {

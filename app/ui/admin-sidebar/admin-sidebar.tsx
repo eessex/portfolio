@@ -3,9 +3,18 @@ import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
 import { EditButton } from '@/ui/edit-button/edit-button'
 import { LogoutButton } from '@/ui/logout-button'
 import Link from 'next/link'
+import { camelToSentence, snakeToCamel } from '../util'
 
 export async function AdminSidebar () {
   const buttonClasses = `button button-secondary ${styles['button']}`
+
+  const links = [
+    'dashboard',
+    'embed_codes',
+    'images',
+    'links',
+    'venues'
+  ]
 
   return (
     <section className={`admin-sidebar ${styles['admin-sidebar']}`}>
@@ -13,26 +22,16 @@ export async function AdminSidebar () {
         <ul>
           <AddItemButton />
           <EditButton />
-          <li>
-            <Link href='/dashboard' className={buttonClasses}>
-              Dashboard
-            </Link>
-          </li>
-          <li>
-            <Link href='/dashboard/embed_codes' className={buttonClasses}>
-              Embed Codes
-            </Link>
-          </li>
-          <li>
-            <Link href='/dashboard/links' className={buttonClasses}>
-              Links
-            </Link>
-          </li>
-          <li>
-            <Link href='/dashboard/venues' className={buttonClasses}>
-              Venues
-            </Link>
-          </li>
+          {links.map(link => (
+            <li key={link}>
+              <Link
+                href={`/dashboard${link === 'dashboard' ? '' : `/${link}`}`}
+                className={buttonClasses}
+              >
+                {camelToSentence(snakeToCamel(link))}
+              </Link>
+            </li>
+          ))}
         </ul>
         <ul>
           <li>

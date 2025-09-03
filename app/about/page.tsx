@@ -3,8 +3,8 @@ import { fetchAboutPage, fetchSiteSettings } from '@/lib/data'
 import { fetchPressImages } from '@/lib/data/images'
 import { fetchPressLinks } from '@/lib/data/links'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
-import { FigureImage } from '@/ui/image-grid/image-figure'
-import { ImageGrid } from '@/ui/image-grid/image-grid'
+import { FigureImage } from '@/ui/images/image-figure'
+import { ImageGrid } from '@/ui/images/image-grid'
 import { LinksList } from '@/ui/links/link-list'
 import { Loading } from '@/ui/loading'
 import { Suspense } from 'react'
@@ -49,6 +49,9 @@ export default async function AboutPage () {
     [[], []] as [typeof links, typeof links]
   )
 
+  // @ts-expect-error FIXME: press images are not recursively camelized yet
+  const filteredPressImages = pressImages.filter(image => !!(image.is_press && !image.is_hidden_on_about_page && image.id !== about?.coverImageId))
+
   return (
     <article className={styles.about}>
       <header>
@@ -71,21 +74,27 @@ export default async function AboutPage () {
         {about?.title && (
           <p><b>{about.title}</b></p>
         )}
-        <LinksList links={pressLinksWithQuotes} />
+        <Suspense>
+          <LinksList links={pressLinksWithQuotes} />
+        </Suspense>
       </section>
 
       <div className={styles['press-info']}>
         <Suspense fallback={<Loading />}>
-          <AccordionDropdown title='More Images'>
-            <ImageGrid images={pressImages.filter(i => i.url !== about?.coverImage?.url)} />
-          </AccordionDropdown>
+          {!!filteredPressImages.length && (
+            <AccordionDropdown title='More Images'>
+              <ImageGrid images={filteredPressImages} />
+            </AccordionDropdown>
+          )}
         </Suspense>
 
-        {!!pressLinksWithoutQuotes.length && (
-          <AccordionDropdown title='More Press'>
-            <LinksList links={pressLinksWithoutQuotes} />
-          </AccordionDropdown>
-        )}
+        <Suspense>
+          {!!pressLinksWithoutQuotes.length && (
+            <AccordionDropdown title='More Press'>
+              <LinksList links={pressLinksWithoutQuotes} />
+            </AccordionDropdown>
+          )}
+        </Suspense>
       </div>
     </article>
   )

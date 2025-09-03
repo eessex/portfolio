@@ -12,6 +12,7 @@
   --transparency-secondary: rgba(0, 0, 0, 0.35);
   --transparency-extra-light: rgba(0, 0, 0, 0.075);
   --transparency-light: rgba(0, 0, 0, 0.25);
+  --blue: cornflowerblue;
   --error-color: #e65225;
 
   --menubar-height: 3.25rem;
@@ -261,6 +262,7 @@ input, textarea {
     --transparency-secondary: rgba(255, 255, 255, 0.15);
     --transparency-extra-light: rgba(255, 255, 255, 0.1);
     --transparency-light: rgba(255, 255, 255, 0.25);
+    --blue: steelblue;
   }
 
   input, textarea {
@@ -292,6 +294,18 @@ figcaption {
   text-transform: uppercase;
   letter-spacing: 0.07em;
   font-weight: bold;
+  padding: 0 0.25em;
+  margin: 0 0.25em;
+
+  &.badge-green {
+    color: currentColor;
+    background-color: var(--accent-secondary);
+  }
+
+  &.badge-blue {
+    color: currentColor;
+    background-color: var(--blue);
+  }
 }
 
 blockquote {

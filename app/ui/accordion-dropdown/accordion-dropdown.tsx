@@ -5,13 +5,15 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
 import { useEffect, useId, useState } from 'react'
 
 export function AccordionDropdown ({
-  title,
+  badges,
   children,
-  isExpanded
+  isExpanded,
+  title
 }: {
-  title: string,
-  children: React.ReactNode,
+  badges?: { text: string, color?: 'green' | 'blue' }[],
+  children: React.ReactNode
   isExpanded?: boolean
+  title: string
 }) {
   const triggerId = useId()
   const panelId = useId()
@@ -33,6 +35,14 @@ export function AccordionDropdown ({
         >
           <span className='accordion-title'>
             {title}
+            {badges && badges.map((badge, index) => (
+              <mark
+                key={index}
+                className={`badge badge-${badge.color || 'green'}`}
+              >
+                {badge.text}
+              </mark>
+            ))}
           </span>
 
           {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}

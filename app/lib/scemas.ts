@@ -23,13 +23,16 @@ export const ImageSchema = z.object({
   aspect: z.number().min(0.1).max(10),
   caption: z.string().max(255).optional(),
   id,
+  isHiddenOnAboutPage: z.boolean().optional(),
   isPress: z.boolean().optional(),
+  title,
   url: z.string().url()
 })
 
 export const LinkSchema = z.object({
   attribution: z.string().max(255).optional(),
   id,
+  isHiddenOnAboutPage: z.boolean().optional(),
   isPress: z.boolean().optional(),
   isSocialProfile: z.boolean().optional(),
   publishedDate: z.string().date().optional(),

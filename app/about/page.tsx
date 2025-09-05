@@ -2,6 +2,7 @@ import styles from '@/about/about.module.scss'
 import { fetchAboutPage, fetchSiteSettings } from '@/lib/data'
 import { fetchPressImages } from '@/lib/data/images'
 import { fetchPressLinks } from '@/lib/data/links'
+import type { AboutContact } from '@/lib/definitions'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { FigureImage } from '@/ui/images/image-figure'
 import { ImageGrid } from '@/ui/images/image-grid'
@@ -70,10 +71,9 @@ export default async function AboutPage () {
           </p>
         )}
 
-        {/* FIXME: rename/add contact column */}
-        {about?.title && (
-          <p><b>{about.title}</b></p>
-        )}
+        {about?.contactInfo?.map(({ title, contact }: AboutContact, i) => (
+          <p key={i}>{title && <b>{title}: </b>}{contact}</p>
+        ))}
         <Suspense>
           <LinksList links={pressLinksWithQuotes} />
         </Suspense>

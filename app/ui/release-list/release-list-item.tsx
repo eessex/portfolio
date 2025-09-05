@@ -24,9 +24,9 @@ export function ReleaseListItem ({
           </div>
         </div>
 
-        <div className={styles.contentRight}>
+        {/* <div className={styles.contentRight}>
           {release.format}, {release.label}
-        </div>
+        </div> */}
       </Link>
     </article>
   )

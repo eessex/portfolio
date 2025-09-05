@@ -1,77 +1,125 @@
 import { z } from 'zod'
 
-const title = z.string().max(255).optional()
+const defaultString = z.string().max(255)
+
+const title = defaultString.optional()
 const description = z.string().max(5000).optional()
+const caption = defaultString.optional()
 const coverImageId = z.string().uuid().optional()
-const slug = z.string().max(1000).optional()
-const id = z.string().uuid().optional()
+const slug = defaultString.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+const id = z.string().uuid()
 const projectId = z.string().uuid().optional()
 const tagIds = z.array(z.string().uuid()).default([])
-const createdAt = z.string().datetime().optional()
+const createdAt = z.string().datetime()
 const updatedAt = z.string().datetime().optional()
 const url = z.string().url().max(255)
+const isPublished = z.boolean().optional()
+const publishedDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
 
-export const EmbedCodeSchema = z.object({
+const defaultDates = {
+  createdAt,
+  updatedAt
+}
+
+const embeddedItemSchema = {
+  ...defaultDates,
   id,
   projectId,
   tagIds,
-  caption: z.string().max(255).optional(),
-  iframe: z.string().min(1).max(1000),
-  title,
-  type: z.enum(['audio', 'video']).optional(),
+  title
+}
+
+const pageDataSchema = {
+  ...embeddedItemSchema,
+  slug,
+  description,
+  isPublished,
+  coverImageId
+}
+
+const embeddedItemSchemas = {
+  embedCodeIds: z.array(id).optional(),
+  imageIds: z.array(id).optional(),
+  linkIds: z.array(id).optional(),
+}
+
+const { projectId: _projectId, ...projectType } = pageDataSchema
+export const ProjectSchema = z.object({
+  ...projectType,
+  ...embeddedItemSchemas
+})
+
+// 2. Tags
+export const TagSchema = z.object({
+  ...defaultDates,
+  id,
+  isPublished
+})
+
+// 3. Users
+export const UserSchema = z.object({
+  ...defaultDates,
+  id,
+  name: defaultString,
+  email: z.string().email(),
+  password: z.string().min(8)
+})
+
+// 4. Email Subscriptions
+export const EmailSubscriptionSchema = z.object({
+  ...defaultDates,
+  id,
+  email: z.string().email(),
+  exportedAt: z.date().nullable().optional()
+})
+
+export const SlugHistorySchema = z.object({
+  id,
+  tableName: z.string().max(50),
+  rowId: id,
+  oldSlug: slug,
   createdAt,
-  updatedAt
+})
+
+export const EmbedCodeSchema = z.object({
+  ...embeddedItemSchema,
+  caption,
+  iframe: z.string().min(1).max(1000),
+  type: z.enum(['audio', 'video']).optional()
 })
 
 export const ImageSchema = z.object({
-  id,
-  projectId,
-  tagIds,
-  alt: z.string().max(255).optional(),
+  ...embeddedItemSchema,
+  alt: defaultString.optional(),
   aspect: z.number().min(0.1).max(10),
-  caption: z.string().max(255).optional(),
+  caption,
   isHiddenOnAboutPage: z.boolean().optional(),
   isPress: z.boolean().optional(),
-  title,
-  url,
-  createdAt,
-  updatedAt
+  url
 })
 
 export const LinkSchema = z.object({
-  id,
-  projectId,
-  tagIds,
+  ...embeddedItemSchema,
   url,
-  attribution: z.string().max(255).optional(),
-  publishedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  quotation: z.string().max(255).optional(),
-  title,
+  attribution: defaultString.optional(),
+  publishedDate: publishedDate.optional(),
+  quotation: defaultString.optional(),
   type: z.enum(['press', 'social', 'buy_link', 'stream_link']).optional(),
-  isHiddenOnAboutPage: z.boolean().optional(),
-  createdAt,
-  updatedAt
+  isHiddenOnAboutPage: z.boolean().optional()
 })
 
 export const VenueSchema = z.object({
   id,
-  address: z.string().max(255).optional(),
-  city: z.string().max(255),
-  name: z.string().max(255).optional(),
-  state: z.string().max(255).optional(),
-  country: z.string().max(255).optional(),
+  ...defaultDates,
+  address: defaultString.optional(),
+  city: defaultString,
+  name: defaultString.optional(),
+  state: defaultString.optional(),
+  country: defaultString.optional(),
   url: url.optional(),
   timezone: z.string().max(100).optional(),
-  primaryVenueId: z.string().uuid().optional(),
-  createdAt,
-  updatedAt
+  primaryVenueId: z.string().uuid().optional()
 })
-
-const embeddedItemSchemas = {
-  embedCodeIds: z.array(z.string().uuid()).optional(),
-  imageIds: z.array(z.string().uuid()).optional(),
-  linkIds: z.array(z.string().uuid()).optional(),
-}
 
 /**
  * START Page schemas
@@ -79,19 +127,6 @@ const embeddedItemSchemas = {
  * These schemas are used to validate data fetched from the database.
  * They may include references to embedded items.
  */
-
-const pageDataSchema = {
-  id,
-  projectId,
-  tagIds,
-  title,
-  slug,
-  description,
-  isPublished: z.boolean().optional(),
-  coverImageId,
-  createdAt,
-  updatedAt,
-}
 
 export const EventSchema = z.object({
   ...pageDataSchema,
@@ -102,35 +137,59 @@ export const EventSchema = z.object({
   venueId: z.string().uuid().optional(),
 })
 
+export const ExhibitionSchema = z.object({
+  ...pageDataSchema,
+  ...embeddedItemSchemas,
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date().nullable().optional(),
+  venueId: EventSchema.shape.venueId
+})
+
 export const ReleaseSchema = z.object({
   ...pageDataSchema,
   ...embeddedItemSchemas,
-  artist: z.string().max(255),
+  artist: defaultString,
   type: z.enum(['album', 'ep', 'soundtrack', 'feature', 'compilation', 'collaborative_release', 'single']),
-  releaseDate: z.string().datetime()
+  releaseDate: publishedDate
+})
+
+export const WorkSchema = z.object({
+  ...pageDataSchema,
+  ...embeddedItemSchemas
 })
 
 export const SettingsSchema = z.object({
+  ...defaultDates,
   coverImageId,
-  description,
-  id: z.string().uuid(),
-  title,
-  createdAt,
-  updatedAt
+  description: defaultString.optional(),
+  id,
+  title
 })
 
-const ContactSchema = z.object({ title: z.string().max(255), contact: z.string().max(255) })
+export const AboutContactSchema = z.object({ title: defaultString, contact: defaultString })
 
 export const AboutSchema = z.object({
+  ...defaultDates,
   coverImageId,
-  contactInfo: z.array(ContactSchema).optional(),
+  contactInfo: z.array(AboutContactSchema).optional(),
   featuredEmbedCodeId: z.string().uuid().optional(),
   description,
-  id: z.string().uuid(),
-  slug,
-  title
+  id,
+  slug
 })
 
 /**
  * END Page schemas
  */
+
+export const PublishedEditionSchema = z.object({
+  ...embeddedItemSchema,
+  releaseId: ReleaseSchema.shape.id,
+  publisher: defaultString,
+  format: z.enum(['LP', '2xLP', 'Cassette', '2xCassette', 'Digital', 'iOSApp', 'CD']),
+  publishDate: publishedDate,
+  coverImageId,
+  imageIds: embeddedItemSchemas.imageIds,
+  editionSize: z.number().int().nullable().optional(),
+  buyLink: id.optional()
+})

@@ -1,3 +1,5 @@
+import type { Link as _Link } from '@/lib/definitions'
+
 const dateFormatLg: Intl.DateTimeFormatOptions = {
   weekday: 'short',
   year: 'numeric',
@@ -49,7 +51,7 @@ export function formattedDateTime (date: string, format?: DateFormatSize, timeZo
   return formattedDate
 }
 
-export const escapeHtml = (s: string) => {
+export function escapeHtml (s: string) {
   return s.replace(/&/g, '&amp;')
     .replace(/"/g, '&quot;')
     .replace(/</g, '&lt;')
@@ -94,4 +96,14 @@ export function eventUrl (slug: string) {
 
 export function releaseUrl (slug: string) {
   return `/releases/${slug}`
+}
+
+export function filteredLinksByPress (links: Array<_Link>) {
+  const pressLinks: Array<_Link> = []
+  const otherLinks: Array<_Link> = []
+
+  links.forEach((link) => {
+    (link.type === 'press' ? pressLinks : otherLinks).push(link)
+  })
+  return [pressLinks, otherLinks]
 }

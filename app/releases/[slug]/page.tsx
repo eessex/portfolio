@@ -5,7 +5,7 @@ import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { FigureImage } from '@/ui/images/image-figure'
 import { LinksList } from '@/ui/links/link-list'
-import { formattedDateTime } from '@/ui/util'
+import { formattedDateTime, filteredLinksByPress } from '@/ui/util'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -64,23 +64,18 @@ export default async function ReleasesPage ({
   const [featuredEmbed, ...embedCodes] = release?.embedCodes || []
 
   const releaseCategory = () => {
-    if (release.isCollaboration) {
-      return 'Collaborative Release'
-    } else if (release.isFeature) {
-      return 'Featured On'
-    } else if (release.isSingle) {
-      return 'Single'
-    } else if (release.isCompilation) {
-      return 'Compilation'
-    } else {
-      return 'Release'
+    switch (release.type) {
+      case 'compilation':
+        return 'Compilation'
+      case 'collaborative_release':
+        return 'Collaborative Release'
+      case 'feature':
+        return 'Featured On'
+      case 'single':
+        return 'Single'
+      default:
+        return 'Release'
     }
-  }
-
-  function filteredLinksByPress (links: Array<{ isPress?: boolean }>) {
-    const pressLinks = links.filter(link => link.isPress).filter(Boolean) as _Link[]
-    const otherLinks = links.filter(link => !link.isPress).filter(Boolean) as _Link[]
-    return [pressLinks, otherLinks]
   }
 
   return (
@@ -93,7 +88,8 @@ export default async function ReleasesPage ({
           </div>
           <h1>{release.artist}: {release.title}</h1>
           <h2>
-            {release.format}, {release.label}, {formattedDateTime(release.releaseDate, 'xxs')}
+            {/* {release.format}, {release.label},  */}
+            {formattedDateTime(release.releaseDate, 'xxs')}
           </h2>
         </header>
 

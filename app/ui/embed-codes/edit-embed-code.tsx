@@ -120,7 +120,7 @@ export const EditEmbedCodesFieldset = ({
   }, [])
 
   function handleAddEmbedCode () {
-    const newEmbed = { iframe: '', caption: '', id: '' }
+    const newEmbed = { iframe: '', caption: '', id: '', tagIds: [], createdAt: '' }
     if (!embedCodeList.some(embedCode => (!embedCode.iframe && !embedCode.caption && !embedCode.id))) {
       setEmbedCodeList([...embedCodeList, newEmbed])
     } else {

@@ -45,7 +45,7 @@ export async function fetchPressLinks (): Promise<Link[]> {
   try {
     const data = await sql`
       SELECT * FROM links
-      WHERE is_press = true
+      WHERE type = 'press'
       ORDER BY published_date DESC, created_at DESC
     `
     return data.rows.map(link => ({ ...camelizeKeys(link) }))
@@ -60,7 +60,7 @@ export async function fetchSocialLinks () {
   try {
     const data = await sql<Link>`
       SELECT title, url FROM links
-      WHERE is_social_profile = true 
+      WHERE type = 'social'
       AND title IS NOT NULL
       ORDER BY title ASC
     `

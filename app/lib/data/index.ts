@@ -74,7 +74,7 @@ export interface ImageMetaProperties {
 
 interface EventMetaProperties extends ImageMetaProperties {
   end_date?: string
-  start_date: string
+  start_time: string
   venue_name: string
   venue_address: string
   venue_city: string
@@ -90,7 +90,6 @@ export interface FetchEventsResult {
 }
 
 export interface FetchReleasesResult {
-  upcomingReleases: ReleaseClient[]
   soloReleases: ReleaseClient[]
   singles: ReleaseClient[]
   compilations: ReleaseClient[]
@@ -115,7 +114,7 @@ export async function fetchEvents (isAuthed: boolean = false): Promise<FetchEven
       FROM events as e
       LEFT JOIN venues v ON v.id = e.venue_id
       LEFT JOIN images i ON i.id = ANY(e.image_ids)
-      ORDER BY e.start_date DESC;
+      ORDER BY e.start_time DESC;
     `
     const parsedEvents: EventClient[] = data.rows.map((event) => formatEvent(event))
     const authedEvents = isAuthed
@@ -188,13 +187,16 @@ function formatEvent (event: QueryResultRow): EventClient {
       caption: event.image_caption || '',
       aspect: event.image_aspect || 1,
       id: event.image_id || '',
+      tagIds: [],
+      createdAt: '',
+      updatedAt: ''
     })
   }
 
   const formattedEvent: EventClient = {
     ...camelizeKeys(event),
     endDate: event.end_date ? new Date(event.end_date).toISOString() : undefined,
-    startDate: new Date(event.start_date).toISOString(),
+    startDate: new Date(event.start_time).toISOString(),
     images,
     venue: {
       name: event.venue_name,
@@ -240,8 +242,6 @@ export async function fetchReleases (isAuthed: boolean): Promise<FetchReleasesRe
 
 const sortReleasesByCategory = (releases: ReleaseClient[]) => {
   const result: FetchReleasesResult = {
-    upcomingReleases: releases.filter(release => isUpcomingDate(release.releaseDate))
-      .sort((a, b) => new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime()),
     soloReleases: [],
     singles: [],
     collaborativeReleases: [],
@@ -250,11 +250,22 @@ const sortReleasesByCategory = (releases: ReleaseClient[]) => {
   }
 
   for (const release of releases) {
-    if (release.isSingle) result.singles.push(release)
-    else if (release.isCollaboration) result.collaborativeReleases.push(release)
-    else if (release.isCompilation) result.compilations.push(release)
-    else if (release.isFeature) result.featuredOn.push(release)
-    else result.soloReleases.push(release)
+    switch (release.type) {
+      case 'single':
+        result.singles.push(release)
+        break
+      case 'collaborative_release':
+        result.collaborativeReleases.push(release)
+        break
+      case 'compilation':
+        result.compilations.push(release)
+        break
+      case 'feature':
+        result.featuredOn.push(release)
+        break
+      default:
+        result.soloReleases.push(release)
+    }
   }
 
   return result

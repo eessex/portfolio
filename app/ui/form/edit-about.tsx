@@ -18,7 +18,7 @@ export function EditAboutForm ({ about }: { about: About & { coverImage?: Image 
         }}
       />
 
-      {/* FIXME: rename/add title column */}
+      {/* FIXME: rename/add title column
       <Input
         label='Byline'
         defaultValue={about?.title}
@@ -26,7 +26,7 @@ export function EditAboutForm ({ about }: { about: About & { coverImage?: Image 
           name: 'title',
           maxLength: 255,
         }}
-      />
+      /> */}
 
       <Input
         label='Cover image id'

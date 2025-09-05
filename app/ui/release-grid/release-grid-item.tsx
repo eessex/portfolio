@@ -35,8 +35,8 @@ export function ReleaseGridItem ({
           {!release.isPublished && <DraftBadge />}
 
           <h4>
-            {`${release.format}, `}
-            {release.label && `${release.label}`}
+            {/* {`${release.format}, `}
+            {release.label && `${release.label}`} */}
             <br />{formattedDateTime(release.releaseDate, 'xs')}
           </h4>
         </Link>

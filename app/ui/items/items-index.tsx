@@ -14,7 +14,7 @@ type PageIndexProps<V extends FetchEventsResult | FetchReleasesResult> = {
   items: V
 }
 
-const featuredKeys: (keyof FetchEventsResult | keyof FetchReleasesResult)[] = ['upcomingEvents', 'upcomingReleases']
+const featuredKeys: (keyof FetchEventsResult | keyof FetchReleasesResult)[] = ['upcomingEvents']
 
 export function ItemsIndex<T extends EventClient | ReleaseClient, V extends FetchEventsResult | FetchReleasesResult> ({
   pageType,

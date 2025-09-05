@@ -114,14 +114,12 @@ export async function editAbout (formData: FormData, id: string): Promise<FormRe
     const {
       coverImageId,
       description,
-      title,
     } = validatedFields.data
 
     try {
       await sql`
         UPDATE about
         SET updated_at = current_timestamp,
-            title = ${title || ''},
             description = ${description || ''},
             cover_image_id = ${coverImageId || null}
         WHERE id = ${id}

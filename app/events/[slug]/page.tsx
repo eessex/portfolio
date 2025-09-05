@@ -6,7 +6,7 @@ import { EventsGrid } from '@/ui/events-grid/events-grid'
 import { FigureImage } from '@/ui/images/image-figure'
 import { LinksList } from '@/ui/links/link-list'
 import { Loading } from '@/ui/loading'
-import { formattedDateTime, isUpcomingDate } from '@/ui/util'
+import { filteredLinksByPress, formattedDateTime, isUpcomingDate } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
 import { TicketIcon } from '@heroicons/react/24/outline'
 import type { Metadata } from 'next'
@@ -69,12 +69,6 @@ export default async function EventsPage ({
   const category = isUpcoming ? 'Upcoming Event' : 'Event'
 
   const moreEvents = upcomingEvents.filter((e) => e.id !== event.id)
-
-  function filteredLinksByPress (links: Array<{ isPress?: boolean }>) {
-    const pressLinks = links.filter(link => link.isPress).filter(Boolean) as _Link[]
-    const otherLinks = links.filter(link => !link.isPress).filter(Boolean) as _Link[]
-    return [pressLinks, otherLinks]
-  }
 
   return (
     <div>

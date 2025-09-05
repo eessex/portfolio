@@ -1,4 +1,5 @@
 import type {
+  AboutContactSchema,
   AboutSchema,
   EmbedCodeSchema,
   EventSchema,
@@ -57,7 +58,7 @@ export type Link = z.infer<typeof LinkSchema> & EmbeddedItemSlugs & SavedItemAtt
 
 export type Event = z.infer<typeof EventSchema> & SavedItemAttributes
 
-export type EventClient = Omit<Event, 'projectIds' | 'venueIds' | EmbeddedItemArrayKeys> & EmbeddedItemArrays & {
+export type EventClient = Omit<Event, 'projectId' | 'venueIds' | 'tagIds' | EmbeddedItemArrayKeys> & EmbeddedItemArrays & {
   venue: Venue,
   slug: string
 }
@@ -75,6 +76,7 @@ export type SiteSettingsClient = z.infer<typeof SettingsSchema> & {
 }
 
 export type About = z.infer<typeof AboutSchema>
+export type AboutContact = z.infer<typeof AboutContactSchema>
 
 export interface AboutClient extends About {
   coverImage?: Image

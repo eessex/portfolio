@@ -203,10 +203,10 @@ function DashboardListItem<T extends DashboardItem> ({
     const link = item as _Link
     const image = item as Image
 
-    if (link.isPress || image.isPress) {
+    if (link.type === 'press' || image.isPress) {
       badges.push({ text: 'Press' })
     }
-    if (link.isSocialProfile) {
+    if (link.type === 'social') {
       badges.push({ text: 'Footer link', color: 'blue' })
     }
     return badges

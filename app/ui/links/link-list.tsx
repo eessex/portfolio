@@ -10,7 +10,7 @@ export function LinksList ({ links }: { links: Link[] }) {
     <ul className={styles['links-list']}>
       {links?.map((link, index) => (
         <li key={index}>
-          <LinkItem link={link} className={clsx(link.isPress && styles['press-link'])} />
+          <LinkItem link={link} className={clsx(link.type === 'press' && styles['press-link'])} />
         </li>
       ))}
     </ul>

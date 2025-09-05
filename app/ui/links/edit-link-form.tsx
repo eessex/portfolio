@@ -1,10 +1,10 @@
 import type { Link as _Link } from '@/lib/definitions'
-import { Checkbox } from '@/ui/form/checkbox'
-import styles from '@/ui/form/form.module.scss'
+// import { Checkbox } from '@/ui/form/checkbox'
+// import styles from '@/ui/form/form.module.scss'
 import { Input, type InputType } from '@/ui/form/input'
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import clsx from 'clsx'
-import Link from 'next/link'
+// import clsx from 'clsx'
+// import Link from 'next/link'
 import { useCallback, useRef, useState } from 'react'
 
 interface LinkProps {
@@ -41,8 +41,8 @@ export const EditLinkFieldset = ({ link, index, ref, onRemoveLink }: LinkProps) 
 
 export const EditLink = ({ link, index, ref, onRemoveLink }: LinkProps) => {
   const hasIndex = typeof index === 'number' && index >= 0
-  const [isPress, setIsPress] = useState(!!link?.isPress)
-  const [isSocialProfile, setIsSocialProfile] = useState(!!link?.isSocialProfile)
+  // const [isPress, setIsPress] = useState(!!link?.isPress)
+  // const [isSocialProfile, setIsSocialProfile] = useState(!!link?.isSocialProfile)
 
   return (
     <>
@@ -82,7 +82,7 @@ export const EditLink = ({ link, index, ref, onRemoveLink }: LinkProps) => {
           placeholder: 'Title'
         }}
       />
-      <fieldset className={styles['checkbox-group']} disabled={!!link?.isPress}>
+      {/* <fieldset className={styles['checkbox-group']} disabled={!!link?.isPress}>
         <legend>Social Media Profile</legend>
         <p>Social media profiles links (Instagram, YouTube, etc.) are shown in the page footer.</p>
         <Checkbox
@@ -137,7 +137,7 @@ export const EditLink = ({ link, index, ref, onRemoveLink }: LinkProps) => {
             }}
           />
         </div>
-      </fieldset>
+      </fieldset> */}
       {link?.id && (
         <Input
           label='Link ID'
@@ -168,7 +168,7 @@ export const EditLinksFieldset = ({
   }, [])
 
   function handleAddLink () {
-    const newLink = { url: '', title: '', id: '' }
+    const newLink = { url: '', title: '', id: '', tagIds: [], createdAt: '' }
     if (!linkList.some(link => (!link.url && !link.title && !link.id))) {
       setLinkList([...linkList, newLink])
     } else {

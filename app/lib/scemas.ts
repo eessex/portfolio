@@ -15,6 +15,7 @@ export const EmbedCodeSchema = z.object({
   caption: z.string().max(255).optional(),
   id,
   iframe: z.string().min(1).max(10000),
+  mediaType: z.enum(['audio', 'video']).optional(),
   title: z.string().max(255).optional(),
 })
 

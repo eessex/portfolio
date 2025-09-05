@@ -3,15 +3,19 @@
 import postgres from 'postgres'
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
-// table statements must be run sequentially!
+/**
+ * WARNING: some table statements must be run sequentially!
+ * For example, images must be created before site_settings which references it.
+ * So don't just Promise.all these functions.
+ */
 
-async function enableUuidExtension() {
+async function enableUuidExtension () {
   await sql`
     CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
   `
 }
 
-async function createImagesTable() {
+async function createImagesTable () {
   await enableUuidExtension()
   await sql`
     CREATE TABLE IF NOT EXISTS images (
@@ -28,7 +32,7 @@ async function createImagesTable() {
   `
 }
 
-async function createSiteSettingsTable() {
+async function createSiteSettingsTable () {
   await enableUuidExtension()
   await sql`
     CREATE TABLE IF NOT EXISTS site_settings (
@@ -43,7 +47,7 @@ async function createSiteSettingsTable() {
         REFERENCES images(id)
         ON DELETE SET NULL
     );
-  `;
+  `
 
   await sql`
     CREATE INDEX IF NOT EXISTS idx_site_settings_cover_image
@@ -51,7 +55,7 @@ async function createSiteSettingsTable() {
   `
 }
 
-async function createAboutTable() {
+async function createAboutTable () {
   await enableUuidExtension()
   await sql`
     CREATE TABLE IF NOT EXISTS about (
@@ -84,8 +88,7 @@ async function createAboutTable() {
   `
 }
 
-// 5.
-async function createUsersTable() {
+async function createUsersTable () {
   await enableUuidExtension()
   await sql`
     CREATE TABLE IF NOT EXISTS users (
@@ -103,8 +106,8 @@ async function createUsersTable() {
   `
 }
 
-async function createLinksTable() {
-  await enableUuidExtension();
+async function createLinksTable () {
+  await enableUuidExtension()
   await sql`
     CREATE TABLE IF NOT EXISTS links (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -127,7 +130,7 @@ async function createLinksTable() {
   `
 }
 
-async function createEmailSubscriptionsTable() {
+async function createEmailSubscriptionsTable () {
   await enableUuidExtension()
   await sql`
     CREATE TABLE IF NOT EXISTS email_subscriptions (
@@ -145,7 +148,7 @@ async function createEmailSubscriptionsTable() {
   `
 }
 
-async function createEmbedCodesTable() {
+async function createEmbedCodesTable () {
   await enableUuidExtension()
   await sql`
     CREATE TABLE IF NOT EXISTS embed_codes (
@@ -165,7 +168,7 @@ async function createEmbedCodesTable() {
   `
 }
 
-async function createVenuesTable() {
+async function createVenuesTable () {
   await enableUuidExtension()
 
   await sql`
@@ -202,7 +205,7 @@ async function createVenuesTable() {
 }
 
 // fixme: added timezones, removed embed_codes, made _id optional
-async function createEventsTable() {
+async function createEventsTable () {
   await enableUuidExtension()
 
   await sql`
@@ -230,7 +233,6 @@ async function createEventsTable() {
     );
   `
 
-  // Optional indexes
   await sql`
     CREATE INDEX IF NOT EXISTS idx_events_slug
       ON events (slug);
@@ -241,10 +243,9 @@ async function createEventsTable() {
       ON events (venue_id);
   `
 }
-async function setupSlugHistory() {
+async function setupSlugHistory () {
   await enableUuidExtension()
 
-  // 1. Create the slug_history table
   await sql`
     CREATE TABLE IF NOT EXISTS slug_history (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -255,7 +256,6 @@ async function setupSlugHistory() {
     );
   `
 
-  // 2. Indexes
   await sql`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_slug_history_table_slug
       ON slug_history (table_name, old_slug);
@@ -265,7 +265,7 @@ async function setupSlugHistory() {
       ON slug_history (row_id);
   `
 
-  // 3. Create trigger function to save old slugs
+  // save old slugs
   await sql`
     CREATE OR REPLACE FUNCTION save_old_slug()
     RETURNS TRIGGER AS $$
@@ -279,7 +279,7 @@ async function setupSlugHistory() {
     $$ LANGUAGE plpgsql;
   `
 
-  // 4. Trigger for events table
+  // trigger for events table
   await sql`
     DROP TRIGGER IF EXISTS trg_events_slug_update ON events;
   `
@@ -290,7 +290,7 @@ async function setupSlugHistory() {
     EXECUTE FUNCTION save_old_slug();
   `
 
-  // 5. Trigger for releases table
+  // trigger for releases table
   await sql`
     DROP TRIGGER IF EXISTS trg_releases_slug_update ON releases;
   `
@@ -302,7 +302,7 @@ async function setupSlugHistory() {
   `
 }
 
-async function createReleasesTable() {
+async function createReleasesTable () {
   await enableUuidExtension()
 
   await sql`
@@ -344,8 +344,7 @@ async function createReleasesTable() {
   `
 }
 
-
-export async function createTables() {
+export async function createTables () {
   await enableUuidExtension()
   await setupSlugHistory()
   await createUsersTable()

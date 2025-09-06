@@ -1,7 +1,7 @@
 'use server'
 
 import type { FormResponse, Image } from '@/lib/definitions'
-import { ImageSchema } from '@/lib/scemas'
+import { imageSchema } from '@/lib/scemas'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 
@@ -24,7 +24,7 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
       data[n] = v
     }
   })
-  const validatedFields = ImageSchema.safeParse(data)
+  const validatedFields = imageSchema.safeParse(data)
   if (!validatedFields.success) {
     console.error('Failed to validate image.', validatedFields.error.flatten().fieldErrors)
     return {
@@ -33,7 +33,7 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
     }
   } else {
     try {
-      const image = validatedFields.data as Image
+      const image = validatedFields.data
       const updatedImage = await updateImage(image)
       if (updatedImage) {
         console.debug('Image saved successfully:', updatedImage)

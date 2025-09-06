@@ -1,4 +1,5 @@
 import type { Link as _Link } from '@/lib/definitions'
+import { z } from 'zod'
 
 const dateFormatLg: Intl.DateTimeFormatOptions = {
   weekday: 'short',
@@ -81,13 +82,39 @@ export function camelizeKeys (obj: any): any {
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key.toString())) {
       const camelKey = snakeToCamel(key)
-      // FIXME: recursive failing on date values
-      // camelizedObject[camelKey] = camelizeKeys(obj[key])
-
       camelizedObject[camelKey] = obj[key]
     }
   }
   return camelizedObject
+}
+
+function nullsToUndefined<T> (obj: T): T {
+  if (obj === null) return undefined as unknown as T
+
+  if (typeof obj === 'number') return obj as T
+  if (typeof obj === 'boolean') return obj as T
+  if (typeof obj === 'string') return obj as T
+  if (obj instanceof Date) return obj
+
+  if (Array.isArray(obj)) {
+    return obj.map(nullsToUndefined) as unknown as T
+  }
+
+  if (typeof obj === 'object' && obj !== null) {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, nullsToUndefined(value)])
+    ) as T
+  }
+
+  return obj
+}
+
+export function formatDbResponseForClient<T extends z.ZodTypeAny> (
+  data: unknown,
+  schema: T
+): z.infer<T> {
+  const formatted = nullsToUndefined(camelizeKeys(data))
+  return schema.parse(formatted)
 }
 
 export function eventUrl (slug: string) {

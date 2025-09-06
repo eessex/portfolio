@@ -49,14 +49,12 @@ export const ProjectSchema = z.object({
   ...embeddedItemSchemas
 })
 
-// 2. Tags
 export const TagSchema = z.object({
   ...defaultDates,
   id,
   isPublished
 })
 
-// 3. Users
 export const UserSchema = z.object({
   ...defaultDates,
   id,
@@ -65,7 +63,6 @@ export const UserSchema = z.object({
   password: z.string().min(8)
 })
 
-// 4. Email Subscriptions
 export const EmailSubscriptionSchema = z.object({
   ...defaultDates,
   id,
@@ -88,14 +85,33 @@ export const EmbedCodeSchema = z.object({
   type: z.enum(['audio', 'video']).optional()
 })
 
-export const ImageSchema = z.object({
-  ...embeddedItemSchema,
-  alt: defaultString.optional(),
-  aspect: z.number().min(0.1).max(10),
-  caption,
+export const imageSchema = z.object({
+  alt: z.string().max(255).optional(),
+  aspect: z.preprocess((val) => {
+    if (typeof val === 'number') {
+      return Number(val.toFixed(4))
+    }
+    if (typeof val === 'string') {
+      const num = parseFloat(val)
+      return isNaN(num) ? val : Number(num.toFixed(4))
+    }
+    return val
+  }, z.number().min(0.1).max(10)),
+  caption: z.string().max(255).optional(),
+  createdAt: z.date(),
+  id: z.string().uuid(),
   isHiddenOnAboutPage: z.boolean().optional(),
   isPress: z.boolean().optional(),
-  url
+  projectId: z.string().uuid().optional(),
+  tagIds: z.array(z.string().uuid()).optional(),
+  title: z.string().max(255).optional(),
+  updatedAt: z.date().optional(),
+  url: z.string().url().max(255)
+})
+
+export const dashboardImageSchema = imageSchema.extend({
+  eventSlugs: z.array(slug).optional(),
+  releaseSlugs: z.array(slug).optional()
 })
 
 export const LinkSchema = z.object({
@@ -187,7 +203,7 @@ export const PublishedEditionSchema = z.object({
   releaseId: ReleaseSchema.shape.id,
   publisher: defaultString,
   format: z.enum(['LP', '2xLP', 'Cassette', '2xCassette', 'Digital', 'iOSApp', 'CD']),
-  publishDate: publishDate,
+  publishDate,
   coverImageId,
   imageIds: embeddedItemSchemas.imageIds,
   editionSize: z.number().int().nullable().optional(),

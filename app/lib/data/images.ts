@@ -1,8 +1,9 @@
-import { formatItemArrayRows } from '@/lib/data'
-import { type Image } from '@/lib/definitions'
+import type { DashboardImage, Image } from '@/lib/definitions'
+import { dashboardImageSchema, imageSchema } from '@/lib/scemas'
+import { formatDbResponseForClient } from '@/ui/util'
 import { QueryResultRow, sql } from '@vercel/postgres'
 
-export async function fetchImage (id: string) {
+export async function fetchImage (id: string): Promise<Image | undefined> {
   try {
     const data = await sql<Image>`
       SELECT * FROM images
@@ -12,7 +13,7 @@ export async function fetchImage (id: string) {
       console.debug(`Image with id ${id} not found.`)
       return
     }
-    return data.rows[0]
+    return formatDbResponseForClient(data.rows[0], imageSchema)
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error(`Failed to fetch image ${id}.`)
@@ -21,11 +22,11 @@ export async function fetchImage (id: string) {
 
 export const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Image[]> => {
   try {
-    const { rows } = await sql`
+    const data = await sql<Image>`
       SELECT * FROM images
       WHERE id = ANY(${ids})
     `
-    return formatItemArrayRows<Image>(rows, ids)
+    return data.rows.map(row => formatDbResponseForClient(row, imageSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch images.')
@@ -35,7 +36,7 @@ export const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Ima
 /** dashboard: fetch all the images */
 export async function fetchImages () {
   try {
-    const { rows } = await sql`
+    const data = await sql<DashboardImage>`
       SELECT 
       images.*,
       ARRAY(
@@ -47,7 +48,7 @@ export async function fetchImages () {
       FROM images
       ORDER BY images.updated_at DESC
     `
-    return formatItemArrayRows<Image>(rows)
+    return data.rows.map(row => formatDbResponseForClient(row, dashboardImageSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch images.')
@@ -61,7 +62,7 @@ export async function fetchPressImages () {
       SELECT * FROM images
       WHERE is_press = true
     `
-    return data.rows
+    return data.rows.map(row => formatDbResponseForClient(row, imageSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch press images.')

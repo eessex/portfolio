@@ -61,7 +61,7 @@ async function createImagesTable () {
       project_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
       alt VARCHAR(255),
-      aspect NUMERIC NOT NULL,
+      aspect DOUBLE PRECISION NOT NULL,
       caption VARCHAR(255),
       is_press BOOLEAN,
       is_hidden_on_about_page BOOLEAN,

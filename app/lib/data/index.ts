@@ -3,6 +3,7 @@ import { fetchImage, fetchImagesByIds } from '@/lib/data/images'
 import { fetchLinksByIds } from '@/lib/data/links'
 import type {
   AboutClient,
+  DashboardImage,
   EmbedCode,
   Event,
   EventClient,
@@ -188,8 +189,7 @@ function formatEvent (event: QueryResultRow): EventClient {
       aspect: event.image_aspect || 1,
       id: event.image_id || '',
       tagIds: [],
-      createdAt: '',
-      updatedAt: ''
+      createdAt: new Date()
     })
   }
 
@@ -271,7 +271,7 @@ const sortReleasesByCategory = (releases: ReleaseClient[]) => {
   return result
 }
 
-export type ItemArrays = EmbedCode | Image | Link
+export type ItemArrays = EmbedCode | DashboardImage | Link
 
 export async function fetchReleaseBySlug (slug: string): Promise<ReleaseClient | undefined> {
   try {

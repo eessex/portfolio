@@ -1,9 +1,10 @@
 import type {
   AboutContactSchema,
   AboutSchema,
+  dashboardImageSchema,
   EmbedCodeSchema,
   EventSchema,
-  ImageSchema,
+  imageSchema,
   LinkSchema,
   ReleaseSchema,
   SettingsSchema,
@@ -52,7 +53,8 @@ export type Venue = z.infer<typeof VenueSchema> & SavedItemAttributes & Embedded
 
 export type EmbedCode = z.infer<typeof EmbedCodeSchema> & EmbeddedItemSlugs & SavedItemAttributes
 
-export type Image = z.infer<typeof ImageSchema> & EmbeddedItemSlugs & SavedItemAttributes
+export type Image = z.infer<typeof imageSchema>
+export type DashboardImage = z.infer<typeof dashboardImageSchema>
 
 export type Link = z.infer<typeof LinkSchema> & EmbeddedItemSlugs & SavedItemAttributes
 

@@ -154,7 +154,7 @@ export const EditImagesFieldset = ({
   }, [])
 
   function handleAddImage () {
-    const newImage = { url: '', caption: '', id: '', aspect: 1, tagIds: [], createdAt: '' }
+    const newImage = { url: '', caption: '', id: '', aspect: 1, tagIds: [], createdAt: new Date() }
     if (!imageList.some(image => (!image.url && !image.caption && !image.id))) {
       setImageList([...imageList, newImage])
     } else {

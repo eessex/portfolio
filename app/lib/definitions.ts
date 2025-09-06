@@ -1,8 +1,9 @@
 import type {
   AboutContactSchema,
   AboutSchema,
+  dashboardEmbedCodeSchema,
   dashboardImageSchema,
-  EmbedCodeSchema,
+  embedCodeSchema,
   EventSchema,
   imageSchema,
   LinkSchema,
@@ -51,7 +52,8 @@ interface EmbeddedItemArrays {
 
 export type Venue = z.infer<typeof VenueSchema> & SavedItemAttributes & EmbeddedItemSlugs
 
-export type EmbedCode = z.infer<typeof EmbedCodeSchema> & EmbeddedItemSlugs & SavedItemAttributes
+export type EmbedCode = z.infer<typeof embedCodeSchema>
+export type DashboardEmbedCode = z.infer<typeof dashboardEmbedCodeSchema>
 
 export type Image = z.infer<typeof imageSchema>
 export type DashboardImage = z.infer<typeof dashboardImageSchema>

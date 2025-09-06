@@ -3,8 +3,8 @@ import { fetchImage, fetchImagesByIds } from '@/lib/data/images'
 import { fetchLinksByIds } from '@/lib/data/links'
 import type {
   AboutClient,
+  DashboardEmbedCode,
   DashboardImage,
-  EmbedCode,
   Event,
   EventClient,
   Image,
@@ -271,7 +271,7 @@ const sortReleasesByCategory = (releases: ReleaseClient[]) => {
   return result
 }
 
-export type ItemArrays = EmbedCode | DashboardImage | Link
+export type ItemArrays = DashboardEmbedCode | DashboardImage | Link
 
 export async function fetchReleaseBySlug (slug: string): Promise<ReleaseClient | undefined> {
   try {

@@ -4,7 +4,6 @@ const defaultString = z.string().max(255)
 
 const title = defaultString.optional()
 const description = z.string().max(5000).optional()
-const caption = defaultString.optional()
 const coverImageId = z.string().uuid().optional()
 const slug = defaultString.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
 const id = z.string().uuid()
@@ -78,11 +77,21 @@ export const SlugHistorySchema = z.object({
   createdAt,
 })
 
-export const EmbedCodeSchema = z.object({
-  ...embeddedItemSchema,
-  caption,
+export const embedCodeSchema = z.object({
+  caption: z.string().max(255).optional(),
+  createdAt: z.date(),
+  id: z.string().uuid(),
   iframe: z.string().min(1).max(1000),
-  type: z.enum(['audio', 'video']).optional()
+  projectId: z.string().uuid().optional(),
+  tagIds: z.array(z.string().uuid()).optional(),
+  title: z.string().max(255).optional(),
+  type: z.enum(['audio', 'video']).optional(),
+  updatedAt: z.date().optional()
+})
+
+export const dashboardEmbedCodeSchema = embedCodeSchema.extend({
+  eventSlugs: z.array(slug).optional(),
+  releaseSlugs: z.array(slug).optional()
 })
 
 export const imageSchema = z.object({

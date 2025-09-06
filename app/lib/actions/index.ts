@@ -7,7 +7,7 @@ import type {
 } from '@/lib/definitions'
 import {
   AboutSchema,
-  EmbedCodeSchema,
+  embedCodeSchema,
   imageSchema,
   LinkSchema,
   SettingsSchema
@@ -22,7 +22,7 @@ import { signIn } from '../../../auth'
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 const embeddedItems = {
-  embedCode: EmbedCodeSchema,
+  embedCode: embedCodeSchema,
   image: imageSchema,
   link: LinkSchema
 }

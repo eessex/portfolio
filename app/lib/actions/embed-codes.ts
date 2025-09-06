@@ -2,7 +2,7 @@
 
 import { validatedItemArray } from '@/lib/actions'
 import type { EmbedCode, FormResponse } from '@/lib/definitions'
-import { EmbedCodeSchema } from '@/lib/scemas'
+import { embedCodeSchema } from '@/lib/scemas'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 
@@ -37,7 +37,7 @@ async function createEmbedCode (embedCode: EmbedCode) {
 export async function editEmbedCode (formData: FormData): Promise<FormResponse<EmbedCode>> {
   const data: Record<FormData['entries']['name'], unknown> = {}
   formData.entries().forEach(([n, v]) => { data[n] = v })
-  const validatedFields = EmbedCodeSchema.safeParse(data)
+  const validatedFields = embedCodeSchema.safeParse(data)
   if (!validatedFields.success) {
     console.error('Failed to validate embed code.', validatedFields.error.flatten().fieldErrors)
     return {

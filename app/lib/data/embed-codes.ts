@@ -1,14 +1,15 @@
-import { formatItemArrayRows } from '@/lib/data'
-import type { EmbedCode } from '@/lib/definitions'
+import type { DashboardEmbedCode, EmbedCode } from '@/lib/definitions'
+import { formatDbResponseForClient } from '@/ui/util'
 import { type QueryResultRow, sql } from '@vercel/postgres'
+import { dashboardEmbedCodeSchema, embedCodeSchema } from '../scemas'
 
-export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]): Promise<EmbedCode[]> => {
+export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]) => {
   try {
-    const { rows } = await sql`
+    const { rows } = await sql<EmbedCode>`
       SELECT * FROM embed_codes
       WHERE id = ANY(${ids})
     `
-    return formatItemArrayRows<EmbedCode>(rows, ids)
+    return rows.map(row => formatDbResponseForClient(row, embedCodeSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch embed codes.')
@@ -17,7 +18,7 @@ export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]): Promise
 
 export async function fetchEmbedCodes () {
   try {
-    const { rows } = await sql`
+    const data = await sql<DashboardEmbedCode>`
       SELECT
       embed_codes.*,
       ARRAY(
@@ -29,7 +30,7 @@ export async function fetchEmbedCodes () {
       FROM embed_codes
       ORDER BY embed_codes.updated_at DESC
     `
-    return formatItemArrayRows<EmbedCode>(rows)
+    return data.rows.map(row => formatDbResponseForClient(row, dashboardEmbedCodeSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch embed codes.')

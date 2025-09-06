@@ -3,7 +3,7 @@ import { dashboardImageSchema, imageSchema } from '@/lib/scemas'
 import { formatDbResponseForClient } from '@/ui/util'
 import { QueryResultRow, sql } from '@vercel/postgres'
 
-export async function fetchImage (id: string): Promise<Image | undefined> {
+export async function fetchImage (id: string) {
   try {
     const data = await sql<Image>`
       SELECT * FROM images
@@ -20,7 +20,7 @@ export async function fetchImage (id: string): Promise<Image | undefined> {
   }
 }
 
-export const fetchImagesByIds = async (ids: QueryResultRow[string]): Promise<Image[]> => {
+export const fetchImagesByIds = async (ids: QueryResultRow[string]) => {
   try {
     const data = await sql<Image>`
       SELECT * FROM images

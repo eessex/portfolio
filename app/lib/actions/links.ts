@@ -2,7 +2,7 @@
 
 import { validatedItemArray } from '@/lib/actions'
 import type { FormResponse, Link } from '@/lib/definitions'
-import { LinkSchema } from '@/lib/scemas'
+import { linkSchema } from '@/lib/scemas'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 
@@ -74,7 +74,7 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
       data[n] = v
     }
   })
-  const validatedFields = LinkSchema.safeParse(data)
+  const validatedFields = linkSchema.safeParse(data)
   if (!validatedFields.success) {
     console.error('Failed to validate link.', validatedFields.error.flatten().fieldErrors)
     throw new Error('Failed to validate link.')

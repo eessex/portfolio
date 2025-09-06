@@ -41,7 +41,7 @@ const getTimeFormat = (format: DateFormatSize = 'lg') => {
   }
 }
 
-export function formattedDateTime (date: string, format?: DateFormatSize, timeZone?: Intl.DateTimeFormatOptions['timeZone']) {
+export function formattedDateTime (date: string | Date, format?: DateFormatSize, timeZone?: Intl.DateTimeFormatOptions['timeZone']) {
   const startDate = new Date(date)
   startDate.setHours(startDate.getHours())
   const formattedDate = new Intl.DateTimeFormat('en-US', {

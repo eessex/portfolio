@@ -123,14 +123,24 @@ export const dashboardImageSchema = imageSchema.extend({
   releaseSlugs: z.array(slug).optional()
 })
 
-export const LinkSchema = z.object({
-  ...embeddedItemSchema,
-  url,
-  attribution: defaultString.optional(),
-  publishDate: publishDate.optional(),
-  quotation: defaultString.optional(),
+export const linkSchema = z.object({
+  attribution: z.string().max(255).optional(),
+  createdAt: z.date(),
+  id: z.string().uuid(),
+  isHiddenOnAboutPage: z.boolean().optional(),
+  projectId: z.string().uuid().optional(),
+  publishDate: z.date().optional(),
+  quotation: z.string().max(255).optional(),
+  tagIds: z.array(z.string().uuid()).optional(),
+  title: z.string().max(255).optional(),
   type: z.enum(['press', 'social', 'buy_link', 'stream_link']).optional(),
-  isHiddenOnAboutPage: z.boolean().optional()
+  updatedAt: z.date().optional(),
+  url: z.string().url().max(255)
+})
+
+export const dashboardLinkSchema = linkSchema.extend({
+  eventSlugs: z.array(slug).optional(),
+  releaseSlugs: z.array(slug).optional()
 })
 
 export const VenueSchema = z.object({

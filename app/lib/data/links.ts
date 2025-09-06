@@ -1,17 +1,17 @@
-import { formatItemArrayRows } from '@/lib/data'
-import type { Link } from '@/lib/definitions'
-import { camelizeKeys } from '@/ui/util'
+import type { DashboardLink, Link } from '@/lib/definitions'
+import { formatDbResponseForClient } from '@/ui/util'
 import { type QueryResultRow, sql } from '@vercel/postgres'
+import { dashboardLinkSchema, linkSchema } from '@/lib/scemas'
 
-export const fetchLinksByIds = async (ids: QueryResultRow[string]): Promise<Link[]> => {
+export const fetchLinksByIds = async (ids: QueryResultRow[string]) => {
   try {
-    const { rows } = await sql`
+    const data = await sql<Link>`
       SELECT * FROM links
       WHERE id = ANY(${ids})
       ORDER BY
       COALESCE(publish_date, created_at) DESC
     `
-    return formatItemArrayRows<Link>(rows)
+    return data.rows.map(row => formatDbResponseForClient(row, linkSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')
@@ -21,7 +21,7 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]): Promise<Link
 /** dashboard: all the links */
 export async function fetchLinks () {
   try {
-    const { rows } = await sql`
+    const data = await sql<DashboardLink>`
           SELECT
           links.*,
           ARRAY(
@@ -33,7 +33,7 @@ export async function fetchLinks () {
           FROM links
           ORDER BY links.updated_at DESC
         `
-    return formatItemArrayRows<Link>(rows)
+    return data.rows.map(row => formatDbResponseForClient(row, dashboardLinkSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')
@@ -41,14 +41,14 @@ export async function fetchLinks () {
 }
 
 /** Only the press links */
-export async function fetchPressLinks (): Promise<Link[]> {
+export async function fetchPressLinks () {
   try {
-    const data = await sql`
+    const data = await sql<Link>`
       SELECT * FROM links
       WHERE type = 'press'
       ORDER BY publish_date DESC, created_at DESC
     `
-    return data.rows.map(link => ({ ...camelizeKeys(link) }))
+    return data.rows.map(row => formatDbResponseForClient(row, linkSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch press links.')
@@ -59,12 +59,12 @@ export async function fetchPressLinks (): Promise<Link[]> {
 export async function fetchSocialLinks () {
   try {
     const data = await sql<Link>`
-      SELECT title, url FROM links
+      SELECT * FROM links
       WHERE type = 'social'
       AND title IS NOT NULL
       ORDER BY title ASC
     `
-    return data.rows
+    return data.rows.map(row => formatDbResponseForClient(row, linkSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')

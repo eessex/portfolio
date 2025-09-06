@@ -168,7 +168,7 @@ export const EditLinksFieldset = ({
   }, [])
 
   function handleAddLink () {
-    const newLink = { url: '', title: '', id: '', tagIds: [], createdAt: '' }
+    const newLink = { url: '', title: '', id: '', tagIds: [], createdAt: new Date() }
     if (!linkList.some(link => (!link.url && !link.title && !link.id))) {
       setLinkList([...linkList, newLink])
     } else {

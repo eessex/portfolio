@@ -5,10 +5,10 @@ import type {
   AboutClient,
   DashboardEmbedCode,
   DashboardImage,
+  DashboardLink,
   Event,
   EventClient,
   Image,
-  Link,
   Release,
   ReleaseClient,
   SiteSettingsClient,
@@ -271,7 +271,7 @@ const sortReleasesByCategory = (releases: ReleaseClient[]) => {
   return result
 }
 
-export type ItemArrays = DashboardEmbedCode | DashboardImage | Link
+export type ItemArrays = DashboardEmbedCode | DashboardImage | DashboardLink
 
 export async function fetchReleaseBySlug (slug: string): Promise<ReleaseClient | undefined> {
   try {

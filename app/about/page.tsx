@@ -50,8 +50,7 @@ export default async function AboutPage () {
     [[], []] as [typeof links, typeof links]
   )
 
-  // @ts-expect-error FIXME: press images are not recursively camelized yet
-  const filteredPressImages = pressImages.filter(image => !!(image.is_press && !image.is_hidden_on_about_page && image.id !== about?.coverImageId))
+  const filteredPressImages = pressImages.filter(image => !!(image.isPress && !image.isHiddenOnAboutPage && image.id !== about?.coverImageId))
 
   return (
     <article className={styles.about}>
@@ -60,9 +59,11 @@ export default async function AboutPage () {
       </header>
 
       <section>
-
         {about?.coverImageId && about.coverImage && (
-          <FigureImage image={{ ...about.coverImage, id: about.coverImageId }} className={styles['cover-image']} />
+          <FigureImage
+            image={{ ...about.coverImage, id: about.coverImageId }}
+            className={styles['cover-image']}
+          />
         )}
 
         {about?.description && (

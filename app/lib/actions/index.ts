@@ -9,7 +9,7 @@ import {
   AboutSchema,
   embedCodeSchema,
   imageSchema,
-  LinkSchema,
+  linkSchema,
   SettingsSchema
 } from '@/lib/scemas'
 import { escapeHtml } from '@/ui/util'
@@ -24,7 +24,7 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 const embeddedItems = {
   embedCode: embedCodeSchema,
   image: imageSchema,
-  link: LinkSchema
+  link: linkSchema
 }
 
 export type EmbeddedItemKey = keyof typeof embeddedItems

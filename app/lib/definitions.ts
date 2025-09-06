@@ -3,10 +3,11 @@ import type {
   AboutSchema,
   dashboardEmbedCodeSchema,
   dashboardImageSchema,
+  dashboardLinkSchema,
   embedCodeSchema,
   EventSchema,
   imageSchema,
-  LinkSchema,
+  linkSchema,
   ReleaseSchema,
   SettingsSchema,
   VenueSchema
@@ -58,7 +59,8 @@ export type DashboardEmbedCode = z.infer<typeof dashboardEmbedCodeSchema>
 export type Image = z.infer<typeof imageSchema>
 export type DashboardImage = z.infer<typeof dashboardImageSchema>
 
-export type Link = z.infer<typeof LinkSchema> & EmbeddedItemSlugs & SavedItemAttributes
+export type Link = z.infer<typeof linkSchema>
+export type DashboardLink = z.infer<typeof dashboardLinkSchema>
 
 export type Event = z.infer<typeof EventSchema> & SavedItemAttributes
 

@@ -129,9 +129,9 @@ export const EditLink = ({ link, index, ref, onRemoveLink }: LinkProps) => {
           />
           <Input
             label='Publish date'
-            defaultValue={link?.publishedDate ? new Date(link.publishedDate).toISOString().split('T')[0] : ''}
+            defaultValue={link?.publishDate ? new Date(link.publishDate).toISOString().split('T')[0] : ''}
             attributes={{
-              name: hasIndex ? `link[${index}].publishedDate` : 'publishedDate',
+              name: hasIndex ? `link[${index}].publishDate` : 'publishDate',
               placeholder: 'YYYY-MM-DD',
               type: 'date'
             }}

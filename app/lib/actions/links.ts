@@ -19,7 +19,7 @@ async function createLink (link: Link) {
         attribution,
         isHiddenOnAboutPage,
         type,
-        publishedDate,
+        publishDate,
         quotation,
         title,
         url
@@ -31,7 +31,7 @@ async function createLink (link: Link) {
         created_at,
         is_hidden_on_about_page,
         type,
-        published_date,
+        publish_date,
         quotation,
         title,
         url
@@ -41,7 +41,7 @@ async function createLink (link: Link) {
         current_timestamp,
         ${isHiddenOnAboutPage || null},
         ${type || null},
-        ${publishedDate || null},
+        ${publishDate || null},
         ${quotation || null},
         ${title || null},
         ${url}
@@ -107,7 +107,7 @@ async function updateLink (link: Link) {
         id,
         isHiddenOnAboutPage,
         type,
-        publishedDate,
+        publishDate,
         quotation,
         title,
         url
@@ -130,7 +130,7 @@ async function updateLink (link: Link) {
               attribution,
               is_hidden_on_about_page,
               type,
-              published_date,
+              publish_date,
               quotation,
               title, 
               updated_at,
@@ -140,7 +140,7 @@ async function updateLink (link: Link) {
               ${attribution || null},
               ${isHiddenOnAboutPage || null},
               ${type || null},
-              ${publishedDate || null},
+              ${publishDate || null},
               ${quotation || null},
               ${title || null},
               current_timestamp,

@@ -9,7 +9,7 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]): Promise<Link
       SELECT * FROM links
       WHERE id = ANY(${ids})
       ORDER BY
-      COALESCE(published_date, created_at) DESC
+      COALESCE(publish_date, created_at) DESC
     `
     return formatItemArrayRows<Link>(rows)
   } catch (error) {
@@ -46,7 +46,7 @@ export async function fetchPressLinks (): Promise<Link[]> {
     const data = await sql`
       SELECT * FROM links
       WHERE type = 'press'
-      ORDER BY published_date DESC, created_at DESC
+      ORDER BY publish_date DESC, created_at DESC
     `
     return data.rows.map(link => ({ ...camelizeKeys(link) }))
   } catch (error) {

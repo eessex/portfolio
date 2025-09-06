@@ -16,7 +16,7 @@ export function LinkItem ({ link, className }: { link: Link, className?: string 
                     {link.attribution && (
                       <>{link.title ? `— ${link.title} in ` : '— '}{link.attribution}, </>
                     )}
-                    {formattedDateTime(link.publishedDate || link.createdAt!, 'xs')}
+                    {formattedDateTime(link.publishDate || link.createdAt!, 'xs')}
                   </cite>
                 </>
                 )
@@ -25,7 +25,7 @@ export function LinkItem ({ link, className }: { link: Link, className?: string 
                   <b>{link.title || link.url}</b>
                   <div>
                     {link.attribution && (<em>— {link.attribution}, </em>)}
-                    {formattedDateTime(link.publishedDate || link.createdAt!, 'xs')}
+                    {formattedDateTime(link.publishDate || link.createdAt!, 'xs')}
                   </div>
                 </>
                 )}

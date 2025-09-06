@@ -14,7 +14,7 @@ const createdAt = z.string().datetime()
 const updatedAt = z.string().datetime().optional()
 const url = z.string().url().max(255)
 const isPublished = z.boolean().optional()
-const publishedDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
+const publishDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
 
 const defaultDates = {
   createdAt,
@@ -102,7 +102,7 @@ export const LinkSchema = z.object({
   ...embeddedItemSchema,
   url,
   attribution: defaultString.optional(),
-  publishedDate: publishedDate.optional(),
+  publishDate: publishDate.optional(),
   quotation: defaultString.optional(),
   type: z.enum(['press', 'social', 'buy_link', 'stream_link']).optional(),
   isHiddenOnAboutPage: z.boolean().optional()
@@ -150,7 +150,7 @@ export const ReleaseSchema = z.object({
   ...embeddedItemSchemas,
   artist: defaultString,
   type: z.enum(['album', 'ep', 'soundtrack', 'feature', 'compilation', 'collaborative_release', 'single']),
-  releaseDate: publishedDate
+  releaseDate: publishDate
 })
 
 export const WorkSchema = z.object({
@@ -187,7 +187,7 @@ export const PublishedEditionSchema = z.object({
   releaseId: ReleaseSchema.shape.id,
   publisher: defaultString,
   format: z.enum(['LP', '2xLP', 'Cassette', '2xCassette', 'Digital', 'iOSApp', 'CD']),
-  publishDate: publishedDate,
+  publishDate: publishDate,
   coverImageId,
   imageIds: embeddedItemSchemas.imageIds,
   editionSize: z.number().int().nullable().optional(),

@@ -1,7 +1,8 @@
 import {
   basePageSchema,
   defaultSchema,
-  hydratedItemIdSchemas
+  hydratedItemIdSchemas,
+  shortText
 } from '@/lib/scemas'
 
 /**
@@ -11,7 +12,7 @@ import {
  */
 export const siteSettingsSchema = defaultSchema.extend({
   coverImageId: basePageSchema.shape.coverImageId,
-  description: basePageSchema.shape.description,
+  description: shortText,
   title: basePageSchema.shape.title,
 })
 

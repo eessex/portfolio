@@ -1,16 +1,10 @@
 'use server'
 
-import type {
-  About,
-  FormResponse
-} from '@/lib/definitions'
 import { embedCodeSchema } from '@/lib/embed-codes/schemas'
 import { imageSchema } from '@/lib/images/schemas'
 import { linkSchema } from '@/lib/links/schemas'
-import { AboutSchema, } from '@/lib/scemas'
 import { escapeHtml } from '@/ui/util'
 import { AuthError } from 'next-auth'
-import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 import { z } from 'zod'
 import { signIn } from '../../../auth'
@@ -58,37 +52,6 @@ export async function createEmailSubscription (email: string) {
     console.error(err)
     return {
       message: 'Database Error: Failed to Create subscription.',
-    }
-  }
-}
-
-export async function editAbout (formData: FormData, id: string): Promise<FormResponse<About>> {
-  const data: Record<FormData['entries']['name'], unknown> = {}
-  formData.entries().forEach(([n, v]) => { data[n] = v })
-  const validatedFields = AboutSchema.safeParse(data)
-
-  if (!validatedFields.success) {
-    console.error('Validation error', validatedFields.error.format())
-    throw new Error('Validation error')
-  } else {
-    const {
-      coverImageId,
-      description,
-    } = validatedFields.data
-
-    try {
-      await sql`
-        UPDATE about
-        SET updated_at = current_timestamp,
-            description = ${description || ''},
-            cover_image_id = ${coverImageId || null}
-        WHERE id = ${id}
-      `
-      revalidatePath('/about')
-      return { ok: true }
-    } catch (err) {
-      console.error('Database Error', err)
-      throw new Error('Database Error: Failed to save.')
     }
   }
 }

@@ -1,7 +1,7 @@
 'use client'
 
-import { editAbout } from '@/lib/actions'
-import type { About } from '@/lib/definitions'
+import { editAbout } from '@/lib/about/actions'
+import type { About } from '@/lib/about/types'
 import type { Image } from '@/lib/images/types'
 import { Form } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
@@ -44,6 +44,26 @@ export function EditAboutForm ({ about }: { about: About & { coverImage?: Image 
         defaultValue={about?.id}
         attributes={{
           name: 'id',
+          type: 'hidden',
+          readOnly: true
+        }}
+      />
+
+      <Input
+        label='Created At'
+        defaultValue={about?.createdAt.toISOString()}
+        attributes={{
+          name: 'createdAt',
+          type: 'hidden',
+          readOnly: true
+        }}
+      />
+
+      <Input
+        label='Slug'
+        defaultValue={about?.slug}
+        attributes={{
+          name: 'slug',
           type: 'hidden',
           readOnly: true
         }}

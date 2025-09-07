@@ -2,8 +2,6 @@ import type { EmbedCode } from '@/lib/embed-codes/types'
 import type { Image } from '@/lib/images/types'
 import type { Link } from '@/lib/links/types'
 import type {
-  AboutContactSchema,
-  AboutSchema,
   EventSchema,
   ReleaseSchema
 } from '@/lib/scemas'
@@ -53,11 +51,4 @@ export type Release = z.infer<typeof ReleaseSchema> & SavedItemAttributes
 
 export type ReleaseClient = Omit<Release, EmbeddedItemArrayKeys> & EmbeddedItemArrays & {
   slug: string
-}
-
-export type About = z.infer<typeof AboutSchema>
-export type AboutContact = z.infer<typeof AboutContactSchema>
-
-export interface AboutClient extends About {
-  coverImage?: Image
 }

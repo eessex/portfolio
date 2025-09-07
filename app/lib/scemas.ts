@@ -14,7 +14,7 @@ import { tagSchema } from './tags/schemas'
 
 export const uuid = z.string().uuid()
 export const shortText = z.string().max(255)
-export const longText = z.string().max(1000)
+export const longText = z.string().max(5000)
 export const url = shortText.url()
 export const slug = shortText.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
 export const bool = z.boolean()
@@ -65,8 +65,6 @@ export const baseDashboardItemSlugsSchema = z.object({
   releaseSlugs: z.array(slug).optional()
 })
 
-export type DashboardItemSlugs = z.infer<typeof baseDashboardItemSlugsSchema>
-
 /**
  * IDs of items that can be embedded within pages,
  * their metadata will be included when fetching a page.
@@ -84,6 +82,7 @@ export const embeddedItemIdSchemas = z.object({
 export const hydratedItemIdSchemas = z.object({
   coverImage: imageSchema.optional(),
   embedCodes: z.lazy(() => embedCodeSchema.array()).optional(),
+  featuredEmbedCode: z.lazy(() => embedCodeSchema).optional(),
   images: z.array(imageSchema).optional(),
   links: z.array(linkSchema).optional(),
   project: projectSchema.optional(),
@@ -136,19 +135,6 @@ export const SlugHistorySchema = baseContentSchema.omit({ updatedAt: true }).ext
  * These schemas are used to validate data fetched from the database.
  * They may include references to embedded items.
  */
-
-/**
- * The about page, with contact info and other details.
- */
-export const AboutContactSchema = z.object({ title: shortText, contact: shortText })
-
-export const AboutSchema = defaultSchema.extend({
-  contactInfo: z.array(AboutContactSchema).optional(),
-  coverImageId: basePageSchema.shape.coverImageId,
-  description: basePageSchema.shape.description,
-  featuredEmbedCodeId: uuid.optional(),
-  slug: basePageSchema.shape.slug
-})
 
 /**
  * An event, such as a concert, performance, opening, or screening.

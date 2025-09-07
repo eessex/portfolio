@@ -1,5 +1,4 @@
 import type {
-  AboutClient,
   Event,
   EventClient,
   Release,
@@ -7,37 +6,13 @@ import type {
 } from '@/lib/definitions'
 import { fetchEmbedCodesByIds } from '@/lib/embed-codes/data'
 import type { DashboardEmbedCode } from '@/lib/embed-codes/types'
-import { fetchImage, fetchImagesByIds } from '@/lib/images/data'
-import type { DashboardImage, Image } from '@/lib/images/types'
+import { fetchImagesByIds } from '@/lib/images/data'
+import type { DashboardImage } from '@/lib/images/types'
 import { fetchLinksByIds } from '@/lib/links/data'
 import type { DashboardLink } from '@/lib/links/types'
 import type { Venue } from '@/lib/venues/types'
 import { camelizeKeys, isUpcomingDate } from '@/ui/util'
 import { type QueryResultRow, sql } from '@vercel/postgres'
-
-export async function fetchAboutPage (): Promise<AboutClient | undefined> {
-  try {
-    const data = await sql`
-      SELECT * FROM about
-    `
-    if (data.rowCount === 0) {
-      return
-    }
-    const about = data.rows[0]
-    let coverImage: Image | undefined
-    if (about.cover_image_id) {
-      coverImage = await fetchImage(about.cover_image_id)
-    }
-    const aboutClient: AboutClient = {
-      ...camelizeKeys(about),
-      coverImage,
-    }
-    return aboutClient
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch about page data.')
-  }
-}
 
 interface ImageMetaProperties {
   image_id: string

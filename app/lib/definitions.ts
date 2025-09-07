@@ -1,11 +1,10 @@
 import type { EmbedCode } from '@/lib/embed-codes/types'
+import type { Image } from '@/lib/images/types'
 import type {
   AboutContactSchema,
   AboutSchema,
-  dashboardImageSchema,
   dashboardLinkSchema,
   EventSchema,
-  imageSchema,
   linkSchema,
   ReleaseSchema,
   SettingsSchema
@@ -44,9 +43,6 @@ interface EmbeddedItemArrays {
   images: Image[]
   links: Link[]
 }
-
-export type Image = z.infer<typeof imageSchema>
-export type DashboardImage = z.infer<typeof dashboardImageSchema>
 
 export type Link = z.infer<typeof linkSchema>
 export type DashboardLink = z.infer<typeof dashboardLinkSchema>

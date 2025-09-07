@@ -2,8 +2,9 @@
 
 import type { EmbeddedItemKey } from '@/lib/actions'
 import type { ItemArrays } from '@/lib/data'
-import type { Link as _Link, FormResponse, Image } from '@/lib/definitions'
+import type { Link as _Link, FormResponse } from '@/lib/definitions'
 import type { EmbedCode } from '@/lib/embed-codes/types'
+import type { Image } from '@/lib/images/types'
 import type { DashboardVenue, Venue } from '@/lib/venues/types'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import type { OpenNewItemFormDetail } from '@/ui/admin-sidebar/add-item-button'

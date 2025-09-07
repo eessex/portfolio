@@ -1,4 +1,4 @@
-import type { Image } from '@/lib/definitions'
+import type { Image } from '@/lib/images/types'
 import { Checkbox } from '@/ui/form/checkbox'
 import { Input, type InputType } from '@/ui/form/input'
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'

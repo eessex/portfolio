@@ -1,4 +1,4 @@
-import type { Image } from '@/lib/definitions'
+import type { Image } from '@/lib/images/types'
 import { FigureImage } from '@/ui/images/image-figure'
 import styles from '@/ui/images/images-grid.module.scss'
 

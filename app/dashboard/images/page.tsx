@@ -1,5 +1,5 @@
-import { deleteImage, editImage } from '@/lib/actions/images'
-import { fetchImages } from '@/lib/data/images'
+import { deleteImage, editImage } from '@/lib/images/actions'
+import { fetchImages } from '@/lib/images/data'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'

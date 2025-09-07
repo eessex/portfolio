@@ -1,7 +1,8 @@
 'use client'
 
 import { editAbout } from '@/lib/actions'
-import type { About, Image } from '@/lib/definitions'
+import type { About } from '@/lib/definitions'
+import type { Image } from '@/lib/images/types'
 import { Form } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 

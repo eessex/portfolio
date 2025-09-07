@@ -1,5 +1,5 @@
-import type { DashboardImage, Image } from '@/lib/definitions'
-import { dashboardImageSchema, imageSchema } from '@/lib/scemas'
+import { dashboardImageSchema, imageSchema } from '@/lib/images/schemas'
+import type { DashboardImage, Image } from '@/lib/images/types'
 import { formatDbResponseForClient } from '@/ui/util'
 import { QueryResultRow, sql } from '@vercel/postgres'
 

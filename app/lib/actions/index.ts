@@ -6,9 +6,9 @@ import type {
   SiteSettings
 } from '@/lib/definitions'
 import { embedCodeSchema } from '@/lib/embed-codes/schemas'
+import { imageSchema } from '@/lib/images/schemas'
 import {
   AboutSchema,
-  imageSchema,
   linkSchema,
   SettingsSchema
 } from '@/lib/scemas'

@@ -1,7 +1,8 @@
 'use server'
 
-import type { FormResponse, Image } from '@/lib/definitions'
-import { imageSchema } from '@/lib/scemas'
+import type { FormResponse } from '@/lib/definitions'
+import { imageSchema } from '@/lib/images/schemas'
+import type { Image } from '@/lib/images/types'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 

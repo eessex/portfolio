@@ -1,4 +1,4 @@
-import type { Image } from '@/lib/definitions'
+import type { Image } from '@/lib/images/types'
 
 export const FigureImage = ({
   image,

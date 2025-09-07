@@ -78,6 +78,16 @@ export const EditVenue = ({ venue, ref }: EditVenueProps) => {
           }}
         />
       )}
+      {venue?.createdAt && (
+        <Input
+          label='Created At'
+          defaultValue={venue.createdAt.toISOString()}
+          attributes={{
+            name: 'createdAt',
+            type: 'hidden'
+          }}
+        />
+      )}
     </>
   )
 }

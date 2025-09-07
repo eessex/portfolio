@@ -124,6 +124,16 @@ export const EditImage = ({ image, index, ref, onRemoveImage }: ImageProps) => {
           }}
         />
       )}
+      {image?.createdAt && (
+        <Input
+          label='Created At'
+          defaultValue={image.createdAt.toISOString()}
+          attributes={{
+            name: hasIndex ? `image[${index}].createdAt` : 'createdAt',
+            type: 'hidden'
+          }}
+        />
+      )}
       {image?.aspect && (
         <Input
           label='Aspect Ratio'

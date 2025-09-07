@@ -148,6 +148,16 @@ export const EditLink = ({ link, index, ref, onRemoveLink }: LinkProps) => {
           }}
         />
       )}
+      {link?.createdAt && (
+        <Input
+          label='Created At'
+          defaultValue={link.createdAt.toISOString()}
+          attributes={{
+            name: hasIndex ? `link[${index}].createdAt` : 'createdAt',
+            type: 'hidden'
+          }}
+        />
+      )}
     </>
   )
 }

@@ -36,9 +36,7 @@ async function createEmbedCode (embedCode: EmbedCode) {
 }
 
 export async function editEmbedCode (formData: FormData): Promise<FormResponse<EmbedCode>> {
-  const data: Record<FormData['entries']['name'], unknown> = {}
-  formData.entries().forEach(([n, v]) => { data[n] = v })
-  const validatedFields = embedCodeSchema.safeParse(data)
+  const validatedFields = embedCodeSchema.safeParse(Object.fromEntries(formData))
   if (!validatedFields.success) {
     console.error('Failed to validate embed code.', validatedFields.error.flatten().fieldErrors)
     return {
@@ -47,8 +45,7 @@ export async function editEmbedCode (formData: FormData): Promise<FormResponse<E
     }
   }
   try {
-    const embedCode = validatedFields.data as EmbedCode
-    const updatedEmbedCodes = await updateEmbedCode(embedCode)
+    const updatedEmbedCodes = await updateEmbedCode(validatedFields.data)
     if (updatedEmbedCodes) {
       console.debug('Embed code saved successfully:', updatedEmbedCodes)
       revalidatePath('/dashboard/embed_codes')

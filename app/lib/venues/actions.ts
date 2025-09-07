@@ -59,8 +59,8 @@ async function createVenue (venue: Venue) {
 }
 
 export async function editVenue (formData: FormData): Promise<FormResponse<Venue>> {
-  const data: Record<FormData['entries']['name'], unknown> = {}
-  formData.entries().forEach(([n, v]) => {
+  const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)
+  Object.entries(data).forEach(([n, v]) => {
     // checkboxes are always 'on' when checked, so we convert them to true
     if (v === 'on') {
       data[n] = true
@@ -83,8 +83,7 @@ export async function editVenue (formData: FormData): Promise<FormResponse<Venue
     }
   } else {
     try {
-      const venue = validatedFields.data as Venue
-      const updatedVenues = await updateVenue(venue)
+      const updatedVenues = await updateVenue(validatedFields.data)
       if (updatedVenues) {
         console.debug('Venue saved successfully:', updatedVenues)
         revalidatePath('/dashboard/venues')

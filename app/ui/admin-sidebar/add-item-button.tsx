@@ -9,7 +9,7 @@ import { usePathname } from 'next/navigation'
 export type OpenNewItemFormDetail = { itemType: DashboardItemType }
 
 export function AddItemButton () {
-  const allowedItemTypes: DashboardItemType[] = ['embedCode', 'link', 'venue']
+  const allowedItemTypes: DashboardItemType[] = ['embedCode', 'image', 'link', 'venue']
   const pathname = usePathname()
   const pathnameParts = pathname.split('/')
   const itemPart = pathnameParts[2] ? snakeToCamel(pathnameParts[2]) as DashboardItemType : undefined // after /dashboard/

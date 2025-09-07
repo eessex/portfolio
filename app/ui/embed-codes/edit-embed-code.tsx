@@ -100,6 +100,16 @@ export const EditEmbedCode = ({ embedCode, index, ref, onRemoveEmbedCode }: Embe
           }}
         />
       )}
+      {embedCode?.createdAt && (
+        <Input
+          label='Created At'
+          defaultValue={embedCode.createdAt.toISOString()}
+          attributes={{
+            name: hasIndex ? `embedCode[${index}].createdAt` : 'createdAt',
+            type: 'hidden'
+          }}
+        />
+      )}
     </>
   )
 }

@@ -62,8 +62,8 @@ async function createLink (link: Link) {
 }
 
 export async function editLink (formData: FormData): Promise<FormResponse<Link>> {
-  const data: Record<FormData['entries']['name'], unknown> = {}
-  formData.entries().forEach(([n, v]) => {
+  const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)
+  Object.entries(data).forEach(([n, v]) => {
     // checkboxes are always 'on' when checked, so we convert them to true
     if (v === 'on') {
       data[n] = true
@@ -75,7 +75,7 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
       data[n] = v
     }
   })
-  const validatedFields = linkSchema.safeParse(data)
+  const validatedFields = linkSchema.safeParse(Object.fromEntries(formData))
   if (!validatedFields.success) {
     console.error('Failed to validate link.', validatedFields.error.flatten().fieldErrors)
     throw new Error('Failed to validate link.')
@@ -85,8 +85,7 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
     // }
   } else {
     try {
-      const link = validatedFields.data as Link
-      const updatedLinks = await updateLink(link)
+      const updatedLinks = await updateLink(validatedFields.data)
       if (updatedLinks) {
         console.debug('Link saved successfully:', updatedLinks)
         revalidatePath('/dashboard/links')

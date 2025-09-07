@@ -9,8 +9,8 @@ import postgres from 'postgres'
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 export async function editImage (formData: FormData): Promise<FormResponse<Image>> {
-  const data: Record<FormData['entries']['name'], unknown> = {}
-  formData.entries().forEach(([n, v]) => {
+  const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)
+  Object.entries(data).forEach(([n, v]) => {
     // checkboxes are always 'on' when checked, so we convert them to true
     if (v === 'on') {
       data[n] = true

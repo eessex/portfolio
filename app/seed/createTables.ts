@@ -346,60 +346,6 @@ async function createEventsTable () {
 }
 
 /**
- * Creates the works table.
- * Must be created after projects and tags.
- */
-async function createWorksTable () {
-  await sql`
-    CREATE TABLE IF NOT EXISTS works (
-      id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-      project_id UUID,
-      tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
-      title VARCHAR(255) NOT NULL,
-      slug VARCHAR(255) NOT NULL,
-      description VARCHAR(5000),
-      cover_image_id UUID,
-      is_published BOOLEAN,
-      image_ids UUID[],
-      embed_code_ids UUID[],
-      link_ids UUID[],
-      created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CONSTRAINT fk_work_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
-      CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')
-    );
-  `
-}
-
-/**
- * Creates the exhibitions table.
- * Must be created after projects and tags.
- */
-async function createExhibitionsTable () {
-  await sql`
-    CREATE TABLE IF NOT EXISTS exhibitions (
-      id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-      project_id UUID,
-      tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
-      venue_id UUID NOT NULL,
-      title VARCHAR(255) NOT NULL,
-      slug VARCHAR(255) NOT NULL,
-      description VARCHAR(5000),
-      is_published BOOLEAN,
-      start_date DATE NOT NULL,
-      end_date DATE,
-      cover_image_id UUID,
-      image_ids UUID[],
-      embed_code_ids UUID[],
-      link_ids UUID[],
-      created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')
-    );
-  `
-}
-
-/**
  * Sets up slug history for tables with slugs.
  * Must be created before any slug update triggers are installed.
  */
@@ -438,8 +384,6 @@ async function setupSlugTriggers () {
     'projects',
     'releases',
     'events',
-    'works',
-    'exhibitions',
     'about'
   ]
 
@@ -472,8 +416,6 @@ export async function createTables () {
   await createReleasesTable()
   await createPublishedEditionTable()
   await createEventsTable()
-  await createWorksTable()
-  await createExhibitionsTable()
   await setupSlugTriggers()
   console.log('All tables created successfully.')
 }

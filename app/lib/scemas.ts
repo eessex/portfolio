@@ -56,11 +56,11 @@ export const baseDashboardItemSchema = z.object({
  * IDs of items that can be embedded within pages,
  * their metadata will be included when fetching a page.
  */
-export const embeddedItemIdSchemas = {
+export const embeddedItemIdSchemas = z.object({
   embedCodeIds: z.array(uuid).optional(),
   imageIds: z.array(uuid).optional(),
   linkIds: z.array(uuid).optional(),
-}
+})
 
 /**
  * END Basic reusable schemas
@@ -150,35 +150,25 @@ export const AboutSchema = defaultSchema.extend({
 })
 
 /**
- * Represents a grouping of content that may be associated with multiple events, releases, exhibitions, or works.
+ * Represents a grouping of content that may be associated with multiple events or releases.
  * Can represent a band, collaborative, or other entities like an ongoing radio show or event series.
  * It may be used to suggest content on pages, similar to a tag, but with a broader scope.
  *
  * Site settings is essentially the "default" project, a project should represent a subset of work the overall site.
  */
 export const ProjectSchema = basePageSchema.omit({ projectId: true }).extend({
-  ...embeddedItemIdSchemas
+  ...embeddedItemIdSchemas.shape
 })
 
 /**
  * An event, such as a concert, performance, opening, or screening.
  */
 export const EventSchema = basePageSchema.extend({
-  ...embeddedItemIdSchemas,
+  ...embeddedItemIdSchemas.shape,
   endDate: date.optional(),
   startDate: date,
   ticketLink: url.optional(),
   venueId: uuid,
-})
-
-/**
- * An exhibition, such as an art show.
- */
-export const ExhibitionSchema = basePageSchema.extend({
-  ...embeddedItemIdSchemas,
-  startDate: date,
-  endDate: date.optional(),
-  venueId: EventSchema.shape.venueId
 })
 
 export const releaseTypes = ['album', 'ep', 'soundtrack', 'feature', 'compilation', 'collaborative_release', 'single'] as const
@@ -186,17 +176,10 @@ export const releaseTypes = ['album', 'ep', 'soundtrack', 'feature', 'compilatio
  * A music release, such as an album, EP, single, or soundtrack.
  */
 export const ReleaseSchema = basePageSchema.extend({
-  ...embeddedItemIdSchemas,
+  ...embeddedItemIdSchemas.shape,
   artist: shortText,
   type: z.enum(releaseTypes),
   releaseDate: date,
-})
-
-/**
- * A work, such as a piece of writing, visual art, design, musical composition, or other creative output.
- */
-export const WorkSchema = basePageSchema.extend({
-  ...embeddedItemIdSchemas
 })
 
 /**
@@ -216,7 +199,7 @@ export const PublishedEditionSchema = baseContentSchema.extend({
   format: z.enum(publishedEditionTypes),
   publishDate: date,
   coverImageId: basePageSchema.shape.coverImageId,
-  imageIds: embeddedItemIdSchemas.imageIds,
+  imageIds: embeddedItemIdSchemas.shape.imageIds,
   editionSize: z.number().int().optional(),
   buyLinkId: uuid.optional()
 })

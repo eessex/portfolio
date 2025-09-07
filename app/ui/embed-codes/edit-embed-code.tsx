@@ -1,4 +1,4 @@
-import type { EmbedCode } from '@/lib/definitions'
+import type { EmbedCode } from '@/lib/embed-codes/types'
 import { Input, type InputType } from '@/ui/form/input'
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useCallback, useRef, useState } from 'react'

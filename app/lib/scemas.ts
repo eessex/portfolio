@@ -6,19 +6,19 @@ import { z } from 'zod'
  * They may be used in multiple places.
  */
 
-const uuid = z.string().uuid()
-const date = z.date()
-const shortText = z.string().max(255)
-const longText = z.string().max(1000)
-const url = shortText.url()
-const slug = shortText.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
-const bool = z.boolean()
-const email = z.string().email()
+export const uuid = z.string().uuid()
+export const date = z.date()
+export const shortText = z.string().max(255)
+export const longText = z.string().max(1000)
+export const url = shortText.url()
+export const slug = shortText.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+export const bool = z.boolean()
+export const email = z.string().email()
 
 /**
  * Fields on every table: id, createdAt, updatedAt
  */
-const defaultSchema = z.object({
+export const defaultSchema = z.object({
   id: uuid,
   createdAt: date,
   updatedAt: date.optional()
@@ -27,7 +27,7 @@ const defaultSchema = z.object({
 /**
  * Fields on all content tables: tagIds, title, projectId
  */
-const baseContentSchema = defaultSchema.extend({
+export const baseContentSchema = defaultSchema.extend({
   tagIds: z.array(uuid).default([]),
   title: shortText.optional(),
   projectId: uuid.optional()
@@ -36,7 +36,7 @@ const baseContentSchema = defaultSchema.extend({
 /**
  * Fields on all "page" tables: coverImageId, description, isPublished, slug
  */
-const basePageSchema = baseContentSchema.extend({
+export const basePageSchema = baseContentSchema.extend({
   coverImageId: uuid.optional(),
   description: longText.optional(),
   isPublished: bool.optional(),
@@ -47,15 +47,16 @@ const basePageSchema = baseContentSchema.extend({
  * Fields on items visible in dashboard: eventSlugs, releaseSlugs
  * Represents the slugs of pages that embed the item.
  */
-const baseDashboardItemSchema = z.object({
+export const baseDashboardItemSchema = z.object({
   eventSlugs: z.array(slug).optional(),
   releaseSlugs: z.array(slug).optional()
 })
 
 /**
- * IDs of items that can be embedded within pages
+ * IDs of items that can be embedded within pages,
+ * their metadata will be included when fetching a page.
  */
-const embeddedItemIdSchemas = {
+export const embeddedItemIdSchemas = {
   embedCodeIds: z.array(uuid).optional(),
   imageIds: z.array(uuid).optional(),
   linkIds: z.array(uuid).optional(),
@@ -123,17 +124,6 @@ export const SettingsSchema = defaultSchema.extend({
 export const TagSchema = defaultSchema.extend({
   isPublished: bool.optional(),
 })
-
-export const embedCodeTypes = ['audio', 'video'] as const
-/**
- * An iframe embed code, such as a Bandcamp or YouTube embed, with metadata.
- */
-export const embedCodeSchema = baseContentSchema.extend({
-  caption: shortText.optional(),
-  iframe: longText.min(12),
-  type: z.enum(embedCodeTypes).optional(),
-})
-export const dashboardEmbedCodeSchema = embedCodeSchema.extend(baseDashboardItemSchema.shape)
 
 /**
  * An image with metadata.

@@ -1,9 +1,7 @@
-import { fetchEmbedCodesByIds } from '@/lib/data/embed-codes'
 import { fetchImage, fetchImagesByIds } from '@/lib/data/images'
 import { fetchLinksByIds } from '@/lib/data/links'
 import type {
   AboutClient,
-  DashboardEmbedCode,
   DashboardImage,
   DashboardLink,
   Event,
@@ -14,6 +12,8 @@ import type {
   SiteSettingsClient,
   Venue
 } from '@/lib/definitions'
+import { fetchEmbedCodesByIds } from '@/lib/embed-codes/data'
+import type { DashboardEmbedCode } from '@/lib/embed-codes/types'
 import { camelizeKeys, isUpcomingDate } from '@/ui/util'
 import { type QueryResultRow, sql } from '@vercel/postgres'
 

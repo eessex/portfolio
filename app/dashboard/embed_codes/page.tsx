@@ -1,5 +1,5 @@
-import { deleteEmbedCode, editEmbedCode } from '@/lib/actions/embed-codes'
-import { fetchEmbedCodes } from '@/lib/data/embed-codes'
+import { deleteEmbedCode, editEmbedCode } from '@/lib/embed-codes/actions'
+import { fetchEmbedCodes } from '@/lib/embed-codes/data'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'

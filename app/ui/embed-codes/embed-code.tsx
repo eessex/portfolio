@@ -1,6 +1,6 @@
 'use client'
 
-import type { EmbedCode } from '@/lib/definitions'
+import type { EmbedCode } from '@/lib/embed-codes/types'
 import { useCallback } from 'react'
 
 export function EmbedCodeItem ({

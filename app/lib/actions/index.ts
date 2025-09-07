@@ -5,9 +5,9 @@ import type {
   FormResponse,
   SiteSettings
 } from '@/lib/definitions'
+import { embedCodeSchema } from '@/lib/embed-codes/schemas'
 import {
   AboutSchema,
-  embedCodeSchema,
   imageSchema,
   linkSchema,
   SettingsSchema

@@ -1,11 +1,10 @@
+import type { EmbedCode } from '@/lib/embed-codes/types'
 import type {
   AboutContactSchema,
   AboutSchema,
-  dashboardEmbedCodeSchema,
   dashboardImageSchema,
   dashboardLinkSchema,
   dashboardVenueSchema,
-  embedCodeSchema,
   EventSchema,
   imageSchema,
   linkSchema,
@@ -49,9 +48,6 @@ interface EmbeddedItemArrays {
 
 export type Venue = z.infer<typeof venueSchema>
 export type DashboardVenue = z.infer<typeof dashboardVenueSchema>
-
-export type EmbedCode = z.infer<typeof embedCodeSchema>
-export type DashboardEmbedCode = z.infer<typeof dashboardEmbedCodeSchema>
 
 export type Image = z.infer<typeof imageSchema>
 export type DashboardImage = z.infer<typeof dashboardImageSchema>

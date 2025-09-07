@@ -1,8 +1,9 @@
 'use server'
 
 import { validatedItemArray } from '@/lib/actions'
-import type { EmbedCode, FormResponse } from '@/lib/definitions'
-import { embedCodeSchema } from '@/lib/scemas'
+import type { FormResponse } from '@/lib/definitions'
+import { embedCodeSchema } from '@/lib/embed-codes/schemas'
+import type { EmbedCode } from '@/lib/embed-codes/types'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 

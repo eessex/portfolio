@@ -1,4 +1,4 @@
-import type { EmbedCode } from '@/lib/definitions'
+import type { EmbedCode } from '@/lib/embed-codes/types'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import styles from '@/ui/embed-codes/embed-codes.module.scss'
 

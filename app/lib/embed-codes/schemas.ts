@@ -1,6 +1,6 @@
 import {
   baseContentSchema,
-  baseDashboardItemSchema,
+  baseDashboardItemSlugsSchema,
   longText,
   shortText
 } from '@/lib/scemas'
@@ -35,13 +35,17 @@ export const embedCodeContentTypes = [
 /**
  * An iframe embed code, such as a Bandcamp or YouTube embed, with metadata.
  */
-export const embedCodeSchema = baseContentSchema.extend({
-  caption: shortText.optional(),
-  iframe: longText.min(12),
-  type: z.enum(embedCodeTypes).optional(),
-})
+export const embedCodeSchema = z.lazy(() =>
+  baseContentSchema.extend({
+    caption: shortText.optional(),
+    iframe: longText.min(12),
+    type: z.enum(embedCodeTypes).optional(),
+  })
+)
 
 /**
  * Extends `embedCodeSchema` with the pages that embed it.
  */
-export const dashboardEmbedCodeSchema = embedCodeSchema.extend(baseDashboardItemSchema.shape)
+export const dashboardEmbedCodeSchema = z.lazy(() =>
+  baseDashboardItemSlugsSchema.and(embedCodeSchema)
+)

@@ -1,4 +1,10 @@
+import { embedCodeSchema } from '@/lib/embed-codes/schemas'
+import { imageSchema } from '@/lib/images/schemas'
+import { linkSchema } from '@/lib/links/schemas'
+import { projectSchema } from '@/lib/projects/schemas'
+import { publishedEditionSchema } from '@/lib/published-edition/schemas'
 import { z } from 'zod'
+import { tagSchema } from './tags/schemas'
 
 /**
  * START Basic reusable schemas
@@ -27,30 +33,32 @@ export const defaultSchema = z.object({
 /**
  * Fields on all content tables: tagIds, title, projectId
  */
-export const baseContentSchema = defaultSchema.extend({
+export const baseContentSchema = z.object({
   tagIds: z.array(uuid).default([]),
   title: shortText.optional(),
   projectId: uuid.optional()
-})
+}).extend(defaultSchema.shape)
 
 /**
  * Fields on all "page" tables: coverImageId, description, isPublished, slug
  */
-export const basePageSchema = baseContentSchema.extend({
+export const basePageSchema = z.object({
   coverImageId: uuid.optional(),
   description: longText.optional(),
   isPublished: bool.optional(),
   slug
-})
+}).extend(baseContentSchema.shape)
 
 /**
  * Fields on items visible in dashboard: eventSlugs, releaseSlugs
  * Represents the slugs of pages that embed the item.
  */
-export const baseDashboardItemSchema = z.object({
+export const baseDashboardItemSlugsSchema = z.object({
   eventSlugs: z.array(slug).optional(),
   releaseSlugs: z.array(slug).optional()
 })
+
+export type DashboardItemSlugs = z.infer<typeof baseDashboardItemSlugsSchema>
 
 /**
  * IDs of items that can be embedded within pages,
@@ -60,6 +68,20 @@ export const embeddedItemIdSchemas = z.object({
   embedCodeIds: z.array(uuid).optional(),
   imageIds: z.array(uuid).optional(),
   linkIds: z.array(uuid).optional(),
+})
+
+/**
+ * IDs of items that can be embedded within pages,
+ * their metadata will be included when fetching a page.
+ */
+export const hydratedItemIdSchemas = z.object({
+  coverImage: imageSchema.optional(),
+  embedCodes: z.lazy(() => embedCodeSchema.array()).optional(),
+  images: z.array(imageSchema).optional(),
+  links: z.array(linkSchema).optional(),
+  project: projectSchema.optional(),
+  publishedEditions: z.array(publishedEditionSchema).optional(),
+  tags: z.array(tagSchema).optional()
 })
 
 /**
@@ -97,16 +119,6 @@ export const SlugHistorySchema = baseContentSchema.omit({ updatedAt: true }).ext
   oldSlug: slug
 })
 
-/**
- * Site settings represent global settings for the site.
- * There should only be one row in the table.
- * These settings are used to populate SEO meta tags and other site-wide settings.
- */
-export const SettingsSchema = defaultSchema.extend({
-  coverImageId: basePageSchema.shape.coverImageId,
-  description: basePageSchema.shape.description,
-  title: basePageSchema.shape.title,
-})
 /**
  * END Utility types and interfaces
  */
@@ -156,21 +168,3 @@ export const ReleaseSchema = basePageSchema.extend({
 /**
  * END Page schemas
  */
-
-export const publishedEditionTypes = ['LP', '2xLP', 'Cassette', '2xCassette', 'Digital', 'iOSApp', 'CD'] as const
-/**
- * Represents a published edition of a release, such as a vinyl pressing, cassette or digital edition.
- * This is separate from the Release itself, which represents the overall work.
- * A release may have multiple editions, each with its own format, publish date, and publisher.
- * This allows for tracking different versions of a release, such as a first pressing and a reissue.
- */
-export const PublishedEditionSchema = baseContentSchema.extend({
-  releaseId: ReleaseSchema.shape.id,
-  publisher: shortText,
-  format: z.enum(publishedEditionTypes),
-  publishDate: date,
-  coverImageId: basePageSchema.shape.coverImageId,
-  imageIds: embeddedItemIdSchemas.shape.imageIds,
-  editionSize: z.number().int().optional(),
-  buyLinkId: uuid.optional()
-})

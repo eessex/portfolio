@@ -1,9 +1,12 @@
 import { bool, defaultSchema } from '@/lib/scemas'
+import { z } from 'zod'
 
 /**
  * Tag represents a category or label that can be associated with content.
  * Tags can be used to filter and organize content.
  */
-export const tagSchema = defaultSchema.extend({
-  isPublished: bool.optional()
-})
+export const tagSchema = z.lazy(() =>
+  defaultSchema.extend({
+    isPublished: bool.optional()
+  })
+)

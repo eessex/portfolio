@@ -5,9 +5,9 @@ import type {
   AboutContactSchema,
   AboutSchema,
   EventSchema,
-  ReleaseSchema,
-  SettingsSchema
+  ReleaseSchema
 } from '@/lib/scemas'
+import { siteSettingsSchema } from '@/lib/site-settings/schemas'
 import type { Venue } from '@/lib/venues/types'
 import { type z } from 'zod'
 
@@ -56,9 +56,9 @@ export type ReleaseClient = Omit<Release, EmbeddedItemArrayKeys> & EmbeddedItemA
   slug: string
 }
 
-export type SiteSettings = z.infer<typeof SettingsSchema>
+export type SiteSettings = z.infer<typeof siteSettingsSchema>
 
-export type SiteSettingsClient = z.infer<typeof SettingsSchema> & {
+export type SiteSettingsClient = z.infer<typeof siteSettingsSchema> & {
   coverImage?: Image
 }
 

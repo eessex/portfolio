@@ -8,10 +8,8 @@ import type {
 import { embedCodeSchema } from '@/lib/embed-codes/schemas'
 import { imageSchema } from '@/lib/images/schemas'
 import { linkSchema } from '@/lib/links/schemas'
-import {
-  AboutSchema,
-  SettingsSchema
-} from '@/lib/scemas'
+import { siteSettingsSchema } from '@/lib/site-settings/schemas'
+import { AboutSchema, } from '@/lib/scemas'
 import { escapeHtml } from '@/ui/util'
 import { AuthError } from 'next-auth'
 import { revalidatePath } from 'next/cache'
@@ -70,7 +68,7 @@ export async function editSiteSettings (formData: FormData, id: string): Promise
   const data: Record<FormData['entries']['name'], unknown> = {}
   formData.entries().forEach(([n, v]) => { data[n] = v })
 
-  const validatedFields = SettingsSchema.safeParse(data)
+  const validatedFields = siteSettingsSchema.safeParse(data)
   if (!validatedFields.success) {
     console.error('Validation error', validatedFields.error.format())
     return {

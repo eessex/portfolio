@@ -1,6 +1,6 @@
 import {
   baseContentSchema,
-  baseDashboardItemSchema,
+  baseDashboardItemSlugsSchema,
   bool,
   date,
   shortText,
@@ -18,16 +18,19 @@ export const linkTypes = [
 /**
  * A link to an external resource with metadata.
  */
-export const linkSchema = baseContentSchema.extend({
-  attribution: shortText.optional(),
-  isHiddenOnAboutPage: bool.optional(),
-  publishDate: date.optional(),
-  quotation: shortText.optional(),
-  type: z.enum(linkTypes).optional(),
-  url
-})
-
+export const linkSchema = z.lazy(() =>
+  baseContentSchema.extend({
+    attribution: shortText.optional(),
+    isHiddenOnAboutPage: bool.optional(),
+    publishDate: date.optional(),
+    quotation: shortText.optional(),
+    type: z.enum(linkTypes).optional(),
+    url
+  })
+)
 /**
  * Extends `linkSchema` with the pages that embed it.
  */
-export const dashboardLinkSchema = linkSchema.extend(baseDashboardItemSchema.shape)
+export const dashboardLinkSchema = z.lazy(() =>
+  baseDashboardItemSlugsSchema.and(linkSchema)
+)

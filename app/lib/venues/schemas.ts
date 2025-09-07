@@ -1,5 +1,5 @@
 import {
-  baseDashboardItemSchema,
+  baseDashboardItemSlugsSchema,
   defaultSchema,
   shortText,
   url,
@@ -24,5 +24,5 @@ export const venueSchema = defaultSchema.extend({
  * Extends `venueSchema` with the pages that embed it.
  */
 export const dashboardVenueSchema = venueSchema.extend({
-  eventSlugs: baseDashboardItemSchema.shape.eventSlugs
+  eventSlugs: baseDashboardItemSlugsSchema.shape.eventSlugs
 })

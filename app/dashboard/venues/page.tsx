@@ -1,9 +1,9 @@
-import { deleteVenue, editVenue } from '@/lib/actions/venues'
-import { fetchVenues } from '@/lib/data/venues'
+import { deleteVenue, editVenue } from '@/lib/venues/actions'
+import { fetchVenues } from '@/lib/venues/data'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
 const title = 'Dashboard: Venues'

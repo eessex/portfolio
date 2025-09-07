@@ -1,5 +1,5 @@
-import { type DashboardVenue } from '@/lib/definitions'
-import { dashboardVenueSchema } from '@/lib/scemas'
+import { dashboardVenueSchema } from '@/lib/venues/schemas'
+import type { DashboardVenue } from '@/lib/venues/types'
 import { formatDbResponseForClient } from '@/ui/util'
 import { sql } from '@vercel/postgres'
 

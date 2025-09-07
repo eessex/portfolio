@@ -1,7 +1,8 @@
 'use server'
 
-import { FormResponse, Venue } from '@/lib/definitions'
-import { venueSchema } from '@/lib/scemas'
+import type { FormResponse } from '@/lib/definitions'
+import { venueSchema } from '@/lib/venues/schemas'
+import type { Venue } from '@/lib/venues/types'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 

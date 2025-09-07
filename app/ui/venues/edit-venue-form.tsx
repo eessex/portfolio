@@ -1,5 +1,5 @@
+import type { Venue } from '@/lib/venues/types'
 import { Input, type InputType } from '@/ui/form/input'
-import type { Venue } from '@/lib/definitions'
 
 interface EditVenueProps {
   venue?: Venue,

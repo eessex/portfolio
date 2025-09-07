@@ -160,23 +160,6 @@ export const linkSchema = baseContentSchema.extend({
   url
 })
 export const dashboardLinkSchema = linkSchema.extend(baseDashboardItemSchema.shape)
-
-/**
- * A venue where an event or exhibition takes place.
- */
-export const venueSchema = defaultSchema.extend({
-  address: shortText.optional(),
-  city: shortText,
-  name: shortText.optional(),
-  state: shortText.optional(),
-  country: shortText.optional(),
-  url: url.optional(),
-  timezone: z.string().max(100).optional(),
-  primaryVenueId: uuid.optional()
-})
-export const dashboardVenueSchema = venueSchema.extend({
-  eventSlugs: baseDashboardItemSchema.shape.eventSlugs
-})
 /**
  * END Embedded item schemas
  */

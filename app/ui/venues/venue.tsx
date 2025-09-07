@@ -1,4 +1,4 @@
-import type { Venue } from '@/lib/definitions'
+import type { Venue } from '@/lib/venues/types'
 
 type VenueFormat = 'sm' | 'lg'
 

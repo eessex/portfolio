@@ -4,14 +4,13 @@ import type {
   AboutSchema,
   dashboardImageSchema,
   dashboardLinkSchema,
-  dashboardVenueSchema,
   EventSchema,
   imageSchema,
   linkSchema,
   ReleaseSchema,
-  SettingsSchema,
-  venueSchema
+  SettingsSchema
 } from '@/lib/scemas'
+import type { Venue } from '@/lib/venues/types'
 import { type z } from 'zod'
 
 export type PageType = 'event' | 'release'
@@ -45,9 +44,6 @@ interface EmbeddedItemArrays {
   images: Image[]
   links: Link[]
 }
-
-export type Venue = z.infer<typeof venueSchema>
-export type DashboardVenue = z.infer<typeof dashboardVenueSchema>
 
 export type Image = z.infer<typeof imageSchema>
 export type DashboardImage = z.infer<typeof dashboardImageSchema>

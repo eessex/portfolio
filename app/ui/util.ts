@@ -59,7 +59,7 @@ export function escapeHtml (s: string) {
     .replace(/>/g, '&gt;')
 }
 
-export function isUpcomingDate (date: string) {
+export function isUpcomingDate (date: string | Date) {
   return new Date(date) > new Date()
 }
 

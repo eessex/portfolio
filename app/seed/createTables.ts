@@ -297,7 +297,7 @@ async function createPublishedEditionTable () {
       cover_image_id UUID,
       image_ids UUID[],
       edition_size INT,
-      buy_link UUID,
+      buy_link_id UUID,
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       CONSTRAINT fk_published_release FOREIGN KEY (release_id) REFERENCES releases(id) ON DELETE CASCADE,

@@ -13,13 +13,20 @@ import { tagSchema } from './tags/schemas'
  */
 
 export const uuid = z.string().uuid()
-export const date = z.date()
 export const shortText = z.string().max(255)
 export const longText = z.string().max(1000)
 export const url = shortText.url()
 export const slug = shortText.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
 export const bool = z.boolean()
 export const email = z.string().email()
+// handle nested dates in jsonb objects or a real date
+export const date = z.preprocess((val) => {
+  if (typeof val === 'string' || val instanceof Date) {
+    const parsed = new Date(val)
+    return isNaN(parsed.getTime()) ? undefined : parsed
+  }
+  return val
+}, z.date())
 
 /**
  * Fields on every table: id, createdAt, updatedAt

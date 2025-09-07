@@ -1,4 +1,4 @@
-import { fetchSiteSettings } from '@/lib/data'
+import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { EditSettings } from '@/ui/form/edit-settings'

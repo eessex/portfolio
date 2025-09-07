@@ -1,7 +1,7 @@
 'use client'
 
-import { editSiteSettings } from '@/lib/actions'
-import type { SiteSettingsClient } from '@/lib/definitions'
+import { editSiteSettings } from '@/lib/site-settings/actions'
+import type { SiteSettingsClient } from '@/lib/site-settings/types'
 import { Form } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 import { XMarkIcon } from '@heroicons/react/24/outline'
@@ -66,6 +66,16 @@ export function EditSettings ({ settings }: { settings: SiteSettingsClient }) {
         value={settings.id}
         attributes={{
           name: 'id',
+          type: 'hidden',
+          readOnly: true
+        }}
+      />
+
+      <Input
+        label='Created At'
+        value={settings.createdAt.toISOString()}
+        attributes={{
+          name: 'createdAt',
           type: 'hidden',
           readOnly: true
         }}

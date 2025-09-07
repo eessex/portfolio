@@ -2,13 +2,11 @@
 
 import type {
   About,
-  FormResponse,
-  SiteSettings
+  FormResponse
 } from '@/lib/definitions'
 import { embedCodeSchema } from '@/lib/embed-codes/schemas'
 import { imageSchema } from '@/lib/images/schemas'
 import { linkSchema } from '@/lib/links/schemas'
-import { siteSettingsSchema } from '@/lib/site-settings/schemas'
 import { AboutSchema, } from '@/lib/scemas'
 import { escapeHtml } from '@/ui/util'
 import { AuthError } from 'next-auth'
@@ -60,42 +58,6 @@ export async function createEmailSubscription (email: string) {
     console.error(err)
     return {
       message: 'Database Error: Failed to Create subscription.',
-    }
-  }
-}
-
-export async function editSiteSettings (formData: FormData, id: string): Promise<FormResponse<SiteSettings>> {
-  const data: Record<FormData['entries']['name'], unknown> = {}
-  formData.entries().forEach(([n, v]) => { data[n] = v })
-
-  const validatedFields = siteSettingsSchema.safeParse(data)
-  if (!validatedFields.success) {
-    console.error('Validation error', validatedFields.error.format())
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to save.',
-    }
-  } else {
-    const {
-      coverImageId,
-      description,
-      title,
-    } = validatedFields.data
-
-    try {
-      await sql`
-        UPDATE site_settings
-        SET title = ${title || ''},
-            description = ${description || ''},
-            cover_image_id = ${coverImageId || null},
-            updated_at = current_timestamp
-        WHERE id = ${id}
-      `
-      revalidatePath('/dashboard')
-      return { ok: true }
-    } catch (err) {
-      console.error('Database Error', err)
-      throw new Error('Database Error: Failed to save.')
     }
   }
 }

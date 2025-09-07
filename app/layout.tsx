@@ -1,5 +1,5 @@
 import '@/globals.scss'
-import { fetchSiteSettings } from '@/lib/data'
+import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
 import { geistMono, geistSans } from '@/ui/fonts'
 import { Footer } from '@/ui/footer/footer'

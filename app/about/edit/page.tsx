@@ -1,8 +1,6 @@
 import styles from '@/about/about.module.scss'
-import {
-  fetchAboutPage,
-  fetchSiteSettings
-} from '@/lib/data'
+import { fetchAboutPage } from '@/lib/data'
+import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { EditAboutForm } from '@/ui/form/edit-about'
 
 const title = 'Edit: About'

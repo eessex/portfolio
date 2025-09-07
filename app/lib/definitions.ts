@@ -7,9 +7,8 @@ import type {
   EventSchema,
   ReleaseSchema
 } from '@/lib/scemas'
-import { siteSettingsSchema } from '@/lib/site-settings/schemas'
 import type { Venue } from '@/lib/venues/types'
-import { type z } from 'zod'
+import type { z } from 'zod'
 
 export type PageType = 'event' | 'release'
 
@@ -54,12 +53,6 @@ export type Release = z.infer<typeof ReleaseSchema> & SavedItemAttributes
 
 export type ReleaseClient = Omit<Release, EmbeddedItemArrayKeys> & EmbeddedItemArrays & {
   slug: string
-}
-
-export type SiteSettings = z.infer<typeof siteSettingsSchema>
-
-export type SiteSettingsClient = z.infer<typeof siteSettingsSchema> & {
-  coverImage?: Image
 }
 
 export type About = z.infer<typeof AboutSchema>

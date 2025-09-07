@@ -1,5 +1,6 @@
 import styles from '@/home.module.scss'
-import { fetchEvents, fetchSiteSettings } from '@/lib/data'
+import { fetchEvents } from '@/lib/data'
+import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { EventsGrid } from '@/ui/events-grid/events-grid'
 import { Loading } from '@/ui/loading'
 import Link from 'next/link'

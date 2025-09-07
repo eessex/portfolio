@@ -4,7 +4,6 @@ import type {
   EventClient,
   Release,
   ReleaseClient,
-  SiteSettingsClient,
 } from '@/lib/definitions'
 import { fetchEmbedCodesByIds } from '@/lib/embed-codes/data'
 import type { DashboardEmbedCode } from '@/lib/embed-codes/types'
@@ -15,31 +14,6 @@ import type { DashboardLink } from '@/lib/links/types'
 import type { Venue } from '@/lib/venues/types'
 import { camelizeKeys, isUpcomingDate } from '@/ui/util'
 import { type QueryResultRow, sql } from '@vercel/postgres'
-
-/** main page meta & image etc */
-export async function fetchSiteSettings (): Promise<SiteSettingsClient | undefined> {
-  try {
-    const data = await sql`
-      SELECT * FROM site_settings
-    `
-    if (data.rowCount === 0) {
-      return
-    }
-    const settings = data.rows[0]
-    let coverImage: Image | undefined
-    if (settings.cover_image_id) {
-      coverImage = await fetchImage(settings.cover_image_id)
-    }
-    const settingsClient: SiteSettingsClient = {
-      ...camelizeKeys(settings),
-      coverImage,
-    }
-    return settingsClient
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch site settings.')
-  }
-}
 
 export async function fetchAboutPage (): Promise<AboutClient | undefined> {
   try {
@@ -65,7 +39,7 @@ export async function fetchAboutPage (): Promise<AboutClient | undefined> {
   }
 }
 
-export interface ImageMetaProperties {
+interface ImageMetaProperties {
   image_id: string
   image_url: string
   image_caption?: string

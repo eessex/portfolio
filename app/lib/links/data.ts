@@ -1,7 +1,7 @@
-import type { DashboardLink, Link } from '@/lib/definitions'
+import { dashboardLinkSchema, linkSchema } from '@/lib/links/schemas'
+import type { DashboardLink, Link } from '@/lib/links/types'
 import { formatDbResponseForClient } from '@/ui/util'
 import { type QueryResultRow, sql } from '@vercel/postgres'
-import { dashboardLinkSchema, linkSchema } from '@/lib/scemas'
 
 export const fetchLinksByIds = async (ids: QueryResultRow[string]) => {
   try {

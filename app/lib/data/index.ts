@@ -1,7 +1,5 @@
-import { fetchLinksByIds } from '@/lib/data/links'
 import type {
   AboutClient,
-  DashboardLink,
   Event,
   EventClient,
   Release,
@@ -12,6 +10,8 @@ import { fetchEmbedCodesByIds } from '@/lib/embed-codes/data'
 import type { DashboardEmbedCode } from '@/lib/embed-codes/types'
 import { fetchImage, fetchImagesByIds } from '@/lib/images/data'
 import type { DashboardImage, Image } from '@/lib/images/types'
+import { fetchLinksByIds } from '@/lib/links/data'
+import type { DashboardLink } from '@/lib/links/types'
 import type { Venue } from '@/lib/venues/types'
 import { camelizeKeys, isUpcomingDate } from '@/ui/util'
 import { type QueryResultRow, sql } from '@vercel/postgres'

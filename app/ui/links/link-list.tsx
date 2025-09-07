@@ -1,4 +1,4 @@
-import type { Link } from '@/lib/definitions'
+import type { Link } from '@/lib/links/types'
 import { LinkItem } from '@/ui/links//link-item'
 import styles from '@/ui/links/links.module.scss'
 import { clsx } from 'clsx'

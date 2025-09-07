@@ -7,9 +7,9 @@ import type {
 } from '@/lib/definitions'
 import { embedCodeSchema } from '@/lib/embed-codes/schemas'
 import { imageSchema } from '@/lib/images/schemas'
+import { linkSchema } from '@/lib/links/schemas'
 import {
   AboutSchema,
-  linkSchema,
   SettingsSchema
 } from '@/lib/scemas'
 import { escapeHtml } from '@/ui/util'

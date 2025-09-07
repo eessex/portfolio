@@ -1,9 +1,9 @@
-import { deleteLink, editLink } from '@/lib/actions/links'
-import { fetchLinks } from '@/lib/data/links'
+import { deleteLink, editLink } from '@/lib/links/actions'
+import { fetchLinks } from '@/lib/links/data'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
 const title = 'Dashboard: Links'

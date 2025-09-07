@@ -1,4 +1,4 @@
-import { fetchSocialLinks } from '@/lib/data/links'
+import { fetchSocialLinks } from '@/lib/links/data'
 import { EmailSubscribe } from '@/ui/email-subscribe/email-subscribe'
 import styles from '@/ui/footer/footer.module.scss'
 

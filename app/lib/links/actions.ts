@@ -1,8 +1,9 @@
 'use server'
 
 import { validatedItemArray } from '@/lib/actions'
-import type { FormResponse, Link } from '@/lib/definitions'
-import { linkSchema } from '@/lib/scemas'
+import type { FormResponse } from '@/lib/definitions'
+import { linkSchema } from '@/lib/links/schemas'
+import type { Link } from '@/lib/links/types'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 

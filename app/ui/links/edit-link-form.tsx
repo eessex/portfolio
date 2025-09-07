@@ -1,4 +1,4 @@
-import type { Link as _Link } from '@/lib/definitions'
+import type { Link as _Link } from '@/lib/links/types'
 // import { Checkbox } from '@/ui/form/checkbox'
 // import styles from '@/ui/form/form.module.scss'
 import { Input, type InputType } from '@/ui/form/input'

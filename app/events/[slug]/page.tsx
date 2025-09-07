@@ -1,6 +1,6 @@
 import styles from '@/events/[slug]/event.module.scss'
 import { fetchEventBySlug, fetchEvents } from '@/lib/data'
-import type { Link as _Link } from '@/lib/definitions'
+import type { Link as _Link } from '@/lib/links/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import { EventsGrid } from '@/ui/events-grid/events-grid'
 import { FigureImage } from '@/ui/images/image-figure'

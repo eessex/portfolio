@@ -19,15 +19,17 @@ export const embedCodeTypes = [
  * TODO: DB migration to add this column.
  */
 export const embedCodeContentTypes = [
-  'album_stream',
   'dj_set',
+  'documentation',
   'interview',
+  'film',
   'live_performance',
+  'official_audio',
   'official_music_video',
   'other',
   'podcast',
   'radio_show',
-  'track_stream'
+  'trailer'
 ] as const
 
 /**

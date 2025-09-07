@@ -1,5 +1,5 @@
-import type { Link as _Link } from '@/lib/definitions'
-import { z } from 'zod'
+import type { Link as _Link } from '@/lib/links/types'
+import type { z } from 'zod'
 
 const dateFormatLg: Intl.DateTimeFormatOptions = {
   weekday: 'short',

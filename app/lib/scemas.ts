@@ -112,24 +112,6 @@ export const SettingsSchema = defaultSchema.extend({
  */
 
 /**
- * START Embedded item schemas
- * Data types that are typically embedded within other data types.
- * They don't generally have their own standalone pages in the client.
- */
-
-/**
- * Tag represents a category or label that can be associated with content.
- * Tags can be used to filter and organize content.
- */
-export const TagSchema = defaultSchema.extend({
-  isPublished: bool.optional(),
-})
-
-/**
- * END Embedded item schemas
- */
-
-/**
  * START Page schemas
  * Data types that have their own standalone pages in the client.
  * These schemas are used to validate data fetched from the database.
@@ -147,17 +129,6 @@ export const AboutSchema = defaultSchema.extend({
   description: basePageSchema.shape.description,
   featuredEmbedCodeId: uuid.optional(),
   slug: basePageSchema.shape.slug
-})
-
-/**
- * Represents a grouping of content that may be associated with multiple events or releases.
- * Can represent a band, collaborative, or other entities like an ongoing radio show or event series.
- * It may be used to suggest content on pages, similar to a tag, but with a broader scope.
- *
- * Site settings is essentially the "default" project, a project should represent a subset of work the overall site.
- */
-export const ProjectSchema = basePageSchema.omit({ projectId: true }).extend({
-  ...embeddedItemIdSchemas.shape
 })
 
 /**

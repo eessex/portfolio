@@ -2,7 +2,7 @@ import { fetchEvents, type FetchEventsResult } from '@/lib/data'
 import type { EventClient } from '@/lib/definitions'
 import { ItemsIndex } from '@/ui/items/items-index'
 import { Loading } from '@/ui/loading'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { auth } from '../../auth'
 

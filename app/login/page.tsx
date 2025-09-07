@@ -1,5 +1,5 @@
-import { Metadata } from 'next'
 import LoginForm from '@/ui/login-form'
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
 const title = 'Log in'

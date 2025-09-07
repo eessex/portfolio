@@ -1,6 +1,7 @@
 import {
   baseContentSchema,
   baseDashboardItemSchema,
+  bool,
   shortText,
   url
 } from '@/lib/scemas'
@@ -22,8 +23,8 @@ export const imageSchema = baseContentSchema.extend({
     return val
   }, z.number().min(0.1).max(10)),
   caption: shortText.optional(),
-  isHiddenOnAboutPage: z.boolean().optional(),
-  isPress: z.boolean().optional(),
+  isHiddenOnAboutPage: bool.optional(),
+  isPress: bool.optional(),
   url
 })
 

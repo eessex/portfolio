@@ -1,6 +1,7 @@
 import {
   baseContentSchema,
   baseDashboardItemSchema,
+  bool,
   date,
   shortText,
   url
@@ -19,11 +20,14 @@ export const linkTypes = [
  */
 export const linkSchema = baseContentSchema.extend({
   attribution: shortText.optional(),
-  isHiddenOnAboutPage: z.boolean().optional(),
+  isHiddenOnAboutPage: bool.optional(),
   publishDate: date.optional(),
   quotation: shortText.optional(),
   type: z.enum(linkTypes).optional(),
   url
 })
 
+/**
+ * Extends `linkSchema` with the pages that embed it.
+ */
 export const dashboardLinkSchema = linkSchema.extend(baseDashboardItemSchema.shape)

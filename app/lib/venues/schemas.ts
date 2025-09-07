@@ -1,5 +1,10 @@
-import { baseDashboardItemSchema, defaultSchema, shortText, url, uuid } from '@/lib/scemas'
-import { z } from 'zod'
+import {
+  baseDashboardItemSchema,
+  defaultSchema,
+  shortText,
+  url,
+  uuid
+} from '@/lib/scemas'
 
 /**
  * A venue where an event or exhibition takes place.
@@ -11,7 +16,7 @@ export const venueSchema = defaultSchema.extend({
   state: shortText.optional(),
   country: shortText.optional(),
   url: url.optional(),
-  timezone: z.string().max(100).optional(),
+  timezone: shortText.max(100).optional(),
   primaryVenueId: uuid.optional()
 })
 

@@ -3,7 +3,7 @@ import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { EditSettings } from '@/ui/form/edit-settings'
 import { Loading } from '@/ui/loading'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
 const title = 'Dashboard'

@@ -1,10 +1,11 @@
+import { type DashboardVenue } from '@/lib/definitions'
+import { dashboardVenueSchema } from '@/lib/scemas'
+import { formatDbResponseForClient } from '@/ui/util'
 import { sql } from '@vercel/postgres'
-import { type Venue } from '@/lib/definitions'
-import { formatItemArrayRows } from '@/lib/data'
 
 export async function fetchVenues () {
   try {
-    const { rows } = await sql`
+    const data = await sql<DashboardVenue>`
       SELECT 
       venues.*,
       ARRAY(
@@ -13,7 +14,7 @@ export async function fetchVenues () {
       FROM venues
       ORDER BY LOWER(venues.name) ASC
     `
-    return formatItemArrayRows<Venue>(rows)
+    return data.rows.map(row => formatDbResponseForClient(row, dashboardVenueSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch venues.')

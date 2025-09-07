@@ -1,7 +1,7 @@
 import type { DashboardEmbedCode, EmbedCode } from '@/lib/definitions'
 import { formatDbResponseForClient } from '@/ui/util'
 import { type QueryResultRow, sql } from '@vercel/postgres'
-import { dashboardEmbedCodeSchema, embedCodeSchema } from '../scemas'
+import { dashboardEmbedCodeSchema, embedCodeSchema } from '@/lib/scemas'
 
 export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]) => {
   try {

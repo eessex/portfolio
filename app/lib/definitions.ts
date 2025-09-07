@@ -4,13 +4,14 @@ import type {
   dashboardEmbedCodeSchema,
   dashboardImageSchema,
   dashboardLinkSchema,
+  dashboardVenueSchema,
   embedCodeSchema,
   EventSchema,
   imageSchema,
   linkSchema,
   ReleaseSchema,
   SettingsSchema,
-  VenueSchema
+  venueSchema
 } from '@/lib/scemas'
 import { type z } from 'zod'
 
@@ -40,18 +41,14 @@ interface SavedItemAttributes {
   id: string
 }
 
-interface EmbeddedItemSlugs {
-  eventSlugs?: string[]
-  releaseSlugs?: string[]
-}
-
 interface EmbeddedItemArrays {
   embedCodes: EmbedCode[]
   images: Image[]
   links: Link[]
 }
 
-export type Venue = z.infer<typeof VenueSchema> & SavedItemAttributes & EmbeddedItemSlugs
+export type Venue = z.infer<typeof venueSchema>
+export type DashboardVenue = z.infer<typeof dashboardVenueSchema>
 
 export type EmbedCode = z.infer<typeof embedCodeSchema>
 export type DashboardEmbedCode = z.infer<typeof dashboardEmbedCodeSchema>

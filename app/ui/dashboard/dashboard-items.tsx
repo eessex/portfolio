@@ -2,7 +2,7 @@
 
 import type { EmbeddedItemKey } from '@/lib/actions'
 import type { ItemArrays } from '@/lib/data'
-import type { Link as _Link, EmbedCode, FormResponse, Image, Venue } from '@/lib/definitions'
+import type { Link as _Link, DashboardVenue, EmbedCode, FormResponse, Image, Venue } from '@/lib/definitions'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import type { OpenNewItemFormDetail } from '@/ui/admin-sidebar/add-item-button'
 import styles from '@/ui/dashboard/dashboard.module.scss'
@@ -29,7 +29,7 @@ declare global {
   }
 }
 
-export type DashboardItem = ItemArrays | Venue
+export type DashboardItem = ItemArrays | DashboardVenue
 export type DashboardItemType = EmbeddedItemKey | 'venue'
 
 interface DashboardProps <T extends DashboardItem> {
@@ -187,7 +187,10 @@ function DashboardListItem<T extends DashboardItem> ({
 }) {
   function usedOnPages () {
     const events = item.eventSlugs?.map(i => eventUrl(i)) || []
-    const releases = item.releaseSlugs?.map(i => releaseUrl(i)) || []
+    const releases =
+      'releaseSlugs' in item && Array.isArray(item.releaseSlugs)
+        ? item.releaseSlugs.map(i => releaseUrl(i))
+        : []
 
     return [...events, ...releases]
   }

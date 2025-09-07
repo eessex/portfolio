@@ -1,7 +1,7 @@
 'use server'
 
 import { FormResponse, Venue } from '@/lib/definitions'
-import { VenueSchema } from '@/lib/scemas'
+import { venueSchema } from '@/lib/scemas'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 
@@ -73,7 +73,7 @@ export async function editVenue (formData: FormData): Promise<FormResponse<Venue
       data[n] = v
     }
   })
-  const validatedFields = VenueSchema.safeParse(data)
+  const validatedFields = venueSchema.safeParse(data)
   if (!validatedFields.success) {
     console.error('Failed to validate venue.', validatedFields.error.flatten().fieldErrors)
     return {

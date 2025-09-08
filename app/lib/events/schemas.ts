@@ -12,7 +12,7 @@ import {
  */
 export const eventSchema = basePageSchema.extend({
   ...embeddedItemIdSchemas.shape,
-  endDate: date.optional(),
+  endTime: date.optional(),
   startTime: date,
   ticketLink: url.optional(),
   venueId: uuid,
@@ -21,6 +21,7 @@ export const eventSchema = basePageSchema.extend({
 export const eventClientSchema = eventSchema.extend(
   hydratedItemIdSchemas.pick({
     coverImage: true,
+    featuredEmbedCode: true,
     embedCodes: true,
     images: true,
     links: true,

@@ -130,25 +130,3 @@ export const SlugHistorySchema = baseContentSchema.omit({ updatedAt: true }).ext
 /**
  * END Utility types and interfaces
  */
-
-/**
- * START Page schemas
- * Data types that have their own standalone pages in the client.
- * These schemas are used to validate data fetched from the database.
- * They may include references to embedded items.
- */
-
-export const releaseTypes = ['album', 'ep', 'soundtrack', 'feature', 'compilation', 'collaborative_release', 'single'] as const
-/**
- * A music release, such as an album, EP, single, or soundtrack.
- */
-export const ReleaseSchema = basePageSchema.extend({
-  ...embeddedItemIdSchemas.shape,
-  artist: shortText,
-  type: z.enum(releaseTypes),
-  releaseDate: date,
-})
-
-/**
- * END Page schemas
- */

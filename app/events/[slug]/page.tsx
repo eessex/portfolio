@@ -14,6 +14,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { auth } from '../../../auth'
+import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -56,17 +57,16 @@ export default async function EventsPage ({
 }) {
   const { slug } = await params
   const session = await auth()
-  const event = await fetchEventBySlug(slug)
+  const event = await fetchEventBySlug(slug, !!session?.user)
   const { upcomingEvents } = await fetchEvents(!!session?.user)
 
-  if (!event || (!event.isPublished && !session?.user)) {
+  if (!event) {
     notFound()
   }
 
   const isUpcoming = isUpcomingDate(event.startTime)
   const category = isUpcoming ? 'Upcoming Event' : 'Event'
-
-  const moreEvents = upcomingEvents.filter((e) => e.id !== event.id)
+  const moreEvents = upcomingEvents.filter(e => e.id !== event.id)
 
   return (
     <div>
@@ -109,12 +109,15 @@ export default async function EventsPage ({
             </p>
           )}
 
-          {!!filteredLinksByPress(event.links)[0].length && (
+          {event.links && !!filteredLinksByPress(event.links)[0].length && (
             <LinksList links={filteredLinksByPress(event.links)[0]} />
           )}
 
-          {!!filteredLinksByPress(event.links)[1].length && (
+          {event.links && !!filteredLinksByPress(event.links)[1].length && (
             <LinksList links={filteredLinksByPress(event.links)[1]} />
+          )}
+          {event.featuredEmbedCode && (
+            <EmbedCodes embedCodes={[event.featuredEmbedCode || event.embedCodes]} />
           )}
         </section>
       </article>

@@ -1,5 +1,6 @@
 import type { Link as _Link } from '@/lib/links/types'
-import { z } from 'zod'
+import type { PublishedEditionClient } from '@/lib/published-edition/types'
+import type { z } from 'zod'
 
 const dateFormatLg: Intl.DateTimeFormatOptions = {
   weekday: 'short',
@@ -125,12 +126,52 @@ export function releaseUrl (slug: string) {
   return `/releases/${slug}`
 }
 
-export function filteredLinksByPress (links: Array<_Link> = []) {
+export function filteredLinksByPress (links: Array<_Link>) {
+  const sortByDate = (a: _Link, b: _Link) => {
+    const aDate = new Date(a.publishDate ?? a.createdAt)
+    const bDate = new Date(b.publishDate ?? b.createdAt)
+    return bDate.getTime() - aDate.getTime()
+  }
+
   const pressLinks: Array<_Link> = []
   const otherLinks: Array<_Link> = []
 
   links.forEach((link) => {
     (link.type === 'press' ? pressLinks : otherLinks).push(link)
   })
+
+  pressLinks.sort(sortByDate)
+  otherLinks.sort(sortByDate)
+
   return [pressLinks, otherLinks]
+}
+
+export function combinePublishedEditions (editions: Array<PublishedEditionClient>) {
+  const combined: Array<Omit<PublishedEditionClient, 'format'> & { formats?: string[], format?: string }> = []
+
+  editions.forEach((edition) => {
+    const existing = combined.find(item => item.publisher === edition.publisher && item.publishDate === edition.publishDate)
+    if (!existing) {
+      combined.push({
+        ...edition,
+        formats: [edition.format],
+      })
+    } else {
+      existing.formats = existing.formats || []
+      existing.formats.push(edition.format)
+    }
+  })
+
+  // Format the formats array into a grammatical list, e.g., "LP, Cassette & Digital"
+  combined.forEach(item => {
+    if (item.formats?.length === 1) {
+      item.format = item.formats[0]
+    } else if (item.formats?.length === 2) {
+      item.format = `${item.formats[0]} & ${item.formats[1]}`
+    } else {
+      item.format = `${item.formats?.slice(0, -1).join(', ')} & ${item.formats?.[item.formats.length - 1]}`
+    }
+    delete item.formats
+  })
+  return combined
 }

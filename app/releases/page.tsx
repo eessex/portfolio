@@ -1,5 +1,5 @@
-import { fetchReleases, type FetchReleasesResult } from '@/lib/data'
-import type { ReleaseClient } from '@/lib/definitions'
+import { fetchReleases } from '@/lib/releases/data'
+import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
 import { ItemsIndex } from '@/ui/items/items-index'
 import { Loading } from '@/ui/loading'
 import type { Metadata } from 'next'

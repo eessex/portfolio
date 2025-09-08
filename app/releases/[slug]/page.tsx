@@ -1,11 +1,11 @@
-import { fetchReleaseBySlug, fetchReleases } from '@/lib/data'
 import type { Link as _Link } from '@/lib/links/types'
+import { fetchReleaseBySlug, fetchReleases } from '@/lib/releases/data'
 import styles from '@/releases/[slug]/release.module.scss'
 import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { FigureImage } from '@/ui/images/image-figure'
 import { LinksList } from '@/ui/links/link-list'
-import { filteredLinksByPress, formattedDateTime } from '@/ui/util'
+import { combinePublishedEditions, filteredLinksByPress, formattedDateTime } from '@/ui/util'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -21,12 +21,12 @@ export async function generateMetadata (
   const { slug } = await params
   const release = await fetchReleaseBySlug(slug)
 
-  const images = release?.images[0]
+  const images = release?.coverImage
     ? [{
-        url: release.images[0].url,
+        url: release.coverImage.url,
         width: 1200,
-        height: 1200 * release.images[0].aspect,
-        alt: release.images[0].caption,
+        height: 1200 * release.coverImage.aspect,
+        alt: release.coverImage.caption,
       }]
     : []
 
@@ -53,15 +53,12 @@ export default async function ReleasesPage ({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const release = await fetchReleaseBySlug(slug)
   const session = await auth()
+  const release = await fetchReleaseBySlug(slug, !!session?.user)
 
-  if (!release || (!release.isPublished && !session?.user)) {
+  if (!release) {
     notFound()
   }
-
-  const [featuredImage, ..._images] = release?.images || []
-  const [featuredEmbed, ...embedCodes] = release?.embedCodes || []
 
   const releaseCategory = () => {
     switch (release.type) {
@@ -87,18 +84,28 @@ export default async function ReleasesPage ({
             {!release.isPublished && <DraftBadge />}
           </div>
           <h1>{release.artist}: {release.title}</h1>
-          <h2>
-            {/* {release.format}, {release.label},  */}
-            {formattedDateTime(release.releaseDate, 'xxs')}
-          </h2>
+
+          {release.publishedEditions && (
+            <div className={styles.editions}>
+              <h2 className='visually-hidden'>Published by:</h2>
+              <ul>
+                {combinePublishedEditions(release.publishedEditions).map((edition, i) => (
+                  <li key={`${edition.publisher}-${edition.publishDate}-${i}`}>
+                    {edition.format}, {edition.publisher}, {formattedDateTime(edition.publishDate, 'xs')}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </header>
 
         <section>
-          {featuredEmbed && (
-            <EmbedCodes embedCodes={[featuredEmbed]} />
+          {release.featuredEmbedCode && (
+            <EmbedCodes embedCodes={[release.featuredEmbedCode]} />
           )}
-
-          <FigureImage image={featuredImage} />
+          {release.coverImage && (
+            <FigureImage image={release.coverImage} />
+          )}
 
           {release.description && (
             <p style={{ whiteSpace: 'pre-line' }}>
@@ -106,16 +113,16 @@ export default async function ReleasesPage ({
             </p>
           )}
 
-          {!!filteredLinksByPress(release.links)[0].length && (
+          {release.links && !!filteredLinksByPress(release.links)[0].length && (
             <LinksList links={filteredLinksByPress(release.links)[0]} />
           )}
 
-          {!!filteredLinksByPress(release.links)[1].length && (
+          {release.links && !!filteredLinksByPress(release.links)[1].length && (
             <LinksList links={filteredLinksByPress(release.links)[1]} />
           )}
 
-          {!!embedCodes?.length && (
-            <EmbedCodes embedCodes={embedCodes} />
+          {!!release.embedCodes?.length && (
+            <EmbedCodes embedCodes={release.embedCodes} />
           )}
         </section>
       </article>

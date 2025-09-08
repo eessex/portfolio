@@ -233,11 +233,11 @@
 .items-list {
   margin-bottom: 3.5rem;
 
-  header {
+  > header {
     border-bottom: var(--items-list-border);;
   }
 
-  li {
+  > li {
     min-width: 100%;
     border-bottom: var(--items-list-border);
     margin: 0;
@@ -280,4 +280,20 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.editions {
+  display: flex;
+  gap: 0.75rem;
+
+  li {
+    margin: 0;
+    width: auto;
+  }
+
+  * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }

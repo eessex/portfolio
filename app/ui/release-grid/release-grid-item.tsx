@@ -1,27 +1,28 @@
-import type { ReleaseClient } from '@/lib/definitions'
+import type { ReleaseClient } from '@/lib/releases/types'
 import { DraftBadge } from '@/ui/draft-badge'
-import { formattedDateTime, releaseUrl } from '@/ui/util'
+import styles from '@/ui/items/items.module.scss'
+import { combinePublishedEditions, formattedDateTime, releaseUrl } from '@/ui/util'
 import Link from 'next/link'
 
 export function ReleaseGridItem ({
   release,
   index
 }: {
-  release: ReleaseClient;
-  index: number;
+  release: ReleaseClient
+  index: number
 }) {
   return (
     <article>
-      {release.images && release.images[0].url && (
-        <figure style={{ aspectRatio: release.images[0].aspect }}>
+      {release.coverImage && (
+        <figure style={{ aspectRatio: release.coverImage.aspect }}>
           <Link href={releaseUrl(release.slug)}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={release.images[0].url}
-              alt={release.images[0].caption || `Cover artwork for ${release.title}`}
-              style={{ aspectRatio: release.images[0].aspect }}
+              src={release.coverImage.url}
+              alt={release.coverImage.caption || `Cover artwork for ${release.title}`}
+              style={{ aspectRatio: release.coverImage.aspect }}
               loading={index > 8 ? 'lazy' : undefined}
-              title={release.images[0].caption || undefined}
+              title={release.coverImage.caption || undefined}
             />
           </Link>
         </figure>
@@ -34,11 +35,18 @@ export function ReleaseGridItem ({
 
           {!release.isPublished && <DraftBadge />}
 
-          <h4>
-            {/* {`${release.format}, `}
-            {release.label && `${release.label}`} */}
-            <br />{formattedDateTime(release.releaseDate, 'xs')}
-          </h4>
+          {release.publishedEditions && (
+            <div className={styles.editions}>
+              <h4 className='visually-hidden'>Published by:</h4>
+              <ul>
+                {combinePublishedEditions(release.publishedEditions).map((edition, id) => (
+                  <li key={`${edition.publisher}-${edition.publishDate}-${id}`}>
+                    {edition.format}, {edition.publisher}, {formattedDateTime(edition.publishDate, 'xs')}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </Link>
       </section>
     </article>

@@ -1,11 +1,3 @@
-import type { EmbedCode } from '@/lib/embed-codes/types'
-import type { Image } from '@/lib/images/types'
-import type { Link } from '@/lib/links/types'
-import type {
-  ReleaseSchema
-} from '@/lib/scemas'
-import type { z } from 'zod'
-
 export type PageType = 'event' | 'release'
 
 export interface User {
@@ -24,22 +16,3 @@ export type FormResponse<T> = Promise<{
   errors?: Record<string, string[] | undefined> | string[]
   message?: string
 } | undefined>
-
-type EmbeddedItemArrayKeys = 'embedCodes' | 'images' | 'links'
-
-interface SavedItemAttributes {
-  createdAt?: string
-  id: string
-}
-
-interface EmbeddedItemArrays {
-  embedCodes: EmbedCode[]
-  images: Image[]
-  links: Link[]
-}
-
-export type Release = z.infer<typeof ReleaseSchema> & SavedItemAttributes
-
-export type ReleaseClient = Omit<Release, EmbeddedItemArrayKeys> & EmbeddedItemArrays & {
-  slug: string
-}

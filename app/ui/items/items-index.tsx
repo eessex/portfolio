@@ -1,8 +1,8 @@
 'use client'
 
-import type { FetchReleasesResult } from '@/lib/data'
-import type { PageType, ReleaseClient } from '@/lib/definitions'
+import type { PageType } from '@/lib/definitions'
 import type { EventClient, FetchEventsResult } from '@/lib/events/types'
+import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
 import { ItemsList } from '@/ui/items/items-list'
 import itemsStyles from '@/ui/items/items.module.scss'

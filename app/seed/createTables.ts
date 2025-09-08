@@ -398,6 +398,128 @@ async function setupSlugTriggers () {
 }
 
 /**
+ * Sets up JSONB builder functions for complex nested structures
+ * Must be called after all relevant tables are created.
+ * includes: dates, embed codes, images, links, venues, published editions
+ */
+async function setupJsonbFunctions () {
+  await sql`
+    CREATE OR REPLACE FUNCTION build_write_dates_json(
+      created_at TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT NULL
+    )
+    RETURNS jsonb AS $$
+      SELECT jsonb_build_object(
+        'createdAt', created_at,
+        'updatedAt', updated_at
+      );
+    $$ LANGUAGE sql IMMUTABLE;
+  `
+
+  await sql`
+    CREATE OR REPLACE FUNCTION build_embed_code_json(e embed_codes)
+    RETURNS jsonb AS $$
+      SELECT jsonb_build_object(
+        'id', e.id,
+        'iframe', e.iframe,
+        'title', e.title,
+        'caption', e.caption,
+        'type', e.type
+      ) || build_write_dates_json(e.created_at, e.updated_at);
+    $$ LANGUAGE sql IMMUTABLE;
+  `
+
+  await sql`
+    CREATE OR REPLACE FUNCTION build_image_json(i images)
+    RETURNS jsonb AS $$
+      SELECT jsonb_build_object(
+        'id', i.id,
+        'url', i.url,
+        'caption', i.caption,
+        'aspect', i.aspect,
+        'alt', i.alt,
+        'title', i.title
+      ) || build_write_dates_json(i.created_at, i.updated_at);
+    $$ LANGUAGE sql IMMUTABLE;
+  `
+
+  await sql`
+    CREATE OR REPLACE FUNCTION build_link_json(l links)
+    RETURNS jsonb AS $$
+    BEGIN
+      RETURN (
+        jsonb_build_object(
+          'id', l.id,
+          'url', l.url,
+          'attribution', l.attribution,
+          'publishDate', to_char(l.publish_date, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ'),
+          'quotation', l.quotation,
+          'title', l.title,
+          'type', l.type,
+          'isHiddenOnAboutPage', l.is_hidden_on_about_page
+        ) 
+        || COALESCE(build_write_dates_json(l.created_at, l.updated_at), '{}'::jsonb)
+      );
+    END;
+    $$ LANGUAGE plpgsql IMMUTABLE;
+  `
+
+  await sql`
+    CREATE OR REPLACE FUNCTION build_venue_json(v venues)
+    RETURNS jsonb AS $$
+      SELECT jsonb_build_object(
+        'id', v.id,
+        'address', v.address,
+        'city', v.city,
+        'name', v.name,
+        'state', v.state,
+        'country', v.country,
+        'url', v.url,
+        'timezone', v.timezone,
+        'primaryVenueId', v.primary_venue_id
+      ) || build_write_dates_json(v.created_at, v.updated_at);
+    $$ LANGUAGE sql IMMUTABLE;
+  `
+
+  await sql`
+    CREATE OR REPLACE FUNCTION build_published_edition_json(pe published_editions)
+    RETURNS jsonb AS $$
+    BEGIN
+      RETURN (
+        jsonb_build_object(
+          'id', pe.id,
+          'releaseId', pe.release_id,
+          'projectId', pe.project_id,
+          'tagIds', pe.tag_ids,
+          'publisher', pe.publisher,
+          'format', pe.format,
+          'publishDate', pe.publish_date,
+          'coverImage', (
+            SELECT build_image_json(i)
+            FROM images i
+            WHERE i.id = COALESCE(pe.cover_image_id, pe.image_ids[1])
+          ),
+          'images', (
+            SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
+            FROM images i
+            WHERE i.id = ANY(pe.image_ids)
+              AND i.id != COALESCE(pe.cover_image_id, pe.image_ids[1])
+          ),
+          'editionSize', pe.edition_size,
+          'buyLink', (
+            SELECT build_link_json(l)
+            FROM links l
+            WHERE l.id = pe.buy_link_id
+          )
+        )
+        || COALESCE(build_write_dates_json(pe.created_at, pe.updated_at), '{}'::jsonb)
+      );
+    END;
+    $$ LANGUAGE plpgsql IMMUTABLE;
+  `
+}
+
+/**
  * Creates all tables in correct order.
  */
 export async function createTables () {
@@ -416,6 +538,10 @@ export async function createTables () {
   await createReleasesTable()
   await createPublishedEditionTable()
   await createEventsTable()
-  await setupSlugTriggers()
   console.log('All tables created successfully.')
+
+  // post-creation setup
+  await setupSlugTriggers()
+  await setupJsonbFunctions()
+  console.log('Triggers and JSONB functions set up successfully.')
 }

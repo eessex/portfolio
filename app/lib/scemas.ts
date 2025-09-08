@@ -5,6 +5,7 @@ import { projectSchema } from '@/lib/projects/schemas'
 import { publishedEditionSchema } from '@/lib/published-edition/schemas'
 import { z } from 'zod'
 import { tagSchema } from './tags/schemas'
+import { venueSchema } from './venues/schemas'
 
 /**
  * START Basic reusable schemas
@@ -87,7 +88,8 @@ export const hydratedItemIdSchemas = z.object({
   links: z.array(linkSchema).optional(),
   project: projectSchema.optional(),
   publishedEditions: z.array(publishedEditionSchema).optional(),
-  tags: z.array(tagSchema).optional()
+  tags: z.array(tagSchema).optional(),
+  venue: venueSchema.optional(),
 })
 
 /**
@@ -135,17 +137,6 @@ export const SlugHistorySchema = baseContentSchema.omit({ updatedAt: true }).ext
  * These schemas are used to validate data fetched from the database.
  * They may include references to embedded items.
  */
-
-/**
- * An event, such as a concert, performance, opening, or screening.
- */
-export const EventSchema = basePageSchema.extend({
-  ...embeddedItemIdSchemas.shape,
-  endDate: date.optional(),
-  startDate: date,
-  ticketLink: url.optional(),
-  venueId: uuid,
-})
 
 export const releaseTypes = ['album', 'ep', 'soundtrack', 'feature', 'compilation', 'collaborative_release', 'single'] as const
 /**

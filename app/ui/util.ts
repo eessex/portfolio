@@ -42,12 +42,12 @@ const getTimeFormat = (format: DateFormatSize = 'lg') => {
 }
 
 export function formattedDateTime (date: string | Date, format?: DateFormatSize, timeZone?: Intl.DateTimeFormatOptions['timeZone']) {
-  const startDate = new Date(date)
-  startDate.setHours(startDate.getHours())
+  const startTime = new Date(date)
+  startTime.setHours(startTime.getHours())
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     ...getTimeFormat(format),
     timeZone: timeZone || 'America/New_York',
-  }).format(startDate)
+  }).format(startTime)
 
   return formattedDate
 }
@@ -125,7 +125,7 @@ export function releaseUrl (slug: string) {
   return `/releases/${slug}`
 }
 
-export function filteredLinksByPress (links: Array<_Link>) {
+export function filteredLinksByPress (links: Array<_Link> = []) {
   const pressLinks: Array<_Link> = []
   const otherLinks: Array<_Link> = []
 

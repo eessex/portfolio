@@ -1,11 +1,9 @@
 'use client'
 
-import type { EmbeddedItemKey } from '@/lib/actions'
-import type { ItemArrays } from '@/lib/data'
 import type { FormResponse } from '@/lib/definitions'
-import type { EmbedCode } from '@/lib/embed-codes/types'
-import type { Image } from '@/lib/images/types'
-import type { Link as _Link } from '@/lib/links/types'
+import type { DashboardEmbedCode, EmbedCode } from '@/lib/embed-codes/types'
+import type { DashboardImage, Image } from '@/lib/images/types'
+import type { Link as _Link, DashboardLink } from '@/lib/links/types'
 import type { DashboardVenue, Venue } from '@/lib/venues/types'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import type { OpenNewItemFormDetail } from '@/ui/admin-sidebar/add-item-button'
@@ -33,11 +31,12 @@ declare global {
   }
 }
 
-export type DashboardItem = ItemArrays | DashboardVenue
-export type DashboardItemType = EmbeddedItemKey | 'venue'
+export type DashboardItem = DashboardEmbedCode | DashboardImage | DashboardLink | DashboardVenue
+export const DashboardItemType = ['embedCode', 'image', 'link', 'venue'] as const
+export type EmbeddedItemKey = typeof DashboardItemType[number]
 
 interface DashboardProps <T extends DashboardItem> {
-  itemType: DashboardItemType,
+  itemType: EmbeddedItemKey,
   items: T[],
   editItem: (item: FormData) => Promise<FormResponse<T> | undefined>,
   deleteItem: (id: string)=> Promise<FormResponse<T> | undefined>
@@ -183,7 +182,7 @@ function DashboardListItem<T extends DashboardItem> ({
   onEdit,
   onDelete
 }: {
-  itemType: DashboardItemType,
+  itemType: EmbeddedItemKey,
   item: T,
   isExpanded?: boolean,
   onEdit: (id: string) => void,
@@ -236,7 +235,7 @@ function DashboardListItem<T extends DashboardItem> ({
         return linkItem.title || 'Untitled'
       }
       case 'venue': {
-        const venueItem = item as Venue & { id: string }
+        const venueItem = item as DashboardVenue
         return `${venueItem.name || venueItem.address}, ${venueItem.city}, ${venueItem.state || venueItem.country}`
       }
     }
@@ -292,7 +291,7 @@ export function EditItem ({
   itemType
 }: {
   item?: DashboardItem
-  itemType: DashboardItemType
+  itemType: EmbeddedItemKey
 }) {
   switch (itemType) {
     case 'embedCode':
@@ -313,7 +312,7 @@ export function ItemDisplay ({
   itemType
 }: {
   item?: DashboardItem
-  itemType: DashboardItemType
+  itemType: EmbeddedItemKey
 }) {
   switch (itemType) {
     case 'embedCode':

@@ -1,6 +1,5 @@
 'use server'
 
-import { validatedItemArray } from '@/lib/actions'
 import type { FormResponse } from '@/lib/definitions'
 import { linkSchema } from '@/lib/links/schemas'
 import type { Link } from '@/lib/links/types'
@@ -173,57 +172,5 @@ export async function deleteLink (id: string): Promise<FormResponse<Link>> {
   } catch (err) {
     console.error('Error deleting link:', err)
     throw new Error('Failed to delete link.')
-  }
-}
-
-async function updateLinks (links: Array<Link>) {
-  const savedLinks: Array<Link | null> = new Array(links.length).fill(null)
-  try {
-    await sql.begin(async (tx) => {
-      for (const [i, link] of links.entries()) {
-        const { id, url, title } = link
-        if (!id) {
-          try {
-            const res = await createLink(link)
-            if (res?.id) {
-              savedLinks[i] = res
-            }
-          } catch (err) {
-            console.error('Error creating link:', err)
-            throw new Error(err instanceof Error ? err.message : 'Failed to create link.')
-          }
-        } else {
-          try {
-            await tx`
-              UPDATE links
-              SET (url, title) = (${url}, ${title || null})
-              WHERE id = ${id}
-            `.then(() => {
-                savedLinks.push(link)
-              })
-          } catch (err) {
-            console.error('Error updating link:', err)
-            throw new Error('Failed to update link.')
-          }
-        }
-      }
-    })
-  } catch (err) {
-    console.error('Error saving links:', err)
-  }
-  return savedLinks
-}
-
-export async function editLinks (formData: FormData) {
-  try {
-    const links = await validatedItemArray(formData, 'link') as Array<Link>
-    const updatedLinks = await updateLinks(links)
-
-    if (updatedLinks) {
-      return updatedLinks[0]
-    }
-  } catch (err) {
-    console.error('Failed to save Links:', err)
-    throw new Error('Failed to save Links.')
   }
 }

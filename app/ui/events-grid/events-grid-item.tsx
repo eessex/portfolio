@@ -1,4 +1,5 @@
-import type { EventClient } from '@/lib/definitions'
+import type { EventClient } from '@/lib/events/types'
+import type { Image } from '@/lib/images/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import { eventUrl, formattedDateTime } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
@@ -15,17 +16,19 @@ function Metadata ({ event }: { event: EventClient }) {
       {!event.isPublished && <DraftBadge />}
 
       <h4>
-        {formattedDateTime(event.startDate)}
+        {formattedDateTime(event.startTime)}
       </h4>
 
-      <h5>
-        <VenueInline venue={event.venue} />
-      </h5>
+      {event.venue && (
+        <h5>
+          <VenueInline venue={event.venue} />
+        </h5>
+      )}
     </>
   )
 }
 
-function Img ({ image, index }: { image: EventClient['images'][number], index: number }) {
+function Img ({ image, index }: { image: Image, index: number }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -56,18 +59,18 @@ export function EventsGridItem ({
 
   return (
     <article>
-      {isColumn() && !isTextOnly && (
-        <figure style={{ aspectRatio: featuredImage.aspect }}>
+      {isColumn() && !isTextOnly && event.coverImage && (
+        <figure style={{ aspectRatio: event.coverImage.aspect }}>
           <Link href={eventUrl(event.slug)}>
-            <Img image={featuredImage} index={index} />
+            <Img image={event.coverImage} index={index} />
           </Link>
         </figure>
       )}
       <section>
         <Link href={eventUrl(event.slug)}>
-          {!isColumn() && featuredImage?.url && !isTextOnly && (
-            <figure style={{ aspectRatio: featuredImage.aspect }}>
-              <Img image={featuredImage} index={index} />
+          {!isColumn() && event.coverImage?.url && !isTextOnly && (
+            <figure style={{ aspectRatio: event.coverImage.aspect }}>
+              <Img image={event.coverImage} index={index} />
             </figure>
           )}
           <Metadata event={event} />

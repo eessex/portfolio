@@ -1,5 +1,5 @@
-import { fetchEvents, type FetchEventsResult } from '@/lib/data'
-import type { EventClient } from '@/lib/definitions'
+import { fetchEvents } from '@/lib/events/data'
+import type { EventClient, FetchEventsResult } from '@/lib/events/types'
 import { ItemsIndex } from '@/ui/items/items-index'
 import { Loading } from '@/ui/loading'
 import type { Metadata } from 'next'

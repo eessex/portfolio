@@ -1,6 +1,5 @@
 'use server'
 
-import { validatedItemArray } from '@/lib/actions'
 import type { FormResponse } from '@/lib/definitions'
 import { embedCodeSchema } from '@/lib/embed-codes/schemas'
 import type { EmbedCode } from '@/lib/embed-codes/types'
@@ -105,57 +104,5 @@ export async function deleteEmbedCode (id: string): Promise<FormResponse<EmbedCo
   } catch (err) {
     console.error('Error deleting embed code:', err)
     throw new Error('Failed to delete embed code.')
-  }
-}
-
-async function updateEmbedCodes (embedCodes: Array<EmbedCode>) {
-  const savedEmbedCodes: Array<EmbedCode | null> = new Array(embedCodes.length).fill(null)
-  try {
-    await sql.begin(async (tx) => {
-      for (const [i, embedCode] of embedCodes.entries()) {
-        const { id, iframe, caption, title } = embedCode
-        if (!id) {
-          try {
-            const res = await createEmbedCode(embedCode)
-            if (res?.id) {
-              savedEmbedCodes[i] = res
-            }
-          } catch (err) {
-            console.error('Error creating embed code:', err)
-            throw new Error(err instanceof Error ? err.message : 'Failed to create embed code.')
-          }
-        } else {
-          try {
-            await tx`
-              UPDATE embed_codes
-              SET (iframe, caption, title) = (${iframe}, ${caption || null}, ${title || null})
-              WHERE id = ${id}
-            `.then(() => {
-                savedEmbedCodes.push(embedCode)
-              })
-          } catch (err) {
-            console.error('Error updating embed code:', err)
-            throw new Error('Failed to update embed code.')
-          }
-        }
-      }
-    })
-  } catch (err) {
-    console.error('Error saving embed codes:', err)
-  }
-  return savedEmbedCodes
-}
-
-export async function editEmbedCodes (formData: FormData) {
-  try {
-    const embedCodes = await validatedItemArray(formData, 'embedCode') as Array<EmbedCode>
-    const updatedEmbedCodes = await updateEmbedCodes(embedCodes)
-
-    if (updatedEmbedCodes) {
-      return updatedEmbedCodes[0]
-    }
-  } catch (err) {
-    console.error('Failed to save EmbedCodes:', err)
-    throw new Error('Failed to save EmbedCodes.')
   }
 }

@@ -138,7 +138,7 @@
 //           ${event.linkIds},
 //           ${event.projectIds},
 //           ${event.slug},
-//           ${event.startDate},
+//           ${event.startTime},
 //           ${event.title},
 //           ${event.updatedAt},
 //           ${event.venueId}

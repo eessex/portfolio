@@ -1,5 +1,5 @@
 import styles from '@/events/[slug]/event.module.scss'
-import { fetchEventBySlug, fetchEvents } from '@/lib/data'
+import { fetchEventBySlug, fetchEvents } from '@/lib/events/data'
 import type { Link as _Link } from '@/lib/links/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import { EventsGrid } from '@/ui/events-grid/events-grid'
@@ -24,13 +24,12 @@ export async function generateMetadata (
 ): Promise<Metadata> {
   const { slug } = await params
   const event = await fetchEventBySlug(slug)
-  const [featuredImage, ..._images] = event?.images || []
-  const images = featuredImage
+  const images = event?.coverImage
     ? [{
-        url: featuredImage.url,
+        url: event.coverImage.url,
         width: 1200,
-        height: 1200 * featuredImage.aspect,
-        alt: featuredImage.caption,
+        height: 1200 * event.coverImage.aspect,
+        alt: event.coverImage.alt || event.coverImage.caption || '',
       }]
     : []
 
@@ -59,13 +58,12 @@ export default async function EventsPage ({
   const session = await auth()
   const event = await fetchEventBySlug(slug)
   const { upcomingEvents } = await fetchEvents(!!session?.user)
-  const [featuredImage, ..._images] = event?.images || []
 
   if (!event || (!event.isPublished && !session?.user)) {
     notFound()
   }
 
-  const isUpcoming = isUpcomingDate(event.startDate)
+  const isUpcoming = isUpcomingDate(event.startTime)
   const category = isUpcoming ? 'Upcoming Event' : 'Event'
 
   const moreEvents = upcomingEvents.filter((e) => e.id !== event.id)
@@ -81,18 +79,20 @@ export default async function EventsPage ({
             )}
           </div>
           <h1>{event.title}</h1>
-          <h2>{formattedDateTime(event.startDate)}</h2>
-          <h3>
-            {event.venue.url
-              ? (
-                <a href={event.venue.url} target='_blank' rel='noopener noreferrer'>
+          <h2>{formattedDateTime(event.startTime)}</h2>
+          {event.venue && (
+            <h3>
+              {event.venue.url
+                ? (
+                  <a href={event.venue.url} target='_blank' rel='noopener noreferrer'>
+                    <VenueInline venue={event.venue} />
+                  </a>
+                  )
+                : (
                   <VenueInline venue={event.venue} />
-                </a>
-                )
-              : (
-                <VenueInline venue={event.venue} />
-                )}
-          </h3>
+                  )}
+            </h3>
+          )}
           {event.ticketLink && isUpcoming && (
             <a className={'button ' + styles['ticket-link']} href={event.ticketLink} target='_blank' rel='noreferrer'>
               <TicketIcon />Tickets
@@ -100,7 +100,7 @@ export default async function EventsPage ({
           )}
         </header>
 
-        <FigureImage image={featuredImage} />
+        {event.coverImage && (<FigureImage image={event.coverImage} />)}
 
         <section>
           {event.description && (

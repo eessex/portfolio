@@ -2,10 +2,8 @@ import type { EmbedCode } from '@/lib/embed-codes/types'
 import type { Image } from '@/lib/images/types'
 import type { Link } from '@/lib/links/types'
 import type {
-  EventSchema,
   ReleaseSchema
 } from '@/lib/scemas'
-import type { Venue } from '@/lib/venues/types'
 import type { z } from 'zod'
 
 export type PageType = 'event' | 'release'
@@ -38,13 +36,6 @@ interface EmbeddedItemArrays {
   embedCodes: EmbedCode[]
   images: Image[]
   links: Link[]
-}
-
-export type Event = z.infer<typeof EventSchema> & SavedItemAttributes
-
-export type EventClient = Omit<Event, 'projectId' | 'venueIds' | 'tagIds' | EmbeddedItemArrayKeys> & EmbeddedItemArrays & {
-  venue: Venue,
-  slug: string
 }
 
 export type Release = z.infer<typeof ReleaseSchema> & SavedItemAttributes

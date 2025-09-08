@@ -1,13 +1,14 @@
 'use client'
 
-import type { FetchEventsResult, FetchReleasesResult } from '@/lib/data'
-import type { EventClient, PageType, ReleaseClient } from '@/lib/definitions'
+import type { FetchReleasesResult } from '@/lib/data'
+import type { PageType, ReleaseClient } from '@/lib/definitions'
+import type { EventClient, FetchEventsResult } from '@/lib/events/types'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
 import { ItemsList } from '@/ui/items/items-list'
 import itemsStyles from '@/ui/items/items.module.scss'
 import { SearchInput } from '@/ui/search-input/search-input'
 import { camelToSentence } from '@/ui/util'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 type PageIndexProps<V extends FetchEventsResult | FetchReleasesResult> = {
   pageType: PageType,

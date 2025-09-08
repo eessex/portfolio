@@ -1,4 +1,4 @@
-import type { EventClient } from '@/lib/definitions'
+import type { EventClient } from '@/lib/events/types'
 import { EventsGridItem } from '@/ui/events-grid/events-grid-item'
 import styles from '@/ui/items/items.module.scss'
 import clsx from 'clsx'

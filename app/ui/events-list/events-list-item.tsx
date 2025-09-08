@@ -1,4 +1,4 @@
-import type { EventClient } from '@/lib/definitions'
+import type { EventClient } from '@/lib/events/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import styles from '@/ui/items/items.module.scss'
 import { eventUrl, formattedDateTime } from '@/ui/util'
@@ -17,7 +17,7 @@ export function EventsListItem ({
       <Link href={eventUrl(event.slug)}>
         <div className={styles.contentLeft}>
           <div>
-            {formattedDateTime(event.startDate, 'md')}
+            {formattedDateTime(event.startTime, 'md')}
           </div>
 
           <div className='font-bold md:font-normal'>
@@ -25,9 +25,11 @@ export function EventsListItem ({
           </div>
         </div>
 
-        <div className={styles.contentRight}>
-          <VenueInline venue={event.venue} format='sm' />
-        </div>
+        {event.venue && (
+          <div className={styles.contentRight}>
+            <VenueInline venue={event.venue} format='sm' />
+          </div>
+        )}
       </Link>
     </article>
   )

@@ -171,7 +171,6 @@ export async function deleteVenue (id: string): Promise<FormResponse<Venue>> {
   } catch (err: Error | unknown) {
     console.error('Error deleting venue:', err)
     return {
-      errors: {},
       message: err instanceof Error ? err.message : 'Failed to delete venue.'
     }
   }

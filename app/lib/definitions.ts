@@ -7,12 +7,11 @@ export interface User {
   password: string
 }
 
-export type FormResponse<T> = Promise<{
-  ok: true
+export type FormState<T> = {
+  ok?: boolean
   res?: T | T[]
   message?: string
-} | {
-  ok?: false
   errors?: Record<string, string[] | undefined> | string[]
-  message?: string
-} | undefined>
+}
+
+export type FormResponse<T> = Promise<FormState<T> | undefined>

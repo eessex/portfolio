@@ -1,6 +1,7 @@
 'use client'
 
-import { createEmailSubscription } from '@/lib/actions'
+import type { FormState } from '@/lib/definitions'
+import { createEmailSubscription } from '@/lib/email-subscriptions/actions'
 import styles from '@/ui/email-subscribe/email-subscribe.module.scss'
 import { Toast } from '@/ui/toast/toast'
 import Cookies from 'js-cookie'
@@ -9,7 +10,11 @@ import { useActionState, useEffect, useState } from 'react'
 export function EmailSubscribe () {
   const [error, setError] = useState<boolean>(false)
   const [success, setSuccess] = useState<boolean>(false)
-  const [errorMessage, formAction, isPending] = useActionState(onSubscribe, null)
+  const [
+    formState,
+    formAction,
+    isPending
+  ] = useActionState<FormState<string> | undefined, FormData>(onSubscribe, undefined)
   const [isSubscribed, setIsSubscribed] = useState(false)
 
   useEffect(() => {
@@ -17,14 +22,18 @@ export function EmailSubscribe () {
     setIsSubscribed(!!cookie)
   }, [])
 
-  async function onSubscribe (_state: void | null, payload: FormData) {
-    setError(false)
+  async function onSubscribe (_state: FormState<string> | undefined, payload: FormData) {
     try {
-      await createEmailSubscription(payload.get('email') as string)
-      setSuccess(true)
+      const res = await createEmailSubscription<string>(payload)
+      if (res && res.ok) {
+        setSuccess(true)
+      } else {
+        setError(true)
+      }
+      return res
     } catch (error) {
       setError(true)
-      console.info(error)
+      return { message: (error as Error).message || 'Failed to subscribe.' }
     }
   }
 
@@ -74,8 +83,10 @@ export function EmailSubscribe () {
           <SubmitButton />
         </form>
 
-        {(error || errorMessage) && (
-          <Toast type='error' onHide={() => setError(false)} />
+        {error && formState?.message && (
+          <Toast type='error' onHide={() => setError(false)}>
+            {formState?.message}
+          </Toast>
         )}
         {success && (
           <Toast type='success' onHide={onHideSuccess}>

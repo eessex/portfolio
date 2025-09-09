@@ -71,7 +71,7 @@ export function DashboardItems<T extends DashboardItem> (
       if (!res || !res.ok) {
         const message = res?.message || `Failed to edit ${itemType}.`
         console.error(message)
-        return res || { ok: false, message }
+        return res || { message }
       }
       setIsEditDialogOpen(false)
       setItemToEdit(undefined)

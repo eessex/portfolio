@@ -3,9 +3,9 @@ import { imageSchema } from '@/lib/images/schemas'
 import { linkSchema } from '@/lib/links/schemas'
 import { projectSchema } from '@/lib/projects/schemas'
 import { publishedEditionSchema } from '@/lib/published-edition/schemas'
+import { tagSchema } from '@/lib/tags/schemas'
+import { venueSchema } from '@/lib/venues/schemas'
 import { z } from 'zod'
-import { tagSchema } from './tags/schemas'
-import { venueSchema } from './venues/schemas'
 
 /**
  * START Basic reusable schemas
@@ -20,7 +20,7 @@ export const url = shortText.url()
 export const slug = shortText.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
 export const bool = z.boolean()
 export const email = z.string().email()
-// handle nested dates in jsonb objects or a real date
+/** Handle nested dates in jsonb objects or a real date */
 export const date = z.preprocess((val) => {
   if (typeof val === 'string' || val instanceof Date) {
     const parsed = new Date(val)
@@ -108,14 +108,6 @@ export const UserSchema = defaultSchema.extend({
   name: shortText,
   email,
   password: z.string().min(8)
-})
-
-/**
- * Newsletter subscription
- */
-export const EmailSubscriptionSchema = defaultSchema.extend({
-  email,
-  exportedAt: date.optional()
 })
 
 /**

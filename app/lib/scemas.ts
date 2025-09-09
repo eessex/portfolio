@@ -100,16 +100,6 @@ export const hydratedItemIdSchemas = z.object({
  * START Utility types and interfaces
  * They don't generally have their own standalone pages in the client.
  */
-
-/**
- * User represents an admin user who can log into the CMS.
- */
-export const UserSchema = defaultSchema.extend({
-  name: shortText,
-  email,
-  password: z.string().min(8)
-})
-
 /**
  * Slug history to track changes to slugs for SEO and redirect purposes.
  */

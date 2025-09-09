@@ -1,4 +1,4 @@
-import type { User } from '@/lib/definitions'
+import type { User } from '@/lib/users/types'
 import bcrypt from 'bcrypt'
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'

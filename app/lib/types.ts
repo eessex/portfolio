@@ -8,3 +8,5 @@ export type FormState<T> = {
 }
 
 export type FormResponse<T> = Promise<FormState<T> | undefined>
+
+export interface Badge { text: string, color?: 'green' | 'blue' | 'purple' | 'orange' | 'red' }

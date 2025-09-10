@@ -13,6 +13,8 @@
   --transparency-extra-light: rgba(0, 0, 0, 0.075);
   --transparency-light: rgba(0, 0, 0, 0.25);
   --blue: cornflowerblue;
+  --purple: violet;
+  --orange: #ff7f50;
   --error-color: #e65225;
 
   --menubar-height: 3.25rem;
@@ -305,6 +307,21 @@ figcaption {
   &.badge-blue {
     color: currentColor;
     background-color: var(--blue);
+  }
+
+  &.badge-purple {
+    color: currentColor;
+    background-color: var(--purple);
+  }
+
+  &.badge-orange {
+    color: currentColor;
+    background-color: var(--orange);
+  }
+
+  &.badge-red {
+    color: currentColor;
+    background-color: var(--error-color);
   }
 }
 

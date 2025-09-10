@@ -1,9 +1,9 @@
 'use client'
 
-import type { FormResponse } from '@/lib/types'
 import type { DashboardEmbedCode, EmbedCode } from '@/lib/embed-codes/types'
 import type { DashboardImage, Image } from '@/lib/images/types'
 import type { Link as _Link, DashboardLink } from '@/lib/links/types'
+import type { Badge, FormResponse } from '@/lib/types'
 import type { DashboardVenue, Venue } from '@/lib/venues/types'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import type { OpenNewItemFormDetail } from '@/ui/admin-sidebar/add-item-button'
@@ -194,8 +194,14 @@ function DashboardListItem<T extends DashboardItem> ({
       'releaseSlugs' in item && Array.isArray(item.releaseSlugs)
         ? item.releaseSlugs.map(i => releaseUrl(i))
         : []
+    const about = []
+    if ((item as _Link).type === 'press' || (item as Image).isPress) {
+      if (!(item as _Link | Image).isHiddenOnAboutPage) {
+        about.push('/about')
+      }
+    }
 
-    return [...events, ...releases]
+    return [...events, ...releases, ...about]
   }
 
   function titleWithCount () {
@@ -205,15 +211,31 @@ function DashboardListItem<T extends DashboardItem> ({
   }
 
   function badges () {
-    const badges: { text: string, color?: 'green' | 'blue' }[] = []
+    const badges: Badge[] = []
     const link = item as _Link
     const image = item as Image
+    const embedCode = item as EmbedCode
 
     if (link.type === 'press' || image.isPress) {
       badges.push({ text: 'Press' })
     }
     if (link.type === 'social') {
       badges.push({ text: 'Footer link', color: 'blue' })
+    }
+    if (link.type === 'buy_link') {
+      badges.push({ text: 'Buy link', color: 'purple' })
+    }
+    if (link.type === 'stream_link') {
+      badges.push({ text: 'Stream link', color: 'orange' })
+    }
+    if (embedCode.type === 'audio') {
+      badges.push({ text: 'Audio' })
+    }
+    if (embedCode.type === 'video') {
+      badges.push({ text: 'Video', color: 'blue' })
+    }
+    if (usedOnPages().length === 0 && link.type !== 'social') {
+      badges.push({ text: 'Not used', color: 'red' })
     }
     return badges
   }

@@ -1,6 +1,6 @@
 'use server'
 
-import type { FormResponse } from '@/lib/definitions'
+import type { FormResponse } from '@/lib/types'
 import { emailSubscriptionSchema } from '@/lib/email-subscriptions/schemas'
 import { escapeHtml } from '@/ui/util'
 import postgres from 'postgres'

@@ -1,6 +1,6 @@
 'use server'
 
-import type { FormResponse } from '@/lib/definitions'
+import type { FormResponse } from '@/lib/types'
 import { siteSettingsSchema } from '@/lib/site-settings/schemas'
 import { SiteSettings } from '@/lib/site-settings/types'
 import { revalidatePath } from 'next/cache'

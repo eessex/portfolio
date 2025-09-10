@@ -1,6 +1,6 @@
 'use client'
 
-import type { FormResponse } from '@/lib/definitions'
+import type { FormResponse } from '@/lib/types'
 import type { DashboardEmbedCode, EmbedCode } from '@/lib/embed-codes/types'
 import type { DashboardImage, Image } from '@/lib/images/types'
 import type { Link as _Link, DashboardLink } from '@/lib/links/types'

@@ -2,7 +2,7 @@
 
 import { aboutSchema } from '@/lib/about/schemas'
 import type { About } from '@/lib/about/types'
-import type { FormResponse } from '@/lib/definitions'
+import type { FormResponse } from '@/lib/types'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 

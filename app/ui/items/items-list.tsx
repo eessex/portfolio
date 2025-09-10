@@ -1,4 +1,4 @@
-import type { PageType } from '@/lib/definitions'
+import type { PageType } from '@/lib/types'
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import { EventsGridItem } from '@/ui/events-grid/events-grid-item'

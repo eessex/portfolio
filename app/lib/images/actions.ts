@@ -1,6 +1,6 @@
 'use server'
 
-import type { FormResponse } from '@/lib/definitions'
+import type { FormResponse } from '@/lib/types'
 import { imageSchema } from '@/lib/images/schemas'
 import type { Image } from '@/lib/images/types'
 import { revalidatePath } from 'next/cache'

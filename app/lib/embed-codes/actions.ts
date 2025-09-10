@@ -1,6 +1,6 @@
 'use server'
 
-import type { FormResponse } from '@/lib/definitions'
+import type { FormResponse } from '@/lib/types'
 import { embedCodeSchema } from '@/lib/embed-codes/schemas'
 import type { EmbedCode } from '@/lib/embed-codes/types'
 import { revalidatePath } from 'next/cache'

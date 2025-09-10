@@ -1,6 +1,6 @@
 'use client'
 
-import type { FormState } from '@/lib/definitions'
+import type { FormState } from '@/lib/types'
 import { createEmailSubscription } from '@/lib/email-subscriptions/actions'
 import styles from '@/ui/email-subscribe/email-subscribe.module.scss'
 import { Toast } from '@/ui/toast/toast'

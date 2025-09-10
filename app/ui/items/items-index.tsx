@@ -1,6 +1,6 @@
 'use client'
 
-import type { PageType } from '@/lib/definitions'
+import type { PageType } from '@/lib/types'
 import type { EventClient, FetchEventsResult } from '@/lib/events/types'
 import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'

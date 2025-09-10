@@ -1,0 +1,29 @@
+.search-input {
+  position: relative;
+  display: inline-block;
+
+  input[type='search'] {
+    padding-left: 30px; 
+    min-width: 280px;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: 48%;
+    left: 6px;
+    width: 20px;
+    height: 20px;
+    background-image: url('/magnifying-glass.svg');
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
+    background-size: contain;
+    opacity: 0.5;
+    transform: translateY(-50%);
+
+    @media (prefers-color-scheme: dark) {
+      filter: invert(1);
+    }
+  }
+}

@@ -152,16 +152,16 @@ export function ItemsFilterNav ({
     <nav className={itemsStyles['items-header-controls']}>
       <ul>
         <li>
+          <ExpandCollapseButton
+            isExpanded={isExpanded}
+            onExpand={onExpand}
+          />
+        </li>
+        <li>
           <SearchInput
             value={searchTerm}
             onChange={setSearchTerm}
             label={`Search ${itemType}`}
-          />
-        </li>
-        <li>
-          <ExpandCollapseButton
-            isExpanded={isExpanded}
-            onExpand={onExpand}
           />
         </li>
       </ul>

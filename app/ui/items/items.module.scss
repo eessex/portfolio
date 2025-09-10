@@ -54,16 +54,12 @@
     background: var(--background);
 
     ul {
-      padding-left: 1rem;
       width: 100%;
-    }
+      justify-content: space-between;
 
-    li:first-child {
-      flex: 1;
-    }
-
-    li:last-child {
-      flex: 0;
+      li {
+        width: min-content;
+      }
     }
 
     input[type='search'] {
@@ -84,6 +80,10 @@
   z-index: 100;
   border-bottom: var(--items-list-border);
   background: var(--background);
+
+  @include breakpoints.sm-width {
+    align-items: flex-end;
+  }
 }
 
 // GRID LAYOUT

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import styles from './search-input.module.scss'
 
 export function SearchInput ({
   value,
@@ -14,7 +15,7 @@ export function SearchInput ({
   const [inputValue, setInputValue] = useState(value)
 
   return (
-    <div>
+    <div className={styles['search-input']}>
       <label
         className='visually-hidden'
         htmlFor='search-input'

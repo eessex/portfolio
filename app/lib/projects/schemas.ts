@@ -1,4 +1,4 @@
-import { basePageSchema, embeddedItemIdSchemas } from '@/lib/scemas'
+import { basePageSchema, embeddedItemIdSchemas } from '@/lib/schemas'
 import { z } from 'zod'
 
 /**

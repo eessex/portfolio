@@ -3,7 +3,7 @@ import {
   baseDashboardItemSlugsSchema,
   longText,
   shortText
-} from '@/lib/scemas'
+} from '@/lib/schemas'
 import { z } from 'zod'
 
 /**

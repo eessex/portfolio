@@ -3,7 +3,7 @@ import {
   defaultSchema,
   hydratedItemIdSchemas,
   shortText
-} from '@/lib/scemas'
+} from '@/lib/schemas'
 
 /**
  * Site settings represent global settings for the site.

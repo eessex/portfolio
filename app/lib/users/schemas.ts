@@ -1,4 +1,4 @@
-import { defaultSchema, email, shortText } from '@/lib/scemas'
+import { defaultSchema, email, shortText } from '@/lib/schemas'
 import { z } from 'zod'
 
 /**

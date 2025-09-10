@@ -5,7 +5,7 @@ import {
   embeddedItemIdSchemas,
   shortText,
   uuid
-} from '@/lib/scemas'
+} from '@/lib/schemas'
 import { z } from 'zod'
 
 export const publishedEditionTypes = [

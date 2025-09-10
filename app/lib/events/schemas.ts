@@ -5,7 +5,7 @@ import {
   hydratedItemIdSchemas,
   url,
   uuid
-} from '@/lib/scemas'
+} from '@/lib/schemas'
 
 /**
  * An event, such as a concert, performance, opening, or screening.

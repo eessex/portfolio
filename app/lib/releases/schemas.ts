@@ -4,7 +4,7 @@ import {
   embeddedItemIdSchemas,
   hydratedItemIdSchemas,
   shortText
-} from '@/lib/scemas'
+} from '@/lib/schemas'
 import { z } from 'zod'
 
 export const releaseTypes = [

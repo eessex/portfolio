@@ -4,7 +4,7 @@ import {
   shortText,
   url,
   uuid
-} from '@/lib/scemas'
+} from '@/lib/schemas'
 import { z } from 'zod'
 
 /**

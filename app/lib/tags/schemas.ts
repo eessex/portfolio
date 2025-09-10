@@ -1,4 +1,4 @@
-import { bool, defaultSchema } from '@/lib/scemas'
+import { bool, defaultSchema } from '@/lib/schemas'
 import { z } from 'zod'
 
 /**

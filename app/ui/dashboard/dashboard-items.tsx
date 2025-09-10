@@ -1,7 +1,9 @@
 'use client'
 
+import { embedCodeTypes } from '@/lib/embed-codes/schemas'
 import type { DashboardEmbedCode, EmbedCode } from '@/lib/embed-codes/types'
 import type { DashboardImage, Image } from '@/lib/images/types'
+import { linkTypes } from '@/lib/links/schemas'
 import type { Link as _Link, DashboardLink } from '@/lib/links/types'
 import type { Badge, FormResponse } from '@/lib/types'
 import type { DashboardVenue, Venue } from '@/lib/venues/types'
@@ -49,16 +51,21 @@ export function DashboardItems<T extends DashboardItem> (
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [itemToEdit, setItemToEdit] = useState<T | undefined>(undefined)
   const [searchTerm, setSearchTerm] = useState('')
+  const [filterType, setFilterType] = useState<string | undefined>(undefined)
 
-  const filteredItems = () => {
+  function filteredItems () {
     const savedItems = items.filter(item => !!item.id)
-    const term = searchTerm.toLowerCase()
-    if (!searchTerm) return savedItems
 
-    return savedItems.filter(item =>
+    const typeFilteredItems = filterType
+      ? savedItems.filter(item => (item as _Link | EmbedCode).type === filterType)
+      : savedItems
+
+    if (!searchTerm) return typeFilteredItems
+
+    return typeFilteredItems.filter(item =>
       Object.values(item)
         .filter(val => typeof val === 'string')
-        .some(val => (val as string).toLowerCase().includes(term))
+        .some(val => (val as string).toLowerCase().includes(searchTerm.toLowerCase()))
     )
   }
 
@@ -117,10 +124,33 @@ export function DashboardItems<T extends DashboardItem> (
   }
 
   function headingTitle () {
-    if (searchTerm.length > 0) {
-      return `${formattedItemType()} matching "${searchTerm}" (${filteredItems().length})`
+    const count = filteredItems().length
+    const typeLabel = formattedItemType()
+
+    if (searchTerm && filterType) {
+      return `${typeLabel} of type "${filterType}" matching "${searchTerm}" (${count})`
     }
-    return `All ${formattedItemType()} (${filteredItems().length})`
+
+    if (searchTerm) {
+      return `${typeLabel} matching "${searchTerm}" (${count})`
+    }
+
+    if (filterType) {
+      return `${typeLabel} of type "${filterType}" (${count})`
+    }
+
+    return `All ${typeLabel} (${count})`
+  }
+
+  function filterTypes () {
+    switch (itemType) {
+      case 'link':
+        return [...linkTypes]
+      case 'embedCode':
+        return [...embedCodeTypes]
+      default:
+        return undefined
+    }
   }
 
   const headingId = useId()
@@ -133,6 +163,9 @@ export function DashboardItems<T extends DashboardItem> (
         isExpanded={isExpanded}
         onExpand={toggleExpand}
         itemType={itemType}
+        filterTypes={filterTypes()}
+        filterType={filterType}
+        setFilterType={setFilterType}
       />
 
       <div className={itemsStyles['items-section']}>

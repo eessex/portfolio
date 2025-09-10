@@ -4,8 +4,8 @@
   gap: 0.5rem;
   align-items: center;
   font-weight: bold;
-  color: var(--background);
-  background: var(--foreground);
+  color: rgba(var(--background), 1);
+  background: rgba(var(--foreground), 1);
 
   svg {
     width: 100%;

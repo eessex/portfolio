@@ -1,13 +1,14 @@
 'use client'
 
-import type { PageType } from '@/lib/types'
 import type { EventClient, FetchEventsResult } from '@/lib/events/types'
 import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
+import type { PageType } from '@/lib/types'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
 import { ItemsList } from '@/ui/items/items-list'
 import itemsStyles from '@/ui/items/items.module.scss'
 import { SearchInput } from '@/ui/search-input/search-input'
-import { camelToSentence } from '@/ui/util'
+import { camelToSentence, snakeToCamel } from '@/ui/util'
+import { clsx } from 'clsx'
 import { useState } from 'react'
 
 type PageIndexProps<V extends FetchEventsResult | FetchReleasesResult> = {
@@ -127,18 +128,54 @@ export function ItemsIndex<T extends EventClient | ReleaseClient, V extends Fetc
   )
 }
 
+export function FilterTypeSelect ({
+  filterTypes,
+  onChange,
+  label,
+  value
+}: {
+  filterTypes: Array<string> | undefined
+  onChange?: (term: string | undefined) => void | undefined
+  label: string
+  value?: string | undefined
+}) {
+  if (!filterTypes || filterTypes.length === 0 || !onChange) return null
+
+  return (
+    <div className={clsx(itemsStyles['select'], (value && value !== '') && itemsStyles['is-selected'])}>
+      <select
+        className='input'
+        onChange={e => onChange(e.target.value)}
+        defaultValue={value}
+        aria-label={label}
+      >
+        <option value=''>No filters</option>
+        {filterTypes.map((type, i) => (
+          <option key={i} value={type}>{camelToSentence(snakeToCamel(type))}</option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
 export function ItemsFilterNav ({
+  filterType,
   searchTerm,
   setSearchTerm,
+  setFilterType,
   isExpanded,
   onExpand,
-  itemType
+  itemType,
+  filterTypes
 }: {
+  filterType?: string,
   searchTerm: string,
   setSearchTerm: (term: string) => void,
+  setFilterType?: (type: string | undefined) => void,
   isExpanded: boolean,
   onExpand: () => void,
-  itemType: string
+  itemType: string,
+  filterTypes?: Array<string> | undefined
 }) {
   return (
     <nav className={itemsStyles['items-header-controls']}>
@@ -150,10 +187,18 @@ export function ItemsFilterNav ({
           />
         </li>
         <li>
+          <FilterTypeSelect
+            filterTypes={filterTypes}
+            onChange={setFilterType || undefined}
+            label={`Filter ${itemType}s`}
+            value={filterType}
+          />
+        </li>
+        <li>
           <SearchInput
             value={searchTerm}
             onChange={setSearchTerm}
-            label={`Search ${itemType}`}
+            label={`Search ${itemType}s`}
           />
         </li>
       </ul>

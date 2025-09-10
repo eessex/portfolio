@@ -2,16 +2,16 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 255, 255, 255;
+  --foreground: 237, 237, 237;
   --accent-light: #32e3ae;
   --accent-dark: #1f9673;
   --accent-primary: var(--accent-dark);
   --accent-secondary: var(--accent-light);
-  --transparency-primary: rgba(0, 0, 0, 0.15);
-  --transparency-secondary: rgba(0, 0, 0, 0.35);
-  --transparency-extra-light: rgba(0, 0, 0, 0.075);
-  --transparency-light: rgba(0, 0, 0, 0.25);
+  --transparency-primary: rgba(var(--foreground), 0.15);
+  --transparency-secondary: rgba(var(--foreground), 0.35);
+  --transparency-extra-light: rgba(var(--foreground), 0.075);
+  --transparency-light: rgba(var(--foreground), 0.25);
   --blue: cornflowerblue;
   --purple: violet;
   --orange: #ff7f50;
@@ -40,8 +40,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: normal;
-  color: var(--foreground);
-  background: var(--background);
+  color: rgba(var(--foreground), 1);
+  background: rgba(var(--background), 1);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -163,18 +163,18 @@ button, a[href].button {
   }
 
   &.button {
-    color: var(--background);
-    background: var(--foreground);
+    color: rgba(var(--background), 1);
+    background: rgba(var(--foreground), 1);
     padding: 0.75rem 1.25rem;
 
 
     &.button-secondary {
-      color: var(--foreground);
+      color: rgba(var(--foreground), 1);
       background: none;
-      border: 1px solid var(--foreground);
+      border: 1px solid rgba(var(--foreground), 1);
 
       svg {
-        color: var(--foreground);
+        color: rgba(var(--foreground), 1);
       }
     }
 
@@ -224,8 +224,9 @@ button.icon-button {
   }
 
   &:disabled {
-    background: #ddd;
+    background: var(--transparency-secondary);
     color: #777;
+    cursor: not-allowed;
   }
 }
 
@@ -244,10 +245,11 @@ img {
   background: var(--transparency-secondary);
 }
 
-input, textarea {
+input, textarea, select {
   padding: 0.5em 0.75em;
-  background: #eee;
+  background: rgba(var(--foreground), .8);
   border: 2px solid transparent;
+  vertical-align: middle; 
 
   &.dirty:invalid {
     border-color: var(--error-color);
@@ -256,24 +258,20 @@ input, textarea {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed; 
+    --background: 10, 10 , 10;
+    --foreground: 237, 237, 237; 
     --accent-primary: var(--accent-light);
     --accent-secondary: var(--accent-dark);
-    --transparency-primary: rgba(255, 255, 255, 0.35);
-    --transparency-secondary: rgba(255, 255, 255, 0.15);
-    --transparency-extra-light: rgba(255, 255, 255, 0.1);
-    --transparency-light: rgba(255, 255, 255, 0.25);
     --blue: steelblue;
   }
 
-  input, textarea {
-    background: #202020;
-    color: #ededed;
+  input, textarea, select {
+    background: var(--transparency-extra-light);
 
     &:disabled {
-      background: #444;
-      color: #a3a3a3;
+      background: var(--transparency-primary);
+      color: var(--transparency-primary);
+      cursor: not-allowed;
     }
   }
 }
@@ -281,7 +279,7 @@ input, textarea {
 footer {
   position: sticky;
   bottom: 0;
-  background: var(--background);
+  background: rgba(var(--background), 1);
   z-index: 1001;
 }
 

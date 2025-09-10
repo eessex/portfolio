@@ -21,8 +21,8 @@
     margin: 4rem 2rem;
     max-width: 475px;
     font-size: larger;
-    color: var(--background);
-    background: var(--foreground);
+    color: rgba(var(--background), 1);
+    background: rgba(var(--foreground), 1);
     z-index: 1;
   }
 

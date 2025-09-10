@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   transition: all 0.25s ease-in-out;
-  background-color: var(--background);
+  background-color: rgba(var(--background), 1);
   height: var(--menubar-height);
   left: 0;
   right: 0;

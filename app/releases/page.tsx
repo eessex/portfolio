@@ -23,6 +23,7 @@ export default async function ReleasesPage () {
         <ItemsIndex<ReleaseClient, FetchReleasesResult>
           pageType='release'
           items={releases}
+          isExpandedOnLoad
         />
       </Suspense>
     </div>

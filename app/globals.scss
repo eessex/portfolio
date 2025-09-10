@@ -3,7 +3,7 @@
 
 :root {
   --background: 255, 255, 255;
-  --foreground: 237, 237, 237;
+  --foreground: 43, 27, 23;
   --accent-light: #32e3ae;
   --accent-dark: #1f9673;
   --accent-primary: var(--accent-dark);
@@ -247,7 +247,7 @@ img {
 
 input, textarea, select {
   padding: 0.5em 0.75em;
-  background: rgba(var(--foreground), .8);
+  background: var(--transparency-primary);
   border: 2px solid transparent;
   vertical-align: middle; 
 

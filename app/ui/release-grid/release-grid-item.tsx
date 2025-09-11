@@ -2,6 +2,7 @@ import type { ReleaseClient } from '@/lib/releases/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import styles from '@/ui/items/items.module.scss'
 import { combinePublishedEditions, formattedDateTime, releaseUrl } from '@/ui/util'
+import NextImage from 'next/image'
 import Link from 'next/link'
 
 export function ReleaseGridItem ({
@@ -16,13 +17,13 @@ export function ReleaseGridItem ({
       {release.coverImage && (
         <figure style={{ aspectRatio: release.coverImage.aspect }}>
           <Link href={releaseUrl(release.slug)}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <NextImage
               src={release.coverImage.url}
-              alt={release.coverImage.caption || `Cover artwork for ${release.title}`}
-              style={{ aspectRatio: release.coverImage.aspect }}
+              alt={release.coverImage.alt || release.coverImage.caption || ''}
+              title={release.coverImage.caption || release.coverImage.alt || undefined}
+              width={500 * release.coverImage.aspect}
+              height={500}
               loading={index > 8 ? 'lazy' : undefined}
-              title={release.coverImage.caption || undefined}
             />
           </Link>
         </figure>

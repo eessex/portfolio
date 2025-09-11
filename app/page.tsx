@@ -3,6 +3,7 @@ import { fetchEvents } from '@/lib/events/data'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { EventsGrid } from '@/ui/events-grid/events-grid'
 import { Loading } from '@/ui/loading'
+import NextImage from 'next/image'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { auth } from '../auth'
@@ -39,13 +40,12 @@ export default async function Home () {
 
         {settings?.coverImage && (
           <figure style={{ aspectRatio: settings.coverImage.aspect }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <NextImage
               src={settings.coverImage.url}
-              alt={settings.coverImage.caption}
-              title={settings.coverImage.caption}
-              style={{ aspectRatio: settings.coverImage.aspect }}
-              className='cover-img'
+              alt={settings.coverImage.alt || settings.coverImage.caption || ''}
+              title={settings.coverImage.caption || settings.coverImage.alt || undefined}
+              width={800 * settings.coverImage.aspect}
+              height={800}
             />
           </figure>
         )}

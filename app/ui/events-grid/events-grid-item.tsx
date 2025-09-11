@@ -4,6 +4,7 @@ import { DraftBadge } from '@/ui/draft-badge'
 import { eventUrl, formattedDateTime } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
 import { TicketIcon } from '@heroicons/react/24/outline'
+import NextImage from 'next/image'
 import Link from 'next/link'
 
 function Metadata ({ event }: { event: EventClient }) {
@@ -30,13 +31,13 @@ function Metadata ({ event }: { event: EventClient }) {
 
 function Img ({ image, index }: { image: Image, index: number }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
+    <NextImage
       src={image.url}
-      alt={image.caption || ''}
-      style={{ aspectRatio: image.aspect }}
+      alt={image.alt || image.caption || ''}
+      title={image.caption || image.alt || undefined}
+      width={500 * image.aspect}
+      height={500}
       loading={index > 4 ? 'lazy' : undefined}
-      title={image.caption || undefined}
     />
   )
 }

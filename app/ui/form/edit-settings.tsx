@@ -5,6 +5,7 @@ import type { SiteSettingsClient } from '@/lib/site-settings/types'
 import { Form } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import NextImage from 'next/image'
 import { useState } from 'react'
 
 export function EditSettings ({ settings }: { settings: SiteSettingsClient }) {
@@ -50,10 +51,15 @@ export function EditSettings ({ settings }: { settings: SiteSettingsClient }) {
           }}
         />
 
-        {coverImageId && (
+        {coverImageId && settings?.coverImage && (
           <figure style={{ aspectRatio: settings?.coverImage?.aspect }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={settings?.coverImage?.url} alt={settings?.coverImage?.caption} title={settings?.coverImage?.caption} />
+            <NextImage
+              src={settings?.coverImage?.url}
+              alt={settings?.coverImage?.alt || settings?.coverImage?.caption || ''}
+              title={settings?.coverImage?.caption || settings?.coverImage?.alt || undefined}
+              width={500 * settings?.coverImage?.aspect}
+              height={500}
+            />
             <button type='button' onClick={() => setCoverImageId(undefined)} className='button' aria-label='Remove cover image'>
               <XMarkIcon />
             </button>

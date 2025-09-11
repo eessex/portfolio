@@ -1,4 +1,5 @@
 import type { Image } from '@/lib/images/types'
+import NextImage from 'next/image'
 
 export const FigureImage = ({
   image,
@@ -16,13 +17,13 @@ export const FigureImage = ({
   }
   return (
     <figure className={className}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <NextImage
         src={image.url}
-        alt={image.alt || ''}
-        title={!isCaptionHidden && image.caption ? image.caption : undefined}
-        style={{ aspectRatio: image.aspect }}
-        loading={isLazy ? 'lazy' : 'eager'}
+        alt={image.alt || image.caption || ''}
+        title={image.caption || image.caption || undefined}
+        width={500 * image.aspect}
+        height={500}
+        loading={isLazy ? 'lazy' : undefined}
       />
       {image.caption && !isCaptionHidden && (
         <figcaption>{image.caption}</figcaption>

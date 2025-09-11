@@ -3,7 +3,7 @@ import { DraftBadge } from '@/ui/draft-badge'
 import styles from '@/ui/items/items.module.scss'
 import { eventUrl, formattedDateTime } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
-import Link from 'next/link'
+import NextLink from 'next/link'
 
 export function EventsListItem ({
   event,
@@ -14,7 +14,7 @@ export function EventsListItem ({
 }) {
   return (
     <article>
-      <Link href={eventUrl(event.slug)}>
+      <NextLink href={eventUrl(event.slug)}>
         <div className={styles.contentLeft}>
           <div>
             {formattedDateTime(event.startTime, 'md')}
@@ -30,7 +30,7 @@ export function EventsListItem ({
             <VenueInline venue={event.venue} format='sm' />
           </div>
         )}
-      </Link>
+      </NextLink>
     </article>
   )
 }

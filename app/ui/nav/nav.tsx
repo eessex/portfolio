@@ -3,7 +3,7 @@
 import style from '@/ui/nav/nav.module.scss'
 import { useWindowScrollPosition } from '@/ui/nav/scroll-position'
 import clsx from 'clsx'
-import Link from 'next/link'
+import NextLink from 'next/link'
 
 export function Nav ({ title }: { title?: string }) {
   const {
@@ -12,37 +12,32 @@ export function Nav ({ title }: { title?: string }) {
   } = useWindowScrollPosition()
 
   return (
-    <header className={clsx(`
-      ${style['menubar']} menubar
-      ${(isScrollingDown && !isAtContentTop) && style['hide'] + ' hide'}
-    `)}
+    <header
+      className={clsx(`
+        ${style['menubar']} menubar
+        ${(isScrollingDown && !isAtContentTop) && style['hide'] + ' hide'}
+      `)}
+      role='banner'
     >
+      <div>
+        <NextLink href='/'>
+          <span>{title || 'Site Title'}</span>
+        </NextLink>
 
-      <nav>
-        <h1>
-          <Link href='/'>
-            {title || 'Site Title'}
-          </Link>
-        </h1>
-
-        <ul className='flex flex-row space-x-4 font-bold'>
-          <li>
-            <Link href='/events'>
-              Events
-            </Link>
-          </li>
-          <li>
-            <Link href='/releases'>
-              Releases
-            </Link>
-          </li>
-          <li>
-            <Link href='/about'>
-              About
-            </Link>
-          </li>
-        </ul>
-      </nav>
+        <nav aria-label='Main navigation'>
+          <ul>
+            <li>
+              <NextLink href='/events'>Events</NextLink>
+            </li>
+            <li>
+              <NextLink href='/releases'>Releases</NextLink>
+            </li>
+            <li>
+              <NextLink href='/about'>About</NextLink>
+            </li>
+          </ul>
+        </nav>
+      </div>
     </header>
   )
 }

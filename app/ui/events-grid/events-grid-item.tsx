@@ -5,7 +5,7 @@ import { eventUrl, formattedDateTime } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
 import { TicketIcon } from '@heroicons/react/24/outline'
 import NextImage from 'next/image'
-import Link from 'next/link'
+import NextLink from 'next/link'
 
 function Metadata ({ event }: { event: EventClient }) {
   return (
@@ -62,20 +62,20 @@ export function EventsGridItem ({
     <article>
       {isColumn() && !isTextOnly && event.coverImage && (
         <figure style={{ aspectRatio: event.coverImage.aspect }}>
-          <Link href={eventUrl(event.slug)}>
+          <NextLink href={eventUrl(event.slug)}>
             <Img image={event.coverImage} index={index} />
-          </Link>
+          </NextLink>
         </figure>
       )}
       <section>
-        <Link href={eventUrl(event.slug)}>
+        <NextLink href={eventUrl(event.slug)}>
           {!isColumn() && event.coverImage?.url && !isTextOnly && (
             <figure style={{ aspectRatio: event.coverImage.aspect }}>
               <Img image={event.coverImage} index={index} />
             </figure>
           )}
           <Metadata event={event} />
-        </Link>
+        </NextLink>
 
         {event.ticketLink && isUpcoming && (
           <a className='button' href={event.ticketLink} target='_blank' rel='noreferrer'>

@@ -1,4 +1,3 @@
-import type { Link as _Link } from '@/lib/links/types'
 import { fetchReleaseBySlug, fetchReleases } from '@/lib/releases/data'
 import styles from '@/releases/[slug]/release.module.scss'
 import { DraftBadge } from '@/ui/draft-badge'
@@ -7,7 +6,7 @@ import { FigureImage } from '@/ui/images/image-figure'
 import { LinksList } from '@/ui/links/link-list'
 import { combinePublishedEditions, filteredLinksByPress, formattedDateTime } from '@/ui/util'
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
 import { auth } from '../../../auth'
 
@@ -80,7 +79,7 @@ export default async function ReleasesPage ({
       <article className={styles.release}>
         <header>
           <div className={styles.category}>
-            <Link href='/releases'>{releaseCategory()}</Link>
+            <NextLink href='/releases'>{releaseCategory()}</NextLink>
             {!release.isPublished && <DraftBadge />}
           </div>
           <h1>{release.artist}: {release.title}</h1>

@@ -1,7 +1,7 @@
 'use client'
 
 import { PencilIcon } from '@heroicons/react/24/outline'
-import Link from 'next/link'
+import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const editablePaths = [
@@ -20,9 +20,9 @@ export function EditButton ({ className }: { className?: string }) {
 
   return (
     <li>
-      <Link href={`${pathname}/edit`} className={`button ${className}`}>
+      <NextLink href={`${pathname}/edit`} className={`button ${className}`}>
         <PencilIcon /> Edit Page
-      </Link>
+      </NextLink>
     </li>
   )
 }

@@ -1,14 +1,14 @@
-import type { Link as _Link } from '@/lib/links/types'
+import type { Link } from '@/lib/links/types'
 // import { Checkbox } from '@/ui/form/checkbox'
 // import styles from '@/ui/form/form.module.scss'
 import { Input, type InputType } from '@/ui/form/input'
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
 // import clsx from 'clsx'
-// import Link from 'next/link'
+// import NextLink from 'next/link'
 import { useCallback, useRef, useState } from 'react'
 
 interface LinkProps {
-  link?: _Link,
+  link?: Link,
   index?: number,
   isFielset?: boolean,
   ref?: (el: InputType) => InputType | null,
@@ -97,7 +97,7 @@ export const EditLink = ({ link, index, ref, onRemoveLink }: LinkProps) => {
 
       <fieldset className={styles['checkbox-group']} disabled={!!link?.isSocialProfile}>
         <legend>Press link</legend>
-        <p>Press links are automatically shown on your <Link href='/about' target='_blank'>about</Link> page, and can include additional data like an attribution and a quotation.</p>
+        <p>Press links are automatically shown on your <NextLink href='/about' target='_blank'>about</NextLink> page, and can include additional data like an attribution and a quotation.</p>
         <Checkbox
           label='This is a press link'
           isChecked={isPress}
@@ -165,7 +165,7 @@ export const EditLink = ({ link, index, ref, onRemoveLink }: LinkProps) => {
 export const EditLinksFieldset = ({
   links
 }: {
-  links: _Link[]
+  links: Link[]
 }) => {
   const initialLinks = links || []
   const [linkList, setLinkList] = useState(initialLinks)

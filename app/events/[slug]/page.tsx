@@ -1,7 +1,7 @@
 import styles from '@/events/[slug]/event.module.scss'
 import { fetchEventBySlug, fetchEvents } from '@/lib/events/data'
-import type { Link as _Link } from '@/lib/links/types'
 import { DraftBadge } from '@/ui/draft-badge'
+import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { EventsGrid } from '@/ui/events-grid/events-grid'
 import { FigureImage } from '@/ui/images/image-figure'
 import { LinksList } from '@/ui/links/link-list'
@@ -10,11 +10,10 @@ import { filteredLinksByPress, formattedDateTime, isUpcomingDate } from '@/ui/ut
 import { VenueInline } from '@/ui/venues/venue'
 import { TicketIcon } from '@heroicons/react/24/outline'
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { auth } from '../../../auth'
-import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -73,7 +72,7 @@ export default async function EventsPage ({
       <article className={styles.event}>
         <header>
           <div className={styles.category}>
-            <Link href='/events'>{category}</Link>
+            <NextLink href='/events'>{category}</NextLink>
             {!event.isPublished && (
               <DraftBadge />
             )}

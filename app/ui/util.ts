@@ -1,4 +1,4 @@
-import type { Link as _Link } from '@/lib/links/types'
+import type { Link } from '@/lib/links/types'
 import type { PublishedEditionClient } from '@/lib/published-edition/types'
 import type { z } from 'zod'
 
@@ -126,15 +126,15 @@ export function releaseUrl (slug: string) {
   return `/releases/${slug}`
 }
 
-export function filteredLinksByPress (links: Array<_Link>) {
-  const sortByDate = (a: _Link, b: _Link) => {
+export function filteredLinksByPress (links: Array<Link>) {
+  const sortByDate = (a: Link, b: Link) => {
     const aDate = new Date(a.publishDate ?? a.createdAt)
     const bDate = new Date(b.publishDate ?? b.createdAt)
     return bDate.getTime() - aDate.getTime()
   }
 
-  const pressLinks: Array<_Link> = []
-  const otherLinks: Array<_Link> = []
+  const pressLinks: Array<Link> = []
+  const otherLinks: Array<Link> = []
 
   links.forEach((link) => {
     (link.type === 'press' ? pressLinks : otherLinks).push(link)

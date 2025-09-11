@@ -4,7 +4,7 @@ import { embedCodeTypes } from '@/lib/embed-codes/schemas'
 import type { DashboardEmbedCode, EmbedCode } from '@/lib/embed-codes/types'
 import type { DashboardImage, Image } from '@/lib/images/types'
 import { linkTypes } from '@/lib/links/schemas'
-import type { Link as _Link, DashboardLink } from '@/lib/links/types'
+import type { DashboardLink, Link } from '@/lib/links/types'
 import type { Badge, FormResponse } from '@/lib/types'
 import type { DashboardVenue, Venue } from '@/lib/venues/types'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
@@ -24,7 +24,7 @@ import { LinkItem } from '@/ui/links/link-item'
 import { camelToSentence, eventUrl, releaseUrl } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 import { VenueInline } from '@/ui/venues/venue'
-import Link from 'next/link'
+import NextLink from 'next/link'
 import { useCallback, useEffect, useId, useState } from 'react'
 
 declare global {
@@ -57,7 +57,7 @@ export function DashboardItems<T extends DashboardItem> (
     const savedItems = items.filter(item => !!item.id)
 
     const typeFilteredItems = filterType
-      ? savedItems.filter(item => (item as _Link | EmbedCode).type === filterType)
+      ? savedItems.filter(item => (item as Link | EmbedCode).type === filterType)
       : savedItems
 
     if (!searchTerm) return typeFilteredItems
@@ -228,8 +228,8 @@ function DashboardListItem<T extends DashboardItem> ({
         ? item.releaseSlugs.map(i => releaseUrl(i))
         : []
     const about = []
-    if ((item as _Link).type === 'press' || (item as Image).isPress) {
-      if (!(item as _Link | Image).isHiddenOnAboutPage) {
+    if ((item as Link).type === 'press' || (item as Image).isPress) {
+      if (!(item as Link | Image).isHiddenOnAboutPage) {
         about.push('/about')
       }
     }
@@ -245,7 +245,7 @@ function DashboardListItem<T extends DashboardItem> ({
 
   function badges () {
     const badges: Badge[] = []
-    const link = item as _Link
+    const link = item as Link
     const image = item as Image
     const embedCode = item as EmbedCode
 
@@ -286,7 +286,7 @@ function DashboardListItem<T extends DashboardItem> ({
         return `${imageTitle}${fileName ? `: ${fileName}` : ''}`
       }
       case 'link': {
-        const linkItem = item as _Link
+        const linkItem = item as Link
         return linkItem.title || 'Untitled'
       }
       case 'venue': {
@@ -306,10 +306,10 @@ function DashboardListItem<T extends DashboardItem> ({
         <EditItemNav id={item.id!} onEdit={onEdit} onDelete={onDelete} />
         <ItemDisplay item={item} itemType={itemType} />
 
-        {(item as _Link | Venue).url && (
+        {(item as Link | Venue).url && (
           <div>
             <h3>URL:</h3>
-            <p>{(item as _Link | Venue).url}</p>
+            <p>{(item as Link | Venue).url}</p>
           </div>
         )}
 
@@ -325,9 +325,9 @@ function DashboardListItem<T extends DashboardItem> ({
               ? (
                   usedOnPages().map((page) => (
                     <li key={page}>
-                      <Link href={page} target='_blank' rel='noopener noreferrer'>
+                      <NextLink href={page} target='_blank' rel='noopener noreferrer'>
                         {page}
-                      </Link>
+                      </NextLink>
                     </li>
                   ))
                 )
@@ -354,7 +354,7 @@ export function EditItem ({
     case 'image':
       return <EditImage image={item as Image | undefined} />
     case 'link':
-      return <EditLink link={item as _Link | undefined} />
+      return <EditLink link={item as Link | undefined} />
     case 'venue':
       return <EditVenue venue={item as Venue | undefined} />
     default:
@@ -377,9 +377,9 @@ export function ItemDisplay ({
         <FigureImage image={item as Image} />
       )
     case 'link':
-      if ((item as _Link).quotation || (item as _Link).attribution) {
+      if ((item as Link).quotation || (item as Link).attribution) {
         return (
-          <LinkItem link={item as _Link} />
+          <LinkItem link={item as Link} />
         )
       }
       break

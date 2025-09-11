@@ -4,7 +4,7 @@ import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { EventsGrid } from '@/ui/events-grid/events-grid'
 import { Loading } from '@/ui/loading'
 import NextImage from 'next/image'
-import Link from 'next/link'
+import NextLink from 'next/link'
 import { Suspense } from 'react'
 import { auth } from '../auth'
 
@@ -51,7 +51,7 @@ export default async function Home () {
         )}
 
         {settings?.description && (
-          <Link href='/about' className={'button ' + styles.description}>{settings.description}</Link>
+          <NextLink href='/about' className={'button ' + styles.description}>{settings.description}</NextLink>
         )}
       </section>
 

@@ -8,14 +8,29 @@
   right: 0;
   z-index: 2000;
   flex-shrink: 0;
-  
-  nav {
+
+  > div > a:first-child {
+    font-size: larger;
+  }
+
+  a {
+    font-weight: bold;
+  }
+
+  > div {
     max-width: var(--max-body-width);
     margin: 0 auto;
     padding: var(--items-list-padding);
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    ul {
+      display: flex;
+      gap: 1em;
+      margin: 0;
+      padding: 0;
+    }
 
     li {
       margin: 0;

@@ -99,7 +99,7 @@ export default async function EventsPage ({
           )}
         </header>
 
-        {event.coverImage && (<FigureImage image={event.coverImage} />)}
+        {event.coverImage && (<FigureImage image={event.coverImage} isPriority />)}
 
         <section>
           {event.description && (

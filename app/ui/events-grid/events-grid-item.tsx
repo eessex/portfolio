@@ -38,6 +38,7 @@ function Img ({ image, index }: { image: Image, index: number }) {
       width={500 * image.aspect}
       height={500}
       loading={index > 4 ? 'lazy' : undefined}
+      priority={index < 4}
     />
   )
 }

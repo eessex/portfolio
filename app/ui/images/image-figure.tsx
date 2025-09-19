@@ -5,12 +5,14 @@ export const FigureImage = ({
   image,
   isCaptionHidden,
   isLazy,
-  className
+  className,
+  isPriority
 }: {
   image: Image,
   isCaptionHidden?: boolean,
   isLazy?: boolean,
-  className?: string
+  className?: string,
+  isPriority?: boolean
 }) => {
   if (!image) {
     return null
@@ -24,6 +26,7 @@ export const FigureImage = ({
         width={500 * image.aspect}
         height={500}
         loading={isLazy ? 'lazy' : undefined}
+        priority={isPriority}
       />
       {image.caption && !isCaptionHidden && (
         <figcaption>{image.caption}</figcaption>

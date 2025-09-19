@@ -64,6 +64,7 @@ export default async function AboutPage () {
           <FigureImage
             image={{ ...about.coverImage, id: about.coverImageId }}
             className={styles['cover-image']}
+            isPriority
           />
         )}
 

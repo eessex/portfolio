@@ -24,6 +24,7 @@ export function ReleaseGridItem ({
               width={500 * release.coverImage.aspect}
               height={500}
               loading={index > 8 ? 'lazy' : undefined}
+              priority={index < 8}
             />
           </Link>
         </figure>

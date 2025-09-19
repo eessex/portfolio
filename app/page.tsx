@@ -46,6 +46,7 @@ export default async function Home () {
               title={settings.coverImage.caption || settings.coverImage.alt || undefined}
               width={800 * settings.coverImage.aspect}
               height={800}
+              priority
             />
           </figure>
         )}

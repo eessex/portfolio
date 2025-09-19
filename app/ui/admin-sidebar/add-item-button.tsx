@@ -1,19 +1,19 @@
 'use client'
 
+import { embeddedItemTypes } from '@/lib/schemas'
+import type { EmbeddedItemType } from '@/lib/types'
 import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
-import type { EmbeddedItemKey } from '@/ui/dashboard/dashboard-items'
 import { camelToSentence, snakeToCamel } from '@/ui/util'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { usePathname } from 'next/navigation'
 
-export type OpenNewItemFormDetail = { itemType: EmbeddedItemKey }
+export type OpenNewItemFormDetail = { itemType: EmbeddedItemType }
 
 export function AddItemButton () {
-  const allowedItemTypes: EmbeddedItemKey[] = ['embedCode', 'image', 'link', 'venue']
   const pathname = usePathname()
   const pathnameParts = pathname.split('/')
-  const itemPart = pathnameParts[2] ? snakeToCamel(pathnameParts[2]) as EmbeddedItemKey : undefined // after /dashboard/
-  const itemType = allowedItemTypes.find(type => `${type}s` === itemPart)
+  const itemPart = pathnameParts[2] ? snakeToCamel(pathnameParts[2]) as EmbeddedItemType : undefined // after /dashboard/
+  const itemType = embeddedItemTypes.find(type => type === itemPart)
 
   if (!itemType) return null
 
@@ -26,7 +26,7 @@ export function AddItemButton () {
   return (
     <li>
       <button className={`button ${styles['admin-sidebar-new-item']}`} onClick={onClick}>
-        <PlusIcon /> Add {camelToSentence(itemType)}
+        <PlusIcon /> Add {camelToSentence(itemType).replace(/s$/, '')}
       </button>
     </li>
   )

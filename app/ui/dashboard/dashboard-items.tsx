@@ -5,7 +5,7 @@ import type { DashboardEmbedCode, EmbedCode } from '@/lib/embed-codes/types'
 import type { DashboardImage, Image } from '@/lib/images/types'
 import { linkTypes } from '@/lib/links/schemas'
 import type { DashboardLink, Link } from '@/lib/links/types'
-import type { Badge, FormResponse } from '@/lib/types'
+import type { Badge, EmbeddedItemType, FormResponse } from '@/lib/types'
 import type { DashboardVenue, Venue } from '@/lib/venues/types'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import type { OpenNewItemFormDetail } from '@/ui/admin-sidebar/add-item-button'
@@ -34,11 +34,9 @@ declare global {
 }
 
 export type DashboardItem = DashboardEmbedCode | DashboardImage | DashboardLink | DashboardVenue
-export const DashboardItemType = ['embedCode', 'image', 'link', 'venue'] as const
-export type EmbeddedItemKey = typeof DashboardItemType[number]
 
 interface DashboardProps <T extends DashboardItem> {
-  itemType: EmbeddedItemKey,
+  itemType: EmbeddedItemType,
   items: T[],
   editItem: (item: FormData) => Promise<FormResponse<T> | undefined>,
   deleteItem: (id: string)=> Promise<FormResponse<T> | undefined>
@@ -144,9 +142,9 @@ export function DashboardItems<T extends DashboardItem> (
 
   function filterTypes () {
     switch (itemType) {
-      case 'link':
+      case 'links':
         return [...linkTypes]
-      case 'embedCode':
+      case 'embedCodes':
         return [...embedCodeTypes]
       default:
         return undefined
@@ -215,7 +213,7 @@ function DashboardListItem<T extends DashboardItem> ({
   onEdit,
   onDelete
 }: {
-  itemType: EmbeddedItemKey,
+  itemType: EmbeddedItemType,
   item: T,
   isExpanded?: boolean,
   onEdit: (id: string) => void,
@@ -275,21 +273,21 @@ function DashboardListItem<T extends DashboardItem> ({
 
   function title () {
     switch (itemType) {
-      case 'embedCode': {
+      case 'embedCodes': {
         const embedItem = item as EmbedCode
         return embedItem.title || 'Untitled'
       }
-      case 'image': {
+      case 'images': {
         const imageItem = item as Image
         const fileName = imageItem.url ? imageItem.url.split('/').pop() : 'Untitled'
         const imageTitle = imageItem.title || imageItem.caption || 'Untitled image'
         return `${imageTitle}${fileName ? `: ${fileName}` : ''}`
       }
-      case 'link': {
+      case 'links': {
         const linkItem = item as Link
         return linkItem.title || 'Untitled'
       }
-      case 'venue': {
+      case 'venues': {
         const venueItem = item as DashboardVenue
         return `${venueItem.name || venueItem.address}, ${venueItem.city}, ${venueItem.state || venueItem.country}`
       }
@@ -346,16 +344,16 @@ export function EditItem ({
   itemType
 }: {
   item?: DashboardItem
-  itemType: EmbeddedItemKey
+  itemType: EmbeddedItemType
 }) {
   switch (itemType) {
-    case 'embedCode':
+    case 'embedCodes':
       return <EditEmbedCode embedCode={item as EmbedCode | undefined} />
-    case 'image':
+    case 'images':
       return <EditImage image={item as Image | undefined} />
-    case 'link':
+    case 'links':
       return <EditLink link={item as Link | undefined} />
-    case 'venue':
+    case 'venues':
       return <EditVenue venue={item as Venue | undefined} />
     default:
       return <div>Unknown item type: {itemType}</div>
@@ -367,23 +365,23 @@ export function ItemDisplay ({
   itemType
 }: {
   item?: DashboardItem
-  itemType: EmbeddedItemKey
+  itemType: EmbeddedItemType
 }) {
   switch (itemType) {
-    case 'embedCode':
+    case 'embedCodes':
       return <EmbedCodeItem embedCode={item as EmbedCode} />
-    case 'image':
+    case 'images':
       return (
         <FigureImage image={item as Image} />
       )
-    case 'link':
+    case 'links':
       if ((item as Link).quotation || (item as Link).attribution) {
         return (
           <LinkItem link={item as Link} />
         )
       }
       break
-    case 'venue':
+    case 'venues':
       return (
         <>
           <div>

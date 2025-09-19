@@ -7,10 +7,30 @@ import { tagSchema } from '@/lib/tags/schemas'
 import { venueSchema } from '@/lib/venues/schemas'
 import { z } from 'zod'
 
+/**
+ * Types of pages that can have paths
+ * (i.e. that can be accessed on the public site)
+ * These values correspond to a `/{path}` index page
+ * as well as `/{path}/{slug}` pages for individual entries.
+ */
 export const pagePathTypes = [
   'events',
   'projects',
   'releases'
+] as const
+
+/**
+ * Types of items that can be embedded within pages
+ * (e.g. an embed code, image, link, or venue).
+ * Their metadata will be included when fetching a page.
+ * These items do not have their own public-facing pages.
+ * Items can be reused across multiple pages.
+ */
+export const embeddedItemTypes = [
+  'embedCodes',
+  'images',
+  'links',
+  'venues'
 ] as const
 
 /**

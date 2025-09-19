@@ -1,12 +1,15 @@
+import type { EmbeddedItemType } from '@/lib/types'
 import { deleteVenue, editVenue } from '@/lib/venues/actions'
 import { fetchVenues } from '@/lib/venues/data'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
+import { camelToSentence } from '@/ui/util'
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-const title = 'Dashboard: Venues'
+const itemType: EmbeddedItemType = 'venues'
+const title = `Dashboard: ${camelToSentence(itemType)}`
 export const metadata: Metadata = { title }
 
 export default async function VenuesPage () {
@@ -17,7 +20,7 @@ export default async function VenuesPage () {
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
         <DashboardItems
           items={venues}
-          itemType='venue'
+          itemType={itemType}
           editItem={editVenue}
           deleteItem={deleteVenue}
         />

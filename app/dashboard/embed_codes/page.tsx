@@ -1,12 +1,15 @@
 import { deleteEmbedCode, editEmbedCode } from '@/lib/embed-codes/actions'
 import { fetchEmbedCodes } from '@/lib/embed-codes/data'
+import type { EmbeddedItemType } from '@/lib/types'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
+import { camelToSentence } from '@/ui/util'
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-const title = 'Dashboard: Embed codes'
+const itemType: EmbeddedItemType = 'embedCodes'
+const title = `Dashboard: ${camelToSentence(itemType)}`
 export const metadata: Metadata = { title }
 
 export default async function EmbedCodesPage () {
@@ -17,7 +20,7 @@ export default async function EmbedCodesPage () {
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
         <DashboardItems
           items={embedCodes}
-          itemType='embedCode'
+          itemType={itemType}
           editItem={editEmbedCode}
           deleteItem={deleteEmbedCode}
         />

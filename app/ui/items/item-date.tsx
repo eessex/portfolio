@@ -17,7 +17,7 @@ export function itemSortDate (item: PageItemClient, isDefaultPreferred = false):
   }
 }
 
-function itemDisplayDateFormat<T extends PageItemClient> (item: T): DateFormatSize {
+function itemDisplayDateFormat (item: PageItemClient): DateFormatSize {
   switch (item.path) {
     case 'events':
       return 'md'
@@ -28,12 +28,12 @@ function itemDisplayDateFormat<T extends PageItemClient> (item: T): DateFormatSi
   }
 }
 
-export function FormattedItemDate<T extends PageItemClient> ({
+export function FormattedItemDate ({
   item,
   format,
   timezone
 }: {
-  item: T,
+  item: PageItemClient,
   format?: DateFormatSize,
   timezone?: Intl.DateTimeFormatOptions['timeZone']
 }) {

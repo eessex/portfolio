@@ -10,10 +10,10 @@ export function EventsList ({
   isUpcoming = false,
   onExpand
 }: {
-  events: EventClient[];
-  isExpanded?: boolean;
-  isUpcoming?: boolean;
-  onExpand?: () => void;
+  events: EventClient[]
+  isExpanded?: boolean
+  isUpcoming?: boolean
+  onExpand?: () => void
 }) {
   const id = useId()
 
@@ -23,7 +23,16 @@ export function EventsList ({
         <h2 id={id}>
           {isUpcoming ? 'Upcoming Events' : 'Past Events'}
         </h2>
-        {onExpand && <ExpandCollapseButton isExpanded={isExpanded} onExpand={onExpand} />}
+
+        {onExpand && (
+          <ExpandCollapseButton
+            ariaControls={id}
+            closeLabel='Collapse events'
+            isExpanded={isExpanded}
+            onExpand={onExpand}
+            openLabel='Expand events'
+          />
+        )}
       </header>
 
       <ul>

@@ -1,18 +1,24 @@
 import { ArrowsPointingInIcon, ArrowsPointingOutIcon } from '@heroicons/react/24/outline'
 
 export function ExpandCollapseButton ({
+  ariaControls,
   isExpanded,
-  onExpand
+  onExpand,
+  openLabel,
+  closeLabel
 }: {
+  ariaControls: string,
   isExpanded: boolean,
-  onExpand: () => void
+  onExpand: React.Dispatch<React.SetStateAction<boolean>>,
+  openLabel: string,
+  closeLabel: string
 }) {
   return (
-    // FIXME: add controls attribute
     <button
-      onClick={onExpand}
-      aria-label={isExpanded ? 'Collapse all items' : 'Expand all items'}
+      aria-controls={ariaControls}
+      aria-label={isExpanded ? closeLabel : openLabel}
       className='text-sm'
+      onClick={() => onExpand(prev => !prev)}
     >
       {isExpanded ? 'Collapse' : 'Expand'}
       {isExpanded ? <ArrowsPointingInIcon /> : <ArrowsPointingOutIcon />}

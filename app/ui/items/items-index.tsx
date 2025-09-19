@@ -2,8 +2,7 @@
 
 import type { FetchEventsResult } from '@/lib/events/types'
 import type { FetchReleasesResult } from '@/lib/releases/types'
-import type { PageItemClient, PagePathType } from '@/lib/types'
-import type { EmbeddedItemKey } from '@/ui/dashboard/dashboard-items'
+import type { EmbeddedItemType, PageItemClient, PagePathType } from '@/lib/types'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
 import { ItemsList } from '@/ui/items/items-list'
 import itemsStyles from '@/ui/items/items.module.scss'
@@ -13,17 +12,17 @@ import { clsx } from 'clsx'
 import { useState } from 'react'
 
 type PageIndexProps<V extends FetchEventsResult | FetchReleasesResult> = {
-  pageType: PagePathType,
+  isExpandedOnLoad?: boolean,
   items: V,
-  isExpandedOnLoad?: boolean
+  pageType: PagePathType
 }
 
 const featuredKeys: (keyof FetchEventsResult | keyof FetchReleasesResult)[] = ['upcomingEvents']
 
 export function ItemsIndex<T extends PageItemClient, V extends FetchEventsResult | FetchReleasesResult> ({
-  pageType,
+  isExpandedOnLoad = false,
   items,
-  isExpandedOnLoad = false
+  pageType
 }: PageIndexProps<V>) {
   const [searchTerm, setSearchTerm] = useState('')
   const [isExpanded, setIsExpanded] = useState(isExpandedOnLoad)
@@ -128,13 +127,13 @@ export function ItemsIndex<T extends PageItemClient, V extends FetchEventsResult
 
 export function FilterTypeSelect ({
   filterTypes,
-  onChange,
   label,
+  onChange,
   value
 }: {
   filterTypes: Array<string> | undefined
-  onChange?: (term: string | undefined) => void | undefined
   label: string
+  onChange?: (term: string | undefined) => void | undefined
   value?: string | undefined
 }) {
   if (!filterTypes || filterTypes.length === 0 || !onChange) return null
@@ -172,7 +171,7 @@ export function ItemsFilterNav ({
   setFilterType?: (type: string | undefined) => void,
   isExpanded: boolean,
   onExpand: () => void,
-  itemType: PagePathType | EmbeddedItemKey,
+  itemType: PagePathType | EmbeddedItemType,
   filterTypes?: Array<string> | undefined
 }) {
   return (
@@ -182,6 +181,9 @@ export function ItemsFilterNav ({
           <ExpandCollapseButton
             isExpanded={isExpanded}
             onExpand={onExpand}
+            openLabel={`Expand all ${itemType}`}
+            closeLabel={`Collapse all ${itemType}`}
+            ariaControls='items-list'
           />
         </li>
 

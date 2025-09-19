@@ -4,6 +4,7 @@ import { PencilIcon } from '@heroicons/react/24/outline'
 import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 
+// FIXME: use pagePathType
 const editablePaths = [
   'about',
   'events',

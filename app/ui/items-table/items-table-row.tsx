@@ -1,26 +1,26 @@
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
 import { DraftBadge } from '@/ui/draft-badge'
+import styles from '@/ui/items-table/items-table.module.scss'
 import { FormattedItemDate } from '@/ui/items/item-date'
-import styles from '@/ui/items/items.module.scss'
 import { clsx } from 'clsx'
 import NextImage from 'next/image'
 import NextLink from 'next/link'
 
-export function ItemTableRow ({
-  index,
-  item,
+export function ItemsTableRow ({
   children,
-  isPathTypeVisible = false,
+  index,
   isExpanded = false,
-  isFeatured = false
+  isFeatured = false,
+  isPathTypeVisible = false,
+  item
 }: {
-  index?: number,
-  item: PageItemClient,
   children?: React.ReactNode,
+  index?: number,
+  isExpanded?: boolean,
+  isFeatured?: boolean,
   isPathTypeVisible?: boolean,
-  isExpanded?: boolean
-  isFeatured?: boolean
+  item: PageItemClient
 }) {
   if (!item) return null
 

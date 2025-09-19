@@ -1,7 +1,10 @@
 import { eventClientSchema } from '@/lib/events/schemas'
 import type { EventClient, FetchEventsResult } from '@/lib/events/types'
+import type { PagePathType } from '@/lib/types'
 import { formatDbResponseForClient, isUpcomingDate } from '@/ui/util'
 import { sql } from '@vercel/postgres'
+
+const path: PagePathType = 'events'
 
 export async function fetchEvents (isAuthed: boolean = false) {
   try {
@@ -44,7 +47,7 @@ export async function fetchEvents (isAuthed: boolean = false) {
       WHERE ${isAuthed} OR e.is_published = true
       ORDER BY e.start_time DESC;
     `
-    const parsedEvents = data.rows.map((event) => formatDbResponseForClient(event, eventClientSchema))
+    const parsedEvents = data.rows.map(e => formatDbResponseForClient({ ...e, path }, eventClientSchema))
     const sortedEvents = sortEventsByCategory(parsedEvents)
     return sortedEvents
   } catch (error) {
@@ -98,7 +101,7 @@ export async function fetchEventBySlug (slug: string, isAuthed: boolean = false)
     if (!data.rows[0]) {
       return
     }
-    return formatDbResponseForClient(data.rows[0], eventClientSchema)
+    return formatDbResponseForClient({ ...data.rows[0], path }, eventClientSchema)
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error(`Failed to fetch event ${slug}.`)

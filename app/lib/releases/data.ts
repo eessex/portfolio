@@ -1,7 +1,10 @@
+import { releaseClientSchema } from '@/lib/releases/schemas'
 import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
+import type { PagePathType } from '@/lib/types'
 import { formatDbResponseForClient } from '@/ui/util'
 import { sql } from '@vercel/postgres'
-import { releaseClientSchema } from './schemas'
+
+const path: PagePathType = 'releases'
 
 export async function fetchReleaseBySlug (slug: string, isAuthed: boolean = false) {
   try {
@@ -47,7 +50,7 @@ export async function fetchReleaseBySlug (slug: string, isAuthed: boolean = fals
     if (data.rowCount === 0) {
       return
     }
-    return formatDbResponseForClient(data.rows[0], releaseClientSchema)
+    return formatDbResponseForClient({ ...data.rows[0], path }, releaseClientSchema)
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error(`Failed to fetch release ${slug}.`)
@@ -73,7 +76,7 @@ export async function fetchReleases (isAuthed: boolean = false) {
       WHERE ${isAuthed} OR r.is_published = true
       ORDER BY r.release_date DESC
     `
-    const parsedReleases = data.rows.map(r => formatDbResponseForClient(r, releaseClientSchema))
+    const parsedReleases = data.rows.map(r => formatDbResponseForClient({ ...r, path }, releaseClientSchema))
     return sortReleasesByCategory(parsedReleases)
   } catch (error) {
     console.error('Database Error:', error)

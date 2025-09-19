@@ -1,4 +1,16 @@
-export type PageType = 'event' | 'release'
+import type { EventClient, FetchEventsResult } from '@/lib/events/types'
+import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
+import { pagePathTypes } from '@/lib/schemas'
+
+export type PagePathType = typeof pagePathTypes[number]
+
+export type PageDataResponse = FetchEventsResult | FetchReleasesResult
+
+export type PageDataResponseKey
+  = keyof FetchEventsResult
+  | keyof FetchReleasesResult
+
+export type PageItemClient = EventClient | ReleaseClient
 
 export type FormState<T> = {
   ok?: boolean

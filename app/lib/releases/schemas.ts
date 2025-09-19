@@ -25,6 +25,7 @@ export const releaseSchema = basePageSchema.extend({
   artist: shortText,
   type: z.enum(releaseTypes),
   releaseDate: date,
+  path: z.literal('releases')
 })
 
 export const releaseClientSchema = releaseSchema.extend(

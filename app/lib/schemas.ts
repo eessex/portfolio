@@ -7,6 +7,12 @@ import { tagSchema } from '@/lib/tags/schemas'
 import { venueSchema } from '@/lib/venues/schemas'
 import { z } from 'zod'
 
+export const pagePathTypes = [
+  'events',
+  'projects',
+  'releases'
+] as const
+
 /**
  * START Basic reusable schemas
  * These are the building blocks for more complex schemas below.
@@ -54,6 +60,7 @@ export const basePageSchema = z.object({
   coverImageId: uuid.optional(),
   description: longText.optional(),
   isPublished: bool.optional(),
+  path: z.enum(pagePathTypes),
   slug
 }).extend(baseContentSchema.shape)
 

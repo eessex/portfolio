@@ -1,8 +1,8 @@
 'use client'
 
-import type { EventClient, FetchEventsResult } from '@/lib/events/types'
-import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
-import type { PageType } from '@/lib/types'
+import type { FetchEventsResult } from '@/lib/events/types'
+import type { FetchReleasesResult } from '@/lib/releases/types'
+import type { PagePathType, PageItemClient } from '@/lib/types'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
 import { ItemsList } from '@/ui/items/items-list'
 import itemsStyles from '@/ui/items/items.module.scss'
@@ -12,14 +12,14 @@ import { clsx } from 'clsx'
 import { useState } from 'react'
 
 type PageIndexProps<V extends FetchEventsResult | FetchReleasesResult> = {
-  pageType: PageType,
+  pageType: PagePathType,
   items: V,
   isExpandedOnLoad?: boolean
 }
 
 const featuredKeys: (keyof FetchEventsResult | keyof FetchReleasesResult)[] = ['upcomingEvents']
 
-export function ItemsIndex<T extends EventClient | ReleaseClient, V extends FetchEventsResult | FetchReleasesResult> ({
+export function ItemsIndex<T extends PageItemClient, V extends FetchEventsResult | FetchReleasesResult> ({
   pageType,
   items,
   isExpandedOnLoad = false
@@ -70,7 +70,7 @@ export function ItemsIndex<T extends EventClient | ReleaseClient, V extends Fetc
   }
 
   function itemType () {
-    return camelToSentence(pageType) + 's'
+    return camelToSentence(pageType)
   }
 
   function searchResultsTitle () {
@@ -85,7 +85,6 @@ export function ItemsIndex<T extends EventClient | ReleaseClient, V extends Fetc
             key={i}
             items={items}
             title={camelToSentence(title)}
-            itemType={pageType}
             isExpanded
             isFeatured
           />
@@ -106,7 +105,6 @@ export function ItemsIndex<T extends EventClient | ReleaseClient, V extends Fetc
             <ItemsList<T>
               title={searchResultsTitle()}
               items={filteredItems()}
-              itemType={pageType}
               isExpanded={isExpanded}
             />
             )
@@ -117,7 +115,6 @@ export function ItemsIndex<T extends EventClient | ReleaseClient, V extends Fetc
                   key={i}
                   items={items}
                   title={camelToSentence(title)}
-                  itemType={pageType}
                   isExpanded={isExpanded}
                 />
               ))}

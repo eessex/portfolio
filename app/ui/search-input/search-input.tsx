@@ -2,13 +2,15 @@ import { useState } from 'react'
 import styles from './search-input.module.scss'
 
 export function SearchInput ({
-  value,
+  ariaControls,
+  label = 'Search',
   onChange,
-  label = 'Search'
+  value
 }: {
-  value: string
-  onChange: (newValue: string) => void
+  ariaControls?: string
   label?: string
+  onChange: (newValue: string) => void
+  value: string
 }) {
   const [inputValue, setInputValue] = useState(value)
 
@@ -21,6 +23,7 @@ export function SearchInput ({
         {label}
       </label>
       <input
+        aria-controls={ariaControls}
         type='search'
         id='search-input'
         value={inputValue}

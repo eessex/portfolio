@@ -3,15 +3,19 @@
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageDataResponse, PageItemClient, PagePathType } from '@/lib/types'
-import { ItemTableRow } from '@/ui/items-table/items-table-row'
+import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
+import { FiltersContainer } from '@/ui/filters/filters'
+import { SortButton } from '@/ui/filters/sort-button'
+import { Select } from '@/ui/form/select'
+import { ItemsTableRow } from '@/ui/items-table/items-table-row'
 import styles from '@/ui/items-table/items-table.module.scss'
 import { itemSortDate } from '@/ui/items/item-date'
-import { ItemsFilterNav } from '@/ui/items/items-index'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
+import { SearchInput } from '@/ui/search-input/search-input'
 import { camelToSentence, snakeToCamel } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
 import { clsx } from 'clsx'
-import React, { useState } from 'react'
+import React, { useId, useState } from 'react'
 
 export function ItemsTable ({
   items,
@@ -22,9 +26,9 @@ export function ItemsTable ({
   path: PagePathType,
   isExpandedOnLoad?: boolean
 }) {
-  const [sortDirection, _setSortDirection] = useState<'asc' | 'desc'>('desc')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [searchTerm, setSearchTerm] = useState('')
-  const [isExpanded, setIsExpanded] = useState(isExpandedOnLoad)
+  const [isExpanded, setIsExpanded] = useState(!!isExpandedOnLoad)
   const [filterType, setFilterType] = useState<string | undefined>(undefined)
 
   const activeCategories: string[] = items.length
@@ -141,31 +145,11 @@ export function ItemsTable ({
     return sortedArray
   }
 
-  function _headingTitle (category?: string) {
-    const count = flatItems(displayedItems()).length
-    const subtitle = category?.length ? camelToSentence(category) : path
-    const typeLabel = subtitle ?? 'items'
-
-    if (searchTerm && filterType) {
-      return `${typeLabel} of type "${filterType}" matching "${searchTerm}" (${count})`
-    }
-
-    if (searchTerm) {
-      return `${typeLabel} matching "${searchTerm}" (${count})`
-    }
-
-    if (filterType) {
-      return `${typeLabel} of type "${camelToSentence(filterType)}" (${count})`
-    }
-
-    return `${typeLabel} (${count})`
-  }
-
-  function tableSectionTitle (category?: string) {
+  function tableSectionTitle (category?: string, itemCount?: number) {
     if (category) {
       const typeLabel = camelToSentence(category)
       if (searchTerm.length > 0) {
-        return `${typeLabel} matching "${searchTerm}"`
+        return `${typeLabel} matching "${searchTerm}" (${itemCount})`
       } else {
         return typeLabel
       }
@@ -185,27 +169,56 @@ export function ItemsTable ({
   })()
 
   const colSpan = isExpanded ? (isPathTypeVisible ? 5 : 4) : (isPathTypeVisible ? 4 : 3)
+  const tableId = useId()
 
   return (
     <>
-      <ItemsFilterNav
-        itemType={path}
-        filterType={filterType}
-        filterTypes={activeCategories.length > 1 && isFilterable ? activeCategories : undefined}
-        setFilterType={setFilterType}
-        searchTerm={isFilterable ? searchTerm : ''}
-        setSearchTerm={isFilterable ? setSearchTerm : undefined}
-        // sortDirection={isFilterable ? sortDirection : undefined}
-        // setSortDirection={isFilterable ? setSortDirection : undefined}
-        isExpanded={!!isExpanded}
-        onExpand={() => setIsExpanded(!isExpanded)}
-      />
+      <FiltersContainer itemType={path} controlsId={tableId}>
+        <ExpandCollapseButton
+          ariaControls={tableId}
+          isExpanded={!!isExpanded}
+          onExpand={setIsExpanded}
+          openLabel='Show me the art'
+          closeLabel='Hide the art'
+        />
+        {isFilterable && setSortDirection && (
+          <SortButton
+            isAsc={sortDirection === 'asc'}
+            onClick={() => {
+              if (setSortDirection) {
+                setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+              }
+            }}
+          />
+        )}
+        {isFilterable && activeCategories && (
+          <Select
+            ariaControls={tableId}
+            options={activeCategories}
+            onChange={setFilterType}
+            label={`Filter ${path}`}
+            value={filterType}
+          />
+        )}
+        {isFilterable && (
+          <SearchInput
+            ariaControls={tableId}
+            value={searchTerm}
+            onChange={setSearchTerm}
+            label={`Search ${path}`}
+          />
+        )}
+      </FiltersContainer>
 
-      <table>
+      <table
+        id={tableId}
+        role='region'
+        aria-live='polite'
+      >
         <thead className='visually-hidden'>
           <tr>
             {isExpanded && <th aria-hidden='true'>Image</th>}
-            {isPathTypeVisible && <th>Page type</th>}
+            {isPathTypeVisible && <th>Type</th>}
             <th>Date</th>
             <th>Title</th>
             <th>Details</th>
@@ -225,6 +238,8 @@ export function ItemsTable ({
               </tr>
               <tr className={styles['no-results']}>
                 <td
+                  role='region'
+                  aria-live='polite'
                   colSpan={colSpan}
                 >
                   No results found.
@@ -236,10 +251,10 @@ export function ItemsTable ({
           {displayedItems().map((category, index) => Object.entries(category).map(([key, value]) => value.length > 0 && (
             <React.Fragment key={`${index}-${key}`}>
               <tr className={styles['table-rowgroup-heading']}>
-                <th scope='rowgroup' colSpan={isPathTypeVisible ? 5 : 4}>{tableSectionTitle(key)}</th>
+                <th scope='rowgroup' colSpan={isPathTypeVisible ? 5 : 4}>{tableSectionTitle(key, value.length)}</th>
               </tr>
               {value.map((item, index) => (
-                <ItemListItem
+                <ItemsTableItem
                   item={item}
                   index={index}
                   key={`${item.id}-${index}`}
@@ -254,33 +269,33 @@ export function ItemsTable ({
   )
 }
 
-function ItemListItem<T extends PageItemClient> ({
+function ItemsTableItem ({
   item,
   index,
   isExpanded
 }: {
-  item: T
+  item: PageItemClient
   index: number
   isExpanded: boolean
 }) {
   switch (item.path) {
     case 'events':
       return (
-        <ItemTableRow item={item} index={index} isExpanded={isExpanded}>
+        <ItemsTableRow item={item} index={index} isExpanded={isExpanded}>
           {(item as EventClient).venue && (
             <VenueInline venue={(item as EventClient).venue!} format='sm' />
           )}
-        </ItemTableRow>
+        </ItemsTableRow>
       )
     case 'releases':
       return (
-        <ItemTableRow item={item} index={index} isExpanded={isExpanded}>
+        <ItemsTableRow item={item} index={index} isExpanded={isExpanded}>
           {(item as ReleaseClient).publishedEditions && (
             <PublishedEditionsCombined publishedEditions={(item as ReleaseClient).publishedEditions} format='sm' />
           )}
-        </ItemTableRow>
+        </ItemsTableRow>
       )
     default:
-      return <ItemTableRow item={item} index={index} isExpanded={isExpanded} />
+      return <ItemsTableRow item={item} index={index} isExpanded={isExpanded} />
   }
 }

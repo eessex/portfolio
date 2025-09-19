@@ -13,7 +13,7 @@ import type { Metadata } from 'next'
 import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
-import { auth } from '../../../../auth'
+import { auth } from '@/api/auth/auth'
 
 type Props = {
   params: Promise<{ slug: string }>

@@ -6,7 +6,7 @@ import { Loading } from '@/ui/loading'
 import { camelToSentence } from '@/ui/util'
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import { auth } from '../../../auth'
+import { auth } from '@/api/auth/auth'
 
 const path: PagePathType = 'releases'
 const title = camelToSentence(path)

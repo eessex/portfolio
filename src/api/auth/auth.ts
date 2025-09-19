@@ -4,7 +4,7 @@ import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import postgres from 'postgres'
 import { z } from 'zod'
-import { authConfig } from './auth.config'
+import { authConfig } from '../../../auth.config'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 

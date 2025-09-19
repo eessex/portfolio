@@ -1,7 +1,7 @@
 'use server'
 
 import { AuthError } from 'next-auth'
-import { signIn } from '../../../auth'
+import { signIn } from '@/api/auth/auth'
 
 export async function authenticate (
   _prevState: string | undefined,

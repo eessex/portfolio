@@ -6,7 +6,7 @@ import { Loading } from '@/ui/loading'
 import NextImage from 'next/image'
 import NextLink from 'next/link'
 import { Suspense } from 'react'
-import { auth } from '../../auth'
+import { auth } from '@/api/auth/auth'
 
 export async function generateMetadata () {
   const settings = await fetchSiteSettings()

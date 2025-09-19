@@ -1,6 +1,6 @@
 import type { EventClient, FetchEventsResult } from '@/lib/events/types'
 import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
-import { pagePathTypes } from '@/lib/schemas'
+import { pagePathTypes, embeddedItemTypes } from '@/lib/schemas'
 
 export type PagePathType = typeof pagePathTypes[number]
 
@@ -11,6 +11,8 @@ export type PageDataResponseKey
   | keyof FetchReleasesResult
 
 export type PageItemClient = EventClient | ReleaseClient
+
+export type EmbeddedItemType = typeof embeddedItemTypes[number]
 
 export type FormState<T> = {
   ok?: boolean

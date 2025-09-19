@@ -29,7 +29,6 @@ export function SearchInput ({
           onChange(e.target.value)
         }}
         placeholder={label}
-        aria-label={label}
       />
     </div>
   )

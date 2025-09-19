@@ -1,19 +1,19 @@
 'use client'
 
+import { embeddedItemTypes } from '@/lib/schemas'
+import type { EmbeddedItemType } from '@/lib/types'
 import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
-import type { EmbeddedItemKey } from '@/ui/dashboard/dashboard-items'
 import { camelToSentence, snakeToCamel } from '@/ui/util'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { usePathname } from 'next/navigation'
 
-export type OpenNewItemFormDetail = { itemType: EmbeddedItemKey }
+export type OpenNewItemFormDetail = { itemType: EmbeddedItemType }
 
 export function AddItemButton () {
-  const allowedItemTypes: EmbeddedItemKey[] = ['embedCodes', 'images', 'links', 'venues']
   const pathname = usePathname()
   const pathnameParts = pathname.split('/')
-  const itemPart = pathnameParts[2] ? snakeToCamel(pathnameParts[2]) as EmbeddedItemKey : undefined // after /dashboard/
-  const itemType = allowedItemTypes.find(type => type === itemPart)
+  const itemPart = pathnameParts[2] ? snakeToCamel(pathnameParts[2]) as EmbeddedItemType : undefined // after /dashboard/
+  const itemType = embeddedItemTypes.find(type => type === itemPart)
 
   if (!itemType) return null
 

@@ -5,7 +5,7 @@ import type { DashboardEmbedCode, EmbedCode } from '@/lib/embed-codes/types'
 import type { DashboardImage, Image } from '@/lib/images/types'
 import { linkTypes } from '@/lib/links/schemas'
 import type { DashboardLink, Link } from '@/lib/links/types'
-import type { Badge, FormResponse } from '@/lib/types'
+import type { Badge, EmbeddedItemType, FormResponse } from '@/lib/types'
 import type { DashboardVenue, Venue } from '@/lib/venues/types'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import type { OpenNewItemFormDetail } from '@/ui/admin-sidebar/add-item-button'
@@ -34,11 +34,9 @@ declare global {
 }
 
 export type DashboardItem = DashboardEmbedCode | DashboardImage | DashboardLink | DashboardVenue
-export const DashboardItemType = ['embedCodes', 'images', 'links', 'venues'] as const
-export type EmbeddedItemKey = typeof DashboardItemType[number]
 
 interface DashboardProps <T extends DashboardItem> {
-  itemType: EmbeddedItemKey,
+  itemType: EmbeddedItemType,
   items: T[],
   editItem: (item: FormData) => Promise<FormResponse<T> | undefined>,
   deleteItem: (id: string) => Promise<FormResponse<T> | undefined>
@@ -215,7 +213,7 @@ function DashboardListItem<T extends DashboardItem> ({
   onEdit,
   onDelete
 }: {
-  itemType: EmbeddedItemKey,
+  itemType: EmbeddedItemType,
   item: T,
   isExpanded?: boolean,
   onEdit: (id: string) => void,
@@ -346,7 +344,7 @@ export function EditItem ({
   itemType
 }: {
   item?: DashboardItem
-  itemType: EmbeddedItemKey
+  itemType: EmbeddedItemType
 }) {
   switch (itemType) {
     case 'embedCodes':
@@ -367,7 +365,7 @@ export function ItemDisplay ({
   itemType
 }: {
   item?: DashboardItem
-  itemType: EmbeddedItemKey
+  itemType: EmbeddedItemType
 }) {
   switch (itemType) {
     case 'embedCodes':

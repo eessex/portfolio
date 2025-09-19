@@ -1,4 +1,4 @@
-import styles from '@/about/about.module.scss'
+import styles from '@/app/about/about.module.scss'
 import { fetchAboutPage } from '@/lib/about/data'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { EditAboutForm } from '@/ui/form/edit-about'

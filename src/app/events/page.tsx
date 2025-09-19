@@ -1,21 +1,21 @@
-import { fetchReleases } from '@/lib/releases/data'
-import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
-import { PagePathType } from '@/lib/types'
+import { fetchEvents } from '@/lib/events/data'
+import type { EventClient, FetchEventsResult } from '@/lib/events/types'
+import type { PagePathType } from '@/lib/types'
 import { ItemsIndex } from '@/ui/items/items-index'
 import { Loading } from '@/ui/loading'
 import { camelToSentence } from '@/ui/util'
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import { auth } from '../../auth'
+import { auth } from '../../../auth'
 
-const path: PagePathType = 'releases'
+const path: PagePathType = 'events'
+
 const title = camelToSentence(path)
-
 export const metadata: Metadata = { title }
 
-export default async function ReleasesPage () {
+export default async function EventsPage () {
   const session = await auth()
-  const releases = await fetchReleases(!!session?.user)
+  const items = await fetchEvents(!!session?.user)
 
   return (
     <div>
@@ -24,10 +24,9 @@ export default async function ReleasesPage () {
       </h1>
 
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
-        <ItemsIndex<ReleaseClient, FetchReleasesResult>
+        <ItemsIndex<EventClient, FetchEventsResult>
           pageType={path}
-          items={releases}
-          isExpandedOnLoad
+          items={items}
         />
       </Suspense>
     </div>

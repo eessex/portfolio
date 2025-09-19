@@ -1,5 +1,5 @@
+import styles from '@/app/releases/[slug]/release.module.scss'
 import { fetchReleaseBySlug, fetchReleases } from '@/lib/releases/data'
-import styles from '@/releases/[slug]/release.module.scss'
 import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { FigureImage } from '@/ui/images/image-figure'
@@ -8,7 +8,7 @@ import { combinePublishedEditions, filteredLinksByPress, formattedDateTime } fro
 import type { Metadata } from 'next'
 import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
-import { auth } from '../../../auth'
+import { auth } from '../../../../auth'
 
 type Props = {
   params: Promise<{ slug: string }>

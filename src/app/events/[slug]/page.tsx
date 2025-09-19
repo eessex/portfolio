@@ -1,4 +1,4 @@
-import styles from '@/events/[slug]/event.module.scss'
+import styles from '@/app/events/[slug]/event.module.scss'
 import { fetchEventBySlug, fetchEvents } from '@/lib/events/data'
 import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
@@ -13,7 +13,7 @@ import type { Metadata } from 'next'
 import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
-import { auth } from '../../../auth'
+import { auth } from '../../../../auth'
 
 type Props = {
   params: Promise<{ slug: string }>

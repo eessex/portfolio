@@ -1,4 +1,4 @@
-import styles from '@/about/about.module.scss'
+import styles from '@/app/about/about.module.scss'
 import { fetchAboutPage } from '@/lib/about/data'
 import type { AboutContact } from '@/lib/about/types'
 import { fetchPressImages } from '@/lib/images/data'

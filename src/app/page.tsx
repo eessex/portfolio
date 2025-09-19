@@ -1,4 +1,4 @@
-import styles from '@/home.module.scss'
+import styles from '@/app/home.module.scss'
 import { fetchEvents } from '@/lib/events/data'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { EventsGrid } from '@/ui/events-grid/events-grid'
@@ -6,7 +6,7 @@ import { Loading } from '@/ui/loading'
 import NextImage from 'next/image'
 import NextLink from 'next/link'
 import { Suspense } from 'react'
-import { auth } from '../auth'
+import { auth } from '../../auth'
 
 export async function generateMetadata () {
   const settings = await fetchSiteSettings()

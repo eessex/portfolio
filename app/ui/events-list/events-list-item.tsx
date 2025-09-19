@@ -1,16 +1,17 @@
+import NextLink from 'next/link'
+
 import type { EventClient } from '@/lib/events/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import styles from '@/ui/items/items.module.scss'
 import { eventUrl, formattedDateTime } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
-import NextLink from 'next/link'
 
 export function EventsListItem ({
   event,
-  index: _index,
+  index: _index
 }: {
-  event: EventClient;
-  index: number;
+  event: EventClient
+  index: number
 }) {
   return (
     <article>

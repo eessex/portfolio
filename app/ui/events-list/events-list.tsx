@@ -1,8 +1,9 @@
+import { useId } from 'react'
+
 import type { EventClient } from '@/lib/events/types'
 import { EventsListItem } from '@/ui/events-list/events-list-item'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
 import styles from '@/ui/items/items.module.scss'
-import { useId } from 'react'
 
 export function EventsList ({
   events,
@@ -10,10 +11,10 @@ export function EventsList ({
   isUpcoming = false,
   onExpand
 }: {
-  events: EventClient[];
-  isExpanded?: boolean;
-  isUpcoming?: boolean;
-  onExpand?: () => void;
+  events: EventClient[]
+  isExpanded?: boolean
+  isUpcoming?: boolean
+  onExpand?: () => void
 }) {
   const id = useId()
 

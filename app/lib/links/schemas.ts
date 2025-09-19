@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import {
   baseContentSchema,
   baseDashboardItemSlugsSchema,
@@ -6,7 +8,6 @@ import {
   shortText,
   url
 } from '@/lib/schemas'
-import { z } from 'zod'
 
 export const linkTypes = [
   'press',

@@ -1,22 +1,23 @@
 'use client'
 
-import { useState, type RefObject, useId } from 'react'
-import styles from '@/ui/form/form.module.scss'
 import clsx from 'clsx'
+import { type RefObject, useId, useState } from 'react'
+
+import styles from '@/ui/form/form.module.scss'
 
 export type InputType = HTMLInputElement | HTMLTextAreaElement
 
 export interface InputProps {
   label: string
-  className?: string,
+  className?: string
   description?: string
-  defaultValue?: string | number,
-  value?: string | number,
-  attributes: React.InputHTMLAttributes<HTMLInputElement> | React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+  defaultValue?: string | number
+  value?: string | number
+  attributes: React.InputHTMLAttributes<HTMLInputElement> | React.TextareaHTMLAttributes<HTMLTextAreaElement>
   isLabelHidden?: boolean
   isTextarea?: boolean
-  onChange?: (event: React.ChangeEvent<InputType>, isDirty: boolean) => void,
-  ref?: (el: InputType) => InputType | null,
+  onChange?: (event: React.ChangeEvent<InputType>, isDirty: boolean) => void
+  ref?: (el: InputType) => InputType | null
   children?: React.ReactNode
 }
 

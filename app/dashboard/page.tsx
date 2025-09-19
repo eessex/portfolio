@@ -1,10 +1,11 @@
+import type { Metadata } from 'next'
+import { Suspense } from 'react'
+
 import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { EditSettings } from '@/ui/form/edit-settings'
 import { Loading } from '@/ui/loading'
-import type { Metadata } from 'next'
-import { Suspense } from 'react'
 
 const title = 'Dashboard'
 export const metadata: Metadata = { title }

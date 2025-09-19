@@ -27,7 +27,7 @@ export const authConfig = {
         return false // Redirect authenticated users
       }
       return true
-    },
+    }
   },
   providers: []
 } satisfies NextAuthConfig

@@ -1,19 +1,20 @@
 'use client'
 
-import type { FetchEventsResult } from '@/lib/events/types'
-import type { FetchReleasesResult } from '@/lib/releases/types'
-import type { PagePathType, PageItemClient } from '@/lib/types'
-import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
-import { ItemsList } from '@/ui/items/items-list'
-import itemsStyles from '@/ui/items/items.module.scss'
-import { SearchInput } from '@/ui/search-input/search-input'
-import { camelToSentence, snakeToCamel } from '@/ui/util'
 import { clsx } from 'clsx'
 import { useState } from 'react'
 
+import type { FetchEventsResult } from '@/lib/events/types'
+import type { FetchReleasesResult } from '@/lib/releases/types'
+import type { PageItemClient, PagePathType } from '@/lib/types'
+import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
+import itemsStyles from '@/ui/items/items.module.scss'
+import { ItemsList } from '@/ui/items/items-list'
+import { SearchInput } from '@/ui/search-input/search-input'
+import { camelToSentence, snakeToCamel } from '@/ui/util'
+
 type PageIndexProps<V extends FetchEventsResult | FetchReleasesResult> = {
-  pageType: PagePathType,
-  items: V,
+  pageType: PagePathType
+  items: V
   isExpandedOnLoad?: boolean
 }
 
@@ -165,13 +166,13 @@ export function ItemsFilterNav ({
   itemType,
   filterTypes
 }: {
-  filterType?: string,
-  searchTerm: string,
-  setSearchTerm: (term: string) => void,
-  setFilterType?: (type: string | undefined) => void,
-  isExpanded: boolean,
-  onExpand: () => void,
-  itemType: string,
+  filterType?: string
+  searchTerm: string
+  setSearchTerm: (term: string) => void
+  setFilterType?: (type: string | undefined) => void
+  isExpanded: boolean
+  onExpand: () => void
+  itemType: string
   filterTypes?: Array<string> | undefined
 }) {
   return (

@@ -1,5 +1,6 @@
-import { basePageSchema, embeddedItemIdSchemas } from '@/lib/schemas'
 import { z } from 'zod'
+
+import { basePageSchema, embeddedItemIdSchemas } from '@/lib/schemas'
 
 /**
  * Represents a grouping of content that may be associated with multiple events, releases or embedCodes.

@@ -1,5 +1,6 @@
-import { bool, defaultSchema } from '@/lib/schemas'
 import { z } from 'zod'
+
+import { bool, defaultSchema } from '@/lib/schemas'
 
 /**
  * Tag represents a category or label that can be associated with content.

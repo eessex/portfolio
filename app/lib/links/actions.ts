@@ -1,10 +1,11 @@
 'use server'
 
-import type { FormResponse } from '@/lib/types'
-import { linkSchema } from '@/lib/links/schemas'
-import type { Link } from '@/lib/links/types'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
+
+import { linkSchema } from '@/lib/links/schemas'
+import type { Link } from '@/lib/links/types'
+import type { FormResponse } from '@/lib/types'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 

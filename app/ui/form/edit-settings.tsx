@@ -1,12 +1,13 @@
 'use client'
 
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import NextImage from 'next/image'
+import { useState } from 'react'
+
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
 import { Form } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
-import { XMarkIcon } from '@heroicons/react/24/outline'
-import NextImage from 'next/image'
-import { useState } from 'react'
 
 export function EditSettings ({ settings }: { settings: SiteSettingsClient }) {
   const [coverImageId, setCoverImageId] = useState<string | undefined>(settings?.coverImage?.id)

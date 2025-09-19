@@ -1,11 +1,12 @@
 'use client'
 
+import { PlusIcon } from '@heroicons/react/24/outline'
+import { usePathname } from 'next/navigation'
+
 import { embeddedItemTypes } from '@/lib/schemas'
 import type { EmbeddedItemType } from '@/lib/types'
 import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
 import { camelToSentence, snakeToCamel } from '@/ui/util'
-import { PlusIcon } from '@heroicons/react/24/outline'
-import { usePathname } from 'next/navigation'
 
 export type OpenNewItemFormDetail = { itemType: EmbeddedItemType }
 

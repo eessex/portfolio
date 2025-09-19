@@ -1,17 +1,19 @@
 'use client'
 
-import { useState, type RefObject, useId } from 'react'
-import styles from '@/ui/form/form.module.scss'
 import clsx from 'clsx'
-import { InputProps } from './input'
+import { type RefObject, useId, useState } from 'react'
+
+import styles from '@/ui/form/form.module.scss'
+
+import type { InputProps } from './input'
 
 export type InputType = HTMLInputElement | HTMLTextAreaElement
 
 interface CheckboxProps extends InputProps {
-  isChecked?: boolean,
-  attributes: React.InputHTMLAttributes<HTMLInputElement> | React.TextareaHTMLAttributes<HTMLTextAreaElement>,
-  onChange?: (event: React.ChangeEvent<InputType>, isDirty: boolean) => void,
-  ref?: (el: InputType) => InputType | null,
+  isChecked?: boolean
+  attributes: React.InputHTMLAttributes<HTMLInputElement> | React.TextareaHTMLAttributes<HTMLTextAreaElement>
+  onChange?: (event: React.ChangeEvent<InputType>, isDirty: boolean) => void
+  ref?: (el: InputType) => InputType | null
 }
 
 export const Checkbox = ({

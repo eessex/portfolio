@@ -1,5 +1,6 @@
-import type { Image } from '@/lib/images/types'
 import NextImage from 'next/image'
+
+import type { Image } from '@/lib/images/types'
 
 export const FigureImage = ({
   image,
@@ -8,10 +9,10 @@ export const FigureImage = ({
   className,
   isPriority
 }: {
-  image: Image,
-  isCaptionHidden?: boolean,
-  isLazy?: boolean,
-  className?: string,
+  image: Image
+  isCaptionHidden?: boolean
+  isLazy?: boolean
+  className?: string
   isPriority?: boolean
 }) => {
   if (!image) {

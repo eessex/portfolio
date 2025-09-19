@@ -1,9 +1,10 @@
 'use server'
 
-import type { FormResponse } from '@/lib/types'
-import { emailSubscriptionSchema } from '@/lib/email-subscriptions/schemas'
-import { escapeHtml } from '@/ui/util'
 import postgres from 'postgres'
+
+import { emailSubscriptionSchema } from '@/lib/email-subscriptions/schemas'
+import type { FormResponse } from '@/lib/types'
+import { escapeHtml } from '@/ui/util'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
@@ -18,7 +19,7 @@ export async function createEmailSubscription<T> (formData: FormData): Promise<F
     console.error('Failed to validate email, try again.', validatedFields.error.flatten().fieldErrors)
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Failed to validate email, try again.',
+      message: 'Failed to validate email, try again.'
     }
   }
   const email = formData.get('email') as string
@@ -35,7 +36,7 @@ export async function createEmailSubscription<T> (formData: FormData): Promise<F
   } catch (err) {
     console.error(err)
     return {
-      message: 'Database Error: Failed to Create subscription.',
+      message: 'Database Error: Failed to Create subscription.'
     }
   }
 }

@@ -1,8 +1,9 @@
+import { sql } from '@vercel/postgres'
+
 import { releaseClientSchema } from '@/lib/releases/schemas'
 import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
 import type { PagePathType } from '@/lib/types'
 import { formatDbResponseForClient } from '@/ui/util'
-import { sql } from '@vercel/postgres'
 
 const path: PagePathType = 'releases'
 

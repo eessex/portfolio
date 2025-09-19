@@ -1,17 +1,18 @@
+import clsx from 'clsx'
+import { useId } from 'react'
+
 import type { EventClient } from '@/lib/events/types'
 import { EventsGridItem } from '@/ui/events-grid/events-grid-item'
 import styles from '@/ui/items/items.module.scss'
-import clsx from 'clsx'
-import { useId } from 'react'
 
 export function EventsGrid ({
   events,
   isTextOnly = false,
-  isUpcoming = false,
+  isUpcoming = false
 }: {
-  events: EventClient[];
-  isTextOnly?: boolean;
-  isUpcoming?: boolean;
+  events: EventClient[]
+  isTextOnly?: boolean
+  isUpcoming?: boolean
 }) {
   const id = useId()
   return (

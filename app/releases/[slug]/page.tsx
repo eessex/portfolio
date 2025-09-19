@@ -1,3 +1,7 @@
+import type { Metadata } from 'next'
+import NextLink from 'next/link'
+import { notFound } from 'next/navigation'
+
 import { fetchReleaseBySlug, fetchReleases } from '@/lib/releases/data'
 import styles from '@/releases/[slug]/release.module.scss'
 import { DraftBadge } from '@/ui/draft-badge'
@@ -5,9 +9,7 @@ import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { FigureImage } from '@/ui/images/image-figure'
 import { LinksList } from '@/ui/links/link-list'
 import { combinePublishedEditions, filteredLinksByPress, formattedDateTime } from '@/ui/util'
-import type { Metadata } from 'next'
-import NextLink from 'next/link'
-import { notFound } from 'next/navigation'
+
 import { auth } from '../../../auth'
 
 type Props = {
@@ -25,7 +27,7 @@ export async function generateMetadata (
         url: release.coverImage.url,
         width: 1200,
         height: 1200 * release.coverImage.aspect,
-        alt: release.coverImage.caption,
+        alt: release.coverImage.caption
       }]
     : []
 
@@ -42,12 +44,12 @@ export async function generateStaticParams () {
   const allReleases = Object.values(releases).flat()
 
   return allReleases.map((release) => ({
-    slug: release.slug,
+    slug: release.slug
   }))
 }
 
 export default async function ReleasesPage ({
-  params,
+  params
 }: {
   params: Promise<{ slug: string }>
 }) {

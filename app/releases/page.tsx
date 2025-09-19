@@ -1,11 +1,13 @@
+import type { Metadata } from 'next'
+import { Suspense } from 'react'
+
 import { fetchReleases } from '@/lib/releases/data'
 import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
-import { PagePathType } from '@/lib/types'
+import type { PagePathType } from '@/lib/types'
 import { ItemsIndex } from '@/ui/items/items-index'
 import { Loading } from '@/ui/loading'
 import { camelToSentence } from '@/ui/util'
-import type { Metadata } from 'next'
-import { Suspense } from 'react'
+
 import { auth } from '../../auth'
 
 const path: PagePathType = 'releases'

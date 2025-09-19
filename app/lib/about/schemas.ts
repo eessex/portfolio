@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import {
   basePageSchema,
   defaultSchema,
@@ -5,7 +7,6 @@ import {
   shortText,
   uuid
 } from '@/lib/schemas'
-import { z } from 'zod'
 
 /**
  * The about page, with contact info and other details.

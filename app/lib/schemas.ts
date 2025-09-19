@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import { embedCodeSchema } from '@/lib/embed-codes/schemas'
 import { imageSchema } from '@/lib/images/schemas'
 import { linkSchema } from '@/lib/links/schemas'
@@ -5,7 +7,6 @@ import { projectSchema } from '@/lib/projects/schemas'
 import { publishedEditionSchema } from '@/lib/published-editions/schemas'
 import { tagSchema } from '@/lib/tags/schemas'
 import { venueSchema } from '@/lib/venues/schemas'
-import { z } from 'zod'
 
 /**
  * Types of pages that can have paths
@@ -100,7 +101,7 @@ export const baseDashboardItemSlugsSchema = z.object({
 export const embeddedItemIdSchemas = z.object({
   embedCodeIds: z.array(uuid).optional(),
   imageIds: z.array(uuid).optional(),
-  linkIds: z.array(uuid).optional(),
+  linkIds: z.array(uuid).optional()
 })
 
 /**
@@ -116,7 +117,7 @@ export const hydratedItemIdSchemas = z.object({
   project: projectSchema.optional(),
   publishedEditions: z.array(publishedEditionSchema).optional(),
   tags: z.array(tagSchema).optional(),
-  venue: venueSchema.optional(),
+  venue: venueSchema.optional()
 })
 
 /**

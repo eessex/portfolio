@@ -1,8 +1,9 @@
+import { useId } from 'react'
+
 import type { ReleaseClient } from '@/lib/releases/types'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
 import styles from '@/ui/items/items.module.scss'
 import { ReleaseListItem } from '@/ui/release-list/release-list-item'
-import { useId } from 'react'
 
 export function ReleaseList ({
   releases,
@@ -10,10 +11,10 @@ export function ReleaseList ({
   isExpanded = false,
   onExpand
 }: {
-  releases: ReleaseClient[];
-  title: string;
-  isExpanded?: boolean;
-  onExpand?: () => void;
+  releases: ReleaseClient[]
+  title: string
+  isExpanded?: boolean
+  onExpand?: () => void
 }) {
   const id = useId()
   return (

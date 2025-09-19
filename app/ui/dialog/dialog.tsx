@@ -1,15 +1,16 @@
 'use client'
-import styles from '@/ui/dialog/dialog.module.scss'
 import XMarkIcon from '@heroicons/react/24/solid/esm/XMarkIcon'
 import { useEffect } from 'react'
+
+import styles from '@/ui/dialog/dialog.module.scss'
 
 export const Dialog = ({
   title,
   children,
   onClose
 }: {
-  title: string,
-  children: React.ReactNode,
+  title: string
+  children: React.ReactNode
   onClose: () => void
 }) => {
   useEffect(() => {

@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
-import styles from '@/ui/toast/toast.module.scss'
+
 import { TextBanner, type TextBannerProps } from '@/ui/text-banner/text-banner'
+import styles from '@/ui/toast/toast.module.scss'
 
 interface ToastProps extends TextBannerProps {
-  onHide: () => void;
+  onHide: () => void
 }
 
 export const Toast = ({ children, type, onHide }: ToastProps) => {

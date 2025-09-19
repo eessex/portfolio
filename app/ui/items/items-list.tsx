@@ -1,13 +1,14 @@
+import { clsx } from 'clsx'
+import { useId } from 'react'
+
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
-import { PageItemClient } from '@/lib/types'
+import type { PageItemClient } from '@/lib/types'
 import { EventsGridItem } from '@/ui/events-grid/events-grid-item'
 import { EventsListItem } from '@/ui/events-list/events-list-item'
 import styles from '@/ui/items/items.module.scss'
 import { ReleaseGridItem } from '@/ui/release-grid/release-grid-item'
 import { ReleaseListItem } from '@/ui/release-list/release-list-item'
-import { clsx } from 'clsx'
-import { useId } from 'react'
 
 export function ItemsList<T extends PageItemClient> ({
   isExpanded = false,
@@ -78,8 +79,8 @@ function ItemGridItem<T extends PageItemClient> ({
   index,
   isFeatured
 }: {
-  item: T,
-  index: number,
+  item: T
+  index: number
   isFeatured?: boolean
 }) {
   if (item.path === 'events') {

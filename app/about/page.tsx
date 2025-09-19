@@ -1,3 +1,5 @@
+import { Suspense } from 'react'
+
 import styles from '@/about/about.module.scss'
 import { fetchAboutPage } from '@/lib/about/data'
 import type { AboutContact } from '@/lib/about/types'
@@ -9,7 +11,6 @@ import { FigureImage } from '@/ui/images/image-figure'
 import { ImageGrid } from '@/ui/images/image-grid'
 import { LinksList } from '@/ui/links/link-list'
 import { Loading } from '@/ui/loading'
-import { Suspense } from 'react'
 
 const title = 'About'
 
@@ -25,7 +26,7 @@ export async function generateMetadata () {
         url: image.url,
         width: 1200,
         height: 1200 * image.aspect,
-        alt: image.caption,
+        alt: image.caption
       }]
     : []
 

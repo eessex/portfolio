@@ -4,7 +4,7 @@ export function ExpandCollapseButton ({
   isExpanded,
   onExpand
 }: {
-  isExpanded: boolean,
+  isExpanded: boolean
   onExpand: () => void
 }) {
   return (

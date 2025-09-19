@@ -3,7 +3,7 @@ import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import styles from '@/ui/embed-codes/embed-codes.module.scss'
 
 export const EmbedCodes = ({
-  embedCodes,
+  embedCodes
 }: {
   embedCodes: EmbedCode[]
 }) => {

@@ -14,7 +14,7 @@ export async function generateMetadata () {
         url: image.url,
         width: 1200,
         height: 1200 * image.aspect,
-        alt: image.caption,
+        alt: image.caption
       }]
     : []
 

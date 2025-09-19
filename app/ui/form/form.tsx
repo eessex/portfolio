@@ -1,15 +1,16 @@
 'use client'
 
+import { useActionState, useEffect, useRef, useState } from 'react'
+
 import type { FormResponse } from '@/lib/types'
 import styles from '@/ui/form/form.module.scss'
 import { Toast } from '@/ui/toast/toast'
-import { useActionState, useEffect, useRef, useState } from 'react'
 
 export function Form<T> ({
   action,
   children
 }: {
-  action: (formData: FormData) => Promise<FormResponse<T>>,
+  action: (formData: FormData) => Promise<FormResponse<T>>
   children: React.ReactNode
 }) {
   const [error, setError] = useState<boolean>(false)

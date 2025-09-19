@@ -1,14 +1,15 @@
-import { ReactElement } from 'react'
-import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
-import styles from '@/ui/text-banner/text-banner.module.scss'
+import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
+import type { ReactElement } from 'react'
+
+import styles from '@/ui/text-banner/text-banner.module.scss'
 
 type MessageTypes = 'error' | 'success'
 
 export interface TextBannerProps {
-  children?: React.ReactNode;
-  className?: string;
-  type: MessageTypes;
+  children?: React.ReactNode
+  className?: string
+  type: MessageTypes
 }
 
 export const TextBanner = ({ children, type, className }: TextBannerProps) => {

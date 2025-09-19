@@ -1,14 +1,15 @@
-import type { Image } from '@/lib/images/types'
-import { Checkbox } from '@/ui/form/checkbox'
-import { Input, type InputType } from '@/ui/form/input'
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useCallback, useRef, useState } from 'react'
 
+import type { Image } from '@/lib/images/types'
+import { Checkbox } from '@/ui/form/checkbox'
+import { Input, type InputType } from '@/ui/form/input'
+
 interface ImageProps {
-  image?: Image,
-  index?: number,
-  isFielset?: boolean,
-  ref?: (el: InputType) => InputType | null,
+  image?: Image
+  index?: number
+  isFielset?: boolean
+  ref?: (el: InputType) => InputType | null
   onRemoveImage?: (index: number) => void
 }
 
@@ -92,7 +93,7 @@ export const EditImage = ({ image, index, ref, onRemoveImage }: ImageProps) => {
           isChecked={isPress}
           onChange={() => setIsPress(!isPress)}
           attributes={{
-            name: hasIndex ? `image[${index}].isPress` : 'isPress',
+            name: hasIndex ? `image[${index}].isPress` : 'isPress'
           }}
         />
         <Checkbox
@@ -100,7 +101,7 @@ export const EditImage = ({ image, index, ref, onRemoveImage }: ImageProps) => {
           isChecked={isHiddenOnAboutPage}
           onChange={() => setIsHiddenOnAboutPage(!isHiddenOnAboutPage)}
           attributes={{
-            name: hasIndex ? `image[${index}].isHiddenOnAboutPage` : 'isHiddenOnAboutPage',
+            name: hasIndex ? `image[${index}].isHiddenOnAboutPage` : 'isHiddenOnAboutPage'
           }}
         />
       </fieldset>

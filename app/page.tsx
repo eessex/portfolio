@@ -1,11 +1,13 @@
+import NextImage from 'next/image'
+import NextLink from 'next/link'
+import { Suspense } from 'react'
+
 import styles from '@/home.module.scss'
 import { fetchEvents } from '@/lib/events/data'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { EventsGrid } from '@/ui/events-grid/events-grid'
 import { Loading } from '@/ui/loading'
-import NextImage from 'next/image'
-import NextLink from 'next/link'
-import { Suspense } from 'react'
+
 import { auth } from '../auth'
 
 export async function generateMetadata () {
@@ -15,7 +17,7 @@ export async function generateMetadata () {
         url: settings?.coverImage.url,
         width: 1200,
         height: 1200 * settings?.coverImage.aspect,
-        alt: settings?.coverImage.caption,
+        alt: settings?.coverImage.caption
       }]
     : []
 

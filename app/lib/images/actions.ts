@@ -1,10 +1,11 @@
 'use server'
 
-import type { FormResponse } from '@/lib/types'
-import { imageSchema } from '@/lib/images/schemas'
-import type { Image } from '@/lib/images/types'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
+
+import { imageSchema } from '@/lib/images/schemas'
+import type { Image } from '@/lib/images/types'
+import type { FormResponse } from '@/lib/types'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
@@ -30,7 +31,7 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
     console.error('Failed to validate image.', validatedFields.error.flatten().fieldErrors)
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Failed to validate image.',
+      message: 'Failed to validate image.'
     }
   } else {
     try {

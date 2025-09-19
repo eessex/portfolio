@@ -1,10 +1,11 @@
 'use server'
 
-import type { FormResponse } from '@/lib/types'
-import { embedCodeSchema } from '@/lib/embed-codes/schemas'
-import type { EmbedCode } from '@/lib/embed-codes/types'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
+
+import { embedCodeSchema } from '@/lib/embed-codes/schemas'
+import type { EmbedCode } from '@/lib/embed-codes/types'
+import type { FormResponse } from '@/lib/types'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
@@ -40,7 +41,7 @@ export async function editEmbedCode (formData: FormData): Promise<FormResponse<E
     console.error('Failed to validate embed code.', validatedFields.error.flatten().fieldErrors)
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Failed to validate embed code.',
+      message: 'Failed to validate embed code.'
     }
   }
   try {

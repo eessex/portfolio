@@ -1,3 +1,9 @@
+import { TicketIcon } from '@heroicons/react/24/outline'
+import type { Metadata } from 'next'
+import NextLink from 'next/link'
+import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
+
 import styles from '@/events/[slug]/event.module.scss'
 import { fetchEventBySlug, fetchEvents } from '@/lib/events/data'
 import { DraftBadge } from '@/ui/draft-badge'
@@ -8,11 +14,7 @@ import { LinksList } from '@/ui/links/link-list'
 import { Loading } from '@/ui/loading'
 import { filteredLinksByPress, formattedDateTime, isUpcomingDate } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
-import { TicketIcon } from '@heroicons/react/24/outline'
-import type { Metadata } from 'next'
-import NextLink from 'next/link'
-import { notFound } from 'next/navigation'
-import { Suspense } from 'react'
+
 import { auth } from '../../../auth'
 
 type Props = {
@@ -29,7 +31,7 @@ export async function generateMetadata (
         url: event.coverImage.url,
         width: 1200,
         height: 1200 * event.coverImage.aspect,
-        alt: event.coverImage.alt || event.coverImage.caption || '',
+        alt: event.coverImage.alt || event.coverImage.caption || ''
       }]
     : []
 
@@ -45,12 +47,12 @@ export async function generateStaticParams () {
   const { upcomingEvents, pastEvents } = await fetchEvents()
 
   return [...upcomingEvents, ...pastEvents].map((event) => ({
-    slug: event.slug,
+    slug: event.slug
   }))
 }
 
 export default async function EventsPage ({
-  params,
+  params
 }: {
   params: Promise<{ slug: string }>
 }) {

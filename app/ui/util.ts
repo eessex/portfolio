@@ -1,5 +1,6 @@
 import type { Link } from '@/lib/links/types'
-import type { PublishedEditionClient } from '@/lib/published-edition/types'
+import type { PublishedEditionClient } from '@/lib/published-editions/types'
+import { ReleaseClient } from '@/lib/releases/types'
 import type { z } from 'zod'
 
 const dateFormatLg: Intl.DateTimeFormatOptions = {
@@ -146,11 +147,16 @@ export function filteredLinksByPress (links: Array<Link>) {
   return [pressLinks, otherLinks]
 }
 
-export function combinePublishedEditions (editions: Array<PublishedEditionClient>) {
+export function combinePublishedEditions (publishedEditions: ReleaseClient['publishedEditions']) {
   const combined: Array<Omit<PublishedEditionClient, 'format'> & { formats?: string[], format?: string }> = []
+  if (!publishedEditions || publishedEditions.length === 0) return combined
 
-  editions.forEach((edition) => {
-    const existing = combined.find(item => item.publisher === edition.publisher && item.publishDate === edition.publishDate)
+  publishedEditions.forEach((edition) => {
+    const existing = combined.find(item => (
+      item.publisher === edition.publisher &&
+      new Date(item.publishDate).toISOString().substring(0, 10) ===
+      new Date(edition.publishDate).toISOString().substring(0, 10)
+    ))
     if (!existing) {
       combined.push({
         ...edition,

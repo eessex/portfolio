@@ -42,7 +42,7 @@ export function ReleaseGridItem ({
               <ul>
                 {combinePublishedEditions(release.publishedEditions).map((edition, id) => (
                   <li key={`${edition.publisher}-${edition.publishDate}-${id}`}>
-                    {edition.format}, {edition.publisher}, {formattedDateTime(edition.publishDate, 'xs')}
+                    {edition.format}, {edition.publisher}, {formattedDateTime(edition.publishDate, 'xxs')}
                   </li>
                 ))}
               </ul>

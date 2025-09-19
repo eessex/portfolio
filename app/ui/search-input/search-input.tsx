@@ -4,12 +4,10 @@ import styles from './search-input.module.scss'
 export function SearchInput ({
   value,
   onChange,
-  placeholder = 'Search',
   label = 'Search'
 }: {
   value: string
   onChange: (newValue: string) => void
-  placeholder?: string
   label?: string
 }) {
   const [inputValue, setInputValue] = useState(value)
@@ -30,8 +28,8 @@ export function SearchInput ({
           setInputValue(e.target.value)
           onChange(e.target.value)
         }}
-        placeholder={placeholder}
-        aria-label='Search'
+        placeholder={label}
+        aria-label={label}
       />
     </div>
   )

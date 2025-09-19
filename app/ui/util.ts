@@ -28,7 +28,7 @@ const dateFormatXxs: Intl.DateTimeFormatOptions = {
   year: 'numeric'
 }
 
-type DateFormatSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg'
+export type DateFormatSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg'
 
 const getTimeFormat = (format: DateFormatSize = 'lg') => {
   switch (format) {

@@ -2,7 +2,8 @@
 
 import type { FetchEventsResult } from '@/lib/events/types'
 import type { FetchReleasesResult } from '@/lib/releases/types'
-import type { PagePathType, PageItemClient } from '@/lib/types'
+import type { PageItemClient, PagePathType } from '@/lib/types'
+import type { EmbeddedItemKey } from '@/ui/dashboard/dashboard-items'
 import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
 import { ItemsList } from '@/ui/items/items-list'
 import itemsStyles from '@/ui/items/items.module.scss'
@@ -92,7 +93,7 @@ export function ItemsIndex<T extends PageItemClient, V extends FetchEventsResult
       </>
 
       <ItemsFilterNav
-        itemType={itemType()}
+        itemType={pageType}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         isExpanded={isExpanded}
@@ -167,11 +168,11 @@ export function ItemsFilterNav ({
 }: {
   filterType?: string,
   searchTerm: string,
-  setSearchTerm: (term: string) => void,
+  setSearchTerm?: (term: string) => void,
   setFilterType?: (type: string | undefined) => void,
   isExpanded: boolean,
   onExpand: () => void,
-  itemType: string,
+  itemType: PagePathType | EmbeddedItemKey,
   filterTypes?: Array<string> | undefined
 }) {
   return (
@@ -183,21 +184,27 @@ export function ItemsFilterNav ({
             onExpand={onExpand}
           />
         </li>
-        <li>
-          <FilterTypeSelect
-            filterTypes={filterTypes}
-            onChange={setFilterType || undefined}
-            label={`Filter ${itemType}s`}
-            value={filterType}
-          />
-        </li>
-        <li>
-          <SearchInput
-            value={searchTerm}
-            onChange={setSearchTerm}
-            label={`Search ${itemType}s`}
-          />
-        </li>
+
+        {setFilterType && filterTypes && (
+          <li>
+            <FilterTypeSelect
+              filterTypes={filterTypes}
+              onChange={setFilterType}
+              label={`Filter ${itemType}`}
+              value={filterType}
+            />
+          </li>
+        )}
+
+        {setSearchTerm && (
+          <li>
+            <SearchInput
+              value={searchTerm}
+              onChange={setSearchTerm}
+              label={`Search ${itemType}`}
+            />
+          </li>
+        )}
       </ul>
     </nav>
   )

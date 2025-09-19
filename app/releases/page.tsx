@@ -1,7 +1,6 @@
 import { fetchReleases } from '@/lib/releases/data'
-import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
 import { PagePathType } from '@/lib/types'
-import { ItemsIndex } from '@/ui/items/items-index'
+import { ItemsTable } from '@/ui/items-table/items-table'
 import { Loading } from '@/ui/loading'
 import { camelToSentence } from '@/ui/util'
 import type { Metadata } from 'next'
@@ -24,9 +23,9 @@ export default async function ReleasesPage () {
       </h1>
 
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
-        <ItemsIndex<ReleaseClient, FetchReleasesResult>
-          pageType={path}
-          items={releases}
+        <ItemsTable
+          path={path}
+          items={[releases]}
           isExpandedOnLoad
         />
       </Suspense>

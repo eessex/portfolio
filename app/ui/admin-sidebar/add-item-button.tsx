@@ -9,11 +9,11 @@ import { usePathname } from 'next/navigation'
 export type OpenNewItemFormDetail = { itemType: EmbeddedItemKey }
 
 export function AddItemButton () {
-  const allowedItemTypes: EmbeddedItemKey[] = ['embedCode', 'image', 'link', 'venue']
+  const allowedItemTypes: EmbeddedItemKey[] = ['embedCodes', 'images', 'links', 'venues']
   const pathname = usePathname()
   const pathnameParts = pathname.split('/')
   const itemPart = pathnameParts[2] ? snakeToCamel(pathnameParts[2]) as EmbeddedItemKey : undefined // after /dashboard/
-  const itemType = allowedItemTypes.find(type => `${type}s` === itemPart)
+  const itemType = allowedItemTypes.find(type => type === itemPart)
 
   if (!itemType) return null
 
@@ -26,7 +26,7 @@ export function AddItemButton () {
   return (
     <li>
       <button className={`button ${styles['admin-sidebar-new-item']}`} onClick={onClick}>
-        <PlusIcon /> Add {camelToSentence(itemType)}
+        <PlusIcon /> Add {camelToSentence(itemType).replace(/s$/, '')}
       </button>
     </li>
   )

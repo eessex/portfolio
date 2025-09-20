@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { auth } from '@/api/auth/auth'
+import { auth } from '@/api/auth'
 import { fetchEvents } from '@/lib/events/data'
 import type { EventClient, FetchEventsResult } from '@/lib/events/types'
 import type { PagePathType } from '@/lib/types'

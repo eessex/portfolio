@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
 
-import { auth } from '@/api/auth/auth'
+import { auth } from '@/api/auth'
 import styles from '@/app/releases/[slug]/release.module.scss'
 import { fetchReleaseBySlug, fetchReleases } from '@/lib/releases/data'
 import { DraftBadge } from '@/ui/draft-badge'

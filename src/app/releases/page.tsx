@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { auth } from '@/api/auth/auth'
+import { auth } from '@/api/auth'
 import { fetchReleases } from '@/lib/releases/data'
 import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
 import type { PagePathType } from '@/lib/types'

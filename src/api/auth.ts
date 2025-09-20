@@ -6,7 +6,7 @@ import { z } from 'zod'
 
 import type { User } from '@/lib/users/types'
 
-import { authConfig } from '../../../auth.config'
+import { authConfig } from '../../auth.config'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 

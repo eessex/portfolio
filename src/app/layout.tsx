@@ -3,7 +3,7 @@ import '@/ui/globals.scss'
 import clsx from 'clsx'
 import type { Metadata } from 'next'
 
-import { auth } from '@/api/auth/auth'
+import { auth } from '@/api/auth'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
 import { geistMono, geistSans } from '@/ui/fonts'

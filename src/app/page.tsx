@@ -2,7 +2,7 @@ import NextImage from 'next/image'
 import NextLink from 'next/link'
 import { Suspense } from 'react'
 
-import { auth } from '@/api/auth/auth'
+import { auth } from '@/api/auth'
 import styles from '@/app/home.module.scss'
 import { fetchEvents } from '@/lib/events/data'
 import { fetchSiteSettings } from '@/lib/site-settings/data'

@@ -2,7 +2,7 @@
 
 import { AuthError } from 'next-auth'
 
-import { signIn } from '@/api/auth/auth'
+import { signIn } from '@/api/auth'
 
 export async function authenticate (
   _prevState: string | undefined,

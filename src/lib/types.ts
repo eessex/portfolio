@@ -1,6 +1,6 @@
 import type { EventClient, FetchEventsResult } from '@/lib/events/types'
 import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
-import { pagePathTypes, embeddedItemTypes } from '@/lib/schemas'
+import type { embeddedItemTypes, pagePathTypes } from '@/lib/schemas'
 
 export type PagePathType = typeof pagePathTypes[number]
 

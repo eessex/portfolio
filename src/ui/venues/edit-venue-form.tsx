@@ -2,7 +2,7 @@ import type { Venue } from '@/lib/venues/types'
 import { Input, type InputType } from '@/ui/form/input'
 
 interface EditVenueProps {
-  venue?: Venue,
+  venue?: Venue
   ref?: (el: InputType) => InputType | null
 }
 

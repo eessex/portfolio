@@ -9,8 +9,8 @@ export function VenueInline ({
   format,
   isNameHidden
 }: {
-  venue: Omit<Venue, 'id'>,
-  format?: VenueFormat,
+  venue: Omit<Venue, 'id'>
+  format?: VenueFormat
   isNameHidden?: boolean
 }) {
   if (isNameHidden) {

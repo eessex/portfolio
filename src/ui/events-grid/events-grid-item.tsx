@@ -1,11 +1,12 @@
+import { TicketIcon } from '@heroicons/react/24/outline'
+import NextImage from 'next/image'
+import NextLink from 'next/link'
+
 import type { EventClient } from '@/lib/events/types'
 import type { Image } from '@/lib/images/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import { eventUrl, formattedDateTime } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
-import { TicketIcon } from '@heroicons/react/24/outline'
-import NextImage from 'next/image'
-import NextLink from 'next/link'
 
 function Metadata ({ event }: { event: EventClient }) {
   return (
@@ -49,10 +50,10 @@ export function EventsGridItem ({
   isTextOnly = false,
   isUpcoming = false
 }: {
-  event: EventClient;
-  index: number;
-  isTextOnly?: boolean;
-  isUpcoming?: boolean;
+  event: EventClient
+  index: number
+  isTextOnly?: boolean
+  isUpcoming?: boolean
 }) {
   const [featuredImage, ..._images] = event?.images || []
   function isColumn () {

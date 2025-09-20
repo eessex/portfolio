@@ -1,8 +1,9 @@
+import { sql } from '@vercel/postgres'
+
 import { eventClientSchema } from '@/lib/events/schemas'
 import type { EventClient, FetchEventsResult } from '@/lib/events/types'
 import type { PagePathType } from '@/lib/types'
 import { formatDbResponseForClient, isUpcomingDate } from '@/ui/util'
-import { sql } from '@vercel/postgres'
 
 const path: PagePathType = 'events'
 

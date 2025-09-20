@@ -1,10 +1,11 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
+import postgres from 'postgres'
+
 import { aboutSchema } from '@/lib/about/schemas'
 import type { About } from '@/lib/about/types'
 import type { FormResponse } from '@/lib/types'
-import { revalidatePath } from 'next/cache'
-import postgres from 'postgres'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
@@ -16,15 +17,15 @@ export async function editAbout (formData: FormData, id: string): Promise<FormRe
   } else {
     const {
       coverImageId,
-      description,
+      description
     } = validatedFields.data
 
     try {
       await sql`
         UPDATE about
         SET updated_at = current_timestamp,
-            description = ${description || ''},
-            cover_image_id = ${coverImageId || null}
+          description = ${description || ''},
+          cover_image_id = ${coverImageId || null}
         WHERE id = ${id}
       `
       revalidatePath('/about')

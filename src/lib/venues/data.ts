@@ -1,7 +1,8 @@
+import { sql } from '@vercel/postgres'
+
 import { dashboardVenueSchema } from '@/lib/venues/schemas'
 import type { DashboardVenue } from '@/lib/venues/types'
 import { formatDbResponseForClient } from '@/ui/util'
-import { sql } from '@vercel/postgres'
 
 export async function fetchVenues () {
   try {

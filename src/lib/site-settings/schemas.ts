@@ -13,11 +13,11 @@ import {
 export const siteSettingsSchema = defaultSchema.extend({
   coverImageId: basePageSchema.shape.coverImageId,
   description: shortText,
-  title: basePageSchema.shape.title,
+  title: basePageSchema.shape.title
 })
 
 export const siteSettingsClientSchema = siteSettingsSchema.extend(
   hydratedItemIdSchemas.pick({
-    coverImage: true,
+    coverImage: true
   }).shape
 )

@@ -1,9 +1,10 @@
 'use client'
 
-import style from '@/ui/nav/nav.module.scss'
-import { useWindowScrollPosition } from '@/ui/nav/scroll-position'
 import clsx from 'clsx'
 import NextLink from 'next/link'
+
+import style from '@/ui/nav/nav.module.scss'
+import { useWindowScrollPosition } from '@/ui/nav/scroll-position'
 
 export function Nav ({ title }: { title?: string }) {
   const {

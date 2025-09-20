@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import {
   baseContentSchema,
   basePageSchema,
@@ -6,7 +8,6 @@ import {
   shortText,
   uuid
 } from '@/lib/schemas'
-import { z } from 'zod'
 
 export const publishedEditionTypes = [
   '2xCassette',

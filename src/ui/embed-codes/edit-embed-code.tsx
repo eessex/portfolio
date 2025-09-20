@@ -1,13 +1,14 @@
-import type { EmbedCode } from '@/lib/embed-codes/types'
-import { Input, type InputType } from '@/ui/form/input'
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useCallback, useRef, useState } from 'react'
 
+import type { EmbedCode } from '@/lib/embed-codes/types'
+import { Input, type InputType } from '@/ui/form/input'
+
 interface EmbedCodeProps {
-  embedCode?: EmbedCode,
-  index?: number,
-  isFielset?: boolean,
-  ref?: (el: InputType) => InputType | null,
+  embedCode?: EmbedCode
+  index?: number
+  isFielset?: boolean
+  ref?: (el: InputType) => InputType | null
   onRemoveEmbedCode?: (index: number) => void
 }
 

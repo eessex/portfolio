@@ -1,7 +1,8 @@
-import { aboutClientSchema } from '@/lib/about/schemas'
-import { AboutClient } from '@/lib/about/types'
-import { formatDbResponseForClient } from '@/ui/util'
 import { sql } from '@vercel/postgres'
+
+import { aboutClientSchema } from '@/lib/about/schemas'
+import type { AboutClient } from '@/lib/about/types'
+import { formatDbResponseForClient } from '@/ui/util'
 
 export async function fetchAboutPage () {
   try {

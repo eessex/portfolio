@@ -1,7 +1,9 @@
+import type { QueryResultRow } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
+
 import { dashboardImageSchema, imageSchema } from '@/lib/images/schemas'
 import type { DashboardImage, Image } from '@/lib/images/types'
 import { formatDbResponseForClient } from '@/ui/util'
-import { QueryResultRow, sql } from '@vercel/postgres'
 
 export async function fetchImage (id: string) {
   try {

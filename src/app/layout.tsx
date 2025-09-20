@@ -1,12 +1,14 @@
+import '@/ui/globals.scss'
+
+import clsx from 'clsx'
+import type { Metadata } from 'next'
+
+import { auth } from '@/api/auth/auth'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
 import { geistMono, geistSans } from '@/ui/fonts'
 import { Footer } from '@/ui/footer/footer'
-import '@/ui/globals.scss'
 import { Nav } from '@/ui/nav/nav'
-import clsx from 'clsx'
-import type { Metadata } from 'next'
-import { auth } from '@/api/auth/auth'
 
 const siteTitle = process.env.NEXT_PUBLIC_SITE_TITLE || 'Site Title'
 const siteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Site Description'
@@ -14,15 +16,15 @@ const siteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Site Descri
 export const metadata: Metadata = {
   title: {
     template: `%s | ${siteTitle}`,
-    default: siteTitle,
+    default: siteTitle
   },
   description: siteDescription
 }
 
 export default async function RootLayout ({
-  children,
+  children
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   const siteSettings = await fetchSiteSettings()
   const session = await auth()

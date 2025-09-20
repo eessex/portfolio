@@ -1,12 +1,13 @@
+import Link from 'next/link'
+
 import type { ReleaseClient } from '@/lib/releases/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import styles from '@/ui/items/items.module.scss'
 import { combinePublishedEditions, formattedDateTime, releaseUrl } from '@/ui/util'
-import Link from 'next/link'
 
 export function ReleaseListItem ({
   release,
-  index: _index,
+  index: _index
 }: {
   release: ReleaseClient
   index: number

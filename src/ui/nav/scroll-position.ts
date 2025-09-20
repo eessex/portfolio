@@ -18,7 +18,7 @@ export const useWindowScrollPosition = () => {
           }
         },
         {
-          threshold: 0,
+          threshold: 0
         }
       )
       observer.observe(target)

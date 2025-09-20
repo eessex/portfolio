@@ -1,17 +1,18 @@
-import type { Link } from '@/lib/links/types'
-// import { Checkbox } from '@/ui/form/checkbox'
-// import styles from '@/ui/form/form.module.scss'
-import { Input, type InputType } from '@/ui/form/input'
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
 // import clsx from 'clsx'
 // import NextLink from 'next/link'
 import { useCallback, useRef, useState } from 'react'
 
+import type { Link } from '@/lib/links/types'
+// import { Checkbox } from '@/ui/form/checkbox'
+// import styles from '@/ui/form/form.module.scss'
+import { Input, type InputType } from '@/ui/form/input'
+
 interface LinkProps {
-  link?: Link,
-  index?: number,
-  isFielset?: boolean,
-  ref?: (el: InputType) => InputType | null,
+  link?: Link
+  index?: number
+  isFielset?: boolean
+  ref?: (el: InputType) => InputType | null
   onRemoveLink?: (index: number) => void
 }
 

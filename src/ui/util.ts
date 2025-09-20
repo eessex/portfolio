@@ -1,7 +1,8 @@
+import type { z } from 'zod'
+
 import type { Link } from '@/lib/links/types'
 import type { PublishedEditionClient } from '@/lib/published-editions/types'
-import { ReleaseClient } from '@/lib/releases/types'
-import type { z } from 'zod'
+import type { ReleaseClient } from '@/lib/releases/types'
 
 const dateFormatLg: Intl.DateTimeFormatOptions = {
   weekday: 'short',
@@ -48,7 +49,7 @@ export function formattedDateTime (date: string | Date, format?: DateFormatSize,
   startTime.setHours(startTime.getHours())
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     ...getTimeFormat(format),
-    timeZone: timeZone || 'America/New_York',
+    timeZone: timeZone || 'America/New_York'
   }).format(startTime)
 
   return formattedDate
@@ -160,7 +161,7 @@ export function combinePublishedEditions (publishedEditions: ReleaseClient['publ
     if (!existing) {
       combined.push({
         ...edition,
-        formats: [edition.format],
+        formats: [edition.format]
       })
     } else {
       existing.formats = existing.formats || []

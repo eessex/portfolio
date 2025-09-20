@@ -1,5 +1,8 @@
 'use client'
 
+import NextLink from 'next/link'
+import { useCallback, useEffect, useId, useState } from 'react'
+
 import { embedCodeTypes } from '@/lib/embed-codes/schemas'
 import type { DashboardEmbedCode, EmbedCode } from '@/lib/embed-codes/types'
 import type { DashboardImage, Image } from '@/lib/images/types'
@@ -17,15 +20,13 @@ import { EditItemNav } from '@/ui/form/edit-item-nav'
 import { Form } from '@/ui/form/form'
 import { EditImage } from '@/ui/images/edit-image-form'
 import { FigureImage } from '@/ui/images/image-figure'
-import { ItemsFilterNav } from '@/ui/items/items-index'
 import itemsStyles from '@/ui/items/items.module.scss'
+import { ItemsFilterNav } from '@/ui/items/items-index'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
 import { camelToSentence, eventUrl, releaseUrl } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 import { VenueInline } from '@/ui/venues/venue'
-import NextLink from 'next/link'
-import { useCallback, useEffect, useId, useState } from 'react'
 
 declare global {
   interface DocumentEventMap {
@@ -36,9 +37,9 @@ declare global {
 export type DashboardItem = DashboardEmbedCode | DashboardImage | DashboardLink | DashboardVenue
 
 interface DashboardProps <T extends DashboardItem> {
-  itemType: EmbeddedItemType,
-  items: T[],
-  editItem: (item: FormData) => Promise<FormResponse<T> | undefined>,
+  itemType: EmbeddedItemType
+  items: T[]
+  editItem: (item: FormData) => Promise<FormResponse<T> | undefined>
   deleteItem: (id: string)=> Promise<FormResponse<T> | undefined>
 }
 
@@ -213,10 +214,10 @@ function DashboardListItem<T extends DashboardItem> ({
   onEdit,
   onDelete
 }: {
-  itemType: EmbeddedItemType,
-  item: T,
-  isExpanded?: boolean,
-  onEdit: (id: string) => void,
+  itemType: EmbeddedItemType
+  item: T
+  isExpanded?: boolean
+  onEdit: (id: string) => void
   onDelete: (id: string) => void
 }) {
   function usedOnPages () {

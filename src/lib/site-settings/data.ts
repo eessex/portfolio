@@ -1,7 +1,8 @@
-import { siteSettingsClientSchema } from '@/lib/site-settings/schemas'
-import { SiteSettingsClient } from '@/lib/site-settings/types'
-import { formatDbResponseForClient } from '@/ui/util'
 import { sql } from '@vercel/postgres'
+
+import { siteSettingsClientSchema } from '@/lib/site-settings/schemas'
+import type { SiteSettingsClient } from '@/lib/site-settings/types'
+import { formatDbResponseForClient } from '@/ui/util'
 
 /** site title & image, SEO meta */
 export async function fetchSiteSettings () {

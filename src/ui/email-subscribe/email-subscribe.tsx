@@ -1,11 +1,12 @@
 'use client'
 
-import type { FormState } from '@/lib/types'
-import { createEmailSubscription } from '@/lib/email-subscriptions/actions'
-import styles from '@/ui/email-subscribe/email-subscribe.module.scss'
-import { Toast } from '@/ui/toast/toast'
 import Cookies from 'js-cookie'
 import { useActionState, useEffect, useState } from 'react'
+
+import { createEmailSubscription } from '@/lib/email-subscriptions/actions'
+import type { FormState } from '@/lib/types'
+import styles from '@/ui/email-subscribe/email-subscribe.module.scss'
+import { Toast } from '@/ui/toast/toast'
 
 export function EmailSubscribe () {
   const [error, setError] = useState<boolean>(false)

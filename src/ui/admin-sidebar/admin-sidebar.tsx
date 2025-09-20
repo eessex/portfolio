@@ -1,8 +1,10 @@
+import NextLink from 'next/link'
+
 import { AddItemButton } from '@/ui/admin-sidebar/add-item-button'
 import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
 import { EditButton } from '@/ui/edit-button/edit-button'
 import { LogoutButton } from '@/ui/logout-button'
-import NextLink from 'next/link'
+
 import { camelToSentence, snakeToCamel } from '../util'
 
 export async function AdminSidebar () {

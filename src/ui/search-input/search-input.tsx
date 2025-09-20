@@ -1,4 +1,5 @@
 import { useState } from 'react'
+
 import styles from './search-input.module.scss'
 
 export function SearchInput ({

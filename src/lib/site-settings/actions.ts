@@ -1,10 +1,11 @@
 'use server'
 
-import type { FormResponse } from '@/lib/types'
-import { siteSettingsSchema } from '@/lib/site-settings/schemas'
-import { SiteSettings } from '@/lib/site-settings/types'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
+
+import { siteSettingsSchema } from '@/lib/site-settings/schemas'
+import type { SiteSettings } from '@/lib/site-settings/types'
+import type { FormResponse } from '@/lib/types'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
@@ -14,13 +15,13 @@ export async function editSiteSettings (formData: FormData, id: string): Promise
     console.error('Validation error', validatedFields.error.format())
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to save.',
+      message: 'Missing Fields. Failed to save.'
     }
   } else {
     const {
       coverImageId,
       description,
-      title,
+      title
     } = validatedFields.data
 
     try {

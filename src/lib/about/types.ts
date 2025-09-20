@@ -1,9 +1,10 @@
-import {
+import type { z } from 'zod'
+
+import type {
   aboutClientSchema,
   aboutContactSchema,
   aboutSchema
 } from '@/lib/about/schemas'
-import { z } from 'zod'
 
 export type About = z.infer<typeof aboutSchema>
 export type AboutContact = z.infer<typeof aboutContactSchema>

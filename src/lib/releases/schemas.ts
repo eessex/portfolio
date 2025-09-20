@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import {
   basePageSchema,
   date,
@@ -5,7 +7,6 @@ import {
   hydratedItemIdSchemas,
   shortText
 } from '@/lib/schemas'
-import { z } from 'zod'
 
 export const releaseTypes = [
   'album',

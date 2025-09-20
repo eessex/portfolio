@@ -1,9 +1,10 @@
 'use client'
 
 import { useActionState } from 'react'
+
 import { authenticate } from '@/lib/users/actions'
-import { TextBanner } from '@/ui/text-banner/text-banner'
 import styles from '@/ui/form/form.module.scss'
+import { TextBanner } from '@/ui/text-banner/text-banner'
 
 export default function LoginForm () {
   const [errorMessage, formAction, isPending] = useActionState(

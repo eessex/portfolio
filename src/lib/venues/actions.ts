@@ -1,10 +1,11 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
+import postgres from 'postgres'
+
 import type { FormResponse } from '@/lib/types'
 import { venueSchema } from '@/lib/venues/schemas'
 import type { Venue } from '@/lib/venues/types'
-import { revalidatePath } from 'next/cache'
-import postgres from 'postgres'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
@@ -79,7 +80,7 @@ export async function editVenue (formData: FormData): Promise<FormResponse<Venue
     console.error('Failed to validate venue.', validatedFields.error.flatten().fieldErrors)
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Failed to validate venue.',
+      message: 'Failed to validate venue.'
     }
   } else {
     try {
@@ -93,7 +94,7 @@ export async function editVenue (formData: FormData): Promise<FormResponse<Venue
       console.error('Failed to save Venue:', err)
       return {
         errors: err instanceof Error ? [err.message] : ['Failed to save Venue.'],
-        message: 'Failed to save Venue.',
+        message: 'Failed to save Venue.'
       }
     }
   }

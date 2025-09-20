@@ -1,10 +1,11 @@
+import { z } from 'zod'
+
 import {
   baseContentSchema,
   baseDashboardItemSlugsSchema,
   longText,
   shortText
 } from '@/lib/schemas'
-import { z } from 'zod'
 
 /**
  * The variety of media displayed in an iframe embed.
@@ -39,7 +40,7 @@ export const embedCodeSchema = z.lazy(() =>
   baseContentSchema.extend({
     caption: shortText.optional(),
     iframe: longText.min(12),
-    type: z.enum(embedCodeTypes).optional(),
+    type: z.enum(embedCodeTypes).optional()
   })
 )
 

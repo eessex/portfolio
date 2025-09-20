@@ -1,9 +1,10 @@
 'use client'
 
-import type { Badge } from '@/lib/types'
-import styles from '@/ui/accordion-dropdown/accordion-dropdown.module.scss'
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
 import { useEffect, useId, useState } from 'react'
+
+import type { Badge } from '@/lib/types'
+import styles from '@/ui/accordion-dropdown/accordion-dropdown.module.scss'
 
 export function AccordionDropdown ({
   badges,
@@ -11,7 +12,7 @@ export function AccordionDropdown ({
   isExpanded,
   title
 }: {
-  badges?: Badge[],
+  badges?: Badge[]
   children: React.ReactNode
   isExpanded?: boolean
   title: string

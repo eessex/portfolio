@@ -1,3 +1,6 @@
+import type { Metadata } from 'next'
+import { Suspense } from 'react'
+
 import { deleteImage, editImage } from '@/lib/images/actions'
 import { fetchImages } from '@/lib/images/data'
 import type { EmbeddedItemType } from '@/lib/types'
@@ -5,8 +8,6 @@ import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
 import { camelToSentence } from '@/ui/util'
-import type { Metadata } from 'next'
-import { Suspense } from 'react'
 
 const itemType: EmbeddedItemType = 'images'
 const title = `Dashboard: ${camelToSentence(itemType)}`

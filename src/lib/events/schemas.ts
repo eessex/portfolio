@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import {
   basePageSchema,
   date,
@@ -6,7 +8,6 @@ import {
   url,
   uuid
 } from '@/lib/schemas'
-import { z } from 'zod'
 
 /**
  * An event, such as a concert, performance, opening, or screening.

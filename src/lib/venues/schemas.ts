@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import {
   baseDashboardItemSlugsSchema,
   defaultSchema,
@@ -5,7 +7,6 @@ import {
   url,
   uuid
 } from '@/lib/schemas'
-import { z } from 'zod'
 
 /**
  * A venue where an event or exhibition takes place.

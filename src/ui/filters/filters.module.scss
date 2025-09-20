@@ -1,0 +1,77 @@
+@use '@/ui/breakpoints';
+
+.filters-section {
+  position: sticky;
+  top: var(--header-height);
+  transition: all 0.25s ease-in-out;
+  z-index: 200;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: .75rem;
+
+  @include breakpoints.sm-width {
+    margin-top: 0;
+  }
+
+  + table {
+    margin-top: -2.5rem;
+
+    @include breakpoints.sm-width {
+      margin-top: 0;
+
+      tr[class$="rowgroup-heading"] {
+        top: calc(var(--header-height) + 40px);
+      }
+    }
+  }
+}
+
+.filters-section--expanded {
+  @include breakpoints.sm-width {
+    background: rgba(var(--background), 1);
+
+    + table tr[class$="rowgroup-heading"] {
+      top: calc(var(--header-height) + 80px);
+    }
+  }
+}
+
+.filters-container {
+  margin-top: .35em;
+  display: flex;
+  gap: .35rem;
+  width: 100%;
+  justify-content: flex-end;
+  padding: 0 .35rem;
+
+  input, select {
+    height: 36px;
+  }
+
+  > button {
+    min-width: max-content;
+    font-size: 0.875rem;
+    padding-left: .35rem;
+    padding-right: .35rem;
+  }
+
+  @include breakpoints.sm-width {
+    background: rgba(var(--background), 1);
+    width: 100%;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap; 
+
+    > * {
+      width: min-content;
+    }
+
+    div:has(input[type='search']) {
+      width: 100%;
+
+      input[type='search'] {
+        width: 100%;
+      }
+    }
+  }
+}

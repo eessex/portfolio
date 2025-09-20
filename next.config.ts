@@ -6,9 +6,9 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: process.env.REMOTE_IMAGE_HOSTNAME || 'images.myhost.com',
-        pathname: (process.env.REMOTE_IMAGE_PATHNAME || '') + '/**',
-      },
-    ],
+        pathname: (process.env.REMOTE_IMAGE_PATHNAME || '') + '/**'
+      }
+    ]
   }
 }
 

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
 
+import { auth } from '@/api/auth'
 import { fetchReleaseBySlug, fetchReleases } from '@/lib/releases/data'
 import styles from '@/releases/[slug]/release.module.scss'
 import { DraftBadge } from '@/ui/draft-badge'
@@ -9,8 +10,6 @@ import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { FigureImage } from '@/ui/images/image-figure'
 import { LinksList } from '@/ui/links/link-list'
 import { combinePublishedEditions, filteredLinksByPress, formattedDateTime } from '@/ui/util'
-
-import { auth } from '../../../auth'
 
 type Props = {
   params: Promise<{ slug: string }>

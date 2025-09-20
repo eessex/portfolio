@@ -3,13 +3,12 @@ import '@/globals.scss'
 import clsx from 'clsx'
 import type { Metadata } from 'next'
 
+import { auth } from '@/api/auth'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
 import { geistMono, geistSans } from '@/ui/fonts'
 import { Footer } from '@/ui/footer/footer'
 import { Nav } from '@/ui/nav/nav'
-
-import { auth } from '../auth'
 
 const siteTitle = process.env.NEXT_PUBLIC_SITE_TITLE || 'Site Title'
 const siteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Site Description'

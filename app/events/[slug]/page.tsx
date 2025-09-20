@@ -4,6 +4,7 @@ import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
+import { auth } from '@/api/auth'
 import styles from '@/events/[slug]/event.module.scss'
 import { fetchEventBySlug, fetchEvents } from '@/lib/events/data'
 import { DraftBadge } from '@/ui/draft-badge'
@@ -14,8 +15,6 @@ import { LinksList } from '@/ui/links/link-list'
 import { Loading } from '@/ui/loading'
 import { filteredLinksByPress, formattedDateTime, isUpcomingDate } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
-
-import { auth } from '../../../auth'
 
 type Props = {
   params: Promise<{ slug: string }>

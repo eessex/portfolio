@@ -22,22 +22,21 @@ export function ItemsList<T extends PageItemClient> ({
   title?: string
 }) {
   const headingId = useId()
+
+  if (items.length === 0) return null
+
   function List () {
-    if (items.length === 0) {
-      return <p>No items found.</p>
-    } else {
-      return (
-        <ul className={clsx((isExpanded || isFeatured) ? styles['items-grid'] : styles['items-list'])}>
-          {items.map((item, index) => (
-            <li key={item.id}>
-              {(isExpanded || isFeatured)
-                ? <ItemGridItem<T> item={item} index={index} isFeatured={isFeatured} />
-                : <ItemListItem<T> item={item} index={index} />}
-            </li>
-          ))}
-        </ul>
-      )
-    }
+    return (
+      <ul className={clsx((isExpanded || isFeatured) ? styles['items-grid'] : styles['items-list'])}>
+        {items.map((item, index) => (
+          <li key={item.id}>
+            {(isExpanded || isFeatured)
+              ? <ItemGridItem<T> item={item} index={index} isFeatured={isFeatured} />
+              : <ItemListItem<T> item={item} index={index} />}
+          </li>
+        ))}
+      </ul>
+    )
   }
 
   if (title) {
@@ -89,7 +88,7 @@ function ItemGridItem<T extends PageItemClient> ({
         event={item as EventClient}
         index={index}
         isUpcoming={isFeatured}
-        isTextOnly={isFeatured && index !== 0}
+        isTextOnly={!isFeatured && index !== 0}
       />
     )
   } else if (item.path === 'releases') {

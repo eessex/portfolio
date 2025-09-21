@@ -2,6 +2,7 @@
 
 .table-rowgroup-heading {
   position: sticky;
+  text-align: left;
   top: var(--header-height);
   transition: all 0.25s ease-in-out;
   height: 3rem;

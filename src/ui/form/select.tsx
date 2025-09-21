@@ -8,12 +8,14 @@ export function Select ({
   label,
   onChange,
   options,
+  placeholder,
   value
 }: {
   ariaControls?: string
   label: string
   onChange?: (term: string | undefined) => void | undefined
   options: Array<string> | undefined
+  placeholder: string
   value?: string | undefined
 }) {
   if (!options || options.length === 0 || !onChange) return null
@@ -30,7 +32,7 @@ export function Select ({
         id={label}
         onChange={e => onChange(e.target.value)}
       >
-        <option value=''>No filters</option>
+        <option value=''>{placeholder}</option>
         {options.map((type, i) => (
           <option key={i} value={type}>{camelToSentence(snakeToCamel(type))}</option>
         ))}

@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import { auth } from '@/api/auth'
 import { fetchReleases } from '@/lib/releases/data'
 import type { PagePathType } from '@/lib/types'
-import { ItemsTable } from '@/ui/items-table/items-table'
+import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
 import { camelToSentence } from '@/ui/util'
 

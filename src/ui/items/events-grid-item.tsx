@@ -55,9 +55,8 @@ export function EventsGridItem ({
   isTextOnly?: boolean
   isUpcoming?: boolean
 }) {
-  const [featuredImage, ..._images] = event?.images || []
   function isColumn () {
-    return featuredImage?.url && !isTextOnly && isUpcoming
+    return event.coverImage?.url && !isTextOnly && isUpcoming
   }
 
   return (

@@ -6,7 +6,8 @@ import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import { FormattedItemDate } from '@/ui/items/item-date'
-import styles from '@/ui/items-table/items-table.module.scss'
+import styles from '@/ui/items/items-table/items-table.module.scss'
+import { singularizePath } from '@/ui/util'
 
 export function ItemsTableRow ({
   children,
@@ -24,10 +25,6 @@ export function ItemsTableRow ({
   item: PageItemClient
 }) {
   if (!item) return null
-
-  function singularizePath (path: string) {
-    return path.endsWith('s') ? path.slice(0, -1) : path
-  }
 
   const linkTarget = `/${item.path}/${item?.slug}`
   const rowLabel = `${item.title}${(item as ReleaseClient).artist ? ', by ' + (item as ReleaseClient).artist : ''}`
@@ -77,7 +74,8 @@ export function ItemsTableRow ({
           href={`/${item.path}/${item?.slug}`}
         >
           {(item as ReleaseClient).artist && (item as ReleaseClient).artist + ': '}
-          {item.title}{(!item.isPublished && <DraftBadge />)}
+          {item.title}
+          {!item.isPublished && <DraftBadge />}
         </NextLink>
       </td>
 

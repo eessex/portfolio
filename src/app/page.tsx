@@ -5,7 +5,7 @@ import { auth } from '@/api/auth'
 import styles from '@/app/home.module.scss'
 import { fetchEvents } from '@/lib/events/data'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
-import { EventsGrid } from '@/ui/events-grid/events-grid'
+import { ItemsList } from '@/ui/items/items-list'
 
 export default async function Home () {
   const [siteSettings, session] = await Promise.all([
@@ -35,14 +35,22 @@ export default async function Home () {
         )}
 
         {siteSettings?.description && (
-          <NextLink href='/about' className={'button ' + styles.description}>{siteSettings.description}</NextLink>
+          <NextLink
+            href='/about'
+            className={'button ' + styles.description}
+          >
+            {siteSettings.description}
+          </NextLink>
         )}
       </section>
 
-      {upcomingEvents.length > 0 &&
-        (
-          <EventsGrid events={upcomingEvents} isUpcoming isTextOnly />
-        )}
+      {upcomingEvents.length > 0 && (
+        <ItemsList
+          items={upcomingEvents}
+          isTextOnly
+          title='Upcoming Events'
+        />
+      )}
     </div>
   )
 }

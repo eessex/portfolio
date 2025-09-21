@@ -2,6 +2,7 @@
 
 .table-rowgroup-heading {
   position: sticky;
+  text-align: left;
   top: var(--header-height);
   transition: all 0.25s ease-in-out;
   height: 3rem;
@@ -19,6 +20,10 @@
   &.table-body--expanded {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
+
+    @include breakpoints.mobile {
+      grid-template-columns: 35% 35%;
+    }
 
     td {
       display: block;
@@ -74,6 +79,13 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: calc(100% - 1rem);
+   
+    @include breakpoints.sm-width {
+      overflow: unset;
+      text-overflow: unset;
+      white-space: unset;
+      max-width: unset;
+    }
   }
 
   ul {
@@ -90,6 +102,15 @@
     li:last-child {
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    @include breakpoints.mobile {
+      li {
+        padding: 0;
+        overflow: unset;
+        text-overflow: unset;
+        max-width: unset;
+      }
     }
   }
 
@@ -118,7 +139,7 @@
 
     > td:last-child {
       order: 1;
-      font-size: 0.9rem;
+      font-size: 0.925rem;
       line-height: 1.25em;
       margin-top: 0.25rem;
     }

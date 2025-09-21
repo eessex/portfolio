@@ -2,17 +2,15 @@ import { TicketIcon } from '@heroicons/react/24/outline'
 import type { Metadata } from 'next'
 import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
-import { Suspense } from 'react'
 
 import { auth } from '@/api/auth'
 import styles from '@/app/events/[slug]/event.module.scss'
 import { fetchEventBySlug, fetchEvents } from '@/lib/events/data'
 import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
-import { EventsGrid } from '@/ui/events-grid/events-grid'
 import { FigureImage } from '@/ui/images/image-figure'
+import { ItemsList } from '@/ui/items/items-list'
 import { LinksList } from '@/ui/links/link-list'
-import { Loading } from '@/ui/loading'
 import { filteredLinksByPress, formattedDateTime, isUpcomingDate } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
 
@@ -122,9 +120,13 @@ export default async function EventsPage ({
         </section>
       </article>
 
-      <Suspense fallback={<Loading />}>
-        {moreEvents.length > 0 && <EventsGrid events={moreEvents} isUpcoming isTextOnly />}
-      </Suspense>
+      {moreEvents.length > 0 && (
+        <ItemsList
+          items={moreEvents}
+          isTextOnly
+          title='Upcoming Events'
+        />
+      )}
     </div>
   )
 }

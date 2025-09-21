@@ -2,16 +2,16 @@ import { ArrowsPointingInIcon, ArrowsPointingOutIcon } from '@heroicons/react/24
 
 export function ExpandCollapseButton ({
   ariaControls,
+  closeLabel,
   isExpanded,
   onExpand,
-  openLabel,
-  closeLabel
+  openLabel
 }: {
   ariaControls: string
+  closeLabel: string
   isExpanded: boolean
   onExpand: React.Dispatch<React.SetStateAction<boolean>>
   openLabel: string
-  closeLabel: string
 }) {
   return (
     <button

@@ -26,7 +26,7 @@
   }
 }
 
-.no-results {
+.no-results td {
   padding: 1rem;
 }
 
@@ -84,6 +84,7 @@
       white-space: nowrap;
       max-width: calc(100% - 1rem);
       width: auto;
+      margin: unset;
     }
 
     li:last-child {

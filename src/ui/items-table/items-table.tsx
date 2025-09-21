@@ -192,7 +192,7 @@ export function ItemsTable ({
             }}
           />
         )}
-        {isFilterable && activeCategories && (
+        {isFilterable && activeCategories.length > 1 && (
           <Select
             ariaControls={tableId}
             options={activeCategories}

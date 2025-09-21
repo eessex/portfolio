@@ -3,9 +3,8 @@ import { Suspense } from 'react'
 
 import { auth } from '@/api/auth'
 import { fetchEvents } from '@/lib/events/data'
-import type { EventClient, FetchEventsResult } from '@/lib/events/types'
 import type { PagePathType } from '@/lib/types'
-import { ItemsIndex } from '@/ui/items/items-index'
+import { ItemsTable } from '@/ui/items-table/items-table'
 import { Loading } from '@/ui/loading'
 import { camelToSentence } from '@/ui/util'
 
@@ -16,7 +15,7 @@ export const metadata: Metadata = { title }
 
 export default async function EventsPage () {
   const session = await auth()
-  const items = await fetchEvents(!!session?.user)
+  const events = await fetchEvents(!!session?.user)
 
   return (
     <div>
@@ -25,9 +24,9 @@ export default async function EventsPage () {
       </h1>
 
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
-        <ItemsIndex<EventClient, FetchEventsResult>
-          pageType={path}
-          items={items}
+        <ItemsTable
+          path={path}
+          items={[events]}
         />
       </Suspense>
     </div>

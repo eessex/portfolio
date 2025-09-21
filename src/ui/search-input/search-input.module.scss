@@ -4,7 +4,22 @@
 
   input[type='search'] {
     padding-left: 30px; 
-    min-width: 280px;
+    min-width: 260px;
+
+    &::-webkit-search-cancel-button {
+      -webkit-appearance: none;
+      appearance: none;
+      display: none; /* hide native clear */
+    }
+  }
+
+  > button {
+    padding: .1rem;
+    position: absolute;
+    right: .35rem;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
   }
 
   &::before {

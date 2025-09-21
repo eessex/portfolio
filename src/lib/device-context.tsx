@@ -4,9 +4,10 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 
 type DeviceContextType = {
   isMobile: boolean
+  isSmBreakpoint: boolean
 }
 
-const DeviceContext = createContext<DeviceContextType>({ isMobile: false })
+const DeviceContext = createContext<DeviceContextType>({ isMobile: false, isSmBreakpoint: false })
 
 export const useDevice = () => useContext(DeviceContext)
 
@@ -18,18 +19,30 @@ export function DeviceProvider ({
   children: React.ReactNode
 }) {
   const [isMobile, setIsMobile] = useState(initialIsMobile)
+  const [isSmBreakpoint, setIsSmBreakpoint] = useState(initialIsMobile)
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 768px)')
-    const updateIsMobile = () => setIsMobile(mediaQuery.matches)
+    const mobileQuery = window.matchMedia('(max-width: 768px)')
+    const smQuery = window.matchMedia('(max-width: 920px)')
 
-    updateIsMobile()
-    mediaQuery.addEventListener('change', updateIsMobile)
-    return () => mediaQuery.removeEventListener('change', updateIsMobile)
+    const update = () => {
+      setIsMobile(mobileQuery.matches)
+      setIsSmBreakpoint(smQuery.matches)
+    }
+
+    update()
+
+    mobileQuery.addEventListener('change', update)
+    smQuery.addEventListener('change', update)
+
+    return () => {
+      mobileQuery.removeEventListener('change', update)
+      smQuery.removeEventListener('change', update)
+    }
   }, [])
 
   return (
-    <DeviceContext.Provider value={{ isMobile }}>
+    <DeviceContext.Provider value={{ isMobile, isSmBreakpoint }}>
       {children}
     </DeviceContext.Provider>
   )

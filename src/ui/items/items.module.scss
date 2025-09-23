@@ -106,22 +106,6 @@
   }
 }
 
-.editions {
-  display: flex;
-  gap: 0.75rem;
-
-  li {
-    margin: 0;
-    width: auto;
-  }
-
-  * {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-
 .card {
   display: flex;
   flex-direction: column;

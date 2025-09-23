@@ -56,3 +56,17 @@
   justify-content: center;
   gap: 1em;
 }
+
+.editions {
+  display: flex;
+  gap: 0.75rem;
+
+  li {
+    margin: 0;
+    width: auto;
+  }
+
+  ul {
+    width: 100%;
+  }
+}

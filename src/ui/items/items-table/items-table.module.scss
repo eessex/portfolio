@@ -17,9 +17,15 @@
 }
 
 .table-body {
+  max-width: 100vw;
+
   &.table-body--expanded {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
+
+    @include breakpoints.mobile {
+      grid-template-columns: 50% 50%;
+    }
 
     td {
       display: block;
@@ -42,6 +48,10 @@
     font-size: 1.5rem;
     line-height: 1.25em;
     margin: 0.25rem 0;
+
+    @include breakpoints.sm-width {
+      font-size: initial;
+    }
   }
 
   @include breakpoints.sm-width {
@@ -75,6 +85,13 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: calc(100% - 1rem);
+   
+    @include breakpoints.sm-width {
+      overflow: unset;
+      text-overflow: unset;
+      white-space: unset;
+      max-width: unset;
+    }
   }
 
   ul {
@@ -92,12 +109,28 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
+    @include breakpoints.mobile {
+      flex-direction: column;
+      gap: unset;
+
+      li {
+        padding: 0;
+        overflow: unset;
+        text-overflow: unset;
+        max-width: unset;
+      }
+    }
   }
 
   &.table-row-link--expanded {
     display: flex;
     flex-direction: column;
     box-shadow: none;
+
+    @include breakpoints.mobile {
+      padding: 0.75rem 0.5rem;
+    }
 
     img {
       margin-bottom: .5rem;
@@ -115,13 +148,22 @@
 
     > td:has(time) {
       order: 1;
+
+      @include breakpoints.sm-width {
+        font-size: 0.925rem;
+        line-height: 1.25em;
+      }
     }
 
     > td:last-child {
       order: 1;
-      font-size: 0.9rem;
+      font-size: 0.925rem;
       line-height: 1.25em;
       margin-top: 0.25rem;
+
+      @include breakpoints.sm-width {
+        font-size: 0.825rem;
+      }
     }
 
     [class$="published-editions"] > ul {

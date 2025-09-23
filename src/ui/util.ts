@@ -182,3 +182,7 @@ export function combinePublishedEditions (publishedEditions: ReleaseClient['publ
   })
   return combined
 }
+
+export function singularizePath (path: string) {
+  return path.endsWith('s') ? path.slice(0, -1) : path
+}

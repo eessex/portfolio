@@ -6,13 +6,13 @@ import React, { useId, useState } from 'react'
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageDataResponse, PageItemClient, PagePathType } from '@/lib/types'
-import { ExpandCollapseButton } from '@/ui/expand-collapse-button/expand-collapse-button'
+import { ExpandCollapseButton } from '@/ui/filters/expand-collapse-button'
 import { FiltersContainer } from '@/ui/filters/filters'
 import { SortButton } from '@/ui/filters/sort-button'
 import { Select } from '@/ui/form/select'
 import { itemSortDate } from '@/ui/items/item-date'
-import styles from '@/ui/items-table/items-table.module.scss'
-import { ItemsTableRow } from '@/ui/items-table/items-table-row'
+import styles from '@/ui/items/items-table/items-table.module.scss'
+import { ItemsTableRow } from '@/ui/items/items-table/items-table-row'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import { SearchInput } from '@/ui/search-input/search-input'
 import { camelToSentence, snakeToCamel } from '@/ui/util'
@@ -197,6 +197,7 @@ export function ItemsTable ({
             ariaControls={tableId}
             options={activeCategories}
             onChange={setFilterType}
+            placeholder='No filters'
             label={`Filter ${path}`}
             value={filterType}
           />

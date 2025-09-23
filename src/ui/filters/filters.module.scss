@@ -2,7 +2,7 @@
 
 .filters-section {
   position: sticky;
-  top: var(--header-height);
+  top: calc(var(--header-height) - 1px);
   transition: all 0.25s ease-in-out;
   z-index: 200;
   display: flex;
@@ -20,7 +20,7 @@
       margin-top: 0;
 
       tr[class$="rowgroup-heading"] {
-        top: calc(var(--header-height) + 40px);
+        top: calc(var(--header-height) + 39px);
       }
     }
   }
@@ -32,7 +32,7 @@
   gap: .35rem;
   width: 100%;
   justify-content: flex-end;
-  padding: 0 .35rem;
+  padding: 0 .5rem;
 
   input, select {
     height: 36px;
@@ -41,8 +41,8 @@
   > button {
     min-width: max-content;
     font-size: 0.875rem;
-    padding-left: .35rem;
-    padding-right: .35rem;
+    padding-left: .2rem;
+    padding-right: .2rem;
   }
 
   @include breakpoints.sm-width {
@@ -58,17 +58,13 @@
 
     div:has(input[type='search']) {
       width: 100%;
-
-      input[type='search'] {
-        width: 100%;
-      }
     }
   }
 }
 
 .mobile-filters {
   position: sticky;
-  top: var(--header-height);
+  top: calc(var(--header-height) - 1px);
   transition: all .25s ease-in-out;
   z-index: 200;
   display: flex;
@@ -78,7 +74,7 @@
 
   > button {
     position: absolute;
-    right: .35rem;
+    right: .2rem;
     bottom: -4px;
     transform: translate(0, 100%);
     min-width: max-content;

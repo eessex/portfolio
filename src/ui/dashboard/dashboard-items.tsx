@@ -16,14 +16,18 @@ import styles from '@/ui/dashboard/dashboard.module.scss'
 import { Dialog } from '@/ui/dialog/dialog'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
+import { ExpandCollapseButton } from '@/ui/filters/expand-collapse-button'
+import { FiltersContainer } from '@/ui/filters/filters'
+import { SortButton } from '@/ui/filters/sort-button'
 import { EditItemNav } from '@/ui/form/edit-item-nav'
 import { Form } from '@/ui/form/form'
+import { Select } from '@/ui/form/select'
 import { EditImage } from '@/ui/images/edit-image-form'
 import { FigureImage } from '@/ui/images/image-figure'
 import itemsStyles from '@/ui/items/items.module.scss'
-import { ItemsFilterNav } from '@/ui/items/items-index'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
+import { SearchInput } from '@/ui/search-input/search-input'
 import { camelToSentence, eventUrl, releaseUrl } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 import { VenueInline } from '@/ui/venues/venue'
@@ -51,6 +55,7 @@ export function DashboardItems<T extends DashboardItem> (
   const [itemToEdit, setItemToEdit] = useState<T | undefined>(undefined)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string | undefined>(undefined)
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
   function filteredItems () {
     const savedItems = items.filter(item => !!item.id)
@@ -59,16 +64,19 @@ export function DashboardItems<T extends DashboardItem> (
       ? savedItems.filter(item => (item as Link | EmbedCode).type === filterType)
       : savedItems
 
-    if (!searchTerm) return typeFilteredItems
+    if (!searchTerm && sortDirection === 'desc') return typeFilteredItems
 
-    return typeFilteredItems.filter(item =>
+    const searchFilteredItems = typeFilteredItems.filter(item =>
       Object.values(item)
         .filter(val => typeof val === 'string')
         .some(val => (val as string).toLowerCase().includes(searchTerm.toLowerCase()))
     )
-  }
 
-  const toggleExpand = () => setIsExpanded(!isExpanded)
+    if (sortDirection === 'asc') {
+      return [...searchFilteredItems].reverse()
+    }
+    return searchFilteredItems
+  }
 
   async function onSubmit (formData: FormData): Promise<FormResponse<T>> {
     console.log('Form submitted:', formData)
@@ -153,21 +161,43 @@ export function DashboardItems<T extends DashboardItem> (
   }
 
   const headingId = useId()
+  const tableId = useId()
 
   return (
     <div>
-      <ItemsFilterNav
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        isExpanded={isExpanded}
-        onExpand={toggleExpand}
-        itemType={itemType}
-        filterTypes={filterTypes()}
-        filterType={filterType}
-        setFilterType={setFilterType}
-      />
+      <FiltersContainer itemType={itemType} controlsId={tableId}>
+        <ExpandCollapseButton
+          ariaControls={tableId}
+          isExpanded={!!isExpanded}
+          onExpand={setIsExpanded}
+          openLabel='Show me the art'
+          closeLabel='Hide the art'
+        />
+        <SortButton
+          isAsc={sortDirection === 'asc'}
+          onClick={() => {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+          }}
+        />
+        {(filterTypes() || []).length > 1 && (
+          <Select
+            ariaControls={tableId}
+            options={filterTypes()}
+            onChange={setFilterType}
+            placeholder='No filters'
+            label={`Filter ${itemType}`}
+            value={filterType}
+          />
+        )}
+        <SearchInput
+          ariaControls={tableId}
+          value={searchTerm}
+          onChange={setSearchTerm}
+          label={`Search ${itemType}`}
+        />
+      </FiltersContainer>
 
-      <div className={itemsStyles['items-section']}>
+      <div className={itemsStyles['items-section']} id={tableId}>
         <section
           aria-labelledby={headingId}
         >

@@ -1,24 +1,25 @@
+import { TicketIcon } from '@heroicons/react/24/outline'
 import { clsx } from 'clsx'
 import { useId } from 'react'
 
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
-import { EventsGridItem } from '@/ui/events-grid/events-grid-item'
-import { EventsListItem } from '@/ui/events-list/events-list-item'
+import { ItemCard } from '@/ui/items/item-card'
 import styles from '@/ui/items/items.module.scss'
-import { ReleaseGridItem } from '@/ui/release-grid/release-grid-item'
-import { ReleaseListItem } from '@/ui/release-list/release-list-item'
+import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
+import { formattedDateTime } from '@/ui/util'
+import { VenueInline } from '@/ui/venues/venue'
 
-export function ItemsList<T extends PageItemClient> ({
-  isExpanded = false,
+export function ItemsList ({
   isFeatured = false,
+  isTextOnly = false,
   items,
   title
 }: {
-  isExpanded?: boolean
   isFeatured?: boolean
-  items: T[]
+  isTextOnly?: boolean
+  items: PageItemClient[]
   title?: string
 }) {
   const headingId = useId()
@@ -27,12 +28,15 @@ export function ItemsList<T extends PageItemClient> ({
 
   function List () {
     return (
-      <ul className={clsx((isExpanded || isFeatured) ? styles['items-grid'] : styles['items-list'])}>
+      <ul className={clsx(styles['items-grid'], isFeatured && styles['items-grid-featured'])}>
         {items.map((item, index) => (
           <li key={item.id}>
-            {(isExpanded || isFeatured)
-              ? <ItemGridItem<T> item={item} index={index} isFeatured={isFeatured} />
-              : <ItemListItem<T> item={item} index={index} />}
+            <ItemGridItem
+              item={item}
+              index={index}
+              isFeatured={isFeatured}
+              isTextOnly={isTextOnly}
+            />
           </li>
         ))}
       </ul>
@@ -58,41 +62,55 @@ export function ItemsList<T extends PageItemClient> ({
   }
 }
 
-function ItemListItem<T extends PageItemClient> ({
-  item,
-  index
-}: {
-  item: T
-  index: number
-}) {
-  if (item.path === 'events') {
-    return <EventsListItem event={item as EventClient} index={index} />
-  } else if (item.path === 'releases') {
-    return <ReleaseListItem release={item as ReleaseClient} index={index} />
-  }
-  return null
-}
-
-function ItemGridItem<T extends PageItemClient> ({
+function ItemGridItem ({
   item,
   index,
-  isFeatured
+  isFeatured,
+  isTextOnly
 }: {
-  item: T
+  item: PageItemClient
   index: number
   isFeatured?: boolean
+  isTextOnly?: boolean
 }) {
-  if (item.path === 'events') {
-    return (
-      <EventsGridItem
-        event={item as EventClient}
-        index={index}
-        isUpcoming={isFeatured}
-        isTextOnly={!isFeatured && index !== 0}
-      />
-    )
-  } else if (item.path === 'releases') {
-    return <ReleaseGridItem release={item as ReleaseClient} index={index} />
+  switch (item.path) {
+    case 'events':
+      return (
+        <ItemCard
+          item={item}
+          index={index}
+          isFeatured={isFeatured}
+          isTextOnly={isTextOnly}
+          externalLink={item.ticketLink && (
+            <a className={clsx('button', styles['card-ticket-link'])} href={item.ticketLink} target='_blank' rel='noreferrer'>
+              <TicketIcon />Tickets
+            </a>
+          )}
+        >
+          <h4>
+            {formattedDateTime((item as EventClient).startTime)}
+          </h4>
+
+          {(item as EventClient).venue && (
+            <h5>
+              <VenueInline venue={(item as EventClient).venue!} />
+            </h5>
+          )}
+        </ItemCard>
+      )
+    case 'releases':
+      return (
+        <ItemCard
+          item={item}
+          index={index}
+          isFeatured={isFeatured}
+        >
+          {(item as ReleaseClient).publishedEditions && (
+            <PublishedEditionsCombined publishedEditions={(item as ReleaseClient).publishedEditions} />
+          )}
+        </ItemCard>
+      )
+    default:
+      return <ItemCard item={item} index={index} />
   }
-  return null
 }

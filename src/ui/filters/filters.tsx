@@ -31,7 +31,7 @@ export function FiltersContainer ({
 
   if (isSmBreakpoint && hasManyChildren) {
     return (
-      <div className={clsx(styles['mobile-filters'], isOpen && styles.open)}>
+      <div className={clsx(styles['mobile-filters'], isOpen && styles.open, isOpen && 'open')}>
         <button
           ref={openButtonRef}
           aria-haspopup='dialog'

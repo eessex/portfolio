@@ -58,6 +58,7 @@
 
     div:has(input[type='search']) {
       width: 100%;
+      margin-bottom: 2px;
     }
   }
 }
@@ -89,14 +90,10 @@
     overflow: hidden;
     transition: max-height .25s ease-in-out;
   }
-}
 
-.open {
-  > section {
-    max-height: unset;
-  }
-
-  + table tr[class$="rowgroup-heading"] {
-    top: calc(var(--header-height) + 80px);
+  &.open {
+    > section {
+      max-height: unset;
+    }
   }
 }

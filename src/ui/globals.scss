@@ -227,7 +227,8 @@ button.icon-button {
 }
 
 *:focus-visible, *:focus {
-  outline-color: var(--accent-secondary);
+  outline: 2px solid var(--accent-secondary);
+  outline-offset: -2px;
 
   &.dirty:invalid {
     outline-color: var(--error-color);
@@ -264,7 +265,6 @@ input, textarea, select {
   &.dirty:invalid {
     border-color: var(--error-color);
   }
-
 
   &::placeholder {
     color: rgba(var(--foreground), .65);
@@ -366,4 +366,9 @@ table {
   text-align: left;
   border-collapse: collapse;
   margin-bottom: 4rem;
+}
+
+// FIXME: move to filters.module.scss
+.open + table tr[class$="rowgroup-heading"] {
+  top: calc(var(--header-height) + 80px);
 }

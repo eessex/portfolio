@@ -82,7 +82,12 @@ function ItemGridItem ({
           isFeatured={isFeatured}
           isTextOnly={isTextOnly}
           externalLink={item.ticketLink && (
-            <a className={clsx('button', styles['card-ticket-link'])} href={item.ticketLink} target='_blank' rel='noreferrer'>
+            <a
+              className={clsx('button', styles['card-ticket-link'])}
+              href={item.ticketLink}
+              target='_blank'
+              rel='noreferrer'
+            >
               <TicketIcon />Tickets
             </a>
           )}
@@ -111,6 +116,11 @@ function ItemGridItem ({
         </ItemCard>
       )
     default:
-      return <ItemCard item={item} index={index} />
+      return (
+        <ItemCard
+          item={item}
+          index={index}
+        />
+      )
   }
 }

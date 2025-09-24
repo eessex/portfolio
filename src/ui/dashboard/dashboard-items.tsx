@@ -165,7 +165,10 @@ export function DashboardItems<T extends DashboardItem> (
 
   return (
     <div>
-      <FiltersWrapper itemType={itemType} controlsId={tableId}>
+      <FiltersWrapper
+        itemType={itemType}
+        controlsId={tableId}
+      >
         <ExpandCollapseButton
           ariaControls={tableId}
           isExpanded={!!isExpanded}
@@ -197,7 +200,10 @@ export function DashboardItems<T extends DashboardItem> (
         />
       </FiltersWrapper>
 
-      <div className={itemsStyles['items-section']} id={tableId}>
+      <div
+        className={itemsStyles['items-section']}
+        id={tableId}
+      >
         <section
           aria-labelledby={headingId}
         >
@@ -326,14 +332,24 @@ function DashboardListItem<T extends DashboardItem> ({
   }
 
   return (
-    <li key={item.id} className={styles['dashboard-list-item']}>
+    <li
+      key={item.id}
+      className={styles['dashboard-list-item']}
+    >
       <AccordionDropdown
         badges={badges()}
         isExpanded={isExpanded}
         title={titleWithCount()}
       >
-        <EditItemNav id={item.id!} onEdit={onEdit} onDelete={onDelete} />
-        <ItemDisplay item={item} itemType={itemType} />
+        <EditItemNav
+          id={item.id!}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+        <ItemDisplay
+          item={item}
+          itemType={itemType}
+        />
 
         {(item as Link | Venue).url && (
           <div>
@@ -354,7 +370,11 @@ function DashboardListItem<T extends DashboardItem> ({
               ? (
                   usedOnPages().map((page) => (
                     <li key={page}>
-                      <NextLink href={page} target='_blank' rel='noopener noreferrer'>
+                      <NextLink
+                        href={page}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                      >
                         {page}
                       </NextLink>
                     </li>
@@ -417,7 +437,12 @@ export function ItemDisplay ({
         <>
           <div>
             <h3>Address:</h3>
-            <p><VenueInline venue={item as Venue} isNameHidden /></p>
+            <p>
+              <VenueInline
+                venue={item as Venue}
+                isNameHidden
+              />
+            </p>
           </div>
         </>
       )

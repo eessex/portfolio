@@ -64,7 +64,10 @@ export function EventsGridItem ({
       {isColumn() && !isTextOnly && event.coverImage && (
         <figure style={{ aspectRatio: event.coverImage.aspect }}>
           <NextLink href={eventUrl(event.slug)}>
-            <Img image={event.coverImage} index={index} />
+            <Img
+              image={event.coverImage}
+              index={index}
+            />
           </NextLink>
         </figure>
       )}
@@ -72,14 +75,22 @@ export function EventsGridItem ({
         <NextLink href={eventUrl(event.slug)}>
           {!isColumn() && event.coverImage?.url && !isTextOnly && (
             <figure style={{ aspectRatio: event.coverImage.aspect }}>
-              <Img image={event.coverImage} index={index} />
+              <Img
+                image={event.coverImage}
+                index={index}
+              />
             </figure>
           )}
           <Metadata event={event} />
         </NextLink>
 
         {event.ticketLink && isUpcoming && (
-          <a className='button' href={event.ticketLink} target='_blank' rel='noreferrer'>
+          <a
+            className='button'
+            href={event.ticketLink}
+            target='_blank'
+            rel='noreferrer'
+          >
             <TicketIcon />Tickets
           </a>
         )}

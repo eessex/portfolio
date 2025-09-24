@@ -7,8 +7,15 @@ export function ImageGrid ({ images }: { images: Image[] }) {
     <ul className={styles['images-grid']}>
       {images.map((image, i) => (
         <li key={i}>
-          <a href={image.url} target='_blank' rel='noopener noreferrer'>
-            <FigureImage image={image} isLazy />
+          <a
+            href={image.url}
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            <FigureImage
+              image={image}
+              isLazy
+            />
           </a>
         </li>
       ))}

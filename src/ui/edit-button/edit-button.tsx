@@ -21,7 +21,10 @@ export function EditButton ({ className }: { className?: string }) {
 
   return (
     <li>
-      <NextLink href={`${pathname}/edit`} className={`button ${className}`}>
+      <NextLink
+        href={`${pathname}/edit`}
+        className={`button ${className}`}
+      >
         <PencilIcon /> Edit Page
       </NextLink>
     </li>

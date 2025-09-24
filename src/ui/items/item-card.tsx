@@ -36,7 +36,11 @@ export function ItemCard ({
       className={clsx(styles.card, isFeatured && styles['featured-card'])}
     >
       {item.coverImage && !isTextOnly && (
-        <NextLink href={linkTarget} aria-hidden='true' tabIndex={-1}>
+        <NextLink
+          href={linkTarget}
+          aria-hidden='true'
+          tabIndex={-1}
+        >
           <NextImage
             src={item.coverImage.url}
             alt={item.coverImage.alt || item.coverImage.caption || ''}

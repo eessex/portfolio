@@ -24,7 +24,12 @@ export function Select ({
     <div
       className={clsx(styles['select'], (value && value !== '') && 'is-selected')}
     >
-      <label className='visually-hidden' htmlFor={label}>{label}</label>
+      <label
+        className='visually-hidden'
+        htmlFor={label}
+      >
+        {label}
+      </label>
       <select
         aria-controls={ariaControls}
         className='input'
@@ -34,7 +39,12 @@ export function Select ({
       >
         <option value=''>{placeholder}</option>
         {options.map((type, i) => (
-          <option key={i} value={type}>{camelToSentence(snakeToCamel(type))}</option>
+          <option
+            key={i}
+            value={type}
+          >
+            {camelToSentence(snakeToCamel(type))}
+          </option>
         ))}
       </select>
     </div>

@@ -12,7 +12,11 @@ export async function Footer () {
           <ul className='flex'>
             {socialLinks.map((link, index) => (
               <li key={index}>
-                <a href={link.url} target='_blank' rel='noreferrer'>
+                <a
+                  href={link.url}
+                  target='_blank'
+                  rel='noreferrer'
+                >
                   {link.title}
                 </a>
               </li>

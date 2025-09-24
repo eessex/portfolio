@@ -14,14 +14,21 @@ export default function LoginForm () {
 
   function SubmitButton () {
     return (
-      <button className='button' type='submit' disabled={isPending}>
+      <button
+        className='button'
+        type='submit'
+        disabled={isPending}
+      >
         {isPending ? 'Loading...' : 'Log in'}
       </button>
     )
   }
 
   return (
-    <form action={formAction} className={styles.form}>
+    <form
+      action={formAction}
+      className={styles.form}
+    >
       <div>
         <label htmlFor='email'>
           Email
@@ -46,7 +53,11 @@ export default function LoginForm () {
         />
       </div>
 
-      <input type='hidden' name='redirectTo' value='/' />
+      <input
+        type='hidden'
+        name='redirectTo'
+        value='/'
+      />
 
       <SubmitButton />
 

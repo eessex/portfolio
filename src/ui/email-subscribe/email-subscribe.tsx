@@ -46,7 +46,10 @@ export function EmailSubscribe () {
 
   function SubmitButton () {
     return (
-      <button type='submit' disabled={isPending}>
+      <button
+        type='submit'
+        disabled={isPending}
+      >
         {isPending ? 'Loading...' : 'Subscribe'}
       </button>
     )
@@ -85,12 +88,18 @@ export function EmailSubscribe () {
         </form>
 
         {error && formState?.message && (
-          <Toast type='error' onHide={() => setError(false)}>
+          <Toast
+            type='error'
+            onHide={() => setError(false)}
+          >
             {formState?.message}
           </Toast>
         )}
         {success && (
-          <Toast type='success' onHide={onHideSuccess}>
+          <Toast
+            type='success'
+            onHide={onHideSuccess}
+          >
             Thank you for subscribing!
           </Toast>
         )}

@@ -19,7 +19,10 @@ export function EmbedCodeItem ({
 
   return (
     <figure>
-      <div dangerouslySetInnerHTML={{ __html: embedCode.iframe }} ref={containerRef} />
+      <div
+        dangerouslySetInnerHTML={{ __html: embedCode.iframe }}
+        ref={containerRef}
+      />
       {embedCode.caption && <figcaption>{embedCode.caption}</figcaption>}
     </figure>
   )

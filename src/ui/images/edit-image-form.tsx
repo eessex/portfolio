@@ -20,7 +20,12 @@ export const EditImageFieldset = ({ image, index, ref, onRemoveImage }: ImagePro
         {`Image: ${image?.caption || image?.title || index || 0 + 1}`}
       </legend>
 
-      <EditImage image={image} index={index} ref={ref} onRemoveImage={onRemoveImage} />
+      <EditImage
+        image={image}
+        index={index}
+        ref={ref}
+        onRemoveImage={onRemoveImage}
+      />
 
       {image && !image.url && onRemoveImage && index && (
         <button
@@ -184,10 +189,20 @@ export const EditImagesFieldset = ({
     <fieldset>
       <legend>Images</legend>
       {imageList?.map((image, index) => (
-        <EditImage key={index} image={image} index={index} ref={addToRefs} onRemoveImage={handleRemoveImage} />
+        <EditImage
+          key={index}
+          image={image}
+          index={index}
+          ref={addToRefs}
+          onRemoveImage={handleRemoveImage}
+        />
       ))}
 
-      <button type='button' className='button button-secondary text-sm' onClick={handleAddImage}>
+      <button
+        type='button'
+        className='button button-secondary text-sm'
+        onClick={handleAddImage}
+      >
         <PlusIcon />Add new image
       </button>
     </fieldset>

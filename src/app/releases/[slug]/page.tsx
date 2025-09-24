@@ -104,7 +104,10 @@ export default async function ReleasesPage ({
             <EmbedCodes embedCodes={[release.featuredEmbedCode]} />
           )}
           {release.coverImage && (
-            <FigureImage image={release.coverImage} isPriority />
+            <FigureImage
+              image={release.coverImage}
+              isPriority
+            />
           )}
 
           {release.description && (

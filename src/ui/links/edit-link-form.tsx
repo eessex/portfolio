@@ -23,7 +23,12 @@ export const EditLinkFieldset = ({ link, index, ref, onRemoveLink }: LinkProps) 
         {`Link: ${link?.title || index || 0 + 1}`}
       </legend>
 
-      <EditLink link={link} index={index} ref={ref} onRemoveLink={onRemoveLink} />
+      <EditLink
+        link={link}
+        index={index}
+        ref={ref}
+        onRemoveLink={onRemoveLink}
+      />
 
       {link && !link.url && onRemoveLink && index && (
         <button
@@ -198,10 +203,20 @@ export const EditLinksFieldset = ({
     <fieldset>
       <legend>Links</legend>
       {linkList?.map((link, index) => (
-        <EditLink key={index} link={link} index={index} ref={addToRefs} onRemoveLink={handleRemoveLink} />
+        <EditLink
+          key={index}
+          link={link}
+          index={index}
+          ref={addToRefs}
+          onRemoveLink={handleRemoveLink}
+        />
       ))}
 
-      <button type='button' className='button button-secondary text-sm' onClick={handleAddLink}>
+      <button
+        type='button'
+        className='button button-secondary text-sm'
+        onClick={handleAddLink}
+      >
         <PlusIcon />Add new link
       </button>
     </fieldset>

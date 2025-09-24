@@ -14,7 +14,10 @@ export const Toast = ({ children, type, onHide }: ToastProps) => {
   })
 
   return (
-    <TextBanner type={type} className={styles.toast}>
+    <TextBanner
+      type={type}
+      className={styles.toast}
+    >
       {children}
     </TextBanner>
   )

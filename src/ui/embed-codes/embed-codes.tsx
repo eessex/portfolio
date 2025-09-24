@@ -10,7 +10,11 @@ export const EmbedCodes = ({
   return (
     <div className={styles['embed-codes']}>
       {embedCodes.map((embedCode, index) => (
-        <EmbedCodeItem key={index} embedCode={embedCode} isLazy={index === 0 && true} />
+        <EmbedCodeItem
+          key={index}
+          embedCode={embedCode}
+          isLazy={index === 0 && true}
+        />
       ))}
     </div>
   )

@@ -1,4 +1,5 @@
 import { FlatCompat } from '@eslint/eslintrc'
+import react from 'eslint-plugin-react'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import neostandard from 'neostandard'
 import { dirname } from 'path'
@@ -23,7 +24,8 @@ const eslintConfig = [{
 ...compat.extends('next/core-web-vitals', 'next/typescript'),
 ...neostandard({ ts: true }), {
   plugins: {
-    'simple-import-sort': simpleImportSort
+    'simple-import-sort': simpleImportSort,
+    react
   },
   rules: {
     'comma-dangle': ['error', 'never'],
@@ -60,7 +62,8 @@ const eslintConfig = [{
       }
     ],
     'simple-import-sort/imports': 'error',
-    'simple-import-sort/exports': 'error'
+    'simple-import-sort/exports': 'error',
+    'react/jsx-max-props-per-line': ['error', { maximum: 1 }]
   }
 }]
 

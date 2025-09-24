@@ -9,12 +9,18 @@ export function EditItemNav ({ id, onEdit, onDelete }: { id: string, onEdit: (id
       <h3 className='visually-hidden'>Edit Item</h3>
       <ul className={styles['edit-item-nav']}>
         <li>
-          <button className='button sm' onClick={() => onEdit(id)}>
+          <button
+            className='button sm'
+            onClick={() => onEdit(id)}
+          >
             <PencilIcon /> Edit
           </button>
         </li>
         <li>
-          <button className='button button-secondary sm' onClick={() => onDelete(id)}>
+          <button
+            className='button button-secondary sm'
+            onClick={() => onDelete(id)}
+          >
             <TrashIcon /> Delete
           </button>
         </li>

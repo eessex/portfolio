@@ -61,7 +61,12 @@ export function EditSettings ({ settings }: { settings: SiteSettingsClient }) {
               width={500 * settings?.coverImage?.aspect}
               height={500}
             />
-            <button type='button' onClick={() => setCoverImageId(undefined)} className='button' aria-label='Remove cover image'>
+            <button
+              type='button'
+              onClick={() => setCoverImageId(undefined)}
+              className='button'
+              aria-label='Remove cover image'
+            >
               <XMarkIcon />
             </button>
           </figure>

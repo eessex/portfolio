@@ -32,7 +32,10 @@ export function FiltersWrapper ({ controlsId, itemType, children }: FiltersWrapp
     : FiltersContainerDesktop
 
   return (
-    <FiltersComponent itemType={itemType} controlsId={controlsId}>
+    <FiltersComponent
+      itemType={itemType}
+      controlsId={controlsId}
+    >
       {children}
     </FiltersComponent>
   )
@@ -50,11 +53,15 @@ export function FiltersContainerDesktop ({
       aria-labelledby={headingId}
       className={clsx(styles['filters-section'])}
     >
-      <h2 id={headingId} className='visually-hidden'>
+      <h2
+        id={headingId}
+        className='visually-hidden'
+      >
         Filter {itemType}
       </h2>
       <div
-        role='search' aria-controls={controlsId}
+        role='search'
+        aria-controls={controlsId}
         className={styles['filters-container']}
       >
         {children}
@@ -102,10 +109,17 @@ export function FiltersContainerMobile ({
         ref={trayRef}
         className={styles['filters-tray']}
       >
-        <h2 id={headingId} className='visually-hidden'>
+        <h2
+          id={headingId}
+          className='visually-hidden'
+        >
           Filter {itemType}
         </h2>
-        <div role='search' aria-controls={controlsId} className={styles['filters-container']}>
+        <div
+          role='search'
+          aria-controls={controlsId}
+          className={styles['filters-container']}
+        >
           {children}
         </div>
       </section>

@@ -54,19 +54,33 @@ export function Form<T> ({
   }
 
   return (
-    <form className={styles.form} action={formAction} ref={formRef}>
+    <form
+      className={styles.form}
+      action={formAction}
+      ref={formRef}
+    >
       {children}
 
-      <button className='button' type='submit' disabled={isPending}>
+      <button
+        className='button'
+        type='submit'
+        disabled={isPending}
+      >
         {isPending ? 'Loading...' : 'Save'}
       </button>
 
       {error && !isPending && (
-        <Toast type='error' onHide={() => setError(false)} />
+        <Toast
+          type='error'
+          onHide={() => setError(false)}
+        />
       )}
 
       {success && !isPending && (
-        <Toast type='success' onHide={() => setSuccess(false)}>
+        <Toast
+          type='success'
+          onHide={() => setSuccess(false)}
+        >
           Changes saved.
         </Toast>
       )}

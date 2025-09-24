@@ -82,7 +82,11 @@ export default async function EventsPage ({
             <h3>
               {event.venue.url
                 ? (
-                  <a href={event.venue.url} target='_blank' rel='noopener noreferrer'>
+                  <a
+                    href={event.venue.url}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  >
                     <VenueInline venue={event.venue} />
                   </a>
                   )
@@ -92,13 +96,23 @@ export default async function EventsPage ({
             </h3>
           )}
           {event.ticketLink && isUpcoming && (
-            <a className={'button ' + styles['ticket-link']} href={event.ticketLink} target='_blank' rel='noreferrer'>
+            <a
+              className={'button ' + styles['ticket-link']}
+              href={event.ticketLink}
+              target='_blank'
+              rel='noreferrer'
+            >
               <TicketIcon />Tickets
             </a>
           )}
         </header>
 
-        {event.coverImage && (<FigureImage image={event.coverImage} isPriority />)}
+        {event.coverImage && (
+          <FigureImage
+            image={event.coverImage}
+            isPriority
+          />
+        )}
 
         <section>
           {event.description && (

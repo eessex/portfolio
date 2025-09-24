@@ -8,7 +8,12 @@ export function LogoutButton ({ className }: { className?: string }) {
         await signOut({ redirectTo: '/' }) // redirect to home page after sign out
       }}
     >
-      <button type='submit' className={className}>Sign Out</button>
+      <button
+        type='submit'
+        className={className}
+      >
+        Sign Out
+      </button>
     </form>
   )
 }

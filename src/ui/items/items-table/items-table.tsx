@@ -174,7 +174,10 @@ export function ItemsTable ({
 
   return (
     <div className={styles['items-table']}>
-      <FiltersWrapper itemType={path} controlsId={tableId}>
+      <FiltersWrapper
+        itemType={path}
+        controlsId={tableId}
+      >
         <ExpandCollapseButton
           ariaControls={tableId}
           isExpanded={!!isExpanded}
@@ -253,7 +256,11 @@ export function ItemsTable ({
           {displayedItems().map((category, index) => Object.entries(category).map(([key, value]) => value.length > 0 && (
             <React.Fragment key={`${index}-${key}`}>
               <tr className={styles['table-rowgroup-heading'] + ' heading'}>
-                <th scope='rowgroup' colSpan={isPathTypeVisible ? 5 : 4}>{tableSectionTitle(key, value.length)}</th>
+                <th
+                  scope='rowgroup'
+                  colSpan={isPathTypeVisible ? 5 : 4}
+                >{tableSectionTitle(key, value.length)}
+                </th>
               </tr>
               {value.map((item, index) => (
                 <ItemsTableItem
@@ -283,21 +290,41 @@ function ItemsTableItem ({
   switch (item.path) {
     case 'events':
       return (
-        <ItemsTableRow item={item} index={index} isExpanded={isExpanded}>
+        <ItemsTableRow
+          item={item}
+          index={index}
+          isExpanded={isExpanded}
+        >
           {(item as EventClient).venue && (
-            <VenueInline venue={(item as EventClient).venue!} format='sm' />
+            <VenueInline
+              venue={(item as EventClient).venue!}
+              format='sm'
+            />
           )}
         </ItemsTableRow>
       )
     case 'releases':
       return (
-        <ItemsTableRow item={item} index={index} isExpanded={isExpanded}>
+        <ItemsTableRow
+          item={item}
+          index={index}
+          isExpanded={isExpanded}
+        >
           {(item as ReleaseClient).publishedEditions && (
-            <PublishedEditionsCombined publishedEditions={(item as ReleaseClient).publishedEditions} format='sm' />
+            <PublishedEditionsCombined
+              publishedEditions={(item as ReleaseClient).publishedEditions}
+              format='sm'
+            />
           )}
         </ItemsTableRow>
       )
     default:
-      return <ItemsTableRow item={item} index={index} isExpanded={isExpanded} />
+      return (
+        <ItemsTableRow
+          item={item}
+          index={index}
+          isExpanded={isExpanded}
+        />
+      )
   }
 }

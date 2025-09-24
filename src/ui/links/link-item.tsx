@@ -3,8 +3,12 @@ import { formattedDateTime } from '@/ui/util'
 
 export function LinkItem ({ link, className }: { link: Link, className?: string }) {
   return (
-    <a href={link.url} target='_blank' rel='noopener noreferrer' className={className}>
-
+    <a
+      href={link.url}
+      target='_blank'
+      rel='noopener noreferrer'
+      className={className}
+    >
       {link.type === 'press'
         ? (
           <div>

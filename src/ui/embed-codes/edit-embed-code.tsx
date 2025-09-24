@@ -19,7 +19,12 @@ export const EditEmbedCodeFieldset = ({ embedCode, index, ref, onRemoveEmbedCode
         {`Embed code: ${embedCode?.title || index || 0 + 1}`}
       </legend>
 
-      <EditEmbedCode embedCode={embedCode} index={index} ref={ref} onRemoveEmbedCode={onRemoveEmbedCode} />
+      <EditEmbedCode
+        embedCode={embedCode}
+        index={index}
+        ref={ref}
+        onRemoveEmbedCode={onRemoveEmbedCode}
+      />
 
       {embedCode && !embedCode.iframe && onRemoveEmbedCode && index && (
         <button
@@ -150,10 +155,20 @@ export const EditEmbedCodesFieldset = ({
     <fieldset>
       <legend>Embed codes</legend>
       {embedCodeList?.map((embedCode, index) => (
-        <EditEmbedCode key={index} embedCode={embedCode} index={index} ref={addToRefs} onRemoveEmbedCode={handleRemoveEmbedCode} />
+        <EditEmbedCode
+          key={index}
+          embedCode={embedCode}
+          index={index}
+          ref={addToRefs}
+          onRemoveEmbedCode={handleRemoveEmbedCode}
+        />
       ))}
 
-      <button type='button' className='button button-secondary text-sm' onClick={handleAddEmbedCode}>
+      <button
+        type='button'
+        className='button button-secondary text-sm'
+        onClick={handleAddEmbedCode}
+      >
         <PlusIcon />Add new embed code
       </button>
     </fieldset>

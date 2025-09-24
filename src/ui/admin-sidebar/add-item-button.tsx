@@ -26,7 +26,10 @@ export function AddItemButton () {
 
   return (
     <li>
-      <button className={`button ${styles['admin-sidebar-new-item']}`} onClick={onClick}>
+      <button
+        className={`button ${styles['admin-sidebar-new-item']}`}
+        onClick={onClick}
+      >
         <PlusIcon /> Add {camelToSentence(itemType).replace(/s$/, '')}
       </button>
     </li>

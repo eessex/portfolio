@@ -369,6 +369,8 @@ table {
 }
 
 // FIXME: move to filters.module.scss
-.open + table tr[class$="rowgroup-heading"] {
-  top: calc(var(--header-height) + 80px);
+.open + table {
+  tr.heading {
+    top: calc(var(--header-height) + 79px);
+  }
 }

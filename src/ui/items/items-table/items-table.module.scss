@@ -1,9 +1,13 @@
 @use '@/ui/breakpoints';
 
+.items-table {
+  margin-top: .75rem;
+}
+
 .table-rowgroup-heading {
   position: sticky;
   text-align: left;
-  top: var(--header-height);
+  top: calc(var(--header-height) - 2px);
   transition: all 0.25s ease-in-out;
   height: 3rem;
   z-index: 100;

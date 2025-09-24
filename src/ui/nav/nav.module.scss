@@ -1,6 +1,6 @@
 .menubar {
   position: sticky;
-  top: 0;
+  top: -1px;
   transition: all 0.25s ease-in-out;
   background-color: rgba(var(--background), 1);
   height: var(--menubar-height);

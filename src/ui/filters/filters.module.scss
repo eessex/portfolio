@@ -2,7 +2,7 @@
 
 .filters-section {
   position: sticky;
-  top: calc(var(--header-height) - 1px);
+  top: calc(var(--header-height) + 4px);
   transition: all 0.25s ease-in-out;
   z-index: 200;
   display: flex;
@@ -27,7 +27,6 @@
 }
 
 .filters-container {
-  margin-top: .35em;
   display: flex;
   gap: .35rem;
   width: 100%;
@@ -63,20 +62,19 @@
   }
 }
 
-.mobile-filters {
+.filters-tray {
   position: sticky;
   top: calc(var(--header-height) - 1px);
   transition: all .25s ease-in-out;
   z-index: 200;
   display: flex;
   justify-content: flex-end;
-  margin-top: .75rem;
   background: rgba(var(--background), 1);
 
   > button {
     position: absolute;
     right: .2rem;
-    bottom: -4px;
+    bottom: -.35rem;
     transform: translate(0, 100%);
     min-width: max-content;
     padding-left: .5rem;
@@ -90,10 +88,11 @@
     overflow: hidden;
     transition: max-height .25s ease-in-out;
   }
+}
 
-  &.open {
-    > section {
-      max-height: unset;
-    }
+.open {
+  > section {
+    max-height: unset;
+    margin-top: .35rem;
   }
 }

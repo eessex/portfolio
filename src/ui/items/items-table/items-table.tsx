@@ -7,7 +7,7 @@ import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageDataResponse, PageItemClient, PagePathType } from '@/lib/types'
 import { ExpandCollapseButton } from '@/ui/filters/expand-collapse-button'
-import { FiltersContainer } from '@/ui/filters/filters'
+import { FiltersWrapper } from '@/ui/filters/filters'
 import { SortButton } from '@/ui/filters/sort-button'
 import { Select } from '@/ui/form/select'
 import { itemSortDate } from '@/ui/items/item-date'
@@ -173,8 +173,8 @@ export function ItemsTable ({
   const tableId = useId()
 
   return (
-    <>
-      <FiltersContainer itemType={path} controlsId={tableId}>
+    <div className={styles['items-table']}>
+      <FiltersWrapper itemType={path} controlsId={tableId}>
         <ExpandCollapseButton
           ariaControls={tableId}
           isExpanded={!!isExpanded}
@@ -210,7 +210,7 @@ export function ItemsTable ({
             label={`Search ${path}`}
           />
         )}
-      </FiltersContainer>
+      </FiltersWrapper>
 
       <table
         id={tableId}
@@ -230,7 +230,7 @@ export function ItemsTable ({
         <tbody className={clsx(styles['table-body'], isExpanded && styles['table-body--expanded'])}>
           {!flatItems(displayedItems()).length && (
             <>
-              <tr className={styles['table-rowgroup-heading']}>
+              <tr className={styles['table-rowgroup-heading'] + ' heading'}>
                 <th
                   scope='rowgroup'
                   colSpan={colSpan}
@@ -252,7 +252,7 @@ export function ItemsTable ({
 
           {displayedItems().map((category, index) => Object.entries(category).map(([key, value]) => value.length > 0 && (
             <React.Fragment key={`${index}-${key}`}>
-              <tr className={styles['table-rowgroup-heading']}>
+              <tr className={styles['table-rowgroup-heading'] + ' heading'}>
                 <th scope='rowgroup' colSpan={isPathTypeVisible ? 5 : 4}>{tableSectionTitle(key, value.length)}</th>
               </tr>
               {value.map((item, index) => (
@@ -267,7 +267,7 @@ export function ItemsTable ({
           )))}
         </tbody>
       </table>
-    </>
+    </div>
   )
 }
 

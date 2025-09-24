@@ -17,7 +17,7 @@ import { Dialog } from '@/ui/dialog/dialog'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { ExpandCollapseButton } from '@/ui/filters/expand-collapse-button'
-import { FiltersContainer } from '@/ui/filters/filters'
+import { FiltersWrapper } from '@/ui/filters/filters'
 import { SortButton } from '@/ui/filters/sort-button'
 import { EditItemNav } from '@/ui/form/edit-item-nav'
 import { Form } from '@/ui/form/form'
@@ -165,7 +165,7 @@ export function DashboardItems<T extends DashboardItem> (
 
   return (
     <div>
-      <FiltersContainer itemType={itemType} controlsId={tableId}>
+      <FiltersWrapper itemType={itemType} controlsId={tableId}>
         <ExpandCollapseButton
           ariaControls={tableId}
           isExpanded={!!isExpanded}
@@ -195,7 +195,7 @@ export function DashboardItems<T extends DashboardItem> (
           onChange={setSearchTerm}
           label={`Search ${itemType}`}
         />
-      </FiltersContainer>
+      </FiltersWrapper>
 
       <div className={itemsStyles['items-section']} id={tableId}>
         <section

@@ -4,20 +4,25 @@ import { notFound } from 'next/navigation'
 
 import { auth } from '@/api/auth'
 import styles from '@/app/releases/[slug]/release.module.scss'
-import { fetchReleaseBySlug, fetchReleases } from '@/lib/releases/data'
+import {
+  fetchReleaseBySlug,
+  fetchReleases
+} from '@/lib/releases/data'
 import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { FigureImage } from '@/ui/images/image-figure'
 import { LinksList } from '@/ui/links/link-list'
-import { combinePublishedEditions, filteredLinksByPress, formattedDateTime } from '@/ui/util'
+import {
+  combinePublishedEditions,
+  filteredLinksByPress,
+  formattedDateTime
+} from '@/ui/util'
 
 type Props = {
   params: Promise<{ slug: string }>
 }
 
-export async function generateMetadata (
-  { params }: Props
-): Promise<Metadata> {
+export async function generateMetadata ({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const release = await fetchReleaseBySlug(slug)
 
@@ -42,14 +47,10 @@ export async function generateStaticParams () {
   const releases = await fetchReleases(true)
   const allReleases = Object.values(releases).flat()
 
-  return allReleases.map((release) => ({
-    slug: release.slug
-  }))
+  return allReleases.map((release) => ({ slug: release.slug }))
 }
 
-export default async function ReleasesPage ({
-  params
-}: {
+export default async function ReleasesPage ({ params }: {
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params

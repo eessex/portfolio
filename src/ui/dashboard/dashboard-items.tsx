@@ -1,15 +1,36 @@
 'use client'
 
 import NextLink from 'next/link'
-import { useCallback, useEffect, useId, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useState
+} from 'react'
 
 import { embedCodeTypes } from '@/lib/embed-codes/schemas'
-import type { DashboardEmbedCode, EmbedCode } from '@/lib/embed-codes/types'
-import type { DashboardImage, Image } from '@/lib/images/types'
+import type {
+  DashboardEmbedCode,
+  EmbedCode
+} from '@/lib/embed-codes/types'
+import type {
+  DashboardImage,
+  Image
+} from '@/lib/images/types'
 import { linkTypes } from '@/lib/links/schemas'
-import type { DashboardLink, Link } from '@/lib/links/types'
-import type { Badge, EmbeddedItemType, FormResponse } from '@/lib/types'
-import type { DashboardVenue, Venue } from '@/lib/venues/types'
+import type {
+  DashboardLink,
+  Link
+} from '@/lib/links/types'
+import type {
+  Badge,
+  EmbeddedItemType,
+  FormResponse
+} from '@/lib/types'
+import type {
+  DashboardVenue,
+  Venue
+} from '@/lib/venues/types'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import type { OpenNewItemFormDetail } from '@/ui/admin-sidebar/add-item-button'
 import styles from '@/ui/dashboard/dashboard.module.scss'
@@ -28,7 +49,9 @@ import itemsStyles from '@/ui/items/items.module.scss'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
 import { SearchInput } from '@/ui/search-input/search-input'
-import { camelToSentence, eventUrl, releaseUrl } from '@/ui/util'
+import {
+  camelToSentence, eventUrl, releaseUrl
+} from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 import { VenueInline } from '@/ui/venues/venue'
 
@@ -47,9 +70,12 @@ interface DashboardProps <T extends DashboardItem> {
   deleteItem: (id: string) => Promise<FormResponse<T> | undefined>
 }
 
-export function DashboardItems<T extends DashboardItem> (
-  { itemType, items, editItem, deleteItem }: DashboardProps<T>
-) {
+export function DashboardItems<T extends DashboardItem> ({
+  itemType,
+  items,
+  editItem,
+  deleteItem
+}: DashboardProps<T>) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [itemToEdit, setItemToEdit] = useState<T | undefined>(undefined)
@@ -288,22 +314,37 @@ function DashboardListItem<T extends DashboardItem> ({
       badges.push({ text: 'Press' })
     }
     if (link.type === 'social') {
-      badges.push({ text: 'Footer link', color: 'blue' })
+      badges.push({
+        text: 'Footer link',
+        color: 'blue'
+      })
     }
     if (link.type === 'buy_link') {
-      badges.push({ text: 'Buy link', color: 'purple' })
+      badges.push({
+        text: 'Buy link',
+        color: 'purple'
+      })
     }
     if (link.type === 'stream_link') {
-      badges.push({ text: 'Stream link', color: 'orange' })
+      badges.push({
+        text: 'Stream link',
+        color: 'orange'
+      })
     }
     if (embedCode.type === 'audio') {
       badges.push({ text: 'Audio' })
     }
     if (embedCode.type === 'video') {
-      badges.push({ text: 'Video', color: 'blue' })
+      badges.push({
+        text: 'Video',
+        color: 'blue'
+      })
     }
     if (usedOnPages().length === 0 && link.type !== 'social') {
-      badges.push({ text: 'Not used', color: 'red' })
+      badges.push({
+        text: 'Not used',
+        color: 'red'
+      })
     }
     return badges
   }

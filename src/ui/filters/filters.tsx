@@ -1,4 +1,7 @@
-import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import {
+  MagnifyingGlassIcon,
+  XMarkIcon
+} from '@heroicons/react/24/outline'
 import { clsx } from 'clsx'
 import {
   useEffect,
@@ -8,7 +11,10 @@ import {
 } from 'react'
 
 import { useDevice } from '@/lib/device-context'
-import type { EmbeddedItemType, PagePathType } from '@/lib/types'
+import type {
+  EmbeddedItemType,
+  PagePathType
+} from '@/lib/types'
 import styles from '@/ui/filters/filters.module.scss'
 
 type FiltersWrapperProps = {
@@ -17,7 +23,11 @@ type FiltersWrapperProps = {
   itemType: PagePathType | EmbeddedItemType
 }
 
-export function FiltersWrapper ({ controlsId, itemType, children }: FiltersWrapperProps) {
+export function FiltersWrapper ({
+  controlsId,
+  itemType,
+  children
+}: FiltersWrapperProps) {
   const { isSmBreakpoint } = useDevice()
   const [mounted, setMounted] = useState(false)
 

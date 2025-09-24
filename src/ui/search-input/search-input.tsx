@@ -1,5 +1,8 @@
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { useId, useState } from 'react'
+import {
+  useId,
+  useState
+} from 'react'
 
 import styles from '@/ui/search-input/search-input.module.scss'
 

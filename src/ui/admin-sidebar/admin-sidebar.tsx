@@ -4,8 +4,10 @@ import { AddItemButton } from '@/ui/admin-sidebar/add-item-button'
 import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
 import { EditButton } from '@/ui/edit-button/edit-button'
 import { LogoutButton } from '@/ui/logout-button'
-
-import { camelToSentence, snakeToCamel } from '../util'
+import {
+  camelToSentence,
+  snakeToCamel
+} from '@/ui/util'
 
 export async function AdminSidebar () {
   const buttonClasses = `button button-secondary ${styles['button']}`

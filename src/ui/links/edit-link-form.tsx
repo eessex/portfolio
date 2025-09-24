@@ -1,12 +1,22 @@
-import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import {
+  PlusIcon,
+  XMarkIcon
+} from '@heroicons/react/24/outline'
 // import clsx from 'clsx'
 // import NextLink from 'next/link'
-import { useCallback, useRef, useState } from 'react'
+import {
+  useCallback,
+  useRef,
+  useState
+} from 'react'
 
 import type { Link } from '@/lib/links/types'
 // import { Checkbox } from '@/ui/form/checkbox'
 // import styles from '@/ui/form/form.module.scss'
-import { Input, type InputType } from '@/ui/form/input'
+import {
+  Input,
+  type InputType
+} from '@/ui/form/input'
 
 interface LinkProps {
   link?: Link
@@ -16,7 +26,12 @@ interface LinkProps {
   onRemoveLink?: (index: number) => void
 }
 
-export const EditLinkFieldset = ({ link, index, ref, onRemoveLink }: LinkProps) => {
+export const EditLinkFieldset = ({
+  link,
+  index,
+  ref,
+  onRemoveLink
+}: LinkProps) => {
   return (
     <fieldset key={index}>
       <legend className='visually-hidden'>
@@ -45,7 +60,12 @@ export const EditLinkFieldset = ({ link, index, ref, onRemoveLink }: LinkProps) 
   )
 }
 
-export const EditLink = ({ link, index, ref, onRemoveLink }: LinkProps) => {
+export const EditLink = ({
+  link,
+  index,
+  ref,
+  onRemoveLink
+}: LinkProps) => {
   const hasIndex = typeof index === 'number' && index >= 0
   // const [isPress, setIsPress] = useState(!!link?.isPress)
   // const [isSocialProfile, setIsSocialProfile] = useState(!!link?.isSocialProfile)
@@ -168,9 +188,7 @@ export const EditLink = ({ link, index, ref, onRemoveLink }: LinkProps) => {
   )
 }
 
-export const EditLinksFieldset = ({
-  links
-}: {
+export const EditLinksFieldset = ({ links }: {
   links: Link[]
 }) => {
   const initialLinks = links || []
@@ -184,7 +202,13 @@ export const EditLinksFieldset = ({
   }, [])
 
   function handleAddLink () {
-    const newLink = { url: '', title: '', id: '', tagIds: [], createdAt: new Date() }
+    const newLink = {
+      url: '',
+      title: '',
+      id: '',
+      tagIds: [],
+      createdAt: new Date()
+    }
     if (!linkList.some(link => (!link.url && !link.title && !link.id))) {
       setLinkList([...linkList, newLink])
     } else {

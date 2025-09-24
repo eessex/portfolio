@@ -1,7 +1,10 @@
 import clsx from 'clsx'
 
 import styles from '@/ui/form/form.module.scss'
-import { camelToSentence, snakeToCamel } from '@/ui/util'
+import {
+  camelToSentence,
+  snakeToCamel
+} from '@/ui/util'
 
 export function Select ({
   ariaControls,

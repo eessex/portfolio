@@ -3,7 +3,15 @@ import TrashIcon from '@heroicons/react/24/outline/TrashIcon'
 
 import styles from '@/ui/form/form.module.scss'
 
-export function EditItemNav ({ id, onEdit, onDelete }: { id: string, onEdit: (id: string) => void, onDelete: (id: string) => void }) {
+export function EditItemNav ({
+  id,
+  onEdit,
+  onDelete
+}: {
+  id: string
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
+}) {
   return (
     <div>
       <h3 className='visually-hidden'>Edit Item</h3>

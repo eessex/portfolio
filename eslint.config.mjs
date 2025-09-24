@@ -8,9 +8,7 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname
-})
+const compat = new FlatCompat({ baseDirectory: __dirname })
 
 const eslintConfig = [{
   ignores: [
@@ -48,6 +46,9 @@ const eslintConfig = [{
         fixStyle: 'separate-type-imports'
       }
     ],
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
+    'react/jsx-max-props-per-line': ['error', { maximum: 1 }],
     '@stylistic/member-delimiter-style': [
       'error',
       {
@@ -61,9 +62,20 @@ const eslintConfig = [{
         }
       }
     ],
-    'simple-import-sort/imports': 'error',
-    'simple-import-sort/exports': 'error',
-    'react/jsx-max-props-per-line': ['error', { maximum: 1 }]
+    'object-curly-newline': ['error', {
+      ObjectPattern: {
+        multiline: true, minProperties: 2
+      },
+      ObjectExpression: {
+        multiline: true, minProperties: 2
+      },
+      ImportDeclaration: {
+        multiline: true, minProperties: 2
+      },
+      ExportDeclaration: {
+        multiline: true, minProperties: 2
+      }
+    }]
   }
 }]
 

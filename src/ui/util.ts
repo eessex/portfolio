@@ -25,9 +25,7 @@ const dateFormatXs: Intl.DateTimeFormatOptions = {
   month: 'short'
 }
 
-const dateFormatXxs: Intl.DateTimeFormatOptions = {
-  year: 'numeric'
-}
+const dateFormatXxs: Intl.DateTimeFormatOptions = { year: 'numeric' }
 
 export type DateFormatSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg'
 

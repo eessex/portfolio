@@ -1,7 +1,11 @@
 'use client'
 
 import Cookies from 'js-cookie'
-import { useActionState, useEffect, useState } from 'react'
+import {
+  useActionState,
+  useEffect,
+  useState
+} from 'react'
 
 import { createEmailSubscription } from '@/lib/email-subscriptions/actions'
 import type { FormState } from '@/lib/types'

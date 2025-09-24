@@ -1,8 +1,18 @@
-import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { useCallback, useRef, useState } from 'react'
+import {
+  PlusIcon,
+  XMarkIcon
+} from '@heroicons/react/24/outline'
+import {
+  useCallback,
+  useRef,
+  useState
+} from 'react'
 
 import type { EmbedCode } from '@/lib/embed-codes/types'
-import { Input, type InputType } from '@/ui/form/input'
+import {
+  Input,
+  type InputType
+} from '@/ui/form/input'
 
 interface EmbedCodeProps {
   embedCode?: EmbedCode
@@ -12,7 +22,12 @@ interface EmbedCodeProps {
   onRemoveEmbedCode?: (index: number) => void
 }
 
-export const EditEmbedCodeFieldset = ({ embedCode, index, ref, onRemoveEmbedCode }: EmbedCodeProps) => {
+export const EditEmbedCodeFieldset = ({
+  embedCode,
+  index,
+  ref,
+  onRemoveEmbedCode
+}: EmbedCodeProps) => {
   return (
     <fieldset key={index}>
       <legend className='visually-hidden'>
@@ -41,7 +56,12 @@ export const EditEmbedCodeFieldset = ({ embedCode, index, ref, onRemoveEmbedCode
   )
 }
 
-export const EditEmbedCode = ({ embedCode, index, ref, onRemoveEmbedCode }: EmbedCodeProps) => {
+export const EditEmbedCode = ({
+  embedCode,
+  index,
+  ref,
+  onRemoveEmbedCode
+}: EmbedCodeProps) => {
   const hasIndex = typeof index === 'number' && index >= 0
   return (
     <>
@@ -120,9 +140,7 @@ export const EditEmbedCode = ({ embedCode, index, ref, onRemoveEmbedCode }: Embe
   )
 }
 
-export const EditEmbedCodesFieldset = ({
-  embedCodes
-}: {
+export const EditEmbedCodesFieldset = ({ embedCodes }: {
   embedCodes: EmbedCode[]
 }) => {
   const initialEmbedCodes = embedCodes || []
@@ -136,7 +154,13 @@ export const EditEmbedCodesFieldset = ({
   }, [])
 
   function handleAddEmbedCode () {
-    const newEmbed = { iframe: '', caption: '', id: '', tagIds: [], createdAt: new Date() }
+    const newEmbed = {
+      iframe: '',
+      caption: '',
+      id: '',
+      tagIds: [],
+      createdAt: new Date()
+    }
     if (!embedCodeList.some(embedCode => (!embedCode.iframe && !embedCode.caption && !embedCode.id))) {
       setEmbedCodeList([...embedCodeList, newEmbed])
     } else {

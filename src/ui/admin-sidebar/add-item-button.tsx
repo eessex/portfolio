@@ -6,7 +6,10 @@ import { usePathname } from 'next/navigation'
 import { embeddedItemTypes } from '@/lib/schemas'
 import type { EmbeddedItemType } from '@/lib/types'
 import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
-import { camelToSentence, snakeToCamel } from '@/ui/util'
+import {
+  camelToSentence,
+  snakeToCamel
+} from '@/ui/util'
 
 export type OpenNewItemFormDetail = { itemType: EmbeddedItemType }
 

@@ -1,6 +1,9 @@
 import { z } from 'zod'
 
-import { basePageSchema, embeddedItemIdSchemas } from '@/lib/schemas'
+import {
+  basePageSchema,
+  embeddedItemIdSchemas
+} from '@/lib/schemas'
 
 /**
  * Represents a grouping of content that may be associated with multiple events, releases or embedCodes.
@@ -10,7 +13,5 @@ import { basePageSchema, embeddedItemIdSchemas } from '@/lib/schemas'
  * Site settings is essentially the "default" project, a project should represent a subset of work from overall site.
  */
 export const projectSchema = z.lazy(() =>
-  basePageSchema.omit({ projectId: true }).extend({
-    ...embeddedItemIdSchemas.shape
-  })
+  basePageSchema.omit({ projectId: true }).extend({ ...embeddedItemIdSchemas.shape })
 )

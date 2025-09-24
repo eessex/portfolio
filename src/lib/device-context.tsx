@@ -1,13 +1,21 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState
+} from 'react'
 
 type DeviceContextType = {
   isMobile: boolean
   isSmBreakpoint: boolean
 }
 
-const DeviceContext = createContext<DeviceContextType>({ isMobile: false, isSmBreakpoint: false })
+const DeviceContext = createContext<DeviceContextType>({
+  isMobile: false,
+  isSmBreakpoint: false
+})
 
 export const useDevice = () => useContext(DeviceContext)
 
@@ -42,7 +50,11 @@ export function DeviceProvider ({
   }, [])
 
   return (
-    <DeviceContext.Provider value={{ isMobile, isSmBreakpoint }}>
+    <DeviceContext.Provider value={{
+      isMobile,
+      isSmBreakpoint
+    }}
+    >
       {children}
     </DeviceContext.Provider>
   )

@@ -1,7 +1,13 @@
 import type { Link } from '@/lib/links/types'
 import { formattedDateTime } from '@/ui/util'
 
-export function LinkItem ({ link, className }: { link: Link, className?: string }) {
+export function LinkItem ({
+  link,
+  className
+}: {
+  link: Link
+  className?: string
+}) {
   return (
     <a
       href={link.url}

@@ -1,4 +1,9 @@
-import { Geist, Geist_Mono as GeistMono, Inter, Lusitana } from 'next/font/google'
+import {
+  Geist,
+  Geist_Mono as GeistMono,
+  Inter,
+  Lusitana
+} from 'next/font/google'
 
 export const inter = Inter({
   subsets: ['latin'],

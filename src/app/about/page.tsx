@@ -63,7 +63,10 @@ export default async function AboutPage () {
       <section>
         {about?.coverImageId && about.coverImage && (
           <FigureImage
-            image={{ ...about.coverImage, id: about.coverImageId }}
+            image={{
+              ...about.coverImage,
+              id: about.coverImageId
+            }}
             className={styles['cover-image']}
             isPriority
           />
@@ -75,7 +78,10 @@ export default async function AboutPage () {
           </p>
         )}
 
-        {about?.contactInfo?.map(({ title, contact }: AboutContact, i) => (
+        {about?.contactInfo?.map(({
+          title,
+          contact
+        }: AboutContact, i) => (
           <p key={i}>{title && <b>{title}: </b>}{contact}</p>
         ))}
         <Suspense>

@@ -1,7 +1,10 @@
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
-import { type DateFormatSize, formattedDateTime } from '@/ui/util'
+import {
+  type DateFormatSize,
+  formattedDateTime
+} from '@/ui/util'
 
 export function itemSortDate (item: PageItemClient, isDefaultPreferred = false): Date {
   if (isDefaultPreferred) {

@@ -10,12 +10,19 @@ import type { FormResponse } from '@/lib/types'
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 async function createEmbedCode (embedCode: EmbedCode) {
-  const { iframe, caption, title } = embedCode
+  const {
+    iframe,
+    caption,
+    title
+  } = embedCode
   try {
     const maybeId = await sql`SELECT id from embed_codes WHERE iframe = ${iframe}`
     if (maybeId.length > 0) {
       console.debug('Embed code already exists:', maybeId[0].id)
-      return { ...embedCode, id: maybeId[0].id }
+      return {
+        ...embedCode,
+        id: maybeId[0].id
+      }
     } else {
       console.debug('Creating new embed code:', embedCode)
       const result = await sql<EmbedCode[]>`
@@ -49,7 +56,10 @@ export async function editEmbedCode (formData: FormData): Promise<FormResponse<E
     if (updatedEmbedCodes) {
       console.debug('Embed code saved successfully:', updatedEmbedCodes)
       revalidatePath('/dashboard/embed_codes')
-      return { ok: true, res: updatedEmbedCodes[0] }
+      return {
+        ok: true,
+        res: updatedEmbedCodes[0]
+      }
     }
   } catch (err) {
     console.error('Failed to save EmbedCode:', err)
@@ -61,7 +71,12 @@ async function updateEmbedCode (embedCode: EmbedCode) {
   let savedEmbedCode: EmbedCode | null = null
   try {
     await sql.begin(async (tx) => {
-      const { id, iframe, caption, title } = embedCode
+      const {
+        id,
+        iframe,
+        caption,
+        title
+      } = embedCode
       if (!id) {
         try {
           const res = await createEmbedCode(embedCode)

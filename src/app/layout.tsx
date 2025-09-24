@@ -9,7 +9,10 @@ import { DeviceProvider } from '@/lib/device-context'
 import { SessionProvider } from '@/lib/session-context'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
-import { geistMono, geistSans } from '@/ui/fonts'
+import {
+  geistMono,
+  geistSans
+} from '@/ui/fonts'
 import { Footer } from '@/ui/footer/footer'
 import { Nav } from '@/ui/nav/nav'
 
@@ -29,15 +32,11 @@ export async function generateMetadata (): Promise<Metadata> {
       default: siteSettings?.title ?? 'Site Title'
     },
     description: siteSettings?.description ?? 'Site Description',
-    openGraph: {
-      images
-    }
+    openGraph: { images }
   }
 }
 
-export default async function RootLayout ({
-  children
-}: Readonly<{
+export default async function RootLayout ({ children }: Readonly<{
   children: React.ReactNode
 }>) {
   const [siteSettings, session, reqHeaders] = await Promise.all([

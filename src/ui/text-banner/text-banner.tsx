@@ -1,4 +1,7 @@
-import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline'
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon
+} from '@heroicons/react/24/outline'
 import clsx from 'clsx'
 import type { ReactElement } from 'react'
 
@@ -12,7 +15,11 @@ export interface TextBannerProps {
   type: MessageTypes
 }
 
-export const TextBanner = ({ children, type, className }: TextBannerProps) => {
+export const TextBanner = ({
+  children,
+  type,
+  className
+}: TextBannerProps) => {
   const iconMap: Record<MessageTypes, ReactElement> = {
     success: <CheckCircleIcon />,
     error: <ExclamationCircleIcon />

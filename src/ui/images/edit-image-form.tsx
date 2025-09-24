@@ -1,9 +1,19 @@
-import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { useCallback, useRef, useState } from 'react'
+import {
+  PlusIcon,
+  XMarkIcon
+} from '@heroicons/react/24/outline'
+import {
+  useCallback,
+  useRef,
+  useState
+} from 'react'
 
 import type { Image } from '@/lib/images/types'
 import { Checkbox } from '@/ui/form/checkbox'
-import { Input, type InputType } from '@/ui/form/input'
+import {
+  Input,
+  type InputType
+} from '@/ui/form/input'
 
 interface ImageProps {
   image?: Image
@@ -13,7 +23,12 @@ interface ImageProps {
   onRemoveImage?: (index: number) => void
 }
 
-export const EditImageFieldset = ({ image, index, ref, onRemoveImage }: ImageProps) => {
+export const EditImageFieldset = ({
+  image,
+  index,
+  ref,
+  onRemoveImage
+}: ImageProps) => {
   return (
     <fieldset key={index}>
       <legend className='visually-hidden'>
@@ -42,7 +57,12 @@ export const EditImageFieldset = ({ image, index, ref, onRemoveImage }: ImagePro
   )
 }
 
-export const EditImage = ({ image, index, ref, onRemoveImage }: ImageProps) => {
+export const EditImage = ({
+  image,
+  index,
+  ref,
+  onRemoveImage
+}: ImageProps) => {
   const [isPress, setIsPress] = useState(!!image?.isPress)
   const [isHiddenOnAboutPage, setIsHiddenOnAboutPage] = useState(!!image?.isHiddenOnAboutPage)
   const hasIndex = typeof index === 'number' && index >= 0
@@ -97,17 +117,13 @@ export const EditImage = ({ image, index, ref, onRemoveImage }: ImageProps) => {
           label='This is a press image'
           isChecked={isPress}
           onChange={() => setIsPress(!isPress)}
-          attributes={{
-            name: hasIndex ? `image[${index}].isPress` : 'isPress'
-          }}
+          attributes={{ name: hasIndex ? `image[${index}].isPress` : 'isPress' }}
         />
         <Checkbox
           label='Hide this image on the About page'
           isChecked={isHiddenOnAboutPage}
           onChange={() => setIsHiddenOnAboutPage(!isHiddenOnAboutPage)}
-          attributes={{
-            name: hasIndex ? `image[${index}].isHiddenOnAboutPage` : 'isHiddenOnAboutPage'
-          }}
+          attributes={{ name: hasIndex ? `image[${index}].isHiddenOnAboutPage` : 'isHiddenOnAboutPage' }}
         />
       </fieldset>
       <Input
@@ -154,9 +170,7 @@ export const EditImage = ({ image, index, ref, onRemoveImage }: ImageProps) => {
   )
 }
 
-export const EditImagesFieldset = ({
-  images
-}: {
+export const EditImagesFieldset = ({ images }: {
   images: Image[]
 }) => {
   const initialImages = images || []
@@ -170,7 +184,14 @@ export const EditImagesFieldset = ({
   }, [])
 
   function handleAddImage () {
-    const newImage = { url: '', caption: '', id: '', aspect: 1, tagIds: [], createdAt: new Date() }
+    const newImage = {
+      url: '',
+      caption: '',
+      id: '',
+      aspect: 1,
+      tagIds: [],
+      createdAt: new Date()
+    }
     if (!imageList.some(image => (!image.url && !image.caption && !image.id))) {
       setImageList([...imageList, newImage])
     } else {

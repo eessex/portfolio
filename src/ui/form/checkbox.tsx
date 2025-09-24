@@ -1,7 +1,11 @@
 'use client'
 
 import clsx from 'clsx'
-import { type RefObject, useId, useState } from 'react'
+import {
+  type RefObject,
+  useId,
+  useState
+} from 'react'
 
 import styles from '@/ui/form/form.module.scss'
 

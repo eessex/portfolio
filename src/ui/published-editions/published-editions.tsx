@@ -1,7 +1,16 @@
 import type { ReleaseClient } from '@/lib/releases/types'
-import { combinePublishedEditions, formattedDateTime } from '@/ui/util'
+import {
+  combinePublishedEditions,
+  formattedDateTime
+} from '@/ui/util'
 
-export function PublishedEditionsCombined ({ publishedEditions, format = 'lg' }: { publishedEditions: ReleaseClient['publishedEditions'], format?: 'sm' | 'lg' }) {
+export function PublishedEditionsCombined ({
+  publishedEditions,
+  format = 'lg'
+}: {
+  publishedEditions: ReleaseClient['publishedEditions']
+  format?: 'sm' | 'lg'
+}) {
   if (!publishedEditions || publishedEditions.length === 0) return null
 
   return (

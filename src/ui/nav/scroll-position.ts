@@ -1,4 +1,7 @@
-import { useEffect, useState } from 'react'
+import {
+  useEffect,
+  useState
+} from 'react'
 
 export const useWindowScrollPosition = () => {
   const [isAtContentTop, setIsAtContentTop] = useState(true)
@@ -17,9 +20,7 @@ export const useWindowScrollPosition = () => {
             setIsAtContentTop(atTop)
           }
         },
-        {
-          threshold: 0
-        }
+        { threshold: 0 }
       )
       observer.observe(target)
       return observer

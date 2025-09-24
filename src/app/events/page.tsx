@@ -16,7 +16,10 @@ export const metadata: Metadata = { title }
 
 export default async function EventsPage () {
   const session = await auth()
-  const { upcomingEvents, pastEvents } = await fetchEvents(!!session?.user)
+  const {
+    upcomingEvents,
+    pastEvents
+  } = await fetchEvents(!!session?.user)
 
   return (
     <div>
@@ -32,7 +35,10 @@ export default async function EventsPage () {
         />
         <ItemsTable
           path={path}
-          items={[{ pastEvents, upcomingEvents: [] }]}
+          items={[{
+            pastEvents,
+            upcomingEvents: []
+          }]}
         />
       </Suspense>
     </div>

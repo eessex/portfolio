@@ -15,7 +15,10 @@ async function createVenue (venue: Venue) {
 
     if (maybeId.length > 0) {
       console.debug('Venue already exists:', maybeId[0].id)
-      return { ...venue, id: maybeId[0].id }
+      return {
+        ...venue,
+        id: maybeId[0].id
+      }
     } else {
       const {
         address,
@@ -88,7 +91,10 @@ export async function editVenue (formData: FormData): Promise<FormResponse<Venue
       if (updatedVenues) {
         console.debug('Venue saved successfully:', updatedVenues)
         revalidatePath('/dashboard/venues')
-        return { ok: true, res: updatedVenues[0] }
+        return {
+          ok: true,
+          res: updatedVenues[0]
+        }
       }
     } catch (err: unknown) {
       console.error('Failed to save Venue:', err)
@@ -171,8 +177,6 @@ export async function deleteVenue (id: string): Promise<FormResponse<Venue>> {
     return { ok: true }
   } catch (err: Error | unknown) {
     console.error('Error deleting venue:', err)
-    return {
-      message: err instanceof Error ? err.message : 'Failed to delete venue.'
-    }
+    return { message: err instanceof Error ? err.message : 'Failed to delete venue.' }
   }
 }

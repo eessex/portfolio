@@ -1,12 +1,18 @@
 import type { Venue } from '@/lib/venues/types'
-import { Input, type InputType } from '@/ui/form/input'
+import {
+  Input,
+  type InputType
+} from '@/ui/form/input'
 
 interface EditVenueProps {
   venue?: Venue
   ref?: (el: InputType) => InputType | null
 }
 
-export const EditVenue = ({ venue, ref }: EditVenueProps) => {
+export const EditVenue = ({
+  venue,
+  ref
+}: EditVenueProps) => {
   return (
     <>
       <Input

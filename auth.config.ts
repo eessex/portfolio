@@ -11,11 +11,12 @@ const unauthedPaths = [
 ]
 
 export const authConfig = {
-  pages: {
-    signIn: '/'
-  },
+  pages: { signIn: '/' },
   callbacks: {
-    authorized ({ auth, request: { nextUrl } }) {
+    authorized ({
+      auth,
+      request: { nextUrl }
+    }) {
       const isLoggedIn = !!auth?.user
       const isAuthedPath = authedPaths.find(p => nextUrl.pathname.startsWith(p))
       const isUnauthedPath = unauthedPaths.find(p => nextUrl.pathname.startsWith(p))

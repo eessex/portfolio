@@ -1,4 +1,8 @@
-import { date, defaultSchema, email } from '@/lib/schemas'
+import {
+  date,
+  defaultSchema,
+  email
+} from '@/lib/schemas'
 
 /**
  * Newsletter subscription

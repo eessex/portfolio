@@ -1,7 +1,14 @@
 'use client'
 
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
-import { useEffect, useId, useState } from 'react'
+import {
+  ChevronDownIcon,
+  ChevronUpIcon
+} from '@heroicons/react/24/outline'
+import {
+  useEffect,
+  useId,
+  useState
+} from 'react'
 
 import type { Badge } from '@/lib/types'
 import styles from '@/ui/accordion-dropdown/accordion-dropdown.module.scss'

@@ -1,7 +1,10 @@
 'use client'
 
 import type { Session } from 'next-auth'
-import { createContext, useContext } from 'react'
+import {
+  createContext,
+  useContext
+} from 'react'
 
 type SessionContextType = {
   session: Session | null
@@ -27,7 +30,11 @@ export const SessionProvider = ({
 }) => {
   const isLoggedIn = !!session?.user
   return (
-    <SessionContext.Provider value={{ session, isLoggedIn }}>
+    <SessionContext.Provider value={{
+      session,
+      isLoggedIn
+    }}
+    >
       {children}
     </SessionContext.Provider>
   )

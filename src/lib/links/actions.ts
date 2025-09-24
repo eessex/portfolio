@@ -14,7 +14,10 @@ async function createLink (link: Link) {
     const maybeId = await sql`SELECT id from links WHERE url = ${link.url}`
     if (maybeId.length > 0) {
       console.debug('Link already exists:', maybeId[0].id)
-      return { ...link, id: maybeId[0].id }
+      return {
+        ...link,
+        id: maybeId[0].id
+      }
     } else {
       const {
         attribution,
@@ -89,7 +92,9 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
       if (updatedLinks) {
         console.debug('Link saved successfully:', updatedLinks)
         revalidatePath('/dashboard/links')
-        return { ok: true, res: updatedLinks[0] }
+        return {
+          ok: true, res: updatedLinks[0]
+        }
       }
     } catch (err) {
       console.error('Failed to save Link:', err)

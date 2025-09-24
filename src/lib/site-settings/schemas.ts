@@ -17,7 +17,5 @@ export const siteSettingsSchema = defaultSchema.extend({
 })
 
 export const siteSettingsClientSchema = siteSettingsSchema.extend(
-  hydratedItemIdSchemas.pick({
-    coverImage: true
-  }).shape
+  hydratedItemIdSchemas.pick({ coverImage: true }).shape
 )

@@ -1,4 +1,7 @@
-import { ArrowsPointingInIcon, ArrowsPointingOutIcon } from '@heroicons/react/24/outline'
+import {
+  ArrowsPointingInIcon,
+  ArrowsPointingOutIcon
+} from '@heroicons/react/24/outline'
 
 export function ExpandCollapseButton ({
   ariaControls,

@@ -1,4 +1,7 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/24/outline'
+import {
+  ArrowDownIcon,
+  ArrowUpIcon
+} from '@heroicons/react/24/outline'
 
 export function SortButton ({
   isAsc,

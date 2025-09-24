@@ -40,7 +40,10 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
       if (updatedImage) {
         console.debug('Image saved successfully:', updatedImage)
         revalidatePath('/dashboard/images')
-        return { ok: true, res: updatedImage }
+        return {
+          ok: true,
+          res: updatedImage
+        }
       }
     } catch (err) {
       console.error('Failed to save Image:', err)
@@ -54,9 +57,19 @@ async function createImage (image: Image): Promise<Image | null> {
     const maybeId = await sql`SELECT id from images WHERE url = ${image.url}`
     if (maybeId.length > 0) {
       console.debug('Image already exists:', maybeId[0].id)
-      return { ...image, id: maybeId[0].id }
+      return {
+        ...image,
+        id: maybeId[0].id
+      }
     } else {
-      const { aspect, caption, isHiddenOnAboutPage, isPress, title, url } = image
+      const {
+        aspect,
+        caption,
+        isHiddenOnAboutPage,
+        isPress,
+        title,
+        url
+      } = image
       const result = await sql<Image[]>`
       INSERT INTO images (
         aspect,

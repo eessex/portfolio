@@ -5,7 +5,10 @@ import NextLink from 'next/link'
 import type { EventClient } from '@/lib/events/types'
 import type { Image } from '@/lib/images/types'
 import { DraftBadge } from '@/ui/draft-badge'
-import { eventUrl, formattedDateTime } from '@/ui/util'
+import {
+  eventUrl,
+  formattedDateTime
+} from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
 
 function Metadata ({ event }: { event: EventClient }) {
@@ -30,7 +33,13 @@ function Metadata ({ event }: { event: EventClient }) {
   )
 }
 
-function Img ({ image, index }: { image: Image, index: number }) {
+function Img ({
+  image,
+  index
+}: {
+  image: Image
+  index: number
+}) {
   return (
     <NextImage
       src={image.url}

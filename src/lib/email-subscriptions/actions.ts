@@ -32,11 +32,12 @@ export async function createEmailSubscription<T> (formData: FormData): Promise<F
       ON CONFLICT (email)
       DO UPDATE SET updated_at = current_timestamp
     `
-    return { ok: true, message: 'Successfully subscribed!' }
+    return {
+      ok: true,
+      message: 'Successfully subscribed!'
+    }
   } catch (err) {
     console.error(err)
-    return {
-      message: 'Database Error: Failed to Create subscription.'
-    }
+    return { message: 'Database Error: Failed to Create subscription.' }
   }
 }

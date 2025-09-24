@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { deleteEmbedCode, editEmbedCode } from '@/lib/embed-codes/actions'
+import {
+  deleteEmbedCode,
+  editEmbedCode
+} from '@/lib/embed-codes/actions'
 import { fetchEmbedCodes } from '@/lib/embed-codes/data'
 import type { EmbeddedItemType } from '@/lib/types'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'

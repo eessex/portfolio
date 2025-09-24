@@ -1,11 +1,18 @@
 'use client'
 
 import { clsx } from 'clsx'
-import React, { useId, useState } from 'react'
+import React, {
+  useId,
+  useState
+} from 'react'
 
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
-import type { PageDataResponse, PageItemClient, PagePathType } from '@/lib/types'
+import type {
+  PageDataResponse,
+  PageItemClient,
+  PagePathType
+} from '@/lib/types'
 import { ExpandCollapseButton } from '@/ui/filters/expand-collapse-button'
 import { FiltersWrapper } from '@/ui/filters/filters'
 import { SortButton } from '@/ui/filters/sort-button'
@@ -15,7 +22,10 @@ import styles from '@/ui/items/items-table/items-table.module.scss'
 import { ItemsTableRow } from '@/ui/items/items-table/items-table-row'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import { SearchInput } from '@/ui/search-input/search-input'
-import { camelToSentence, snakeToCamel } from '@/ui/util'
+import {
+  camelToSentence,
+  snakeToCamel
+} from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
 
 export function ItemsTable ({

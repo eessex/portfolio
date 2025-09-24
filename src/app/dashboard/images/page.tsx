@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { deleteImage, editImage } from '@/lib/images/actions'
+import {
+  deleteImage,
+  editImage
+} from '@/lib/images/actions'
 import { fetchImages } from '@/lib/images/data'
 import type { EmbeddedItemType } from '@/lib/types'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'

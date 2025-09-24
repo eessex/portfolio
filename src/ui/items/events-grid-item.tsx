@@ -18,7 +18,7 @@ function Metadata ({ event }: { event: EventClient }) {
       {!event.isPublished && <DraftBadge />}
 
       <h4>
-        {formattedDateTime(event.startTime)}
+        {formattedDateTime(event.startTime, undefined, event.venue?.timezone)}
       </h4>
 
       {event.venue && (

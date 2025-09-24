@@ -31,6 +31,36 @@ const dateFormatXxs: Intl.DateTimeFormatOptions = {
 
 export type DateFormatSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg'
 
+export function getUtcOffsetMinutes (utcDate: string | Date, timeZone: string): number {
+  const date = new Date(utcDate)
+
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  })
+
+  const parts = formatter.formatToParts(date)
+
+  const year = parseInt(parts.find(p => p.type === 'year')?.value || '0', 10)
+  const month = parseInt(parts.find(p => p.type === 'month')?.value || '1', 10)
+  const day = parseInt(parts.find(p => p.type === 'day')?.value || '1', 10)
+  const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10)
+  const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10)
+  const second = parseInt(parts.find(p => p.type === 'second')?.value || '0', 10)
+
+  const localTzTimestamp = Date.UTC(year, month - 1, day, hour, minute, second)
+
+  const offsetMs = localTzTimestamp - date.getTime()
+
+  return offsetMs / 60000
+}
+
 const getTimeFormat = (format: DateFormatSize = 'lg') => {
   switch (format) {
     case 'xxs':
@@ -44,13 +74,17 @@ const getTimeFormat = (format: DateFormatSize = 'lg') => {
   }
 }
 
-export function formattedDateTime (date: string | Date, format?: DateFormatSize, timeZone?: Intl.DateTimeFormatOptions['timeZone']) {
-  const startTime = new Date(date)
-  startTime.setHours(startTime.getHours())
+export function formattedDateTime (utcDate: string | Date, format?: DateFormatSize, tz?: Intl.DateTimeFormatOptions['timeZone']) {
+  const timeZone = tz || 'America/New_York'
+  const startTime = new Date(utcDate)
+  const offsetMinutes = getUtcOffsetMinutes(startTime, timeZone)
+  const adjustedTime = startTime.getTime() - offsetMinutes * 60 * 1000
+  const localDate = new Date(adjustedTime)
+
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     ...getTimeFormat(format),
-    timeZone: timeZone || 'America/New_York'
-  }).format(startTime)
+    timeZone
+  }).format(localDate)
 
   return formattedDate
 }

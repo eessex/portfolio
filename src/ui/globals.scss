@@ -253,7 +253,7 @@ button.icon-button {
 }
 
 img {
-  background: var(--transparency-secondary);
+  background: rgba(var(--foreground), .05);
 }
 
 input, textarea, select {

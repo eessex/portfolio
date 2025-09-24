@@ -24,7 +24,7 @@
     }
   }
 
-  @include breakpoints.mobile {
+  @include breakpoints.sm-width {
     flex-direction: column;
     gap: 1rem;
     min-height: unset;

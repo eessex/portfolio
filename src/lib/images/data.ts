@@ -5,7 +5,7 @@ import { dashboardImageSchema, imageSchema } from '@/lib/images/schemas'
 import type { DashboardImage, Image } from '@/lib/images/types'
 import { formatDbResponseForClient } from '@/ui/util'
 
-export async function fetchImage (id: string) {
+async function _fetchImage (id: string) {
   try {
     const data = await sql<Image>`
       SELECT * FROM images
@@ -22,7 +22,7 @@ export async function fetchImage (id: string) {
   }
 }
 
-export const fetchImagesByIds = async (ids: QueryResultRow[string]) => {
+const _fetchImagesByIds = async (ids: QueryResultRow[string]) => {
   try {
     const data = await sql<Image>`
       SELECT * FROM images
@@ -42,10 +42,12 @@ export async function fetchImages () {
       SELECT 
       images.*,
       ARRAY(
-        SELECT slug FROM releases as r WHERE r.image_ids @> ARRAY[images.id]
+        SELECT slug FROM releases AS r 
+        WHERE (r.image_ids @> ARRAY[images.id] OR r.cover_image_id = images.id)
       ) AS release_slugs,
       ARRAY(
-        SELECT slug FROM events as e WHERE e.image_ids @> ARRAY[images.id]
+        SELECT slug FROM events AS e 
+        WHERE (e.image_ids @> ARRAY[images.id] OR e.cover_image_id = images.id)
       ) AS event_slugs
       FROM images
       ORDER BY images.updated_at DESC

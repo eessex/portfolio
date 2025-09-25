@@ -44,13 +44,15 @@ import { EditItemNav } from '@/ui/form/edit-item-nav'
 import { Form } from '@/ui/form/form'
 import { Select } from '@/ui/form/select'
 import { EditImage } from '@/ui/images/edit-image-form'
-import { FigureImage } from '@/ui/images/image-figure'
+import { ImageFIgure } from '@/ui/images/image-figure'
 import itemsStyles from '@/ui/items/items.module.scss'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
 import { SearchInput } from '@/ui/search-input/search-input'
 import {
-  camelToSentence, eventUrl, releaseUrl
+  camelToSentence,
+  eventUrl,
+  releaseUrl
 } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 import { VenueInline } from '@/ui/venues/venue'
@@ -203,6 +205,7 @@ export function DashboardItems<T extends DashboardItem> ({
           closeLabel='Hide the art'
         />
         <SortButton
+          ariaControls={tableId}
           isAsc={sortDirection === 'asc'}
           onClick={() => {
             setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -464,7 +467,7 @@ export function ItemDisplay ({
       return <EmbedCodeItem embedCode={item as EmbedCode} />
     case 'images':
       return (
-        <FigureImage image={item as Image} />
+        <ImageFIgure image={item as Image} />
       )
     case 'links':
       if ((item as Link).quotation || (item as Link).attribution) {

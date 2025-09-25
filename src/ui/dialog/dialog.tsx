@@ -1,6 +1,9 @@
 'use client'
 import XMarkIcon from '@heroicons/react/24/solid/esm/XMarkIcon'
-import { useEffect } from 'react'
+import {
+  useEffect,
+  useId
+} from 'react'
 
 import styles from '@/ui/dialog/dialog.module.scss'
 
@@ -27,18 +30,21 @@ export const Dialog = ({
     }
   }, [onClose])
 
+  const dialogTitleId = useId()
+
   return (
     <div
       className={`dialog-container ${styles['dialog-container']}`}
     >
       <div
+        aria-labelledby={dialogTitleId}
         className={`dialog ${styles['dialog']}`}
         aria-modal='true'
         role='dialog'
         tabIndex={-1}
       >
         <header className='dialog-header'>
-          <h2 className='dialog-title'>{title}</h2>
+          <h2 id={dialogTitleId}>{title}</h2>
           <button
             className='icon-button'
             aria-label='Close dialog'

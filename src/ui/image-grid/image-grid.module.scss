@@ -1,9 +1,0 @@
-.image-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-
-  li {
-    max-width: calc(50% - .5rem);
-  }
-}

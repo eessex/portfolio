@@ -10,7 +10,7 @@ import {
 } from '@/lib/releases/data'
 import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
-import { FigureImage } from '@/ui/images/image-figure'
+import { ImageFIgure } from '@/ui/images/image-figure'
 import { LinksList } from '@/ui/links/link-list'
 import {
   combinePublishedEditions,
@@ -105,7 +105,7 @@ export default async function ReleasesPage ({ params }: {
             <EmbedCodes embedCodes={[release.featuredEmbedCode]} />
           )}
           {release.coverImage && (
-            <FigureImage
+            <ImageFIgure
               image={release.coverImage}
               isPriority
             />

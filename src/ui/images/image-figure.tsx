@@ -2,7 +2,7 @@ import NextImage from 'next/image'
 
 import type { Image } from '@/lib/images/types'
 
-export const FigureImage = ({
+export const ImageFIgure = ({
   image,
   isCaptionHidden,
   isLazy,

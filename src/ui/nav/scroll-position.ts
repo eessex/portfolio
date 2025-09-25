@@ -54,6 +54,7 @@ export const useWindowScrollPosition = () => {
       window.removeEventListener('scroll', onScroll)
     }
   }, [isAtContentTop, isScrollingDown])
+
   return {
     isAtContentTop,
     isScrollingDown

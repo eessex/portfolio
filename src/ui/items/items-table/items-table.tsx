@@ -197,6 +197,7 @@ export function ItemsTable ({
         />
         {isFilterable && setSortDirection && (
           <SortButton
+            ariaControls={tableId}
             isAsc={sortDirection === 'asc'}
             onClick={() => {
               if (setSortDirection) {
@@ -269,7 +270,8 @@ export function ItemsTable ({
                 <th
                   scope='rowgroup'
                   colSpan={isPathTypeVisible ? 5 : 4}
-                >{tableSectionTitle(key, value.length)}
+                >
+                  {tableSectionTitle(key, value.length)}
                 </th>
               </tr>
               {value.map((item, index) => (

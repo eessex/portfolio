@@ -11,7 +11,7 @@ import {
 } from '@/lib/events/data'
 import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
-import { FigureImage } from '@/ui/images/image-figure'
+import { ImageFIgure } from '@/ui/images/image-figure'
 import { ItemsList } from '@/ui/items/items-list'
 import { LinksList } from '@/ui/links/link-list'
 import {
@@ -112,7 +112,7 @@ export default async function EventsPage ({ params }: {
         </header>
 
         {event.coverImage && (
-          <FigureImage
+          <ImageFIgure
             image={event.coverImage}
             isPriority
           />

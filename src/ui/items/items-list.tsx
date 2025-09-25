@@ -93,7 +93,7 @@ function ItemGridItem ({
           )}
         >
           <h4>
-            {formattedDateTime((item as EventClient).startTime)}
+            {formattedDateTime((item as EventClient).startTime, undefined, (item as EventClient).venue?.timezone)}
           </h4>
 
           {(item as EventClient).venue && (

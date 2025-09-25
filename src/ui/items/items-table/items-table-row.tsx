@@ -2,6 +2,7 @@ import { clsx } from 'clsx'
 import NextImage from 'next/image'
 import NextLink from 'next/link'
 
+import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
 import { DraftBadge } from '@/ui/draft-badge'
@@ -66,7 +67,10 @@ export function ItemsTableRow ({
       )}
 
       <td>
-        <FormattedItemDate item={item} />
+        <FormattedItemDate
+          item={item}
+          timezone={(item as EventClient).venue?.timezone}
+        />
       </td>
 
       <td className={clsx(styles['table-row-title'], isExpanded && styles['table-row-title--expanded'])}>

@@ -81,7 +81,9 @@ export default async function EventsPage ({ params }: {
             )}
           </div>
           <h1>{event.title}</h1>
-          <h2>{formattedDateTime(event.startTime)}</h2>
+          <h2>
+            {formattedDateTime(event.startTime, undefined, event.venue?.timezone)}
+          </h2>
           {event.venue && (
             <h3>
               {event.venue.url

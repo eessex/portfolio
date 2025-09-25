@@ -27,7 +27,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
 
-    @include breakpoints.mobile {
+    @include breakpoints.sm-width {
       grid-template-columns: 50% 50%;
     }
 

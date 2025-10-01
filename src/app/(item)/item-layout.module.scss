@@ -1,0 +1,69 @@
+$section-margin-bottom: 1.5rem;
+$section-gap: 1rem;
+
+.item-layout {
+  > article {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 1rem;
+
+    > header {
+      margin-bottom: $section-margin-bottom;
+      display: flex;
+      flex-direction: column;
+
+      * {
+        text-align: center;
+        flex: 1;
+        margin-bottom: unset;
+      }
+
+      > h1 {
+        font-size: xx-large;
+        line-height: normal;
+        margin-bottom: .35rem;
+      }
+    }
+
+    > section {
+      margin-bottom: $section-margin-bottom;
+
+      > figure {
+        width: 100%;
+
+        > img {
+          width: 100%;
+          height: auto;
+        }
+        
+        iframe {
+          width: 100%;
+        }
+
+        + figure {
+          margin-top: $section-gap;
+        }
+      }
+
+      // > ul {
+      //   display: flex;
+      //   flex-direction: column;
+      //   gap: $section-gap;
+      // }
+    }
+  }
+}
+
+.ticket-link {
+  margin-top: .75rem;
+}
+
+.featured-media {
+  // display: flex;
+  // flex-direction: column;
+  // gap: $section-gap;
+}
+
+.press-links li {
+  margin-bottom: $section-gap;
+}

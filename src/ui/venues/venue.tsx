@@ -4,7 +4,11 @@ type VenueFormat = 'sm' | 'lg'
 
 export function VenueInline ({
   venue: {
-    name, address, city, country, state
+    name,
+    address,
+    city,
+    country,
+    state
   },
   format,
   isNameHidden

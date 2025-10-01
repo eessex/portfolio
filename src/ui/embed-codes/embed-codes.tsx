@@ -1,3 +1,5 @@
+import { useId } from 'react'
+
 import type { EmbedCode } from '@/lib/embed-codes/types'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import styles from '@/ui/embed-codes/embed-codes.module.scss'
@@ -5,8 +7,18 @@ import styles from '@/ui/embed-codes/embed-codes.module.scss'
 export const EmbedCodes = ({ embedCodes }: {
   embedCodes: EmbedCode[]
 }) => {
+  const sectionId = useId()
   return (
-    <div className={styles['embed-codes']}>
+    <section
+      className={styles['embed-codes']}
+      aria-labelledby={sectionId}
+    >
+      <h2
+        id={sectionId}
+        className='visually-hidden'
+      >
+        Related Media
+      </h2>
       {embedCodes.map((embedCode, index) => (
         <EmbedCodeItem
           key={index}
@@ -14,6 +26,6 @@ export const EmbedCodes = ({ embedCodes }: {
           isLazy={index === 0 && true}
         />
       ))}
-    </div>
+    </section>
   )
 }

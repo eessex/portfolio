@@ -44,7 +44,7 @@ import { EditItemNav } from '@/ui/form/edit-item-nav'
 import { Form } from '@/ui/form/form'
 import { Select } from '@/ui/form/select'
 import { EditImage } from '@/ui/images/edit-image-form'
-import { ImageFIgure } from '@/ui/images/image-figure'
+import { ImageFigure } from '@/ui/images/image-figure'
 import itemsStyles from '@/ui/items/items.module.scss'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
@@ -467,7 +467,7 @@ export function ItemDisplay ({
       return <EmbedCodeItem embedCode={item as EmbedCode} />
     case 'images':
       return (
-        <ImageFIgure image={item as Image} />
+        <ImageFigure image={item as Image} />
       )
     case 'links':
       if ((item as Link).quotation || (item as Link).attribution) {

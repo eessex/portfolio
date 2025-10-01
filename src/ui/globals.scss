@@ -302,6 +302,7 @@ figcaption {
   margin: 0.25rem 0.5rem;
   font-size: small;
   opacity: 0.7;
+  text-align: center;
 }
 
 .badge {
@@ -373,4 +374,14 @@ table {
   tr.heading {
     top: calc(var(--header-height) + 79px);
   }
+}
+
+.category {
+  font-size: small;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: bold;
+  display: flex;
+  gap: .5em;
+  margin: 0;
 }

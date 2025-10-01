@@ -7,7 +7,7 @@ import { fetchPressImages } from '@/lib/images/data'
 import { fetchPressLinks } from '@/lib/links/data'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
-import { ImageFIgure } from '@/ui/images/image-figure'
+import { ImageFigure } from '@/ui/images/image-figure'
 import { ImageGrid } from '@/ui/images/image-grid'
 import { LinksList } from '@/ui/links/link-list'
 import { Loading } from '@/ui/loading'
@@ -62,7 +62,7 @@ export default async function AboutPage () {
 
       <section>
         {about?.coverImageId && about.coverImage && (
-          <ImageFIgure
+          <ImageFigure
             image={{
               ...about.coverImage,
               id: about.coverImageId

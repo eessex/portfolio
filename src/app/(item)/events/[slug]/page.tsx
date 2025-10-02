@@ -1,70 +1,53 @@
-import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 
-// import { auth } from '@/api/auth'
-import ItemLayout from '@/app/(item)/item-layout'
+import { auth } from '@/api/auth'
+import ItemLayout, {
+  generateItemMetadata,
+  generateItemStaticParams,
+  type ItemLayoutProps
+} from '@/app/(item)/item-layout'
 import {
   fetchEventBySlug,
   fetchEvents
 } from '@/lib/events/data'
-// import { ItemsList } from '@/ui/items/items-list'
+import type { PagePathType } from '@/lib/types'
+import { ItemsList } from '@/ui/items/items-list'
+import { Loading } from '@/ui/loading'
 
-type Props = {
-  params: Promise<{ slug: string }>
-}
+const path: PagePathType = 'events'
 
-export async function generateMetadata ({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const event = await fetchEventBySlug(slug)
-  const images = event?.coverImage
-    ? [{
-        url: event.coverImage.url,
-        width: 1200,
-        height: 1200 * event.coverImage.aspect,
-        alt: event.coverImage.alt || event.coverImage.caption || ''
-      }]
-    : []
-
-  const meta: Metadata = {
-    title: `Event: ${event?.title}`,
-    openGraph: { images }
-  }
-
-  return meta
+export async function generateMetadata ({ params }: ItemLayoutProps) {
+  return await generateItemMetadata(params, path, fetchEventBySlug)
 }
 
 export async function generateStaticParams () {
-  const {
-    upcomingEvents,
-    pastEvents
-  } = await fetchEvents()
-
-  return [...upcomingEvents, ...pastEvents].map((event) => ({ slug: event.slug }))
+  return await generateItemStaticParams(fetchEvents)
 }
 
-export default async function EventsPage ({ params }: {
-  params: Promise<{ slug: string }>
-}) {
-  const { slug } = await params
-  // const { upcomingEvents } = await fetchEvents(!!session?.user)
+export default async function EventsPage ({ params }: ItemLayoutProps) {
+  const [{ slug }, session] = await Promise.all([
+    params,
+    auth()
+  ])
 
-  // const moreEvents = upcomingEvents.filter(e => e.id !== event.id)
-
-  if (!slug) return notFound()
+  const { upcomingEvents } = await fetchEvents(!!session?.user)
+  const moreEvents = upcomingEvents.filter(e => e.slug !== slug)
 
   return (
     <ItemLayout
-      itemType='events'
+      itemType={path}
       slug={slug}
       fetchFn={fetchEventBySlug}
     >
-      {/* {moreEvents.length > 0 && (
-        <ItemsList
-          items={moreEvents}
-          isTextOnly
-          title='Upcoming Events'
-        />
-      )} */}
+      <Suspense fallback={<Loading />}>
+        {moreEvents.length > 0 && (
+          <ItemsList
+            items={moreEvents}
+            isTextOnly
+            title='Upcoming Events'
+          />
+        )}
+      </Suspense>
     </ItemLayout>
   )
 }

@@ -1,48 +1,25 @@
-import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
-
-import { auth } from '@/api/auth'
-import ItemLayout from '@/app/(item)/item-layout'
+import ItemLayout, {
+  generateItemMetadata,
+  generateItemStaticParams,
+  type ItemLayoutProps
+} from '@/app/(item)/item-layout'
 import {
-  fetchReleaseBySlug, fetchReleases
+  fetchReleaseBySlug,
+  fetchReleases
 } from '@/lib/releases/data'
+import { type PagePathType } from '@/lib/types'
 
-type Props = {
-  params: Promise<{ slug: string }>
-}
+const path: PagePathType = 'releases'
 
-export async function generateMetadata ({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  if (!slug) return notFound()
-
-  const session = await auth()
-  const release = await fetchReleaseBySlug(slug, !!session?.user)
-  const images = release?.coverImage
-    ? [{
-        url: release.coverImage.url,
-        width: 1200,
-        height: 1200 * release.coverImage.aspect,
-        alt: release.coverImage.alt || release.coverImage.caption || ''
-      }]
-    : []
-
-  const meta: Metadata = {
-    title: `Release: ${release?.title || 'Not found'}`,
-    openGraph: { images }
-  }
-
-  return meta
+export async function generateMetadata ({ params }: ItemLayoutProps) {
+  return await generateItemMetadata(params, path, fetchReleaseBySlug)
 }
 
 export async function generateStaticParams () {
-  const releases = await fetchReleases()
-
-  return Object.values(releases).map((release) => ({ slug: release.slug }))
+  return await generateItemStaticParams(fetchReleases)
 }
 
-export default async function ReleasePage ({ params }: {
-  params: Promise<{ slug: string }>
-}) {
+export default async function ReleasePage ({ params }: ItemLayoutProps) {
   const { slug } = await params
 
   return (
@@ -50,15 +27,6 @@ export default async function ReleasePage ({ params }: {
       itemType='releases'
       slug={slug}
       fetchFn={fetchReleaseBySlug}
-    >
-      <div>Related Content</div>
-      {/* {moreEvents.length > 0 && (
-        <ItemsList
-          items={moreEvents}
-          isTextOnly
-          title='Upcoming Events'
-        />
-      )} */}
-    </ItemLayout>
+    />
   )
 }

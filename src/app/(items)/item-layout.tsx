@@ -1,12 +1,11 @@
 import { TicketIcon } from '@heroicons/react/24/outline'
 import NextLink from 'next/link'
-import { notFound } from 'next/navigation'
+import type { Metadata } from 'next/types'
 
-import { auth } from '@/api/auth'
-import styles from '@/app/(item)/item-layout.module.scss'
+import styles from '@/app/(items)/item-layout.module.scss'
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
-import type { PagePathType } from '@/lib/types'
+import type { PageItemClient } from '@/lib/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
@@ -23,29 +22,18 @@ import {
 import { VenueInline } from '@/ui/venues/venue'
 
 export default async function ItemLayout ({
-  itemType,
-  slug,
-  fetchFn,
+  item,
   children
 }: {
-  itemType: PagePathType
-  slug: string
-  fetchFn: (slug: string, includeUnpublished?: boolean) => Promise<EventClient | ReleaseClient | null>
-  children: React.ReactNode
+  item: PageItemClient
+  children?: React.ReactNode
 }) {
-  const session = await auth()
-  const item = await fetchFn(slug, !!session?.user)
-
-  if (!item) {
-    notFound()
-  }
-
   const isUpcoming = (item as EventClient).startTime ? isUpcomingDate((item as EventClient).startTime) : false
 
   function category () {
-    switch (itemType) {
+    switch (item.path) {
       case 'events': return isUpcoming ? 'Upcoming Event' : 'Event'
-      case 'releases': return camelToSentence((item as ReleaseClient).type || itemType)
+      case 'releases': return camelToSentence((item as ReleaseClient).type || item.path)
       default: return ''
     }
   }
@@ -153,4 +141,21 @@ export default async function ItemLayout ({
       {children}
     </div>
   )
+}
+
+export function formatItemMeta (item: PageItemClient) {
+  const images = item?.coverImage &&
+    [{
+      url: item.coverImage.url,
+      width: 1200,
+      height: 1200 * item.coverImage.aspect,
+      alt: item.coverImage.alt || item.coverImage.caption || ''
+    }]
+
+  const openGraph = images ? { images } : undefined
+  const meta: Metadata = {
+    title: `${camelToSentence(item.path)}: ${item.title}`,
+    openGraph
+  }
+  return meta
 }

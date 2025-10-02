@@ -21,6 +21,10 @@ export type PageDataResponseKey
 
 export type PageItemClient = EventClient | ReleaseClient
 
+export type PageItemProps = {
+  params: Promise<{ slug: string }>
+}
+
 export type EmbeddedItemType = typeof embeddedItemTypes[number]
 
 export type FormState<T> = {

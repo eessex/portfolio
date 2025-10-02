@@ -356,6 +356,10 @@ blockquote {
     content: '”';
     margin-left: 0.15em;
   }
+
+  + cite span {
+    font-style: normal;
+  }
 }
 
 .loading {

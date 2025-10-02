@@ -1,14 +1,15 @@
-$section-margin-bottom: 1.5rem;
-$section-gap: 1rem;
+$article-max-width: 680px;
+$default-margin: 1rem;
+$large-margin: 1.5rem;
 
 .item-layout {
   > article {
-    max-width: 680px;
+    max-width: $article-max-width;
     margin: 0 auto;
-    padding: 1rem;
+    padding: $default-margin;
 
     > header {
-      margin-bottom: $section-margin-bottom;
+      margin-bottom: $large-margin;
       display: flex;
       flex-direction: column;
 
@@ -16,17 +17,22 @@ $section-gap: 1rem;
         text-align: center;
         flex: 1;
         margin-bottom: unset;
+        width: 100%;
+
+        > a {
+          width: fit-content;
+        }
       }
 
       > h1 {
         font-size: xx-large;
         line-height: normal;
-        margin-bottom: .35rem;
+        margin-bottom: calc($default-margin / 4);
       }
     }
 
     > section {
-      margin-bottom: $section-margin-bottom;
+      margin-bottom: $large-margin;
 
       > figure {
         width: 100%;
@@ -41,29 +47,17 @@ $section-gap: 1rem;
         }
 
         + figure {
-          margin-top: $section-gap;
+          margin-top: $default-margin;
         }
       }
-
-      // > ul {
-      //   display: flex;
-      //   flex-direction: column;
-      //   gap: $section-gap;
-      // }
     }
   }
 }
 
-.ticket-link {
-  margin-top: .75rem;
-}
-
-.featured-media {
-  // display: flex;
-  // flex-direction: column;
-  // gap: $section-gap;
+.ticket-link a{
+  margin-top: $default-margin;
 }
 
 .press-links li {
-  margin-bottom: $section-gap;
+  margin-bottom: $default-margin;
 }

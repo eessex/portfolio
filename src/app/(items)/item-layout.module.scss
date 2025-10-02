@@ -21,7 +21,7 @@ $section-gap: 1rem;
       > h1 {
         font-size: xx-large;
         line-height: normal;
-        margin-bottom: .35rem;
+        margin-bottom: calc($section-gap / 4);
       }
     }
 
@@ -44,24 +44,13 @@ $section-gap: 1rem;
           margin-top: $section-gap;
         }
       }
-
-      // > ul {
-      //   display: flex;
-      //   flex-direction: column;
-      //   gap: $section-gap;
-      // }
     }
   }
 }
 
 .ticket-link {
-  margin-top: .75rem;
-}
-
-.featured-media {
-  // display: flex;
-  // flex-direction: column;
-  // gap: $section-gap;
+  width: fit-content;
+  margin-top: calc($section-margin-bottom / 2);
 }
 
 .press-links li {

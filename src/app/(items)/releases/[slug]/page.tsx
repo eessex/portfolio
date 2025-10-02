@@ -1,7 +1,10 @@
 import { notFound } from 'next/navigation'
 
 import { auth } from '@/api/auth'
-import ItemLayout, { formatItemMeta } from '@/app/(items)/item-layout'
+import ItemLayout, {
+  generateItemMetadata,
+  generateItemStaticParams
+} from '@/app/(items)/item-layout'
 import {
   fetchReleaseBySlug,
   fetchReleases
@@ -9,19 +12,14 @@ import {
 import type { PageItemProps } from '@/lib/types'
 
 export async function generateMetadata ({ params }: PageItemProps) {
-  const { slug } = await params
-  const release = await fetchReleaseBySlug(slug)
-  if (!slug || !release) return notFound()
-
-  return formatItemMeta(release)
+  return generateItemMetadata(params, fetchReleaseBySlug)
 }
 
 export async function generateStaticParams () {
-  const items = await fetchReleases()
-  return Object.values(items).flat().map(i => ({ slug: i.slug }))
+  return generateItemStaticParams(fetchReleases)
 }
 
-export default async function ReleasesPage ({ params }: PageItemProps) {
+export default async function ReleasePage ({ params }: PageItemProps) {
   const [
     { slug },
     session

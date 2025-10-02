@@ -2,7 +2,10 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { auth } from '@/api/auth'
-import ItemLayout, { formatItemMeta } from '@/app/(items)/item-layout'
+import ItemLayout, {
+  generateItemMetadata,
+  generateItemStaticParams
+} from '@/app/(items)/item-layout'
 import {
   fetchEventBySlug,
   fetchEvents
@@ -12,19 +15,14 @@ import { ItemsList } from '@/ui/items/items-list'
 import { Loading } from '@/ui/loading'
 
 export async function generateMetadata ({ params }: PageItemProps) {
-  const { slug } = await params
-  const event = await fetchEventBySlug(slug)
-  if (!slug || !event) return notFound()
-
-  return formatItemMeta(event)
+  return generateItemMetadata(params, fetchEventBySlug)
 }
 
 export async function generateStaticParams () {
-  const items = await fetchEvents()
-  return Object.values(items).flat().map(i => ({ slug: i.slug }))
+  return generateItemStaticParams(fetchEvents)
 }
 
-export default async function EventsPage ({ params }: PageItemProps) {
+export default async function EventPage ({ params }: PageItemProps) {
   const [
     { slug },
     session

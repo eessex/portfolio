@@ -1,4 +1,8 @@
 .links-list {
+  li:has(.press-link) {
+    margin-bottom: 1rem;
+  }
+
   a:not(.press-link) {
     text-decoration: underline;
 

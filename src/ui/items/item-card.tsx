@@ -5,11 +5,14 @@ import NextImage from 'next/image'
 import NextLink from 'next/link'
 import React from 'react'
 
-import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import styles from '@/ui/items/items.module.scss'
-import { singularizePath } from '@/ui/util'
+import {
+  formattedItemTitle,
+  formattedItemType,
+  itemUrl
+} from '@/ui/util'
 
 export function ItemCard ({
   item,
@@ -29,7 +32,7 @@ export function ItemCard ({
   externalLink?: React.ReactNode
 }) {
   if (!item) return null
-  const linkTarget = `/${item.path}/${item?.slug}`
+  const linkTarget = itemUrl(item)
 
   return (
     <article
@@ -55,20 +58,23 @@ export function ItemCard ({
       )}
       <div className={styles['card-meta']}>
         {isPathTypeVisible && (
-          <td className={styles['table-row-item-type']}>
-            {singularizePath(item.path)}
-          </td>
+          <p className={styles['card-item-type']}>
+            {formattedItemType(item.path)}
+          </p>
         )}
 
         <h3 className={styles['card-title']}>
           <NextLink href={linkTarget}>
-            {(item as ReleaseClient).artist && (item as ReleaseClient).artist + ': '}
-            {item?.title}
+            {formattedItemTitle(item)}
             {!item.isPublished && <DraftBadge />}
           </NextLink>
         </h3>
+
         {children}
-        {externalLink}
+
+        <p className={styles['card-external-link']}>
+          {externalLink}
+        </p>
       </div>
     </article>
   )

@@ -158,7 +158,7 @@ export function ItemsTable ({
 
   function tableSectionTitle (category?: string, itemCount?: number) {
     if (category) {
-      const typeLabel = formattedItemType(category)
+      const typeLabel = formattedItemType(category, false, true)
       if (searchTerm.length > 0) {
         return `${typeLabel} matching "${searchTerm}" (${itemCount})`
       } else {

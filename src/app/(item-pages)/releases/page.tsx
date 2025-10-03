@@ -6,10 +6,10 @@ import { fetchReleases } from '@/lib/releases/data'
 import type { PagePathType } from '@/lib/types'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
-import { camelToSentence } from '@/ui/util'
+import { formattedItemType } from '@/ui/util'
 
 const path: PagePathType = 'releases'
-const title = camelToSentence(path)
+const title = formattedItemType(path, false, true)
 
 export const metadata: Metadata = { title }
 

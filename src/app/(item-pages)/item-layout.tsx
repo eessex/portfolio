@@ -1,4 +1,3 @@
-import { TicketIcon } from '@heroicons/react/24/outline'
 import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next/types'
@@ -17,10 +16,11 @@ import { ImageFigure } from '@/ui/images/image-figure'
 import { itemSortDate } from '@/ui/items/item-date'
 import { LinksList } from '@/ui/links/link-list'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
+import { TicketButton } from '@/ui/ticket-button'
 import {
-  camelToSentence,
   filteredLinksByPress,
   formattedDateTime,
+  formattedItemTitle,
   formattedItemType,
   isUpcomingDate
 } from '@/ui/util'
@@ -33,7 +33,13 @@ export default async function ItemLayout ({
   item: PageItemClient
   children?: React.ReactNode
 }) {
-  const isUpcoming = (item as EventClient).startTime ? isUpcomingDate((item as EventClient).startTime) : false
+  const { publishedEditions } = item as ReleaseClient
+  const {
+    startTime,
+    ticketLink,
+    venue
+  } = item as EventClient
+  const isUpcoming = startTime ? isUpcomingDate(startTime) : false
 
   function category () {
     switch (item.path) {
@@ -50,53 +56,44 @@ export default async function ItemLayout ({
         <header>
           <p className='category'>
             <NextLink href={`/${item.path}`}>{category()}</NextLink>
-            {!item.isPublished && (
-              <DraftBadge />
-            )}
+            {!item.isPublished && (<DraftBadge />)}
           </p>
 
           <h1>
-            {(item as ReleaseClient).artist && `${(item as ReleaseClient).artist}:`} {item.title}
+            {formattedItemTitle(item)}
           </h1>
 
-          {(item as ReleaseClient).publishedEditions
+          {publishedEditions
             ? (
-              <PublishedEditionsCombined publishedEditions={(item as ReleaseClient).publishedEditions} />
+              <PublishedEditionsCombined publishedEditions={publishedEditions} />
               )
             : (
               <p>
-                {formattedDateTime(itemSortDate(item), undefined, (item as EventClient).venue?.timezone || undefined)}
+                {formattedDateTime(itemSortDate(item), undefined, venue?.timezone || undefined)}
               </p>
               )}
 
-          {(item as EventClient).venue && (
+          {venue && (
             <p className='text-sm'>
-              {(item as EventClient).venue!.url
+              {venue.url
                 ? (
                   <a
-                    href={(item as EventClient).venue!.url}
+                    href={venue.url}
                     target='_blank'
                     rel='noopener noreferrer'
                   >
-                    <VenueInline venue={(item as EventClient).venue!} />
+                    <VenueInline venue={venue} />
                   </a>
                   )
                 : (
-                  <VenueInline venue={(item as EventClient).venue!} />
+                  <VenueInline venue={venue} />
                   )}
             </p>
           )}
 
-          {(item as EventClient).ticketLink && isUpcoming && (
+          {ticketLink && isUpcoming && (
             <p className={styles['ticket-link']}>
-              <a
-                className='button'
-                href={(item as EventClient).ticketLink}
-                target='_blank'
-                rel='noreferrer'
-              >
-                <TicketIcon />Tickets
-              </a>
+              <TicketButton url={ticketLink} />
             </p>
           )}
         </header>
@@ -154,20 +151,25 @@ export async function generateItemMetadata (
   fetchFn: (slug: string, includeUnpublished?: boolean) => Promise<PageItemClient | undefined>
 ): Promise<Metadata> {
   const { slug } = await params
-  const item = await fetchFn(slug)
+  const item = await fetchFn(slug, true)
   if (!slug || !item) return notFound()
 
-  const images = item?.coverImage &&
-    [{
-      url: item.coverImage.url,
-      width: 1200,
-      height: 1200 * item.coverImage.aspect,
-      alt: item.coverImage.alt || item.coverImage.caption || ''
-    }]
+  const {
+    coverImage,
+    path
+  } = item
 
+  const images = coverImage &&
+    [{
+      url: coverImage.url,
+      width: 1200,
+      height: 1200 * coverImage.aspect,
+      alt: coverImage.alt || coverImage.caption || ''
+    }]
   const openGraph = images ? { images } : undefined
+
   const meta: Metadata = {
-    title: `${camelToSentence(item.path)}: ${item.title}`,
+    title: `${formattedItemType(path)} | ${formattedItemTitle(item)}`,
     openGraph
   }
   return meta

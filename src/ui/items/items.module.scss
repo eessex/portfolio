@@ -128,29 +128,27 @@
   h3 {
     font-size: 1.75rem;
     line-height: 1.25em;
-    margin: .25rem 0;
+    margin: 0 0 .5rem;
 
     mark {
       vertical-align: top;
       margin-left: .35rem;
     }
-  }
 
-  h4 {
-    font-weight: normal;
-    font-size: 1rem;
-    line-height: 1.25em;
-  }
+    + p {
+      font-weight: normal;
+      font-size: 1rem;
+      line-height: 1.25em;
+      margin: 0;
 
-  h5 {
-    font-weight: normal;
-    font-size: 0.925rem;
-    line-height: 1.25em;
-    margin-top: 0.45rem;
-  }
-
-  p {
-    font-size: 0.8rem;
+      + p {
+        font-weight: normal;
+        font-size: 0.925rem;
+        line-height: 1.25em;
+        margin-top: 0.45rem;
+        margin-bottom: 0;
+      }
+    }
   }
 }
 
@@ -208,7 +206,7 @@
   }
 }
 
-.card-ticket-link {
+.card-external-link {
   width: fit-content;
   margin-top: 1rem;
 }

@@ -8,7 +8,11 @@ import type { PageItemClient } from '@/lib/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import { FormattedItemDate } from '@/ui/items/item-date'
 import styles from '@/ui/items/items-table/items-table.module.scss'
-import { singularizePath } from '@/ui/util'
+import {
+  formattedItemTitle,
+  formattedItemType,
+  itemUrl
+} from '@/ui/util'
 
 export function ItemsTableRow ({
   children,
@@ -27,8 +31,12 @@ export function ItemsTableRow ({
 }) {
   if (!item) return null
 
-  const linkTarget = `/${item.path}/${item?.slug}`
-  const rowLabel = `${item.title}${(item as ReleaseClient).artist ? ', by ' + (item as ReleaseClient).artist : ''}`
+  const {
+    artist,
+    coverImage
+  } = item as ReleaseClient
+  const linkTarget = itemUrl(item)
+  const rowLabel = `${item.title}${artist ? ', by ' + artist : ''}`
 
   return (
     <tr
@@ -45,13 +53,13 @@ export function ItemsTableRow ({
       role='link'
       aria-label={rowLabel}
     >
-      {isExpanded && item.coverImage && (
+      {isExpanded && coverImage && (
         <td>
           <NextImage
-            src={item.coverImage.url}
-            alt={item.coverImage.alt || item.coverImage.caption || ''}
-            title={item.coverImage.caption || item.coverImage.alt || undefined}
-            width={500 * item.coverImage.aspect}
+            src={coverImage.url}
+            alt={coverImage.alt || coverImage.caption || ''}
+            title={coverImage.caption || coverImage.alt || undefined}
+            width={500 * coverImage.aspect}
             height={500}
             loading={(index || 0) > 4 ? 'lazy' : undefined}
             priority={!!(isFeatured || (index || 0) < 2)}
@@ -62,7 +70,7 @@ export function ItemsTableRow ({
 
       {isPathTypeVisible && (
         <td className={styles['table-row-item-type']}>
-          {singularizePath(item.path)}
+          {formattedItemType(item.path)}
         </td>
       )}
 
@@ -74,11 +82,8 @@ export function ItemsTableRow ({
       </td>
 
       <td className={clsx(styles['table-row-title'], isExpanded && styles['table-row-title--expanded'])}>
-        <NextLink
-          href={`/${item.path}/${item?.slug}`}
-        >
-          {(item as ReleaseClient).artist && (item as ReleaseClient).artist + ': '}
-          {item.title}
+        <NextLink href={linkTarget}>
+          {formattedItemTitle(item)}
           {!item.isPublished && <DraftBadge />}
         </NextLink>
       </td>

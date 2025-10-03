@@ -13,6 +13,7 @@ import {
 import type { PageItemProps } from '@/lib/types'
 import { ItemsList } from '@/ui/items/items-list'
 import { Loading } from '@/ui/loading'
+import { formattedItemType } from '@/ui/util'
 
 export async function generateMetadata ({ params }: PageItemProps) {
   return generateItemMetadata(params, fetchEventBySlug)
@@ -49,7 +50,7 @@ export default async function EventPage ({ params }: PageItemProps) {
           <ItemsList
             items={moreEvents}
             isTextOnly
-            title='Upcoming Events'
+            title={formattedItemType(event.path, true, true)}
           />
         )}
       </Suspense>

@@ -1,4 +1,3 @@
-import { TicketIcon } from '@heroicons/react/24/outline'
 import { clsx } from 'clsx'
 import { useId } from 'react'
 
@@ -8,6 +7,7 @@ import type { PageItemClient } from '@/lib/types'
 import { ItemCard } from '@/ui/items/item-card'
 import styles from '@/ui/items/items.module.scss'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
+import { TicketButton } from '@/ui/ticket-button'
 import { formattedDateTime } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
 
@@ -73,6 +73,12 @@ function ItemGridItem ({
   isFeatured?: boolean
   isTextOnly?: boolean
 }) {
+  const { publishedEditions } = item as ReleaseClient
+  const {
+    startTime,
+    ticketLink,
+    venue
+  } = item as EventClient
   switch (item.path) {
     case 'events':
       return (
@@ -81,25 +87,16 @@ function ItemGridItem ({
           index={index}
           isFeatured={isFeatured}
           isTextOnly={isTextOnly}
-          externalLink={item.ticketLink && (
-            <a
-              className={clsx('button', styles['card-ticket-link'])}
-              href={item.ticketLink}
-              target='_blank'
-              rel='noreferrer'
-            >
-              <TicketIcon />Tickets
-            </a>
-          )}
+          externalLink={ticketLink && (<TicketButton url={ticketLink} />)}
         >
-          <h4>
-            {formattedDateTime((item as EventClient).startTime, undefined, (item as EventClient).venue?.timezone)}
-          </h4>
+          <p>
+            {formattedDateTime(startTime, undefined, venue?.timezone)}
+          </p>
 
-          {(item as EventClient).venue && (
-            <h5>
-              <VenueInline venue={(item as EventClient).venue!} />
-            </h5>
+          {venue && (
+            <p>
+              <VenueInline venue={venue!} />
+            </p>
           )}
         </ItemCard>
       )
@@ -110,9 +107,7 @@ function ItemGridItem ({
           index={index}
           isFeatured={isFeatured}
         >
-          {(item as ReleaseClient).publishedEditions && (
-            <PublishedEditionsCombined publishedEditions={(item as ReleaseClient).publishedEditions} />
-          )}
+          {publishedEditions && <PublishedEditionsCombined publishedEditions={publishedEditions} />}
         </ItemCard>
       )
     default:

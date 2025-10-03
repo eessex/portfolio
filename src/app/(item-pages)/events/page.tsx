@@ -7,11 +7,11 @@ import type { PagePathType } from '@/lib/types'
 import { ItemsList } from '@/ui/items/items-list'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
-import { camelToSentence } from '@/ui/util'
+import { formattedItemType } from '@/ui/util'
 
 const path: PagePathType = 'events'
 
-const title = camelToSentence(path)
+const title = formattedItemType(path, false, true)
 export const metadata: Metadata = { title }
 
 export default async function EventsPage () {
@@ -31,7 +31,7 @@ export default async function EventsPage () {
         <ItemsList
           items={upcomingEvents}
           isFeatured
-          title={camelToSentence('upcomingEvents')}
+          title={formattedItemType(path, true, true)}
         />
         <ItemsTable
           path={path}

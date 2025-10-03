@@ -155,7 +155,7 @@ export function DashboardItems<T extends DashboardItem> ({
   }, [itemType])
 
   function formatItemType () {
-    return formattedItemType(itemType) + 's'
+    return formattedItemType(itemType, false, true)
   }
 
   function headingTitle () {

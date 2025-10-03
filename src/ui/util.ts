@@ -3,6 +3,7 @@ import type { z } from 'zod'
 import type { Link } from '@/lib/links/types'
 import type { PublishedEditionClient } from '@/lib/published-editions/types'
 import type { ReleaseClient } from '@/lib/releases/types'
+import type { PageItemClient } from '@/lib/types'
 
 const dateFormatLg: Intl.DateTimeFormatOptions = {
   weekday: 'short',
@@ -215,12 +216,12 @@ export function combinePublishedEditions (publishedEditions: ReleaseClient['publ
   return combined
 }
 
-export function singularizePath (path: string) {
+function singularizePath (path: string) {
   return path.endsWith('s') ? path.slice(0, -1) : path
 }
 
-export const formattedItemType = (type: string, isUpcoming = false) => {
-  let unformatted = snakeToCamel(singularizePath(type))
+export const formattedItemType = (type: string, isUpcoming = false, isPlural = false) => {
+  let unformatted = snakeToCamel(type)
 
   switch (type) {
     case 'feature':
@@ -230,5 +231,14 @@ export const formattedItemType = (type: string, isUpcoming = false) => {
       unformatted = 'soloRelease'
       break
   }
-  return `${isUpcoming ? ' Upcoming ' : ''} ${camelToSentence(unformatted)}`
+  return `${isUpcoming ? ' Upcoming ' : ''} ${camelToSentence(isPlural ? unformatted : singularizePath(unformatted))}`
+}
+
+export function formattedItemTitle (item: PageItemClient) {
+  const { artist } = item as ReleaseClient
+  return artist ? `${artist}: ${item.title}` : item.title
+}
+
+export function itemUrl (item: PageItemClient) {
+  return `/${item.path}/${item.slug}`
 }

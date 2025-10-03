@@ -2,8 +2,18 @@ import { z } from 'zod'
 
 import {
   basePageSchema,
-  embeddedItemIdSchemas
+  date,
+  embeddedItemIdSchemas,
+  hydratedItemIdSchemas
 } from '@/lib/schemas'
+
+export const projectTypes = [
+  'band',
+  'collaborative',
+  'eventSeries',
+  'radioShow',
+  'recordLabel'
+] as const
 
 /**
  * Represents a grouping of content that may be associated with multiple events, releases or embedCodes.
@@ -13,5 +23,26 @@ import {
  * Site settings is essentially the "default" project, a project should represent a subset of work from overall site.
  */
 export const projectSchema = z.lazy(() =>
-  basePageSchema.omit({ projectId: true }).extend({ ...embeddedItemIdSchemas.shape })
+  basePageSchema.omit({ projectId: true }).extend({
+    ...embeddedItemIdSchemas.shape,
+    type: z.enum(projectTypes).optional(),
+    startDate: date.optional(),
+    endDate: date.optional()
+  })
+)
+
+/**
+ * Extends `projectSchema` embedded item metadata.
+*/
+export const projectClientSchema = z.lazy(() =>
+  z.object({
+    ...hydratedItemIdSchemas.pick({
+      coverImage: true,
+      embedCodes: true,
+      featuredEmbedCode: true,
+      images: true,
+      links: true,
+      venue: true
+    }).shape
+  }).and(projectSchema)
 )

@@ -3,6 +3,10 @@ import type {
   FetchEventsResult
 } from '@/lib/events/types'
 import type {
+  FetchProjectsResult,
+  ProjectClient
+} from '@/lib/projects/types'
+import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
@@ -13,13 +17,13 @@ import type {
 
 export type PagePathType = typeof pagePathTypes[number]
 
-export type PageDataResponse = FetchEventsResult | FetchReleasesResult
-
+export type PageDataResponse = FetchEventsResult | FetchProjectsResult | FetchReleasesResult
 export type PageDataResponseKey
   = keyof FetchEventsResult
+  | keyof FetchProjectsResult
   | keyof FetchReleasesResult
 
-export type PageItemClient = EventClient | ReleaseClient
+export type PageItemClient = EventClient | ProjectClient | ReleaseClient
 
 export type PageItemProps = {
   params: Promise<{ slug: string }>

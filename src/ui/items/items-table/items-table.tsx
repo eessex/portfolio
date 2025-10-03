@@ -31,10 +31,12 @@ import { VenueInline } from '@/ui/venues/venue'
 export function ItemsTable ({
   items,
   path,
+  isCategoryVisible,
   isExpandedOnLoad
 }: {
   items: PageDataResponse[]
   path: PagePathType
+  isCategoryVisible?: boolean
   isExpandedOnLoad?: boolean
 }) {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
@@ -169,6 +171,7 @@ export function ItemsTable ({
 
   const isFilterable = allItems().length > 20
 
+  /** Determine if multiple item types are present to show/hide the "path (type)" column */
   const isPathTypeVisible = (() => {
     const seen = new Set<string>()
     for (const item of flatItems(displayedItems())) {
@@ -179,7 +182,22 @@ export function ItemsTable ({
     return false
   })()
 
-  const colSpan = isExpanded ? (isPathTypeVisible ? 5 : 4) : (isPathTypeVisible ? 4 : 3)
+  const isDetailColumnVisible = ['events', 'releases'].includes(path)
+
+  function tableColspan () {
+    let cols = 2
+    /** subtype: i.e. soloRelease, featuredOn */
+    if (isCategoryVisible) cols += 1
+    /** item has type-specific children, venue, publishedEditions */
+    if (isDetailColumnVisible) cols += 1
+    /** is grid view: image visible */
+    if (isExpanded) cols += 1
+    /** multiple item types present: path/type column visible (i.e. events, releases) */
+    if (isPathTypeVisible) cols += 1
+    return cols
+  }
+
+  const colSpan = tableColspan()
   const tableId = useId()
 
   return (
@@ -237,7 +255,8 @@ export function ItemsTable ({
             {isPathTypeVisible && <th>Type</th>}
             <th>Date</th>
             <th>Title</th>
-            <th>Details</th>
+            {isDetailColumnVisible && <th>Details</th>}
+            {isCategoryVisible && <th>Category</th>}
           </tr>
         </thead>
 
@@ -269,7 +288,7 @@ export function ItemsTable ({
               <tr className={styles['table-rowgroup-heading'] + ' heading'}>
                 <th
                   scope='rowgroup'
-                  colSpan={isPathTypeVisible ? 5 : 4}
+                  colSpan={colSpan}
                 >
                   {tableSectionTitle(key, value.length)}
                 </th>
@@ -280,6 +299,7 @@ export function ItemsTable ({
                   index={index}
                   key={`${item.id}-${index}`}
                   isExpanded={!!isExpanded}
+                  isCategoryVisible={!!isCategoryVisible}
                 />
               ))}
             </React.Fragment>
@@ -293,11 +313,15 @@ export function ItemsTable ({
 function ItemsTableItem ({
   item,
   index,
-  isExpanded
+  isExpanded,
+  isCategoryVisible,
+  isPathTypeVisible
 }: {
   item: PageItemClient
   index: number
   isExpanded: boolean
+  isCategoryVisible?: boolean
+  isPathTypeVisible?: boolean
 }) {
   switch (item.path) {
     case 'events':
@@ -306,6 +330,8 @@ function ItemsTableItem ({
           item={item}
           index={index}
           isExpanded={isExpanded}
+          isCategoryVisible={isCategoryVisible}
+          isPathTypeVisible={isPathTypeVisible}
         >
           {(item as EventClient).venue && (
             <VenueInline
@@ -321,6 +347,8 @@ function ItemsTableItem ({
           item={item}
           index={index}
           isExpanded={isExpanded}
+          isCategoryVisible={isCategoryVisible}
+          isPathTypeVisible={isPathTypeVisible}
         >
           {(item as ReleaseClient).publishedEditions && (
             <PublishedEditionsCombined
@@ -336,6 +364,8 @@ function ItemsTableItem ({
           item={item}
           index={index}
           isExpanded={isExpanded}
+          isCategoryVisible={isCategoryVisible}
+          isPathTypeVisible={isPathTypeVisible}
         />
       )
   }

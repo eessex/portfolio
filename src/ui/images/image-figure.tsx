@@ -7,13 +7,15 @@ export const ImageFigure = ({
   isCaptionHidden,
   isLazy,
   className,
-  isPriority
+  isPriority,
+  width = 680
 }: {
   image: Image
   isCaptionHidden?: boolean
   isLazy?: boolean
   className?: string
   isPriority?: boolean
+  width?: number
 }) => {
   if (!image) {
     return null
@@ -24,8 +26,8 @@ export const ImageFigure = ({
         src={image.url}
         alt={image.alt || image.caption || ''}
         title={image.caption || image.caption || undefined}
-        width={500 * image.aspect}
-        height={500}
+        width={width}
+        height={width / image.aspect}
         loading={isLazy ? 'lazy' : undefined}
         priority={isPriority}
       />

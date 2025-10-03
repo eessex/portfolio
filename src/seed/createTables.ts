@@ -27,9 +27,14 @@ async function createProjectsTable () {
       image_ids UUID[],
       link_ids UUID[],
       slug VARCHAR(255) NOT NULL,
+      is_published BOOLEAN,
+      start_date DATE,
+      end_date DATE,
+      type VARCHAR(30),
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')
+      CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
+      CHECK (type IN ('band', 'collaborative', 'radioShow', 'eventSeries', 'recordLabel') OR type IS NULL)
     );
   `
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_projects_slug ON projects(slug);`

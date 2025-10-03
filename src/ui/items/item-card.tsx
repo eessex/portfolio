@@ -15,24 +15,25 @@ import {
 } from '@/ui/util'
 
 export function ItemCard ({
-  item,
-  index,
   children,
+  externalLink,
+  index,
   isFeatured,
-  isTextOnly,
   isPathTypeVisible,
-  externalLink
+  isTextOnly,
+  item
 }: {
-  item: PageItemClient
-  index?: number
   children?: React.ReactNode
-  isFeatured?: boolean
-  isTextOnly?: boolean
-  isPathTypeVisible?: boolean
   externalLink?: React.ReactNode
+  index?: number
+  isFeatured?: boolean
+  isPathTypeVisible?: boolean
+  isTextOnly?: boolean
+  item: PageItemClient
 }) {
   if (!item) return null
   const linkTarget = itemUrl(item)
+  const imageSize = isFeatured ? 680 : 350
 
   return (
     <article
@@ -48,8 +49,8 @@ export function ItemCard ({
             src={item.coverImage.url}
             alt={item.coverImage.alt || item.coverImage.caption || ''}
             title={item.coverImage.caption || item.coverImage.alt || undefined}
-            width={500 * item.coverImage.aspect}
-            height={500}
+            width={imageSize}
+            height={imageSize / item.coverImage.aspect}
             loading={(index || 0) > 4 ? 'lazy' : undefined}
             priority={!!(isFeatured || (index || 0) < 2)}
             aria-hidden='true'

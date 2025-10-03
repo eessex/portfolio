@@ -213,6 +213,8 @@ button, a[href].button {
 
 a[href],
 button {
+  text-underline-offset: 1px;
+
   @media (hover: hover) {
     &:hover {
       text-decoration: underline;

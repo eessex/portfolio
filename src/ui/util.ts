@@ -78,7 +78,7 @@ export function formattedDateTime (utcDate: string | Date, format?: DateFormatSi
   const startTime = new Date(utcDate)
   const offsetMinutes = getUtcOffsetMinutes(startTime, timeZone)
   const adjustedTime = startTime.getTime() - offsetMinutes * 60 * 1000
-  const localDate = new Date(adjustedTime)
+  const localDate = format === 'xs' || format === 'xxs' ? new Date(startTime) : new Date(adjustedTime)
 
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     ...getTimeFormat(format),

@@ -1,4 +1,5 @@
 import type { EventClient } from '@/lib/events/types'
+import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
 import {
@@ -13,6 +14,8 @@ export function itemSortDate (item: PageItemClient, isDefaultPreferred = false):
   switch (item.path) {
     case 'events':
       return (item as EventClient).startTime
+    case 'projects':
+      return (item as ProjectClient).startDate || item.createdAt
     case 'releases':
       return (item as ReleaseClient).releaseDate
     default:
@@ -24,6 +27,7 @@ function itemDisplayDateFormat (item: PageItemClient): DateFormatSize {
   switch (item.path) {
     case 'events':
       return 'md'
+    case 'projects':
     case 'releases':
       return 'xxs'
     default:
@@ -41,12 +45,17 @@ export function FormattedItemDate ({
   timezone?: Intl.DateTimeFormatOptions['timeZone']
 }) {
   const date = itemSortDate(item)
-
+  const isProject = item.path === 'projects'
   return (
     <>
       <time dateTime={date?.toISOString()}>
         {formattedDateTime(date, format || itemDisplayDateFormat(item), timezone)}
       </time>
+      {isProject && (item as ProjectClient).endDate
+        ? (
+          <>–<time dateTime={(item as ProjectClient).endDate?.toISOString()}>{formattedDateTime((item as ProjectClient).endDate!, format || itemDisplayDateFormat(item), timezone)}</time></>
+          )
+        : isProject && '–present'}
     </>
   )
 }

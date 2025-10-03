@@ -14,6 +14,7 @@ export function ImageGrid ({ images }: { images: Image[] }) {
           >
             <ImageFigure
               image={image}
+              width={340}
               isLazy
             />
           </a>

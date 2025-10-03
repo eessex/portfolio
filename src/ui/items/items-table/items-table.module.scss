@@ -163,7 +163,7 @@
       }
     }
 
-    > td:last-child {
+    > td:last-child:not(.item-type) {
       order: 1;
       font-size: 0.925rem;
       line-height: 1.25em;

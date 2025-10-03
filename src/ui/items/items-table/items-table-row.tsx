@@ -3,6 +3,7 @@ import NextImage from 'next/image'
 import NextLink from 'next/link'
 
 import type { EventClient } from '@/lib/events/types'
+import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
 import { DraftBadge } from '@/ui/draft-badge'
@@ -17,6 +18,7 @@ import {
 export function ItemsTableRow ({
   children,
   index,
+  isCategoryVisible = false,
   isExpanded = false,
   isFeatured = false,
   isPathTypeVisible = false,
@@ -24,6 +26,7 @@ export function ItemsTableRow ({
 }: {
   children?: React.ReactNode
   index?: number
+  isCategoryVisible?: boolean
   isExpanded?: boolean
   isFeatured?: boolean
   isPathTypeVisible?: boolean
@@ -41,7 +44,7 @@ export function ItemsTableRow ({
   return (
     <tr
       data-index={index}
-      className={clsx(styles['table-row-link'], isExpanded && styles['table-row-link--expanded'], isPathTypeVisible && 'item-type-visible')}
+      className={clsx(styles['table-row-link'], isExpanded && styles['table-row-link--expanded'], isCategoryVisible && 'item-type-visible')}
       onClick={() => location.assign(linkTarget)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -54,13 +57,13 @@ export function ItemsTableRow ({
       aria-label={rowLabel}
     >
       {isExpanded && coverImage && (
-        <td>
+        <td className={styles['table-row-img']}>
           <NextImage
             src={coverImage.url}
             alt={coverImage.alt || coverImage.caption || ''}
             title={coverImage.caption || coverImage.alt || undefined}
-            width={500 * coverImage.aspect}
-            height={500}
+            width={350}
+            height={350 / coverImage.aspect}
             loading={(index || 0) > 4 ? 'lazy' : undefined}
             priority={!!(isFeatured || (index || 0) < 2)}
             aria-hidden='true'
@@ -69,7 +72,7 @@ export function ItemsTableRow ({
       )}
 
       {isPathTypeVisible && (
-        <td className={styles['table-row-item-type']}>
+        <td className='category path-type'>
           {formattedItemType(item.path)}
         </td>
       )}
@@ -88,9 +91,17 @@ export function ItemsTableRow ({
         </NextLink>
       </td>
 
-      <td>
-        {children}
-      </td>
+      {children && (
+        <td>
+          {children}
+        </td>
+      )}
+
+      {isCategoryVisible && (item as ReleaseClient | ProjectClient).type && (
+        <td className={styles['item-type'] + ' category'}>
+          {formattedItemType((item as ReleaseClient | ProjectClient).type!)}
+        </td>
+      )}
     </tr>
   )
 }

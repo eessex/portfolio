@@ -16,7 +16,7 @@ import { venueSchema } from '@/lib/venues/schemas'
  */
 export const pagePathTypes = [
   'events',
-  // 'projects',
+  'projects',
   'releases'
 ] as const
 

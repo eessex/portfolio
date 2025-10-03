@@ -4,6 +4,7 @@ import type { Metadata } from 'next/types'
 
 import styles from '@/app/(item-pages)/item-layout.module.scss'
 import type { EventClient } from '@/lib/events/types'
+import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type {
   PageDataResponse,
@@ -13,13 +14,12 @@ import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { ImageFigure } from '@/ui/images/image-figure'
-import { itemSortDate } from '@/ui/items/item-date'
+import { FormattedItemDate } from '@/ui/items/item-date'
 import { LinksList } from '@/ui/links/link-list'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import { TicketButton } from '@/ui/ticket-button'
 import {
   filteredLinksByPress,
-  formattedDateTime,
   formattedItemTitle,
   formattedItemType,
   isUpcomingDate
@@ -43,8 +43,9 @@ export default async function ItemLayout ({
 
   function category () {
     switch (item.path) {
+      case 'projects':
       case 'releases':
-        return formattedItemType((item as ReleaseClient).type || item.path, isUpcoming)
+        return formattedItemType((item as ReleaseClient | ProjectClient).type || item.path, isUpcoming)
       default:
         return formattedItemType(item.path, isUpcoming)
     }
@@ -69,7 +70,10 @@ export default async function ItemLayout ({
               )
             : (
               <p>
-                {formattedDateTime(itemSortDate(item), undefined, venue?.timezone || undefined)}
+                <FormattedItemDate
+                  item={item}
+                  timezone={(item as EventClient).venue?.timezone}
+                />
               </p>
               )}
 

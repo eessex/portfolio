@@ -23,7 +23,7 @@ import { ItemsTableRow } from '@/ui/items/items-table/items-table-row'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import { SearchInput } from '@/ui/search-input/search-input'
 import {
-  camelToSentence,
+  formattedItemType,
   snakeToCamel
 } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
@@ -158,7 +158,7 @@ export function ItemsTable ({
 
   function tableSectionTitle (category?: string, itemCount?: number) {
     if (category) {
-      const typeLabel = camelToSentence(category)
+      const typeLabel = formattedItemType(category)
       if (searchTerm.length > 0) {
         return `${typeLabel} matching "${searchTerm}" (${itemCount})`
       } else {

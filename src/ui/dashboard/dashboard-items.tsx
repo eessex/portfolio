@@ -50,8 +50,8 @@ import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
 import { SearchInput } from '@/ui/search-input/search-input'
 import {
-  camelToSentence,
   eventUrl,
+  formattedItemType,
   releaseUrl
 } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
@@ -154,13 +154,13 @@ export function DashboardItems<T extends DashboardItem> ({
     }
   }, [itemType])
 
-  function formattedItemType () {
-    return camelToSentence(itemType) + 's'
+  function formatItemType () {
+    return formattedItemType(itemType) + 's'
   }
 
   function headingTitle () {
     const count = filteredItems().length
-    const typeLabel = formattedItemType()
+    const typeLabel = formatItemType()
 
     if (searchTerm && filterType) {
       return `${typeLabel} of type "${filterType}" matching "${searchTerm}" (${count})`

@@ -3,7 +3,7 @@ import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next/types'
 
-import styles from '@/app/(items)/item-layout.module.scss'
+import styles from '@/app/(item-pages)/item-layout.module.scss'
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type {
@@ -21,6 +21,7 @@ import {
   camelToSentence,
   filteredLinksByPress,
   formattedDateTime,
+  formattedItemType,
   isUpcomingDate
 } from '@/ui/util'
 import { VenueInline } from '@/ui/venues/venue'
@@ -36,9 +37,10 @@ export default async function ItemLayout ({
 
   function category () {
     switch (item.path) {
-      case 'events': return isUpcoming ? 'Upcoming Event' : 'Event'
-      case 'releases': return camelToSentence((item as ReleaseClient).type || item.path)
-      default: return ''
+      case 'releases':
+        return formattedItemType((item as ReleaseClient).type || item.path, isUpcoming)
+      default:
+        return formattedItemType(item.path, isUpcoming)
     }
   }
 

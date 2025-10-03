@@ -5,7 +5,7 @@ import { auth } from '@/api/auth'
 import ItemLayout, {
   generateItemMetadata,
   generateItemStaticParams
-} from '@/app/(items)/item-layout'
+} from '@/app/(item-pages)/item-layout'
 import {
   fetchEventBySlug,
   fetchEvents

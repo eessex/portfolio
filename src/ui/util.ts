@@ -218,3 +218,17 @@ export function combinePublishedEditions (publishedEditions: ReleaseClient['publ
 export function singularizePath (path: string) {
   return path.endsWith('s') ? path.slice(0, -1) : path
 }
+
+export const formattedItemType = (type: string, isUpcoming = false) => {
+  let unformatted = snakeToCamel(singularizePath(type))
+
+  switch (type) {
+    case 'feature':
+      unformatted = 'featuredOn'
+      break
+    case 'album':
+      unformatted = 'soloRelease'
+      break
+  }
+  return `${isUpcoming ? ' Upcoming ' : ''} ${camelToSentence(unformatted)}`
+}

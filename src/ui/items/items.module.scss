@@ -93,7 +93,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
   gap: 2.25rem;
-  padding: 0 0 2rem;
+  padding: 0 0 4rem;
 
   @include breakpoints.sm-width {
     min-height: unset;
@@ -210,5 +210,5 @@
 
 .card-ticket-link {
   width: fit-content;
-  margin-top: 0.75rem;
+  margin-top: 1rem;
 }

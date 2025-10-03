@@ -356,6 +356,10 @@ blockquote {
     content: '”';
     margin-left: 0.15em;
   }
+
+  + cite span {
+    font-style: normal;
+  }
 }
 
 .loading {
@@ -367,6 +371,11 @@ table {
   text-align: left;
   border-collapse: collapse;
   margin-bottom: 4rem;
+
+  tr + tr.heading {
+    margin-top: 4rem;
+    display: block;
+  }
 }
 
 // FIXME: move to filters.module.scss

@@ -26,7 +26,7 @@ export function LinkItem ({
                     {link.attribution && (
                       <>{link.title ? `— ${link.title} in ` : '— '}{link.attribution}, </>
                     )}
-                    {formattedDateTime(link.publishDate || link.createdAt!, 'xs')}
+                    <span>{formattedDateTime(link.publishDate || link.createdAt!, 'xs')}</span>
                   </cite>
                 </>
                 )

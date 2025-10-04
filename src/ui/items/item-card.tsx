@@ -34,7 +34,7 @@ export function ItemCard ({
   if (!item) return null
   const linkTarget = itemUrl(item)
   const imageSize = isFeatured ? 680 : 350
-
+  const isPriorityImage = !!(isFeatured || (index || 0) < 2)
   return (
     <article
       className={clsx(styles.card, isFeatured && styles['featured-card'])}
@@ -52,7 +52,8 @@ export function ItemCard ({
             width={imageSize}
             height={imageSize / item.coverImage.aspect}
             loading={(index || 0) > 4 ? 'lazy' : undefined}
-            priority={!!(isFeatured || (index || 0) < 2)}
+            priority={isPriorityImage}
+            fetchPriority={isPriorityImage ? 'high' : 'auto'}
             aria-hidden='true'
           />
         </NextLink>

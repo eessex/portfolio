@@ -40,6 +40,7 @@ export function ItemsTableRow ({
   } = item as ReleaseClient
   const linkTarget = itemUrl(item)
   const rowLabel = `${item.title}${artist ? ', by ' + artist : ''}`
+  const isPriorityImage = !!(isFeatured || (index || 0) < 2)
 
   return (
     <tr
@@ -65,7 +66,8 @@ export function ItemsTableRow ({
             width={350}
             height={350 / coverImage.aspect}
             loading={(index || 0) > 4 ? 'lazy' : undefined}
-            priority={!!(isFeatured || (index || 0) < 2)}
+            priority={isPriorityImage}
+            fetchPriority={isPriorityImage ? 'high' : 'auto'}
             aria-hidden='true'
           />
         </td>

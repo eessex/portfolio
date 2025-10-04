@@ -30,6 +30,7 @@ export const ImageFigure = ({
         height={width / image.aspect}
         loading={isLazy ? 'lazy' : undefined}
         priority={isPriority}
+        fetchPriority={isPriority ? 'high' : 'auto'}
       />
       {image.caption && !isCaptionHidden && (
         <figcaption>{image.caption}</figcaption>

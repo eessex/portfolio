@@ -15,8 +15,9 @@
   box-shadow: inset 0 -1px 0 var(--transparency-primary); 
   grid-column: 1 / -1;
 
-  th {
+  td {
     padding: var(--items-list-padding);
+    font-weight: bold;
   }
 }
 

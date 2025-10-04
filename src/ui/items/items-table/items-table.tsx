@@ -199,6 +199,7 @@ export function ItemsTable ({
 
   const colSpan = tableColspan()
   const tableId = useId()
+  const tbodyId = useId()
 
   return (
     <div className={styles['items-table']}>
@@ -244,6 +245,18 @@ export function ItemsTable ({
         )}
       </FiltersWrapper>
 
+      {/* Live region above the table for accessibility */}
+      {!flatItems(displayedItems()).length && (
+        <div
+          role='region'
+          aria-live='polite'
+          aria-atomic='true'
+          className='visually-hidden'
+        >
+          No results found for "{searchTerm}"
+        </div>
+      )}
+
       <table
         id={tableId}
         role='region'
@@ -251,60 +264,68 @@ export function ItemsTable ({
       >
         <thead className='visually-hidden'>
           <tr>
-            {isExpanded && <th aria-hidden='true'>Image</th>}
-            {isPathTypeVisible && <th>Type</th>}
-            <th>Date</th>
-            <th>Title</th>
-            {isDetailColumnVisible && <th>Details</th>}
-            {isCategoryVisible && <th>Category</th>}
+            {isExpanded && (
+              <th
+                aria-hidden='true'
+                scope='col'
+              >
+                Image
+              </th>
+            )}
+            {isPathTypeVisible && <th scope='col'>Type</th>}
+            <th scope='col'>Date</th>
+            <th scope='col'>Title</th>
+            {isDetailColumnVisible && <th scope='col'>Details</th>}
+            {isCategoryVisible && <th scope='col'>Category</th>}
           </tr>
         </thead>
 
-        <tbody className={clsx(styles['table-body'], isExpanded && styles['table-body--expanded'])}>
-          {!flatItems(displayedItems()).length && (
-            <>
-              <tr className={styles['table-rowgroup-heading'] + ' heading'}>
-                <th
-                  scope='rowgroup'
-                  colSpan={colSpan}
-                >
-                  Search results for "{searchTerm}"
-                </th>
-              </tr>
-              <tr className={styles['no-results']}>
-                <td
-                  role='region'
-                  aria-live='polite'
-                  colSpan={colSpan}
-                >
-                  No results found.
-                </td>
-              </tr>
-            </>
-          )}
+        {!flatItems(displayedItems()).length && (
+          <tbody
+            className={clsx(styles['table-body'], isExpanded && styles['table-body--expanded'])}
+            aria-labelledby={`${tbodyId}-search`}
+          >
+            <tr className={styles['table-rowgroup-heading'] + ' heading'}>
+              <td
+                id={`${tbodyId}-search`}
+                colSpan={colSpan}
+              >
+                Search results for "{searchTerm}"
+              </td>
+            </tr>
+            <tr className={styles['no-results']}>
+              <td colSpan={colSpan}>
+                No results found.
+              </td>
+            </tr>
+          </tbody>
+        )}
 
-          {displayedItems().map((category, index) => Object.entries(category).map(([key, value]) => value.length > 0 && (
-            <React.Fragment key={`${index}-${key}`}>
-              <tr className={styles['table-rowgroup-heading'] + ' heading'}>
-                <th
-                  scope='rowgroup'
-                  colSpan={colSpan}
-                >
-                  {tableSectionTitle(key, value.length)}
-                </th>
-              </tr>
-              {value.map((item, index) => (
-                <ItemsTableItem
-                  item={item}
-                  index={index}
-                  key={`${item.id}-${index}`}
-                  isExpanded={!!isExpanded}
-                  isCategoryVisible={!!isCategoryVisible}
-                />
-              ))}
-            </React.Fragment>
-          )))}
-        </tbody>
+        {displayedItems().map((category, index) => Object.entries(category).map(([key, value]) => value.length > 0 && (
+          <tbody
+            key={`${index}-${key}`}
+            aria-labelledby={`${tbodyId}-${key}`}
+            className={clsx(styles['table-body'], isExpanded && styles['table-body--expanded'])}
+          >
+            <tr className={styles['table-rowgroup-heading'] + ' heading'}>
+              <td
+                id={`${tbodyId}-${key}`}
+                colSpan={colSpan}
+              >
+                {tableSectionTitle(key, value.length)}
+              </td>
+            </tr>
+            {value.map((item, index) => (
+              <ItemsTableItem
+                item={item}
+                index={index}
+                key={`${item.id}-${index}`}
+                isExpanded={!!isExpanded}
+                isCategoryVisible={!!isCategoryVisible}
+              />
+            ))}
+          </tbody>
+        )))}
       </table>
     </div>
   )

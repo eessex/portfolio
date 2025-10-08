@@ -64,9 +64,32 @@ export async function fetchReleaseBySlug (slug: string, isAuthed: boolean = fals
   }
 }
 
-export async function fetchReleases (isAuthed: boolean = false) {
+export async function fetchReleases (isAuthed: boolean = false, projectSlug?: string) {
   try {
-    const data = await sql<ReleaseClient>`
+    let data
+    if (projectSlug) {
+      data = await sql<ReleaseClient>`
+      SELECT
+        r.*,
+        (
+          SELECT build_image_json(i)
+          FROM images i
+          WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
+        ) AS cover_image,
+        (
+          SELECT COALESCE(jsonb_agg(build_published_edition_json(pe)), '[]'::jsonb)
+          FROM published_editions pe
+          WHERE pe.release_id = r.id
+        ) AS published_editions
+      FROM releases as r
+      JOIN projects p ON p.id = r.project_id
+      WHERE p.slug = ${projectSlug}
+        AND p.is_published = true
+        AND (${isAuthed} OR r.is_published = true)
+      ORDER BY r.release_date DESC
+    `
+    } else {
+      data = await sql<ReleaseClient>`
       SELECT
         r.*,
         (
@@ -83,24 +106,33 @@ export async function fetchReleases (isAuthed: boolean = false) {
       WHERE ${isAuthed} OR r.is_published = true
       ORDER BY r.release_date DESC
     `
+    }
     const parsedReleases = data.rows.map(r => formatDbResponseForClient({
       ...r,
       path
     }, releaseClientSchema))
-    return sortReleasesByCategory(parsedReleases)
+    return sortReleasesByCategory(parsedReleases, !!projectSlug)
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch releases.')
   }
 }
 
-const sortReleasesByCategory = (releases: ReleaseClient[]) => {
+const sortReleasesByCategory = (releases: ReleaseClient[], isProject: boolean) => {
   const result: FetchReleasesResult = {
     soloReleases: [],
     singles: [],
     collaborativeReleases: [],
     compilations: [],
-    featuredOn: []
+    featuredOn: [],
+    releases: []
+  }
+
+  const hasMultipleTypes = new Set(releases.map(r => r.type)).size > 1
+
+  if (isProject && !hasMultipleTypes) {
+    result.releases = releases
+    return result
   }
 
   for (const release of releases) {

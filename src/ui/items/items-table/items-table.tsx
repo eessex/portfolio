@@ -30,14 +30,16 @@ import { VenueInline } from '@/ui/venues/venue'
 
 export function ItemsTable ({
   items,
-  path,
+  path = 'items',
   isCategoryVisible,
-  isExpandedOnLoad
+  isExpandedOnLoad,
+  isPathTypeVisible
 }: {
   items: PageDataResponse[]
-  path: PagePathType
+  path?: PagePathType | 'items'
   isCategoryVisible?: boolean
   isExpandedOnLoad?: boolean
+  isPathTypeVisible?: boolean
 }) {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [searchTerm, setSearchTerm] = useState('')
@@ -171,18 +173,7 @@ export function ItemsTable ({
 
   const isFilterable = allItems().length > 20
 
-  /** Determine if multiple item types are present to show/hide the "path (type)" column */
-  const isPathTypeVisible = (() => {
-    const seen = new Set<string>()
-    for (const item of flatItems(displayedItems())) {
-      if (seen.has(item.path)) continue
-      seen.add(item.path)
-      if (seen.size > 1) return true
-    }
-    return false
-  })()
-
-  const isDetailColumnVisible = ['events', 'releases'].includes(path)
+  const isDetailColumnVisible = ['events', 'releases', 'items'].includes(path)
 
   function tableColspan () {
     let cols = 2
@@ -322,6 +313,7 @@ export function ItemsTable ({
                 key={`${item.id}-${index}`}
                 isExpanded={!!isExpanded}
                 isCategoryVisible={!!isCategoryVisible}
+                isPathTypeVisible={!!isPathTypeVisible}
               />
             ))}
           </tbody>

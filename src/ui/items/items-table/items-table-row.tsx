@@ -45,7 +45,7 @@ export function ItemsTableRow ({
   return (
     <tr
       data-index={index}
-      className={clsx(styles['table-row-link'], isExpanded && styles['table-row-link--expanded'], isCategoryVisible && 'item-type-visible')}
+      className={clsx(styles['table-row-link'], isExpanded && styles['table-row-link--expanded'], isPathTypeVisible && styles['item-type-visible'])}
       onClick={() => location.assign(linkTarget)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {

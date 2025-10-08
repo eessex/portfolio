@@ -47,7 +47,29 @@ export async function fetchProjectBySlug (slug: string, isAuthed: boolean = fals
           SELECT build_image_json(i)
           FROM images i
           WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
-        ) AS cover_image
+        ) AS cover_image,
+        (
+          SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
+          FROM embed_codes ec
+          WHERE ec.id = ANY(p.embed_code_ids)
+            AND ec.id != p.embed_code_ids[1]
+        ) AS embed_codes,
+        (
+          SELECT build_embed_code_json(ec)
+          FROM embed_codes ec
+          WHERE ec.id = p.embed_code_ids[1]
+        ) AS featured_embed_code,
+        (
+          SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
+          FROM images i
+          WHERE i.id = ANY(p.image_ids)
+            AND i.id != COALESCE(p.cover_image_id, p.image_ids[1])
+        ) AS images,
+        (
+          SELECT COALESCE(jsonb_agg(build_link_json(l)), '[]'::jsonb)
+          FROM links l
+          WHERE l.id = ANY(p.link_ids)
+        ) AS links
       FROM projects as p
       WHERE p.slug = ${slug}
         AND (${isAuthed} OR p.is_published = true)

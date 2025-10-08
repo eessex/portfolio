@@ -20,7 +20,7 @@ import styles from '@/ui/filters/filters.module.scss'
 type FiltersWrapperProps = {
   children?: React.ReactNode
   controlsId: string
-  itemType: PagePathType | EmbeddedItemType
+  itemType: PagePathType | EmbeddedItemType | 'items'
 }
 
 export function FiltersWrapper ({

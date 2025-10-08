@@ -14,4 +14,5 @@ export interface FetchReleasesResult {
   compilations: ReleaseClient[]
   collaborativeReleases: ReleaseClient[]
   featuredOn: ReleaseClient[]
+  releases: ReleaseClient[]
 }

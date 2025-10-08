@@ -13,9 +13,32 @@ import {
 
 const path: PagePathType = 'events'
 
-export async function fetchEvents (isAuthed: boolean = false) {
+export async function fetchEvents (isAuthed: boolean = false, projectSlug?: string) {
+  let data
   try {
-    const data = await sql<EventClient>`
+    if (projectSlug) {
+      data = await sql<EventClient>`
+      SELECT
+        e.*,
+        (
+          SELECT build_image_json(i)
+          FROM images i
+          WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
+        ) AS cover_image,
+        (
+          SELECT build_venue_json(v)
+          FROM venues v
+          WHERE v.id = e.venue_id
+        ) AS venue
+      FROM events as e
+      JOIN projects as p ON e.project_id = p.id
+      WHERE p.slug = ${projectSlug}
+        AND p.is_published = true
+        AND (${isAuthed} OR e.is_published = true)
+      ORDER BY e.start_time DESC;
+    `
+    } else {
+      data = await sql<EventClient>`
       SELECT
         e.*,
         (
@@ -32,6 +55,7 @@ export async function fetchEvents (isAuthed: boolean = false) {
       WHERE ${isAuthed} OR e.is_published = true
       ORDER BY e.start_time DESC;
     `
+    }
     const parsedEvents = data.rows.map(e => formatDbResponseForClient({
       ...e,
       path

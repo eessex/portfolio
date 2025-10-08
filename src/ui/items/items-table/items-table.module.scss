@@ -78,6 +78,10 @@
 
   &.item-type-visible {
     grid-template-columns: 12% 15% 50% 20%;
+
+    @include breakpoints.sm-width {
+      grid-template-columns: 1fr;
+    }
   }
 
   @include breakpoints.sm-width {

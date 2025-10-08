@@ -21,28 +21,6 @@ export async function fetchReleaseBySlug (slug: string, isAuthed: boolean = fals
           WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
         ) AS cover_image,
         (
-          SELECT COALESCE(jsonb_agg(build_embed_code_json(e)), '[]'::jsonb)
-          FROM embed_codes e
-          WHERE e.id = ANY(r.embed_code_ids)
-            AND e.id != r.embed_code_ids[1]
-        ) AS embed_codes,
-        (
-          SELECT build_embed_code_json(e)
-          FROM embed_codes e
-          WHERE e.id = r.embed_code_ids[1]
-        ) AS featured_embed_code,
-        (
-          SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
-          FROM images i
-          WHERE i.id = ANY(r.image_ids)
-            AND i.id != COALESCE(r.cover_image_id, r.image_ids[1])
-        ) AS images,
-        (
-          SELECT COALESCE(jsonb_agg(build_link_json(l)), '[]'::jsonb)
-          FROM links l
-          WHERE l.id = ANY(r.link_ids)
-        ) AS links,
-        (
           SELECT COALESCE(jsonb_agg(build_published_edition_json(pe)), '[]'::jsonb)
           FROM published_editions pe
           WHERE pe.release_id = r.id

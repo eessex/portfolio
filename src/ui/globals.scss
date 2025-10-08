@@ -374,7 +374,7 @@ table {
   border-collapse: collapse;
   margin-bottom: 4rem;
 
-  tr + tr.heading {
+  tbody + tbody tr.heading {
     margin-top: 4rem;
     display: block;
   }

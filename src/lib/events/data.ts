@@ -24,28 +24,6 @@ export async function fetchEvents (isAuthed: boolean = false) {
           WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
         ) AS cover_image,
         (
-          SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
-          FROM embed_codes ec
-          WHERE ec.id = ANY(e.embed_code_ids)
-            AND ec.id != e.embed_code_ids[1]
-        ) AS embed_codes,
-        (
-          SELECT build_embed_code_json(ec)
-          FROM embed_codes ec
-          WHERE ec.id = e.embed_code_ids[1]
-        ) AS featured_embed_code,
-        (
-          SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
-          FROM images i
-          WHERE i.id = ANY(e.image_ids)
-            AND i.id != COALESCE(e.cover_image_id, e.image_ids[1])
-        ) AS images,
-        (
-          SELECT COALESCE(jsonb_agg(build_link_json(l)), '[]'::jsonb)
-          FROM links l
-          WHERE l.id = ANY(e.link_ids)
-        ) AS links,
-        (
           SELECT build_venue_json(v)
           FROM venues v
           WHERE v.id = e.venue_id

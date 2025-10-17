@@ -1,14 +1,17 @@
 import { Suspense } from 'react'
 
+import { auth } from '@/api/auth'
 import styles from '@/app/about/about.module.scss'
 import { fetchAboutPage } from '@/lib/about/data'
 import type { AboutContact } from '@/lib/about/types'
 import { fetchPressImages } from '@/lib/images/data'
 import { fetchPressLinks } from '@/lib/links/data'
+import { fetchProjects } from '@/lib/projects/data'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { ImageFigure } from '@/ui/images/image-figure'
 import { ImageGrid } from '@/ui/images/image-grid'
+import { ItemsList } from '@/ui/items/items-list'
 import { LinksList } from '@/ui/links/link-list'
 import { Loading } from '@/ui/loading'
 
@@ -38,11 +41,19 @@ export async function generateMetadata () {
 }
 
 export default async function AboutPage () {
-  const [about, pressImages, links] = await Promise.all([
+  const [
+    about,
+    links,
+    pressImages,
+    session
+  ] = await Promise.all([
     fetchAboutPage(),
+    fetchPressLinks(),
     fetchPressImages(),
-    fetchPressLinks()
+    auth()
   ])
+
+  const { allProjects } = await fetchProjects(!!session?.user)
 
   const [pressLinksWithQuotes, pressLinksWithoutQuotes] = links.reduce(
     ([withQuotes, withoutQuotes], link) =>
@@ -85,11 +96,27 @@ export default async function AboutPage () {
           <p key={i}>{title && <b>{title}: </b>}{contact}</p>
         ))}
         <Suspense>
-          <LinksList links={pressLinksWithQuotes} />
+          <LinksList
+            className={styles['links-list']}
+            links={pressLinksWithQuotes}
+            isPress
+          />
         </Suspense>
       </section>
 
       <div className={styles['press-info']}>
+        <Suspense fallback={<Loading />}>
+          {!!allProjects.length && (
+            <AccordionDropdown title='More Projects'>
+              <ItemsList
+                className={styles['projects-list']}
+                items={allProjects}
+                isCategoryVisible
+              />
+            </AccordionDropdown>
+          )}
+        </Suspense>
+
         <Suspense fallback={<Loading />}>
           {!!filteredPressImages.length && (
             <AccordionDropdown title='More Images'>

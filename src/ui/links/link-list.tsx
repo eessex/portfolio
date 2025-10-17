@@ -19,7 +19,7 @@ export function LinksList ({
 
   return (
     <section
-      className={styles['embed-codes'] + (className ? ` ${className}` : '')}
+      className={className}
       aria-labelledby={sectionId}
     >
       <h2

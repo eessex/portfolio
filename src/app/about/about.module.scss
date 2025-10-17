@@ -2,6 +2,10 @@
   section {
     max-width: 680px;
     margin: 0 auto;
+
+    .links-list {
+      margin: 3rem auto;
+    }
   }
 }
 
@@ -22,4 +26,12 @@
 
 .press-info {
   margin: 3rem auto;
+
+  .projects-list {
+    grid-template-columns: repeat(auto-fill, minmax(calc(50% - 1.125rem), 1fr));
+
+    article {
+      padding: 0;
+    }
+  }
 }

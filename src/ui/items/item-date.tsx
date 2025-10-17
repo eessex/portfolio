@@ -4,7 +4,8 @@ import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
 import {
   type DateFormatSize,
-  formattedDateTime
+  formattedDateTime,
+  isUpcomingDate
 } from '@/ui/util'
 
 export function itemSortDate (item: PageItemClient, isDefaultPreferred = false): Date {
@@ -46,14 +47,18 @@ export function FormattedItemDate ({
 }) {
   const date = itemSortDate(item)
   const isProject = item.path === 'projects'
+  const isUpcomingEvent = item.path === 'events' && isUpcomingDate((item as EventClient).startTime)
+  const dateFormat = isUpcomingEvent ? undefined : format || itemDisplayDateFormat(item)
+
   return (
     <>
       <time dateTime={date?.toISOString()}>
-        {formattedDateTime(date, format || itemDisplayDateFormat(item), timezone)}
+        {formattedDateTime(date, dateFormat, timezone)}
       </time>
+
       {isProject && (item as ProjectClient).endDate
         ? (
-          <>–<time dateTime={(item as ProjectClient).endDate?.toISOString()}>{formattedDateTime((item as ProjectClient).endDate!, format || itemDisplayDateFormat(item), timezone)}</time></>
+          <>–<time dateTime={(item as ProjectClient).endDate?.toISOString()}>{formattedDateTime((item as ProjectClient).endDate!, dateFormat, timezone)}</time></>
           )
         : isProject && '–present'}
     </>

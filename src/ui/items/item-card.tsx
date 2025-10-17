@@ -5,8 +5,12 @@ import NextImage from 'next/image'
 import NextLink from 'next/link'
 import React from 'react'
 
+import type { EventClient } from '@/lib/events/types'
+import type { ProjectClient } from '@/lib/projects/types'
+import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
 import { DraftBadge } from '@/ui/draft-badge'
+import { FormattedItemDate } from '@/ui/items/item-date'
 import styles from '@/ui/items/items.module.scss'
 import {
   formattedItemTitle,
@@ -19,6 +23,7 @@ export function ItemCard ({
   externalLink,
   index,
   isFeatured,
+  isCategoryVisible,
   isPathTypeVisible,
   isTextOnly,
   item
@@ -27,6 +32,7 @@ export function ItemCard ({
   externalLink?: React.ReactNode
   index?: number
   isFeatured?: boolean
+  isCategoryVisible?: boolean
   isPathTypeVisible?: boolean
   isTextOnly?: boolean
   item: PageItemClient
@@ -71,6 +77,19 @@ export function ItemCard ({
             {!item.isPublished && <DraftBadge />}
           </NextLink>
         </h3>
+
+        {isCategoryVisible && (item as ReleaseClient | ProjectClient).type && (
+          <p className={styles['card-item-type'] + ' category'}>
+            {formattedItemType((item as ReleaseClient | ProjectClient).type!)}
+          </p>
+        )}
+
+        <p className={styles['card-item-date']}>
+          <FormattedItemDate
+            item={item}
+            timezone={(item as EventClient).venue?.timezone}
+          />
+        </p>
 
         {children}
 

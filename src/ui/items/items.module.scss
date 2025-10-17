@@ -71,21 +71,26 @@
       vertical-align: top;
       margin-left: .35rem;
     }
+  }
 
-    + p {
-      font-weight: normal;
-      font-size: 1rem;
-      line-height: 1.25em;
-      margin: 0;
+  p.card-item-date {
+    font-weight: normal;
+    font-size: 1rem;
+    line-height: 1.25em;
+    margin: 0;
+  }
 
-      + p {
-        font-weight: normal;
-        font-size: 0.925rem;
-        line-height: 1.25em;
-        margin-top: 0.45rem;
-        margin-bottom: 0;
-      }
-    }
+  p.card-item-venue {
+    font-weight: normal;
+    font-size: 0.925rem;
+    line-height: 1.25em;
+    margin-top: 0.45rem;
+    margin-bottom: 0;
+  }
+
+  p.card-item-type {
+    margin-top: -.5rem;
+    margin-bottom: .25rem;
   }
 }
 

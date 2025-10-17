@@ -193,6 +193,10 @@ button, a[href].button {
       height: 40px;
     }
 
+    &.category {
+      padding: .25rem .5rem;
+    }
+
     &:active:not(:hover) {
       &.button-secondary {
         background: var(--accent-primary);
@@ -393,5 +397,4 @@ table {
   letter-spacing: 0.07em;
   font-weight: bold;
   gap: .5em;
-  margin: 0;
 }

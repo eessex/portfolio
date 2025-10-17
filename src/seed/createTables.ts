@@ -522,6 +522,31 @@ async function setupJsonbFunctions () {
     END;
     $$ LANGUAGE plpgsql IMMUTABLE;
   `
+
+  await sql`
+    CREATE OR REPLACE FUNCTION build_project_json(p projects)
+    RETURNS jsonb AS $$
+    BEGIN
+      RETURN (
+        jsonb_build_object(
+          'id', p.id,
+          'title', p.title,
+          'type', p.type,
+          'slug', p.slug,
+          'startDate', p.start_date,
+          'endDate', p.end_date,
+          'path', 'projects',
+          'coverImage', (
+            SELECT build_image_json(i)
+            FROM images i
+            WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
+          )
+        )
+      || COALESCE(build_write_dates_json(p.created_at, p.updated_at), '{}'::jsonb)
+    );
+    END;
+    $$ LANGUAGE plpgsql STABLE;
+  `
 }
 
 /**

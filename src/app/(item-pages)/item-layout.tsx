@@ -37,7 +37,8 @@ export default async function ItemLayout ({
   const {
     startTime,
     ticketLink,
-    venue
+    venue,
+    project
   } = item as EventClient
   const isUpcoming = startTime ? isUpcomingDate(startTime) : false
 
@@ -126,6 +127,17 @@ export default async function ItemLayout ({
             </p>
           )}
         </section>
+
+        {project && (
+          <p>
+            <a
+              href={`/${project.path}/${project.slug}`}
+              className='category button button-secondary'
+            >
+              Project: {project.title}
+            </a>
+          </p>
+        )}
 
         {item.links && !!filteredLinksByPress(item.links)[0].length && (
           <LinksList

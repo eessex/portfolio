@@ -43,6 +43,12 @@ export async function fetchReleaseBySlug (slug: string, isAuthed: boolean = fals
           WHERE l.id = ANY(r.link_ids)
         ) AS links,
         (
+          SELECT build_project_json(p)
+          FROM projects p
+          WHERE p.id = r.project_id
+            AND (${isAuthed} OR p.is_published = true)
+        ) AS project,
+        (
           SELECT COALESCE(jsonb_agg(build_published_edition_json(pe)), '[]'::jsonb)
           FROM published_editions pe
           WHERE pe.release_id = r.id

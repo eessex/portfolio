@@ -36,6 +36,7 @@ export const releaseClientSchema = releaseSchema.extend(
     featuredEmbedCode: true,
     images: true,
     links: true,
+    project: true,
     publishedEditions: true
   }).shape
 )

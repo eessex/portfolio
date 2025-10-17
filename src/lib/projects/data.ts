@@ -85,6 +85,6 @@ export async function fetchProjectBySlug (slug: string, isAuthed: boolean = fals
     return project
   } catch (error) {
     console.error('Database Error:', error)
-    throw new Error(`Failed to fetch ${projectPathType}.`)
+    throw new Error(`Failed to fetch ${projectPathType}: ${slug}.`)
   }
 }

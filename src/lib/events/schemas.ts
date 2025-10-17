@@ -28,6 +28,7 @@ export const eventClientSchema = eventSchema.extend(
     embedCodes: true,
     images: true,
     links: true,
+    project: true,
     venue: true
   }).shape
 )

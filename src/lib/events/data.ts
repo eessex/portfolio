@@ -101,6 +101,12 @@ export async function fetchEventBySlug (slug: string, isAuthed: boolean = false)
           WHERE l.id = ANY(e.link_ids)
         ) AS links,
         (
+          SELECT build_project_json(p)
+          FROM projects p
+          WHERE p.id = e.project_id
+            AND (${isAuthed} OR p.is_published = true)
+        ) AS project,
+        (
           SELECT build_venue_json(v)
           FROM venues v
           WHERE v.id = e.venue_id
@@ -119,7 +125,7 @@ export async function fetchEventBySlug (slug: string, isAuthed: boolean = false)
     }, eventClientSchema)
   } catch (error) {
     console.error('Database Error:', error)
-    throw new Error(`Failed to fetch event ${slug}.`)
+    throw new Error(`Failed to fetch event: ${slug}.`)
   }
 }
 

@@ -192,6 +192,8 @@ export function ItemsTable ({
   const tableId = useId()
   const tbodyId = useId()
 
+  if (allItems().length === 0) return null
+
   return (
     <div className={styles['items-table']}>
       <FiltersWrapper
@@ -235,18 +237,6 @@ export function ItemsTable ({
           />
         )}
       </FiltersWrapper>
-
-      {/* Live region above the table for accessibility */}
-      {!flatItems(displayedItems()).length && (
-        <div
-          role='region'
-          aria-live='polite'
-          aria-atomic='true'
-          className='visually-hidden'
-        >
-          No results found for "{searchTerm}"
-        </div>
-      )}
 
       <table
         id={tableId}

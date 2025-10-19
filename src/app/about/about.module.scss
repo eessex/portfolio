@@ -28,7 +28,13 @@
   margin: 3rem auto;
 
   .projects-list {
-    grid-template-columns: repeat(auto-fill, minmax(calc(50% - 1.125rem), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(calc(50% - .5rem), 1fr));
+    gap: 2rem 1rem;
+
+    h3 {
+      font-size: 1.25rem;
+      margin-bottom: .65rem;
+    }
 
     article {
       padding: 0;

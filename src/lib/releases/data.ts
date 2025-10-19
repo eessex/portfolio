@@ -90,7 +90,6 @@ export async function fetchReleases (isAuthed: boolean = false, projectSlug?: st
       FROM releases as r
       JOIN projects p ON p.id = r.project_id
       WHERE p.slug = ${projectSlug}
-        AND p.is_published = true
         AND (${isAuthed} OR r.is_published = true)
       ORDER BY r.release_date DESC
     `

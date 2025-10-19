@@ -33,7 +33,6 @@ export async function fetchEvents (isAuthed: boolean = false, projectSlug?: stri
       FROM events as e
       JOIN projects as p ON e.project_id = p.id
       WHERE p.slug = ${projectSlug}
-        AND p.is_published = true
         AND (${isAuthed} OR e.is_published = true)
       ORDER BY e.start_time DESC;
     `

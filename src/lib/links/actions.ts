@@ -3,20 +3,24 @@
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 
-import { linkSchema } from '@/lib/links/schemas'
-import type { Link } from '@/lib/links/types'
+import { createLinkSchema } from '@/lib/links/schemas'
+import type {
+  CreateLink,
+  Link
+} from '@/lib/links/types'
 import type { FormResponse } from '@/lib/types'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
-async function createLink (link: Link) {
+async function createLink (link: CreateLink): Promise<Link | null> {
   try {
-    const maybeId = await sql`SELECT id from links WHERE url = ${link.url}`
+    const maybeId = await sql`SELECT id, created_at from links WHERE url = ${link.url}`
     if (maybeId.length > 0) {
       console.debug('Link already exists:', maybeId[0].id)
       return {
         ...link,
-        id: maybeId[0].id
+        id: maybeId[0].id,
+        createdAt: maybeId[0].created_at
       }
     } else {
       const {
@@ -73,14 +77,17 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
     } else if (n.includes('Date')) {
       console.info('Parsing date for:', n, v)
       data[n] = v || undefined
+    } else if (n === 'type') {
+      console.debug('Processing type field:', n, v)
+      data[n] = v || undefined
     } else {
       console.debug('Form data entry:', n, v)
       data[n] = v
     }
   })
-  const validatedFields = linkSchema.safeParse(Object.fromEntries(formData))
-  if (!validatedFields.success) {
-    console.error('Failed to validate link.', validatedFields.error.flatten().fieldErrors)
+  const validatedCreateLink = createLinkSchema.safeParse(Object.fromEntries(formData))
+  if (!validatedCreateLink.success) {
+    console.error('Failed to validate link.', validatedCreateLink.error.flatten().fieldErrors)
     throw new Error('Failed to validate link.')
     // return {
     //   errors: validatedFields.error.flatten().fieldErrors,
@@ -88,7 +95,7 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
     // }
   } else {
     try {
-      const updatedLinks = await updateLink(validatedFields.data)
+      const updatedLinks = await updateLink(validatedCreateLink.data)
       if (updatedLinks) {
         console.debug('Link saved successfully:', updatedLinks)
         revalidatePath('/dashboard/links')
@@ -103,13 +110,12 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
   }
 }
 
-async function updateLink (link: Link) {
+async function updateLink (link: CreateLink | Link) {
   let savedLink: Link | null = null
   try {
     await sql.begin(async (tx) => {
       const {
         attribution,
-        id,
         isHiddenOnAboutPage,
         type,
         publishDate,
@@ -117,7 +123,7 @@ async function updateLink (link: Link) {
         title,
         url
       } = link
-      if (!id) {
+      if (!(link as Link).id) {
         try {
           const res = await createLink(link)
           if (res?.id) {
@@ -151,9 +157,9 @@ async function updateLink (link: Link) {
               current_timestamp,
               ${url}
             )
-            WHERE id = ${id}
+            WHERE id = ${(link as Link).id}
           `.then(() => {
-              savedLink = link
+              savedLink = link as Link
             })
         } catch (err) {
           console.error('Error updating link:', err)

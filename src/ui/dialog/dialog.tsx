@@ -18,7 +18,6 @@ export const Dialog = ({
 }) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      console.log(`Key pressed: ${event.key}`)
       if (event.key === 'Escape') {
         onClose()
       }

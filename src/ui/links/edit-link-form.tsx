@@ -10,6 +10,7 @@ import {
   useState
 } from 'react'
 
+import { linkTypes } from '@/lib/links/schemas'
 import type { Link } from '@/lib/links/types'
 // import { Checkbox } from '@/ui/form/checkbox'
 // import styles from '@/ui/form/form.module.scss'
@@ -17,6 +18,10 @@ import {
   Input,
   type InputType
 } from '@/ui/form/input'
+
+import { Select } from '../form/select'
+
+const linkTypeOptions = [...linkTypes]
 
 interface LinkProps {
   link?: Link
@@ -67,6 +72,7 @@ export const EditLink = ({
   onRemoveLink
 }: LinkProps) => {
   const hasIndex = typeof index === 'number' && index >= 0
+  const [type, setType] = useState<string | undefined>(link?.type || undefined)
   // const [isPress, setIsPress] = useState(!!link?.isPress)
   // const [isSocialProfile, setIsSocialProfile] = useState(!!link?.isSocialProfile)
 
@@ -107,6 +113,14 @@ export const EditLink = ({
           name: hasIndex ? `link[${index}].title` : 'title',
           placeholder: 'Title'
         }}
+      />
+      <Select
+        label='Type'
+        value={type}
+        onChange={setType}
+        options={linkTypeOptions}
+        placeholder='Select link type'
+        attributes={{ name: 'type' }}
       />
       {/* <fieldset className={styles['checkbox-group']} disabled={!!link?.isPress}>
         <legend>Social Media Profile</legend>

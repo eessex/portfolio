@@ -8,6 +8,8 @@ import {
 
 export function Select ({
   ariaControls,
+  attributes,
+  isLabelHidden,
   label,
   onChange,
   options,
@@ -15,6 +17,8 @@ export function Select ({
   value
 }: {
   ariaControls?: string
+  attributes?: React.SelectHTMLAttributes<HTMLSelectElement>
+  isLabelHidden?: boolean
   label: string
   onChange?: (term: string | undefined) => void | undefined
   options: Array<string> | undefined
@@ -28,7 +32,7 @@ export function Select ({
       className={clsx(styles['select'], (value && value !== '') && 'is-selected')}
     >
       <label
-        className='visually-hidden'
+        className={isLabelHidden ? 'visually-hidden' : ''}
         htmlFor={label}
       >
         {label}
@@ -39,6 +43,7 @@ export function Select ({
         defaultValue={value}
         id={label}
         onChange={e => onChange(e.target.value)}
+        {...attributes}
       >
         <option value=''>{placeholder}</option>
         {options.map((type, i) => (

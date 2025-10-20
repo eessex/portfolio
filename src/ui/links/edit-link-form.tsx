@@ -2,8 +2,8 @@ import {
   PlusIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
-// import clsx from 'clsx'
-// import NextLink from 'next/link'
+import clsx from 'clsx'
+import NextLink from 'next/link'
 import {
   useCallback,
   useRef,
@@ -12,8 +12,7 @@ import {
 
 import { linkTypes } from '@/lib/links/schemas'
 import type { Link } from '@/lib/links/types'
-// import { Checkbox } from '@/ui/form/checkbox'
-// import styles from '@/ui/form/form.module.scss'
+import styles from '@/ui/form/form.module.scss'
 import {
   Input,
   type InputType
@@ -73,8 +72,6 @@ export const EditLink = ({
 }: LinkProps) => {
   const hasIndex = typeof index === 'number' && index >= 0
   const [type, setType] = useState<string | undefined>(link?.type || undefined)
-  // const [isPress, setIsPress] = useState(!!link?.isPress)
-  // const [isSocialProfile, setIsSocialProfile] = useState(!!link?.isSocialProfile)
 
   return (
     <>
@@ -105,6 +102,7 @@ export const EditLink = ({
           </button>
         )}
       </div>
+
       <Input
         label='Title'
         defaultValue={link?.title}
@@ -120,64 +118,58 @@ export const EditLink = ({
         onChange={setType}
         options={linkTypeOptions}
         placeholder='Select link type'
-        attributes={{ name: 'type' }}
+        attributes={{ name: hasIndex ? `link[${index}].type` : 'type' }}
       />
-      {/* <fieldset className={styles['checkbox-group']} disabled={!!link?.isPress}>
-        <legend>Social Media Profile</legend>
-        <p>Social media profiles links (Instagram, YouTube, etc.) are shown in the page footer.</p>
-        <Checkbox
-          label='This is a social profile'
-          isChecked={isSocialProfile}
-          onChange={() => setIsSocialProfile(!isSocialProfile)}
-          attributes={{
-            name: hasIndex ? `link[${index}].isSocialProfile` : 'isSocialProfile',
-          }}
-        />
-      </fieldset>
 
-      <fieldset className={styles['checkbox-group']} disabled={!!link?.isSocialProfile}>
-        <legend>Press link</legend>
-        <p>Press links are automatically shown on your <NextLink href='/about' target='_blank'>about</NextLink> page, and can include additional data like an attribution and a quotation.</p>
-        <Checkbox
-          label='This is a press link'
-          isChecked={isPress}
-          onChange={() => setIsPress(!isPress)}
-          attributes={{
-            name: hasIndex ? `link[${index}].isPress` : 'isPress',
-          }}
-        />
-        <div className={clsx(styles['press-inputs'], !isPress && 'visually-hidden')}>
-          <Input
-            label='Attribution'
-            defaultValue={link?.attribution}
-            attributes={{
-              maxLength: 255,
-              name: hasIndex ? `link[${index}].attribution` : 'attribution',
-              placeholder: 'New York Times'
-            }}
-          />
-          <Input
-            label='Quotation'
-            description='A short quote from the link, if applicable.'
-            defaultValue={link?.quotation}
-            isTextarea
-            attributes={{
-              maxLength: 255,
-              name: hasIndex ? `link[${index}].quotation` : 'quotation',
-              placeholder: 'One of New York’s most influential artists'
-            }}
-          />
-          <Input
-            label='Publish date'
-            defaultValue={link?.publishDate ? new Date(link.publishDate).toISOString().split('T')[0] : ''}
-            attributes={{
-              name: hasIndex ? `link[${index}].publishDate` : 'publishDate',
-              placeholder: 'YYYY-MM-DD',
-              type: 'date'
-            }}
-          />
-        </div>
-      </fieldset> */}
+      {type === 'press' && (
+        <fieldset
+          className={styles['checkbox-group']}
+          aria-hidden={type !== 'press'}
+          hidden={type !== 'press'}
+        >
+          <legend>Press link details</legend>
+          <p>Press links are automatically shown on your
+            <NextLink
+              href='/about'
+              target='_blank'
+            >
+              about
+            </NextLink> page, and can include additional data like an attribution and a quotation.
+          </p>
+          <div className={clsx(styles['press-inputs'])}>
+            <Input
+              label='Attribution'
+              description='The name of the publication or link source.'
+              defaultValue={link?.attribution}
+              attributes={{
+                maxLength: 255,
+                name: hasIndex ? `link[${index}].attribution` : 'attribution',
+                placeholder: 'New York Times'
+              }}
+            />
+            <Input
+              label='Quotation'
+              description='A short quote from the link, if applicable.'
+              defaultValue={link?.quotation}
+              isTextarea
+              attributes={{
+                maxLength: 255,
+                name: hasIndex ? `link[${index}].quotation` : 'quotation',
+                placeholder: 'One of New York’s most influential artists'
+              }}
+            />
+            <Input
+              label='Publish date'
+              defaultValue={link?.publishDate ? new Date(link.publishDate).toISOString().split('T')[0] : ''}
+              attributes={{
+                name: hasIndex ? `link[${index}].publishDate` : 'publishDate',
+                placeholder: 'YYYY-MM-DD',
+                type: 'date'
+              }}
+            />
+          </div>
+        </fieldset>
+      )}
       {link?.id && (
         <Input
           label='Link ID'

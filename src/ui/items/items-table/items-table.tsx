@@ -226,6 +226,7 @@ export function ItemsTable ({
             placeholder='No filters'
             label={`Filter ${path}`}
             value={filterType}
+            isLabelHidden
           />
         )}
         {isFilterable && (

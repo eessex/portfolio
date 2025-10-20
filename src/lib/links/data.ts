@@ -39,7 +39,10 @@ export async function fetchLinks () {
           ) AS release_slugs,
           ARRAY(
             SELECT slug FROM events as e WHERE e.link_ids @> ARRAY[links.id]
-          ) AS event_slugs
+          ) AS event_slugs,
+          ARRAY(
+            SELECT slug FROM projects as p WHERE p.link_ids @> ARRAY[links.id]
+          ) AS project_slugs
           FROM links
           ORDER BY links.updated_at DESC
         `

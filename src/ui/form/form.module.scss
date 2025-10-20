@@ -81,6 +81,11 @@
   }
 }
 
+.select-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .select {
   position: relative;
   display: inline-flex;
@@ -94,6 +99,7 @@
     padding-right: 30px;
     border-radius: 0;
     width: 100%;
+    line-height: 1rem;
   }
 
   &::before {

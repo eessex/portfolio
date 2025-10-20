@@ -91,6 +91,7 @@ export const basePageSchema = z.object({
  */
 export const baseDashboardItemSlugsSchema = z.object({
   eventSlugs: z.array(slug).optional(),
+  projectSlugs: z.array(slug).optional(),
   releaseSlugs: z.array(slug).optional()
 })
 

@@ -3,7 +3,10 @@
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 
-import { createLinkSchema } from '@/lib/links/schemas'
+import {
+  createLinkSchema,
+  linkSchema
+} from '@/lib/links/schemas'
 import type {
   CreateLink,
   Link
@@ -69,25 +72,25 @@ async function createLink (link: CreateLink): Promise<Link | null> {
 }
 
 export async function editLink (formData: FormData): Promise<FormResponse<Link>> {
+  let validatedLink
   const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)
   Object.entries(data).forEach(([n, v]) => {
-    // checkboxes are always 'on' when checked, so we convert them to true
-    if (v === 'on') {
-      data[n] = true
-    } else if (n.includes('Date')) {
+    if (n.includes('Date')) {
       console.info('Parsing date for:', n, v)
       data[n] = v || undefined
     } else if (n === 'type') {
       console.debug('Processing type field:', n, v)
       data[n] = v || undefined
-    } else {
-      console.debug('Form data entry:', n, v)
-      data[n] = v
     }
   })
-  const validatedCreateLink = createLinkSchema.safeParse(Object.fromEntries(formData))
-  if (!validatedCreateLink.success) {
-    console.error('Failed to validate link.', validatedCreateLink.error.flatten().fieldErrors)
+
+  if (formData.get('id')) {
+    validatedLink = linkSchema.safeParse(data)
+  } else {
+    validatedLink = createLinkSchema.safeParse(data)
+  }
+  if (!validatedLink.success) {
+    console.error('Failed to validate link.', validatedLink.error.flatten().fieldErrors)
     throw new Error('Failed to validate link.')
     // return {
     //   errors: validatedFields.error.flatten().fieldErrors,
@@ -95,12 +98,13 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
     // }
   } else {
     try {
-      const updatedLinks = await updateLink(validatedCreateLink.data)
-      if (updatedLinks) {
-        console.debug('Link saved successfully:', updatedLinks)
+      const updatedLink = await updateLink(validatedLink.data)
+      if (updatedLink) {
+        console.debug('Link saved successfully:', updatedLink)
         revalidatePath('/dashboard/links')
         return {
-          ok: true, res: updatedLinks[0]
+          ok: true,
+          res: updatedLink
         }
       }
     } catch (err) {

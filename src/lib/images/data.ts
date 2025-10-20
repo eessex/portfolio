@@ -54,7 +54,10 @@ export async function fetchImages () {
       ARRAY(
         SELECT slug FROM events AS e 
         WHERE (e.image_ids @> ARRAY[images.id] OR e.cover_image_id = images.id)
-      ) AS event_slugs
+      ) AS event_slugs,
+      ARRAY(
+        SELECT slug FROM projects as p WHERE p.image_ids @> ARRAY[images.id]
+      ) AS project_slugs
       FROM images
       ORDER BY images.updated_at DESC
     `

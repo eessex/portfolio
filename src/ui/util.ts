@@ -161,6 +161,10 @@ export function releaseUrl (slug: string) {
   return `/releases/${slug}`
 }
 
+export function projectUrl (slug: string) {
+  return `/projects/${slug}`
+}
+
 export function filteredLinksByPress (links: Array<Link>) {
   const sortByDate = (a: Link, b: Link) => {
     const aDate = new Date(a.publishDate ?? a.createdAt)

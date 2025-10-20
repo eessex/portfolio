@@ -52,6 +52,7 @@ import { SearchInput } from '@/ui/search-input/search-input'
 import {
   eventUrl,
   formattedItemType,
+  projectUrl,
   releaseUrl
 } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
@@ -219,6 +220,7 @@ export function DashboardItems<T extends DashboardItem> ({
             placeholder='No filters'
             label={`Filter ${itemType}`}
             value={filterType}
+            isLabelHidden
           />
         )}
         <SearchInput
@@ -287,6 +289,7 @@ function DashboardListItem<T extends DashboardItem> ({
 }) {
   function usedOnPages () {
     const events = item.eventSlugs?.map(i => eventUrl(i)) || []
+    const projects = item.projectSlugs?.map(i => projectUrl(i)) || []
     const releases =
       'releaseSlugs' in item && Array.isArray(item.releaseSlugs)
         ? item.releaseSlugs.map(i => releaseUrl(i))
@@ -298,7 +301,12 @@ function DashboardListItem<T extends DashboardItem> ({
       }
     }
 
-    return [...events, ...releases, ...about]
+    return [
+      ...events,
+      ...releases,
+      ...projects,
+      ...about
+    ]
   }
 
   function titleWithCount () {

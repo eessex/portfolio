@@ -28,33 +28,35 @@ export function Select ({
   if (!options || options.length === 0 || !onChange) return null
 
   return (
-    <div
-      className={clsx(styles['select'], (value && value !== '') && 'is-selected')}
-    >
+    <div className={styles['select-container']}>
       <label
         className={isLabelHidden ? 'visually-hidden' : ''}
         htmlFor={label}
       >
         {label}
       </label>
-      <select
-        aria-controls={ariaControls}
-        className='input'
-        defaultValue={value}
-        id={label}
-        onChange={e => onChange(e.target.value)}
-        {...attributes}
+      <div
+        className={clsx(styles['select'], (value && value !== '') && 'is-selected')}
       >
-        <option value=''>{placeholder}</option>
-        {options.map((type, i) => (
-          <option
-            key={i}
-            value={type}
-          >
-            {camelToSentence(snakeToCamel(type))}
-          </option>
-        ))}
-      </select>
+        <select
+          aria-controls={ariaControls}
+          className='input'
+          defaultValue={value}
+          id={label}
+          onChange={e => onChange(e.target.value)}
+          {...attributes}
+        >
+          <option value=''>{placeholder}</option>
+          {options.map((type, i) => (
+            <option
+              key={i}
+              value={type}
+            >
+              {camelToSentence(snakeToCamel(type))}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   )
 }

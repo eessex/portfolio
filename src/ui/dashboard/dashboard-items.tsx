@@ -53,7 +53,8 @@ import {
   eventUrl,
   formattedItemType,
   projectUrl,
-  releaseUrl
+  releaseUrl,
+  singularizePath
 } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 import { VenueInline } from '@/ui/venues/venue'
@@ -259,7 +260,7 @@ export function DashboardItems<T extends DashboardItem> ({
 
       {isEditDialogOpen && (
         <Dialog
-          title={itemToEdit?.id ? `Edit ${itemType}` : `Add ${itemType}`}
+          title={itemToEdit?.id ? `Edit ${singularizePath(itemType)}` : `Add ${singularizePath(itemType)}`}
           onClose={() => setIsEditDialogOpen(false)}
         >
           <Form action={onSubmit}>

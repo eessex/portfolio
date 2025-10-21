@@ -12,19 +12,23 @@ import type {
   Link
 } from '@/lib/links/types'
 import type { FormResponse } from '@/lib/types'
+import { formatDbResponseForClient } from '@/ui/util'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
-async function createLink (link: CreateLink): Promise<Link | null> {
+async function createLink (link: CreateLink) {
   try {
-    const maybeId = await sql`SELECT id, created_at from links WHERE url = ${link.url}`
-    if (maybeId.length > 0) {
-      console.debug('Link already exists:', maybeId[0].id)
-      return {
-        ...link,
-        id: maybeId[0].id,
-        createdAt: maybeId[0].created_at
-      }
+    const maybeLink = await sql<Link[]>`
+      SELECT * from links
+      WHERE url = ${link.url}
+    `.then(rows => {
+        if (rows.length) {
+          return formatDbResponseForClient(rows[0], linkSchema)
+        }
+      })
+    if (maybeLink) {
+      console.debug('Link already exists:', maybeLink.id)
+      return maybeLink
     } else {
       const {
         attribution,
@@ -36,39 +40,34 @@ async function createLink (link: CreateLink): Promise<Link | null> {
         url
       } = link
       console.debug('Creating new link:', link)
-      const result = await sql<Link[]>`
-      INSERT INTO links (
-        attribution,
-        created_at,
-        is_hidden_on_about_page,
-        type,
-        publish_date,
-        quotation,
-        title,
-        url
-      )
-      VALUES (
-        ${attribution || null},
-        current_timestamp,
-        ${isHiddenOnAboutPage || null},
-        ${type || null},
-        ${publishDate || null},
-        ${quotation || null},
-        ${title || null},
-        ${url}
-      )
-      RETURNING *
-    `
-      if (result.length > 0) {
-        console.debug('Link created successfully:', result[0])
-        return result[0]
-      }
+      return await sql<Link[]>`
+        INSERT INTO links (
+          attribution,
+          created_at,
+          is_hidden_on_about_page,
+          type,
+          publish_date,
+          quotation,
+          title,
+          url
+        )
+        VALUES (
+          ${attribution || null},
+          current_timestamp,
+          ${isHiddenOnAboutPage || null},
+          ${type || null},
+          ${publishDate || null},
+          ${quotation || null},
+          ${title || null},
+          ${url}
+        )
+        RETURNING *
+      `.then(rows => formatDbResponseForClient(rows[0], linkSchema))
     }
   } catch (err) {
     console.error('Error creating link:', err)
     throw new Error(err instanceof Error ? err.message : 'Failed to create link.')
   }
-  return null
 }
 
 export async function editLink (formData: FormData): Promise<FormResponse<Link>> {
@@ -77,9 +76,6 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
   Object.entries(data).forEach(([n, v]) => {
     if (n.includes('Date')) {
       console.info('Parsing date for:', n, v)
-      data[n] = v || undefined
-    } else if (n === 'type') {
-      console.debug('Processing type field:', n, v)
       data[n] = v || undefined
     }
   })
@@ -115,31 +111,27 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
 }
 
 async function updateLink (link: CreateLink | Link) {
-  let savedLink: Link | null = null
   try {
-    await sql.begin(async (tx) => {
-      const {
-        attribution,
-        isHiddenOnAboutPage,
-        type,
-        publishDate,
-        quotation,
-        title,
-        url
-      } = link
+    return await sql.begin(async (tx) => {
       if (!(link as Link).id) {
         try {
-          const res = await createLink(link)
-          if (res?.id) {
-            savedLink = res
-          }
+          return await createLink(link)
         } catch (err) {
           console.error('Error creating link:', err)
           throw new Error(err instanceof Error ? err.message : 'Failed to create link.')
         }
       } else {
+        const {
+          attribution,
+          isHiddenOnAboutPage,
+          type,
+          publishDate,
+          quotation,
+          title,
+          url
+        } = link
         try {
-          await tx`
+          return await tx<Link[]>`
             UPDATE links
             SET (
               attribution,
@@ -162,16 +154,14 @@ async function updateLink (link: CreateLink | Link) {
               ${url}
             )
             WHERE id = ${(link as Link).id}
-          `.then(() => {
-              savedLink = link as Link
-            })
+            RETURNING *
+          `.then(rows => formatDbResponseForClient(rows[0], linkSchema))
         } catch (err) {
           console.error('Error updating link:', err)
           throw new Error('Failed to update link.')
         }
       }
     })
-    return savedLink
   } catch (err) {
     console.error('Error saving links:', err)
   }

@@ -21,7 +21,10 @@ const linksBaseSchema = z.lazy(() => z.object({
   isHiddenOnAboutPage: bool.optional(),
   publishDate: date.optional(),
   quotation: shortText.optional(),
-  type: z.enum(linkTypes).optional(),
+  type: z.preprocess(
+    (val) => val === '' ? undefined : val,
+    z.enum(linkTypes).optional()
+  ),
   url
 }))
 

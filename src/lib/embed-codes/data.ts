@@ -30,16 +30,16 @@ export async function fetchEmbedCodes () {
   try {
     const data = await sql<DashboardEmbedCode>`
       SELECT
-      embed_codes.*,
-      ARRAY(
-        SELECT slug FROM releases as r WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
-      ) AS release_slugs,
-      ARRAY(
-        SELECT slug FROM events as e WHERE e.embed_code_ids @> ARRAY[embed_codes.id]
-      ) AS event_slugs,
-      ARRAY(
-        SELECT slug FROM projects as p WHERE p.embed_code_ids @> ARRAY[embed_codes.id]
-      ) AS project_slugs
+        embed_codes.*,
+        ARRAY(
+          SELECT slug FROM events as e WHERE e.embed_code_ids @> ARRAY[embed_codes.id]
+        ) AS event_slugs,
+        ARRAY(
+          SELECT slug FROM projects as p WHERE p.embed_code_ids @> ARRAY[embed_codes.id]
+        ) AS project_slugs
+        ARRAY(
+          SELECT slug FROM releases as r WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
+        ) AS release_slugs
       FROM embed_codes
       ORDER BY embed_codes.updated_at DESC
     `

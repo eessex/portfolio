@@ -46,18 +46,18 @@ export async function fetchImages () {
   try {
     const data = await sql<DashboardImage>`
       SELECT 
-      images.*,
-      ARRAY(
-        SELECT slug FROM releases AS r 
-        WHERE (r.image_ids @> ARRAY[images.id] OR r.cover_image_id = images.id)
-      ) AS release_slugs,
-      ARRAY(
-        SELECT slug FROM events AS e 
-        WHERE (e.image_ids @> ARRAY[images.id] OR e.cover_image_id = images.id)
-      ) AS event_slugs,
-      ARRAY(
-        SELECT slug FROM projects as p WHERE p.image_ids @> ARRAY[images.id]
-      ) AS project_slugs
+        images.*,
+        ARRAY(
+          SELECT slug FROM events AS e 
+          WHERE (e.image_ids @> ARRAY[images.id] OR e.cover_image_id = images.id)
+        ) AS event_slugs,
+        ARRAY(
+          SELECT slug FROM projects as p WHERE p.image_ids @> ARRAY[images.id]
+        ) AS project_slugs,
+        ARRAY(
+          SELECT slug FROM releases AS r 
+          WHERE (r.image_ids @> ARRAY[images.id] OR r.cover_image_id = images.id)
+        ) AS release_slugs
       FROM images
       ORDER BY images.updated_at DESC
     `

@@ -32,20 +32,20 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]) => {
 export async function fetchLinks () {
   try {
     const data = await sql<DashboardLink>`
-          SELECT
-          links.*,
-          ARRAY(
-            SELECT slug FROM releases as r WHERE r.link_ids @> ARRAY[links.id]
-          ) AS release_slugs,
-          ARRAY(
-            SELECT slug FROM events as e WHERE e.link_ids @> ARRAY[links.id]
-          ) AS event_slugs,
-          ARRAY(
-            SELECT slug FROM projects as p WHERE p.link_ids @> ARRAY[links.id]
-          ) AS project_slugs
-          FROM links
-          ORDER BY links.updated_at DESC
-        `
+      SELECT
+        links.*,
+        ARRAY(
+          SELECT slug FROM events as e WHERE e.link_ids @> ARRAY[links.id]
+        ) AS event_slugs,
+        ARRAY(
+          SELECT slug FROM projects as p WHERE p.link_ids @> ARRAY[links.id]
+        ) AS project_slugs,
+        ARRAY(
+          SELECT slug FROM releases as r WHERE r.link_ids @> ARRAY[links.id]
+        ) AS release_slugs
+      FROM links
+      ORDER BY links.updated_at DESC
+    `
     return data.rows.map(row => formatDbResponseForClient(row, dashboardLinkSchema))
   } catch (error) {
     console.error('Database Error:', error)

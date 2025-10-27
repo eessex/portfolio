@@ -9,15 +9,19 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.914.0",
+    "@aws-sdk/s3-request-presigner": "^3.914.0",
     "@heroicons/react": "^2.2",
     "@vercel/postgres": "^0.10",
     "bcrypt": "^6.0",
     "clsx": "^2.1",
+    "formidable": "^3.5.4",
     "js-cookie": "^3.0.5",
     "next": "15.1",
     "next-auth": "5.0.0-beta.25",
     "react": "^19.0",
     "react-dom": "^19.0",
+    "sharp": "^0.34.4",
     "zod": "^3"
   },
   "devDependencies": {

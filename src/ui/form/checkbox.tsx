@@ -11,13 +11,8 @@ import styles from '@/ui/form/form.module.scss'
 
 import type { InputProps } from './input'
 
-export type InputType = HTMLInputElement | HTMLTextAreaElement
-
-interface CheckboxProps extends InputProps {
+interface CheckboxProps extends InputProps<HTMLInputElement> {
   isChecked?: boolean
-  attributes: React.InputHTMLAttributes<HTMLInputElement> | React.TextareaHTMLAttributes<HTMLTextAreaElement>
-  onChange?: (event: React.ChangeEvent<InputType>, isDirty: boolean) => void
-  ref?: (el: InputType) => InputType | null
 }
 
 export const Checkbox = ({
@@ -44,7 +39,7 @@ export const Checkbox = ({
   }
 
   const autoId = useId()
-  const id = attributes.id || autoId
+  const id = attributes?.id || autoId
   const isHidden = (attributes as React.InputHTMLAttributes<HTMLInputElement>).type === 'hidden'
 
   const props = {

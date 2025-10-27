@@ -15,6 +15,7 @@ import type { Link } from '@/lib/links/types'
 import styles from '@/ui/form/form.module.scss'
 import {
   Input,
+  type InputProps,
   type InputType
 } from '@/ui/form/input'
 
@@ -26,7 +27,7 @@ interface LinkProps {
   link?: Link
   index?: number
   isFielset?: boolean
-  ref?: (el: InputType) => InputType | null
+  ref?: InputProps<InputType>['ref']
   onRemoveLink?: (index: number) => void
 }
 
@@ -151,7 +152,7 @@ export const EditLink = ({
               label='Quotation'
               description='A short quote from the link, if applicable.'
               defaultValue={link?.quotation}
-              isTextarea
+              as='textarea'
               attributes={{
                 maxLength: 255,
                 name: hasIndex ? `link[${index}].quotation` : 'quotation',

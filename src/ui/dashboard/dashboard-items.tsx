@@ -50,11 +50,9 @@ import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
 import { SearchInput } from '@/ui/search-input/search-input'
 import {
-  eventUrl,
   formattedItemType,
-  projectUrl,
-  releaseUrl,
-  singularizePath
+  singularizePath,
+  usedOnPages
 } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 import { VenueInline } from '@/ui/venues/venue'
@@ -288,30 +286,9 @@ function DashboardListItem<T extends DashboardItem> ({
   onEdit: (id: string) => void
   onDelete: (id: string) => void
 }) {
-  function usedOnPages () {
-    const events = item.eventSlugs?.map(i => eventUrl(i)) || []
-    const projects = item.projectSlugs?.map(i => projectUrl(i)) || []
-    const releases =
-      'releaseSlugs' in item && Array.isArray(item.releaseSlugs)
-        ? item.releaseSlugs.map(i => releaseUrl(i))
-        : []
-    const about = []
-    if ((item as Link).type === 'press' || (item as Image).isPress) {
-      if (!(item as Link | Image).isHiddenOnAboutPage) {
-        about.push('/about')
-      }
-    }
-
-    return [
-      ...events,
-      ...releases,
-      ...projects,
-      ...about
-    ]
-  }
+  const usedOn = usedOnPages(item)
 
   function titleWithCount () {
-    const usedOn = usedOnPages()
     const count = usedOn.length > 0 ? ` (${usedOn.length})` : ''
     return title() + count
   }
@@ -352,7 +329,7 @@ function DashboardListItem<T extends DashboardItem> ({
         color: 'blue'
       })
     }
-    if (usedOnPages().length === 0 && link.type !== 'social') {
+    if (usedOn.length === 0 && link.type !== 'social') {
       badges.push({
         text: 'Not used',
         color: 'red'
@@ -369,7 +346,7 @@ function DashboardListItem<T extends DashboardItem> ({
       }
       case 'images': {
         const imageItem = item as Image
-        const fileName = imageItem.url ? imageItem.url.split('/').pop() : 'Untitled'
+        const fileName = imageItem.url ? decodeURIComponent(imageItem.url).split('/').pop() : 'Untitled'
         const imageTitle = imageItem.title || imageItem.caption || 'Untitled image'
         return `${imageTitle}${fileName ? `: ${fileName}` : ''}`
       }
@@ -419,9 +396,9 @@ function DashboardListItem<T extends DashboardItem> ({
         <div>
           <h3>Visible on:</h3>
           <ul>
-            {usedOnPages().length > 0
+            {usedOn.length > 0
               ? (
-                  usedOnPages().map((page) => (
+                  usedOn.map((page) => (
                     <li key={page}>
                       <NextLink
                         href={page}

@@ -1,112 +1,131 @@
-import {
-  PlusIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline'
-import {
-  useCallback,
-  useRef,
-  useState
-} from 'react'
+import { useState } from 'react'
 
-import type { Image } from '@/lib/images/types'
+import { checkIfImageExists } from '@/lib/images/actions'
+import type {
+  CreateImage,
+  Image
+} from '@/lib/images/types'
 import { Checkbox } from '@/ui/form/checkbox'
+import { FileInput } from '@/ui/form/file-input-image'
 import {
   Input,
+  type InputProps,
   type InputType
 } from '@/ui/form/input'
+
+import { usedOnPages } from '../util'
 
 interface ImageProps {
   image?: Image
   index?: number
-  isFielset?: boolean
-  ref?: (el: InputType) => InputType | null
-  onRemoveImage?: (index: number) => void
-}
-
-export const EditImageFieldset = ({
-  image,
-  index,
-  ref,
-  onRemoveImage
-}: ImageProps) => {
-  return (
-    <fieldset key={index}>
-      <legend className='visually-hidden'>
-        {`Image: ${image?.caption || image?.title || index || 0 + 1}`}
-      </legend>
-
-      <EditImage
-        image={image}
-        index={index}
-        ref={ref}
-        onRemoveImage={onRemoveImage}
-      />
-
-      {image && !image.url && onRemoveImage && index && (
-        <button
-          title='Remove image'
-          aria-label='Remove image'
-          type='button'
-          onClick={(() => onRemoveImage(index))}
-          className='button'
-        >
-          <XMarkIcon />
-        </button>
-      )}
-    </fieldset>
-  )
+  ref?: InputProps<InputType>['ref']
 }
 
 export const EditImage = ({
   image,
   index,
-  ref,
-  onRemoveImage
+  ref
 }: ImageProps) => {
+  const [formImage, setFormImage] = useState<CreateImage | Image | undefined>(image)
   const [isPress, setIsPress] = useState(!!image?.isPress)
+  const [aspectRatio, setAspectRatio] = useState<number | undefined>(image?.aspect || undefined)
   const [isHiddenOnAboutPage, setIsHiddenOnAboutPage] = useState(!!image?.isHiddenOnAboutPage)
+
   const hasIndex = typeof index === 'number' && index >= 0
+  const {
+    createdAt,
+    id,
+    url
+  } = (formImage || {}) as Image
+  const usedOn = image?.id ? usedOnPages(image as Image).length : 0
+
+  function onRemove () {
+    console.info('onRemove')
+    if (usedOn > 0) {
+      const onConfirm = confirm(`
+        This image is used on ${usedOn === 1 ? '1 page' : usedOn + ' pages'},
+        replacing it here will also change this image everywhere it is used.
+      `)
+      if (!onConfirm) return
+    }
+    setFormImage({
+      ...formImage, url: ''
+    } as CreateImage)
+    setAspectRatio(undefined)
+  }
+
+  function formattedName (field: string) {
+    return hasIndex ? `image[${index}].${field}` : field
+  }
+
+  async function onFileChange (filename: string, aspectRatio: number | undefined) {
+    console.info('onFileChange')
+    setAspectRatio(aspectRatio)
+    if (filename) {
+      try {
+        const existingImage = await checkIfImageExists(filename)
+        if (existingImage) {
+          if (id) {
+            alert('An image with this URL already exists, use a unique filename.')
+          } else {
+            const confirmed = confirm('An image with this URL already exists, "confirm" to use existing, or "cancel" and upload with a unique filename.')
+            if (confirmed) {
+              setFormImage(existingImage)
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error checking if image exists:', error)
+      }
+    }
+  }
 
   return (
     <>
-      <div>
+      <FileInput
+        label='Upload new image'
+        attributes={{
+          accept: 'image/*',
+          name: formattedName('file'),
+          required: true
+        }}
+        image={formImage}
+        onChange={onFileChange}
+        onRemoveImage={onRemove}
+      />
+      {aspectRatio && (
         <Input
-          label='Image url'
-          description='Paste the url href from your cloud storage or AWS S3 bucket'
-          defaultValue={image?.url}
-          isTextarea={!image?.id}
-          ref={ref}
+          label='Aspect Ratio'
+          value={aspectRatio}
           attributes={{
-            autoFocus: !image?.url && !image?.id,
-            maxLength: 1500,
-            name: hasIndex ? `image[${index}].url` : 'url',
-            placeholder: '<iframe></iframe>',
-            required: true,
-            type: image?.id && hasIndex ? 'hidden' : undefined
+            name: formattedName('aspect'),
+            type: 'hidden'
           }}
         />
-        {image?.url.length && onRemoveImage && index && (
-          <figure>
-            <div dangerouslySetInnerHTML={{ __html: image.url }} />
-            <button
-              title='Remove image'
-              aria-label='Remove embed'
-              type='button'
-              onClick={(() => onRemoveImage(index))}
-              className='button'
-            >
-              <XMarkIcon />
-            </button>
-          </figure>
-        )}
-      </div>
+      )}
+      {/* keep a record of existing image files so we can delete them from s3 */}
+      {url?.length > 0 && id && (
+        <Input
+          label='Image url'
+          description='Paste the url href AWS S3 bucket.'
+          defaultValue={url}
+          ref={ref}
+          attributes={{
+            maxLength: 250,
+            name: formattedName('url'),
+            placeholder: 'https://aws.s3.bucket/your-image.jpg',
+            required: true,
+            type: 'hidden'
+          }}
+        />
+      )}
       <Input
         label='Caption'
-        description='Displayed below the iframe wherever it appears'
-        defaultValue={image?.caption}
+        description='Displayed below the image wherever it appears.'
+        defaultValue={formImage?.caption}
         attributes={{
           maxLength: 255,
-          name: hasIndex ? `image[${index}].caption` : 'caption',
+          name: formattedName('caption'),
           placeholder: 'Caption'
         }}
       />
@@ -117,115 +136,49 @@ export const EditImage = ({
           label='This is a press image'
           isChecked={isPress}
           onChange={() => setIsPress(!isPress)}
-          attributes={{ name: hasIndex ? `image[${index}].isPress` : 'isPress' }}
+          attributes={{ name: formattedName('isPress') }}
         />
         <Checkbox
           label='Hide this image on the About page'
           isChecked={isHiddenOnAboutPage}
           onChange={() => setIsHiddenOnAboutPage(!isHiddenOnAboutPage)}
-          attributes={{ name: hasIndex ? `image[${index}].isHiddenOnAboutPage` : 'isHiddenOnAboutPage' }}
+          attributes={{
+            name: formattedName('isHiddenOnAboutPage'),
+            disabled: !isPress,
+            type: !isPress ? 'hidden' : undefined
+          }}
         />
       </fieldset>
       <Input
         label='Title'
-        description='Used for internal search only, never displayed publicly'
-        defaultValue={image?.title}
+        description='Used for internal search only, never displayed publicly.'
+        defaultValue={formImage?.title}
         attributes={{
           maxLength: 255,
-          name: hasIndex ? `image[${index}].title` : 'title',
+          name: formattedName('title'),
           placeholder: 'Title'
         }}
       />
-      {image?.id && (
+      {id && (
         <Input
           label='Image ID'
-          defaultValue={image.id}
+          defaultValue={id}
           attributes={{
-            name: hasIndex ? `image[${index}].id` : 'id',
+            name: formattedName('id'),
             type: 'hidden'
           }}
         />
       )}
-      {image?.createdAt && (
+      {createdAt && (
         <Input
           label='Created At'
-          defaultValue={image.createdAt.toISOString()}
+          defaultValue={createdAt.toISOString()}
           attributes={{
-            name: hasIndex ? `image[${index}].createdAt` : 'createdAt',
-            type: 'hidden'
-          }}
-        />
-      )}
-      {image?.aspect && (
-        <Input
-          label='Aspect Ratio'
-          defaultValue={image.aspect}
-          attributes={{
-            name: hasIndex ? `image[${index}].aspect` : 'aspect',
+            name: formattedName('createdAt'),
             type: 'hidden'
           }}
         />
       )}
     </>
-  )
-}
-
-export const EditImagesFieldset = ({ images }: {
-  images: Image[]
-}) => {
-  const initialImages = images || []
-  const [imageList, setImageList] = useState(initialImages)
-  const inputRefs = useRef<InputType[]>([])
-
-  const addToRefs = useCallback((el: InputType | null) => {
-    if (!el || inputRefs.current.includes(el)) return null
-    inputRefs.current.push(el)
-    return el
-  }, [])
-
-  function handleAddImage () {
-    const newImage = {
-      url: '',
-      caption: '',
-      id: '',
-      aspect: 1,
-      tagIds: [],
-      createdAt: new Date()
-    }
-    if (!imageList.some(image => (!image.url && !image.caption && !image.id))) {
-      setImageList([...imageList, newImage])
-    } else {
-      const lastIndex = imageList.length - 1
-      inputRefs.current[lastIndex]?.focus()
-    }
-  }
-
-  function handleRemoveImage (index: number) {
-    const updatedImages = [...imageList]
-    updatedImages.splice(index, 1)
-    setImageList(updatedImages)
-  }
-
-  return (
-    <fieldset>
-      <legend>Images</legend>
-      {imageList?.map((image, index) => (
-        <EditImage
-          key={index}
-          image={image}
-          index={index}
-          ref={addToRefs}
-          onRemoveImage={handleRemoveImage}
-        />
-      ))}
-
-      <button
-        type='button'
-        className='button button-secondary text-sm'
-        onClick={handleAddImage}
-      >
-        <PlusIcon />Add new image
-      </button>
-    </fieldset>
   )
 }

@@ -1,12 +1,13 @@
 import type { Venue } from '@/lib/venues/types'
 import {
   Input,
+  type InputProps,
   type InputType
 } from '@/ui/form/input'
 
 interface EditVenueProps {
   venue?: Venue
-  ref?: (el: InputType) => InputType | null
+  ref?: InputProps<InputType>['ref']
 }
 
 export const EditVenue = ({

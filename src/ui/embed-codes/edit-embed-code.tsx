@@ -1,101 +1,103 @@
-import {
-  PlusIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline'
-import {
-  useCallback,
-  useRef,
-  useState
-} from 'react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useState } from 'react'
 
-import type { EmbedCode } from '@/lib/embed-codes/types'
+import type {
+  DashboardEmbedCode,
+  EmbedCode
+} from '@/lib/embed-codes/types'
 import {
   Input,
+  type InputAttributes,
+  type InputProps,
   type InputType
 } from '@/ui/form/input'
+import { usedOnPages } from '@/ui/util'
 
 interface EmbedCodeProps {
-  embedCode?: EmbedCode
+  embedCode?: EmbedCode | DashboardEmbedCode
   index?: number
   isFielset?: boolean
-  ref?: (el: InputType) => InputType | null
-  onRemoveEmbedCode?: (index: number) => void
-}
-
-export const EditEmbedCodeFieldset = ({
-  embedCode,
-  index,
-  ref,
-  onRemoveEmbedCode
-}: EmbedCodeProps) => {
-  return (
-    <fieldset key={index}>
-      <legend className='visually-hidden'>
-        {`Embed code: ${embedCode?.title || index || 0 + 1}`}
-      </legend>
-
-      <EditEmbedCode
-        embedCode={embedCode}
-        index={index}
-        ref={ref}
-        onRemoveEmbedCode={onRemoveEmbedCode}
-      />
-
-      {embedCode && !embedCode.iframe && onRemoveEmbedCode && index && (
-        <button
-          title='Remove embed code'
-          aria-label='Remove embed code'
-          type='button'
-          onClick={(() => onRemoveEmbedCode(index))}
-          className='button'
-        >
-          <XMarkIcon />
-        </button>
-      )}
-    </fieldset>
-  )
+  ref?: InputProps<InputType>['ref']
 }
 
 export const EditEmbedCode = ({
   embedCode,
   index,
-  ref,
-  onRemoveEmbedCode
+  ref
 }: EmbedCodeProps) => {
   const hasIndex = typeof index === 'number' && index >= 0
+  const isUsed = embedCode?.id ? usedOnPages(embedCode as DashboardEmbedCode).length > 0 : false
+  const [iframeValue, setIframeValue] = useState(embedCode?.iframe || '')
+
+  const iframeProps: InputProps<HTMLTextAreaElement> = {
+    label: 'Embed iframe code',
+    description: 'Paste the full iframe embed code from a service like YouTube, Bandcamp, or Spotify',
+    ref,
+    attributes: {
+      maxLength: 1500,
+      name: hasIndex ? `embedCode[${index}].iframe` : 'iframe',
+      placeholder: '<iframe></iframe>',
+      required: true
+    }
+  }
+
+  function toHiddenInputProps (
+    props: InputProps<HTMLTextAreaElement>
+  ): InputProps<HTMLInputElement> {
+    const attributes = {
+      ...props.attributes, type: 'hidden'
+    } as InputAttributes<HTMLInputElement>
+
+    return {
+      label: props.label,
+      description: props.description,
+      defaultValue: iframeValue,
+      ref,
+      attributes
+    }
+  }
+
+  const savedIframeInputProps = iframeValue
+    ? toHiddenInputProps(iframeProps)
+    : undefined
+
+  function onRemove () {
+    if (isUsed) {
+      const onConfirm = confirm('This embed code is used on one or more pages, replacing it here will also update this embed everywhere it is used.')
+      if (!onConfirm) return
+    }
+    setIframeValue('')
+  }
+
   return (
     <>
       <div>
-        <Input
-          label='Embed iframe code'
-          description='Paste the full iframe embed code from a service like YouTube, Bandcamp, or Spotify'
-          defaultValue={embedCode?.iframe}
-          isTextarea={!embedCode?.id}
-          ref={ref}
-          attributes={{
-            autoFocus: !embedCode?.iframe && !embedCode?.id,
-            maxLength: 1500,
-            name: hasIndex ? `embedCode[${index}].iframe` : 'iframe',
-            placeholder: '<iframe></iframe>',
-            required: true,
-            type: embedCode?.id && hasIndex ? 'hidden' : undefined
-          }}
-        />
-        {embedCode?.iframe.length && onRemoveEmbedCode && index && (
+        {savedIframeInputProps
+          ? (
+            <Input {...savedIframeInputProps} />
+            )
+          : (
+            <Input
+              {...iframeProps}
+              as='textarea'
+            />
+            )}
+        {iframeValue && (
           <figure>
-            <div dangerouslySetInnerHTML={{ __html: embedCode.iframe }} />
+            <div dangerouslySetInnerHTML={{ __html: iframeValue }} />
             <button
               title='Remove embed code'
               aria-label='Remove embed'
               type='button'
-              onClick={(() => onRemoveEmbedCode(index))}
-              className='button'
+              onClick={onRemove}
+              className='button icon-button'
             >
               <XMarkIcon />
             </button>
           </figure>
         )}
       </div>
+
       <Input
         label='Caption'
         description='Displayed below the iframe wherever it appears'
@@ -106,6 +108,7 @@ export const EditEmbedCode = ({
           placeholder: 'Caption'
         }}
       />
+
       <Input
         label='Title'
         description='Used for internal search only, never displayed publicly'
@@ -116,6 +119,7 @@ export const EditEmbedCode = ({
           placeholder: 'Title'
         }}
       />
+
       {embedCode?.id && (
         <Input
           label='Embed Code ID'
@@ -126,6 +130,7 @@ export const EditEmbedCode = ({
           }}
         />
       )}
+
       {embedCode?.createdAt && (
         <Input
           label='Created At'
@@ -137,64 +142,5 @@ export const EditEmbedCode = ({
         />
       )}
     </>
-  )
-}
-
-export const EditEmbedCodesFieldset = ({ embedCodes }: {
-  embedCodes: EmbedCode[]
-}) => {
-  const initialEmbedCodes = embedCodes || []
-  const [embedCodeList, setEmbedCodeList] = useState(initialEmbedCodes)
-  const inputRefs = useRef<InputType[]>([])
-
-  const addToRefs = useCallback((el: InputType | null) => {
-    if (!el || inputRefs.current.includes(el)) return null
-    inputRefs.current.push(el)
-    return el
-  }, [])
-
-  function handleAddEmbedCode () {
-    const newEmbed = {
-      iframe: '',
-      caption: '',
-      id: '',
-      tagIds: [],
-      createdAt: new Date()
-    }
-    if (!embedCodeList.some(embedCode => (!embedCode.iframe && !embedCode.caption && !embedCode.id))) {
-      setEmbedCodeList([...embedCodeList, newEmbed])
-    } else {
-      const lastIndex = embedCodeList.length - 1
-      inputRefs.current[lastIndex]?.focus()
-    }
-  }
-
-  function handleRemoveEmbedCode (index: number) {
-    const updatedEmbedCodes = [...embedCodeList]
-    updatedEmbedCodes.splice(index, 1)
-    setEmbedCodeList(updatedEmbedCodes)
-  }
-
-  return (
-    <fieldset>
-      <legend>Embed codes</legend>
-      {embedCodeList?.map((embedCode, index) => (
-        <EditEmbedCode
-          key={index}
-          embedCode={embedCode}
-          index={index}
-          ref={addToRefs}
-          onRemoveEmbedCode={handleRemoveEmbedCode}
-        />
-      ))}
-
-      <button
-        type='button'
-        className='button button-secondary text-sm'
-        onClick={handleAddEmbedCode}
-      >
-        <PlusIcon />Add new embed code
-      </button>
-    </fieldset>
   )
 }

@@ -6,4 +6,5 @@ import type {
 } from '@/lib/images/schemas'
 
 export type Image = z.infer<typeof imageSchema>
+export type CreateImage = Omit<Image, 'id' | 'createdAt' | 'updatedAt'>
 export type DashboardImage = z.infer<typeof dashboardImageSchema>

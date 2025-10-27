@@ -36,9 +36,7 @@ export function Form<T> ({
   )
 
   async function onSubmit (_state: void | null, formData: FormData) {
-    const current = Object.fromEntries(formData.entries())
-    const initial = Object.fromEntries(initialState?.entries() || [])
-    const isDirty = JSON.stringify(current) !== JSON.stringify(initial)
+    const isDirty = isFormDirty(formData, initialState)
     setError(false)
 
     if (!isDirty) {
@@ -91,4 +89,35 @@ export function Form<T> ({
       )}
     </form>
   )
+}
+
+function isFormDirty (current: FormData, initial?: FormData | null): boolean {
+  if (!initial) return true
+
+  const currentObj = Object.fromEntries(current.entries())
+  const initialObj = Object.fromEntries(initial.entries())
+
+  const nonFileDiff =
+    JSON.stringify({
+      ...currentObj, file: undefined
+    }) !==
+    JSON.stringify({
+      ...initialObj, file: undefined
+    })
+
+  if (nonFileDiff) return true
+
+  // File comparison
+  const currentFile = current.get('file') as File | null
+  const initialFile = initial.get('file') as File | null
+
+  if (
+    (currentFile && !initialFile) ||
+    (!currentFile && initialFile) ||
+    (currentFile && initialFile && currentFile.name !== initialFile.name)
+  ) {
+    return true
+  }
+
+  return false
 }

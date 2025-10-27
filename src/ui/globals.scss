@@ -301,7 +301,7 @@ footer {
   position: sticky;
   bottom: 0;
   background: rgba(var(--background), 1);
-  z-index: 1001;
+  z-index: 101;
 }
 
 figcaption {
@@ -318,6 +318,7 @@ figcaption {
   font-weight: bold;
   padding: 0 0.25em;
   margin: 0 0.25em;
+  vertical-align: text-top;
 
   &.badge-green {
     color: currentColor;

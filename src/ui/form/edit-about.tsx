@@ -12,7 +12,7 @@ export function EditAboutForm ({ about }: { about: About & { coverImage?: Image 
       <Input
         label='Description'
         defaultValue={about?.description}
-        isTextarea
+        as='textarea'
         attributes={{
           name: 'description',
           maxLength: 15000

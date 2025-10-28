@@ -2,31 +2,25 @@
 
 import clsx from 'clsx'
 import {
-  type RefObject,
   useId,
   useState
 } from 'react'
 
 import styles from '@/ui/form/form.module.scss'
+import type { InputProps } from '@/ui/form/input'
 
-import type { InputProps } from './input'
-
-export type InputType = HTMLInputElement | HTMLTextAreaElement
-
-interface CheckboxProps extends InputProps {
+interface CheckboxProps extends Omit<InputProps<HTMLInputElement>, 'isLabelHidden' | 'as'> {
+  controlledId?: string
   isChecked?: boolean
-  attributes: React.InputHTMLAttributes<HTMLInputElement> | React.TextareaHTMLAttributes<HTMLTextAreaElement>
-  onChange?: (event: React.ChangeEvent<InputType>, isDirty: boolean) => void
-  ref?: (el: InputType) => InputType | null
 }
 
 export const Checkbox = ({
-  label,
-  className,
-  isChecked,
   attributes,
-  onChange,
-  ref
+  className,
+  controlledId,
+  isChecked,
+  label,
+  onChange
 }: CheckboxProps) => {
   const [isDirty, setIsDirty] = useState<boolean>(false)
 
@@ -44,13 +38,14 @@ export const Checkbox = ({
   }
 
   const autoId = useId()
-  const id = attributes.id || autoId
-  const isHidden = (attributes as React.InputHTMLAttributes<HTMLInputElement>).type === 'hidden'
+  const id = attributes?.id || autoId
+  const isHidden = attributes?.hidden === true
 
   const props = {
     ...attributes,
+    type: 'checkbox',
     checked: isChecked,
-    className: clsx(className, styles.input, isDirty && 'dirty', isHidden && 'visually-hidden'),
+    className: clsx(className, styles.input, isDirty && 'dirty'),
     onChange: onChangeHandler,
     onBlur
   }
@@ -59,12 +54,12 @@ export const Checkbox = ({
     <label
       htmlFor={id}
       className={props.className}
+      hidden={isHidden}
+      id={controlledId}
     >
       <input
-        {...props as React.InputHTMLAttributes<HTMLInputElement>}
-        ref={ref as unknown as RefObject<HTMLInputElement>}
+        {...props}
         id={id}
-        type='checkbox'
       />
       <span>{label}</span>
     </label>

@@ -1,14 +1,26 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.75rem;
   max-width: 680px;
   margin: auto;
+
+  *[hidden] {
+    display: none;
+  }
 
   label, legend {
     margin-bottom: .25em;
     display: block;
     font-weight: bold;
+
+    &:has(input[type='checkbox']) {
+      font-weight: normal;
+
+      &:has(input[type='checkbox']:disabled) {
+        color: rgba(var(--foreground), .65);
+      }
+    }
   }
 
   input, textarea {
@@ -29,14 +41,20 @@
     position: relative;
     max-height: 65vh;
 
+    iframe, img {
+      margin-top: .25rem;
+    }
+
     button {
       position: absolute;
-      top: -8px;
+      top: -.25rem;
+      right: -.25rem;
       z-index: 1;
-      right: -8px;
-      padding: .75em .8em;
-      height: auto;
     }
+  }
+
+  p {
+    margin-bottom: .5rem;
   }
 }
 

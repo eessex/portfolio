@@ -5,8 +5,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: process.env.REMOTE_IMAGE_HOSTNAME || 'images.myhost.com',
+        hostname: process.env.REMOTE_IMAGE_HOSTNAME_OLD || 'images.myhost.com',
         pathname: (process.env.REMOTE_IMAGE_PATHNAME || '') + '/**'
+      },
+      {
+        protocol: 'https',
+        hostname: process.env.REMOTE_IMAGE_HOSTNAME || 'images.myhost.com',
+        pathname: (process.env.REMOTE_IMAGE_PATHNAME || '/images') + '/**'
       }
     ]
   }

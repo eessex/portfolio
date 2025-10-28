@@ -10,9 +10,9 @@ export function EditAboutForm ({ about }: { about: About & { coverImage?: Image 
   return (
     <Form action={(formData: FormData) => editAbout(formData, about.id)}>
       <Input
+        as='textarea'
         label='Description'
         defaultValue={about?.description}
-        isTextarea
         attributes={{
           name: 'description',
           maxLength: 15000

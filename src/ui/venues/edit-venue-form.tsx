@@ -1,26 +1,19 @@
 import type { Venue } from '@/lib/venues/types'
-import {
-  Input,
-  type InputType
-} from '@/ui/form/input'
+import { Input } from '@/ui/form/input'
 
 interface EditVenueProps {
   venue?: Venue
-  ref?: (el: InputType) => InputType | null
 }
 
-export const EditVenue = ({
-  venue,
-  ref
-}: EditVenueProps) => {
+export const EditVenue = ({ venue }: EditVenueProps) => {
   return (
     <>
       <Input
         label='Name'
         defaultValue={venue?.name}
-        description='If the venue has no name, put the street address here instead.'
-        ref={ref}
+        description='If the venue has no name, leave this blank.'
         attributes={{
+          autoFocus: !venue?.name && !venue?.id,
           maxLength: 255,
           name: 'name',
           placeholder: 'CBGB'

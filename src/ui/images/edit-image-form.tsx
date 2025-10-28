@@ -1,71 +1,22 @@
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import NextImage from 'next/image'
 import {
-  PlusIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline'
-import {
-  useCallback,
-  useRef,
+  useId,
   useState
 } from 'react'
 
 import type { Image } from '@/lib/images/types'
 import { Checkbox } from '@/ui/form/checkbox'
-import {
-  Input,
-  type InputType
-} from '@/ui/form/input'
+import { Input } from '@/ui/form/input'
 
 interface ImageProps {
   image?: Image
-  index?: number
-  isFielset?: boolean
-  ref?: (el: InputType) => InputType | null
-  onRemoveImage?: (index: number) => void
 }
 
-export const EditImageFieldset = ({
-  image,
-  index,
-  ref,
-  onRemoveImage
-}: ImageProps) => {
-  return (
-    <fieldset key={index}>
-      <legend className='visually-hidden'>
-        {`Image: ${image?.caption || image?.title || index || 0 + 1}`}
-      </legend>
-
-      <EditImage
-        image={image}
-        index={index}
-        ref={ref}
-        onRemoveImage={onRemoveImage}
-      />
-
-      {image && !image.url && onRemoveImage && index && (
-        <button
-          title='Remove image'
-          aria-label='Remove image'
-          type='button'
-          onClick={(() => onRemoveImage(index))}
-          className='button'
-        >
-          <XMarkIcon />
-        </button>
-      )}
-    </fieldset>
-  )
-}
-
-export const EditImage = ({
-  image,
-  index,
-  ref,
-  onRemoveImage
-}: ImageProps) => {
+export const EditImage = ({ image }: ImageProps) => {
   const [isPress, setIsPress] = useState(!!image?.isPress)
   const [isHiddenOnAboutPage, setIsHiddenOnAboutPage] = useState(!!image?.isHiddenOnAboutPage)
-  const hasIndex = typeof index === 'number' && index >= 0
+  const controlledCheckboxId = useId()
 
   return (
     <>
@@ -74,26 +25,33 @@ export const EditImage = ({
           label='Image url'
           description='Paste the url href from your cloud storage or AWS S3 bucket'
           defaultValue={image?.url}
-          isTextarea={!image?.id}
-          ref={ref}
           attributes={{
             autoFocus: !image?.url && !image?.id,
             maxLength: 1500,
-            name: hasIndex ? `image[${index}].url` : 'url',
-            placeholder: '<iframe></iframe>',
+            name: 'url',
+            placeholder: 'https://your-cloud-storage.com/images/unique-filename.jpg',
             required: true,
-            type: image?.id && hasIndex ? 'hidden' : undefined
+            type: (image?.id && image?.url) ? 'hidden' : undefined
           }}
         />
-        {image?.url.length && onRemoveImage && index && (
-          <figure>
-            <div dangerouslySetInnerHTML={{ __html: image.url }} />
+        {image?.url && (
+          <figure style={{
+            aspectRatio: image.aspect, marginInline: 'auto'
+          }}
+          >
+            <NextImage
+              src={image.url}
+              alt=''
+              width={680}
+              height={680 / image.aspect}
+              priority
+              fetchPriority='high'
+            />
             <button
               title='Remove image'
-              aria-label='Remove embed'
+              aria-label='Remove image'
               type='button'
-              onClick={(() => onRemoveImage(index))}
-              className='button'
+              className='button icon-button'
             >
               <XMarkIcon />
             </button>
@@ -106,7 +64,7 @@ export const EditImage = ({
         defaultValue={image?.caption}
         attributes={{
           maxLength: 255,
-          name: hasIndex ? `image[${index}].caption` : 'caption',
+          name: 'caption',
           placeholder: 'Caption'
         }}
       />
@@ -117,13 +75,21 @@ export const EditImage = ({
           label='This is a press image'
           isChecked={isPress}
           onChange={() => setIsPress(!isPress)}
-          attributes={{ name: hasIndex ? `image[${index}].isPress` : 'isPress' }}
+          attributes={{
+            name: 'isPress',
+            'aria-controls': controlledCheckboxId,
+            'aria-expanded': isPress
+          }}
         />
         <Checkbox
+          controlledId={controlledCheckboxId}
           label='Hide this image on the About page'
           isChecked={isHiddenOnAboutPage}
           onChange={() => setIsHiddenOnAboutPage(!isHiddenOnAboutPage)}
-          attributes={{ name: hasIndex ? `image[${index}].isHiddenOnAboutPage` : 'isHiddenOnAboutPage' }}
+          attributes={{
+            name: 'isHiddenOnAboutPage',
+            hidden: !isPress
+          }}
         />
       </fieldset>
       <Input
@@ -132,7 +98,7 @@ export const EditImage = ({
         defaultValue={image?.title}
         attributes={{
           maxLength: 255,
-          name: hasIndex ? `image[${index}].title` : 'title',
+          name: 'title',
           placeholder: 'Title'
         }}
       />
@@ -141,7 +107,7 @@ export const EditImage = ({
           label='Image ID'
           defaultValue={image.id}
           attributes={{
-            name: hasIndex ? `image[${index}].id` : 'id',
+            name: 'id',
             type: 'hidden'
           }}
         />
@@ -151,7 +117,7 @@ export const EditImage = ({
           label='Created At'
           defaultValue={image.createdAt.toISOString()}
           attributes={{
-            name: hasIndex ? `image[${index}].createdAt` : 'createdAt',
+            name: 'createdAt',
             type: 'hidden'
           }}
         />
@@ -161,71 +127,11 @@ export const EditImage = ({
           label='Aspect Ratio'
           defaultValue={image.aspect}
           attributes={{
-            name: hasIndex ? `image[${index}].aspect` : 'aspect',
+            name: 'aspect',
             type: 'hidden'
           }}
         />
       )}
     </>
-  )
-}
-
-export const EditImagesFieldset = ({ images }: {
-  images: Image[]
-}) => {
-  const initialImages = images || []
-  const [imageList, setImageList] = useState(initialImages)
-  const inputRefs = useRef<InputType[]>([])
-
-  const addToRefs = useCallback((el: InputType | null) => {
-    if (!el || inputRefs.current.includes(el)) return null
-    inputRefs.current.push(el)
-    return el
-  }, [])
-
-  function handleAddImage () {
-    const newImage = {
-      url: '',
-      caption: '',
-      id: '',
-      aspect: 1,
-      tagIds: [],
-      createdAt: new Date()
-    }
-    if (!imageList.some(image => (!image.url && !image.caption && !image.id))) {
-      setImageList([...imageList, newImage])
-    } else {
-      const lastIndex = imageList.length - 1
-      inputRefs.current[lastIndex]?.focus()
-    }
-  }
-
-  function handleRemoveImage (index: number) {
-    const updatedImages = [...imageList]
-    updatedImages.splice(index, 1)
-    setImageList(updatedImages)
-  }
-
-  return (
-    <fieldset>
-      <legend>Images</legend>
-      {imageList?.map((image, index) => (
-        <EditImage
-          key={index}
-          image={image}
-          index={index}
-          ref={addToRefs}
-          onRemoveImage={handleRemoveImage}
-        />
-      ))}
-
-      <button
-        type='button'
-        className='button button-secondary text-sm'
-        onClick={handleAddImage}
-      >
-        <PlusIcon />Add new image
-      </button>
-    </fieldset>
   )
 }

@@ -2,51 +2,59 @@
 
 import clsx from 'clsx'
 import {
-  type RefObject,
+  type JSX,
   useId,
   useState
 } from 'react'
+import React from 'react'
 
 import styles from '@/ui/form/form.module.scss'
 
 export type InputType = HTMLInputElement | HTMLTextAreaElement
 
-export interface InputProps {
-  label: string
-  className?: string
-  description?: string
-  defaultValue?: string | number
-  value?: string | number
-  attributes: React.InputHTMLAttributes<HTMLInputElement> | React.TextareaHTMLAttributes<HTMLTextAreaElement>
-  isLabelHidden?: boolean
-  isTextarea?: boolean
-  onChange?: (event: React.ChangeEvent<InputType>, isDirty: boolean) => void
-  ref?: (el: InputType) => InputType | null
+type InputElement = HTMLInputElement | HTMLTextAreaElement
+export type InputAttributes<T extends InputElement> =
+  T extends HTMLTextAreaElement
+    ? React.TextareaHTMLAttributes<T>
+    : React.InputHTMLAttributes<T>
+
+export interface InputProps<T extends InputElement> {
+  attributes?: InputAttributes<T>
   children?: React.ReactNode
+  className?: string
+  defaultValue?: string | number
+  description?: string
+  isLabelHidden?: boolean
+  label: string
+  onChange?: (event: React.ChangeEvent<T>, isDirty: boolean) => void
+  ref?: (el: T | null) => void
+  value?: string | number
 }
 
-export const Input = ({
-  label,
-  className,
-  description,
-  defaultValue,
-  value,
+export function Input (props: InputProps<HTMLInputElement> & { as?: 'input' }): JSX.Element
+export function Input (props: InputProps<HTMLTextAreaElement> & { as: 'textarea' }): JSX.Element
+export function Input<T extends InputElement = HTMLInputElement> ({
+  as = 'input',
   attributes,
+  children,
+  className,
+  defaultValue,
+  description,
   isLabelHidden,
-  isTextarea,
+  label,
   onChange,
   ref,
-  children
-}: InputProps) => {
+  value
+}: InputProps<T> & { as?: 'input' | 'textarea' }) {
   const [isDirty, setIsDirty] = useState<boolean>(false)
 
-  const onBlur = (event: React.FocusEvent<InputType>) => {
+  const onBlur = (event: React.FocusEvent<T>) => {
     if (event.target.value !== defaultValue && !isDirty) {
       setIsDirty(true)
     }
   }
 
-  const onChangeHandler = (event: React.ChangeEvent<InputType>) => {
+  const onChangeHandler = (event: React.ChangeEvent<T>) => {
     if (!isDirty) {
       setIsDirty(event.target.value !== defaultValue)
     }
@@ -54,42 +62,44 @@ export const Input = ({
   }
 
   const autoId = useId()
-  const id = attributes.id || autoId
+  const id = attributes?.id || autoId
   const isHidden = (attributes as React.InputHTMLAttributes<HTMLInputElement>).type === 'hidden'
 
   const props = {
     ...attributes,
-    defaultValue,
-    value,
     className: clsx(className, styles.input, isDirty && 'dirty', isHidden && 'visually-hidden'),
+    defaultValue,
+    onBlur,
     onChange: onChangeHandler,
-    onBlur
-  }
+    ref,
+    value
+  } as Omit<InputProps<T>, 'label'> & { onBlur: (event: React.FocusEvent<T>) => void }
 
   return (
     <div className={props.className}>
       {!isHidden && (
-        <label
-          className={clsx(isLabelHidden && 'visually-hidden')}
-          htmlFor={id}
-        >
-          {label}
-        </label>
+        <>
+          <label
+            className={clsx(isLabelHidden && 'visually-hidden')}
+            htmlFor={id}
+          >
+            {label}
+          </label>
+
+          {description && (
+            <p>
+              {description}
+            </p>
+          )}
+        </>
       )}
-      {description && (
-        <p>
-          {description}
-        </p>
-      )}
-      {isTextarea
+      {as === 'textarea'
         ? <textarea
           {...props as React.TextareaHTMLAttributes<HTMLTextAreaElement>}
-          ref={ref as unknown as RefObject<HTMLTextAreaElement>}
           id={id}
           />
         : <input
           {...props as React.InputHTMLAttributes<HTMLInputElement>}
-          ref={ref as unknown as RefObject<HTMLInputElement>}
           id={id}
           />}
       {children}

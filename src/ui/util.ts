@@ -1,9 +1,11 @@
 import type { z } from 'zod'
 
+import type { Image } from '@/lib/images/types'
 import type { Link } from '@/lib/links/types'
 import type { PublishedEditionClient } from '@/lib/published-editions/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
+import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 
 const dateFormatLg: Intl.DateTimeFormatOptions = {
   weekday: 'short',
@@ -245,4 +247,26 @@ export function formattedItemTitle (item: PageItemClient) {
 
 export function itemUrl (item: PageItemClient) {
   return `/${item.path}/${item.slug}`
+}
+
+export function usedOnPages (item: DashboardItem) {
+  const events = item.eventSlugs?.map(i => eventUrl(i)) || []
+  const projects = item.projectSlugs?.map(i => projectUrl(i)) || []
+  const releases =
+      'releaseSlugs' in item && Array.isArray(item.releaseSlugs)
+        ? item.releaseSlugs.map(i => releaseUrl(i))
+        : []
+  const about = []
+  if ((item as Link).type === 'press' || (item as Image).isPress) {
+    if (!(item as Link | Image).isHiddenOnAboutPage) {
+      about.push('/about')
+    }
+  }
+
+  return [
+    ...events,
+    ...releases,
+    ...projects,
+    ...about
+  ]
 }

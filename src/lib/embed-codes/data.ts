@@ -40,7 +40,8 @@ export async function fetchEmbedCodes () {
           WHERE p.embed_code_ids @> ARRAY[embed_codes.id]
         ) AS project_slugs,
         ARRAY(
-          SELECT slug FROM releases as r WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
+          SELECT slug FROM releases as r
+          WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
         ) AS release_slugs
       FROM embed_codes
       ORDER BY embed_codes.updated_at DESC

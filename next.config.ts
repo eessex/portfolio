@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: process.env.REMOTE_IMAGE_HOSTNAME || 'images.myhost.com',
-        pathname: '/images/**' // Allows specific subdirectories
+        pathname: '/images/**'
       }
     ]
   }

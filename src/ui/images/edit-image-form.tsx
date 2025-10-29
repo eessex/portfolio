@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import {
+  useId,
+  useState
+} from 'react'
 
 import { checkIfImageExists } from '@/lib/images/actions'
 import type {
@@ -7,70 +10,39 @@ import type {
 } from '@/lib/images/types'
 import { Checkbox } from '@/ui/form/checkbox'
 import { FileInput } from '@/ui/form/file-input-image'
-import {
-  Input,
-  type InputProps,
-  type InputType
-} from '@/ui/form/input'
+import { Input } from '@/ui/form/input'
 
-import { usedOnPages } from '../util'
-
-interface ImageProps {
-  image?: Image
-  index?: number
-  ref?: InputProps<InputType>['ref']
-}
-
-export const EditImage = ({
-  image,
-  index,
-  ref
-}: ImageProps) => {
-  const [formImage, setFormImage] = useState<CreateImage | Image | undefined>(image)
+export const EditImage = ({ image }: { image?: Image }) => {
   const [isPress, setIsPress] = useState(!!image?.isPress)
   const [aspectRatio, setAspectRatio] = useState<number | undefined>(image?.aspect || undefined)
   const [isHiddenOnAboutPage, setIsHiddenOnAboutPage] = useState(!!image?.isHiddenOnAboutPage)
+  const [formImage, setFormImage] = useState<CreateImage>(image || {} as CreateImage)
 
-  const hasIndex = typeof index === 'number' && index >= 0
   const {
     createdAt,
     id,
     url
   } = (formImage || {}) as Image
-  const usedOn = image?.id ? usedOnPages(image as Image).length : 0
-
-  function onRemove () {
-    console.info('onRemove')
-    if (usedOn > 0) {
-      const onConfirm = confirm(`
-        This image is used on ${usedOn === 1 ? '1 page' : usedOn + ' pages'},
-        replacing it here will also change this image everywhere it is used.
-      `)
-      if (!onConfirm) return
-    }
-    setFormImage({
-      ...formImage, url: ''
-    } as CreateImage)
-    setAspectRatio(undefined)
-  }
-
-  function formattedName (field: string) {
-    return hasIndex ? `image[${index}].${field}` : field
-  }
 
   async function onFileChange (filename: string, aspectRatio: number | undefined) {
     console.info('onFileChange')
     setAspectRatio(aspectRatio)
     if (filename) {
       try {
+        if (image?.url) {
+          const urlPath = image.url.split('/images/')[1]
+          const isProbablyExisting = urlPath && urlPath === filename && aspectRatio === image.aspect
+          if (isProbablyExisting) return
+        }
         const existingImage = await checkIfImageExists(filename)
         if (existingImage) {
-          if (id) {
+          if (id && existingImage.id !== id) {
             alert('An image with this URL already exists, use a unique filename.')
-          } else {
-            const confirmed = confirm('An image with this URL already exists, "confirm" to use existing, or "cancel" and upload with a unique filename.')
+          } else if (!id) {
+            const confirmed = confirm('This image URL already exists. Confirm to edit the existing image. Cancel to choose another image with a unique filename.')
             if (confirmed) {
               setFormImage(existingImage)
+              setAspectRatio(existingImage.aspect)
             }
           }
         }
@@ -79,6 +51,7 @@ export const EditImage = ({
       }
     }
   }
+  const controlledCheckboxId = useId()
 
   return (
     <>
@@ -86,19 +59,18 @@ export const EditImage = ({
         label='Upload new image'
         attributes={{
           accept: 'image/*',
-          name: formattedName('file'),
+          name: 'file',
           required: true
         }}
         image={formImage}
         onChange={onFileChange}
-        onRemoveImage={onRemove}
       />
       {aspectRatio && (
         <Input
           label='Aspect Ratio'
           value={aspectRatio}
           attributes={{
-            name: formattedName('aspect'),
+            name: 'aspect',
             type: 'hidden'
           }}
         />
@@ -109,10 +81,9 @@ export const EditImage = ({
           label='Image url'
           description='Paste the url href AWS S3 bucket.'
           defaultValue={url}
-          ref={ref}
           attributes={{
             maxLength: 250,
-            name: formattedName('url'),
+            name: 'url',
             placeholder: 'https://aws.s3.bucket/your-image.jpg',
             required: true,
             type: 'hidden'
@@ -125,7 +96,7 @@ export const EditImage = ({
         defaultValue={formImage?.caption}
         attributes={{
           maxLength: 255,
-          name: formattedName('caption'),
+          name: 'caption',
           placeholder: 'Caption'
         }}
       />
@@ -136,16 +107,20 @@ export const EditImage = ({
           label='This is a press image'
           isChecked={isPress}
           onChange={() => setIsPress(!isPress)}
-          attributes={{ name: formattedName('isPress') }}
+          attributes={{
+            name: 'isPress',
+            'aria-controls': controlledCheckboxId,
+            'aria-expanded': isPress
+          }}
         />
         <Checkbox
+          controlledId={controlledCheckboxId}
           label='Hide this image on the About page'
           isChecked={isHiddenOnAboutPage}
           onChange={() => setIsHiddenOnAboutPage(!isHiddenOnAboutPage)}
           attributes={{
-            name: formattedName('isHiddenOnAboutPage'),
-            disabled: !isPress,
-            type: !isPress ? 'hidden' : undefined
+            name: 'isHiddenOnAboutPage',
+            hidden: !isPress
           }}
         />
       </fieldset>
@@ -155,7 +130,7 @@ export const EditImage = ({
         defaultValue={formImage?.title}
         attributes={{
           maxLength: 255,
-          name: formattedName('title'),
+          name: 'title',
           placeholder: 'Title'
         }}
       />
@@ -164,7 +139,7 @@ export const EditImage = ({
           label='Image ID'
           defaultValue={id}
           attributes={{
-            name: formattedName('id'),
+            name: 'id',
             type: 'hidden'
           }}
         />
@@ -174,7 +149,7 @@ export const EditImage = ({
           label='Created At'
           defaultValue={createdAt.toISOString()}
           attributes={{
-            name: formattedName('createdAt'),
+            name: 'createdAt',
             type: 'hidden'
           }}
         />

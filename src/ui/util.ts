@@ -5,6 +5,7 @@ import type { Link } from '@/lib/links/types'
 import type { PublishedEditionClient } from '@/lib/published-editions/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
+import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 
 import type { DashboardItem } from './dashboard/dashboard-items'
 

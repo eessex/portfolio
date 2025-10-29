@@ -27,13 +27,13 @@ export function EditSettings ({ settings }: { settings: SiteSettingsClient }) {
       />
 
       <Input
+        as='textarea'
         label='Site description'
         description='Shown on homepage and as meta description for search engines.'
         defaultValue={settings?.description}
-        as='textarea'
         attributes={{
           name: 'description',
-          maxLength: 300
+          maxLength: 255
         }}
       />
 

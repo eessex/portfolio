@@ -1,110 +1,82 @@
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useState } from 'react'
 
-import type {
-  DashboardEmbedCode,
-  EmbedCode
-} from '@/lib/embed-codes/types'
-import {
-  Input,
-  type InputAttributes,
-  type InputProps,
-  type InputType
-} from '@/ui/form/input'
-import { usedOnPages } from '@/ui/util'
+import type { EmbedCode } from '@/lib/embed-codes/types'
+import { Input } from '@/ui/form/input'
 
 interface EmbedCodeProps {
-  embedCode?: EmbedCode | DashboardEmbedCode
-  index?: number
-  isFielset?: boolean
-  ref?: InputProps<InputType>['ref']
+  embedCode?: EmbedCode
 }
 
-export const EditEmbedCode = ({
-  embedCode,
-  index,
-  ref
-}: EmbedCodeProps) => {
-  const hasIndex = typeof index === 'number' && index >= 0
-  const isUsed = embedCode?.id ? usedOnPages(embedCode as DashboardEmbedCode).length > 0 : false
-  const [iframeValue, setIframeValue] = useState(embedCode?.iframe || '')
+export const EditEmbedCode = ({ embedCode }: EmbedCodeProps) => {
+  const [embedCodeIframe, setEmbedCodeIframe] = useState(embedCode?.iframe || '')
 
-  const iframeProps: InputProps<HTMLTextAreaElement> = {
+  function onReplaceIframe (newIframe: string) {
+    if (embedCode?.id && !newIframe) {
+      const confirmed = confirm('This embed code is used on existing pages. Changing it will update all pages it is used on. Are you sure you want to remove it?')
+      if (!confirmed) return
+    }
+
+    setEmbedCodeIframe(newIframe)
+  }
+
+  const iFrameTextareaProps = {
     label: 'Embed iframe code',
-    description: 'Paste the full iframe embed code from a service like YouTube, Bandcamp, or Spotify',
-    ref,
+    description: 'Paste the full iframe embed code from a service like YouTube, Bandcamp, or Spotify. iFrames are displayed at 100% width of their container, max 680px.',
+    defaultValue: embedCodeIframe,
     attributes: {
+      autoFocus: !embedCodeIframe && !embedCode?.id,
       maxLength: 1500,
-      name: hasIndex ? `embedCode[${index}].iframe` : 'iframe',
+      name: 'iframe',
       placeholder: '<iframe></iframe>',
       required: true
     }
   }
 
-  function toHiddenInputProps (
-    props: InputProps<HTMLTextAreaElement>
-  ): InputProps<HTMLInputElement> {
-    const attributes = {
-      ...props.attributes, type: 'hidden'
-    } as InputAttributes<HTMLInputElement>
-
-    return {
-      label: props.label,
-      description: props.description,
-      defaultValue: iframeValue,
-      ref,
-      attributes
+  const iFrameHiddenProps = {
+    ...iFrameTextareaProps,
+    attributes: {
+      ...iFrameTextareaProps.attributes,
+      type: 'hidden',
+      readOnly: true
     }
   }
-
-  const savedIframeInputProps = iframeValue
-    ? toHiddenInputProps(iframeProps)
-    : undefined
-
-  function onRemove () {
-    if (isUsed) {
-      const onConfirm = confirm('This embed code is used on one or more pages, replacing it here will also update this embed everywhere it is used.')
-      if (!onConfirm) return
-    }
-    setIframeValue('')
-  }
-
   return (
     <>
-      <div>
-        {savedIframeInputProps
-          ? (
-            <Input {...savedIframeInputProps} />
-            )
-          : (
-            <Input
-              {...iframeProps}
-              as='textarea'
-            />
-            )}
-        {iframeValue && (
-          <figure>
-            <div dangerouslySetInnerHTML={{ __html: iframeValue }} />
-            <button
-              title='Remove embed code'
-              aria-label='Remove embed'
-              type='button'
-              onClick={onRemove}
-              className='button icon-button'
-            >
-              <XMarkIcon />
-            </button>
-          </figure>
-        )}
-      </div>
 
+      {embedCodeIframe.length
+        ? (
+          <div>
+            <Input
+              {...iFrameHiddenProps}
+            />
+            <figure>
+              <div dangerouslySetInnerHTML={{ __html: embedCodeIframe }} />
+              <button
+                title='Remove embed code'
+                aria-label='Remove embed'
+                type='button'
+                onClick={() => onReplaceIframe('')}
+                className='button icon-button'
+              >
+                <XMarkIcon />
+              </button>
+            </figure>
+          </div>
+          )
+        : (
+          <Input
+            as='textarea'
+            {...iFrameTextareaProps}
+          />
+          )}
       <Input
         label='Caption'
         description='Displayed below the iframe wherever it appears'
         defaultValue={embedCode?.caption}
         attributes={{
           maxLength: 255,
-          name: hasIndex ? `embedCode[${index}].caption` : 'caption',
+          name: 'caption',
           placeholder: 'Caption'
         }}
       />
@@ -115,7 +87,7 @@ export const EditEmbedCode = ({
         defaultValue={embedCode?.title}
         attributes={{
           maxLength: 255,
-          name: hasIndex ? `embedCode[${index}].title` : 'title',
+          name: 'title',
           placeholder: 'Title'
         }}
       />
@@ -125,7 +97,7 @@ export const EditEmbedCode = ({
           label='Embed Code ID'
           defaultValue={embedCode.id}
           attributes={{
-            name: hasIndex ? `embedCode[${index}].id` : 'id',
+            name: 'id',
             type: 'hidden'
           }}
         />
@@ -136,7 +108,7 @@ export const EditEmbedCode = ({
           label='Created At'
           defaultValue={embedCode.createdAt.toISOString()}
           attributes={{
-            name: hasIndex ? `embedCode[${index}].createdAt` : 'createdAt',
+            name: 'createdAt',
             type: 'hidden'
           }}
         />

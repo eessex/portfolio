@@ -5,6 +5,10 @@
   max-width: 680px;
   margin: auto;
 
+  *[hidden] {
+    display: none;
+  }
+
   label, legend {
     margin-bottom: .25em;
     display: block;
@@ -12,7 +16,7 @@
 
     &:has(input[type='checkbox']) {
       font-weight: normal;
-  
+
       &:has(input[type='checkbox']:disabled) {
         color: rgba(var(--foreground), .65);
       }
@@ -40,6 +44,10 @@
       margin-top: .25rem;
     }
 
+    iframe, img {
+      margin-top: .25rem;
+    }
+
     button {
       position: absolute;
       top: -.25rem;
@@ -50,21 +58,6 @@
 
   p {
     margin-bottom: .5rem;
-  }
-}
-
-.file-input {
-  // TODO
-  .image-preview {
-    position: relative;
-    margin-top: .25rem;
-
-    button {
-      position: absolute;
-      top: -.25rem;
-      right: -.25rem;
-      z-index: 1;
-    }
   }
 }
 

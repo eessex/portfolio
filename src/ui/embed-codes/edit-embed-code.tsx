@@ -80,7 +80,6 @@ export const EditEmbedCode = ({ embedCode }: EmbedCodeProps) => {
           placeholder: 'Caption'
         }}
       />
-
       <Input
         label='Title'
         description='Used for internal search only, never displayed publicly'
@@ -91,7 +90,6 @@ export const EditEmbedCode = ({ embedCode }: EmbedCodeProps) => {
           placeholder: 'Title'
         }}
       />
-
       {embedCode?.id && (
         <Input
           label='Embed Code ID'
@@ -102,7 +100,6 @@ export const EditEmbedCode = ({ embedCode }: EmbedCodeProps) => {
           }}
         />
       )}
-
       {embedCode?.createdAt && (
         <Input
           label='Created At'

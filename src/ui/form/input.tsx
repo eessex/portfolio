@@ -82,6 +82,7 @@ export function Input<T extends InputElement = HTMLInputElement> ({
           <label
             className={clsx(isLabelHidden && 'visually-hidden')}
             htmlFor={id}
+            hidden={attributes?.hidden}
           >
             {label}
           </label>

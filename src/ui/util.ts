@@ -7,8 +7,6 @@ import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
 import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 
-import type { DashboardItem } from './dashboard/dashboard-items'
-
 const dateFormatLg: Intl.DateTimeFormatOptions = {
   weekday: 'short',
   year: 'numeric',

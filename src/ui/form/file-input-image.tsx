@@ -12,7 +12,7 @@ import type { InputProps } from '@/ui/form/input'
 import { Input } from '@/ui/form/input'
 import { usedOnPages } from '@/ui/util'
 
-export function FileInput ({
+export function FileInputImage ({
   label,
   className,
   description,
@@ -101,23 +101,22 @@ export function FileInput ({
             </figure>
           </>
         )}
-      {!previewUrl && !imageUrl && (
-        <Input
-          ref={ref}
-          attributes={{
-            ...attributes,
-            name: attributes?.name || 'file',
-            type: 'file'
-          }}
-          className={className}
-          description={description}
-          defaultValue={defaultValue}
-          value={value}
-          isLabelHidden={isLabelHidden}
-          label={label}
-          onChange={onFileChange}
-        />
-      )}
+      <Input
+        ref={ref}
+        attributes={{
+          ...attributes,
+          name: attributes?.name || 'file',
+          type: 'file',
+          hidden: !!(previewUrl || imageUrl)
+        }}
+        className={className}
+        description={description}
+        defaultValue={defaultValue}
+        value={value}
+        isLabelHidden={isLabelHidden}
+        label={label}
+        onChange={onFileChange}
+      />
     </div>
   )
 }

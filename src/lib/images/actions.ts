@@ -10,7 +10,8 @@ import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 
 import {
-  createImageSchema, imageSchema
+  createImageSchema,
+  imageSchema
 } from '@/lib/images/schemas'
 import type {
   CreateImage,
@@ -49,7 +50,6 @@ const s3 = new S3Client({
 export async function checkIfImageExists (filename: string, id?: string): Promise<Image | false> {
   try {
     const formattedFilename = s3Prefix + makeS3SafeKey(filename)
-    console.info('checkIfImageExists')
     const [existingImage] = await sql<Image[]>`SELECT * from images WHERE url = ${formattedFilename}`
     if (existingImage && existingImage.id !== id) {
       console.debug('Image already exists:', existingImage.id, formattedFilename)
@@ -70,41 +70,28 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
 
   if (clientFile) {
     console.info('Uploading file to S3:', clientFile.name)
-    console.info('maybe existing url:', data.url, formData.get('url'))
     try {
-      // check if file already exists in S3?
       const uploadedUrl = await uploadFile(clientFile)
       console.debug('File uploaded successfully. URL:', uploadedUrl)
       if ((data.url as string || '').length > 0) {
-        // delete old file from S3
         await deleteFromS3(data.url as string)
       }
       data.url = uploadedUrl
-      formData.delete('file')
+      delete data.file
     } catch (err) {
       console.error('Failed to upload file:', err)
       throw new Error('Failed to upload file.')
-    } finally {
-      console.info('Finished upload attempt for file:', clientFile.name)
     }
   }
 
   Object.entries(data).forEach(([n, v]) => {
-    // maybe can remove
-    if (v === 'file') {
-      delete data[n]
-    } else if (v === 'on') {
-    // checkboxes are always 'on' when checked, so we convert them to true
+    if (v === 'on') {
+      // checkboxes are always 'on' when checked, so we convert them to true
       data[n] = true
     } else if (n.includes('Date')) {
-      console.info('Parsing date for:', n, v)
       data[n] = v || undefined
     } else if (n === 'aspect') {
-      console.debug('Converting aspect ratio to float:', n, v)
       data[n] = parseFloat(v as string)
-    } else {
-      console.debug('Form data entry:', n, v)
-      data[n] = v
     }
   })
   if (formData.get('id')) {
@@ -121,8 +108,7 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
     }
   } else {
     try {
-      const image = validatedImage.data
-      const updatedImage = await updateImage(image)
+      const updatedImage = await updateImage(validatedImage.data)
       if (updatedImage) {
         console.debug('Image saved successfully:', updatedImage)
         revalidatePath('/dashboard/images')
@@ -225,12 +211,12 @@ async function updateImage (image: CreateImage | Image) {
 
 export async function deleteImage (id: string): Promise<FormResponse<Image>> {
   try {
-    const res = await sql`
+    const [res] = await sql`
       DELETE FROM images as i
       WHERE id = ${id}
       RETURNING i.url
     `
-    await deleteFromS3(res[0].url)
+    await deleteFromS3(res.url)
     revalidatePath('/dashboard/images')
     return { ok: true }
   } catch (err) {
@@ -265,16 +251,11 @@ async function getPresignedUploadUrl (filename: string, contentType: string) {
     ContentType: contentType
   })
 
-  const url = await getSignedUrl(s3, command, { expiresIn: 60 * 5 }) // 5 minutes
-  return url
+  return await getSignedUrl(s3, command, { expiresIn: 60 * 5 }) // 5 minutes
 }
 
 export async function uploadFile (file: File) {
-  // 1. Request presigned URL from your backend (pass file name & type)
   const res = await getPresignedUploadUrl(file.name, file.type)
-  // const { url } = await res.json()
-
-  // 2. Upload file directly to S3
   const uploadRes = await fetch(res, {
     method: 'PUT',
     headers: { 'Content-Type': file.type },
@@ -283,38 +264,5 @@ export async function uploadFile (file: File) {
 
   if (!uploadRes.ok) throw new Error('Upload failed')
 
-  return res.split('?')[0] // URL without query params (S3 object URL)
-}
-
-export async function saveImageMetadata ({
-  alt,
-  aspect,
-  caption,
-  isHiddenOnAboutPage,
-  isPress,
-  title,
-  url
-}: Image) {
-  await sql<Image[]>`
-    INSERT INTO images (
-      alt,
-      aspect,
-      caption,
-      created_at,
-      is_hidden_on_about_page,
-      is_press,
-      title,
-      url
-    )
-    VALUES (
-      ${alt || null},
-      ${aspect},
-      ${caption || null},
-      current_timestamp,
-      ${isHiddenOnAboutPage || false},
-      ${isPress || false},
-      ${title || null},
-      ${url}
-    )
-  `
+  return res.split('?')[0] // URL without query params
 }

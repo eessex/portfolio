@@ -9,7 +9,7 @@ import type {
   Image
 } from '@/lib/images/types'
 import { Checkbox } from '@/ui/form/checkbox'
-import { FileInput } from '@/ui/form/file-input-image'
+import { FileInputImage } from '@/ui/form/file-input-image'
 import { Input } from '@/ui/form/input'
 
 export const EditImage = ({ image }: { image?: Image }) => {
@@ -25,7 +25,6 @@ export const EditImage = ({ image }: { image?: Image }) => {
   } = (formImage || {}) as Image
 
   async function onFileChange (filename: string, aspectRatio: number | undefined) {
-    console.info('onFileChange')
     setAspectRatio(aspectRatio)
     if (filename) {
       try {
@@ -55,8 +54,9 @@ export const EditImage = ({ image }: { image?: Image }) => {
 
   return (
     <>
-      <FileInput
+      <FileInputImage
         label='Upload new image'
+        description='1MB size limit.'
         attributes={{
           accept: 'image/*',
           name: 'file',
@@ -79,12 +79,12 @@ export const EditImage = ({ image }: { image?: Image }) => {
       {url?.length > 0 && id && (
         <Input
           label='Image url'
-          description='Paste the url href AWS S3 bucket.'
+          description='The url of AWS S3 image location.'
           defaultValue={url}
           attributes={{
-            maxLength: 250,
+            maxLength: 255,
             name: 'url',
-            placeholder: 'https://aws.s3.bucket/your-image.jpg',
+            placeholder: 'https://aws.s3.bucket/images/your-image.jpg',
             required: true,
             type: 'hidden'
           }}

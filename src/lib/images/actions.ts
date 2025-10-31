@@ -65,10 +65,10 @@ export async function checkIfImageExists (filename: string, id?: string): Promis
 
 export async function editImage (formData: FormData): Promise<FormResponse<Image>> {
   let validatedImage
-  const clientFile = formData.get('file') as File | null
+  const clientFile = formData.get('file') as File | undefined
   const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)
 
-  if (clientFile) {
+  if (clientFile?.name && clientFile.size > 0) {
     console.info('Uploading file to S3:', clientFile.name)
     try {
       const uploadedUrl = await uploadFile(clientFile)

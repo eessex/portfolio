@@ -107,7 +107,8 @@ export function FileInputImage ({
           ...attributes,
           name: attributes?.name || 'file',
           type: 'file',
-          hidden: !!(previewUrl || imageUrl)
+          hidden: !!(previewUrl || imageUrl),
+          required: !previewUrl && !imageUrl
         }}
         className={className}
         description={description}

@@ -25,7 +25,8 @@ export const EditImage = ({ image }: { image?: Image }) => {
   } = (formImage || {}) as Image
 
   async function onFileChange (filename: string, aspectRatio: number | undefined) {
-    setAspectRatio(aspectRatio)
+    const aspectRatioValue = aspectRatio || formImage.aspect
+    setAspectRatio(aspectRatioValue)
     if (filename) {
       try {
         if (image?.url) {

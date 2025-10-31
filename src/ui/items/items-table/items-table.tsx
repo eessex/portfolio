@@ -112,12 +112,20 @@ export function ItemsTable ({
 
   function searchResultMatches (items: PageItemClient[]) {
     const lowerSearch = searchTerm.toLowerCase()
-    return items.filter(item => {
-      return Object.values(item).some(val =>
-        typeof val === 'string' &&
-        val.toLowerCase().includes(lowerSearch)
-      )
-    })
+
+    function valueMatches (val: unknown): boolean {
+      if (typeof val === 'string') {
+        return val.toLowerCase().includes(lowerSearch)
+      }
+      if (typeof val === 'object' && val !== null) {
+        return Object.values(val).some(valueMatches)
+      }
+      return false
+    }
+
+    return items.filter(item =>
+      Object.values(item).some(valueMatches)
+    )
   }
 
   function searchFilteredNestedArrays (data: { [key: string]: PageItemClient[] }[]) {

@@ -76,7 +76,10 @@ export function Input<T extends InputElement = HTMLInputElement> ({
   } as Omit<InputProps<T>, 'label'> & { onBlur: (event: React.FocusEvent<T>) => void }
 
   return (
-    <div className={props.className}>
+    <div
+      className={props.className}
+      hidden={attributes?.hidden}
+    >
       {!isHidden && (
         <>
           <label

@@ -287,11 +287,11 @@ input, textarea, select {
   }
 
   input, textarea, select {
-    background: var(--transparency-extra-light);
+    background: var(--transparency-primary);
 
     &:disabled {
-      background: var(--transparency-primary);
-      color: var(--transparency-primary);
+      background: var(--transparency-light);
+      color: var(--transparency-secondary);
       cursor: not-allowed;
     }
   }

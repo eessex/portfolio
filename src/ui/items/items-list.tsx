@@ -8,7 +8,7 @@ import { ItemCard } from '@/ui/items/item-card'
 import styles from '@/ui/items/items.module.scss'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import { TicketButton } from '@/ui/ticket-button'
-import { VenueInline } from '@/ui/venues/venue'
+import { formatVenueInline } from '@/ui/util'
 
 export function ItemsList ({
   isCategoryVisible = false,
@@ -97,7 +97,7 @@ function ItemGridItem ({
         >
           {venue && (
             <p className={styles['card-item-venue']}>
-              <VenueInline venue={venue!} />
+              {formatVenueInline({ venue })}
             </p>
           )}
         </ItemCard>

@@ -51,11 +51,11 @@ import { LinkItem } from '@/ui/links/link-item'
 import { SearchInput } from '@/ui/search-input/search-input'
 import {
   formattedItemType,
+  formatVenueInline,
   singularizePath,
   usedOnPages
 } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
-import { VenueInline } from '@/ui/venues/venue'
 
 declare global {
   interface DocumentEventMap {
@@ -468,10 +468,10 @@ export function ItemDisplay ({
           <div>
             <h3>Address:</h3>
             <p>
-              <VenueInline
-                venue={item as Venue}
-                isNameHidden
-              />
+              {formatVenueInline({
+                venue: item as Omit<Venue, 'id'>,
+                isNameHidden: true
+              })}
             </p>
           </div>
         </>

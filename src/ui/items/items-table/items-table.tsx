@@ -24,9 +24,9 @@ import { PublishedEditionsCombined } from '@/ui/published-editions/published-edi
 import { SearchInput } from '@/ui/search-input/search-input'
 import {
   formattedItemType,
+  formatVenueInline,
   snakeToCamel
 } from '@/ui/util'
-import { VenueInline } from '@/ui/venues/venue'
 
 export function ItemsTable ({
   items,
@@ -346,10 +346,10 @@ function ItemsTableItem ({
           isPathTypeVisible={isPathTypeVisible}
         >
           {(item as EventClient).venue && (
-            <VenueInline
-              venue={(item as EventClient).venue!}
-              format='sm'
-            />
+            formatVenueInline({
+              venue: (item as EventClient).venue!,
+              format: 'sm'
+            })
           )}
         </ItemsTableRow>
       )

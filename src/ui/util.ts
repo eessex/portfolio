@@ -5,6 +5,7 @@ import type { Link } from '@/lib/links/types'
 import type { PublishedEditionClient } from '@/lib/published-editions/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
+import type { Venue } from '@/lib/venues/types'
 import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 
 const dateFormatLg: Intl.DateTimeFormatOptions = {
@@ -269,4 +270,43 @@ export function usedOnPages (item: DashboardItem) {
     ...projects,
     ...about
   ]
+}
+
+export function formatVenueInline ({
+  venue,
+  format,
+  isNameHidden
+}: {
+  venue: Omit<Venue, 'id'>
+  format?: 'sm' | 'lg'
+  isNameHidden?: boolean
+}): string {
+  const parts: string[] = []
+
+  if (isNameHidden) {
+    if (venue.address) parts.push(venue.address)
+    if (venue.city) parts.push(venue.city)
+    if (venue.state) parts.push(venue.state)
+    if (venue.country) parts.push(venue.country)
+    return parts.join(', ')
+  }
+
+  if (format === 'sm') {
+    if (venue.name) {
+      parts.push(`${venue.name}:`)
+    } else if (venue.address) {
+      parts.push(venue.address)
+    }
+    if (venue.city) parts.push(venue.city)
+    if (venue.state) parts.push(venue.state)
+    if (venue.country) parts.push(venue.country)
+    return parts.join(', ').replace(':,', ':').trim()
+  }
+
+  if (venue.name) parts.push(`${venue.name}:`)
+  if (venue.address) parts.push(venue.address)
+  if (venue.city) parts.push(venue.city)
+  if (venue.state) parts.push(venue.state)
+  if (venue.country) parts.push(venue.country)
+  return parts.join(', ').replace(':,', ':').trim()
 }

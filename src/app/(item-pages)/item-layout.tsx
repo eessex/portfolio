@@ -22,9 +22,9 @@ import {
   filteredLinksByPress,
   formattedItemTitle,
   formattedItemType,
+  formatVenueInline,
   isUpcomingDate
 } from '@/ui/util'
-import { VenueInline } from '@/ui/venues/venue'
 
 export default async function ItemLayout ({
   item,
@@ -87,11 +87,11 @@ export default async function ItemLayout ({
                     target='_blank'
                     rel='noopener noreferrer'
                   >
-                    <VenueInline venue={venue} />
+                    {formatVenueInline({ venue })}
                   </a>
                   )
                 : (
-                  <VenueInline venue={venue} />
+                    formatVenueInline({ venue })
                   )}
             </p>
           )}

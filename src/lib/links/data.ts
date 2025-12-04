@@ -11,7 +11,12 @@ import type {
   DashboardLink,
   Link
 } from '@/lib/links/types'
-import { formatDbResponseForClient } from '@/ui/util'
+import {
+  DEFAULT_PAGE_SIZE,
+  formatDbResponseForClient,
+  formatResponseWithCursor,
+  type ResponseWithCursor
+} from '@/lib/util'
 
 export const fetchLinksByIds = async (ids: QueryResultRow[string]) => {
   try {
@@ -19,7 +24,7 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]) => {
       SELECT * FROM links
       WHERE id = ANY(${ids})
       ORDER BY
-      COALESCE(publish_date, created_at) DESC
+      COALESCE(publish_date, created_at) DESC;
     `
     return data.rows.map(row => formatDbResponseForClient(row, linkSchema))
   } catch (error) {
@@ -30,6 +35,8 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]) => {
 
 /** dashboard: all the links */
 export async function fetchLinks () {
+  const totalCount = await getTotalCount('')
+
   try {
     const data = await sql<DashboardLink>`
       SELECT
@@ -45,8 +52,14 @@ export async function fetchLinks () {
         ) AS release_slugs
       FROM links
       ORDER BY links.updated_at DESC
+      LIMIT ${DEFAULT_PAGE_SIZE};
     `
-    return data.rows.map(row => formatDbResponseForClient(row, dashboardLinkSchema))
+    const formatted = formatResponseWithCursor(data, 'url', dashboardLinkSchema)
+    const res: ResponseWithCursor<DashboardLink> = {
+      ...formatted,
+      totalCount
+    }
+    return res
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')
@@ -81,5 +94,28 @@ export async function fetchSocialLinks () {
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')
+  }
+}
+
+async function getTotalCount (query: string) {
+  try {
+    if (!query) {
+      const result = await sql`SELECT COUNT(*)::int AS count FROM links`
+      return result.rows[0].count
+    }
+
+    const like = `%${query}%`
+    const result = await sql`
+    SELECT COUNT(*)::int AS count
+    FROM links
+    WHERE
+      url ILIKE ${like} OR
+      title ILIKE ${like} OR
+      quotation ILIKE ${like}
+  `
+    return result.rows[0].count ?? 0
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch link count.')
   }
 }

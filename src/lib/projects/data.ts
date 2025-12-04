@@ -6,7 +6,7 @@ import type {
   ProjectClient
 } from '@/lib/projects/types'
 import type { pagePathTypes } from '@/lib/schemas'
-import { formatDbResponseForClient } from '@/ui/util'
+import { formatDbResponseForClient } from '@/lib/util'
 
 const path: typeof pagePathTypes[number] = 'projects'
 const projectPathType = 'project'

@@ -23,7 +23,7 @@ export default async function VenuesPage () {
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
         <DashboardItems
-          items={venues}
+          items={venues.res}
           itemType={itemType}
           editItem={editVenue}
           deleteItem={deleteVenue}

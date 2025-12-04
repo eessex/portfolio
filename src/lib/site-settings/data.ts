@@ -2,7 +2,7 @@ import { sql } from '@vercel/postgres'
 
 import { siteSettingsClientSchema } from '@/lib/site-settings/schemas'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
-import { formatDbResponseForClient } from '@/ui/util'
+import { formatDbResponseForClient } from '@/lib/util'
 
 /** site title & image, SEO meta */
 export async function fetchSiteSettings () {

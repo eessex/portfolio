@@ -23,7 +23,7 @@ export default async function LinksPage () {
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
         <DashboardItems
-          items={links}
+          items={links.res}
           itemType={itemType}
           editItem={editLink}
           deleteItem={deleteLink}

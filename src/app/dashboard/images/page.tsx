@@ -23,7 +23,7 @@ export default async function ImagesPage () {
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
         <DashboardItems
-          items={images}
+          items={images.res}
           itemType={itemType}
           editItem={editImage}
           deleteItem={deleteImage}

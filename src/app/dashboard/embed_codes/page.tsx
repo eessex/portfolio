@@ -23,7 +23,7 @@ export default async function EmbedCodesPage () {
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
         <DashboardItems
-          items={embedCodes}
+          items={embedCodes.res}
           itemType={itemType}
           editItem={editEmbedCode}
           deleteItem={deleteEmbedCode}

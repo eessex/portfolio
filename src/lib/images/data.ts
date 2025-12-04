@@ -9,7 +9,12 @@ import type {
   DashboardImage,
   Image
 } from '@/lib/images/types'
-import { formatDbResponseForClient } from '@/ui/util'
+import {
+  DEFAULT_PAGE_SIZE,
+  formatDbResponseForClient,
+  formatResponseWithCursor,
+  type ResponseWithCursor
+} from '@/lib/util'
 
 async function _fetchImage (id: string) {
   try {
@@ -43,6 +48,8 @@ const _fetchImagesByIds = async (ids: QueryResultRow[string]) => {
 
 /** dashboard: fetch all the images */
 export async function fetchImages () {
+  const totalCount = await getTotalCount('')
+
   try {
     const data = await sql<DashboardImage>`
       SELECT 
@@ -60,8 +67,14 @@ export async function fetchImages () {
         ) AS release_slugs
       FROM images
       ORDER BY images.updated_at DESC
+      LIMIT ${DEFAULT_PAGE_SIZE};
     `
-    return data.rows.map(row => formatDbResponseForClient(row, dashboardImageSchema))
+    const formatted = formatResponseWithCursor(data, 'url', dashboardImageSchema)
+    const res: ResponseWithCursor<DashboardImage> = {
+      ...formatted,
+      totalCount
+    }
+    return res
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch images.')
@@ -79,5 +92,28 @@ export async function fetchPressImages () {
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch press images.')
+  }
+}
+
+async function getTotalCount (query: string) {
+  try {
+    if (!query) {
+      const result = await sql`SELECT COUNT(*)::int AS count FROM images`
+      return result.rows[0].count
+    }
+
+    const like = `%${query}%`
+    const result = await sql`
+    SELECT COUNT(*)::int AS count
+    FROM images
+    WHERE
+      url ILIKE ${like} OR
+      title ILIKE ${like} OR
+      caption ILIKE ${like}
+  `
+    return result.rows[0].count ?? 0
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch image count.')
   }
 }

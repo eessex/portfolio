@@ -6,7 +6,7 @@ import type {
   ReleaseClient
 } from '@/lib/releases/types'
 import type { PagePathType } from '@/lib/types'
-import { formatDbResponseForClient } from '@/ui/util'
+import { formatDbResponseForClient } from '@/lib/util'
 
 const path: PagePathType = 'releases'
 

@@ -18,7 +18,7 @@ import type {
   Image
 } from '@/lib/images/types'
 import type { FormResponse } from '@/lib/types'
-import { formatDbResponseForClient } from '@/ui/util'
+import { formatDbResponseForClient } from '@/lib/util'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 

@@ -1,5 +1,3 @@
-import type { z } from 'zod'
-
 import type { Image } from '@/lib/images/types'
 import type { Link } from '@/lib/links/types'
 import type { PublishedEditionClient } from '@/lib/published-editions/types'
@@ -125,35 +123,6 @@ export function camelizeKeys (obj: any): any {
     }
   }
   return camelizedObject
-}
-
-function nullsToUndefined<T> (obj: T): T {
-  if (obj === null) return undefined as unknown as T
-
-  if (typeof obj === 'number') return obj as T
-  if (typeof obj === 'boolean') return obj as T
-  if (typeof obj === 'string') return obj as T
-  if (obj instanceof Date) return obj
-
-  if (Array.isArray(obj)) {
-    return obj.map(nullsToUndefined) as unknown as T
-  }
-
-  if (typeof obj === 'object' && obj !== null) {
-    return Object.fromEntries(
-      Object.entries(obj).map(([key, value]) => [key, nullsToUndefined(value)])
-    ) as T
-  }
-
-  return obj
-}
-
-export function formatDbResponseForClient<T extends z.ZodTypeAny> (
-  data: unknown,
-  schema: T
-): z.infer<T> {
-  const formatted = nullsToUndefined(camelizeKeys(data))
-  return schema.parse(formatted)
 }
 
 export function eventUrl (slug: string) {

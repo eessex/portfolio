@@ -6,10 +6,8 @@ import type {
   FetchEventsResult
 } from '@/lib/events/types'
 import type { PagePathType } from '@/lib/types'
-import {
-  formatDbResponseForClient,
-  isUpcomingDate
-} from '@/ui/util'
+import { formatDbResponseForClient } from '@/lib/util'
+import { isUpcomingDate } from '@/ui/util'
 
 const path: PagePathType = 'events'
 

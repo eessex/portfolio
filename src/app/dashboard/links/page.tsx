@@ -17,13 +17,13 @@ const title = `Dashboard: ${camelToSentence(itemType)}`
 export const metadata: Metadata = { title }
 
 export default async function LinksPage () {
-  const links = await fetchLinks()
+  const res = await fetchLinks()
 
   return (
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
         <DashboardItems
-          items={links.res}
+          res={res}
           itemType={itemType}
           editItem={editLink}
           deleteItem={deleteLink}

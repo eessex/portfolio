@@ -1,6 +1,7 @@
 import { sql } from '@vercel/postgres'
 
 import {
+  decodeCursor,
   DEFAULT_PAGE_SIZE,
   formatResponseWithCursor,
   type ResponseWithCursor
@@ -8,20 +9,44 @@ import {
 import { dashboardVenueSchema } from '@/lib/venues/schemas'
 import type { DashboardVenue } from '@/lib/venues/types'
 
-export async function fetchVenues () {
+export async function fetchVenues (cursor?: string) {
   const totalCount = await getTotalCount('')
-
+  const decodedCursor = cursor ? decodeCursor(cursor) : undefined
+  console.info('Decoded Cursor:', decodedCursor)
   try {
-    const data = await sql<DashboardVenue>`
-      SELECT 
-      venues.*,
-      ARRAY(
-      SELECT slug FROM events as e WHERE e.venue_id = venues.id
-      ) AS event_slugs
-      FROM venues
-      ORDER BY LOWER(venues.name) ASC
-      LIMIT ${DEFAULT_PAGE_SIZE};
-    `
+    let data
+    if (decodedCursor) {
+      data = await sql<DashboardVenue>`
+        SELECT
+          venues.*,
+          ARRAY(
+            SELECT slug FROM events e
+            WHERE e.venue_id = venues.id
+          ) AS event_slugs
+        FROM venues
+        WHERE
+          LOWER(venues.name) > LOWER(${decodedCursor.name})
+          OR (LOWER(venues.name) = LOWER(${decodedCursor.name}) AND venues.id > ${decodedCursor.id})
+        ORDER BY
+          LOWER(venues.name) ASC,
+          venues.id ASC
+        LIMIT ${DEFAULT_PAGE_SIZE};
+      `
+    } else {
+      data = await sql<DashboardVenue>`
+        SELECT
+          venues.*,
+          ARRAY(
+            SELECT slug FROM events as e
+            WHERE e.venue_id = venues.id
+          ) AS event_slugs
+        FROM venues
+        ORDER BY
+          LOWER(venues.name) ASC,
+          venues.id ASC
+        LIMIT ${DEFAULT_PAGE_SIZE};
+      `
+    }
     const formatted = formatResponseWithCursor(data, 'name', dashboardVenueSchema)
     const res: ResponseWithCursor<DashboardVenue> = {
       ...formatted,

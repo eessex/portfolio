@@ -17,13 +17,14 @@ const title = `Dashboard: ${camelToSentence(itemType)}`
 export const metadata: Metadata = { title }
 
 export default async function VenuesPage () {
-  const venues = await fetchVenues()
+  const res = await fetchVenues()
 
   return (
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
         <DashboardItems
-          items={venues.res}
+          apiEndpoint='/api/venues'
+          res={res}
           itemType={itemType}
           editItem={editVenue}
           deleteItem={deleteVenue}

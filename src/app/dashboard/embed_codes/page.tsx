@@ -17,13 +17,14 @@ const title = `Dashboard: ${camelToSentence(itemType)}`
 export const metadata: Metadata = { title }
 
 export default async function EmbedCodesPage () {
-  const embedCodes = await fetchEmbedCodes()
+  const res = await fetchEmbedCodes()
 
   return (
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
         <DashboardItems
-          items={embedCodes.res}
+          apiEndpoint='/api/embed-codes'
+          res={res}
           itemType={itemType}
           editItem={editEmbedCode}
           deleteItem={deleteEmbedCode}

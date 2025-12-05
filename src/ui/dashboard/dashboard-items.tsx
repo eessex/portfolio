@@ -27,6 +27,7 @@ import type {
   EmbeddedItemType,
   FormResponse
 } from '@/lib/types'
+import type { ResponseWithCursor } from '@/lib/util'
 import type {
   DashboardVenue,
   Venue
@@ -48,7 +49,9 @@ import { ImageFigure } from '@/ui/images/image-figure'
 import itemsStyles from '@/ui/items/items.module.scss'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
+import { Loading } from '@/ui/loading'
 import { SearchInput } from '@/ui/search-input/search-input'
+import { useResultsList } from '@/ui/useResultsList'
 import {
   formattedItemType,
   formatVenueInline,
@@ -66,15 +69,17 @@ declare global {
 export type DashboardItem = DashboardEmbedCode | DashboardImage | DashboardLink | DashboardVenue
 
 interface DashboardProps <T extends DashboardItem> {
+  apiEndpoint: string
   itemType: EmbeddedItemType
-  items: T[]
+  res: ResponseWithCursor<T>
   editItem: (item: FormData) => Promise<FormResponse<T> | undefined>
   deleteItem: (id: string) => Promise<FormResponse<T> | undefined>
 }
 
 export function DashboardItems<T extends DashboardItem> ({
+  apiEndpoint,
   itemType,
-  items,
+  res,
   editItem,
   deleteItem
 }: DashboardProps<T>) {
@@ -84,6 +89,15 @@ export function DashboardItems<T extends DashboardItem> ({
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string | undefined>(undefined)
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
+
+  console.info('endpoint:', apiEndpoint)
+  const {
+    isLoading,
+    items,
+    loadMoreRef,
+    nextCursor,
+    totalCount
+  } = useResultsList<T>(apiEndpoint, res)
 
   function filteredItems () {
     const savedItems = items.filter(item => !!item.id)
@@ -174,7 +188,7 @@ export function DashboardItems<T extends DashboardItem> ({
       return `${typeLabel} of type "${filterType}" (${count})`
     }
 
-    return `All ${typeLabel} (${count})`
+    return `All ${typeLabel} (${totalCount})`
   }
 
   function filterTypes () {
@@ -190,6 +204,7 @@ export function DashboardItems<T extends DashboardItem> ({
 
   const headingId = useId()
   const tableId = useId()
+  const loadMoreId = useId()
 
   return (
     <div>
@@ -253,6 +268,22 @@ export function DashboardItems<T extends DashboardItem> ({
               />
             ))}
           </ul>
+          {nextCursor && (
+            <>
+              <li
+                id={loadMoreId}
+                style={{
+                  height: 1, background: 'red'
+                }}
+                tabIndex={-1}
+                aria-hidden='true'
+                ref={loadMoreRef}
+              />
+              {isLoading && (
+                <Loading className='p-4 mt-2' />
+              )}
+            </>
+          )}
         </section>
       </div>
 

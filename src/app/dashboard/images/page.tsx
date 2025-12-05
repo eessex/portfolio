@@ -17,13 +17,13 @@ const title = `Dashboard: ${camelToSentence(itemType)}`
 export const metadata: Metadata = { title }
 
 export default async function ImagesPage () {
-  const images = await fetchImages()
+  const res = await fetchImages()
 
   return (
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
         <DashboardItems
-          items={images.res}
+          res={res}
           itemType={itemType}
           editItem={editImage}
           deleteItem={deleteImage}

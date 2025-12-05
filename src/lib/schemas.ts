@@ -118,7 +118,7 @@ export const hydratedItemIdSchemas = z.object({
   project: projectSchema.optional(),
   publishedEditions: z.array(publishedEditionSchema).optional(),
   tags: z.array(tagSchema).optional(),
-  venue: venueSchema.optional()
+  venue: z.lazy(() => venueSchema).optional()
 })
 
 /**

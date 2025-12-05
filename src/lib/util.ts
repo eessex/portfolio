@@ -12,7 +12,7 @@ export interface ResponseWithCursor<T> {
 }
 
 type Cursor = {
-  name: string
+  [key: string]: string
   id: string
 }
 
@@ -21,9 +21,12 @@ export function encodeCursor (cursor: Cursor) {
 }
 
 export function decodeCursor (cursor?: string | null): Cursor | null {
+  console.info('Decoding Cursor:', cursor)
+  console.log('Base64 decoded:', Buffer.from(cursor ?? '', 'base64').toString('utf8'))
   if (!cursor) return null
   try {
-    return JSON.parse(Buffer.from(cursor, 'base64').toString('utf8'))
+    const decodeCursor = Buffer.from(cursor, 'base64').toString('utf8')
+    return JSON.parse(decodeCursor)
   } catch {
     return null
   }
@@ -36,13 +39,19 @@ export function formatResponseWithCursor<T extends z.ZodTypeAny> (
 ) {
   const formatted = result.rows.map(row => formatDbResponseForClient(row, schema))
   const lastItem = result.rows[result.rows.length - 1]
+  const isLoadMoreAvailable =
+    formatted.length === DEFAULT_PAGE_SIZE &&
+    lastItem?.[cursorKey] != null &&
+    lastItem?.id != null
 
-  const nextCursor =
-    formatted.length === DEFAULT_PAGE_SIZE && lastItem?.[cursorKey] && lastItem?.id
-      ? encodeCursor({
-        name: lastItem[cursorKey], id: lastItem.id
-      })
-      : null
+  const cursorObj = isLoadMoreAvailable
+    ? {
+        name: lastItem[cursorKey],  // Always encoded as `name`
+        id: lastItem.id
+      }
+    : null
+
+  const nextCursor = cursorObj ? encodeCursor(cursorObj) : null
 
   const response: Omit<ResponseWithCursor<z.infer<T>>, 'totalCount'> = {
     res: formatted,

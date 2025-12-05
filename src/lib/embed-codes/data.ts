@@ -35,7 +35,8 @@ export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]) => {
 export async function fetchEmbedCodes (cursor?: string) {
   const totalCount = await getTotalCount('')
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
-
+  console.info('fetchEmbedCodes cursor', cursor)
+  console.info('Decoded Cursor:', decodedCursor, cursor)
   try {
     let data
     if (decodedCursor) {
@@ -55,8 +56,9 @@ export async function fetchEmbedCodes (cursor?: string) {
             WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
           ) AS release_slugs
         FROM embed_codes
-        WHERE LOWER(embed_codes.title) > LOWER(${decodedCursor.name})
-          OR (LOWER(embed_codes.title) = LOWER(${decodedCursor.name}) AND embed_codes.id > ${decodedCursor.id})
+        WHERE
+          LOWER(embed_codes.iframe) > LOWER(${decodedCursor.name})
+          OR (LOWER(embed_codes.iframe) = LOWER(${decodedCursor.name}) AND embed_codes.id > ${decodedCursor.id})
         ORDER BY embed_codes.updated_at DESC
         LIMIT ${DEFAULT_PAGE_SIZE};
       `

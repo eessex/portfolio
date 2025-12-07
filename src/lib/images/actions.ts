@@ -69,10 +69,8 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
   const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)
 
   if (clientFile?.name && clientFile.size > 0) {
-    console.info('Uploading file to S3:', clientFile.name)
     try {
       const uploadedUrl = await uploadFile(clientFile)
-      console.debug('File uploaded successfully. URL:', uploadedUrl)
       if ((data.url as string || '').length > 0) {
         await deleteFromS3(data.url as string)
       }

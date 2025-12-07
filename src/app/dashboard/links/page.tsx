@@ -23,6 +23,7 @@ export default async function LinksPage () {
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
         <DashboardItems
+          apiEndpoint='/api/links'
           res={res}
           itemType={itemType}
           editItem={editLink}

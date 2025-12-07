@@ -12,7 +12,7 @@ import type { DashboardVenue } from '@/lib/venues/types'
 export async function fetchVenues (cursor?: string) {
   const totalCount = await getTotalCount('')
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
-  console.info('Decoded Cursor:', decodedCursor)
+
   try {
     let data
     if (decodedCursor) {

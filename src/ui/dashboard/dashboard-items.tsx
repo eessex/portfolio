@@ -90,7 +90,6 @@ export function DashboardItems<T extends DashboardItem> ({
   const [filterType, setFilterType] = useState<string | undefined>(undefined)
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
-  console.info('endpoint:', apiEndpoint)
   const {
     isLoading,
     items,

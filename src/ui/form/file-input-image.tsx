@@ -37,7 +37,6 @@ export function FileInputImage ({
   useEffect(() => {
     // todo: move everything that doesn't need cleanup outside of the return function
     if (!file) {
-      console.info('useEffect No file selected')
       setPreviewUrl(null)
       setAspectRatio(undefined)
       onChange?.('', undefined, true)
@@ -48,7 +47,6 @@ export function FileInputImage ({
 
     const img = new Image()
     img.src = url
-    console.info('useEffect Image loaded')
     img.onload = () => {
       const width = img.naturalWidth
       const height = img.naturalHeight
@@ -60,7 +58,6 @@ export function FileInputImage ({
   }, [file, onChange])
 
   function onFileChange (e: React.ChangeEvent<HTMLInputElement>) {
-    console.info('onFileChange')
     const selectedFile = e.target.files?.[0] ?? null
     setFile(selectedFile)
   }

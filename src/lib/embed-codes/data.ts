@@ -35,8 +35,7 @@ export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]) => {
 export async function fetchEmbedCodes (cursor?: string) {
   const totalCount = await getTotalCount('')
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
-  console.info('fetchEmbedCodes cursor', cursor)
-  console.info('Decoded Cursor:', decodedCursor, cursor)
+
   try {
     let data
     if (decodedCursor) {
@@ -44,22 +43,23 @@ export async function fetchEmbedCodes (cursor?: string) {
         SELECT
           embed_codes.*,
           ARRAY(
-            SELECT slug FROM events as e
+            SELECT slug FROM events AS e
             WHERE e.embed_code_ids @> ARRAY[embed_codes.id]
           ) AS event_slugs,
           ARRAY(
-            SELECT slug FROM projects as p
+            SELECT slug FROM projects AS p
             WHERE p.embed_code_ids @> ARRAY[embed_codes.id]
           ) AS project_slugs,
           ARRAY(
-            SELECT slug FROM releases as r
+            SELECT slug FROM releases AS r
             WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
           ) AS release_slugs
         FROM embed_codes
-        WHERE
-          LOWER(embed_codes.iframe) > LOWER(${decodedCursor.name})
-          OR (LOWER(embed_codes.iframe) = LOWER(${decodedCursor.name}) AND embed_codes.id > ${decodedCursor.id})
-        ORDER BY embed_codes.updated_at DESC
+        WHERE (updated_at, id) < (
+          (SELECT updated_at FROM embed_codes WHERE id = ${decodedCursor.id}),
+          ${decodedCursor.id}
+        )
+        ORDER BY updated_at DESC, id DESC
         LIMIT ${DEFAULT_PAGE_SIZE};
       `
     } else {
@@ -67,23 +67,23 @@ export async function fetchEmbedCodes (cursor?: string) {
         SELECT
           embed_codes.*,
           ARRAY(
-            SELECT slug FROM events as e
+            SELECT slug FROM events AS e
             WHERE e.embed_code_ids @> ARRAY[embed_codes.id]
           ) AS event_slugs,
           ARRAY(
-            SELECT slug FROM projects as p
+            SELECT slug FROM projects AS p
             WHERE p.embed_code_ids @> ARRAY[embed_codes.id]
           ) AS project_slugs,
           ARRAY(
-            SELECT slug FROM releases as r
+            SELECT slug FROM releases AS r
             WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
           ) AS release_slugs
         FROM embed_codes
-        ORDER BY embed_codes.updated_at DESC
+        ORDER BY updated_at DESC, id DESC
         LIMIT ${DEFAULT_PAGE_SIZE};
       `
     }
-    const formatted = formatResponseWithCursor(data, 'iframe', dashboardEmbedCodeSchema)
+    const formatted = formatResponseWithCursor(data, 'id', dashboardEmbedCodeSchema)
     const res: ResponseWithCursor<DashboardEmbedCode> = {
       ...formatted,
       totalCount

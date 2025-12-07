@@ -12,6 +12,7 @@ import type {
   Link
 } from '@/lib/links/types'
 import {
+  decodeCursor,
   DEFAULT_PAGE_SIZE,
   formatDbResponseForClient,
   formatResponseWithCursor,
@@ -34,11 +35,14 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]) => {
 }
 
 /** dashboard: all the links */
-export async function fetchLinks () {
+export async function fetchLinks (cursor?: string) {
   const totalCount = await getTotalCount('')
+  const decodedCursor = cursor ? decodeCursor(cursor) : undefined
 
   try {
-    const data = await sql<DashboardLink>`
+    let data
+    if (decodedCursor) {
+      data = await sql<DashboardLink>`
       SELECT
         links.*,
         ARRAY(
@@ -51,10 +55,32 @@ export async function fetchLinks () {
           SELECT slug FROM releases as r WHERE r.link_ids @> ARRAY[links.id]
         ) AS release_slugs
       FROM links
-      ORDER BY links.updated_at DESC
+        WHERE (updated_at, id) < (
+          (SELECT updated_at FROM links WHERE id = ${decodedCursor.id}),
+          ${decodedCursor.id}
+        )
+      ORDER BY updated_at DESC, id DESC
       LIMIT ${DEFAULT_PAGE_SIZE};
     `
-    const formatted = formatResponseWithCursor(data, 'url', dashboardLinkSchema)
+    } else {
+      data = await sql<DashboardLink>`
+        SELECT
+          links.*,
+          ARRAY(
+            SELECT slug FROM events as e WHERE e.link_ids @> ARRAY[links.id]
+          ) AS event_slugs,
+          ARRAY(
+            SELECT slug FROM projects as p WHERE p.link_ids @> ARRAY[links.id]
+          ) AS project_slugs,
+          ARRAY(
+            SELECT slug FROM releases as r WHERE r.link_ids @> ARRAY[links.id]
+          ) AS release_slugs
+        FROM links
+        ORDER BY updated_at DESC, id DESC
+        LIMIT ${DEFAULT_PAGE_SIZE};
+      `
+    }
+    const formatted = formatResponseWithCursor(data, 'id', dashboardLinkSchema)
     const res: ResponseWithCursor<DashboardLink> = {
       ...formatted,
       totalCount

@@ -10,6 +10,7 @@ import type {
   Image
 } from '@/lib/images/types'
 import {
+  decodeCursor,
   DEFAULT_PAGE_SIZE,
   formatDbResponseForClient,
   formatResponseWithCursor,
@@ -47,29 +48,56 @@ const _fetchImagesByIds = async (ids: QueryResultRow[string]) => {
 }
 
 /** dashboard: fetch all the images */
-export async function fetchImages () {
+export async function fetchImages (cursor?: string) {
   const totalCount = await getTotalCount('')
+  const decodedCursor = cursor ? decodeCursor(cursor) : undefined
 
   try {
-    const data = await sql<DashboardImage>`
-      SELECT 
-        images.*,
-        ARRAY(
-          SELECT slug FROM events AS e 
-          WHERE (e.image_ids @> ARRAY[images.id] OR e.cover_image_id = images.id)
-        ) AS event_slugs,
-        ARRAY(
-          SELECT slug FROM projects as p WHERE p.image_ids @> ARRAY[images.id]
-        ) AS project_slugs,
-        ARRAY(
-          SELECT slug FROM releases AS r 
-          WHERE (r.image_ids @> ARRAY[images.id] OR r.cover_image_id = images.id)
-        ) AS release_slugs
-      FROM images
-      ORDER BY images.updated_at DESC
-      LIMIT ${DEFAULT_PAGE_SIZE};
-    `
-    const formatted = formatResponseWithCursor(data, 'url', dashboardImageSchema)
+    let data
+    if (decodedCursor) {
+      data = await sql<DashboardImage>`
+        SELECT 
+          images.*,
+          ARRAY(
+            SELECT slug FROM events AS e 
+            WHERE (e.image_ids @> ARRAY[images.id] OR e.cover_image_id = images.id)
+          ) AS event_slugs,
+          ARRAY(
+            SELECT slug FROM projects as p WHERE p.image_ids @> ARRAY[images.id]
+          ) AS project_slugs,
+          ARRAY(
+            SELECT slug FROM releases AS r 
+            WHERE (r.image_ids @> ARRAY[images.id] OR r.cover_image_id = images.id)
+          ) AS release_slugs
+        FROM images
+        WHERE (updated_at, id) < (
+          (SELECT updated_at FROM images WHERE id = ${decodedCursor.id}),
+          ${decodedCursor.id}
+        )
+        ORDER BY updated_at DESC, id DESC
+        LIMIT ${DEFAULT_PAGE_SIZE};
+      `
+    } else {
+      data = await sql<DashboardImage>`
+        SELECT 
+          images.*,
+          ARRAY(
+            SELECT slug FROM events AS e 
+            WHERE (e.image_ids @> ARRAY[images.id] OR e.cover_image_id = images.id)
+          ) AS event_slugs,
+          ARRAY(
+            SELECT slug FROM projects as p WHERE p.image_ids @> ARRAY[images.id]
+          ) AS project_slugs,
+          ARRAY(
+            SELECT slug FROM releases AS r 
+            WHERE (r.image_ids @> ARRAY[images.id] OR r.cover_image_id = images.id)
+          ) AS release_slugs
+        FROM images
+        ORDER BY updated_at DESC, id DESC
+        LIMIT ${DEFAULT_PAGE_SIZE};
+      `
+    }
+    const formatted = formatResponseWithCursor(data, 'id', dashboardImageSchema)
     const res: ResponseWithCursor<DashboardImage> = {
       ...formatted,
       totalCount

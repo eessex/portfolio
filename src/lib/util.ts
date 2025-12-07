@@ -21,12 +21,10 @@ export function encodeCursor (cursor: Cursor) {
 }
 
 export function decodeCursor (cursor?: string | null): Cursor | null {
-  console.info('Decoding Cursor:', cursor)
-  console.log('Base64 decoded:', Buffer.from(cursor ?? '', 'base64').toString('utf8'))
   if (!cursor) return null
   try {
-    const decodeCursor = Buffer.from(cursor, 'base64').toString('utf8')
-    return JSON.parse(decodeCursor)
+    const decodedCursor = Buffer.from(cursor, 'base64').toString('utf8')
+    return JSON.parse(decodedCursor)
   } catch {
     return null
   }
@@ -38,10 +36,9 @@ export function formatResponseWithCursor<T extends z.ZodTypeAny> (
   schema: T
 ) {
   const formatted = result.rows.map(row => formatDbResponseForClient(row, schema))
-  const lastItem = result.rows[result.rows.length - 1]
+  const lastItem = formatted[formatted.length - 1]
   const isLoadMoreAvailable =
     formatted.length === DEFAULT_PAGE_SIZE &&
-    lastItem?.[cursorKey] != null &&
     lastItem?.id != null
 
   const cursorObj = isLoadMoreAvailable

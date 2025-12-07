@@ -23,7 +23,7 @@ export default async function EmbedCodesPage () {
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading className='p-4 mt-2' />}>
         <DashboardItems
-          apiEndpoint='/api/embed-codes'
+          apiEndpoint='/api/embed_codes'
           res={res}
           itemType={itemType}
           editItem={editEmbedCode}

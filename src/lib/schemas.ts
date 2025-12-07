@@ -110,11 +110,11 @@ export const embeddedItemIdSchemas = z.object({
  * their metadata will be included when fetching a page.
  */
 export const hydratedItemIdSchemas = z.object({
-  coverImage: imageSchema.optional(),
+  coverImage: z.lazy(() => imageSchema).optional(),
   embedCodes: z.lazy(() => embedCodeSchema.array()).optional(),
   featuredEmbedCode: z.lazy(() => embedCodeSchema).optional(),
-  images: z.array(imageSchema).optional(),
-  links: z.array(linkSchema).optional(),
+  images: z.lazy(() => imageSchema.array()).optional(),
+  links: z.lazy(() => linkSchema.array()).optional(),
   project: projectSchema.optional(),
   publishedEditions: z.array(publishedEditionSchema).optional(),
   tags: z.array(tagSchema).optional(),

@@ -16,7 +16,7 @@
     "bcrypt": "^6.0",
     "clsx": "^2.1",
     "js-cookie": "^3.0.5",
-    "next": "15.1",
+    "next": "15.5",
     "next-auth": "^5.0.0-b",
     "react": "^19.0",
     "react-dom": "^19.0",
@@ -39,7 +39,7 @@
     "neostandard": "^0.12",
     "postcss": "^8",
     "postgres": "^3",
-    "sass": "^1.85",
+    "sass": "^1.94",
     "tailwindcss": "^3.4",
     "typescript": "^5"
   }

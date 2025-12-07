@@ -271,9 +271,7 @@ export function DashboardItems<T extends DashboardItem> ({
             <>
               <li
                 id={loadMoreId}
-                style={{
-                  height: 1, background: 'red'
-                }}
+                style={{ height: 1 }}
                 tabIndex={-1}
                 aria-hidden='true'
                 ref={loadMoreRef}

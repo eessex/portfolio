@@ -86,18 +86,21 @@ export function DashboardItems<T extends DashboardItem> ({
   const [isExpanded, setIsExpanded] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [itemToEdit, setItemToEdit] = useState<T | undefined>(undefined)
-  const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string | undefined>(undefined)
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
   const {
     isLoading,
     items,
     loadMoreRef,
+    query,
+    setQuery,
+    sortDirection,
+    setSortDirection,
     nextCursor,
     totalCount
   } = useResultsList<T>(apiEndpoint, res)
 
+  // TODO: move to useResultsList
   function filteredItems () {
     const savedItems = items.filter(item => !!item.id)
 
@@ -105,18 +108,9 @@ export function DashboardItems<T extends DashboardItem> ({
       ? savedItems.filter(item => (item as Link | EmbedCode).type === filterType)
       : savedItems
 
-    if (!searchTerm && sortDirection === 'desc') return typeFilteredItems
+    if (!query && sortDirection === 'desc') return typeFilteredItems
 
-    const searchFilteredItems = typeFilteredItems.filter(item =>
-      Object.values(item)
-        .filter(val => typeof val === 'string')
-        .some(val => (val as string).toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-
-    if (sortDirection === 'asc') {
-      return [...searchFilteredItems].reverse()
-    }
-    return searchFilteredItems
+    return typeFilteredItems
   }
 
   async function onSubmit (formData: FormData): Promise<FormResponse<T>> {
@@ -175,12 +169,12 @@ export function DashboardItems<T extends DashboardItem> ({
     const count = filteredItems().length
     const typeLabel = formatItemType()
 
-    if (searchTerm && filterType) {
-      return `${typeLabel} of type "${filterType}" matching "${searchTerm}" (${count})`
+    if (query && filterType) {
+      return `${typeLabel} of type "${filterType}" matching "${query}" (${count})`
     }
 
-    if (searchTerm) {
-      return `${typeLabel} matching "${searchTerm}" (${count})`
+    if (query) {
+      return `${typeLabel} matching "${query}" (${count})`
     }
 
     if (filterType) {
@@ -238,8 +232,8 @@ export function DashboardItems<T extends DashboardItem> ({
         )}
         <SearchInput
           ariaControls={tableId}
-          value={searchTerm}
-          onChange={setSearchTerm}
+          value={query}
+          onChange={setQuery}
           label={`Search ${itemType}`}
         />
       </FiltersWrapper>

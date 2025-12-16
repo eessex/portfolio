@@ -1,11 +1,12 @@
 import type { QueryResult } from '@vercel/postgres'
 import type { z } from 'zod'
 
+import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 import { camelizeKeys } from '@/ui/util'
 
 export const DEFAULT_PAGE_SIZE = 24
 
-export interface ResponseWithCursor<T> {
+export interface ResponseWithCursor<T extends DashboardItem> {
   res: T[]
   nextCursor: string | null
   totalCount: number

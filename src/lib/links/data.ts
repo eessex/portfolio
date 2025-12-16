@@ -25,7 +25,7 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]) => {
       SELECT * FROM links
       WHERE id = ANY(${ids})
       ORDER BY
-      COALESCE(publish_date, created_at) DESC;
+      COALESCE(publish_date, created_at) DESC
     `
     return data.rows.map(row => formatDbResponseForClient(row, linkSchema))
   } catch (error) {
@@ -34,52 +34,48 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]) => {
   }
 }
 
-/** dashboard: all the links */
-export async function fetchLinks (cursor?: string) {
-  const totalCount = await getTotalCount('')
+/**
+ * dashboard: fetch all the links
+ */
+export async function fetchLinks (cursor?: string, query?: string) {
+  const totalCount = await getTotalCount(query)
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
 
+  const like = query ? `%${query}%` : null
+  const cursorName = decodedCursor?.name ?? null
+  const cursorId = decodedCursor?.id ?? null
+
   try {
-    let data
-    if (decodedCursor) {
-      data = await sql<DashboardLink>`
+    const data = await sql<DashboardLink>`
       SELECT
         links.*,
         ARRAY(
-          SELECT slug FROM events as e WHERE e.link_ids @> ARRAY[links.id]
+          SELECT slug FROM events AS e WHERE e.link_ids @> ARRAY[links.id]
         ) AS event_slugs,
         ARRAY(
-          SELECT slug FROM projects as p WHERE p.link_ids @> ARRAY[links.id]
+          SELECT slug FROM projects AS p WHERE p.link_ids @> ARRAY[links.id]
         ) AS project_slugs,
         ARRAY(
-          SELECT slug FROM releases as r WHERE r.link_ids @> ARRAY[links.id]
+          SELECT slug FROM releases AS r WHERE r.link_ids @> ARRAY[links.id]
         ) AS release_slugs
       FROM links
-        WHERE (updated_at, id) < (
-          (SELECT updated_at FROM links WHERE id = ${decodedCursor.id}),
-          ${decodedCursor.id}
+      WHERE (
+        ${like}::text IS NULL
+        OR url ILIKE ${like}
+        OR title ILIKE ${like}
+        OR quotation ILIKE ${like}
+      )
+      AND (
+        ${cursorName}::text IS NULL
+        OR (links.updated_at, links.id) < (
+          SELECT updated_at, id FROM links WHERE id = ${cursorId}
         )
-      ORDER BY updated_at DESC, id DESC
-      LIMIT ${DEFAULT_PAGE_SIZE};
+      )
+      ORDER BY
+        updated_at DESC,
+        id DESC
+      LIMIT ${DEFAULT_PAGE_SIZE}
     `
-    } else {
-      data = await sql<DashboardLink>`
-        SELECT
-          links.*,
-          ARRAY(
-            SELECT slug FROM events as e WHERE e.link_ids @> ARRAY[links.id]
-          ) AS event_slugs,
-          ARRAY(
-            SELECT slug FROM projects as p WHERE p.link_ids @> ARRAY[links.id]
-          ) AS project_slugs,
-          ARRAY(
-            SELECT slug FROM releases as r WHERE r.link_ids @> ARRAY[links.id]
-          ) AS release_slugs
-        FROM links
-        ORDER BY updated_at DESC, id DESC
-        LIMIT ${DEFAULT_PAGE_SIZE};
-      `
-    }
     const formatted = formatResponseWithCursor(data, 'id', dashboardLinkSchema)
     const res: ResponseWithCursor<DashboardLink> = {
       ...formatted,
@@ -123,22 +119,19 @@ export async function fetchSocialLinks () {
   }
 }
 
-async function getTotalCount (query: string) {
+async function getTotalCount (query?: string) {
   try {
-    if (!query) {
-      const result = await sql`SELECT COUNT(*)::int AS count FROM links`
-      return result.rows[0].count
-    }
-
-    const like = `%${query}%`
-    const result = await sql`
-    SELECT COUNT(*)::int AS count
-    FROM links
-    WHERE
-      url ILIKE ${like} OR
-      title ILIKE ${like} OR
-      quotation ILIKE ${like}
-  `
+    const like = query ? `%${query}%` : null
+    const result = await sql<{ count: number }>`
+      SELECT COUNT(*)::int AS count
+      FROM links
+      WHERE (
+        ${like}::text IS NULL
+        OR url ILIKE ${like}
+        OR title ILIKE ${like}
+        OR quotation ILIKE ${like}
+      )
+    `
     return result.rows[0].count ?? 0
   } catch (error) {
     console.error('Database Error:', error)

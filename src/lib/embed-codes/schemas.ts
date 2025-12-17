@@ -33,15 +33,26 @@ export const embedCodeContentTypes = [
   'trailer'
 ] as const
 
+const embedCodeBaseSchema = z.lazy(() => z.object({
+  caption: shortText.optional(),
+  iframe: longText.min(12),
+  type: z.enum(embedCodeTypes).optional()
+})
+)
+
 /**
  * An iframe embed code, such as a Bandcamp or YouTube embed, with metadata.
  */
 export const embedCodeSchema = z.lazy(() =>
-  baseContentSchema.extend({
-    caption: shortText.optional(),
-    iframe: longText.min(12),
-    type: z.enum(embedCodeTypes).optional()
-  })
+  baseContentSchema.and(embedCodeBaseSchema)
+)
+
+export const createEmbedCodeSchema = z.lazy(() =>
+  baseContentSchema.omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true
+  }).and(embedCodeBaseSchema)
 )
 
 /**

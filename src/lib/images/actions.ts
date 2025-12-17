@@ -141,8 +141,7 @@ async function createImage (image: CreateImage) {
         is_press,
         title,
         url
-      )
-      VALUES (
+      ) VALUES (
         ${aspect},
         current_timestamp,
         ${caption || null},

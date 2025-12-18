@@ -7,5 +7,4 @@ import type {
 
 export type Link = z.infer<typeof linkSchema>
 export type CreateLink = Omit<Link, 'id' | 'createdAt' | 'updatedAt'>
-
 export type DashboardLink = z.infer<typeof dashboardLinkSchema>

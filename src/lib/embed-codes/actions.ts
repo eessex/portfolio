@@ -24,19 +24,19 @@ async function createEmbedCode (embedCode: CreateEmbedCode) {
       title
     } = embedCode
     return await sql<EmbedCode[]>`
-        INSERT INTO embed_codes (
-          iframe,
-          caption,
-          title,
-          created_at
-        ) VALUES (
-          ${iframe},
-          ${caption || null},
-          ${title || null},
-          current_timestamp
-        )
-        RETURNING *
-      `.then(rows => formatDbResponseForClient(rows[0], embedCodeSchema))
+      INSERT INTO embed_codes (
+        iframe,
+        caption,
+        title,
+        created_at
+      ) VALUES (
+        ${iframe},
+        ${caption || null},
+        ${title || null},
+        current_timestamp
+      )
+      RETURNING *
+    `.then(rows => formatDbResponseForClient(rows[0], embedCodeSchema))
   } catch (err) {
     console.error('Error creating embed code:', err)
     throw new Error(err instanceof Error ? err.message : 'Failed to create embed code.')
@@ -97,8 +97,7 @@ async function updateEmbedCode (embedCode: CreateEmbedCode | EmbedCode) {
           caption,
           title,
           updated_at
-        )
-        = (
+        ) = (
           ${iframe},
           ${caption || null},
           ${title || null},

@@ -8,7 +8,7 @@ import {
   url
 } from '@/lib/schemas'
 
-export const imageBaseSchema = z.lazy(() => z.object({
+const imageBaseSchema = z.lazy(() => z.object({
   alt: shortText.optional(),
   aspect: z.preprocess(val => {
     if (typeof val === 'number') {

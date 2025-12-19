@@ -96,13 +96,13 @@ export async function editVenue (formData: FormData) {
     }
   } else {
     try {
-      const updatedVenues = await updateVenue(validatedVenue.data)
-      if (updatedVenues) {
-        console.debug('Venue saved successfully:', updatedVenues)
+      const updatedVenue = await updateVenue(validatedVenue.data)
+      if (updatedVenue) {
+        console.debug('Venue saved successfully:', updatedVenue)
         revalidatePath('/dashboard/venues')
         return {
           ok: true,
-          res: updatedVenues
+          res: updatedVenue
         }
       }
     } catch (err: unknown) {
@@ -162,11 +162,11 @@ async function updateVenue (venue: CreateVenue | Venue) {
   }
 }
 
-export async function deleteVenue (id: string): Promise<FormResponse<Venue>> {
+export async function deleteVenue (venue: Venue): Promise<FormResponse<Venue>> {
   try {
     await sql`
       DELETE FROM venues
-      WHERE id = ${id}
+      WHERE id = ${venue.id}
     `
     revalidatePath('/dashboard/venues')
     return { ok: true }

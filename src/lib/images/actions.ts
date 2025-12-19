@@ -206,11 +206,12 @@ async function updateImage (image: CreateImage | Image) {
   }
 }
 
-export async function deleteImage (id: string): Promise<FormResponse<Image>> {
+export async function deleteImage (image: Image): Promise<FormResponse<Image>> {
   try {
     const [res] = await sql`
       DELETE FROM images as i
-      WHERE id = ${id}
+      WHERE id = ${image.id}
+        OR url = ${image.url}
       RETURNING i.url
     `
     await deleteFromS3(res.url)

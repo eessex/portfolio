@@ -87,11 +87,10 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
   }
   if (!validatedLink.success) {
     console.error('Failed to validate link.', validatedLink.error.flatten().fieldErrors)
-    throw new Error('Failed to validate link.')
-    // return {
-    //   errors: validatedFields.error.flatten().fieldErrors,
-    //   message: 'Failed to validate link.',
-    // }
+    return {
+      errors: validatedLink.error.flatten().fieldErrors,
+      message: 'Failed to validate link.'
+    }
   } else {
     try {
       const updatedLink = await updateLink(validatedLink.data)
@@ -167,11 +166,12 @@ async function updateLink (link: CreateLink | Link) {
   }
 }
 
-export async function deleteLink (id: string): Promise<FormResponse<Link>> {
+export async function deleteLink (link: Link): Promise<FormResponse<Link>> {
   try {
     await sql`
       DELETE FROM links
-      WHERE id = ${id}
+      WHERE id = ${link.id}
+        OR url = ${link.url}
     `
     revalidatePath('/dashboard/links')
     return { ok: true }

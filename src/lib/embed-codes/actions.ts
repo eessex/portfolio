@@ -113,11 +113,13 @@ async function updateEmbedCode (embedCode: CreateEmbedCode | EmbedCode) {
   }
 }
 
-export async function deleteEmbedCode (id: string): Promise<FormResponse<EmbedCode>> {
+export async function deleteEmbedCode (embedCode: EmbedCode): Promise<FormResponse<EmbedCode>> {
   try {
     await sql`
       DELETE FROM embed_codes
-      WHERE id = ${id}
+      WHERE
+        id = ${embedCode.id}
+        OR iframe = ${embedCode.iframe}
     `
     // FIXME: add iframe to where
     revalidatePath('/dashboard/embed_codes')

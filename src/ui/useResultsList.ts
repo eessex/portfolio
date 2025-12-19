@@ -197,6 +197,18 @@ export function useResultsList<T extends DashboardItem> (
     }
   }, [])
 
+  function onAddItem (item: T) {
+    fullResultsCache.current = [item, ...fullResultsCache.current]
+    setItems(applyFilter(fullResultsCache.current, queryRef.current, sortDirectionRef.current))
+    setCount(prevCount => prevCount + 1)
+  }
+
+  function onRemoveItem (itemId: string) {
+    fullResultsCache.current = fullResultsCache.current.filter(i => i.id !== itemId)
+    setItems(applyFilter(fullResultsCache.current, queryRef.current, sortDirectionRef.current))
+    setCount(prevCount => prevCount - 1)
+  }
+
   return {
     count,
     isLoading,
@@ -207,6 +219,8 @@ export function useResultsList<T extends DashboardItem> (
     sortDirection,
     setSortDirection,
     nextCursor,
+    onAddItem,
+    onRemoveItem,
     totalCount
   }
 }

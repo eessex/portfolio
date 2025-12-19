@@ -73,7 +73,7 @@ interface DashboardProps <T extends DashboardItem> {
   itemType: EmbeddedItemType
   res: ResponseWithCursor<T>
   editItem: (item: FormData) => Promise<FormResponse<T> | undefined>
-  deleteItem: (id: string) => Promise<FormResponse<T> | undefined>
+  deleteItem: (item: T) => Promise<FormResponse<T> | undefined>
 }
 
 export function DashboardItems<T extends DashboardItem> ({
@@ -97,6 +97,8 @@ export function DashboardItems<T extends DashboardItem> ({
     sortDirection,
     setSortDirection,
     nextCursor,
+    onAddItem,
+    onRemoveItem,
     totalCount
   } = useResultsList<T>(apiEndpoint, res)
 
@@ -121,6 +123,8 @@ export function DashboardItems<T extends DashboardItem> ({
         const message = res?.message || `Failed to edit ${itemType}.`
         console.error(message)
         return res || { message }
+      } else if (res.res) {
+        onAddItem(res.res as T)
       }
       setIsEditDialogOpen(false)
       setItemToEdit(undefined)
@@ -138,14 +142,19 @@ export function DashboardItems<T extends DashboardItem> ({
     }
   }, [items])
 
-  const onDelete = useCallback(async (id: string) => {
+  const onDelete = useCallback(async (item: T) => {
+    const confirmed = confirm(`Are you sure you want to delete this ${singularizePath(itemType)}? This action cannot be undone.`)
+    if (!confirmed) return
     try {
-      await deleteItem(id)
-      console.log(`Delete ${itemType} with id:`, id)
+      const res = await deleteItem(item)
+      if (res && res.ok) {
+        onRemoveItem(item.id)
+        console.log(`Deleted ${itemType} with id:`, item.id)
+      }
     } catch (error) {
       console.error(`Failed to delete ${itemType}:`, error)
     }
-  }, [itemType, deleteItem])
+  }, [itemType, deleteItem, onRemoveItem])
 
   // Listen for "Add item" button clicks from DashboardLayout
   useEffect(() => {
@@ -257,7 +266,7 @@ export function DashboardItems<T extends DashboardItem> ({
                 itemType={itemType}
                 isExpanded={isExpanded}
                 onEdit={onEdit}
-                onDelete={onDelete}
+                onDelete={() => onDelete(item)}
               />
             ))}
           </ul>

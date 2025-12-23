@@ -68,12 +68,21 @@ declare global {
 
 export type DashboardItem = DashboardEmbedCode | DashboardImage | DashboardLink | DashboardVenue
 
+export const DashboardErrrorMessages = {
+  DuplicateEntry: 'DuplicateEntry: An item with the same unique field already exists.',
+  FailedToDelete: 'FailedToDelete: Attempt to delete the item failed, try again.',
+  FailedToSave: 'FailedToSave: Failed to save changes, try again.',
+  FetchExistingFailed: 'FetchExistingFailed: Failed to fetch existing item for duplicate check.',
+  OperationCancelled: 'OperationCancelled: Operation was cancelled by the user.'
+} as const
+
 interface DashboardProps <T extends DashboardItem> {
   apiEndpoint: string
   itemType: EmbeddedItemType
   res: ResponseWithCursor<T>
   editItem: (item: FormData) => Promise<FormResponse<T> | undefined>
   deleteItem: (item: T) => Promise<FormResponse<T> | undefined>
+  fetchMaybeExistingItem?: (item: Omit<T, 'id'>) => Promise<{ res: T | null, fieldName: keyof Omit<T, 'id'> } | null>
 }
 
 export function DashboardItems<T extends DashboardItem> ({
@@ -81,7 +90,8 @@ export function DashboardItems<T extends DashboardItem> ({
   itemType,
   res,
   editItem,
-  deleteItem
+  deleteItem,
+  fetchMaybeExistingItem
 }: DashboardProps<T>) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -115,22 +125,50 @@ export function DashboardItems<T extends DashboardItem> ({
     return typeFilteredItems
   }
 
-  async function onSubmit (formData: FormData): Promise<FormResponse<T>> {
-    console.log('Form submitted:', formData)
+  async function onBeforeSubmit (formData: FormData) {
+    let isConfirmed = false
     try {
-      const res = await editItem(formData)
-      if (!res || !res.ok) {
-        const message = res?.message || `Failed to edit ${itemType}.`
-        console.error(message)
-        return res || { message }
-      } else if (res.res) {
-        onAddItem(res.res as T)
+      if (fetchMaybeExistingItem) {
+        const maybeExistingItem = await fetchMaybeExistingItem(Object.fromEntries(formData) as Omit<T, 'id'>)
+        if (maybeExistingItem?.res) {
+          const usedOn = usedOnPages(maybeExistingItem.res)
+          const usedOnMessage = usedOn.length > 0
+            ? `\n\nThis will also affect the ${usedOn.length} page(s) where this item is used.`
+            : ''
+          isConfirmed = confirm(`An item already exists with the same ${String(maybeExistingItem.fieldName)}. Do you want to overwrite the existing entry? ${usedOnMessage}`)
+        } else {
+          isConfirmed = true
+        }
       }
-      setIsEditDialogOpen(false)
-      setItemToEdit(undefined)
-      return res
+      return isConfirmed
+    } catch (error) {
+      // Fail silently and allow submission, server will catch duplicates
+      console.error(DashboardErrrorMessages.FetchExistingFailed, error)
+      return true
+    }
+  }
+
+  async function onSubmit (formData: FormData): Promise<FormResponse<T>> {
+    try {
+      const isConfirmed = await onBeforeSubmit(formData)
+      if (!isConfirmed) {
+        return { message: DashboardErrrorMessages.OperationCancelled }
+      } else {
+        const res = await editItem(formData)
+        if (!res || !res.ok) {
+          const message = res?.message || DashboardErrrorMessages.FailedToSave
+          console.error(message)
+          return res || { message }
+        } else if (res.res) {
+          onAddItem(res.res as T)
+        }
+        setIsEditDialogOpen(false)
+        setItemToEdit(undefined)
+        return res
+      }
     } catch (error) {
       console.error('Failed to submit form:', error)
+      return { message: DashboardErrrorMessages.FailedToSave }
     }
   }
 
@@ -153,6 +191,7 @@ export function DashboardItems<T extends DashboardItem> ({
       }
     } catch (error) {
       console.error(`Failed to delete ${itemType}:`, error)
+      return { message: DashboardErrrorMessages.FailedToDelete }
     }
   }, [itemType, deleteItem, onRemoveItem])
 

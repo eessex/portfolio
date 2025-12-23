@@ -11,6 +11,8 @@ import type { FormResponse } from '@/lib/types'
 import styles from '@/ui/form/form.module.scss'
 import { Toast } from '@/ui/toast/toast'
 
+import { DashboardErrrorMessages } from '../dashboard/dashboard-items'
+
 export function Form<T> ({
   action,
   children
@@ -46,7 +48,15 @@ export function Form<T> ({
     }
 
     try {
-      await action(formData)
+      const res = await action(formData)
+      if (!res || !res.ok) {
+        if (res?.message === DashboardErrrorMessages.OperationCancelled) {
+          console.info(DashboardErrrorMessages.OperationCancelled)
+          return
+        }
+        const message = res?.message || DashboardErrrorMessages.FailedToSave
+        throw new Error(`Save failed: ${message}`)
+      }
       setSuccess(true)
       setInitialState(formData)
       console.info('Changes saved.')

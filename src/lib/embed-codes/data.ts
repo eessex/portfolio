@@ -1,3 +1,5 @@
+'use server'
+
 import {
   type QueryResultRow,
   sql
@@ -8,6 +10,7 @@ import {
   embedCodeSchema
 } from '@/lib/embed-codes/schemas'
 import type {
+  CreateEmbedCode,
   DashboardEmbedCode,
   EmbedCode
 } from '@/lib/embed-codes/types'
@@ -29,6 +32,41 @@ export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]) => {
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch embed codes.')
+  }
+}
+
+export async function fetchEmbedCodeByIframe (embedCode: CreateEmbedCode) {
+  try {
+    const { rows } = await sql<EmbedCode>`
+      SELECT
+        embed_codes.*,
+        ARRAY(
+          SELECT slug FROM events AS e
+          WHERE e.embed_code_ids @> ARRAY[embed_codes.id]
+        ) AS event_slugs,
+        ARRAY(
+          SELECT slug FROM projects AS p
+          WHERE p.embed_code_ids @> ARRAY[embed_codes.id]
+        ) AS project_slugs,
+        ARRAY(
+          SELECT slug FROM releases AS r
+          WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
+        ) AS release_slugs
+      FROM embed_codes
+      WHERE iframe = ${embedCode.iframe}
+      LIMIT 1
+    `
+    if (rows.length === 0) {
+      return null
+    } else {
+      return {
+        res: formatDbResponseForClient(rows[0], embedCodeSchema),
+        fieldName: 'iframe' as keyof CreateEmbedCode
+      }
+    }
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch embed code by iframe.')
   }
 }
 

@@ -5,7 +5,10 @@ import {
   deleteEmbedCode,
   editEmbedCode
 } from '@/lib/embed-codes/actions'
-import { fetchEmbedCodes } from '@/lib/embed-codes/data'
+import {
+  fetchEmbedCodeByIframe,
+  fetchEmbedCodes
+} from '@/lib/embed-codes/data'
 import type { EmbeddedItemType } from '@/lib/types'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
@@ -28,6 +31,7 @@ export default async function EmbedCodesPage () {
           itemType={itemType}
           editItem={editEmbedCode}
           deleteItem={deleteEmbedCode}
+          fetchMaybeExistingItem={fetchEmbedCodeByIframe}
         />
       </Suspense>
     </DashboardLayout>

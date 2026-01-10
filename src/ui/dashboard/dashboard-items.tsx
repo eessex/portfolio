@@ -51,12 +51,14 @@ import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
 import { Loading } from '@/ui/loading'
 import { SearchInput } from '@/ui/search-input/search-input'
+import { Toast } from '@/ui/toast/toast'
 import { useResultsList } from '@/ui/useResultsList'
 import {
   formattedItemType,
   formatVenueInline,
   singularizePath,
-  usedOnPages
+  usedOnPages,
+  usedOnSlugKeys
 } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 
@@ -68,12 +70,17 @@ declare global {
 
 export type DashboardItem = DashboardEmbedCode | DashboardImage | DashboardLink | DashboardVenue
 
+const DashboardSuccessMessages = {
+  SavedSuccessfully: 'Item saved successfully.',
+  DeletedSuccessfully: 'Item deleted successfully.'
+} as const
+
 export const DashboardErrrorMessages = {
-  DuplicateEntry: 'DuplicateEntry: An item with the same unique field already exists.',
-  FailedToDelete: 'FailedToDelete: Attempt to delete the item failed, try again.',
-  FailedToSave: 'FailedToSave: Failed to save changes, try again.',
-  FetchExistingFailed: 'FetchExistingFailed: Failed to fetch existing item for duplicate check.',
-  OperationCancelled: 'OperationCancelled: Operation was cancelled by the user.'
+  DuplicateEntry: 'An item with the same unique field already exists.',
+  FailedToDelete: 'Attempt to delete the item failed, try again.',
+  FailedToSave: 'Failed to save changes, try again.',
+  FetchExistingFailed: 'Failed to fetch existing item for duplicate check.',
+  OperationCancelled: 'Operation was cancelled by the user.'
 } as const
 
 interface DashboardProps <T extends DashboardItem> {
@@ -97,6 +104,8 @@ export function DashboardItems<T extends DashboardItem> ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [itemToEdit, setItemToEdit] = useState<T | undefined>(undefined)
   const [filterType, setFilterType] = useState<string | undefined>(undefined)
+  const [successMessages, setSuccessMessages] = useState<string[]>([])
+  const [errorMessages, setErrorMessages] = useState<string[]>([])
 
   const {
     isLoading,
@@ -108,6 +117,7 @@ export function DashboardItems<T extends DashboardItem> ({
     setSortDirection,
     nextCursor,
     onAddItem,
+    onEditItem,
     onRemoveItem,
     totalCount
   } = useResultsList<T>(apiEndpoint, res)
@@ -127,6 +137,7 @@ export function DashboardItems<T extends DashboardItem> ({
 
   async function onBeforeSubmit (formData: FormData) {
     let isConfirmed = false
+    console.info('Checking for duplicate before submitting form data:', Object.fromEntries(formData))
     try {
       if (fetchMaybeExistingItem) {
         const maybeExistingItem = await fetchMaybeExistingItem(Object.fromEntries(formData) as Omit<T, 'id'>)
@@ -139,6 +150,8 @@ export function DashboardItems<T extends DashboardItem> ({
         } else {
           isConfirmed = true
         }
+      } else {
+        isConfirmed = true
       }
       return isConfirmed
     } catch (error) {
@@ -157,18 +170,24 @@ export function DashboardItems<T extends DashboardItem> ({
         const res = await editItem(formData)
         if (!res || !res.ok) {
           const message = res?.message || DashboardErrrorMessages.FailedToSave
-          console.error(message)
-          return res || { message }
+          console.debug(message, itemToEdit?.id)
+          setErrorMessages([message, ...errorMessages])
+          return // leave the dialog open for retry
         } else if (res.res) {
-          onAddItem(res.res as T)
+          setSuccessMessages([DashboardSuccessMessages.SavedSuccessfully, ...successMessages])
+          if (itemToEdit?.id) {
+            onEditItem(res.res as T, usedOnSlugKeys(itemToEdit as T) ?? {})
+          } else {
+            onAddItem(res.res as T)
+          }
         }
         setIsEditDialogOpen(false)
         setItemToEdit(undefined)
         return res
       }
     } catch (error) {
-      console.error('Failed to submit form:', error)
-      return { message: DashboardErrrorMessages.FailedToSave }
+      console.debug(error, itemToEdit?.id)
+      setErrorMessages([DashboardErrrorMessages.FailedToSave, ...errorMessages])
     }
   }
 
@@ -186,14 +205,15 @@ export function DashboardItems<T extends DashboardItem> ({
     try {
       const res = await deleteItem(item)
       if (res && res.ok) {
+        console.log(`Deleted ${singularizePath(itemType)} with id:`, item.id)
+        setSuccessMessages([DashboardSuccessMessages.DeletedSuccessfully, ...successMessages])
         onRemoveItem(item.id)
-        console.log(`Deleted ${itemType} with id:`, item.id)
       }
     } catch (error) {
-      console.error(`Failed to delete ${itemType}:`, error)
-      return { message: DashboardErrrorMessages.FailedToDelete }
+      console.debug(error, item.id)
+      setErrorMessages([DashboardErrrorMessages.FailedToDelete, ...errorMessages])
     }
-  }, [itemType, deleteItem, onRemoveItem])
+  }, [successMessages, errorMessages, itemType, deleteItem, onRemoveItem])
 
   // Listen for "Add item" button clicks from DashboardLayout
   useEffect(() => {
@@ -309,6 +329,28 @@ export function DashboardItems<T extends DashboardItem> ({
               />
             ))}
           </ul>
+          {successMessages.map((message, index) => (
+            <Toast
+              key={index}
+              type='success'
+              onHide={() => {
+                setSuccessMessages(successMessages.filter((_, i) => i !== index))
+              }}
+            >
+              {message}
+            </Toast>
+          ))}
+          {errorMessages.map((message, index) => (
+            <Toast
+              key={index}
+              type='error'
+              onHide={() => {
+                setErrorMessages(errorMessages.filter((_, i) => i !== index))
+              }}
+            >
+              {message}
+            </Toast>
+          ))}
           {nextCursor && (
             <>
               <li
@@ -447,6 +489,7 @@ function DashboardListItem<T extends DashboardItem> ({
           onDelete={onDelete}
         />
         <ItemDisplay
+          key={`inner-${item.id}`}
           item={item}
           itemType={itemType}
         />

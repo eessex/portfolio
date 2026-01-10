@@ -121,7 +121,6 @@ export async function deleteEmbedCode (embedCode: EmbedCode): Promise<FormRespon
         id = ${embedCode.id}
         OR iframe = ${embedCode.iframe}
     `
-    // FIXME: add iframe to where
     revalidatePath('/dashboard/embed_codes')
     return { ok: true }
   } catch (err) {

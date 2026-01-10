@@ -7,6 +7,7 @@ import {
 
 import type { ResponseWithCursor } from '@/lib/util'
 import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
+import type { usedOnSlugKeys } from '@/ui/util'
 
 type SortDirection = 'asc' | 'desc'
 
@@ -203,6 +204,16 @@ export function useResultsList<T extends DashboardItem> (
     setCount(prevCount => prevCount + 1)
   }
 
+  function onEditItem (item: T, usedOnPages: ReturnType<typeof usedOnSlugKeys>) {
+    fullResultsCache.current = fullResultsCache.current.map(i => i.id === item.id
+      ? {
+          ...i,
+          ...usedOnPages
+        }
+      : i)
+    setItems(applyFilter(fullResultsCache.current, queryRef.current, sortDirectionRef.current))
+  }
+
   function onRemoveItem (itemId: string) {
     fullResultsCache.current = fullResultsCache.current.filter(i => i.id !== itemId)
     setItems(applyFilter(fullResultsCache.current, queryRef.current, sortDirectionRef.current))
@@ -220,6 +231,7 @@ export function useResultsList<T extends DashboardItem> (
     setSortDirection,
     nextCursor,
     onAddItem,
+    onEditItem,
     onRemoveItem,
     totalCount
   }

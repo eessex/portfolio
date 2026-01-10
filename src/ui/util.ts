@@ -1,3 +1,4 @@
+import type { DashboardUsedOnPagesKeys } from '@/lib/embed-codes/types'
 import type { Image } from '@/lib/images/types'
 import type { Link } from '@/lib/links/types'
 import type { PublishedEditionClient } from '@/lib/published-editions/types'
@@ -217,6 +218,20 @@ export function formattedItemTitle (item: PageItemClient) {
 
 export function itemUrl (item: PageItemClient) {
   return `/${item.path}/${item.slug}`
+}
+
+// queried on page fetch, but not returned in save actions,
+// extract these keys so we can store them when editing items
+export function usedOnSlugKeys ({
+  eventSlugs,
+  projectSlugs,
+  releaseSlugs
+}: DashboardItem): Pick<DashboardUsedOnPagesKeys, 'eventSlugs' | 'projectSlugs' | 'releaseSlugs'> {
+  return ({
+    eventSlugs: eventSlugs ?? [],
+    projectSlugs: projectSlugs ?? [],
+    releaseSlugs: releaseSlugs ?? []
+  })
 }
 
 export function usedOnPages (item: DashboardItem) {

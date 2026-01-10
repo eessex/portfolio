@@ -163,6 +163,7 @@ async function updateLink (link: CreateLink | Link) {
     })
   } catch (err) {
     console.error('Error saving links:', err)
+    throw new Error('Failed to save link.')
   }
 }
 

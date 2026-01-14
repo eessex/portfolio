@@ -1,0 +1,104 @@
+import { revalidatePath } from 'next/cache'
+import postgres from 'postgres'
+
+import {
+  deleteLink,
+  editLink
+} from '@/lib/links/actions'
+import type {
+  CreateLink,
+  Link
+} from '@/lib/links/types'
+import { formDataFromObject } from '@/lib/util'
+
+import {
+  linkFixture,
+  newLinkFixture,
+  newPressLinkFixture,
+  pressLinkFixture
+} from './fixtures'
+
+jest.mock('postgres')
+jest.mock('next/cache')
+
+const mockSql = (postgres as unknown as { __sql: jest.Mock }).__sql
+
+describe('Link Actions', () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  describe('#deleteLink', () => {
+    it('can delete a link', async () => {
+      mockSql.mockResolvedValueOnce([linkFixture])
+      const res = await deleteLink(linkFixture)
+
+      expect(res).toEqual({ ok: true })
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/links')
+    })
+
+    it('can handle errors', async () => {
+      mockSql.mockRejectedValueOnce(new Error('DB error'))
+      const res = await deleteLink(linkFixture)
+
+      expect(res!.message).toBe('Failed to delete link: DB error')
+    })
+  })
+
+  describe('#editLink', () => {
+    it('can edit an existing link', async () => {
+      mockSql.mockResolvedValueOnce([linkFixture])
+      const res = await editLink(formDataFromObject(linkFixture))
+
+      expect(res?.ok).toBe(true)
+      expect((res?.res as Link)?.title).toEqual('Test Link')
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/links')
+    })
+
+    it('can edit an existing press link', async () => {
+      mockSql.mockResolvedValueOnce([pressLinkFixture])
+      const res = await editLink(formDataFromObject(pressLinkFixture))
+
+      expect(res?.ok).toBe(true)
+      expect((res?.res as Link)?.title).toEqual('Test Press Link')
+      expect((res?.res as Link)?.quotation).toEqual('Test Quotation')
+      expect((res?.res as Link)?.type).toEqual('press')
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/links')
+    })
+
+    it('can create a new link', async () => {
+      mockSql.mockResolvedValueOnce([linkFixture])
+      const res = await editLink(formDataFromObject(newLinkFixture))
+
+      expect(res?.ok).toBe(true)
+      expect((res?.res as Link)?.title).toEqual('Test Link')
+      expect((res?.res as Link)?.id).toEqual('a3b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a')
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/links')
+    })
+
+    it('can create a new press link', async () => {
+      mockSql.mockResolvedValueOnce([pressLinkFixture])
+      const res = await editLink(formDataFromObject(newPressLinkFixture))
+
+      expect(res?.ok).toBe(true)
+      expect((res?.res as Link)?.title).toEqual('Test Press Link')
+      expect((res?.res as Link)?.quotation).toEqual('Test Quotation')
+      expect((res?.res as Link)?.type).toEqual('press')
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/links')
+    })
+
+    it('can handle generic errors', async () => {
+      mockSql.mockRejectedValueOnce(new Error('DB error'))
+      const res = await editLink(formDataFromObject(linkFixture))
+
+      expect(res!.message).toBe('Failed to edit link: DB error')
+    })
+
+    it('can handle validation errors', async () => {
+      const invalid: Partial<CreateLink> = { ...newLinkFixture }
+      delete invalid.url
+      const res = await editLink(formDataFromObject(invalid))
+
+      expect(res!.message).toBe('Failed to validate link.')
+      expect(res!.errors).toEqual({ url: ['Required'] })
+    })
+  })
+})

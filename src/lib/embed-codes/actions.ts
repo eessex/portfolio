@@ -16,6 +16,54 @@ import { formatDbResponseForClient } from '@/lib/util'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
+export async function editEmbedCode (formData: FormData): Promise<FormResponse<EmbedCode>> {
+  let validatedEmbedCode
+  const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)
+
+  if (formData.get('id')) {
+    validatedEmbedCode = embedCodeSchema.safeParse(data)
+  } else {
+    validatedEmbedCode = createEmbedCodeSchema.safeParse(data)
+  }
+  if (!validatedEmbedCode.success) {
+    return {
+      errors: validatedEmbedCode.error.flatten().fieldErrors,
+      message: 'Failed to validate embed code.'
+    }
+  }
+  try {
+    const updatedEmbedCode = await updateEmbedCode(validatedEmbedCode.data)
+    if (updatedEmbedCode) {
+      revalidatePath('/dashboard/embed_codes')
+      return {
+        ok: true,
+        res: updatedEmbedCode
+      }
+    }
+  } catch (err) {
+    const errMsg = 'Failed to edit embed code'
+    const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+    return { message }
+  }
+}
+
+export async function deleteEmbedCode (embedCode: EmbedCode): Promise<FormResponse<EmbedCode>> {
+  try {
+    await sql`
+      DELETE FROM embed_codes
+      WHERE
+        id = ${embedCode.id}
+        OR iframe = ${embedCode.iframe}
+    `
+    revalidatePath('/dashboard/embed_codes')
+    return { ok: true }
+  } catch (err) {
+    const errMsg = 'Failed to delete embed code'
+    const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+    return { message }
+  }
+}
+
 async function createEmbedCode (embedCode: CreateEmbedCode) {
   try {
     const {
@@ -38,58 +86,20 @@ async function createEmbedCode (embedCode: CreateEmbedCode) {
       RETURNING *
     `.then(rows => formatDbResponseForClient(rows[0], embedCodeSchema))
   } catch (err) {
-    console.error('Error creating embed code:', err)
     throw new Error(err instanceof Error ? err.message : 'Failed to create embed code.')
   }
 }
 
-export async function editEmbedCode (formData: FormData): Promise<FormResponse<EmbedCode>> {
-  let validatedEmbedCode
-
-  const data = Object.fromEntries(formData)
-  if (formData.get('id')) {
-    validatedEmbedCode = embedCodeSchema.safeParse(data)
-  } else {
-    validatedEmbedCode = createEmbedCodeSchema.safeParse(data)
-  }
-  if (!validatedEmbedCode.success) {
-    console.error('Failed to validate embed code.', validatedEmbedCode.error.flatten().fieldErrors)
-    return {
-      errors: validatedEmbedCode.error.flatten().fieldErrors,
-      message: 'Failed to validate embed code.'
-    }
-  }
-  try {
-    const updatedEmbedCode = await updateEmbedCode(validatedEmbedCode.data)
-    if (updatedEmbedCode) {
-      console.debug('Embed code saved successfully:', updatedEmbedCode)
-      revalidatePath('/dashboard/embed_codes')
-      return {
-        ok: true,
-        res: updatedEmbedCode
-      }
-    }
-  } catch (err) {
-    console.error('Failed to save EmbedCode:', err)
-    throw new Error('Failed to save EmbedCode.')
-  }
-}
-
 async function updateEmbedCode (embedCode: CreateEmbedCode | EmbedCode) {
-  if (!(embedCode as EmbedCode).id) {
-    try {
+  try {
+    if (!(embedCode as EmbedCode).id) {
       return await createEmbedCode(embedCode)
-    } catch (err) {
-      console.error('Error creating embed code:', err)
-      throw new Error(err instanceof Error ? err.message : 'Failed to create embed code.')
-    }
-  } else {
-    const {
-      iframe,
-      caption,
-      title
-    } = embedCode
-    try {
+    } else {
+      const {
+        iframe,
+        caption,
+        title
+      } = embedCode
       return await sql<EmbedCode[]>`
         UPDATE embed_codes
         SET (
@@ -106,25 +116,8 @@ async function updateEmbedCode (embedCode: CreateEmbedCode | EmbedCode) {
         WHERE id = ${(embedCode as EmbedCode).id}
         RETURNING *
       `.then(rows => formatDbResponseForClient(rows[0], embedCodeSchema))
-    } catch (err) {
-      console.error('Error updating embed code:', err)
-      throw new Error('Failed to update embed code.')
     }
-  }
-}
-
-export async function deleteEmbedCode (embedCode: EmbedCode): Promise<FormResponse<EmbedCode>> {
-  try {
-    await sql`
-      DELETE FROM embed_codes
-      WHERE
-        id = ${embedCode.id}
-        OR iframe = ${embedCode.iframe}
-    `
-    revalidatePath('/dashboard/embed_codes')
-    return { ok: true }
   } catch (err) {
-    console.error('Error deleting embed code:', err)
-    throw new Error('Failed to delete embed code.')
+    throw new Error(err instanceof Error ? err.message : 'Failed to update embed code.')
   }
 }

@@ -205,9 +205,11 @@ export function DashboardItems<T extends DashboardItem> ({
     try {
       const res = await deleteItem(item)
       if (res && res.ok) {
-        console.log(`Deleted ${singularizePath(itemType)} with id:`, item.id)
         setSuccessMessages([DashboardSuccessMessages.DeletedSuccessfully, ...successMessages])
         onRemoveItem(item.id)
+      } else {
+        console.debug(res?.message, item.id)
+        setErrorMessages([res?.message || DashboardErrrorMessages.FailedToDelete, ...errorMessages])
       }
     } catch (error) {
       console.debug(error, item.id)

@@ -46,7 +46,7 @@ export function useResultsList<T extends DashboardItem> (
   /** Fetching state ref to prevent duplicate requests */
   const isFetchingRef = useRef(false)
   /** Cache: one item's normalized search text */
-  const searchIndexRef = useRef<WeakMap<T, string>>(new WeakMap())
+  const searchIndexRef = useRef<Map<string, string>>(new Map())
 
   useEffect(() => {
     queryRef.current = query
@@ -64,21 +64,18 @@ export function useResultsList<T extends DashboardItem> (
     [apiEndpoint]
   )
 
-  const getSearchText = useCallback(
-    (item: T): string => {
-      const cached = searchIndexRef.current.get(item)
-      if (cached) return cached
+  const getSearchText = useCallback((item: T): string => {
+    const cached = searchIndexRef.current.get(item.id)
+    if (cached) return cached
 
-      const text = Object.values(item)
-        .filter(v => typeof v === 'string')
-        .join(', ')
-        .toLowerCase()
+    const text = Object.values(item)
+      .filter(v => typeof v === 'string')
+      .join(', ')
+      .toLowerCase()
 
-      searchIndexRef.current.set(item, text)
-      return text
-    },
-    []
-  )
+    searchIndexRef.current.set(item.id, text)
+    return text
+  }, [])
 
   const applyFilter = useCallback(
     (list: T[], q: string, sortDirection: SortDirection) => {
@@ -205,13 +202,25 @@ export function useResultsList<T extends DashboardItem> (
   }
 
   function onEditItem (item: T, usedOnPages: ReturnType<typeof usedOnSlugKeys>) {
-    fullResultsCache.current = fullResultsCache.current.map(i => i.id === item.id
-      ? {
-          ...i,
-          ...usedOnPages
-        }
-      : i)
-    setItems(applyFilter(fullResultsCache.current, queryRef.current, sortDirectionRef.current))
+    fullResultsCache.current = fullResultsCache.current.map(i =>
+      i.id === item.id
+        ? {
+            ...i,
+            ...item,
+            ...usedOnPages
+          }
+        : i
+    )
+
+    searchIndexRef.current.delete(item.id)
+
+    setItems(
+      applyFilter(
+        fullResultsCache.current,
+        queryRef.current,
+        sortDirectionRef.current
+      )
+    )
   }
 
   function onRemoveItem (itemId: string) {

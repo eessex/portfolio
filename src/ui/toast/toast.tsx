@@ -1,5 +1,3 @@
-import { useEffect } from 'react'
-
 import {
   TextBanner,
   type TextBannerProps
@@ -8,19 +6,12 @@ import styles from '@/ui/toast/toast.module.scss'
 
 export interface ToastProps extends Pick<TextBannerProps, 'type'> {
   message: string
-  onHide: () => void
 }
 
 export const Toast = ({
   message,
-  type,
-  onHide
+  type
 }: ToastProps) => {
-  useEffect(() => {
-    const timer = setTimeout(onHide, 3000)
-    return () => clearTimeout(timer)
-  })
-
   return (
     <TextBanner
       type={type}

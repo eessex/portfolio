@@ -205,7 +205,6 @@ export function useResultsList<T extends DashboardItem> (
     fullResultsCache.current = fullResultsCache.current.map(i =>
       i.id === item.id
         ? {
-            ...i,
             ...item,
             ...usedOnPages
           }

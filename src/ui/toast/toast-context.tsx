@@ -41,8 +41,9 @@ export function ToastProvider ({ children }: { children: React.ReactNode }) {
   const add = useCallback((type: ToastProps['type'], message: string) => {
     const id = nextId.current++
     setToasts(prev => [...prev, {
-      id, type, message, onHide: () => removeMessage(id)
+      id, type, message
     }])
+    setTimeout(() => removeMessage(id), 3000)
     return id
   }, [removeMessage])
 
@@ -62,7 +63,6 @@ export function ToastProvider ({ children }: { children: React.ReactNode }) {
             key={t.id}
             type={t.type}
             message={t.message}
-            onHide={() => removeMessage(t.id)}
           />
         ))}
       </div>

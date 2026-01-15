@@ -15,6 +15,7 @@ import {
 } from '@/ui/fonts'
 import { Footer } from '@/ui/footer/footer'
 import { Nav } from '@/ui/nav/nav'
+import { ToastProvider } from '@/ui/toast/toast-context'
 
 export async function generateMetadata (): Promise<Metadata> {
   const siteSettings = await fetchSiteSettings()
@@ -51,31 +52,33 @@ export default async function RootLayout ({ children }: Readonly<{
   return (
     <html lang='en'>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <SessionProvider session={session}>
-          <DeviceProvider initialIsMobile={isMobileUA}>
-            <a
-              className='button visible-focus-only'
-              id='skip-to-content'
-              href='#content'
-            >
-              Skip to content
-            </a>
+        <ToastProvider>
+          <SessionProvider session={session}>
+            <DeviceProvider initialIsMobile={isMobileUA}>
+              <a
+                className='button visible-focus-only'
+                id='skip-to-content'
+                href='#content'
+              >
+                Skip to content
+              </a>
 
-            <Nav title={siteSettings?.title} />
+              <Nav title={siteSettings?.title} />
 
-            <div className={clsx('body-container', isLoggedIn && 'admin')}>
-              {isLoggedIn && <AdminSidebar />}
-              <div>
-                <main>
-                  <div id='content' />
-                  {children}
-                </main>
+              <div className={clsx('body-container', isLoggedIn && 'admin')}>
+                {isLoggedIn && <AdminSidebar />}
+                <div>
+                  <main>
+                    <div id='content' />
+                    {children}
+                  </main>
 
-                <Footer />
+                  <Footer />
+                </div>
               </div>
-            </div>
-          </DeviceProvider>
-        </SessionProvider>
+            </DeviceProvider>
+          </SessionProvider>
+        </ToastProvider>
       </body>
     </html>
   )

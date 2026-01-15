@@ -13,9 +13,8 @@ describe('Toast', () => {
       <Toast
         onHide={() => {}}
         type='success'
-      >
-        Success message
-      </Toast>
+        message='Success message'
+      />
     )
 
     const message = screen.getByText('Success message')

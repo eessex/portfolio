@@ -6,12 +6,13 @@ import {
 } from '@/ui/text-banner/text-banner'
 import styles from '@/ui/toast/toast.module.scss'
 
-interface ToastProps extends TextBannerProps {
+export interface ToastProps extends Pick<TextBannerProps, 'type'> {
+  message: string
   onHide: () => void
 }
 
 export const Toast = ({
-  children,
+  message,
   type,
   onHide
 }: ToastProps) => {
@@ -25,7 +26,7 @@ export const Toast = ({
       type={type}
       className={styles.toast}
     >
-      {children}
+      {message}
     </TextBanner>
   )
 }

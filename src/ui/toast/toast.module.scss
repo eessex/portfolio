@@ -1,15 +1,23 @@
 @use '@/ui/breakpoints';
 
 .toast {
-  max-width: 70%;
   margin: 0 auto;
-  position: fixed;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
   z-index: 2000;
+}
+
+.toast-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: fixed;
+  bottom: 2rem;
+  left: 15%;
+  right: 15%;
+  z-index: 200;
+
 
   @include breakpoints.mobile {
-    max-width: 85%;
+    left: 10%;
+    right: 10%;
   }
 }

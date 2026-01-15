@@ -9,19 +9,27 @@ import {
 
 import type { FormResponse } from '@/lib/types'
 import styles from '@/ui/form/form.module.scss'
-import { Toast } from '@/ui/toast/toast'
+import { useToast } from '@/ui/toast/toast-context'
 
 export function Form<T> ({
   action,
-  children
+  children,
+  className,
+  onSuccess,
+  submitButtonText
 }: {
   action: (formData: FormData) => Promise<FormResponse<T>>
   children: React.ReactNode
+  className?: string
+  onSuccess?: () => void
+  submitButtonText?: string
 }) {
-  const [error, setError] = useState<boolean>(false)
-  const [success, setSuccess] = useState<boolean>(false)
   const [initialState, setInitialState] = useState<FormData | null>(null)
   const formRef = useRef(null)
+  const {
+    addErrorMessage,
+    addSuccessMessage
+  } = useToast()
 
   useEffect(() => {
     if (formRef.current && !initialState) {
@@ -36,29 +44,37 @@ export function Form<T> ({
   )
 
   async function onSubmit (_state: void | null, formData: FormData) {
+    if (isPending) return
+
     const isDirty = isFormDirty(formData, initialState)
-    setError(false)
 
     if (!isDirty) {
-      setSuccess(true)
-      console.info('No changes made.')
+      if (onSuccess) {
+        onSuccess()
+      } else {
+        addSuccessMessage('Changes saved.')
+        console.info('No changes made.')
+      }
       return
     }
 
     try {
       await action(formData)
-      setSuccess(true)
+      if (onSuccess) {
+        onSuccess()
+      } else {
+        addSuccessMessage('Changes saved.')
+      }
       setInitialState(formData)
-      console.info('Changes saved.')
     } catch (error) {
-      setError(true)
-      console.error(error)
+      addErrorMessage((error as Error)?.message || 'An error occurred, please try again.')
+      console.debug(error)
     }
   }
 
   return (
     <form
-      className={styles.form}
+      className={`${className || styles.form}`}
       action={formAction}
       ref={formRef}
     >
@@ -67,26 +83,9 @@ export function Form<T> ({
       <button
         className='button'
         type='submit'
-        disabled={isPending}
       >
-        {isPending ? 'Loading...' : 'Save'}
+        {isPending ? 'Loading...' : submitButtonText || 'Save'}
       </button>
-
-      {error && !isPending && (
-        <Toast
-          type='error'
-          onHide={() => setError(false)}
-        />
-      )}
-
-      {success && !isPending && (
-        <Toast
-          type='success'
-          onHide={() => setSuccess(false)}
-        >
-          Changes saved.
-        </Toast>
-      )}
     </form>
   )
 }

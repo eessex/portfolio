@@ -2,70 +2,39 @@
 
 import Cookies from 'js-cookie'
 import {
-  useActionState,
   useEffect,
   useState
 } from 'react'
 
 import { createEmailSubscription } from '@/lib/email-subscriptions/actions'
-import type { FormState } from '@/lib/types'
 import styles from '@/ui/email-subscribe/email-subscribe.module.scss'
-import { Toast } from '@/ui/toast/toast'
+import { Form } from '@/ui/form/form'
+import { useToast } from '@/ui/toast/toast-context'
 
 export function EmailSubscribe () {
-  const [error, setError] = useState<boolean>(false)
-  const [success, setSuccess] = useState<boolean>(false)
-  const [
-    formState,
-    formAction,
-    isPending
-  ] = useActionState<FormState<string> | undefined, FormData>(onSubscribe, undefined)
   const [isSubscribed, setIsSubscribed] = useState(false)
+  const { addSuccessMessage } = useToast()
 
   useEffect(() => {
     const cookie = Cookies.get('is_subscribed')
     setIsSubscribed(!!cookie)
   }, [])
 
-  async function onSubscribe (_state: FormState<string> | undefined, payload: FormData) {
-    try {
-      const res = await createEmailSubscription<string>(payload)
-      if (res && res.ok) {
-        setSuccess(true)
-      } else {
-        setError(true)
-      }
-      return res
-    } catch (error) {
-      setError(true)
-      return { message: (error as Error).message || 'Failed to subscribe.' }
-    }
-  }
-
-  function onHideSuccess () {
-    setSuccess(false)
+  function onSuccess () {
+    addSuccessMessage('Thank you for subscribing!')
     Cookies.set('is_subscribed', '1', { expires: 1 })
     setIsSubscribed(true)
-  }
-
-  function SubmitButton () {
-    return (
-      <button
-        type='submit'
-        disabled={isPending}
-      >
-        {isPending ? 'Loading...' : 'Subscribe'}
-      </button>
-    )
   }
 
   if (!isSubscribed) {
     return (
       <>
-        <form
+        <Form
           className={styles['email-subscribe']}
           aria-describedby='email-subscribe'
-          action={formAction}
+          action={createEmailSubscription}
+          onSuccess={onSuccess}
+          submitButtonText='Subscribe'
         >
           <p
             id='email-subscribe'
@@ -85,28 +54,10 @@ export function EmailSubscribe () {
             name='email'
             placeholder='email'
             required
-            disabled={isPending || success}
-            aria-disabled={isPending || success}
+            disabled={isSubscribed}
+            aria-disabled={isSubscribed}
           />
-          <SubmitButton />
-        </form>
-
-        {error && formState?.message && (
-          <Toast
-            type='error'
-            onHide={() => setError(false)}
-          >
-            {formState?.message}
-          </Toast>
-        )}
-        {success && (
-          <Toast
-            type='success'
-            onHide={onHideSuccess}
-          >
-            Thank you for subscribing!
-          </Toast>
-        )}
+        </Form>
       </>
     )
   } else {

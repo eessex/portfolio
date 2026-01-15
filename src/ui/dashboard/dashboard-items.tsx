@@ -51,7 +51,7 @@ import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
 import { Loading } from '@/ui/loading'
 import { SearchInput } from '@/ui/search-input/search-input'
-import { Toast } from '@/ui/toast/toast'
+import { useToast } from '@/ui/toast/toast-context'
 import { useResultsList } from '@/ui/useResultsList'
 import {
   formattedItemType,
@@ -104,8 +104,11 @@ export function DashboardItems<T extends DashboardItem> ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [itemToEdit, setItemToEdit] = useState<T | undefined>(undefined)
   const [filterType, setFilterType] = useState<string | undefined>(undefined)
-  const [successMessages, setSuccessMessages] = useState<string[]>([])
-  const [errorMessages, setErrorMessages] = useState<string[]>([])
+
+  const {
+    addErrorMessage,
+    addSuccessMessage
+  } = useToast()
 
   const {
     isLoading,
@@ -171,10 +174,10 @@ export function DashboardItems<T extends DashboardItem> ({
         if (!res || !res.ok) {
           const message = res?.message || DashboardErrrorMessages.FailedToSave
           console.debug(message, itemToEdit?.id)
-          setErrorMessages([message, ...errorMessages])
+          addErrorMessage(message)
           return // leave the dialog open for retry
         } else if (res.res) {
-          setSuccessMessages([DashboardSuccessMessages.SavedSuccessfully, ...successMessages])
+          addSuccessMessage(DashboardSuccessMessages.SavedSuccessfully)
           if (itemToEdit?.id) {
             onEditItem(res.res as T, usedOnSlugKeys(itemToEdit as T) ?? {})
           } else {
@@ -187,7 +190,7 @@ export function DashboardItems<T extends DashboardItem> ({
       }
     } catch (error) {
       console.debug(error, itemToEdit?.id)
-      setErrorMessages([DashboardErrrorMessages.FailedToSave, ...errorMessages])
+      addErrorMessage(DashboardErrrorMessages.FailedToSave)
     }
   }
 
@@ -205,17 +208,17 @@ export function DashboardItems<T extends DashboardItem> ({
     try {
       const res = await deleteItem(item)
       if (res && res.ok) {
-        setSuccessMessages([DashboardSuccessMessages.DeletedSuccessfully, ...successMessages])
+        addSuccessMessage(DashboardSuccessMessages.DeletedSuccessfully)
         onRemoveItem(item.id)
       } else {
         console.debug(res?.message, item.id)
-        setErrorMessages([res?.message || DashboardErrrorMessages.FailedToDelete, ...errorMessages])
+        addErrorMessage((res as Error)?.message || DashboardErrrorMessages.FailedToDelete)
       }
     } catch (error) {
       console.debug(error, item.id)
-      setErrorMessages([DashboardErrrorMessages.FailedToDelete, ...errorMessages])
+      addErrorMessage((error as Error)?.message || DashboardErrrorMessages.FailedToDelete)
     }
-  }, [successMessages, errorMessages, itemType, deleteItem, onRemoveItem])
+  }, [itemType, deleteItem, addSuccessMessage, onRemoveItem, addErrorMessage])
 
   // Listen for "Add item" button clicks from DashboardLayout
   useEffect(() => {
@@ -331,28 +334,6 @@ export function DashboardItems<T extends DashboardItem> ({
               />
             ))}
           </ul>
-          {successMessages.map((message, index) => (
-            <Toast
-              key={index}
-              type='success'
-              onHide={() => {
-                setSuccessMessages(successMessages.filter((_, i) => i !== index))
-              }}
-            >
-              {message}
-            </Toast>
-          ))}
-          {errorMessages.map((message, index) => (
-            <Toast
-              key={index}
-              type='error'
-              onHide={() => {
-                setErrorMessages(errorMessages.filter((_, i) => i !== index))
-              }}
-            >
-              {message}
-            </Toast>
-          ))}
           {nextCursor && (
             <>
               <li

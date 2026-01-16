@@ -5,7 +5,10 @@ import {
   deleteImage,
   editImage
 } from '@/lib/images/actions'
-import { fetchImages } from '@/lib/images/data'
+import {
+  fetchImageByUrl,
+  fetchImages
+} from '@/lib/images/data'
 import type { EmbeddedItemType } from '@/lib/types'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
@@ -28,6 +31,7 @@ export default async function ImagesPage () {
           itemType={itemType}
           editItem={editImage}
           deleteItem={deleteImage}
+          fetchMaybeExistingItem={fetchImageByUrl}
         />
       </Suspense>
     </DashboardLayout>

@@ -86,21 +86,3 @@ export function formatDbResponseForClient<T extends z.ZodTypeAny> (
   const formatted = nullsToUndefined(camelizeKeys(data))
   return schema.parse(formatted)
 }
-
-/** testing-only helper */
-export const formDataFromObject = (v: Record<string, unknown>) => {
-  const fd = new FormData()
-  Object.entries(v).forEach(([k, val]) => {
-    if (val === undefined || val === null) return
-    if (Array.isArray(val)) {
-      val.forEach(item => {
-        if (item !== undefined && item !== null) {
-          fd.append(k, String(item))
-        }
-      })
-    } else {
-      fd.append(k, String(val))
-    }
-  })
-  return fd
-}

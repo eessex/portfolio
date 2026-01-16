@@ -1,7 +1,6 @@
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 
-import { formDataFromObject } from '@/lib/util'
 import {
   deleteVenue,
   editVenue
@@ -14,6 +13,7 @@ import type {
   CreateVenue,
   Venue
 } from '@/lib/venues/types'
+import { formDataFromObject } from '@/test/helpers'
 
 jest.mock('postgres')
 jest.mock('next/cache')

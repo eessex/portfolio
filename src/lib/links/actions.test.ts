@@ -9,7 +9,7 @@ import type {
   CreateLink,
   Link
 } from '@/lib/links/types'
-import { formDataFromObject } from '@/lib/util'
+import { formDataFromObject } from '@/test/helpers'
 
 import {
   linkFixture,

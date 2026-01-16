@@ -1,14 +1,12 @@
 'use server'
 
-import {
-  DeleteObjectCommand,
-  PutObjectCommand,
-  S3Client
-} from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { revalidatePath } from 'next/cache'
 import postgres from 'postgres'
 
+import {
+  deleteFromS3,
+  uploadFile
+} from '@/lib/images/s3'
 import {
   createImageSchema,
   imageSchema
@@ -24,41 +22,26 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 const s3Prefix = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/images/`
 
-function getKeyFromS3Url (url: string): string {
-  try {
-    const parsed = new URL(url)
-    return decodeURIComponent(parsed.pathname.replace(/^\/+/, ''))
-  } catch {
-    throw new Error(`Invalid S3 URL: ${url}`)
-  }
-}
-
 function makeS3SafeKey (filename: string) {
   return encodeURIComponent(filename)
     // S3 allows slashes for "folders", so restore them if needed
     .replace(/%2F/g, '/')
 }
 
-const s3 = new S3Client({
-  region: process.env.AWS_S3_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
-  }
-})
-
 export async function checkIfImageExists (filename: string, id?: string): Promise<Image | false> {
   try {
     const formattedFilename = s3Prefix + makeS3SafeKey(filename)
-    const [existingImage] = await sql<Image[]>`SELECT * from images WHERE url = ${formattedFilename}`
+    const rows = await sql<Image[]>`
+      SELECT * FROM images WHERE url = ${formattedFilename}
+    `
+    const existingImage = rows[0]
+
     if (existingImage && existingImage.id !== id) {
-      console.debug('Image already exists:', existingImage.id, formattedFilename)
       return existingImage
     } else {
       return false
     }
   } catch (err) {
-    console.error('Failed to check if image exists.', err)
     throw new Error('Failed to check if image exists.', { cause: err })
   }
 }
@@ -77,7 +60,7 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
       data.url = uploadedUrl
       delete data.file
     } catch (err) {
-      console.error('Failed to upload file:', err)
+      console.debug('Failed to upload file:', err)
       throw new Error('Failed to upload file.')
     }
   }
@@ -99,7 +82,6 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
   }
 
   if (!validatedImage.success) {
-    console.error('Failed to validate image.', validatedImage.error.flatten().fieldErrors)
     return {
       errors: validatedImage.error.flatten().fieldErrors,
       message: 'Failed to validate image.'
@@ -108,17 +90,41 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
     try {
       const updatedImage = await updateImage(validatedImage.data)
       if (updatedImage) {
-        console.debug('Image saved successfully:', updatedImage)
         revalidatePath('/dashboard/images')
         return {
           ok: true,
           res: updatedImage
         }
+      } else {
+        return { message: 'Failed to edit image.' }
       }
     } catch (err) {
-      console.error('Failed to save Image:', err)
-      throw new Error('Failed to save Image.')
+      const errMsg = 'Failed to edit image'
+      const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+      return { message }
     }
+  }
+}
+
+export async function deleteImage (image: Image): Promise<FormResponse<Image>> {
+  const errMsg = 'Failed to delete image'
+
+  try {
+    const [res] = await sql`
+      DELETE FROM images as i
+      WHERE id = ${image.id}
+        AND url = ${image.url}
+      RETURNING i.url
+    `
+    if (!res?.url) {
+      return { message: `${errMsg}: Image not found.` }
+    }
+    await deleteFromS3(res.url)
+    revalidatePath('/dashboard/images')
+    return { ok: true }
+  } catch (err) {
+    const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+    return { message }
   }
 }
 
@@ -145,37 +151,31 @@ async function createImage (image: CreateImage) {
         ${aspect},
         current_timestamp,
         ${caption || null},
-        ${isHiddenOnAboutPage || null},
-        ${isPress || null},
+        ${isHiddenOnAboutPage ?? null},
+        ${isPress ?? null},
         ${title || null},
         ${url}
       )
       RETURNING *
     `.then(rows => formatDbResponseForClient(rows[0], imageSchema))
   } catch (err) {
-    console.error('Error creating image:', err)
     throw new Error(err instanceof Error ? err.message : 'Failed to create image.')
   }
 }
 
 async function updateImage (image: CreateImage | Image) {
-  if (!(image as Image).id) {
-    try {
+  try {
+    if (!(image as Image).id) {
       return await createImage(image)
-    } catch (err) {
-      console.error('Error creating image:', err)
-      throw new Error(err instanceof Error ? err.message : 'Failed to create image.')
-    }
-  } else {
-    const {
-      aspect,
-      caption,
-      isHiddenOnAboutPage,
-      isPress,
-      title,
-      url
-    } = image
-    try {
+    } else {
+      const {
+        aspect,
+        caption,
+        isHiddenOnAboutPage,
+        isPress,
+        title,
+        url
+      } = image
       return await sql<Image[]>`
         UPDATE images
         SET (
@@ -190,8 +190,8 @@ async function updateImage (image: CreateImage | Image) {
         = (
           ${aspect || null},
           ${caption || null},
-          ${isHiddenOnAboutPage || null},
-          ${isPress || null},
+          ${isHiddenOnAboutPage ?? null},
+          ${isPress ?? null},
           ${title || null},
           current_timestamp,
           ${url}
@@ -199,68 +199,8 @@ async function updateImage (image: CreateImage | Image) {
         WHERE id = ${(image as Image).id}
         RETURNING *
       `.then(rows => formatDbResponseForClient(rows[0], imageSchema))
-    } catch (err) {
-      console.error('Error updating image:', err)
-      throw new Error('Failed to update image.')
     }
-  }
-}
-
-export async function deleteImage (image: Image): Promise<FormResponse<Image>> {
-  try {
-    const [res] = await sql`
-      DELETE FROM images as i
-      WHERE id = ${image.id}
-        OR url = ${image.url}
-      RETURNING i.url
-    `
-    await deleteFromS3(res.url)
-    revalidatePath('/dashboard/images')
-    return { ok: true }
   } catch (err) {
-    console.error('Error deleting image:', err)
-    throw new Error('Failed to delete image.')
+    throw new Error(err instanceof Error ? err.message : 'Failed to update image.')
   }
-}
-
-async function deleteFromS3 (url: string) {
-  const key = getKeyFromS3Url(url)
-  try {
-    const res = await s3.send(
-      new DeleteObjectCommand({
-        Bucket: process.env.AWS_S3_BUCKET_NAME!,
-        Key: key
-      })
-    )
-    console.info('Deleted old image from S3:', url, res)
-  } catch (err) {
-    console.error('Error deleting image from S3:', err)
-  }
-}
-
-async function getPresignedUploadUrl (filename: string, contentType: string) {
-  const bucketName = process.env.AWS_S3_BUCKET_NAME!
-  const key = `images/${filename}`
-
-  console.info('Generating presigned URL for:', key, bucketName)
-  const command = new PutObjectCommand({
-    Bucket: bucketName,
-    Key: key,
-    ContentType: contentType
-  })
-
-  return await getSignedUrl(s3, command, { expiresIn: 60 * 5 }) // 5 minutes
-}
-
-export async function uploadFile (file: File) {
-  const res = await getPresignedUploadUrl(file.name, file.type)
-  const uploadRes = await fetch(res, {
-    method: 'PUT',
-    headers: { 'Content-Type': file.type },
-    body: file
-  })
-
-  if (!uploadRes.ok) throw new Error('Upload failed')
-
-  return res.split('?')[0] // URL without query params
 }

@@ -1,8 +1,8 @@
-const tx: jest.Mock = jest.fn()
+const tx = Object.assign(jest.fn(), { begin: jest.fn() })
 
 const sql = Object.assign(jest.fn(), {
   begin: jest.fn(async (cb: (tx: jest.Mock) => Promise<void>) => {
-    await cb(tx)
+    return cb(tx)
   })
 })
 

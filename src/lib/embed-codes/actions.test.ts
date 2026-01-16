@@ -13,7 +13,7 @@ import type {
   CreateEmbedCode,
   EmbedCode
 } from '@/lib/embed-codes/types'
-import { formDataFromObject } from '@/lib/util'
+import { formDataFromObject } from '@/test/helpers'
 
 jest.mock('postgres')
 jest.mock('next/cache')

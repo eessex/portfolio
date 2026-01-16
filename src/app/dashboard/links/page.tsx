@@ -5,7 +5,10 @@ import {
   deleteLink,
   editLink
 } from '@/lib/links/actions'
-import { fetchLinks } from '@/lib/links/data'
+import {
+  fetchLinkByUrl,
+  fetchLinks
+} from '@/lib/links/data'
 import type { EmbeddedItemType } from '@/lib/types'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
@@ -28,6 +31,7 @@ export default async function LinksPage () {
           itemType={itemType}
           editItem={editLink}
           deleteItem={deleteLink}
+          fetchMaybeExistingItem={fetchLinkByUrl}
         />
       </Suspense>
     </DashboardLayout>

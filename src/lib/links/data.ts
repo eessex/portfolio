@@ -1,13 +1,17 @@
+'use server'
+
 import {
   type QueryResultRow,
   sql
 } from '@vercel/postgres'
 
+import { imageSchema } from '@/lib/images/schemas'
 import {
   dashboardLinkSchema,
   linkSchema
 } from '@/lib/links/schemas'
 import type {
+  CreateLink,
   DashboardLink,
   Link
 } from '@/lib/links/types'
@@ -19,7 +23,7 @@ import {
   type ResponseWithCursor
 } from '@/lib/util'
 
-export const fetchLinksByIds = async (ids: QueryResultRow[string]) => {
+export async function fetchLinksByIds (ids: QueryResultRow[string]) {
   try {
     const data = await sql<Link>`
       SELECT * FROM links
@@ -31,6 +35,38 @@ export const fetchLinksByIds = async (ids: QueryResultRow[string]) => {
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')
+  }
+}
+
+export async function fetchLinkByUrl (link: CreateLink) {
+  try {
+    const { rows } = await sql<Link>`
+      SELECT
+        links.*,
+        ARRAY(
+          SELECT slug FROM events AS e WHERE e.link_ids @> ARRAY[links.id]
+        ) AS event_slugs,
+        ARRAY(
+          SELECT slug FROM projects AS p WHERE p.link_ids @> ARRAY[links.id]
+        ) AS project_slugs,
+        ARRAY(
+          SELECT slug FROM releases AS r WHERE r.link_ids @> ARRAY[links.id]
+        ) AS release_slugs
+      FROM links
+      WHERE url = ${link.url}
+      LIMIT 1
+    `
+    if (rows.length === 0) {
+      return null
+    } else {
+      return {
+        res: formatDbResponseForClient(rows[0], imageSchema),
+        fieldName: 'url' as keyof CreateLink
+      }
+    }
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch link.')
   }
 }
 

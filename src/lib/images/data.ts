@@ -1,3 +1,5 @@
+'use server'
+
 import type { QueryResultRow } from '@vercel/postgres'
 import { sql } from '@vercel/postgres'
 

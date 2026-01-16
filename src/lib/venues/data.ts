@@ -1,13 +1,19 @@
+'use server'
+
 import { sql } from '@vercel/postgres'
 
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
+  formatDbResponseForClient,
   formatResponseWithCursor,
   type ResponseWithCursor
 } from '@/lib/util'
 import { dashboardVenueSchema } from '@/lib/venues/schemas'
-import type { DashboardVenue } from '@/lib/venues/types'
+import type {
+  CreateVenue,
+  DashboardVenue
+} from '@/lib/venues/types'
 
 /**
  * dashboard: fetch all the venues
@@ -62,6 +68,41 @@ export async function fetchVenues (cursor?: string, query?: string) {
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch venues.')
+  }
+}
+
+export async function fetchSimilarVenue (venue: CreateVenue) {
+  try {
+    const { rows } = await sql<DashboardVenue>`
+      SELECT
+        venues.*,
+        ARRAY(
+          SELECT slug FROM events e
+          WHERE e.venue_id = venues.id
+        ) AS event_slugs
+      FROM venues
+      WHERE (
+        (
+          venues.name = ${venue.name}
+          AND (venues.state = ${venue.state} OR venues.city = ${venue.city})
+        )
+      ) OR (
+        venues.address = ${venue.address}
+        AND (venues.city = ${venue.city} OR venues.state = ${venue.state})
+      )
+      LIMIT 1
+    `
+    if (rows.length === 0) {
+      return null
+    } else {
+      return {
+        res: formatDbResponseForClient(rows[0], dashboardVenueSchema),
+        fieldName: 'similar' as keyof CreateVenue
+      }
+    }
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch similar venues.')
   }
 }
 

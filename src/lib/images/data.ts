@@ -1,3 +1,5 @@
+'use server'
+
 import type { QueryResultRow } from '@vercel/postgres'
 import { sql } from '@vercel/postgres'
 
@@ -6,6 +8,7 @@ import {
   imageSchema
 } from '@/lib/images/schemas'
 import type {
+  CreateImage,
   DashboardImage,
   Image
 } from '@/lib/images/types'
@@ -16,6 +19,40 @@ import {
   formatResponseWithCursor,
   type ResponseWithCursor
 } from '@/lib/util'
+
+export async function fetchImageByUrl (image: CreateImage) {
+  try {
+    const { rows } = await sql<Image>`
+      SELECT
+        images.*,
+        ARRAY(
+          SELECT slug FROM events AS e 
+          WHERE (e.image_ids @> ARRAY[images.id] OR e.cover_image_id = images.id)
+        ) AS event_slugs,
+        ARRAY(
+          SELECT slug FROM projects AS p WHERE p.image_ids @> ARRAY[images.id]
+        ) AS project_slugs,
+        ARRAY(
+          SELECT slug FROM releases AS r 
+          WHERE (r.image_ids @> ARRAY[images.id] OR r.cover_image_id = images.id)
+        ) AS release_slugs
+      FROM images
+      WHERE url = ${image.url}
+      LIMIT 1
+    `
+    if (rows.length === 0) {
+      return null
+    } else {
+      return {
+        res: formatDbResponseForClient(rows[0], imageSchema),
+        fieldName: 'url' as keyof CreateImage
+      }
+    }
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch embed code by iframe.')
+  }
+}
 
 async function _fetchImage (id: string) {
   try {

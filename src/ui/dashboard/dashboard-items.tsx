@@ -89,7 +89,7 @@ interface DashboardProps <T extends DashboardItem> {
   res: ResponseWithCursor<T>
   editItem: (item: FormData) => Promise<FormResponse<T> | undefined>
   deleteItem: (item: T) => Promise<FormResponse<T> | undefined>
-  fetchMaybeExistingItem?: (item: Omit<T, 'id'>) => Promise<{ res: T | null, fieldName: keyof Omit<T, 'id'> } | null>
+  fetchMaybeExistingItem?: (item: Omit<T, 'id'>) => Promise<{ res: T | null, fieldName?: keyof Omit<T, 'id'> } | null>
 }
 
 export function DashboardItems<T extends DashboardItem> ({

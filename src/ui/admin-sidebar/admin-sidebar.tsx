@@ -10,8 +10,6 @@ import {
 } from '@/ui/util'
 
 export async function AdminSidebar () {
-  const buttonClasses = `button button-secondary ${styles['button']}`
-
   const links = [
     'dashboard',
     'embed_codes',
@@ -30,16 +28,17 @@ export async function AdminSidebar () {
             <li key={link}>
               <NextLink
                 href={`/dashboard${link === 'dashboard' ? '' : `/${link}`}`}
-                className={buttonClasses}
+                className='button'
               >
                 {camelToSentence(snakeToCamel(link))}
               </NextLink>
             </li>
           ))}
         </ul>
+
         <ul>
           <li>
-            <LogoutButton className={buttonClasses} />
+            <LogoutButton />
           </li>
         </ul>
       </nav>

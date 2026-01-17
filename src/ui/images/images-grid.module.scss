@@ -1,9 +1,11 @@
+@use '@/ui/styles/size';
+
 .images-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: #{size.rem(4)};
 
   li {
-    max-width: calc(50% - .5rem);
+    max-width: calc(50% - #{size.rem(2)});
   }
 }

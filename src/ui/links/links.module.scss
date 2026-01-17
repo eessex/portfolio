@@ -1,6 +1,8 @@
+@use '@/ui/styles/size';
+
 .links-list {
   li:has(.press-link) {
-    margin-bottom: 1rem;
+    margin-bottom: #{size.rem(4)};
   }
 
   a:not(.press-link) {

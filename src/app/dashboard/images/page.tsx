@@ -24,7 +24,7 @@ export default async function ImagesPage () {
 
   return (
     <DashboardLayout title={title}>
-      <Suspense fallback={<Loading className='p-4 mt-2' />}>
+      <Suspense fallback={<Loading />}>
         <DashboardItems
           apiEndpoint='/api/images'
           res={res}

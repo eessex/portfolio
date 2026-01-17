@@ -1,0 +1,148 @@
+@use '@/ui/styles/size';
+
+/** buttons, links, form elements **/
+
+:where(
+  button,
+  a[href].button,
+  a[href][class^="button-"],
+  a[href][class*=" button-"]
+) {
+  display: inline-flex;
+  gap: 0.4em;
+  align-items: center;
+  cursor: pointer;
+  border: 0;
+  background: none transparent;
+  color: currentColor;
+  transition:
+    color .15s cubic-bezier(.4, 0, .2, 1),
+    background .15s cubic-bezier(.4, 0, .2, 1),
+    fill .15s cubic-bezier(.4, 0, .2, 1),
+    stroke .15s cubic-bezier(.4, 0, .2, 1);
+  padding: .5em #{size.em(3)};
+  
+  &:has(svg) {
+    padding-right: #{size.rem(4)};
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--accent-secondary);
+    }
+  }
+
+  &:active {
+    background: var(--accent-primary);
+  }
+}
+
+:where(
+  button,
+  a[href].button,
+  a[href][class^="button-"],
+  a[href][class*=" button-"]
+) svg {
+  width: #{size.em(5)};
+  height: #{size.em(5)};
+  flex-shrink: 0;
+  color: inherit;
+  margin-top: var(--icon-optical-offset);
+}
+
+a[href],
+button {
+  @media (hover: hover) {
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+button,
+a[href] {
+  &.button-primary {
+    color: var(--page-background-color);
+    background-color: var(--page-foreground-color);
+
+    @media (hover: hover) {
+      &:hover {
+        background: var(--accent-primary);
+      }
+    }
+
+    &:active {
+      background: var(--accent-secondary);
+    }
+  }
+
+  &.button-outline {
+    box-shadow: inset 0 0 0 1px --page-foreground-color;
+  }
+
+  &.button-icon {
+    padding: .45em .5em;
+
+    svg {
+      margin-top: 0;
+    }
+  }
+
+  &.button-lg {
+    padding: #{size.em(3)} #{size.em(4)};
+    text-align: center;
+    font-weight: bolder;
+    justify-content: center;
+  }
+}
+
+:where(:focus-visible) {
+  outline: 2px solid var(--accent-secondary);
+  outline-offset: -2px;
+}
+
+:where(a[href]:focus-visible),
+:where(button:focus-visible) {
+  text-decoration: underline;
+}
+
+:where(input, textarea, select) {
+  padding: #{size.em(2)} #{size.em(3)};
+  background: var(--input-background-color);
+  border: 2px solid transparent;
+  vertical-align: middle; 
+  color: currentColor;
+
+  &.dirty:invalid {
+    border-color: var(--error-color);
+
+    &:focus-visible {
+      outline-color: var(--error-color);
+    }
+  }
+
+  &::placeholder,
+  &:has(option[value=""]:checked) {
+    color: var(--placeholder-color);
+  }
+
+  &:-webkit-autofill {
+    border-color: transparent;
+    -webkit-text-fill-color: --page-foreground-color !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
+
+:where(input, textarea) {
+  line-height: var(--tight-line-height);
+}
+
+:where(select) {
+  line-height: normal;
+}
+
+:where(button:disabled, input:disabled, textarea:disabled, select:disabled) {
+  --input-background-color: var(--transparency-light);
+  --placeholder-color: var(--transparency-secondary);
+  cursor: not-allowed;
+}

@@ -1,7 +1,8 @@
+@use '@/ui/styles/size';
+
 .admin-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
   justify-content: space-between;
   position: sticky;
   transition: all 0.25s ease-in-out;
@@ -15,7 +16,8 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: calc(100vh - var(--menubar-height) - 2px);
+    // align bottom button with page footer
+    height: calc(100vh - var(--menubar-height) - 1px - #{size.em(2)});
   }
 
   li, li > form {
@@ -32,9 +34,4 @@
   ul:last-child li:last-child{
     border-bottom: none;
   }
-}
-
-.button {
-  // FIXME
-  border-width: 0 !important;
 }

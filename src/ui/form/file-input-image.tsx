@@ -91,7 +91,7 @@ export function FileInputImage ({
                 aria-label='Remove image'
                 type='button'
                 onClick={previewUrl ? () => setFile(null) : onRemoveSavedImage}
-                className='button icon-button'
+                className='button-icon button-primary'
               >
                 <XMarkIcon />
               </button>

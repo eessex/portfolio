@@ -1,8 +1,10 @@
+@use '@/ui/styles/size';
+
 .dashboard-layout {
-  padding-block: 1rem 2rem;
+  padding-block: #{size.rem(4)} #{size.rem(7)};
 
   > header {
-    padding: .5rem 1rem 1.5rem 1rem;
+    padding: .5rem #{size.rem(4)} #{size.rem(6)} #{size.rem(4)};
   }
 
   [class$="accordion-trigger"] {
@@ -23,10 +25,10 @@
   [class$="accordion-panel"]:not([hidden]) {
     display: flex;
     flex-direction: column;
-    padding: 0 1rem;
+    padding: 0 #{size.rem(4)};
 
     figure {
-      margin-bottom: 1rem;
+      margin-bottom: #{size.rem(4)};
 
       &:has(img) {
         max-width: 450px;
@@ -35,7 +37,7 @@
 
     a:has(blockquote,div) {
       max-width: 75%;
-      margin-bottom: 1rem;
+      margin-bottom: #{size.rem(4)};
     }
   }
 }

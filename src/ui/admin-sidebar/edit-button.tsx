@@ -11,11 +11,12 @@ const editablePaths = [
   'release'
 ]
 
-export function EditButton ({ className }: { className?: string }) {
+export function EditButton () {
   const pathname = usePathname()
   const pathnameParts = pathname.split('/')
   const firstPart = pathnameParts[1]
   const isEditablePath = editablePaths.includes(firstPart)
+
   if (!isEditablePath || (pathnameParts.length === 2 && firstPart !== 'about')) return null
   if (!pathname) return null
 
@@ -23,7 +24,7 @@ export function EditButton ({ className }: { className?: string }) {
     <li>
       <NextLink
         href={`${pathname}/edit`}
-        className={`button ${className}`}
+        className='button-primary'
       >
         <PencilIcon /> Edit Page
       </NextLink>

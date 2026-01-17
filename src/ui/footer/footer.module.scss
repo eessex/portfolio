@@ -1,17 +1,20 @@
-@use '@/ui/breakpoints';
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/size';
 
 .footer {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  padding: 0.5rem 0.75rem 0.5rem 0.25rem;
+  padding-block: #{size.rem(2)};
+  padding-inline: #{size.rem(1)};
   min-height: 50px;
 
   > * {
     align-self: center;
 
     a {
-      padding: .5em .75em;
+      // adjust clickable area for a11y
+      padding: #{size.em(2)} #{size.em(3)};
     }
   }
 
@@ -26,13 +29,13 @@
 
   @include breakpoints.sm-width {
     flex-direction: column;
-    gap: 1rem;
+    gap: #{size.rem(4)};
     min-height: unset;
     position: relative;
+    padding-inline: 0 #{size.rem(1)};
 
     > * {
       align-self: flex-start;
-      margin-left: .25rem;
     }
 
     nav ul {

@@ -1,9 +1,11 @@
+@use '@/ui/styles/size';
+
 .dialog {
   position: fixed;
   inset: 60px;
-  background: rgba(var(--background), 1);
+  background: var(--page-background-color);
   z-index: 200;
-  padding: 2em;
+  padding: #{size.em(7)};
   outline: 1px solid var(--transparency-extra-light);
   display: flex;
   flex-direction: column;
@@ -12,7 +14,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1em;
+    margin-bottom: #{size.em(4)};
 
     h2 {
       margin: 0;

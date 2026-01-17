@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 
 import { embeddedItemTypes } from '@/lib/schemas'
 import type { EmbeddedItemType } from '@/lib/types'
-import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
 import {
   camelToSentence,
   snakeToCamel
@@ -30,7 +29,7 @@ export function AddItemButton () {
   return (
     <li>
       <button
-        className={`button ${styles['admin-sidebar-new-item']}`}
+        className='button-primary'
         onClick={onClick}
       >
         <PlusIcon /> Add {camelToSentence(itemType).replace(/s$/, '')}

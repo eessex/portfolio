@@ -1,20 +1,21 @@
-@use '@/ui/breakpoints';
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/size';
 
 .filters-section {
   position: sticky;
-  top: calc(var(--header-height) + 4px);
+  top: calc(var(--header-height) + 5px);
   transition: all 0.25s ease-in-out;
   z-index: 200;
   display: flex;
   justify-content: flex-end;
-  margin-top: .75rem;
+  margin-top: #{size.em(3)};
 
   @include breakpoints.sm-width {
     margin-top: 0;
   }
 
   + table {
-    margin-top: -2.5rem;
+    margin-top: -#{size.rem(7)};
 
     @include breakpoints.sm-width {
       margin-top: 0;
@@ -28,20 +29,18 @@
 
 .filters-container {
   display: flex;
-  gap: .35rem;
+  gap: #{size.rem(2)};
   width: 100%;
   justify-content: flex-end;
-  padding: 0 .5rem;
+  padding: 0 #{size.rem(2)};
 
   input, select {
-    height: 36px;
+    height: #{size.rem(7)};
   }
 
   > button {
     min-width: max-content;
-    font-size: 0.875rem;
-    padding-left: .2rem;
-    padding-right: .2rem;
+    font-size: .925rem;
   }
 
   @include breakpoints.sm-width {
@@ -69,11 +68,11 @@
   z-index: 200;
   display: flex;
   justify-content: flex-end;
-  background: rgba(var(--background), 1);
+  background: var(--page-background-color);
 
   > button {
     position: absolute;
-    right: .2rem;
+    right: #{size.rem(7)};
     bottom: -.35rem;
     transform: translate(0, 100%);
     min-width: max-content;
@@ -82,7 +81,7 @@
   }
 
   > section {
-    background: rgba(var(--background), 1);
+    background: var(--page-background-color);
     flex: 1;
     max-height: 0;
     overflow: hidden;

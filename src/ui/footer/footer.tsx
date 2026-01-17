@@ -6,7 +6,7 @@ export async function Footer () {
   const socialLinks = await fetchSocialLinks()
 
   return (
-    <footer className={`text-sm ${styles.footer}`}>
+    <footer className={styles.footer}>
       {socialLinks.length > 0 && (
         <nav>
           <ul className='flex'>

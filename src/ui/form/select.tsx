@@ -1,5 +1,3 @@
-import clsx from 'clsx'
-
 import styles from '@/ui/form/form.module.scss'
 import {
   camelToSentence,
@@ -35,18 +33,19 @@ export function Select ({
       >
         {label}
       </label>
-      <div
-        className={clsx(styles['select'], (value && value !== '') && 'is-selected')}
-      >
+
+      <div className={styles['select']}>
         <select
           aria-controls={ariaControls}
-          className='input'
           defaultValue={value}
           id={label}
           onChange={e => onChange(e.target.value)}
           {...attributes}
         >
-          <option value=''>{placeholder}</option>
+          <option value=''>
+            {placeholder}
+          </option>
+
           {options.map((type, i) => (
             <option
               key={i}

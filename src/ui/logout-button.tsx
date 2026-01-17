@@ -1,18 +1,17 @@
+import { PowerIcon } from '@heroicons/react/24/outline'
+
 import { signOut } from '@/api/auth'
 
-export function LogoutButton ({ className }: { className?: string }) {
+export function LogoutButton () {
   return (
     <form
       action={async () => {
         'use server'
-        await signOut({ redirectTo: '/' }) // redirect to home page after sign out
+        await signOut({ redirectTo: '/' })
       }}
     >
-      <button
-        type='submit'
-        className={className}
-      >
-        Sign Out
+      <button type='submit'>
+        <PowerIcon /> Sign Out
       </button>
     </form>
   )

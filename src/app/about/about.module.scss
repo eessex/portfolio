@@ -1,3 +1,5 @@
+@use '@/ui/styles/size';
+
 .about {
   section {
     max-width: 680px;
@@ -10,7 +12,7 @@
 }
 
 .cover-image {
-  margin: 1rem auto 1.5rem;
+  margin: #{size.rem(4)} auto #{size.rem(6)};
   max-width: 680px;
 
   figcaption {
@@ -29,10 +31,10 @@
 
   .projects-list {
     grid-template-columns: repeat(auto-fill, minmax(calc(50% - .5rem), 1fr));
-    gap: 2rem 1rem;
+    gap: #{size.rem(7)} #{size.rem(4)};
 
     h3 {
-      font-size: 1.25rem;
+      font-size: #{size.rem(5)};
       margin-bottom: .65rem;
     }
 

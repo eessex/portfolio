@@ -1,0 +1,31 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  position: absolute;
+  inset: 0;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+  background: var(--transparency-secondary);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}

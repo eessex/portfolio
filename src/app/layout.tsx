@@ -1,4 +1,4 @@
-import '@/ui/globals.scss'
+import '@/ui/styles/globals.scss'
 
 import clsx from 'clsx'
 import type { Metadata } from 'next'
@@ -56,7 +56,7 @@ export default async function RootLayout ({ children }: Readonly<{
           <SessionProvider session={session}>
             <DeviceProvider initialIsMobile={isMobileUA}>
               <a
-                className='button visible-focus-only'
+                className='button-primary visible-focus-only'
                 id='skip-to-content'
                 href='#content'
               >

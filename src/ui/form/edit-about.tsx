@@ -8,7 +8,10 @@ import { Input } from '@/ui/form/input'
 
 export function EditAboutForm ({ about }: { about: About & { coverImage?: Image } }) {
   return (
-    <Form action={(formData: FormData) => editAbout(formData, about.id)}>
+    <Form
+      action={(formData: FormData) => editAbout(formData, about.id)}
+      submitButtonClassName='button-primary button-lg'
+    >
       <Input
         as='textarea'
         label='Description'

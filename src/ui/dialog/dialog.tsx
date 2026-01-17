@@ -45,7 +45,7 @@ export const Dialog = ({
         <header className='dialog-header'>
           <h2 id={dialogTitleId}>{title}</h2>
           <button
-            className='icon-button'
+            className='button-icon'
             aria-label='Close dialog'
             onClick={onClose}
           >

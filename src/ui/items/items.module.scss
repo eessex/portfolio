@@ -1,4 +1,5 @@
-@use '@/ui/breakpoints';
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/size';
 
 .items-section {
   margin-top: -3.25rem;
@@ -8,19 +9,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: .5rem .4rem .5rem 1rem;
+  padding: .5rem .4rem .5rem #{size.rem(4)};
   height: 3rem;
   position: sticky;
   top: calc(var(--header-height) - 1px);
   transition: all 0.25s ease-in-out;
   z-index: 100;
-  background: rgba(var(--background), 1);
-  margin-top: 1rem;
-  // box-shadow: inset 0 -1px 0 var(--transparency-primary); 
+  background: var(--page-background-color);
+  margin-top: #{size.rem(4)};
 
   @include breakpoints.sm-width {
     align-items: flex-end;
-    padding-left: .75rem;
+    padding-left: #{size.em(3)};
   }
 }
 
@@ -29,7 +29,7 @@
 .items-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-  gap: 2.25rem;
+  gap: #{size.rem(7)};
   padding: 0 0 4rem;
 
   @include breakpoints.sm-width {
@@ -50,10 +50,10 @@
 .card {
   display: flex;
   flex-direction: column;
-  padding: 0.75rem 1rem;
+  padding: var(--items-list-padding);
 
   @include breakpoints.mobile {
-    padding: .75rem .5rem 1.5rem;
+    padding: #{size.em(3)} #{size.em(3)} #{size.rem(6)};
   }
 
   a > img {
@@ -63,8 +63,8 @@
   }
 
   h3 {
-    font-size: 1.75rem;
-    line-height: 1.25em;
+    font-size: 1#{size.em(3)};
+    line-height: var(--tight-line-height);
     margin: 0 0 .5rem;
 
     mark {
@@ -74,36 +74,35 @@
   }
 
   p.card-item-date {
-    font-weight: normal;
-    font-size: 1rem;
-    line-height: 1.25em;
+    font-size: #{size.rem(4)};
     margin: 0;
   }
 
   p.card-item-venue {
-    font-weight: normal;
     font-size: 0.925rem;
-    line-height: 1.25em;
+    line-height: var(--tight-line-height);
     margin-top: 0.45rem;
     margin-bottom: 0;
   }
 
   p.card-item-type {
     margin-top: -.5rem;
-    margin-bottom: .25rem;
+    margin-bottom: #{size.rem(1)};
   }
 }
 
 .featured-card {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  min-height: calc(75vh + 1.5rem + .5rem);
+  gap: #{size.rem(7)};
+  min-height: calc(75vh + #{size.rem(6)} + #{size.rem(2)});
+  max-width: 1660px;
+  margin-inline: auto;
 
   @include breakpoints.sm-width {
     display: flex;
     flex-direction: column;
-    padding: .75rem;
+    padding: #{size.rem(3)};
     gap: unset;
   }
 
@@ -143,7 +142,7 @@
       font-size: xx-large;
 
       @include breakpoints.sm-width {
-        font-size: 1.75rem;
+        font-size: 1#{size.em(3)};
       }
     }
   }
@@ -151,5 +150,5 @@
 
 .card-external-link {
   width: fit-content;
-  margin-top: 1rem;
+  margin-top: #{size.rem(4)};
 }

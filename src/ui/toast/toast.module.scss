@@ -1,4 +1,5 @@
-@use '@/ui/breakpoints';
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/size';
 
 .toast {
   margin: 0 auto;
@@ -8,9 +9,9 @@
 .toast-container {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: #{size.rem(2)};
   position: fixed;
-  bottom: 2rem;
+  bottom: #{size.rem(7)};
   left: 15%;
   right: 15%;
   z-index: 200;

@@ -52,7 +52,7 @@ export function EmailSubscribe () {
             id='email'
             type='email'
             name='email'
-            placeholder='email'
+            placeholder='Email address'
             required
             disabled={isSubscribed}
             aria-disabled={isSubscribed}

@@ -18,13 +18,15 @@ export function Form<T> ({
   children,
   className,
   onSuccess,
-  submitButtonText
+  submitButtonText,
+  submitButtonClassName
 }: {
   action: (formData: FormData) => Promise<FormResponse<T>>
   children: React.ReactNode
   className?: string
   onSuccess?: () => void
   submitButtonText?: string
+  submitButtonClassName?: string
 }) {
   const [initialState, setInitialState] = useState<FormData | null>(null)
   const formRef = useRef(null)
@@ -92,7 +94,7 @@ export function Form<T> ({
       {children}
 
       <button
-        className='button'
+        className={submitButtonClassName || ''}
         type='submit'
       >
         {isPending ? 'Loading...' : submitButtonText || 'Save'}

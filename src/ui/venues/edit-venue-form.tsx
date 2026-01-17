@@ -13,7 +13,6 @@ export const EditVenue = ({ venue }: EditVenueProps) => {
         defaultValue={venue?.name}
         description='If the venue has no name, leave this blank.'
         attributes={{
-          autoFocus: !venue?.name && !venue?.id,
           maxLength: 255,
           name: 'name',
           placeholder: 'CBGB'

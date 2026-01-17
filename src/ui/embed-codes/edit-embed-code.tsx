@@ -25,7 +25,6 @@ export const EditEmbedCode = ({ embedCode }: EmbedCodeProps) => {
     description: 'Paste the full iframe embed code from a service like YouTube, Bandcamp, or Spotify. iFrames are displayed at 100% width of their container, max 680px.',
     defaultValue: embedCodeIframe,
     attributes: {
-      autoFocus: !embedCodeIframe && !embedCode?.id,
       maxLength: 1500,
       name: 'iframe',
       placeholder: '<iframe></iframe>',
@@ -57,7 +56,7 @@ export const EditEmbedCode = ({ embedCode }: EmbedCodeProps) => {
                 aria-label='Remove embed'
                 type='button'
                 onClick={() => onReplaceIframe('')}
-                className='button icon-button'
+                className='button-icon button-primary'
               >
                 <XMarkIcon />
               </button>

@@ -27,7 +27,6 @@ export const EditLink = ({ link }: LinkProps) => {
         label='Link url'
         defaultValue={link?.url}
         attributes={{
-          autoFocus: !link?.url && !link?.id,
           maxLength: 255,
           name: 'url',
           placeholder: 'https://example.com',

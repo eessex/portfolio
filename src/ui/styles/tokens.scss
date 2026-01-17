@@ -1,0 +1,58 @@
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/size';
+
+$almost-black-rgb: 10, 10, 10;
+$almost-white-rgb: 237, 237, 237;
+$red: #e65225;
+$green: #32e3ae;
+$green-dark: #1f9673;
+
+:root {
+  --background: #{$almost-white-rgb};
+  --foreground: #{$almost-black-rgb};
+  --accent-primary: #{$green-dark};
+  --accent-secondary: #{$green};
+  --error-color: #{$red};
+
+  --blue: cornflowerblue;
+  --purple: violet;
+  --orange: #ff7f50;
+  --green: #{$green};
+  --green-dark: #{$green-dark};
+
+  --page-background-color: rgba(var(--background), 1);
+  --page-foreground-color: rgba(var(--foreground), 1);
+  --transparency-primary: rgba(var(--foreground), 0.15);
+  --transparency-secondary: rgba(var(--foreground), 0.35);
+  --transparency-extra-light: rgba(var(--foreground), 0.1);
+  --transparency-light: rgba(var(--foreground), 0.25);
+  --transparency-dark: rgba(var(--foreground), 0.65);
+
+  --input-background-color: var(--transparency-extra-light);
+  --disabled-color: var(--transparency-dark);
+  --placeholder-color: var(--transparency-dark);
+
+  --menubar-height: 3.25rem;
+  --footer-height: 3.25rem;
+  --max-body-width: 1950px;
+  --body-width: 680px;
+  --admin-sidebar-width: 222px; // match menubar nav width
+  --header-height: var(--menubar-height);
+  --icon-optical-offset: -0.125em;
+
+  --items-list-padding: #{size.rem(3)} #{size.rem(4)};
+  --items-list-border: 1px solid var(--transparency-primary);
+
+  --tight-line-height: #{size.em(5)}; // default is 1.5
+
+  @include breakpoints.mobile {
+    --items-list-padding: #{size.rem(3)};
+  }
+
+  @media (prefers-color-scheme: dark) {
+    --background: #{$almost-black-rgb};
+    --foreground: #{$almost-white-rgb};
+    --accent-primary: #{$green};
+    --accent-secondary: #{$green-dark};
+  }
+}

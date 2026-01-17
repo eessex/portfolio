@@ -1,12 +1,9 @@
-@use '@/ui/breakpoints';
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/size';
 
 .home {
-  > .loading {
-    padding: 2rem 1rem 0;
-  }
-
   > section:nth-child(2) {
-    padding-top: 2rem;
+    padding-top: #{size.rem(7)};
   }
 }
 
@@ -17,31 +14,22 @@
   justify-content: flex-end;
   position: relative;
 
-  h2 {
-    margin: 4rem 2rem;
-    max-width: 475px;
-    font-size: larger;
-    color: rgba(var(--background), 1);
-    background: rgba(var(--foreground), 1);
-    z-index: 1;
-  }
-
   figure {
     position: absolute;
     height: 100%;
     max-height: 100%;
-    margin-left: .25rem;
+    margin-left: #{size.rem(1)};
     left: 0;
 
     img {
       height: 100%;
       width: auto;
-      object-fit: contain;
+      object-fit: cover;
     }
   }
 
   @include breakpoints.mobile {
-    figure{
+    figure {
       margin: 0 auto;
       height: auto;
       width: auto;
@@ -59,13 +47,15 @@
 }
 
 .description {
-  margin: 4rem 2rem;
+  margin: 4rem #{size.rem(7)};
   max-width: 475px;
   font-size: larger;
   font-weight: bold;
   z-index: 1;
+  color: var(--page-background-color);
+  background: var(--page-foreground-color);
 
   @include breakpoints.mobile {
-    margin: 1.5rem;
+    margin: #{size.rem(6)} #{size.em(3)};
   }
 }

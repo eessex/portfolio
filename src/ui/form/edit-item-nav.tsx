@@ -18,7 +18,7 @@ export function EditItemNav ({
       <ul className={styles['edit-item-nav']}>
         <li>
           <button
-            className='button sm'
+            className='button-primary'
             onClick={() => onEdit(id)}
           >
             <PencilIcon /> Edit
@@ -26,7 +26,7 @@ export function EditItemNav ({
         </li>
         <li>
           <button
-            className='button button-secondary sm'
+            className='button-outline'
             onClick={() => onDelete(id)}
           >
             <TrashIcon /> Delete

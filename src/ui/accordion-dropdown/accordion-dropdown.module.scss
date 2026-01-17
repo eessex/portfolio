@@ -1,3 +1,4 @@
+@use '@/ui/styles/size';
 
 .accordion-dropdown:last-child {
   border-bottom: var(--items-list-border);
@@ -8,7 +9,7 @@
   display: flex;
   justify-content: space-between;
   border-top: var(--items-list-border);
-  padding: .75rem 0;
+  padding: #{size.em(3)} 0;
   text-align: left;
 
   @media (hover: hover) {
@@ -19,6 +20,6 @@
 }
 
 .accordion-panel {
-  margin: .5rem 0 2rem;
+  margin: .5rem 0 #{size.rem(7)};
   position: relative;
 }

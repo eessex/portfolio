@@ -27,7 +27,7 @@ export default async function EventsPage () {
         {title}
       </h1>
 
-      <Suspense fallback={<Loading className='p-4 mt-2' />}>
+      <Suspense fallback={<Loading />}>
         <ItemsList
           items={upcomingEvents}
           isFeatured

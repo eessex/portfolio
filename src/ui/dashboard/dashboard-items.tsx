@@ -344,7 +344,7 @@ export function DashboardItems<T extends DashboardItem> ({
                 ref={loadMoreRef}
               />
               {isLoading && (
-                <Loading className='p-4 mt-2' />
+                <Loading />
               )}
             </>
           )}
@@ -356,7 +356,10 @@ export function DashboardItems<T extends DashboardItem> ({
           title={itemToEdit?.id ? `Edit ${singularizePath(itemType)}` : `Add ${singularizePath(itemType)}`}
           onClose={() => setIsEditDialogOpen(false)}
         >
-          <Form action={onSubmit}>
+          <Form
+            action={onSubmit}
+            submitButtonClassName='button-primary'
+          >
             <EditItem
               item={itemToEdit}
               itemType={itemType}

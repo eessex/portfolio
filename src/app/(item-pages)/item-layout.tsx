@@ -79,7 +79,7 @@ export default async function ItemLayout ({
               )}
 
           {venue && (
-            <p className='text-sm'>
+            <p className={styles['venue']}>
               {venue.url
                 ? (
                   <a
@@ -132,7 +132,7 @@ export default async function ItemLayout ({
           <p>
             <a
               href={`/${project.path}/${project.slug}`}
-              className='category button button-secondary'
+              className='category button-outline'
             >
               Project: {project.title}
             </a>

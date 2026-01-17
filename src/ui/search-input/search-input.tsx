@@ -49,7 +49,6 @@ export function SearchInput ({
       />
       {inputValue && (
         <button
-          type='button'
           aria-label='Clear search'
           onClick={() => onInputChange('')}
         >

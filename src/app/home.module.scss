@@ -1,6 +1,6 @@
-@use '@/ui/styles/breakpoints';
-@use '@/ui/styles/size';
-@use '@/ui/styles/type';
+@use "@/ui/styles/breakpoints";
+@use "@/ui/styles/size";
+@use "@/ui/styles/type";
 
 .home {
   > section:nth-child(2) {
@@ -48,7 +48,7 @@
 }
 
 .description {
-  @include type.size('lg', 'bold');
+  @include type.size("lg", "bold");
 
   margin: 4rem #{size.rem(7)};
   max-width: 485px;

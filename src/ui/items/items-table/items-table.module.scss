@@ -1,6 +1,6 @@
-@use '@/ui/styles/breakpoints';
-@use '@/ui/styles/size';
-@use '@/ui/styles/type';
+@use "@/ui/styles/breakpoints";
+@use "@/ui/styles/size";
+@use "@/ui/styles/type";
 
 .items-table {
   margin-top: #{size.em(3)};
@@ -164,18 +164,18 @@
       order: 1;
 
       @include breakpoints.sm-width {
-        @include type.size('sm', 'normal', 'sm');
+        @include type.size("sm", "normal", "sm");
       }
     }
 
     > td:last-child:not(.item-type) {
-      @include type.size('sm', 'normal', 'sm');
+      @include type.size("sm", "normal", "sm");
 
       margin-top: #{size.rem(1)};
       order: 1;
 
       @include breakpoints.sm-width {
-        @include type.size('xs', 'normal', 'sm');
+        @include type.size("xs", "normal", "sm");
       }
     }
 

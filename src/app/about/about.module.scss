@@ -1,5 +1,5 @@
-@use '@/ui/styles/size';
-@use '@/ui/styles/type';
+@use "@/ui/styles/size";
+@use "@/ui/styles/type";
 
 .about {
   section {
@@ -8,6 +8,10 @@
 
     .links-list {
       margin: 3rem auto;
+
+      ul:has(blockquote) li {
+        margin-bottom: 1.5rem;
+      }
     }
   }
 }
@@ -29,7 +33,7 @@
     gap: #{size.rem(7)} #{size.rem(4)};
 
     h3 {
-      @include type.heading('lg');
+      @include type.heading("lg");
 
       margin-bottom: .65rem;
     }

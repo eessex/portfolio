@@ -82,12 +82,7 @@ export default async function AboutPage () {
             isPriority
           />
         )}
-        <ItemsList
-          className={styles['projects-list']}
-          items={allProjects}
-          isCategoryVisible
-          isFeatured
-        />
+
         {about?.description && (
           <p style={{ whiteSpace: 'pre-line' }}>
             {about.description}
@@ -117,7 +112,6 @@ export default async function AboutPage () {
                 className={styles['projects-list']}
                 items={allProjects}
                 isCategoryVisible
-                isFeatured
               />
             </AccordionDropdown>
           )}

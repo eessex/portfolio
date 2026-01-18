@@ -1,4 +1,4 @@
-@use '@/ui/styles/size';
+@use "@/ui/styles/size";
 
 .form {
   display: flex;
@@ -16,10 +16,10 @@
     display: block;
     font-weight: bolder;
 
-    &:has(input[type='checkbox']) {
+    &:has(input[type="checkbox"]) {
       font-weight: normal;
 
-      &:has(input[type='checkbox']:disabled) {
+      &:has(input[type="checkbox"]:disabled) {
         color: var(--disabled-color);
       }
     }
@@ -30,7 +30,7 @@
     field-sizing: content;
   }
 
-  input[type='checkbox'] {
+  input[type="checkbox"] {
     width: auto;
     margin-right: .5rem;
   }
@@ -131,7 +131,7 @@
     right: 6px;
     width: 20px;
     height: 20px;
-    background-image: url('/chevron-down.svg');
+    background-image: url("/chevron-down.svg");
     background-repeat: no-repeat;
     background-size: 20px 20px;
     background-size: contain;

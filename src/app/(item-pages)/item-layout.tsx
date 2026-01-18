@@ -79,7 +79,7 @@ export default async function ItemLayout ({
               )}
 
           {venue && (
-            <p className='text-sm'>
+            <p className={styles.venue}>
               {venue.url
                 ? (
                   <a

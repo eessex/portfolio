@@ -26,9 +26,14 @@ $large-margin: 1.5rem;
         }
       }
 
-      > h1 {
+      h1 {
         @include type.heading("xxl");
-        margin-bottom: calc($default-margin / 4);
+
+        margin-block: 0.5em;
+      }
+
+      .venue {
+        @include type.size("sm");
       }
     }
 

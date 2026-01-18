@@ -20,7 +20,6 @@ export function ExpandCollapseButton ({
     <button
       aria-controls={ariaControls}
       aria-label={isExpanded ? closeLabel : openLabel}
-      className='text-sm'
       onClick={() => onExpand(prev => !prev)}
     >
       {isExpanded ? 'Collapse' : 'Expand'}

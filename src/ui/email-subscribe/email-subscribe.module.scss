@@ -9,6 +9,8 @@
   justify-content: center;
 
   input {
+    @include type.size("sm");
+
     height: 34px;
   }
 
@@ -17,6 +19,8 @@
     background-color: unset;
     padding: 0 .75em;
     height: 36px;
+
+    @include type.size("sm");
 
     @media (hover: hover) {
       &:hover {
@@ -27,5 +31,10 @@
 
   @include breakpoints.mobile {
     padding: 0 .75em;
+
+    input,
+    button[type="submit"] {
+      @include type.size("base");
+    }
   }
 }

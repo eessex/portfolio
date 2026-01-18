@@ -1,5 +1,5 @@
-@use '@/ui/styles/breakpoints';
-@use '@/ui/styles/type';
+@use "@/ui/styles/breakpoints";
+@use "@/ui/styles/type";
 
 @tailwind base;
 @tailwind utilities;
@@ -306,9 +306,10 @@ footer {
 }
 
 figcaption {
-  margin: 0.25rem 0.5rem;
-  @include type.size("sm");
+  @include type.size("xs");
 
+  margin: 0.25rem 0.5rem;
+  color: rgba(var(--foreground), .75);
   text-align: center;
 }
 
@@ -320,33 +321,28 @@ figcaption {
   vertical-align: text-top;
 
   &.badge-green {
-    color: currentColor;
     background-color: var(--accent-secondary);
   }
 
   &.badge-blue {
-    color: currentColor;
     background-color: var(--blue);
   }
 
   &.badge-purple {
-    color: currentColor;
     background-color: var(--purple);
   }
 
   &.badge-orange {
-    color: currentColor;
     background-color: var(--orange);
   }
 
   &.badge-red {
-    color: currentColor;
     background-color: var(--error-color);
   }
 }
 
 blockquote {
-  @include type.heading('xl');
+  @include type.heading("xl");
 
   position: relative;
 

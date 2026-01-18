@@ -1,5 +1,5 @@
-@use '@/ui/styles/breakpoints';
-@use '@/ui/styles/type';
+@use "@/ui/styles/breakpoints";
+@use "@/ui/styles/type";
 
 .items-section {
   margin-top: -3.25rem;
@@ -64,7 +64,7 @@
   }
 
   h3 {
-    @include type.heading('lg');
+    @include type.heading("lg");
 
     margin: 0 0 .5rem;
 
@@ -75,13 +75,13 @@
   }
 
   p.card-item-date {
-    @include type.size('base', 'normal', 'sm');
+    @include type.size("base", "normal", "sm");
 
     margin: 0;
   }
 
   p.card-item-venue {
-    @include type.size('sm', 'normal', 'sm');
+    @include type.size("sm", "normal", "sm");
 
     margin-top: 0.45rem;
     margin-bottom: 0;
@@ -139,7 +139,7 @@
 
   > div {
     h3 {
-      @include type.heading('xl');
+      @include type.heading("xxl");
     }
   }
 }

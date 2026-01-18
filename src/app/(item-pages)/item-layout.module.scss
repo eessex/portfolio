@@ -1,4 +1,5 @@
 @use '@/ui/styles/size';
+@use '@/ui/styles/type';
 
 .item-layout {
   > article {
@@ -11,7 +12,8 @@
       text-align: center;
 
       h1 {
-        font-size: xx-large;
+        @include type.heading('xl');
+
         margin-block: #{size.em(1)};
       }
 
@@ -20,7 +22,7 @@
       }
 
       .venue {
-        font-size: .925rem;
+        @include type.size('sm');
       }
 
       .ticket-link {

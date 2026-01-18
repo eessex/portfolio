@@ -1,5 +1,6 @@
 @use '@/ui/styles/breakpoints';
 @use '@/ui/styles/size';
+@use '@/ui/styles/type';
 
 .home {
   > section:nth-child(2) {
@@ -47,15 +48,15 @@
 }
 
 .description {
+  @include type.size('lg', 'bold');
+
   margin: 4rem #{size.rem(7)};
-  max-width: 475px;
-  font-size: larger;
-  font-weight: bold;
+  max-width: 485px;
   z-index: 1;
   color: var(--page-background-color);
   background: var(--page-foreground-color);
 
   @include breakpoints.mobile {
-    margin: #{size.rem(6)} #{size.em(3)};
+    margin: #{size.rem(6)} #{size.rem(3)};
   }
 }

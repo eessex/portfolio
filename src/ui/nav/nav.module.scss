@@ -1,4 +1,5 @@
 @use '@/ui/styles/size';
+@use '@/ui/styles/type';
 
 .menubar {
   position: sticky;
@@ -12,11 +13,11 @@
   flex-shrink: 0;
 
   > div > a:first-child {
-    font-size: larger;
+    @include type.heading('lg');
   }
 
   a {
-    font-weight: bolder;
+    @include type.heading('base');
   }
 
   > div {

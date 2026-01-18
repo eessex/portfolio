@@ -1,8 +1,9 @@
 @use '@/ui/styles/size';
+@use '@/ui/styles/type';
 
 .about {
   section {
-    max-width: 680px;
+    max-width: var(--body-width);
     margin: 0 auto;
 
     .links-list {
@@ -13,12 +14,6 @@
 
 .cover-image {
   margin: #{size.rem(4)} auto #{size.rem(6)};
-  max-width: 680px;
-
-  figcaption {
-    font-size: small;
-    text-align: center;
-  }
 
   img {
     height: auto;
@@ -34,7 +29,8 @@
     gap: #{size.rem(7)} #{size.rem(4)};
 
     h3 {
-      font-size: #{size.rem(5)};
+      @include type.heading('lg');
+
       margin-bottom: .65rem;
     }
 

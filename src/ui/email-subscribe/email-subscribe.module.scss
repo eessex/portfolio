@@ -1,5 +1,6 @@
 @use '@/ui/styles/breakpoints';
 @use '@/ui/styles/size';
+@use '@/ui/styles/type';
 
 .email-subscribe {
   display: flex;
@@ -19,7 +20,6 @@
 
   @include breakpoints.mobile {
     padding: 0 #{size.rem(3)};
-    // font-size: 16px;
     width: 100%;
 
     input {

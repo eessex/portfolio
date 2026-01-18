@@ -1,0 +1,50 @@
+@use 'sass:map';
+
+$size: (
+  "xxs": 0.725rem,
+  "xs": 0.875rem,
+  "sm": 0.925rem,
+  "base": 1rem,
+  "lg": 1.25rem,
+  "xl": 1.75rem
+);
+
+$heading-size: (
+  "base": map.get($size, "base"),
+  "lg": map.get($size, "lg"),
+  "xl": map.get($size, "xl")
+);
+
+$line-height: (
+  "xs": 1em,
+  "sm": 1.25em,
+  "base": 1.5em
+);
+
+$font-weight: (
+  "normal": 400,
+  "bold": 700
+);
+
+@mixin size(
+  $size-key: "base",
+  $font-weight-key: "normal",
+  $line-height-key: "base"
+) {
+  font-size: map.get($size, $size-key);
+  line-height: map.get($line-height, $line-height-key);
+  font-weight: map.get($font-weight, $font-weight-key);
+}
+
+@mixin heading($size-key: "xl") {
+  font-weight: map.get($font-weight, "bold");
+  font-size: map.get($heading-size, $size-key);
+  line-height: map.get($line-height, "sm");
+}
+
+@mixin meta() {
+  @include size("xxs", "bold", "sm");
+
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}

@@ -1,5 +1,6 @@
 @use '@/ui/styles/breakpoints';
 @use '@/ui/styles/size';
+@use '@/ui/styles/type';
 
 .filters-section {
   position: sticky;
@@ -39,8 +40,9 @@
   }
 
   > button {
+    @include type.size("xs");
+
     min-width: max-content;
-    font-size: .925rem;
   }
 
   @include breakpoints.sm-width {

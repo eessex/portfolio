@@ -3,6 +3,7 @@
 @use '@/ui/styles/interactions';
 @use '@/ui/styles/breakpoints';
 @use '@/ui/styles/size';
+@use '@/ui/styles/type';
 
 body {
   max-width: var(--max-body-width);
@@ -23,10 +24,9 @@ body {
 }
 
 :where(h1, h2, h3, h4, h5, h6) {
-  font-weight: bolder;
+  @include type.heading("base");
+
   text-wrap: pretty;
-  font-size: initial;
-  line-height: var(--tight-line-height);
   margin: 0;
 }
 
@@ -43,9 +43,8 @@ body {
 }
 
 :where(blockquote) {
-  font-size: x-large;
-  font-weight: bolder;
-  line-height: normal;
+  @include type.heading('xl');
+
   position: relative;
   margin: unset;
 
@@ -165,27 +164,20 @@ footer {
 }
 
 :where(figcaption) {
-  margin: size.rem(1) #{size.rem(2)};
-  font-size: small;
-  text-align: center;
-  color: var(--transparency-dark);
-}
+  @include type.size("sm");
 
-.meta {
-  font-size: small;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight: bolder;
+  margin: #{size.rem(1)} #{size.rem(2)};
+  text-align: center;
 }
 
 .category {
-  @extend .meta;
+  @include type.meta();
 
   gap: .5em;
 }
 
 .badge {
-  @extend .meta;
+  @include type.meta();
 
   padding: 0 0.35em;
   margin: 0 #{size.em(2)};

@@ -1,5 +1,6 @@
 @use '@/ui/styles/breakpoints';
 @use '@/ui/styles/size';
+@use '@/ui/styles/type';
 
 .items-section {
   margin-top: -3.25rem;
@@ -63,8 +64,8 @@
   }
 
   h3 {
-    font-size: 1#{size.em(3)};
-    line-height: var(--tight-line-height);
+    @include type.heading('lg');
+
     margin: 0 0 .5rem;
 
     mark {
@@ -74,13 +75,14 @@
   }
 
   p.card-item-date {
-    font-size: #{size.rem(4)};
+    @include type.size('base', 'normal', 'sm');
+
     margin: 0;
   }
 
   p.card-item-venue {
-    font-size: 0.925rem;
-    line-height: var(--tight-line-height);
+    @include type.size('sm', 'normal', 'sm');
+
     margin-top: 0.45rem;
     margin-bottom: 0;
   }
@@ -139,11 +141,7 @@
 
   > div {
     h3 {
-      font-size: xx-large;
-
-      @include breakpoints.sm-width {
-        font-size: 1#{size.em(3)};
-      }
+      @include type.heading('xl');
     }
   }
 }

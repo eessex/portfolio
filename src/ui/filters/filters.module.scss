@@ -71,7 +71,7 @@
   z-index: 200;
   display: flex;
   justify-content: flex-end;
-  background: rgba(var(--background), 1);
+  background: var(--page-background-color);
 
   > button {
     position: absolute;
@@ -84,7 +84,7 @@
   }
 
   > section {
-    background: rgba(var(--background), 1);
+    background: var(--page-background-color);
     flex: 1;
     max-height: 0;
     overflow: hidden;

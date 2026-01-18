@@ -4,7 +4,7 @@
   position: sticky;
   top: -1px;
   transition: all 0.25s ease-in-out;
-  background-color: rgba(var(--background), 1);
+  background-color: var(--page-background-color);
   height: var(--menubar-height);
   left: 0;
   right: 0;

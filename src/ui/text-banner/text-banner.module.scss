@@ -4,8 +4,8 @@
   gap: 0.5rem;
   align-items: center;
   font-weight: bold;
-  color: rgba(var(--background), 1);
-  background: rgba(var(--foreground), 1);
+  color: var(--page-background-color);
+  background: var(--page-foreground-color);
 
   svg {
     width: 100%;
@@ -17,10 +17,10 @@
 
 .error {
   background: var(--error-color);
-  color: white;
+  color: var(--page-foreground-color); // FIXME: almost black?
 }
 
 .success {
   background: var(--accent-secondary);
-  color: var(--accent-background);
+  color: var(--page-foreground-color); // FIXME: almost black?
 }

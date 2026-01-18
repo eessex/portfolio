@@ -1,0 +1,40 @@
+@use "@/ui/styles/breakpoints";
+
+$almost-black-rgb: 8, 8, 8;
+$almost-white-rgb: 237, 237, 237;
+$red: #e65225;
+$green: #32e3ae;
+$green-dark: #1f9673;
+
+:root {
+  --background: #{$almost-white-rgb};
+  --foreground: #{$almost-black-rgb};
+  --accent-primary: #{$green-dark};
+  --accent-secondary: #{$green};
+  --error-color: #{$red};
+
+  --blue: cornflowerblue;
+  --purple: violet;
+  --orange: #ff7f50;
+  --green: #{$green};
+  --green-dark: #{$green-dark};
+
+  --page-background-color: rgba(var(--background), 1);
+  --page-foreground-color: rgba(var(--foreground), 1);
+  --transparency-primary: rgba(var(--foreground), 0.15);
+  --transparency-secondary: rgba(var(--foreground), 0.35);
+  --transparency-extra-light: rgba(var(--foreground), 0.1);
+  --transparency-light: rgba(var(--foreground), 0.25);
+  --transparency-dark: rgba(var(--foreground), 0.65);
+
+  --input-background-color: rgba(var(--foreground), 0.075);
+  --disabled-color: var(--transparency-dark);
+  --placeholder-color: var(--transparency-dark);
+
+  @media (prefers-color-scheme: dark) {
+    --background: #{$almost-black-rgb};
+    --foreground: #{$almost-white-rgb};
+    --accent-primary: #{$green};
+    --accent-secondary: #{$green-dark};
+  }
+}

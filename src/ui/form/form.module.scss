@@ -18,7 +18,7 @@
       font-weight: normal;
 
       &:has(input[type='checkbox']:disabled) {
-        color: rgba(var(--foreground), .65);
+        color: var(--disabled-color);
       }
     }
   }
@@ -66,8 +66,8 @@
   right: 1rem;
   top: -1px;
   display: flex;
-  border: 1px solid rgba(var(--background), 1);
-  background-color: rgba(var(--background), 1);
+  border: 1px solid var(--page-background-color);
+  background-color: var(--page-background-color);
   z-index: 10;
 
   li {
@@ -113,7 +113,7 @@
   align-items: center;
 
   select {
-    color: rgba(var(--foreground), .65);
+    color: var(--transparency-dark);
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -146,7 +146,7 @@
 
   &.is-selected {
     select {
-      color: rgba(var(--foreground), 1);
+      color: var(--page-foreground-color);
     }
   }
 }

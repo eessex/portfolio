@@ -1,7 +1,7 @@
 .dialog {
   position: fixed;
   inset: 60px;
-  background: rgba(var(--background), 1);
+  background: var(--page-background-color);
   z-index: 200;
   padding: 2em;
   outline: 1px solid var(--transparency-extra-light);

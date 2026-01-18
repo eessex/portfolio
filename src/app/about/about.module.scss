@@ -1,3 +1,5 @@
+@use '@/ui/styles/type';
+
 .about {
   section {
     max-width: 680px;
@@ -11,12 +13,6 @@
 
 .cover-image {
   margin: 1rem auto 1.5rem;
-  max-width: 680px;
-
-  figcaption {
-    font-size: small;
-    text-align: center;
-  }
 
   img {
     height: auto;
@@ -32,7 +28,7 @@
     gap: 2rem 1rem;
 
     h3 {
-      font-size: 1.25rem;
+      @include type.heading('lg');
       margin-bottom: .65rem;
     }
 

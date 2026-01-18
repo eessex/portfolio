@@ -1,4 +1,5 @@
-@use '@/ui/breakpoints';
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/type';
 
 @tailwind base;
 @tailwind utilities;
@@ -306,16 +307,14 @@ footer {
 
 figcaption {
   margin: 0.25rem 0.5rem;
-  font-size: small;
-  opacity: 0.7;
+  @include type.size("sm");
+
   text-align: center;
 }
 
 .badge {
-  font-size: small;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  font-weight: bold;
+  @include type.meta();
+
   padding: 0 0.25em;
   margin: 0 0.25em;
   vertical-align: text-top;
@@ -347,9 +346,8 @@ figcaption {
 }
 
 blockquote {
-  font-size: x-large;
-  font-weight: bold;
-  line-height: normal;
+  @include type.heading('xl');
+
   position: relative;
 
   &::before {
@@ -393,9 +391,7 @@ table {
 }
 
 .category {
-  font-size: small;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  font-weight: bold;
+  @include type.meta();
+
   gap: .5em;
 }

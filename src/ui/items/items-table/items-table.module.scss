@@ -1,4 +1,5 @@
-@use '@/ui/breakpoints';
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/type';
 
 .items-table {
   margin-top: .75rem;
@@ -48,20 +49,18 @@
   }
 
   &.table-row-title--expanded {
-    font-weight: bold;
+    @include type.heading("lg");
+
     display: block;
-    font-size: 1.5rem;
-    line-height: 1.25em;
     margin: 0.25rem 0;
 
     @include breakpoints.sm-width {
-      font-size: initial;
+      @include type.size("base", "normal", "sm");
     }
   }
 
   @include breakpoints.sm-width {
-    font-weight: bold;
-    font-size: large;
+    @include type.heading("lg");
   }
 }
 
@@ -164,19 +163,18 @@
       order: 1;
 
       @include breakpoints.sm-width {
-        font-size: 0.925rem;
-        line-height: 1.25em;
+        @include type.size('sm', 'normal', 'sm');
       }
     }
 
     > td:last-child:not(.item-type) {
-      order: 1;
-      font-size: 0.925rem;
-      line-height: 1.25em;
+      @include type.size('sm', 'normal', 'sm');
+
       margin-top: 0.25rem;
+      order: 1;
 
       @include breakpoints.sm-width {
-        font-size: 0.825rem;
+        @include type.size('xs', 'normal', 'sm');
       }
     }
 

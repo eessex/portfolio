@@ -1,3 +1,5 @@
+@use '@/ui/styles/type';
+
 $article-max-width: 680px;
 $default-margin: 1rem;
 $large-margin: 1.5rem;
@@ -25,8 +27,7 @@ $large-margin: 1.5rem;
       }
 
       > h1 {
-        font-size: xx-large;
-        line-height: normal;
+        @include type.heading('xl');
         margin-bottom: calc($default-margin / 4);
       }
     }

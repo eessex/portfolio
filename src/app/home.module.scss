@@ -1,4 +1,5 @@
-@use '@/ui/breakpoints';
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/type';
 
 .home {
   > .loading {
@@ -16,15 +17,6 @@
   align-items: flex-end;
   justify-content: flex-end;
   position: relative;
-
-  h2 {
-    margin: 4rem 2rem;
-    max-width: 475px;
-    font-size: larger;
-    color: rgba(var(--background), 1);
-    background: rgba(var(--foreground), 1);
-    z-index: 1;
-  }
 
   figure {
     position: absolute;
@@ -59,10 +51,10 @@
 }
 
 .description {
+  @include type.size('lg', 'bold');
+
   margin: 4rem 2rem;
-  max-width: 475px;
-  font-size: larger;
-  font-weight: bold;
+  max-width: 485px;
   z-index: 1;
 
   @include breakpoints.mobile {

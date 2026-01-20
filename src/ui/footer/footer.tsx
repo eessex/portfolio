@@ -9,7 +9,7 @@ export async function Footer () {
     <footer className={styles.footer}>
       {socialLinks.length > 0 && (
         <nav>
-          <ul className='flex'>
+          <ul>
             {socialLinks.map((link, index) => (
               <li key={index}>
                 <a

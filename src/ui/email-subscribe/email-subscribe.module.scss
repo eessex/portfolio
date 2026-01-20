@@ -13,9 +13,19 @@
     height: #{size.rem(7)};
   }
 
-  button {
+  button[type="submit"] {
+    color: currentColor;
+    background-color: unset;
     padding: 0 #{size.rem(3)};
     height: #{size.rem(7)};
+
+    @include type.size("sm");
+
+    @media (hover: hover) {
+      &:hover {
+        background: var(--accent-secondary);
+      }
+    }
   }
 
   @include breakpoints.mobile {
@@ -24,6 +34,11 @@
 
     input {
       width: -webkit-fill-available;
+    }
+
+    input,
+    button[type="submit"] {
+      @include type.size("base");
     }
   }
 }

@@ -10,18 +10,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: .5rem .4rem .5rem #{size.rem(4)};
+  padding: .5rem .4rem .5rem 1rem;
   height: 3rem;
   position: sticky;
   top: calc(var(--header-height) - 1px);
   transition: all 0.25s ease-in-out;
   z-index: 100;
   background: var(--page-background-color);
-  margin-top: #{size.rem(4)};
+  margin-top: 1rem;
 
   @include breakpoints.sm-width {
     align-items: flex-end;
-    padding-left: #{size.em(3)};
+    padding-left: 0.75rem;
   }
 }
 
@@ -64,7 +64,7 @@
   }
 
   h3 {
-    @include type.heading("lg");
+    @include type.heading("xl");
 
     margin: 0 0 .5rem;
 

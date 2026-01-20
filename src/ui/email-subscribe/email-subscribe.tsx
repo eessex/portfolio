@@ -35,6 +35,7 @@ export function EmailSubscribe () {
           action={createEmailSubscription}
           onSuccess={onSuccess}
           submitButtonText='Subscribe'
+          submitButtonClassName=''
         >
           <p
             id='email-subscribe'

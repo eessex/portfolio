@@ -145,7 +145,7 @@
 
   &.is-selected {
     select {
-      color: --page-foreground-color;
+      color: var(--page-foreground-color);
     }
   }
 }

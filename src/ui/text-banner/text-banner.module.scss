@@ -5,7 +5,7 @@
   display: flex;
   gap: #{size.rem(2)};
   align-items: center;
-  font-weight: bolder;
+  font-weight: bold;
   color: var(--page-background-color);
   background: var(--page-foreground-color);
 
@@ -19,10 +19,10 @@
 
 .error {
   background: var(--error-color);
-  color: white;
+  color: var(--page-foreground-color); // FIXME: almost black?
 }
 
 .success {
   background: var(--accent-secondary);
-  color: var(--accent-background);
+  color: var(--page-foreground-color); // FIXME: almost black?
 }

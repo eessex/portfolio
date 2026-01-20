@@ -1,5 +1,6 @@
 @use "@/ui/styles/breakpoints";
 @use "@/ui/styles/size";
+@use '@/ui/styles/type';
 
 .footer {
   display: flex;
@@ -14,7 +15,9 @@
 
     a {
       // adjust clickable area for a11y
-      padding: #{size.em(2)} #{size.em(3)};
+      padding: .5em .75em;
+
+      @include type.size("sm");
     }
   }
 

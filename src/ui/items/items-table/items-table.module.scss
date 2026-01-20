@@ -90,7 +90,7 @@
 
   &:hover,
   &:focus-within {
-    background: rgba(var(--foreground), 0.02);
+    background: var(--input-background-color);
   }
 
   > * {

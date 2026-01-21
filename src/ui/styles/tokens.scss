@@ -32,21 +32,21 @@ $green-dark: #1f9673;
   --disabled-color: var(--transparency-dark);
   --placeholder-color: var(--transparency-dark);
 
-  --menubar-height: 3.25rem;
-  --footer-height: 3.25rem;
+  --menubar-height: grids.space-rem(13);
+  --footer-height: grids.space-rem(13);
   --max-body-width: 1950px;
   --body-width: 680px;
   --admin-sidebar-width: 222px; // match menubar nav width
   --header-height: var(--menubar-height);
   --icon-optical-offset: -0.125em;
 
-  --items-list-padding: #{size.rem(3)} #{size.rem(4)};
+  --items-list-padding: grids.space-rem(3, 4);
   --items-list-border: 1px solid var(--transparency-primary);
 
-  --tight-line-height: #{size.em(5)}; // default is 1.5
+  --tight-line-height: grids.space-rem(5);
 
   @include breakpoints.mobile {
-    --items-list-padding: #{size.rem(3)};
+    --items-list-padding: grids.space-rem(3);
   }
 
   @media (prefers-color-scheme: dark) {

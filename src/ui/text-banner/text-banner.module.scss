@@ -1,9 +1,9 @@
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 
 .text-banner {
-  padding: #{size.em(3)} #{size.rem(5)};
+  padding: grids.space-em(3, 5);
   display: flex;
-  gap: #{size.rem(2)};
+  gap: grids.space-rem(2);
   align-items: center;
   font-weight: bold;
   color: var(--page-background-color);
@@ -12,8 +12,8 @@
   svg {
     width: 100%;
     height: 100%;
-    max-height: #{size.rem(6)};
-    max-width: #{size.rem(6)};
+    max-height: grids.space-rem(6);
+    max-width: grids.space-rem(6);
   }
 }
 

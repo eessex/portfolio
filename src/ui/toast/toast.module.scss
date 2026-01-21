@@ -1,5 +1,5 @@
 @use "@/ui/styles/breakpoints";
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 
 .toast {
   margin: 0 auto;
@@ -9,9 +9,9 @@
 .toast-container {
   display: flex;
   flex-direction: column;
-  gap: #{size.rem(2)};
+  gap: grids.space-rem(2);
   position: fixed;
-  bottom: #{size.rem(7)};
+  bottom: grids.space-rem(8);
   left: 15%;
   right: 15%;
   z-index: 200;

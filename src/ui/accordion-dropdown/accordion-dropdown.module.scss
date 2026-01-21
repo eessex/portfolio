@@ -1,4 +1,4 @@
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 
 .accordion-dropdown:last-child {
   border-bottom: var(--items-list-border);
@@ -9,7 +9,7 @@
   display: flex;
   justify-content: space-between;
   border-top: var(--items-list-border);
-  padding: #{size.em(3)} 0;
+  padding: grids.space-rem(3, 0);
   text-align: left;
 
   @media (hover: hover) {
@@ -20,6 +20,6 @@
 }
 
 .accordion-panel {
-  margin: .5rem 0 #{size.rem(7)};
+  margin: grids.space-rem(4, 0, 8);
   position: relative;
 }

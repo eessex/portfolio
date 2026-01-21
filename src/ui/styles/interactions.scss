@@ -1,4 +1,4 @@
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 
 /** buttons, links, form elements **/
 
@@ -20,10 +20,10 @@
     background .15s cubic-bezier(.4, 0, .2, 1),
     fill .15s cubic-bezier(.4, 0, .2, 1),
     stroke .15s cubic-bezier(.4, 0, .2, 1);
-  padding: .5em #{size.em(3)};
+  padding: grids.space-em(2, 3);
   
   &:has(svg) {
-    padding-right: #{size.rem(4)};
+    padding-right: grids.space-em(4);
   }
 
   @media (hover: hover) {
@@ -43,8 +43,8 @@
   a[href][class^="button-"],
   a[href][class*=" button-"]
 ) svg {
-  width: #{size.em(5)};
-  height: #{size.em(5)};
+  width: grids.space-em(5);
+  height: grids.space-em(5);
   flex-shrink: 0;
   color: inherit;
   margin-top: var(--icon-optical-offset);
@@ -81,7 +81,7 @@ a[href] {
   }
 
   &.button-icon {
-    padding: .45em .5em;
+    padding: .45em grids.space-em(2);
 
     svg {
       margin-top: 0;
@@ -89,7 +89,7 @@ a[href] {
   }
 
   &.button-lg {
-    padding: #{size.em(3)} #{size.em(4)};
+    padding: grids.space-em(3, 4);
     text-align: center;
     font-weight: bolder;
     justify-content: center;
@@ -107,7 +107,7 @@ a[href] {
 }
 
 :where(input, textarea, select) {
-  padding: #{size.em(2)} #{size.em(3)};
+  padding: grids.space-em(2, 3);
   background: var(--input-background-color);
   border: 2px solid transparent;
   vertical-align: middle; 

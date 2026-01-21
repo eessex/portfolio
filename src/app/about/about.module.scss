@@ -1,4 +1,4 @@
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 @use "@/ui/styles/type";
 
 .about {
@@ -7,17 +7,17 @@
     margin: 0 auto;
 
     .links-list {
-      margin: 3rem auto;
+      margin: grids.space-rem(12, auto);
 
       ul:has(blockquote) li {
-        margin-bottom: 1.5rem;
+        margin-bottom: grids.space-rem(6);
       }
     }
   }
 }
 
 .cover-image {
-  margin: #{size.rem(4)} auto #{size.rem(6)};
+  margin: grids.space-rem(4, auto, 6);
 
   img {
     height: auto;
@@ -26,11 +26,11 @@
 }
 
 .press-info {
-  margin: 3rem auto;
+  margin: grids.space-rem(12, auto);
 
   .projects-list {
     grid-template-columns: repeat(auto-fill, minmax(calc(50% - .5rem), 1fr));
-    gap: #{size.rem(7)} #{size.rem(4)};
+    gap: grids.space-rem(8, 4);
 
     h3 {
       @include type.heading("lg");

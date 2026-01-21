@@ -1,24 +1,25 @@
-@use "@/ui/styles/size";
+
+@use "@/ui/styles/grids";
 @use "@/ui/styles/type";
 
 .item-layout {
   > article {
     max-width: var(--body-width);
     margin: 0 auto;
-    padding: #{size.rem(4)};
+    padding: grids.space-rem(4);
 
     > header {
-      margin-bottom: #{size.rem(6)};
+      margin-bottom: grids.space-rem(6);
       text-align: center;
 
       h1 {
         @include type.heading("xxl");
 
-        margin-block: #{size.em(1)};
+        margin-block: grids.space-em(1);
       }
 
       p {
-        margin-block: #{size.em(1)} 0;
+        margin-block: grids.space-em(1, 0);
       }
 
       .venue {
@@ -26,12 +27,12 @@
       }
 
       .ticket-link {
-        margin-block: #{size.em(4)} 0;
+        margin-block: grids.space-em(4, 0);
       }
     }
 
     > section {
-      margin-bottom: #{size.rem(6)};
+      margin-bottom: grids.space-rem(6);
 
       > figure {
         width: 100%;
@@ -46,7 +47,7 @@
         }
 
         + figure {
-          margin-top: #{size.rem(4)};
+          margin-top: grids.space-rem(4);
         }
       }
     }

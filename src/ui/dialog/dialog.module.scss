@@ -1,11 +1,11 @@
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 
 .dialog {
   position: fixed;
   inset: 60px;
   background: var(--page-background-color);
   z-index: 200;
-  padding: #{size.em(7)};
+  padding: grids.space-em(8);
   outline: 1px solid var(--transparency-extra-light);
   display: flex;
   flex-direction: column;
@@ -14,7 +14,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: #{size.em(4)};
+    margin-bottom: grids.space-em(4);
 
     h2 {
       margin: 0;

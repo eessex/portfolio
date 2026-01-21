@@ -1,4 +1,4 @@
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 @use "@/ui/styles/type";
 
 .menubar {
@@ -30,7 +30,7 @@
 
     ul {
       display: flex;
-      gap: #{size.em(4)};
+      gap: grids.space-em(4);
       margin: 0;
       padding: 0;
     }

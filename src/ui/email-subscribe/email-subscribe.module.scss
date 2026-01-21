@@ -1,25 +1,25 @@
 @use "@/ui/styles/breakpoints";
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 @use "@/ui/styles/type";
 
 .email-subscribe {
   display: flex;
   flex-direction: row;
-  gap: #{size.rem(2)};
+  gap: grids.space-rem(2);
   align-items: center;
   justify-content: center;
 
-  input {
-    height: #{size.rem(7)};
+  input,
+  button[type="submit"] {
+    @include type.size("sm", "normal", "sm");
+
+    height: grids.space-em(9);
   }
 
   button[type="submit"] {
     color: currentColor;
     background-color: unset;
-    padding: 0 #{size.rem(3)};
-    height: #{size.rem(7)};
-
-    @include type.size("sm");
+    padding: grids.space-rem(0, 3);
 
     @media (hover: hover) {
       &:hover {
@@ -28,8 +28,7 @@
     }
   }
 
-  @include breakpoints.mobile {
-    padding: 0 #{size.rem(3)};
+  @include breakpoints.sm-width {
     width: 100%;
 
     input {
@@ -38,7 +37,7 @@
 
     input,
     button[type="submit"] {
-      @include type.size("base");
+      @include type.size("base", "normal", "sm");
     }
   }
 }

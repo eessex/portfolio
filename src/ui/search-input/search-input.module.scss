@@ -1,4 +1,4 @@
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 
 .search-input {
   position: relative;
@@ -17,7 +17,7 @@
   }
 
   > button {
-    padding: #{size.em(4)};
+    padding: grids.space-em(4);
     position: absolute;
     right: .35rem;
     top: 50%;

@@ -1,5 +1,5 @@
 @use "@/ui/styles/breakpoints";
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 @use "@/ui/styles/type";
 
 .filters-section {
@@ -9,14 +9,14 @@
   z-index: 200;
   display: flex;
   justify-content: flex-end;
-  margin-top: #{size.em(3)};
+  margin-top: grids.space-em(3);
 
   @include breakpoints.sm-width {
     margin-top: 0;
   }
 
   + table {
-    margin-top: -#{size.rem(7)};
+    margin-top: -#{grids.space-rem(9)};
 
     @include breakpoints.sm-width {
       margin-top: 0;
@@ -30,13 +30,13 @@
 
 .filters-container {
   display: flex;
-  gap: #{size.rem(2)};
+  gap: grids.space-rem(2);
   width: 100%;
   justify-content: flex-end;
-  padding: 0 #{size.rem(2)};
+  padding: grids.space-rem(0, 2);
 
   input, select {
-    height: #{size.rem(7)};
+    height: grids.space-em(9);
   }
 
   > button {
@@ -74,7 +74,7 @@
 
   > button {
     position: absolute;
-    right: #{size.rem(7)};
+    right: grids.space-rem(9);
     bottom: -.35rem;
     transform: translate(0, 100%);
     min-width: max-content;

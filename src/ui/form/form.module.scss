@@ -1,9 +1,9 @@
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: #{size.em(6)};
+  gap: grids.space-em(6);
   max-width: var(--body-width);
   margin: auto;
 
@@ -12,7 +12,7 @@
   }
 
   label, legend {
-    margin-bottom: #{size.em(2)};
+    margin-bottom: grids.space-em(2);
     display: block;
     font-weight: bolder;
 
@@ -32,40 +32,36 @@
 
   input[type="checkbox"] {
     width: auto;
-    margin-right: .5rem;
+    margin-right: grids.space-rem(2);
   }
 
   textarea {
-    min-height: 5em;
+    min-height: grids.space-em(16);
   }
 
   figure {
     position: relative;
 
     iframe, img {
-      margin-top: .25rem;
-    }
-
-    iframe, img {
-      margin-top: .25rem;
+      margin-top: grids.space-rem(1);
     }
 
     button {
       position: absolute;
-      top: -.25rem;
-      right: -.25rem;
+      top: -#{grids.space-rem(1)};
+      right: -#{grids.space-rem(1)};
       z-index: 1;
     }
   }
 
   p {
-    margin-bottom: .5rem;
+    margin-bottom: grids.space-rem(2);
   }
 }
 
 .edit-item-nav {
   position: absolute;
-  right: #{size.rem(4)};
+  right: grids.space-rem(4);
   top: -1px;
   display: flex;
   border: 1px solid var(--page-background-color);
@@ -89,15 +85,15 @@
 
   input {
     width: auto;
-    margin: .35rem #{size.rem(4)} 0.35rem 0rem;
+    margin: .35rem #{grids.space-rem(4)} 0.35rem 0;
   }
 }
 
 .press-inputs {
   display: flex;
   flex-direction: column;
-  gap: #{size.rem(4)};
-  margin-top: #{size.rem(4)};
+  gap: grids.space-rem(4);
+  margin-top: grids.space-rem(4);
 
   input, textarea {
     width: 100%;
@@ -119,7 +115,7 @@
     padding-right: 30px;
     border-radius: 0;
     width: 100%;
-    line-height: #{size.rem(4)};
+    line-height: normal;
     height: 44px;
   }
 

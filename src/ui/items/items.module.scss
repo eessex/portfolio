@@ -1,27 +1,28 @@
 @use "@/ui/styles/breakpoints";
 @use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 @use "@/ui/styles/type";
 
 .items-section {
-  margin-top: -3.25rem;
+  margin-top: -#{grids.space-rem(13)};
 }
 
 .items-section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: .5rem .4rem .5rem 1rem;
-  height: 3rem;
+  padding: grids.space-rem(2, 2, 2, 4);
+  height: grids.space-rem(12);
   position: sticky;
   top: calc(var(--header-height) - 1px);
   transition: all 0.25s ease-in-out;
   z-index: 100;
   background: var(--page-background-color);
-  margin-top: 1rem;
+  margin-top: grids.space-rem(4);
 
   @include breakpoints.sm-width {
     align-items: flex-end;
-    padding-left: 0.75rem;
+    padding-left: grids.space-rem(3);
   }
 }
 
@@ -30,8 +31,8 @@
 .items-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-  gap: #{size.rem(7)};
-  padding: 0 0 4rem;
+  gap: grids.space-rem(8);
+  padding: grids.space-rem(0, 0, 16);
 
   @include breakpoints.sm-width {
     min-height: unset;
@@ -54,23 +55,23 @@
   padding: var(--items-list-padding);
 
   @include breakpoints.mobile {
-    padding: #{size.em(3)} #{size.em(3)} #{size.rem(6)};
+    padding: grids.space-em(3, 3, 6);
   }
 
   a > img {
     max-width: 100%;
     height: auto;
-    margin-bottom: .5rem;
+    margin-bottom: grids.space-rem(2);
   }
 
   h3 {
     @include type.heading("xl");
 
-    margin: 0 0 .5rem;
+    margin: grids.space-rem(0, 0, 2);
 
     mark {
       vertical-align: top;
-      margin-left: .35rem;
+      margin-left: grids.space-rem(1);
     }
   }
 
@@ -83,20 +84,21 @@
   p.card-item-venue {
     @include type.size("sm", "normal", "sm");
 
-    margin-top: 0.45rem;
+    margin-top: grids.space-rem(2);
     margin-bottom: 0;
   }
 
   p.card-item-type {
     margin-top: -.5rem;
-    margin-bottom: #{size.rem(1)};
+    margin-bottom: grids.space-rem(1);
   }
 }
 
 .featured-card {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: #{size.rem(7)};
+  gap: grids.space-rem(8);
+  // fixme: what is this calc based on?
   min-height: calc(75vh + #{size.rem(6)} + #{size.rem(2)});
   max-width: 1660px;
   margin-inline: auto;
@@ -104,7 +106,7 @@
   @include breakpoints.sm-width {
     display: flex;
     flex-direction: column;
-    padding: #{size.rem(3)};
+    padding: grids.space-rem(3);
     gap: unset;
   }
 
@@ -118,7 +120,7 @@
       width: auto;
       margin-left: auto;
       margin-right: auto;
-      margin-bottom: .5rem;
+      margin-bottom: grids.space-rem(2);
 
       @include breakpoints.mobile {
         width: 100%;
@@ -148,5 +150,5 @@
 
 .card-external-link {
   width: fit-content;
-  margin-top: #{size.rem(4)};
+  margin-top: grids.space-rem(4);
 }

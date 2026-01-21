@@ -1,11 +1,13 @@
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 
 .images-grid {
+  --gap: #{grids.space-rem(4)};
+
   display: flex;
   flex-wrap: wrap;
-  gap: #{size.rem(4)};
+  gap: var(--gap);
 
   li {
-    max-width: calc(50% - #{size.rem(2)});
+    max-width: calc(50% - (var(--gap) / 2));
   }
 }

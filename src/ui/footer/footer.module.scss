@@ -1,13 +1,13 @@
 @use "@/ui/styles/breakpoints";
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 @use '@/ui/styles/type';
 
 .footer {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  padding-block: #{size.rem(2)};
-  padding-inline: #{size.rem(1)};
+  padding-block: grids.space-rem(2);
+  padding-inline: grids.space-rem(1);
   min-height: 50px;
 
   > * {
@@ -15,7 +15,7 @@
 
     a {
       // adjust clickable area for a11y
-      padding: .5em .75em;
+      padding: grids.space-em(2, 3);
 
       @include type.size("sm");
     }
@@ -32,10 +32,10 @@
 
   @include breakpoints.sm-width {
     flex-direction: column;
-    gap: #{size.rem(4)};
+    gap: grids.space-rem(4);
     min-height: unset;
     position: relative;
-    padding-inline: 0 #{size.rem(1)};
+    padding-inline: grids.space-rem(0, 1);
 
     > * {
       align-self: flex-start;

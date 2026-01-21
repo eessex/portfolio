@@ -1,8 +1,8 @@
+@use "@/ui/styles/breakpoints";
+@use "@/ui/styles/interactions";
+@use "@/ui/styles/grids";
 @use "@/ui/styles/reset";
 @use "@/ui/styles/tokens";
-@use "@/ui/styles/interactions";
-@use "@/ui/styles/breakpoints";
-@use "@/ui/styles/size";
 @use "@/ui/styles/type";
 
 body {
@@ -33,7 +33,7 @@ body {
 :where(li, p) {
   max-width: var(--body-width);
   text-wrap: pretty;
-  margin-block-end: #{size.em(4)};
+  margin-block-end: grids.space-em(4);
 }
 
 :where(ul, ol){
@@ -76,10 +76,10 @@ body {
   width: 100%;
   text-align: left;
   border-collapse: collapse;
-  margin-bottom: 4em;
+  margin-bottom: grids.space-em(16);
 
   tbody + tbody tr.heading {
-    margin-top: 4em;
+    margin-top: grids.space-em(16);
     display: block;
   }
 }
@@ -89,11 +89,11 @@ main {
   position: relative;
 
   > article {
-    padding: #{size.em(6)} #{size.em(4)} #{size.em(7)};
+    padding: grids.space-em(6, 4, 8);
   }
 
   .index-page {
-    padding-top: #{size.rem(4)};
+    padding-top: grids.space-rem(4);
   }
 }
 
@@ -166,21 +166,21 @@ footer {
 :where(figcaption) {
   @include type.size("sm");
 
-  margin: #{size.rem(1)} #{size.rem(2)};
+  margin: grids.space-rem(1, 2);
   text-align: center;
 }
 
 .category {
   @include type.meta();
 
-  gap: .5em;
+  gap: grids.space-em(2);
 }
 
 .badge {
   @include type.meta();
 
-  padding: 0 0.35em;
-  margin: 0 #{size.em(2)};
+  padding: 0 grids.space-em(2);
+  margin: grids.space-em(0, 2);
   vertical-align: text-top;
 
   &.badge-green {

@@ -1,8 +1,8 @@
-@use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 
 .links-list {
   li:has(.press-link) {
-    margin-bottom: #{size.rem(4)};
+    margin-bottom: grids.space-rem(4);
   }
 
   a:not(.press-link) {

@@ -1,9 +1,10 @@
 @use "@/ui/styles/breakpoints";
 @use "@/ui/styles/size";
+@use "@/ui/styles/grids";
 @use "@/ui/styles/type";
 
 .items-table {
-  margin-top: #{size.em(3)};
+  margin-top: grids.space-em(3);
 }
 
 .table-rowgroup-heading {
@@ -11,7 +12,7 @@
   text-align: left;
   top: calc(var(--header-height) - 2px);
   transition: all 0.25s ease-in-out;
-  height: 3rem;
+  height: grids.space-em(12);
   z-index: 100;
   background-color: var(--page-background-color);
   box-shadow: inset 0 -1px 0 var(--transparency-primary); 
@@ -41,7 +42,7 @@
 }
 
 .no-results td {
-  padding: #{size.rem(4)};
+  padding: grids.space-rem(4);
 }
 
 .table-row-title {
@@ -53,7 +54,7 @@
     @include type.heading("lg");
 
     display: block;
-    margin: #{size.rem(1)} 0;
+    margin: grids.space-rem(1, 0);
 
     @include breakpoints.sm-width {
       @include type.size("base", "normal", "sm");
@@ -73,7 +74,7 @@
   box-shadow: inset 0 -1px 0 var(--transparency-primary);
 
   + tr[class$="rowgroup-heading"] {
-    margin-top: #{size.rem(6)};
+    margin-top: grids.space-rem(6);
   }
 
   &.item-type-visible {
@@ -109,7 +110,7 @@
 
   ul {
     display: flex;
-    gap: #{size.rem(4)};
+    gap: grids.space-rem(4);
 
     li {
       white-space: nowrap;
@@ -143,11 +144,11 @@
     height: fit-content;
 
     @include breakpoints.mobile {
-      padding: #{size.rem(3)} #{size.rem(2)};
+      padding: grids.space-rem(3, 2);
     }
 
     img {
-      margin-bottom: .5rem;
+      margin-bottom: grids.space-rem(2);
       width: 100%;
       height: auto;
     }
@@ -171,7 +172,7 @@
     > td:last-child:not(.item-type) {
       @include type.size("sm", "normal", "sm");
 
-      margin-top: #{size.rem(1)};
+      margin-top: grids.space-rem(1);
       order: 1;
 
       @include breakpoints.sm-width {
@@ -191,7 +192,7 @@
   }
 
   + tr[class$="rowgroup-heading"] {
-    margin-top: 3rem;
+    margin-top: grids.space-rem(12);
     display: block;
     text-align: left;
   }

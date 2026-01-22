@@ -36,7 +36,7 @@
   }
 
   textarea {
-    min-height: grids.space-em(16);
+    min-height: calc(#{grids.space-em(12)} * 2);
   }
 
   figure {

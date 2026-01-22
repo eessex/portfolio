@@ -1,5 +1,4 @@
 @use "@/ui/styles/breakpoints";
-@use "@/ui/styles/size";
 @use "@/ui/styles/grids";
 @use "@/ui/styles/type";
 
@@ -98,8 +97,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: grids.space-rem(8);
-  // fixme: what is this calc based on?
-  min-height: calc(75vh + #{size.rem(6)} + #{size.rem(2)});
+  min-height: 75vh;
   max-width: 1660px;
   margin-inline: auto;
 

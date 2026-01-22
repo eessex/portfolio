@@ -46,5 +46,9 @@
       gap: .65em;
       align-items: flex-start;
     }
+
+    form {
+      padding-inline: grids.space-rem(2);
+    }
   }
 }

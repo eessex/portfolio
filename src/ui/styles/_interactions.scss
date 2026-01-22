@@ -134,7 +134,7 @@ a[href] {
 }
 
 :where(input, textarea) {
-  line-height: var(--tight-line-height);
+  line-height: grids.space-rem(5);
 }
 
 :where(select) {

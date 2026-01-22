@@ -6,7 +6,7 @@
   position: sticky;
   top: calc(var(--header-height) + 5px);
   transition: all 0.25s ease-in-out;
-  z-index: 200;
+  z-index: 101;
   display: flex;
   justify-content: flex-end;
   margin-top: grids.space-em(3);

@@ -1,4 +1,4 @@
-import '@/ui/styles/globals.scss'
+import '@/ui/globals.scss'
 
 import clsx from 'clsx'
 import type { Metadata } from 'next'

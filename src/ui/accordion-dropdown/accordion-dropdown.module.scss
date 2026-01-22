@@ -1,14 +1,16 @@
 @use "@/ui/styles/grids";
 
+$items-list-border: 1px solid var(--transparency-primary);
+
 .accordion-dropdown:last-child {
-  border-bottom: var(--items-list-border);
+  border-bottom: $items-list-border;
 }
 
 .accordion-trigger {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  border-top: var(--items-list-border);
+  border-top: $items-list-border;
   padding: grids.space-rem(3, 0);
   text-align: left;
 

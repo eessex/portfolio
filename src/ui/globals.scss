@@ -1,8 +1,9 @@
 @use "@/ui/styles/breakpoints";
-@use "@/ui/styles/interactions";
+@use "@/ui/styles/colors";
 @use "@/ui/styles/grids";
+@use "@/ui/styles/interactions";
 @use "@/ui/styles/reset";
-@use "@/ui/styles/tokens";
+@use "@/ui/styles/layout";
 @use "@/ui/styles/type";
 
 body {
@@ -155,7 +156,7 @@ footer {
   position: sticky;
   bottom: 0;
   background: var(--page-background-color);
-  z-index: 101;
+  z-index: 151;
 }
 
 :where(figure) {

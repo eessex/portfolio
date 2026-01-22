@@ -17,7 +17,7 @@
     flex-direction: column;
     justify-content: space-between;
     // align bottom button with page footer
-    height: calc(100vh - var(--menubar-height) - 1px - #{grids.space-em(2)});
+    height: calc(100vh - var(--menubar-height) - 1px - #{grids.space-em(1)});
   }
 
   li, li > form {

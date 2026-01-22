@@ -6,6 +6,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  height: 100%;
 }
 
 img,
@@ -15,10 +16,11 @@ video {
   background: var(--transparency-secondary);
 }
 
-button,
-input,
-textarea,
-select {
+:where(
+  button,
+  input,
+  textarea
+) {
   font: inherit;
 }
 

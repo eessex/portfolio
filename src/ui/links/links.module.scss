@@ -1,10 +1,4 @@
-@use "@/ui/styles/grids";
-
 .links-list {
-  li:has(.press-link) {
-    margin-bottom: grids.space-rem(4);
-  }
-
   a:not(.press-link) {
     text-decoration: underline;
 

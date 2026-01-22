@@ -1,4 +1,5 @@
 @use "@/ui/styles/grids";
+@use "@/ui/styles/type";
 
 /** buttons, links, form elements **/
 
@@ -77,7 +78,7 @@ a[href] {
   }
 
   &.button-outline {
-    box-shadow: inset 0 0 0 1px --page-foreground-color;
+    box-shadow: inset 0 0 0 1px var(--page-foreground-color);
   }
 
   &.button-icon {
@@ -89,9 +90,9 @@ a[href] {
   }
 
   &.button-lg {
+    @include type.font-weight("bold");
+
     padding: grids.space-em(3, 4);
-    text-align: center;
-    font-weight: bolder;
     justify-content: center;
   }
 }
@@ -128,7 +129,7 @@ a[href] {
 
   &:-webkit-autofill {
     border-color: transparent;
-    -webkit-text-fill-color: --page-foreground-color !important;
+    -webkit-text-fill-color: var(--page-foreground-color);
     transition: background-color 5000s ease-in-out 0s;
   }
 }
@@ -138,11 +139,15 @@ a[href] {
 }
 
 :where(select) {
-  line-height: normal;
+  min-width: 200px;
+  border-radius: 0;
+  font: inherit;
+  line-height: 1.15em;
 }
 
 :where(button:disabled, input:disabled, textarea:disabled, select:disabled) {
   --input-background-color: var(--transparency-light);
   --placeholder-color: var(--transparency-secondary);
+
   cursor: not-allowed;
 }

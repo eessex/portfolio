@@ -4,6 +4,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon
 } from '@heroicons/react/24/outline'
+import clsx from 'clsx'
 import {
   useEffect,
   useId,
@@ -17,12 +18,18 @@ export function AccordionDropdown ({
   badges,
   children,
   isExpanded,
-  title
+  isFullWidth,
+  title,
+  buttonClassname,
+  panelClassname
 }: {
   badges?: Badge[]
   children: React.ReactNode
   isExpanded?: boolean
+  isFullWidth?: boolean
   title: string
+  buttonClassname?: string
+  panelClassname?: string
 }) {
   const triggerId = useId()
   const panelId = useId()
@@ -37,7 +44,7 @@ export function AccordionDropdown ({
       <h2>
         <button
           aria-expanded={isOpen}
-          className={styles['accordion-trigger']}
+          className={clsx(styles['accordion-trigger'], isFullWidth && styles['full-width'], buttonClassname)}
           aria-controls={panelId}
           id={triggerId}
           onClick={() => setIsOpen(!isOpen)}
@@ -62,7 +69,7 @@ export function AccordionDropdown ({
         id={panelId}
         role='region'
         aria-labelledby={triggerId}
-        className={styles['accordion-panel']}
+        className={clsx(styles['accordion-panel'], panelClassname)}
         hidden={!isOpen}
       >
         {children}

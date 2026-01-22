@@ -358,7 +358,7 @@ export function DashboardItems<T extends DashboardItem> ({
         >
           <Form
             action={onSubmit}
-            submitButtonClassName='button-primary'
+            submitButtonClassName='button-primary button-lg'
           >
             <EditItem
               item={itemToEdit}
@@ -468,6 +468,8 @@ function DashboardListItem<T extends DashboardItem> ({
         badges={badges()}
         isExpanded={isExpanded}
         title={titleWithCount()}
+        buttonClassname={styles['accordion-button']}
+        panelClassname={styles['accordion-panel']}
       >
         <EditItemNav
           id={item.id!}

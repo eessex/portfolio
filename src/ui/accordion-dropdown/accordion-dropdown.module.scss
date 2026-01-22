@@ -6,18 +6,22 @@ $items-list-border: 1px solid var(--transparency-primary);
   border-bottom: $items-list-border;
 }
 
-.accordion-trigger {
+button.accordion-trigger {
   width: 100%;
   display: flex;
-  justify-content: space-between;
   border-top: $items-list-border;
-  padding: grids.space-rem(3, 0);
-  text-align: left;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--items-list-padding);
 
   @media (hover: hover) {
     &:hover {
       background: none;
     }
+  }
+
+  &.full-width {
+    padding-inline: 0;
   }
 }
 

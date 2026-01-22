@@ -18,13 +18,14 @@ $heading-size: (
 );
 
 $line-height: (
-  "xs": 1em,
-  "sm": 1.25em,
+  "xs": 1.15em,
+  "sm": 1.35em,
   "base": 1.5em
 );
 
 $font-weight: (
   "normal": 400,
+  "medium": 600,
   "bold": 700
 );
 
@@ -69,7 +70,7 @@ $font-weight: (
 }
 
 @mixin meta() {
-  @include size("xxs", "bold", "sm");
+  @include size("xxs", "bold", "xs");
 
   text-transform: uppercase;
   letter-spacing: 0.07em;

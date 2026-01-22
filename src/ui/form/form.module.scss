@@ -1,4 +1,7 @@
+@use "sass:map";
+
 @use "@/ui/styles/grids";
+@use "@/ui/styles/type";
 
 .form {
   display: flex;
@@ -57,6 +60,10 @@
   p {
     margin-bottom: grids.space-rem(2);
   }
+
+  button[type="submit"] {
+    margin-top: grids.space-rem(2);
+  }
 }
 
 .edit-item-nav {
@@ -113,23 +120,22 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     padding-right: 30px;
-    border-radius: 0;
     width: 100%;
-    line-height: normal;
-    height: 44px;
   }
 
   &::before {
+    --select-icon-size: #{map.get(type.$size, "lg")};
+
     content: "";
     position: absolute;
-    z-index: 1;
+    z-index: -1;
     top: 50%;
-    right: 6px;
-    width: 20px;
-    height: 20px;
+    right: grids.space-rem(2);
+    width: var(--select-icon-size);
+    height: var(--select-icon-size);
     background-image: url("/chevron-down.svg");
     background-repeat: no-repeat;
-    background-size: 20px 20px;
+    background-size: var(--select-icon-size);
     background-size: contain;
     opacity: 0.65;
     transform: translateY(-50%);

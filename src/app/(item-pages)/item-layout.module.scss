@@ -36,18 +36,15 @@
 
       > figure {
         width: 100%;
+        margin-top: grids.space-rem(4);
 
-        > img {
-          width: 100%;
-          height: auto;
-        }
-        
+        img,
         iframe {
           width: 100%;
         }
-
-        + figure {
-          margin-top: grids.space-rem(4);
+        
+        img {
+          height: auto;
         }
       }
     }

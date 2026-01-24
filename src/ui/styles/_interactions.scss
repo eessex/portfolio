@@ -1,4 +1,5 @@
 @use "@/ui/styles/grids";
+@use "@/ui/styles/type";
 
 /** buttons, links, form elements **/
 
@@ -89,9 +90,9 @@ a[href] {
   }
 
   &.button-lg {
+    @include type.font-weight("bold");
+
     padding: grids.space-em(3, 4);
-    text-align: center;
-    font-weight: bolder;
     justify-content: center;
   }
 }
@@ -138,11 +139,15 @@ a[href] {
 }
 
 :where(select) {
-  line-height: normal;
+  min-width: 200px;
+  border-radius: 0;
+  font: inherit;
+  line-height: 1.15em;
 }
 
 :where(button:disabled, input:disabled, textarea:disabled, select:disabled) {
   --input-background-color: var(--transparency-light);
   --placeholder-color: var(--transparency-secondary);
+
   cursor: not-allowed;
 }

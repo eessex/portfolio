@@ -26,16 +26,15 @@
 }
 
 .press-info {
+  --column-gap: #{grids.space-rem(6)};
   margin: grids.space-rem(12, auto);
 
   .projects-list {
-    grid-template-columns: repeat(auto-fill, minmax(calc(50% - .5rem), 1fr));
-    gap: grids.space-rem(8, 4);
+    grid-template-columns: repeat(auto-fill, minmax(calc(50% - var(--column-gap)/2), 1fr));
+    gap: grids.space-rem(8), var(--column-gap);
 
     h3 {
       @include type.heading("lg");
-
-      margin-bottom: .65rem;
     }
 
     article {

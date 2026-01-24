@@ -107,7 +107,10 @@ export default async function AboutPage () {
       <div className={styles['press-info']}>
         <Suspense fallback={<Loading />}>
           {!!allProjects.length && (
-            <AccordionDropdown title='More Projects'>
+            <AccordionDropdown
+              title='More Projects'
+              isFullWidth
+            >
               <ItemsList
                 className={styles['projects-list']}
                 items={allProjects}
@@ -119,7 +122,10 @@ export default async function AboutPage () {
 
         <Suspense fallback={<Loading />}>
           {!!filteredPressImages.length && (
-            <AccordionDropdown title='More Images'>
+            <AccordionDropdown
+              title='More Images'
+              isFullWidth
+            >
               <ImageGrid images={filteredPressImages} />
             </AccordionDropdown>
           )}
@@ -127,7 +133,10 @@ export default async function AboutPage () {
 
         <Suspense>
           {!!pressLinksWithoutQuotes.length && (
-            <AccordionDropdown title='More Press'>
+            <AccordionDropdown
+              title='More Press'
+              isFullWidth
+            >
               <LinksList links={pressLinksWithoutQuotes} />
             </AccordionDropdown>
           )}

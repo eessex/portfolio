@@ -1,7 +1,7 @@
 @use "@/ui/styles/grids";
 
 .images-grid {
-  --gap: #{grids.space-rem(4)};
+  --gap: #{grids.space-rem(6)};
 
   display: flex;
   flex-wrap: wrap;

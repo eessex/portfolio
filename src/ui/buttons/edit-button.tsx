@@ -21,13 +21,11 @@ export function EditButton () {
   if (!pathname) return null
 
   return (
-    <li>
-      <NextLink
-        href={`${pathname}/edit`}
-        className='button-primary'
-      >
-        <PencilIcon /> Edit Page
-      </NextLink>
-    </li>
+    <NextLink
+      href={`${pathname}/edit`}
+      className='button-primary'
+    >
+      <PencilIcon /> Edit page
+    </NextLink>
   )
 }

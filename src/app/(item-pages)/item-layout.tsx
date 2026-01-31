@@ -10,6 +10,7 @@ import type {
   PageDataResponse,
   PageItemClient, PageItemProps
 } from '@/lib/types'
+import { TicketButton } from '@/ui/buttons/ticket-button'
 import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
@@ -17,7 +18,6 @@ import { ImageFigure } from '@/ui/images/image-figure'
 import { FormattedItemDate } from '@/ui/items/item-date'
 import { LinksList } from '@/ui/links/link-list'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
-import { TicketButton } from '@/ui/ticket-button'
 import {
   filteredLinksByPress,
   formattedItemTitle,

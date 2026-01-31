@@ -4,10 +4,10 @@ import { useId } from 'react'
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
+import { TicketButton } from '@/ui/buttons/ticket-button'
 import { ItemCard } from '@/ui/items/item-card'
 import styles from '@/ui/items/items.module.scss'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
-import { TicketButton } from '@/ui/ticket-button'
 import { formatVenueInline } from '@/ui/util'
 
 export function ItemsList ({

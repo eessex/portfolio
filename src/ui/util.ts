@@ -197,6 +197,16 @@ export function singularizePath (path: string) {
   return path.endsWith('s') ? path.slice(0, -1) : path
 }
 
+export function itemTypeToLabel (itemType: string, isSingular = false, isDownCased = false) {
+  let formatted = camelToSentence(itemType)
+  if (isDownCased) {
+    formatted = formatted.toLowerCase()
+  }
+  return isSingular
+    ? singularizePath(formatted)
+    : formatted
+}
+
 export const formattedItemType = (type: string, isUpcoming = false, isPlural = false) => {
   let unformatted = snakeToCamel(type)
 

@@ -1,9 +1,9 @@
 import NextLink from 'next/link'
 
-import { AddItemButton } from '@/ui/admin-sidebar/add-item-button'
 import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
-import { EditButton } from '@/ui/admin-sidebar/edit-button'
-import { LogoutButton } from '@/ui/logout-button'
+import { CreateItemFromPathnameButton } from '@/ui/buttons/create-item-button'
+import { EditButton } from '@/ui/buttons/edit-button'
+import { LogoutButton } from '@/ui/buttons/logout-button'
 import {
   camelToSentence,
   snakeToCamel
@@ -22,8 +22,12 @@ export async function AdminSidebar () {
     <section className={`admin-sidebar ${styles['admin-sidebar']}`}>
       <nav>
         <ul>
-          <AddItemButton />
-          <EditButton />
+          <li>
+            <CreateItemFromPathnameButton />
+          </li>
+          <li>
+            <EditButton />
+          </li>
           {links.map(link => (
             <li key={link}>
               <NextLink

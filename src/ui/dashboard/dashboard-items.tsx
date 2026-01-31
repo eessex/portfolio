@@ -33,7 +33,7 @@ import type {
   Venue
 } from '@/lib/venues/types'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
-import type { OpenNewItemFormDetail } from '@/ui/admin-sidebar/add-item-button'
+import type { CreateItemDetail } from '@/ui/buttons/create-item-button'
 import styles from '@/ui/dashboard/dashboard.module.scss'
 import { Dialog } from '@/ui/dialog/dialog'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code'
@@ -64,7 +64,7 @@ import { EditVenue } from '@/ui/venues/edit-venue-form'
 
 declare global {
   interface DocumentEventMap {
-    openNewItemForm: CustomEvent<OpenNewItemFormDetail>
+    openNewItemForm: CustomEvent<CreateItemDetail>
   }
 }
 
@@ -222,7 +222,7 @@ export function DashboardItems<T extends DashboardItem> ({
 
   // Listen for "Add item" button clicks from DashboardLayout
   useEffect(() => {
-    function handleOpenNewItemForm (event: CustomEvent<OpenNewItemFormDetail>) {
+    function handleOpenNewItemForm (event: CustomEvent<CreateItemDetail>) {
       if (event.detail.itemType === itemType) {
         setItemToEdit(undefined)
         setIsEditDialogOpen(true)

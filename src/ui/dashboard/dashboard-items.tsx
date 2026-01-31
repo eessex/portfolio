@@ -308,6 +308,7 @@ export function DashboardItems<T extends DashboardItem> ({
           value={query}
           onChange={setQuery}
           label={`Search ${itemType}`}
+          isLabelHidden
         />
       </FiltersWrapper>
 

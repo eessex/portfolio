@@ -1,4 +1,3 @@
-import clsx from 'clsx'
 import NextLink from 'next/link'
 import {
   useId,
@@ -73,38 +72,36 @@ export const EditLink = ({ link }: LinkProps) => {
               /about
             </NextLink> page, and can include additional data like an attribution and a quotation.
           </p>
-          <div className={clsx(styles['press-inputs'])}>
-            <Input
-              label='Attribution'
-              description='The name of the publication or link source.'
-              defaultValue={link?.attribution}
-              attributes={{
-                maxLength: 255,
-                name: 'attribution',
-                placeholder: 'New York Times'
-              }}
-            />
-            <Input
-              as='textarea'
-              label='Quotation'
-              description='A short quote from the link, if applicable.'
-              defaultValue={link?.quotation}
-              attributes={{
-                maxLength: 255,
-                name: 'quotation',
-                placeholder: 'One of New York’s most influential artists'
-              }}
-            />
-            <Input
-              label='Publish date'
-              defaultValue={link?.publishDate ? new Date(link.publishDate).toISOString().split('T')[0] : ''}
-              attributes={{
-                name: 'publishDate',
-                placeholder: 'YYYY-MM-DD',
-                type: 'date'
-              }}
-            />
-          </div>
+          <Input
+            label='Attribution'
+            description='The name of the publication or link source.'
+            defaultValue={link?.attribution}
+            attributes={{
+              maxLength: 255,
+              name: 'attribution',
+              placeholder: 'New York Times'
+            }}
+          />
+          <Input
+            as='textarea'
+            label='Quotation'
+            description='A short quote from the link, if applicable.'
+            defaultValue={link?.quotation}
+            attributes={{
+              maxLength: 255,
+              name: 'quotation',
+              placeholder: 'One of New York’s most influential artists'
+            }}
+          />
+          <Input
+            label='Publish date'
+            defaultValue={link?.publishDate ? new Date(link.publishDate).toISOString().split('T')[0] : ''}
+            attributes={{
+              name: 'publishDate',
+              placeholder: 'YYYY-MM-DD',
+              type: 'date'
+            }}
+          />
         </fieldset>
       )}
       {link?.id && (

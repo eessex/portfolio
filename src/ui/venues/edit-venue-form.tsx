@@ -1,8 +1,9 @@
 import type { Venue } from '@/lib/venues/types'
+import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 
 interface EditVenueProps {
-  venue?: Venue
+  venue?: Partial<Venue>
 }
 
 export const EditVenue = ({ venue }: EditVenueProps) => {
@@ -37,24 +38,26 @@ export const EditVenue = ({ venue }: EditVenueProps) => {
           required: true
         }}
       />
-      <Input
-        label='State'
-        defaultValue={venue?.state}
-        attributes={{
-          maxLength: 2,
-          name: 'state',
-          placeholder: 'NY'
-        }}
-      />
-      <Input
-        label='Country'
-        defaultValue={venue?.country}
-        attributes={{
-          maxLength: 255,
-          name: 'country',
-          placeholder: 'USA'
-        }}
-      />
+      <div className={styles['input-group']}>
+        <Input
+          label='State'
+          defaultValue={venue?.state}
+          attributes={{
+            maxLength: 2,
+            name: 'state',
+            placeholder: 'NY'
+          }}
+        />
+        <Input
+          label='Country'
+          defaultValue={venue?.country}
+          attributes={{
+            maxLength: 255,
+            name: 'country',
+            placeholder: 'USA'
+          }}
+        />
+      </div>
       <Input
         label='Venue website'
         description='The homepage or profile of the venue, not a ticket link.'

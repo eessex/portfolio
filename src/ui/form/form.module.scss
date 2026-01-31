@@ -1,36 +1,17 @@
 @use "sass:map";
 
+@use "@/ui/styles/breakpoints";
 @use "@/ui/styles/grids";
 @use "@/ui/styles/type";
 
 .form {
-  display: flex;
-  flex-direction: column;
-  gap: grids.space-em(6);
+  --input-width: 100%;
+
   max-width: var(--body-width);
   margin: auto;
 
   *[hidden] {
     display: none;
-  }
-
-  label, legend {
-    margin-bottom: grids.space-em(2);
-    display: block;
-    font-weight: bolder;
-
-    &:has(input[type="checkbox"]) {
-      font-weight: normal;
-
-      &:has(input[type="checkbox"]:disabled) {
-        color: var(--disabled-color);
-      }
-    }
-  }
-
-  input, textarea {
-    width: 100%;
-    field-sizing: content;
   }
 
   input[type="checkbox"] {
@@ -57,8 +38,57 @@
     }
   }
 
-  p {
+  .input-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: grids.space-rem(4);
+
+    @include breakpoints.mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  p + p {
+    margin-top: grids.space-rem(2);
+    margin-bottom: grids.space-em(2);
+  }
+
+  label {
+    + p {
+      margin-top: grids.space-em(1);
+      margin-bottom: grids.space-em(2);
+    }
+
+    + input,
+    + :has(select), // select are wrapped in divs
+    + textarea {
+      margin-top: grids.space-em(2);
+    }
+  }
+
+  legend + p {
+    margin-bottom: 0;
+  }
+
+  h2 {
     margin-bottom: grids.space-rem(2);
+  }
+
+  select {
+    --input-height: #{grids.space-em(11)};
+  }
+
+  fieldset:has(button.cancel) {
+    position: relative;
+    // buttons push the labels down, so add extra top margin
+    margin-top: grids.space-em(2);
+
+    button.cancel {
+      position: absolute;
+      top: -#{grids.space-rem(8)};
+      right: grids.space-em(4);
+      background: var(--page-background-color);
+    }
   }
 
   button[type="submit"] {
@@ -93,17 +123,6 @@
   input {
     width: auto;
     margin: .35rem #{grids.space-rem(4)} 0.35rem 0;
-  }
-}
-
-.press-inputs {
-  display: flex;
-  flex-direction: column;
-  gap: grids.space-rem(4);
-  margin-top: grids.space-rem(4);
-
-  input, textarea {
-    width: 100%;
   }
 }
 

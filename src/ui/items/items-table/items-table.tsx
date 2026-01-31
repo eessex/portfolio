@@ -243,6 +243,7 @@ export function ItemsTable ({
             value={searchTerm}
             onChange={setSearchTerm}
             label={`Search ${path}`}
+            isLabelHidden
           />
         )}
       </FiltersWrapper>

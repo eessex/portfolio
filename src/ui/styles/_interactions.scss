@@ -1,3 +1,4 @@
+@use "@/ui/styles/breakpoints";
 @use "@/ui/styles/grids";
 @use "@/ui/styles/type";
 
@@ -108,6 +109,8 @@ a[href] {
 }
 
 :where(input, textarea, select) {
+  width: var(--input-width, auto);
+  min-height: var(--input-height, auto);
   padding: grids.space-em(2, 3);
   background: var(--input-background-color);
   border: 2px solid transparent;
@@ -127,6 +130,21 @@ a[href] {
     color: var(--placeholder-color);
   }
 
+  &[type="date"],
+  &[type="datetime-local"] {
+    height: grids.space-em(11);
+
+    // FIXME: placeholder color
+
+    &::-webkit-calendar-picker-indicator {
+      opacity: 0.65;
+
+      @media (prefers-color-scheme: dark) {
+        filter: invert(1);
+      }
+    }
+  }
+
   &:-webkit-autofill {
     border-color: transparent;
     -webkit-text-fill-color: var(--page-foreground-color);
@@ -138,7 +156,12 @@ a[href] {
   line-height: grids.space-rem(5);
 }
 
+:where(textarea) {
+  field-sizing: content;
+}
+
 :where(select) {
+  width: var(--input-width, auto);
   min-width: 200px;
   border-radius: 0;
   font: inherit;
@@ -150,4 +173,41 @@ a[href] {
   --placeholder-color: var(--transparency-secondary);
 
   cursor: not-allowed;
+}
+
+:where(label, legend) {
+  @include type.font-weight("bold");
+  @include type.line-height("sm");
+
+  display: block;
+
+  &:has(input[type="checkbox"]) {
+    font-weight: normal;
+
+    &:has(input[type="checkbox"]:disabled) {
+      color: var(--disabled-color);
+    }
+  }
+}
+
+:where(legend) {
+  padding-inline: 0;
+}
+
+:where(form, fieldset) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--row-gap, #{grids.space-em(6)});
+}
+
+:where(fieldset) {
+  padding-inline: grids.space-em(4);
+  padding-bottom: grids.space-em(4);
+  margin-inline: -#{grids.space-em(4)};
+  border-color: var(--transparency-primary);
+
+  @include breakpoints.mobile {
+    padding-inline: grids.space-em(3);
+    margin-inline: -#{grids.space-em(2)};
+  }
 }

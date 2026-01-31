@@ -63,7 +63,7 @@ export function Input<T extends InputElement = HTMLInputElement> ({
 
   const autoId = useId()
   const id = attributes?.id || autoId
-  const isHidden = (attributes as React.InputHTMLAttributes<HTMLInputElement>).type === 'hidden'
+  const isHidden = (attributes as React.InputHTMLAttributes<HTMLInputElement>)?.type === 'hidden'
 
   const props = {
     ...attributes,

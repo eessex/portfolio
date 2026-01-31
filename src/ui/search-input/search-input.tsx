@@ -8,15 +8,19 @@ import styles from '@/ui/search-input/search-input.module.scss'
 
 export function SearchInput ({
   ariaControls,
+  isLabelHidden,
   label = 'Search',
   onChange,
   onClear,
+  placeholder,
   value
 }: {
   ariaControls?: string
+  isLabelHidden?: boolean
   label?: string
   onChange: (newValue: string) => void
   onClear?: () => void
+  placeholder?: string
   value: string
 }) {
   const [inputValue, setInputValue] = useState(value)
@@ -34,27 +38,30 @@ export function SearchInput ({
   return (
     <div className={styles['search-input']}>
       <label
-        className='visually-hidden'
+        className={isLabelHidden ? 'visually-hidden' : undefined}
         htmlFor={inputId}
       >
         {label}
       </label>
-      <input
-        aria-controls={ariaControls}
-        type='search'
-        id={inputId}
-        value={inputValue}
-        onChange={e => onInputChange(e.target.value)}
-        placeholder={label}
-      />
-      {inputValue && (
-        <button
-          aria-label='Clear search'
-          onClick={() => onInputChange('')}
-        >
-          <XMarkIcon />
-        </button>
-      )}
+
+      <div className={styles['search-input-container']}>
+        <input
+          aria-controls={ariaControls}
+          type='search'
+          id={inputId}
+          value={inputValue}
+          onChange={e => onInputChange(e.target.value)}
+          placeholder={placeholder || (isLabelHidden ? label : undefined)}
+        />
+        {inputValue && (
+          <button
+            aria-label='Clear search'
+            onClick={() => onInputChange('')}
+          >
+            <XMarkIcon />
+          </button>
+        )}
+      </div>
     </div>
   )
 }

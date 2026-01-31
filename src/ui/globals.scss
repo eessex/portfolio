@@ -34,10 +34,11 @@ body {
 :where(li, p) {
   max-width: var(--body-width);
   text-wrap: pretty;
+  margin-block-start: unset;
   margin-block-end: grids.space-em(4);
 }
 
-:where(ul, ol){
+:where(ul, ol) {
   list-style: none;
   margin: 0;
   padding: 0;

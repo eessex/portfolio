@@ -35,8 +35,6 @@ export function useResultsList<T extends DashboardItem> (
 
   /** Total count from the server (unfiltered) */
   const totalCount = initial.totalCount
-  /** A ref to the "load more" element for infinite scrolling, provided by consumer */
-  const loadMoreRef = useRef<HTMLLIElement>(null)
   /** Prevent refetch on rehydration */
   const isMounted = useRef(true)
   /** Abort controller for fetch requests */
@@ -141,20 +139,30 @@ export function useResultsList<T extends DashboardItem> (
   )
 
   // Infinite scroll observer
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (!loadMoreRef.current || !nextCursor) return
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const loadMoreRef = useCallback(
+    (node: HTMLLIElement | null) => {
+      if (!node) {
+        observerRef.current?.disconnect()
+        observerRef.current = null
+        return
+      }
 
-    const observer = new IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting) loadMore()
-      },
-      { threshold: 0.1 }
-    )
+      if (!nextCursor) return
 
-    observer.observe(loadMoreRef.current)
-    return () => observer.disconnect()
-  }, [loadMore, nextCursor])
+      observerRef.current?.disconnect()
+
+      observerRef.current = new IntersectionObserver(
+        entries => {
+          if (entries[0].isIntersecting) loadMore()
+        },
+        { threshold: 0.1 }
+      )
+
+      observerRef.current.observe(node)
+    },
+    [loadMore, nextCursor]
+  )
 
   // Handle query or sort change
   useEffect(() => {

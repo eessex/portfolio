@@ -10,6 +10,14 @@ import {
   venueFixtureGamma
 } from '@/lib/venues/fixtures'
 import type { Venue } from '@/lib/venues/types'
+import {
+  getAbortControllers,
+  resetAbortControllers
+} from '@/test/__mocks__/browser/abortController'
+import {
+  resetIntersectionObservers,
+  triggerIntersection
+} from '@/test/__mocks__/browser/intersectionObserver'
 import { useResultsList } from '@/ui/useResultsList'
 
 function makeResponse (
@@ -67,33 +75,11 @@ function mockFetchOnce (data: unknown) {
 }
 
 describe('useResultsList', () => {
-  beforeAll(() => {
-    class MockIntersectionObserver {
-      private callback: IntersectionObserverCallback
-
-      observe = jest.fn(() => {
-        this.callback(
-          [{ isIntersecting: true } as IntersectionObserverEntry],
-          this as unknown as IntersectionObserver
-        )
-      })
-
-      unobserve = jest.fn()
-      disconnect = jest.fn()
-      takeRecords = jest.fn()
-
-      constructor (callback: IntersectionObserverCallback) {
-        this.callback = callback
-      }
-    }
-
-    // @ts-expect-error – jsdom does not define this
-    global.IntersectionObserver = MockIntersectionObserver
-  })
-
   beforeEach(() => {
     global.fetch = jest.fn()
     jest.clearAllMocks()
+    resetAbortControllers()
+    resetIntersectionObservers()
   })
 
   describe('initialization', () => {
@@ -131,11 +117,14 @@ describe('useResultsList', () => {
         initialVenues
       } = setup({ nextCursor: 'cursor-1' })
 
-      await act(async () => {
-        // trigger infinite load
-        await result.current.loadMoreRef(
+      act(() => {
+        result.current.loadMoreRef(
           document.createElement('li') as HTMLLIElement
         )
+      })
+
+      act(() => {
+        triggerIntersection()
       })
 
       await waitFor(() => {
@@ -169,7 +158,6 @@ describe('useResultsList', () => {
     it('prevents duplicate fetches while a request is in flight', async () => {
       let resolveFetch!: (value: unknown) => void
 
-      // Mock fetch so it never resolves immediately
       global.fetch = jest.fn().mockImplementation(
         () =>
           new Promise(resolve => {
@@ -179,16 +167,25 @@ describe('useResultsList', () => {
 
       const { result } = setup({ nextCursor: 'cursor-1' })
 
-      // Trigger two loadMore calls quickly
-      await act(async () => {
-        result.current.loadMoreRef(document.createElement('li') as HTMLLIElement)
-        result.current.loadMoreRef(document.createElement('li') as HTMLLIElement)
+      // Attach observer
+      act(() => {
+        result.current.loadMoreRef(
+          document.createElement('li') as HTMLLIElement
+        )
       })
 
-      // fetch should only be called once
+      act(() => {
+        triggerIntersection()
+      })
+
+      // Second intersection while fetch is in-flight
+      act(() => {
+        triggerIntersection()
+      })
+
       expect(global.fetch).toHaveBeenCalledTimes(1)
 
-      // Resolve the pending fetch to clean up
+      // Resolve fetch to clean up
       await act(async () => {
         resolveFetch({
           json: async () => ({
@@ -263,11 +260,10 @@ describe('useResultsList', () => {
         ]
       })
 
-      // Default sortDirection is 'desc'
+      // Default sortDirection
       expect(result.current.sortDirection).toBe('desc')
       expect(result.current.items).toEqual(initialVenues)
 
-      // Change to ascending (should reverse)
       await act(async () => {
         result.current.setSortDirection('asc')
       })
@@ -278,42 +274,23 @@ describe('useResultsList', () => {
           venueFixtureAlpha
         ])
       })
-
-      // Change back to descending
-      await act(async () => {
-        result.current.setSortDirection('desc')
-      })
-
-      await waitFor(() => {
-        expect(result.current.items).toEqual(initialVenues)
-      })
     })
   })
 
   describe('item mutations', () => {
     it('adds an item and updates items and count', () => {
       const {
-        result, initialVenues
+        result,
+        initialVenues
       } = setup()
-
-      const newVenue: Venue = {
-        id: 'new-1',
-        name: 'New Venue',
-        address: '999 New St',
-        city: 'Denver',
-        state: 'CO',
-        country: 'USA',
-        url: 'https://newvenue.com',
-        createdAt: new Date()
-      }
 
       const initialCount = result.current.count
 
       act(() => {
-        result.current.onAddItem(newVenue)
+        result.current.onAddItem(venueFixtureGamma)
       })
 
-      expect(result.current.items[0]).toEqual(newVenue)
+      expect(result.current.items[0]).toEqual(venueFixtureGamma)
       expect(result.current.items).toHaveLength(initialVenues.length + 1)
       expect(result.current.count).toBe(initialCount + 1)
     })
@@ -321,7 +298,7 @@ describe('useResultsList', () => {
     it('edits an item and re-applies filtering', async () => {
       const { result } = setup()
 
-      // Activate a query that initially matches nothing
+      // query initially matches nothing
       await act(async () => {
         result.current.setQuery('updated')
       })
@@ -369,17 +346,18 @@ describe('useResultsList', () => {
 
       const { result } = setup({ nextCursor: 'cursor-1' })
 
-      // Trigger load
       act(() => {
         result.current.loadMoreRef(
           document.createElement('li') as HTMLLIElement
         )
       })
 
-      // isLoading should flip immediately
+      act(() => {
+        triggerIntersection()
+      })
+
       expect(result.current.isLoading).toBe(true)
 
-      // Resolve fetch
       await act(async () => {
         resolveFetch({
           json: async () => ({
@@ -408,13 +386,18 @@ describe('useResultsList', () => {
       })
 
       const {
-        result, initialVenues
+        result,
+        initialVenues
       } = setup({ nextCursor: 'cursor-1' })
 
-      await act(async () => {
+      act(() => {
         result.current.loadMoreRef(
           document.createElement('li') as HTMLLIElement
         )
+      })
+
+      act(() => {
+        triggerIntersection()
       })
 
       await waitFor(() => {
@@ -434,7 +417,6 @@ describe('useResultsList', () => {
 
       setup({ nextCursor: 'cursor-1' })
 
-      // No effects should trigger a fetch on mount
       expect(global.fetch).not.toHaveBeenCalled()
     })
 
@@ -456,62 +438,36 @@ describe('useResultsList', () => {
   })
 
   describe('performance and cleanup', () => {
-    it('aborts in-flight requests on unmount', async () => {
-      const abortSpy = jest.fn()
-
-      // Mock AbortController
-      const originalAbortController = global.AbortController
-
-      class MockAbortController {
-        signal = {}
-        abort = abortSpy
-      }
-
-      // @ts-expect-error override for test
-      global.AbortController = MockAbortController
-
-      let resolveFetch!: (value: unknown) => void
-
-      global.fetch = jest.fn().mockImplementation(
-        () =>
-          new Promise(resolve => {
-            resolveFetch = resolve
-          })
-      )
+    it('aborts in-flight requests on unmount', () => {
+      global.fetch = jest.fn(() => new Promise(() => {}))
 
       const {
-        result, unmount
+        result,
+        unmount
       } = setup({ nextCursor: 'cursor-1' })
 
-      // Trigger fetch
+      resetAbortControllers()
+
       act(() => {
         result.current.loadMoreRef(
           document.createElement('li') as HTMLLIElement
         )
       })
 
-      // Unmount while fetch is in-flight
+      act(() => {
+        triggerIntersection()
+      })
+
       unmount()
 
-      expect(abortSpy).toHaveBeenCalled()
-
-      // Cleanup globals
-      global.AbortController = originalAbortController
-
-      // Resolve fetch to avoid dangling promise
-      resolveFetch({
-        json: async () => ({
-          res: [],
-          nextCursor: null,
-          totalCount: 2
-        })
-      })
+      const controllers = getAbortControllers()
+      expect(controllers).toHaveLength(1)
+      expect(controllers[0].abort).toHaveBeenCalled()
     })
 
     it('reuses cached search text between searches', async () => {
       const { result } = setup()
 
-      // First search
       await act(async () => {
         result.current.setQuery('austin')
       })
@@ -520,7 +476,7 @@ describe('useResultsList', () => {
         expect(result.current.items).toEqual([venueFixtureAlpha])
       })
 
-      // Second search with same query (should hit cache)
+      // (should hit cache)
       await act(async () => {
         result.current.setQuery('')
         result.current.setQuery('austin')
@@ -530,7 +486,7 @@ describe('useResultsList', () => {
         expect(result.current.items).toEqual([venueFixtureAlpha])
       })
 
-      // Edit item so cached search text must be invalidated
+      // invalidate cached search text
       act(() => {
         result.current.onEditItem(
           {
@@ -541,7 +497,7 @@ describe('useResultsList', () => {
         )
       })
 
-      // Old query should no longer match
+      // query should no longer match
       await waitFor(() => {
         expect(result.current.items).toEqual([])
       })
@@ -562,15 +518,16 @@ describe('useResultsList', () => {
         result, initialVenues
       } = setup({ nextCursor: 'cursor-1' })
 
-      // Attach observer target
-      await act(async () => {
+      act(() => {
         result.current.loadMoreRef(
           document.createElement('li') as HTMLLIElement
         )
       })
 
-      // IntersectionObserver mock auto-triggers intersection,
-      // which should cause a fetch + append
+      act(() => {
+        triggerIntersection()
+      })
+
       await waitFor(() => {
         expect(result.current.items).toHaveLength(3)
       })

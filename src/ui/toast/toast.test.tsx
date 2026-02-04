@@ -1,5 +1,3 @@
-import '@testing-library/jest-dom'
-
 import {
   render,
   screen
@@ -11,7 +9,6 @@ describe('Toast', () => {
   it('renders a toast message', () => {
     render(
       <Toast
-        onHide={() => {}}
         type='success'
         message='Success message'
       />

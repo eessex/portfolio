@@ -1,0 +1,21 @@
+@use "@/ui/styles/grids";
+@use "@/ui/styles/type";
+
+.selected-result {
+  @include type.line-height("sm");
+
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: grids.space-em(11);
+  padding: grids.space-em(2, 3);
+  background: var(--input-background-color);
+
+  button {
+    position: absolute;
+    right: grids.space-em(1);
+    border-radius: 50%;
+  }
+}

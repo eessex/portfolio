@@ -16,10 +16,11 @@ type SortDirection = 'asc' | 'desc'
  */
 export function useResultsList<T extends DashboardItem> (
   apiEndpoint: string,
-  initial: ResponseWithCursor<T>
+  initial: ResponseWithCursor<T>,
+  defaultQuery?: string
 ) {
   /** User search query */
-  const [query, setQuery] = useState<string>('')
+  const [query, setQuery] = useState<string>(defaultQuery || '')
   const queryRef = useRef(query)
 
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')

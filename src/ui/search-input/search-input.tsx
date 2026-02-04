@@ -8,19 +8,25 @@ import styles from '@/ui/search-input/search-input.module.scss'
 
 export function SearchInput ({
   ariaControls,
+  ariaActivedescendant,
   isLabelHidden,
   label = 'Search',
   onChange,
   onClear,
+  onKeyDown,
   placeholder,
+  role,
   value
 }: {
   ariaControls?: string
+  ariaActivedescendant?: string
   isLabelHidden?: boolean
   label?: string
   onChange: (newValue: string) => void
   onClear?: () => void
+  onKeyDown?: (e: React.KeyboardEvent) => void
   placeholder?: string
+  role?: 'combobox'
   value: string
 }) {
   const [inputValue, setInputValue] = useState(value)
@@ -47,11 +53,14 @@ export function SearchInput ({
       <div className={styles['search-input-container']}>
         <input
           aria-controls={ariaControls}
-          type='search'
+          aria-activedescendant={ariaActivedescendant}
           id={inputId}
+          placeholder={placeholder || (isLabelHidden ? label : undefined)}
+          role={role}
+          type='search'
           value={inputValue}
           onChange={e => onInputChange(e.target.value)}
-          placeholder={placeholder || (isLabelHidden ? label : undefined)}
+          onKeyDown={onKeyDown}
         />
         {inputValue && (
           <button

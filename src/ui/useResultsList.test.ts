@@ -45,13 +45,15 @@ function setup (
     nextCursor: string | null
     totalCount: number
     apiEndpoint: string
+    defaultQuery?: string
   }> = {}
 ) {
   const {
     initialVenues = defaultVenues,
     nextCursor = null,
     totalCount = initialVenues.length,
-    apiEndpoint = '/api/venues'
+    apiEndpoint = '/api/venues',
+    defaultQuery
   } = options
 
   const initialResponse = makeResponse(initialVenues, {
@@ -60,7 +62,7 @@ function setup (
   })
 
   const hook = renderHook(() =>
-    useResultsList<Venue>(apiEndpoint, initialResponse)
+    useResultsList<Venue>(apiEndpoint, initialResponse, defaultQuery)
   )
 
   return {
@@ -99,6 +101,12 @@ describe('useResultsList', () => {
       expect(result.current.isLoading).toBe(false)
       expect(result.current.query).toBe('')
       expect(result.current.sortDirection).toBe('desc')
+    })
+
+    it('initializes query from defaultQuery parameter', () => {
+      const { result } = setup({ defaultQuery: 'austin' })
+
+      expect(result.current.query).toBe('austin')
     })
   })
 

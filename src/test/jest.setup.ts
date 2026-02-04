@@ -5,3 +5,8 @@ import { installIntersectionObserverMock } from '@/test/__mocks__/browser/inters
 
 installAbortControllerMock()
 installIntersectionObserverMock()
+
+Object.defineProperty(Element.prototype, 'scrollIntoView', {
+  value: jest.fn(),
+  writable: true
+})

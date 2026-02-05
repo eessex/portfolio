@@ -5,6 +5,18 @@
   display: inline-block;
   width: var(--input-width, auto);
 
+  .before-input {
+    position: relative;
+    margin-bottom: grids.space-em(2);
+
+    button {
+      position: absolute;
+      right: 0;
+      top: 0;
+      transform: translateY(-#{grids.space-em(1)});
+    }
+  }
+
   .search-input-container {
     position: relative;
 

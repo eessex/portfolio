@@ -9,6 +9,7 @@ import styles from '@/ui/search-input/search-input.module.scss'
 export function SearchInput ({
   ariaControls,
   ariaActivedescendant,
+  beforeInputChildren,
   isLabelHidden,
   label = 'Search',
   onChange,
@@ -20,6 +21,7 @@ export function SearchInput ({
 }: {
   ariaControls?: string
   ariaActivedescendant?: string
+  beforeInputChildren?: React.ReactNode
   isLabelHidden?: boolean
   label?: string
   onChange: (newValue: string) => void
@@ -43,12 +45,15 @@ export function SearchInput ({
 
   return (
     <div className={styles['search-input']}>
-      <label
-        className={isLabelHidden ? 'visually-hidden' : undefined}
-        htmlFor={inputId}
-      >
-        {label}
-      </label>
+      <div className={styles['before-input']}>
+        <label
+          className={isLabelHidden ? 'visually-hidden' : undefined}
+          htmlFor={inputId}
+        >
+          {label}
+        </label>
+        {beforeInputChildren}
+      </div>
 
       <div className={styles['search-input-container']}>
         <input

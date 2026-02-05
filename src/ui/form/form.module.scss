@@ -70,6 +70,10 @@
     margin-bottom: 0;
   }
 
+  legend + div {
+    margin-top: grids.space-em(3);
+  }
+
   h2 {
     margin-bottom: grids.space-rem(2);
   }
@@ -80,12 +84,10 @@
 
   fieldset:has(button.cancel) {
     position: relative;
-    // buttons push the labels down, so add extra top margin
-    margin-top: grids.space-em(2);
 
     button.cancel {
       position: absolute;
-      top: -#{grids.space-rem(8)};
+      top: -#{grids.space-rem(6)};
       right: grids.space-em(4);
       background: var(--page-background-color);
     }

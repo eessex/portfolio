@@ -9,6 +9,7 @@ import {
 
 import type { EmbeddedItemType } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
+import { CreateItemButton } from '@/ui/buttons/create-item-button'
 import styles from '@/ui/combobox/combobox.module.scss'
 import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 import { Loading } from '@/ui/loading'
@@ -34,6 +35,7 @@ export function Combobox<T extends DashboardItem> ({
   label,
   placeholder,
   formatResult,
+  onCreateNew,
   onSelect
 }: ComboboxProps<T>) {
   const {
@@ -156,6 +158,14 @@ export function Combobox<T extends DashboardItem> ({
             ? optionId(items[highlightedIndex])
             : undefined
         }
+        beforeInputChildren={onCreateNew && (
+          <CreateItemButton
+            className='button-sm'
+            ref={createButtonRef}
+            itemType={itemType}
+            onClick={() => onCreateNew(query || undefined)}
+          />
+        )}
         onKeyDown={handleKeyDown}
       />
       {isOpen && (

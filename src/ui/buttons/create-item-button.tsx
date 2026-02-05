@@ -13,11 +13,13 @@ import {
 export function CreateItemButton ({
   className,
   itemType,
-  onClick
+  onClick,
+  ref
 }: {
   className?: string
   itemType: EmbeddedItemType
   onClick: () => void
+  ref?: React.Ref<HTMLButtonElement>
 }) {
   const formattedItemType = itemTypeToLabel(itemType, true, true)
 
@@ -26,6 +28,7 @@ export function CreateItemButton ({
       type='button'
       className={className}
       onClick={onClick}
+      ref={ref}
     >
       <PlusIcon /> Create new {formattedItemType}
     </button>

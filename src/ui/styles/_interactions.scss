@@ -90,6 +90,12 @@ a[href] {
     }
   }
 
+  &.button-sm {
+    @include type.size("sm", "normal", "sm");
+
+    padding: grids.space-em(1, 2);
+  }
+
   &.button-lg {
     @include type.font-weight("bold");
 

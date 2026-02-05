@@ -26,7 +26,9 @@ const scrollIntoViewMock = jest
 const defaultProps: ComboboxProps<Venue> = {
   defaultQuery: '',
   initialResults: {
-    res: [], nextCursor: null, totalCount: 0
+    res: [],
+    nextCursor: null,
+    totalCount: 0
   },
   itemType: 'venues',
   formatResult: (item) => item.name,

@@ -6,6 +6,20 @@ import {
 
 import styles from '@/ui/search-input/search-input.module.scss'
 
+export interface SearchInputProps {
+  ariaControls?: string
+  ariaActivedescendant?: string
+  beforeInputChildren?: React.ReactNode
+  isLabelHidden?: boolean
+  label?: string
+  onChange: (newValue: string) => void
+  onClear?: () => void
+  onKeyDown?: (e: React.KeyboardEvent) => void
+  placeholder?: string
+  role?: 'combobox'
+  value: string
+}
+
 export function SearchInput ({
   ariaControls,
   ariaActivedescendant,
@@ -18,19 +32,7 @@ export function SearchInput ({
   placeholder,
   role,
   value
-}: {
-  ariaControls?: string
-  ariaActivedescendant?: string
-  beforeInputChildren?: React.ReactNode
-  isLabelHidden?: boolean
-  label?: string
-  onChange: (newValue: string) => void
-  onClear?: () => void
-  onKeyDown?: (e: React.KeyboardEvent) => void
-  placeholder?: string
-  role?: 'combobox'
-  value: string
-}) {
+}: SearchInputProps) {
   const [inputValue, setInputValue] = useState(value)
   const inputId = useId()
 

@@ -13,11 +13,16 @@ import { Select } from '@/ui/form/select'
 const linkTypeOptions = [...linkTypes]
 
 interface LinkProps {
-  link?: Link
+  index?: number
+  link?: Partial<Link>
 }
 
-export const EditLink = ({ link }: LinkProps) => {
+export const EditLink = ({
+  index,
+  link
+}: LinkProps) => {
   const [type, setType] = useState<string | undefined>(link?.type || undefined)
+  const namePrefix = typeof index === 'number' ? `links[${index}].` : ''
   const pressControlsId = useId()
 
   return (
@@ -27,7 +32,7 @@ export const EditLink = ({ link }: LinkProps) => {
         defaultValue={link?.url}
         attributes={{
           maxLength: 255,
-          name: 'url',
+          name: `${namePrefix}url`,
           placeholder: 'https://example.com',
           required: true,
           type: 'url'
@@ -39,7 +44,7 @@ export const EditLink = ({ link }: LinkProps) => {
         defaultValue={link?.title}
         attributes={{
           maxLength: 255,
-          name: 'title',
+          name: `${namePrefix}title`,
           placeholder: 'Title'
         }}
       />
@@ -50,7 +55,7 @@ export const EditLink = ({ link }: LinkProps) => {
         options={linkTypeOptions}
         placeholder='Select link type'
         attributes={{
-          name: 'type',
+          name: `${namePrefix}type`,
           'aria-controls': pressControlsId,
           'aria-expanded': type === 'press'
         }}
@@ -78,7 +83,7 @@ export const EditLink = ({ link }: LinkProps) => {
             defaultValue={link?.attribution}
             attributes={{
               maxLength: 255,
-              name: 'attribution',
+              name: `${namePrefix}attribution`,
               placeholder: 'New York Times'
             }}
           />
@@ -89,7 +94,7 @@ export const EditLink = ({ link }: LinkProps) => {
             defaultValue={link?.quotation}
             attributes={{
               maxLength: 255,
-              name: 'quotation',
+              name: `${namePrefix}quotation`,
               placeholder: 'One of New York’s most influential artists'
             }}
           />
@@ -97,7 +102,7 @@ export const EditLink = ({ link }: LinkProps) => {
             label='Publish date'
             defaultValue={link?.publishDate ? new Date(link.publishDate).toISOString().split('T')[0] : ''}
             attributes={{
-              name: 'publishDate',
+              name: `${namePrefix}publishDate`,
               placeholder: 'YYYY-MM-DD',
               type: 'date'
             }}

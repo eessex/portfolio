@@ -3,10 +3,15 @@ import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 
 interface EditVenueProps {
+  isPrefixEnabled?: boolean
   venue?: Partial<Venue>
 }
 
-export const EditVenue = ({ venue }: EditVenueProps) => {
+export const EditVenue = ({
+  isPrefixEnabled, venue
+}: EditVenueProps) => {
+  const namePrefix = isPrefixEnabled ? 'venue.' : ''
+
   return (
     <>
       <Input
@@ -15,7 +20,7 @@ export const EditVenue = ({ venue }: EditVenueProps) => {
         description='If the venue has no name, leave this blank.'
         attributes={{
           maxLength: 255,
-          name: 'name',
+          name: `${namePrefix}name`,
           placeholder: 'CBGB'
         }}
       />
@@ -24,7 +29,7 @@ export const EditVenue = ({ venue }: EditVenueProps) => {
         defaultValue={venue?.address}
         attributes={{
           maxLength: 255,
-          name: 'address',
+          name: `${namePrefix}address`,
           placeholder: '123 Main St'
         }}
       />
@@ -33,7 +38,7 @@ export const EditVenue = ({ venue }: EditVenueProps) => {
         defaultValue={venue?.city}
         attributes={{
           maxLength: 255,
-          name: 'city',
+          name: `${namePrefix}city`,
           placeholder: 'Brooklyn',
           required: true
         }}
@@ -44,7 +49,7 @@ export const EditVenue = ({ venue }: EditVenueProps) => {
           defaultValue={venue?.state}
           attributes={{
             maxLength: 2,
-            name: 'state',
+            name: `${namePrefix}state`,
             placeholder: 'NY'
           }}
         />
@@ -53,7 +58,7 @@ export const EditVenue = ({ venue }: EditVenueProps) => {
           defaultValue={venue?.country}
           attributes={{
             maxLength: 255,
-            name: 'country',
+            name: `${namePrefix}country`,
             placeholder: 'USA'
           }}
         />
@@ -64,7 +69,7 @@ export const EditVenue = ({ venue }: EditVenueProps) => {
         defaultValue={venue?.url}
         attributes={{
           maxLength: 255,
-          name: 'url',
+          name: `${namePrefix}url`,
           placeholder: 'https://cbgb.com',
           type: 'url'
         }}

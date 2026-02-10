@@ -4,19 +4,25 @@ import {
 } from 'react'
 
 import { checkIfImageExists } from '@/lib/images/actions'
-import type {
-  CreateImage,
-  Image
-} from '@/lib/images/types'
+import type { Image } from '@/lib/images/types'
 import { Checkbox } from '@/ui/form/checkbox'
 import { FileInputImage } from '@/ui/form/file-input-image'
 import { Input } from '@/ui/form/input'
 
-export const EditImage = ({ image }: { image?: Image }) => {
+interface EditImageProps {
+  image?: Partial<Image>
+  index?: number
+}
+
+export const EditImage = ({
+  image,
+  index
+}: EditImageProps) => {
   const [isPress, setIsPress] = useState(!!image?.isPress)
   const [aspectRatio, setAspectRatio] = useState<number | undefined>(image?.aspect || undefined)
   const [isHiddenOnAboutPage, setIsHiddenOnAboutPage] = useState(!!image?.isHiddenOnAboutPage)
-  const [formImage, setFormImage] = useState<CreateImage>(image || {} as CreateImage)
+  const [formImage, setFormImage] = useState<Partial<Image>>(image || {})
+  const namePrefix = typeof index === 'number' ? `images[${index}].` : ''
 
   const {
     createdAt,
@@ -60,7 +66,7 @@ export const EditImage = ({ image }: { image?: Image }) => {
         description='1MB size limit.'
         attributes={{
           accept: 'image/*',
-          name: 'file',
+          name: `${namePrefix}file`,
           required: true
         }}
         image={formImage}
@@ -71,7 +77,7 @@ export const EditImage = ({ image }: { image?: Image }) => {
           label='Aspect Ratio'
           value={aspectRatio}
           attributes={{
-            name: 'aspect',
+            name: `${namePrefix}aspect`,
             type: 'hidden'
           }}
         />
@@ -84,7 +90,7 @@ export const EditImage = ({ image }: { image?: Image }) => {
           defaultValue={url}
           attributes={{
             maxLength: 255,
-            name: 'url',
+            name: `${namePrefix}url`,
             placeholder: 'https://aws.s3.bucket/images/your-image.jpg',
             required: true,
             type: 'hidden'
@@ -97,7 +103,7 @@ export const EditImage = ({ image }: { image?: Image }) => {
         defaultValue={formImage?.caption}
         attributes={{
           maxLength: 255,
-          name: 'caption',
+          name: `${namePrefix}caption`,
           placeholder: 'Caption'
         }}
       />
@@ -109,7 +115,7 @@ export const EditImage = ({ image }: { image?: Image }) => {
           isChecked={isPress}
           onChange={() => setIsPress(!isPress)}
           attributes={{
-            name: 'isPress',
+            name: `${namePrefix}isPress`,
             'aria-controls': controlledCheckboxId,
             'aria-expanded': isPress
           }}
@@ -120,7 +126,7 @@ export const EditImage = ({ image }: { image?: Image }) => {
           isChecked={isHiddenOnAboutPage}
           onChange={() => setIsHiddenOnAboutPage(!isHiddenOnAboutPage)}
           attributes={{
-            name: 'isHiddenOnAboutPage',
+            name: `${namePrefix}isHiddenOnAboutPage`,
             hidden: !isPress
           }}
         />
@@ -131,7 +137,7 @@ export const EditImage = ({ image }: { image?: Image }) => {
         defaultValue={formImage?.title}
         attributes={{
           maxLength: 255,
-          name: 'title',
+          name: `${namePrefix}title`,
           placeholder: 'Title'
         }}
       />

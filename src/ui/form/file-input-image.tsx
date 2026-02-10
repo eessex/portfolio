@@ -4,9 +4,7 @@ import React, {
   useState
 } from 'react'
 
-import type {
-  CreateImage, Image
-} from '@/lib/images/types'
+import type { Image } from '@/lib/images/types'
 import styles from '@/ui/form/form.module.scss'
 import type { InputProps } from '@/ui/form/input'
 import { Input } from '@/ui/form/input'
@@ -24,7 +22,7 @@ export function FileInputImage ({
   ref,
   image
 }: Omit<InputProps<HTMLInputElement>, 'children' | 'onChange'> & {
-  image?: Image | CreateImage
+  image?: Partial<Image>
   onChange?: (fileName: string, aspectRatio: number | undefined, isDirty: boolean) => void
 }) {
   const [file, setFile] = useState<File | null>(null)

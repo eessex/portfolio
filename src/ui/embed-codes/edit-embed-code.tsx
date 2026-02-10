@@ -5,11 +5,16 @@ import type { EmbedCode } from '@/lib/embed-codes/types'
 import { Input } from '@/ui/form/input'
 
 interface EmbedCodeProps {
-  embedCode?: EmbedCode
+  embedCode?: Partial<EmbedCode>
+  index?: number
 }
 
-export const EditEmbedCode = ({ embedCode }: EmbedCodeProps) => {
+export const EditEmbedCode = ({
+  index,
+  embedCode
+}: EmbedCodeProps) => {
   const [embedCodeIframe, setEmbedCodeIframe] = useState(embedCode?.iframe || '')
+  const namePrefix = typeof index === 'number' ? `embedCodes[${index}].` : ''
 
   function onReplaceIframe (newIframe: string) {
     if (embedCode?.id && !newIframe) {
@@ -26,7 +31,7 @@ export const EditEmbedCode = ({ embedCode }: EmbedCodeProps) => {
     defaultValue: embedCodeIframe,
     attributes: {
       maxLength: 1500,
-      name: 'iframe',
+      name: `${namePrefix}iframe`,
       placeholder: '<iframe></iframe>',
       required: true
     }
@@ -75,7 +80,7 @@ export const EditEmbedCode = ({ embedCode }: EmbedCodeProps) => {
         defaultValue={embedCode?.caption}
         attributes={{
           maxLength: 255,
-          name: 'caption',
+          name: `${namePrefix}caption`,
           placeholder: 'Caption'
         }}
       />
@@ -85,7 +90,7 @@ export const EditEmbedCode = ({ embedCode }: EmbedCodeProps) => {
         defaultValue={embedCode?.title}
         attributes={{
           maxLength: 255,
-          name: 'title',
+          name: `${namePrefix}title`,
           placeholder: 'Title'
         }}
       />

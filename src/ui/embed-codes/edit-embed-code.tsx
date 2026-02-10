@@ -1,17 +1,21 @@
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useState } from 'react'
+import type { z } from 'zod'
 
+import type { createEmbedCodeSchema } from '@/lib/embed-codes/schemas'
 import type { EmbedCode } from '@/lib/embed-codes/types'
 import { Input } from '@/ui/form/input'
 
 interface EmbedCodeProps {
   embedCode?: Partial<EmbedCode>
+  errors?: z.inferFlattenedErrors<typeof createEmbedCodeSchema>['fieldErrors']
   index?: number
 }
 
 export const EditEmbedCode = ({
   index,
-  embedCode
+  embedCode,
+  errors
 }: EmbedCodeProps) => {
   const [embedCodeIframe, setEmbedCodeIframe] = useState(embedCode?.iframe || '')
   const namePrefix = typeof index === 'number' ? `embedCodes[${index}].` : ''
@@ -26,15 +30,16 @@ export const EditEmbedCode = ({
   }
 
   const iFrameTextareaProps = {
-    label: 'Embed iframe code',
-    description: 'Paste the full iframe embed code from a service like YouTube, Bandcamp, or Spotify. iFrames are displayed at 100% width of their container, max 680px.',
-    defaultValue: embedCodeIframe,
     attributes: {
       maxLength: 1500,
       name: `${namePrefix}iframe`,
       placeholder: '<iframe></iframe>',
       required: true
-    }
+    },
+    description: 'Paste the full iframe embed code from a service like YouTube, Bandcamp, or Spotify. iFrames are displayed at 100% width of their container, max 680px.',
+    defaultValue: embedCodeIframe,
+    label: 'Embed iframe code',
+    errors: errors?.iframe
   }
 
   const iFrameHiddenProps = {
@@ -75,43 +80,45 @@ export const EditEmbedCode = ({
           />
           )}
       <Input
-        label='Caption'
-        description='Displayed below the iframe wherever it appears'
-        defaultValue={embedCode?.caption}
         attributes={{
           maxLength: 255,
           name: `${namePrefix}caption`,
           placeholder: 'Caption'
         }}
+        defaultValue={embedCode?.caption}
+        description='Displayed below the iframe wherever it appears.'
+        errors={errors?.caption}
+        label='Caption'
       />
       <Input
-        label='Title'
-        description='Used for internal search only, never displayed publicly'
-        defaultValue={embedCode?.title}
         attributes={{
           maxLength: 255,
           name: `${namePrefix}title`,
           placeholder: 'Title'
         }}
+        defaultValue={embedCode?.title}
+        description='Used for internal search only, never displayed publicly.'
+        errors={errors?.title}
+        label='Title'
       />
       {embedCode?.id && (
         <Input
-          label='Embed Code ID'
-          defaultValue={embedCode.id}
           attributes={{
             name: `${namePrefix}id`,
             type: 'hidden'
           }}
+          defaultValue={embedCode.id}
+          label='Embed Code ID'
         />
       )}
       {embedCode?.createdAt && (
         <Input
-          label='Created At'
-          defaultValue={embedCode.createdAt.toISOString()}
           attributes={{
             name: `${namePrefix}createdAt`,
             type: 'hidden'
           }}
+          defaultValue={embedCode.createdAt.toISOString()}
+          label='Created At'
         />
       )}
     </>

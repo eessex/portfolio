@@ -2,19 +2,23 @@ import {
   useId,
   useState
 } from 'react'
+import type { z } from 'zod'
 
 import { checkIfImageExists } from '@/lib/images/actions'
+import type { createImageSchema } from '@/lib/images/schemas'
 import type { Image } from '@/lib/images/types'
 import { Checkbox } from '@/ui/form/checkbox'
 import { FileInputImage } from '@/ui/form/file-input-image'
 import { Input } from '@/ui/form/input'
 
 interface EditImageProps {
+  errors?: z.inferFlattenedErrors<typeof createImageSchema>['fieldErrors']
   image?: Partial<Image>
   index?: number
 }
 
 export const EditImage = ({
+  errors,
   image,
   index
 }: EditImageProps) => {
@@ -62,32 +66,30 @@ export const EditImage = ({
   return (
     <>
       <FileInputImage
-        label='Upload new image'
-        description='1MB size limit.'
         attributes={{
           accept: 'image/*',
           name: `${namePrefix}file`,
           required: true
         }}
+        description='1MB size limit.'
         image={formImage}
+        label='Upload new image'
         onChange={onFileChange}
       />
       {aspectRatio && (
         <Input
-          label='Aspect Ratio'
-          value={aspectRatio}
           attributes={{
             name: `${namePrefix}aspect`,
             type: 'hidden'
           }}
+          errors={errors?.aspect}
+          label='Aspect Ratio'
+          value={aspectRatio}
         />
       )}
       {/* keep a record of existing image files so we can delete them from s3 */}
       {url?.length > 0 && id && (
         <Input
-          label='Image url'
-          description='The url of AWS S3 image location.'
-          defaultValue={url}
           attributes={{
             maxLength: 255,
             name: `${namePrefix}url`,
@@ -95,70 +97,75 @@ export const EditImage = ({
             required: true,
             type: 'hidden'
           }}
+          defaultValue={url}
+          description='The url of AWS S3 image location.'
+          errors={errors?.url}
+          label='Image url'
         />
       )}
       <Input
-        label='Caption'
-        description='Displayed below the image wherever it appears.'
-        defaultValue={formImage?.caption}
         attributes={{
           maxLength: 255,
           name: `${namePrefix}caption`,
           placeholder: 'Caption'
         }}
+        defaultValue={formImage?.caption}
+        description='Displayed below the image wherever it appears.'
+        errors={errors?.caption}
+        label='Caption'
       />
       <fieldset>
         <legend>Press Image Details</legend>
         <p>Press images are displayed on the about page by default.</p>
         <Checkbox
-          label='This is a press image'
-          isChecked={isPress}
-          onChange={() => setIsPress(!isPress)}
           attributes={{
-            name: `${namePrefix}isPress`,
             'aria-controls': controlledCheckboxId,
-            'aria-expanded': isPress
+            'aria-expanded': isPress,
+            name: `${namePrefix}isPress`
           }}
+          isChecked={isPress}
+          label='This is a press image.'
+          onChange={() => setIsPress(!isPress)}
         />
         <Checkbox
-          controlledId={controlledCheckboxId}
-          label='Hide this image on the About page'
-          isChecked={isHiddenOnAboutPage}
-          onChange={() => setIsHiddenOnAboutPage(!isHiddenOnAboutPage)}
           attributes={{
-            name: `${namePrefix}isHiddenOnAboutPage`,
-            hidden: !isPress
+            hidden: !isPress,
+            name: `${namePrefix}isHiddenOnAboutPage`
           }}
+          controlledId={controlledCheckboxId}
+          isChecked={isHiddenOnAboutPage}
+          label='Hide this image on the About page.'
+          onChange={() => setIsHiddenOnAboutPage(!isHiddenOnAboutPage)}
         />
       </fieldset>
       <Input
-        label='Title'
-        description='Used for internal search only, never displayed publicly.'
-        defaultValue={formImage?.title}
         attributes={{
           maxLength: 255,
           name: `${namePrefix}title`,
           placeholder: 'Title'
         }}
+        defaultValue={formImage?.title}
+        description='Used for internal search only, never displayed publicly.'
+        label='Title'
       />
       {id && (
         <Input
-          label='Image ID'
-          defaultValue={id}
           attributes={{
             name: `${namePrefix}id`,
             type: 'hidden'
           }}
+          defaultValue={id}
+          label='Image ID'
         />
       )}
       {createdAt && (
         <Input
-          label='Created At'
-          defaultValue={createdAt.toISOString()}
           attributes={{
             name: `${namePrefix}createdAt`,
             type: 'hidden'
           }}
+          defaultValue={createdAt.toISOString()}
+          label='Created At'
         />
       )}
     </>

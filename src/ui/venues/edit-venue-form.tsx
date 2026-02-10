@@ -1,97 +1,109 @@
+import type { z } from 'zod'
+
+import type { createVenueSchema } from '@/lib/venues/schemas'
 import type { Venue } from '@/lib/venues/types'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 
 interface EditVenueProps {
+  errors?: z.inferFlattenedErrors<typeof createVenueSchema>['fieldErrors']
   isPrefixEnabled?: boolean
   venue?: Partial<Venue>
 }
 
 export const EditVenue = ({
-  isPrefixEnabled, venue
+  errors,
+  isPrefixEnabled,
+  venue
 }: EditVenueProps) => {
   const namePrefix = isPrefixEnabled ? 'venue.' : ''
 
   return (
     <>
       <Input
-        label='Name'
-        defaultValue={venue?.name}
-        description='If the venue has no name, leave this blank.'
         attributes={{
           maxLength: 255,
           name: `${namePrefix}name`,
           placeholder: 'CBGB'
         }}
+        description='If the venue has no name, leave this blank.'
+        defaultValue={venue?.name}
+        errors={errors?.name}
+        label='Name'
       />
       <Input
-        label='Street address'
-        defaultValue={venue?.address}
         attributes={{
           maxLength: 255,
           name: `${namePrefix}address`,
           placeholder: '123 Main St'
         }}
+        defaultValue={venue?.address}
+        errors={errors?.address}
+        label='Street address'
       />
       <Input
-        label='City'
-        defaultValue={venue?.city}
         attributes={{
           maxLength: 255,
           name: `${namePrefix}city`,
           placeholder: 'Brooklyn',
           required: true
         }}
+        defaultValue={venue?.city}
+        errors={errors?.city}
+        label='City'
       />
       <div className={styles['input-group']}>
         <Input
-          label='State'
-          defaultValue={venue?.state}
           attributes={{
             maxLength: 2,
             name: `${namePrefix}state`,
             placeholder: 'NY'
           }}
+          defaultValue={venue?.state}
+          errors={errors?.state}
+          label='State'
         />
         <Input
-          label='Country'
-          defaultValue={venue?.country}
           attributes={{
             maxLength: 255,
             name: `${namePrefix}country`,
             placeholder: 'USA'
           }}
+          defaultValue={venue?.country}
+          errors={errors?.country}
+          label='Country'
         />
       </div>
       <Input
-        label='Venue website'
-        description='The homepage or profile of the venue, not a ticket link.'
-        defaultValue={venue?.url}
         attributes={{
           maxLength: 255,
           name: `${namePrefix}url`,
           placeholder: 'https://cbgb.com',
           type: 'url'
         }}
+        defaultValue={venue?.url}
+        description='The homepage or profile of the venue, not a ticket link.'
+        errors={errors?.url}
+        label='Venue website'
       />
       {venue?.id && (
         <Input
-          label='Venue ID'
-          defaultValue={venue.id}
           attributes={{
             name: `${namePrefix}id`,
             type: 'hidden'
           }}
+          defaultValue={venue.id}
+          label='Venue ID'
         />
       )}
       {venue?.createdAt && (
         <Input
-          label='Created At'
-          defaultValue={venue.createdAt.toISOString()}
           attributes={{
             name: `${namePrefix}createdAt`,
             type: 'hidden'
           }}
+          defaultValue={venue.createdAt.toISOString()}
+          label='Created At'
         />
       )}
     </>

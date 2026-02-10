@@ -1,0 +1,67 @@
+import type { EmbedCode } from '@/lib/embed-codes/types'
+import type { Image } from '@/lib/images/types'
+import type { Link } from '@/lib/links/types'
+import type { Badge } from '@/lib/types'
+import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
+import { usedOnPages } from '@/ui/util'
+
+export function Badges ({ badges }: { badges: Badge[] }) {
+  return (
+    <>
+      {badges.map((badge, index) => (
+        <mark
+          key={index}
+          className={`badge badge-${badge.color || 'green'}`}
+        >
+          {badge.text}
+        </mark>
+      ))}
+    </>
+  )
+}
+
+export function itemBadges (item: Partial<DashboardItem>, isUnusedIncluded = false): Badge[] {
+  const usedOn = usedOnPages(item)
+  const badges: Badge[] = []
+  const link = item as Link
+  const image = item as Image
+  const embedCode = item as EmbedCode
+
+  if (link.type === 'press' || image.isPress) {
+    badges.push({ text: 'Press' })
+  }
+  if (link.type === 'social') {
+    badges.push({
+      text: 'Footer link',
+      color: 'blue'
+    })
+  }
+  if (link.type === 'buy_link') {
+    badges.push({
+      text: 'Buy link',
+      color: 'purple'
+    })
+  }
+  if (link.type === 'stream_link') {
+    badges.push({
+      text: 'Stream link',
+      color: 'orange'
+    })
+  }
+  if (embedCode.type === 'audio') {
+    badges.push({ text: 'Audio' })
+  }
+  if (embedCode.type === 'video') {
+    badges.push({
+      text: 'Video',
+      color: 'blue'
+    })
+  }
+  if (isUnusedIncluded && usedOn.length === 0 && link.type !== 'social') {
+    badges.push({
+      text: 'Not used',
+      color: 'red'
+    })
+  }
+  return badges
+}

@@ -244,7 +244,7 @@ export function usedOnSlugKeys ({
   })
 }
 
-export function usedOnPages (item: DashboardItem) {
+export function usedOnPages (item: Partial<DashboardItem>) {
   const events = item.eventSlugs?.map(i => eventUrl(i)) || []
   const projects = item.projectSlugs?.map(i => projectUrl(i)) || []
   const releases =

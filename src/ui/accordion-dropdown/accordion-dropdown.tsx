@@ -13,6 +13,7 @@ import {
 
 import type { Badge } from '@/lib/types'
 import styles from '@/ui/accordion-dropdown/accordion-dropdown.module.scss'
+import { Badges } from '@/ui/badges'
 
 export function AccordionDropdown ({
   badges,
@@ -51,14 +52,7 @@ export function AccordionDropdown ({
         >
           <span className='accordion-title'>
             {title}
-            {badges && badges.map((badge, index) => (
-              <mark
-                key={index}
-                className={`badge badge-${badge.color || 'green'}`}
-              >
-                {badge.text}
-              </mark>
-            ))}
+            {badges && <Badges badges={badges} />}
           </span>
 
           {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}

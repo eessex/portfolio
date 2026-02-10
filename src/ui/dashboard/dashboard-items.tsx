@@ -23,7 +23,6 @@ import type {
   Link
 } from '@/lib/links/types'
 import type {
-  Badge,
   EmbeddedItemType,
   FormResponse
 } from '@/lib/types'
@@ -33,6 +32,7 @@ import type {
   Venue
 } from '@/lib/venues/types'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
+import { itemBadges } from '@/ui/badges'
 import type { CreateItemDetail } from '@/ui/buttons/create-item-button'
 import styles from '@/ui/dashboard/dashboard.module.scss'
 import { Dialog } from '@/ui/dialog/dialog'
@@ -392,51 +392,6 @@ function DashboardListItem<T extends DashboardItem> ({
     return title() + count
   }
 
-  function badges () {
-    const badges: Badge[] = []
-    const link = item as Link
-    const image = item as Image
-    const embedCode = item as EmbedCode
-
-    if (link.type === 'press' || image.isPress) {
-      badges.push({ text: 'Press' })
-    }
-    if (link.type === 'social') {
-      badges.push({
-        text: 'Footer link',
-        color: 'blue'
-      })
-    }
-    if (link.type === 'buy_link') {
-      badges.push({
-        text: 'Buy link',
-        color: 'purple'
-      })
-    }
-    if (link.type === 'stream_link') {
-      badges.push({
-        text: 'Stream link',
-        color: 'orange'
-      })
-    }
-    if (embedCode.type === 'audio') {
-      badges.push({ text: 'Audio' })
-    }
-    if (embedCode.type === 'video') {
-      badges.push({
-        text: 'Video',
-        color: 'blue'
-      })
-    }
-    if (usedOn.length === 0 && link.type !== 'social') {
-      badges.push({
-        text: 'Not used',
-        color: 'red'
-      })
-    }
-    return badges
-  }
-
   function title () {
     switch (itemType) {
       case 'embedCodes': {
@@ -466,7 +421,7 @@ function DashboardListItem<T extends DashboardItem> ({
       className={styles['dashboard-list-item']}
     >
       <AccordionDropdown
-        badges={badges()}
+        badges={itemBadges(item)}
         isExpanded={isExpanded}
         title={titleWithCount()}
         buttonClassname={styles['accordion-button']}

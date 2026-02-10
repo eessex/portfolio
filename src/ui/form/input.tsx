@@ -20,10 +20,10 @@ export type InputAttributes<T extends InputElement> =
 
 export interface InputProps<T extends InputElement> {
   attributes?: InputAttributes<T>
-  children?: React.ReactNode
   className?: string
   defaultValue?: string | number
   description?: string
+  errors?: string[]
   isLabelHidden?: boolean
   label: string
   onChange?: (event: React.ChangeEvent<T>, isDirty: boolean) => void
@@ -36,10 +36,10 @@ export function Input (props: InputProps<HTMLTextAreaElement> & { as: 'textarea'
 export function Input<T extends InputElement = HTMLInputElement> ({
   as = 'input',
   attributes,
-  children,
   className,
   defaultValue,
   description,
+  errors,
   isLabelHidden,
   label,
   onChange,
@@ -56,7 +56,8 @@ export function Input<T extends InputElement = HTMLInputElement> ({
 
   const onChangeHandler = (event: React.ChangeEvent<T>) => {
     if (!isDirty) {
-      setIsDirty(event.target.value !== defaultValue)
+      // FIXME: handle checked
+      setIsDirty(!!(event.target.value) && event.target.value !== defaultValue)
     }
     onChange?.(event, event.target.value !== defaultValue)
   }
@@ -67,7 +68,7 @@ export function Input<T extends InputElement = HTMLInputElement> ({
 
   const props = {
     ...attributes,
-    className: clsx(className, styles.input, isDirty && 'dirty', isHidden && 'visually-hidden'),
+    className: clsx(className, styles.input, isDirty && 'dirty', errors?.length && 'error', isHidden && 'visually-hidden'),
     defaultValue,
     onBlur,
     onChange: onChangeHandler,
@@ -106,7 +107,12 @@ export function Input<T extends InputElement = HTMLInputElement> ({
           {...props as React.InputHTMLAttributes<HTMLInputElement>}
           id={id}
           />}
-      {children}
+
+      {errors?.length && (
+        <p className={styles['error-message']}>
+          {errors.join(', ')}.
+        </p>
+      )}
     </div>
   )
 }

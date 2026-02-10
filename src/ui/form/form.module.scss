@@ -172,3 +172,8 @@
     }
   }
 }
+
+.error-message {
+  color: var(--error-color);
+  margin-block: grids.space-em(2) 0;
+}

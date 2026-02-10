@@ -146,7 +146,7 @@ export const EditImage = ({
           label='Image ID'
           defaultValue={id}
           attributes={{
-            name: 'id',
+            name: `${namePrefix}id`,
             type: 'hidden'
           }}
         />
@@ -156,7 +156,7 @@ export const EditImage = ({
           label='Created At'
           defaultValue={createdAt.toISOString()}
           attributes={{
-            name: 'createdAt',
+            name: `${namePrefix}createdAt`,
             type: 'hidden'
           }}
         />

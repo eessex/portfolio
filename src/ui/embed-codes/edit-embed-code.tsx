@@ -99,7 +99,7 @@ export const EditEmbedCode = ({
           label='Embed Code ID'
           defaultValue={embedCode.id}
           attributes={{
-            name: 'id',
+            name: `${namePrefix}id`,
             type: 'hidden'
           }}
         />
@@ -109,7 +109,7 @@ export const EditEmbedCode = ({
           label='Created At'
           defaultValue={embedCode.createdAt.toISOString()}
           attributes={{
-            name: 'createdAt',
+            name: `${namePrefix}createdAt`,
             type: 'hidden'
           }}
         />

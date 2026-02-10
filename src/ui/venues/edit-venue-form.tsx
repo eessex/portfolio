@@ -79,7 +79,7 @@ export const EditVenue = ({
           label='Venue ID'
           defaultValue={venue.id}
           attributes={{
-            name: 'id',
+            name: `${namePrefix}id`,
             type: 'hidden'
           }}
         />
@@ -89,7 +89,7 @@ export const EditVenue = ({
           label='Created At'
           defaultValue={venue.createdAt.toISOString()}
           attributes={{
-            name: 'createdAt',
+            name: `${namePrefix}createdAt`,
             type: 'hidden'
           }}
         />

@@ -114,7 +114,7 @@ export const EditLink = ({
           label='Link ID'
           defaultValue={link.id}
           attributes={{
-            name: 'id',
+            name: `${namePrefix}id`,
             type: 'hidden'
           }}
         />
@@ -124,7 +124,7 @@ export const EditLink = ({
           label='Created At'
           defaultValue={link.createdAt.toISOString()}
           attributes={{
-            name: 'createdAt',
+            name: `${namePrefix}createdAt`,
             type: 'hidden'
           }}
         />

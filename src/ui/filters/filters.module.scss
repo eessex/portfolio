@@ -39,12 +39,6 @@
     height: grids.space-em(9);
   }
 
-  > button {
-    @include type.size("xs");
-
-    min-width: max-content;
-  }
-
   @include breakpoints.sm-width {
     width: 100%;
     justify-content: space-between;

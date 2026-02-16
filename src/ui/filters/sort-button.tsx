@@ -14,6 +14,7 @@ export function SortButton ({
 }) {
   return (
     <button
+      className='button-sm'
       aria-controls={ariaControls}
       onClick={onClick}
       aria-label={isAsc ? 'Sort descending' : 'Sort ascending'}

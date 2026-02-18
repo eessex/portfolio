@@ -15,7 +15,7 @@ export default function LoginForm () {
   function SubmitButton () {
     return (
       <button
-        className='button'
+        className='button button-primary button-lg'
         type='submit'
         disabled={isPending}
       >

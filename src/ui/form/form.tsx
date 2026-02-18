@@ -96,6 +96,7 @@ export function Form<T> ({
       <button
         className={submitButtonClassName || ''}
         type='submit'
+        disabled={isPending}
       >
         {isPending ? 'Loading...' : submitButtonText || 'Save'}
       </button>

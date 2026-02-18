@@ -8,12 +8,14 @@ export const metadata: Metadata = { title }
 
 export default function LoginPage () {
   return (
-    <div className='p-4 md:2'>
-      <h1>{title}</h1>
+    <article>
+      <header>
+        <h1>{title}</h1>
+      </header>
 
       <Suspense>
         <LoginForm />
       </Suspense>
-    </div>
+    </article>
   )
 }

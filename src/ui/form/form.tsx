@@ -80,14 +80,19 @@ export function Form<T> ({
       }
       setInitialState(formData)
     } catch (error) {
-      addErrorMessage((error as Error)?.message || 'An error occurred, please try again.')
-      console.debug(error)
+      const message = (error as Error)?.message || 'An error occurred, please try again.'
+      if (message === 'NEXT_REDIRECT') {
+        addSuccessMessage('Success! Redirecting...')
+      } else {
+        addErrorMessage(message)
+        console.debug(error)
+      }
     }
   }
 
   return (
     <form
-      className={`${className || styles.form}`}
+      className={className || styles.form}
       action={formAction}
       ref={formRef}
     >

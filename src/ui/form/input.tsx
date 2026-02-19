@@ -46,25 +46,36 @@ export function Input<T extends InputElement = HTMLInputElement> ({
   ref,
   value
 }: InputProps<T> & { as?: 'input' | 'textarea' }) {
+  // user has changed value
   const [isDirty, setIsDirty] = useState<boolean>(false)
+  // user has blurred or submit occurred
+  const [_isTouched, setIsTouched] = useState(false)
 
   const onBlur = (event: React.FocusEvent<T>) => {
     if (event.target.value !== defaultValue && !isDirty) {
       setIsDirty(true)
     }
+    setIsTouched(true)
   }
 
   const onChangeHandler = (event: React.ChangeEvent<T>) => {
+    const changed = event.target.value !== defaultValue
     if (!isDirty) {
       // FIXME: handle checked
-      setIsDirty(!!(event.target.value) && event.target.value !== defaultValue)
+      setIsDirty(!!(event.target.value) && changed)
     }
-    onChange?.(event, event.target.value !== defaultValue)
+    onChange?.(event, changed)
   }
 
   const autoId = useId()
   const id = attributes?.id || autoId
+  const descriptionId = useId()
+  const errorId = useId()
   const isHidden = (attributes as React.InputHTMLAttributes<HTMLInputElement>)?.type === 'hidden'
+
+  const describedby = [description && descriptionId, errors?.length && errorId]
+    .filter(Boolean)
+    .join(' ') || undefined
 
   const props = {
     ...attributes,
@@ -92,7 +103,7 @@ export function Input<T extends InputElement = HTMLInputElement> ({
           </label>
 
           {description && (
-            <p>
+            <p id={descriptionId}>
               {description}
             </p>
           )}
@@ -102,14 +113,19 @@ export function Input<T extends InputElement = HTMLInputElement> ({
         ? <textarea
           {...props as React.TextareaHTMLAttributes<HTMLTextAreaElement>}
           id={id}
+          aria-describedby={describedby}
           />
         : <input
           {...props as React.InputHTMLAttributes<HTMLInputElement>}
           id={id}
+          aria-describedby={describedby}
           />}
 
       {errors?.length && (
-        <p className={styles['error-message']}>
+        <p
+          id={errorId}
+          className={styles['error-message']}
+        >
           {errors.join(', ')}.
         </p>
       )}

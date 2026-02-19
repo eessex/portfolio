@@ -1,69 +1,65 @@
 'use client'
 
-import { useActionState } from 'react'
+import type { AuthError } from 'next-auth'
 
+import type { FormResponse } from '@/lib/types'
 import { authenticate } from '@/lib/users/actions'
-import styles from '@/ui/form/form.module.scss'
-import { TextBanner } from '@/ui/text-banner/text-banner'
+import { Form } from '@/ui/form/form'
+import { Input } from '@/ui/form/input'
+
+function authErrorMessage (error: AuthError) {
+  if (error.name === 'CredentialsSignin') {
+    return 'Invalid credentials.'
+  }
+}
+
+function getErrorMessage (error: unknown): string | undefined {
+  const authError = authErrorMessage(error as AuthError)
+  if (authError) return authError
+  throw error
+}
+
+async function onAuthenticate (
+  formData: FormData
+): Promise<FormResponse<Record<string, never>>> {
+  try {
+    return await authenticate(formData)
+  } catch (error) {
+    return {
+      ok: false,
+      message: getErrorMessage(error)
+    }
+  }
+}
 
 export default function LoginForm () {
-  const [errorMessage, formAction, isPending] = useActionState(
-    authenticate,
-    undefined
-  )
-
-  function SubmitButton () {
-    return (
-      <button
-        className='button button-primary button-lg'
-        type='submit'
-        disabled={isPending}
-      >
-        {isPending ? 'Loading...' : 'Log in'}
-      </button>
-    )
-  }
-
   return (
-    <form
-      action={formAction}
-      className={styles.form}
+    <Form
+      action={onAuthenticate}
+      submitButtonText='Log in'
+      submitButtonClassName='button-primary button-lg'
     >
-      <div>
-        <label htmlFor='email'>
-          Email
-        </label>
-        <input
-          id='email'
-          type='email'
-          name='email'
-          required
-        />
-      </div>
-
-      <div>
-        <label htmlFor='password'>
-          Password
-        </label>
-        <input
-          id='password'
-          type='password'
-          name='password'
-          required
-        />
-      </div>
-
+      <Input
+        label='Email'
+        attributes={{
+          type: 'email',
+          name: 'email',
+          required: true
+        }}
+      />
+      <Input
+        label='Password'
+        attributes={{
+          type: 'password',
+          name: 'password',
+          required: true
+        }}
+      />
       <input
         type='hidden'
         name='redirectTo'
         value='/'
       />
-
-      <SubmitButton />
-
-      {errorMessage && !isPending && (
-        <TextBanner type='error' />
-      )}
-    </form>
+    </Form>
   )
 }

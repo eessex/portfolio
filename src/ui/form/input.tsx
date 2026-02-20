@@ -61,7 +61,7 @@ export function Input<T extends InputElement = HTMLInputElement> ({
   const onChangeHandler = (event: React.ChangeEvent<T>) => {
     const changed = event.target.value !== defaultValue
     if (!isDirty) {
-      // FIXME: handle checked
+      // FIXME: confirm handle checked works
       setIsDirty(!!(event.target.value) && changed)
     }
     onChange?.(event, changed)
@@ -79,25 +79,26 @@ export function Input<T extends InputElement = HTMLInputElement> ({
 
   const props = {
     ...attributes,
-    className: clsx(className, styles.input, isDirty && 'dirty', errors?.length && 'error', isHidden && 'visually-hidden'),
+    className: clsx(className, styles.input, isDirty && 'dirty', errors?.length && 'error'),
     defaultValue,
     onBlur,
     onChange: onChangeHandler,
     ref,
     value
   } as Omit<InputProps<T>, 'label'> & { onBlur: (event: React.FocusEvent<T>) => void }
+  const inputType = (attributes as React.InputHTMLAttributes<HTMLInputElement>)?.type ?? 'text'
 
   return (
     <div
       className={props.className}
-      hidden={attributes?.hidden}
+      hidden={isHidden}
     >
       {!isHidden && (
         <>
           <label
             className={clsx(isLabelHidden && 'visually-hidden')}
             htmlFor={id}
-            hidden={attributes?.hidden}
+            hidden={isHidden}
           >
             {label}
           </label>
@@ -119,6 +120,7 @@ export function Input<T extends InputElement = HTMLInputElement> ({
           {...props as React.InputHTMLAttributes<HTMLInputElement>}
           id={id}
           aria-describedby={describedby}
+          type={inputType}
           />}
 
       {errors?.length && (

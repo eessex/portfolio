@@ -96,16 +96,6 @@ export const EditVenue = ({
           label='Venue ID'
         />
       )}
-      {venue?.createdAt && (
-        <Input
-          attributes={{
-            name: `${namePrefix}createdAt`,
-            type: 'hidden'
-          }}
-          defaultValue={venue.createdAt.toISOString()}
-          label='Created At'
-        />
-      )}
     </>
   )
 }

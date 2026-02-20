@@ -397,9 +397,10 @@ function DashboardListItem<T extends DashboardItem> ({
 
   function title () {
     switch (itemType) {
-      case 'embedCodes': {
-        const embedItem = item as EmbedCode
-        return embedItem.title || 'Untitled'
+      case 'embedCodes':
+      case 'links': {
+        const castItem = item as EmbedCode | Link
+        return castItem.title || 'Untitled'
       }
       case 'images': {
         const imageItem = item as Image
@@ -407,13 +408,12 @@ function DashboardListItem<T extends DashboardItem> ({
         const imageTitle = imageItem.title || imageItem.caption || 'Untitled image'
         return `${imageTitle}${fileName ? `: ${fileName}` : ''}`
       }
-      case 'links': {
-        const linkItem = item as Link
-        return linkItem.title || 'Untitled'
-      }
       case 'venues': {
         const venueItem = item as DashboardVenue
-        return `${venueItem.name || venueItem.address}, ${venueItem.city}, ${venueItem.state || venueItem.country}`
+        return formatVenueInline({
+          venue: venueItem,
+          format: 'sm'
+        })
       }
     }
   }

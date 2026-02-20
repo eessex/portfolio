@@ -31,13 +31,14 @@ export type PageItemProps = {
 
 export type EmbeddedItemType = typeof embeddedItemTypes[number]
 
-export type FormState<T> = {
+// FIXME: multiple not yet used, but some endpoints might need it
+export type FormState<T, Multiple extends boolean = false> = {
   ok: boolean
-  res?: T | T[]
+  res?: Multiple extends true ? T[] : T
   message?: string
   errors?: Record<string, string[] | undefined> | string[]
 }
 
-export type FormResponse<T> = FormState<T> | undefined
+export type FormResponse<T, Multiple extends boolean = false> = FormState<T, Multiple> | undefined
 
 export interface Badge { text: string, color?: 'green' | 'blue' | 'purple' | 'orange' | 'red' }

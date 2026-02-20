@@ -7,6 +7,7 @@ import type { FormResponse } from '@/lib/types'
 import { formatDbResponseForClient } from '@/lib/util'
 import {
   createVenueSchema,
+  editVenueSchema,
   venueSchema
 } from '@/lib/venues/schemas'
 import type {
@@ -17,7 +18,6 @@ import type {
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 export async function editVenue (formData: FormData): Promise<FormResponse<Venue>> {
-  let validatedVenue
   const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)
   Object.entries(data).forEach(([n, v]) => {
     // checkboxes are always 'on' when checked, so we convert them to true
@@ -32,11 +32,9 @@ export async function editVenue (formData: FormData): Promise<FormResponse<Venue
     }
   })
 
-  if (formData.get('id')) {
-    validatedVenue = venueSchema.safeParse(data)
-  } else {
-    validatedVenue = createVenueSchema.safeParse(data)
-  }
+  const validatedVenue = formData.get('id')
+    ? editVenueSchema.safeParse(data)
+    : createVenueSchema.safeParse(data)
 
   if (!validatedVenue.success) {
     return {
@@ -44,23 +42,21 @@ export async function editVenue (formData: FormData): Promise<FormResponse<Venue
       errors: validatedVenue.error.flatten().fieldErrors,
       message: 'Failed to validate venue.'
     }
-  } else {
-    try {
-      const updatedVenue = await updateVenue(validatedVenue.data)
-      if (updatedVenue) {
-        revalidatePath('/dashboard/venues')
-        return {
-          ok: true,
-          res: updatedVenue
-        }
-      }
-    } catch (err) {
-      const errMsg = 'Failed to edit venue'
-      const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
-      return {
-        ok: false,
-        message
-      }
+  }
+
+  try {
+    const updatedVenue = await updateVenue(validatedVenue.data)
+    revalidatePath('/dashboard/venues')
+    return {
+      ok: true,
+      res: updatedVenue
+    }
+  } catch (err) {
+    const errMsg = 'Failed to edit venue'
+    const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+    return {
+      ok: false,
+      message
     }
   }
 }
@@ -93,7 +89,7 @@ async function createVenue (venue: CreateVenue) {
       state,
       url
     } = venue
-    return await sql<Venue[]>`
+    const rows = await sql<Venue[]>`
       INSERT INTO venues (
         address,
         city,
@@ -112,7 +108,10 @@ async function createVenue (venue: CreateVenue) {
         ${url || null}
       )
       RETURNING *
-    `.then(rows => formatDbResponseForClient(rows[0], venueSchema))
+    `
+    const row = rows[0]
+    if (!row) throw new Error('Failed to create venue')
+    return formatDbResponseForClient(row, venueSchema)
   } catch (err) {
     throw new Error(err instanceof Error ? err.message : 'Failed to create venue.')
   }
@@ -132,7 +131,7 @@ async function updateVenue (venue: CreateVenue | Venue) {
         state,
         url
       } = venue
-      return await sql<Venue[]>`
+      const rows = await sql<Venue[]>`
         UPDATE venues
         SET (
           address,
@@ -153,7 +152,11 @@ async function updateVenue (venue: CreateVenue | Venue) {
         )
         WHERE id = ${(venue as Venue).id}
         RETURNING *
-      `.then(rows => formatDbResponseForClient(rows[0], venueSchema))
+      `
+
+      const row = rows[0]
+      if (!row) throw new Error('Failed to update venue')
+      return formatDbResponseForClient(row, venueSchema)
     }
   } catch (err) {
     throw new Error(err instanceof Error ? err.message : 'Failed to update venue.')

@@ -81,11 +81,11 @@ export function Form<T> ({
       setInitialState(formData)
     } catch (error) {
       const message = (error as Error)?.message || 'An error occurred, please try again.'
+      // Handle case where error is thrown to trigger redirect in Next.js action
       if (message === 'NEXT_REDIRECT') {
         addSuccessMessage('Success! Redirecting...')
       } else {
         addErrorMessage(message)
-        console.debug(error)
       }
     }
   }

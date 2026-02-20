@@ -12,10 +12,16 @@ export const Toast = ({
   message,
   type
 }: ToastProps) => {
+  const role =
+    type === 'error'
+      ? 'alert'
+      : 'status'
+
   return (
     <TextBanner
       type={type}
       className={styles.toast}
+      role={role}
     >
       {message}
     </TextBanner>

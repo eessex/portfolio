@@ -12,13 +12,15 @@ type MessageTypes = 'error' | 'success'
 export interface TextBannerProps {
   children?: React.ReactNode
   className?: string
+  role?: React.AriaRole
   type: MessageTypes
 }
 
 export const TextBanner = ({
   children,
-  type,
-  className
+  className,
+  role,
+  type
 }: TextBannerProps) => {
   const iconMap: Record<MessageTypes, ReactElement> = {
     success: <CheckCircleIcon />,
@@ -40,12 +42,9 @@ export const TextBanner = ({
   }
 
   return (
-    // FIXME: determine appropriate roles
-    // aria-live='polite'
-    // aria-atomic='true'
     <div
-      role='alert'
-      aria-live='assertive'
+      role={role}
+      aria-atomic={role ? 'true' : undefined}
       className={classes}
     >
       {icon}

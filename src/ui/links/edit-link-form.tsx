@@ -127,16 +127,6 @@ export const EditLink = ({
           label='Link ID'
         />
       )}
-      {link?.createdAt && (
-        <Input
-          attributes={{
-            name: `${namePrefix}createdAt`,
-            type: 'hidden'
-          }}
-          defaultValue={link.createdAt.toISOString()}
-          label='Created At'
-        />
-      )}
     </>
   )
 }

@@ -5,6 +5,7 @@ import postgres from 'postgres'
 
 import {
   createLinkSchema,
+  editLinkSchema,
   linkSchema
 } from '@/lib/links/schemas'
 import type {
@@ -17,7 +18,6 @@ import { formatDbResponseForClient } from '@/lib/util'
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 export async function editLink (formData: FormData): Promise<FormResponse<Link>> {
-  let validatedLink
   const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)
   Object.entries(data).forEach(([n, v]) => {
     if (n.includes('Date')) {
@@ -25,34 +25,31 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
     }
   })
 
-  if (formData.get('id')) {
-    validatedLink = linkSchema.safeParse(data)
-  } else {
-    validatedLink = createLinkSchema.safeParse(data)
-  }
+  const validatedLink = formData.get('id')
+    ? editLinkSchema.safeParse(data)
+    : createLinkSchema.safeParse(data)
+
   if (!validatedLink.success) {
     return {
       ok: false,
       errors: validatedLink.error.flatten().fieldErrors,
       message: 'Failed to validate link.'
     }
-  } else {
-    try {
-      const updatedLink = await updateLink(validatedLink.data)
-      if (updatedLink) {
-        revalidatePath('/dashboard/links')
-        return {
-          ok: true,
-          res: updatedLink
-        }
-      }
-    } catch (err) {
-      const errMsg = 'Failed to edit link'
-      const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
-      return {
-        ok: false,
-        message
-      }
+  }
+
+  try {
+    const updatedLink = await updateLink(validatedLink.data)
+    revalidatePath('/dashboard/links')
+    return {
+      ok: true,
+      res: updatedLink
+    }
+  } catch (err) {
+    const errMsg = 'Failed to edit link'
+    const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+    return {
+      ok: false,
+      message
     }
   }
 }

@@ -18,6 +18,7 @@ export async function createEmailSubscription<T> (formData: FormData): Promise<F
   if (!validatedFields.success) {
     console.error('Failed to validate email, try again.', validatedFields.error.flatten().fieldErrors)
     return {
+      ok: false,
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Failed to validate email, try again.'
     }
@@ -38,6 +39,9 @@ export async function createEmailSubscription<T> (formData: FormData): Promise<F
     }
   } catch (err) {
     console.error(err)
-    return { message: 'Database Error: Failed to Create subscription.' }
+    return {
+      ok: false,
+      message: 'Database Error: Failed to Create subscription.'
+    }
   }
 }

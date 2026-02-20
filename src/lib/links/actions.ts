@@ -32,6 +32,7 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
   }
   if (!validatedLink.success) {
     return {
+      ok: false,
       errors: validatedLink.error.flatten().fieldErrors,
       message: 'Failed to validate link.'
     }
@@ -48,7 +49,10 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
     } catch (err) {
       const errMsg = 'Failed to edit link'
       const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
-      return { message }
+      return {
+        ok: false,
+        message
+      }
     }
   }
 }
@@ -65,7 +69,10 @@ export async function deleteLink (link: Link): Promise<FormResponse<Link>> {
   } catch (err) {
     const errMsg = 'Failed to delete link'
     const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
-    return { message }
+    return {
+      ok: false,
+      message
+    }
   }
 }
 

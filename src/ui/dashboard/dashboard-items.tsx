@@ -168,7 +168,10 @@ export function DashboardItems<T extends DashboardItem> ({
     try {
       const isConfirmed = await onBeforeSubmit(formData)
       if (!isConfirmed) {
-        return { message: DashboardErrrorMessages.OperationCancelled }
+        return {
+          ok: false,
+          message: DashboardErrrorMessages.OperationCancelled
+        }
       } else {
         const res = await editItem(formData)
         if (!res || !res.ok) {
@@ -212,7 +215,7 @@ export function DashboardItems<T extends DashboardItem> ({
         onRemoveItem(item.id)
       } else {
         console.debug(res?.message, item.id)
-        addErrorMessage((res as Error)?.message || DashboardErrrorMessages.FailedToDelete)
+        addErrorMessage(res?.message || DashboardErrrorMessages.FailedToDelete)
       }
     } catch (error) {
       console.debug(error, item.id)

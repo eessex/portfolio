@@ -27,6 +27,7 @@ export async function editEmbedCode (formData: FormData): Promise<FormResponse<E
   }
   if (!validatedEmbedCode.success) {
     return {
+      ok: false,
       errors: validatedEmbedCode.error.flatten().fieldErrors,
       message: 'Failed to validate embed code.'
     }
@@ -43,7 +44,10 @@ export async function editEmbedCode (formData: FormData): Promise<FormResponse<E
   } catch (err) {
     const errMsg = 'Failed to edit embed code'
     const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
-    return { message }
+    return {
+      ok: false,
+      message
+    }
   }
 }
 
@@ -60,7 +64,10 @@ export async function deleteEmbedCode (embedCode: EmbedCode): Promise<FormRespon
   } catch (err) {
     const errMsg = 'Failed to delete embed code'
     const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
-    return { message }
+    return {
+      ok: false,
+      message
+    }
   }
 }
 

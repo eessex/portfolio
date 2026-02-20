@@ -40,6 +40,7 @@ export async function editVenue (formData: FormData): Promise<FormResponse<Venue
 
   if (!validatedVenue.success) {
     return {
+      ok: false,
       errors: validatedVenue.error.flatten().fieldErrors,
       message: 'Failed to validate venue.'
     }
@@ -56,7 +57,10 @@ export async function editVenue (formData: FormData): Promise<FormResponse<Venue
     } catch (err) {
       const errMsg = 'Failed to edit venue'
       const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
-      return { message }
+      return {
+        ok: false,
+        message
+      }
     }
   }
 }
@@ -72,7 +76,10 @@ export async function deleteVenue (venue: Venue): Promise<FormResponse<Venue>> {
   } catch (err) {
     const errMsg = 'Failed to delete venue'
     const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
-    return { message }
+    return {
+      ok: false,
+      message
+    }
   }
 }
 

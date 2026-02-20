@@ -32,7 +32,7 @@ async function onAuthenticate (
   }
 }
 
-export default function LoginForm () {
+export function LoginForm () {
   return (
     <Form
       action={onAuthenticate}

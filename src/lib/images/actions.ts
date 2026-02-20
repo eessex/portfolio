@@ -83,6 +83,7 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
 
   if (!validatedImage.success) {
     return {
+      ok: false,
       errors: validatedImage.error.flatten().fieldErrors,
       message: 'Failed to validate image.'
     }
@@ -96,12 +97,17 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
           res: updatedImage
         }
       } else {
-        return { message: 'Failed to edit image.' }
+        return {
+          ok: false,
+          message: 'Failed to edit image.'
+        }
       }
     } catch (err) {
       const errMsg = 'Failed to edit image'
       const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
-      return { message }
+      return {
+        ok: false, message
+      }
     }
   }
 }
@@ -117,14 +123,20 @@ export async function deleteImage (image: Image): Promise<FormResponse<Image>> {
       RETURNING i.url
     `
     if (!res?.url) {
-      return { message: `${errMsg}: Image not found.` }
+      return {
+        ok: false,
+        message: `${errMsg}: Image not found.`
+      }
     }
     await deleteFromS3(res.url)
     revalidatePath('/dashboard/images')
     return { ok: true }
   } catch (err) {
     const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
-    return { message }
+    return {
+      ok: false,
+      message
+    }
   }
 }
 

@@ -14,6 +14,7 @@ export async function editSiteSettings (formData: FormData, id: string): Promise
   if (!validatedFields.success) {
     console.error('Validation error', validatedFields.error.format())
     return {
+      ok: false,
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Missing Fields. Failed to save.'
     }

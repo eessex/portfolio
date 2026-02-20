@@ -83,7 +83,8 @@ async function createLink (link: CreateLink) {
       quotation,
       title,
       url
-    } = link
+    } = formatLink(link)
+
     return await sql<Link[]>`
         INSERT INTO links (
           attribution,
@@ -125,7 +126,7 @@ async function updateLink (link: CreateLink | Link) {
         quotation,
         title,
         url
-      } = link
+      } = formatLink(link)
       return await sql<Link[]>`
         UPDATE links
         SET (
@@ -154,4 +155,15 @@ async function updateLink (link: CreateLink | Link) {
   } catch (err) {
     throw new Error(err instanceof Error ? err.message : 'Failed to update link.')
   }
+}
+
+function formatLink (link: CreateLink | Link) {
+  const data = { ...link }
+  if (data.type !== 'press') {
+    delete data.attribution
+    delete data.publishDate
+    delete data.quotation
+    delete data.isHiddenOnAboutPage
+  }
+  return data
 }

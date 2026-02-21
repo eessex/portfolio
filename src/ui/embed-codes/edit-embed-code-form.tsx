@@ -1,11 +1,18 @@
-import { XMarkIcon } from '@heroicons/react/24/outline'
-import { useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useState
+} from 'react'
 import type { z } from 'zod'
 
 import type { createEmbedCodeSchema } from '@/lib/embed-codes/schemas'
 import type { EmbedCode } from '@/lib/embed-codes/types'
-import { extractIframeData } from '@/ui/embed-codes/embed-code'
+import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
+import { extractIframeParams } from '@/ui/embed-codes/util'
 import { Input } from '@/ui/form/input'
+import { Select } from '@/ui/form/select'
+import { useToast } from '@/ui/toast/toast-context'
+import { camelToSentence } from '@/ui/util'
 
 interface EmbedCodeProps {
   embedCode?: Partial<EmbedCode>
@@ -18,62 +25,93 @@ export const EditEmbedCode = ({
   embedCode,
   errors
 }: EmbedCodeProps) => {
-  const [embedCodeIframe, setEmbedCodeIframe] = useState(extractIframeData(embedCode?.iframe || ''))
+  const [embedCodeIframe, setEmbedCodeIframe] = useState<ReturnType<typeof extractIframeParams> | null>(null)
+  const [iframeInputValue, setIframeInputValue] = useState(embedCode?.iframe || '')
   const namePrefix = typeof index === 'number' ? `embedCodes[${index}].` : ''
+
+  const { addErrorMessage } = useToast()
+
+  const changeIframeValue = useCallback((value: string) => {
+    if (!value) {
+      setEmbedCodeIframe(null)
+      setIframeInputValue('')
+      return
+    }
+
+    try {
+      const iframeData = extractIframeParams(value, true)
+      setEmbedCodeIframe(iframeData)
+      setIframeInputValue(value)
+    } catch {
+      addErrorMessage('Error parsing iframe.')
+      setEmbedCodeIframe(null)
+      setIframeInputValue('')
+    }
+  }, [addErrorMessage])
+
+  useEffect(() => {
+    changeIframeValue(embedCode?.iframe || '')
+  }, [changeIframeValue, embedCode?.iframe])
 
   function onKeyDown (event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'v' && event.ctrlKey) {
-      const iframeData = extractIframeData(event.currentTarget.value)
-      setEmbedCodeIframe(iframeData)
+      changeIframeValue(event.currentTarget.value)
     }
   }
 
   function onPaste (event: React.ClipboardEvent<HTMLInputElement>) {
     event.preventDefault()
     const text = event.clipboardData.getData('text/plain')
-    const iframeData = extractIframeData(text)
-    setEmbedCodeIframe(iframeData)
+    changeIframeValue(text)
   }
 
-  const defaultTitle = embedCode?.title ? embedCode.title : embedCodeIframe?.title ? `${embedCodeIframe?.hostname}: ${embedCodeIframe.title}` : embedCodeIframe?.hostname || ''
+  function onBeforeInput (event: React.FormEvent<HTMLInputElement>) {
+    const native = event.nativeEvent as InputEvent
+
+    const allowedTypes = [
+      'insertFromPaste',
+      'insertReplacementText' // autocomplete
+    ]
+
+    if (!allowedTypes.includes(native.inputType)) {
+      event.preventDefault()
+    }
+  }
+
+  function onChange (event: React.ChangeEvent<HTMLInputElement>) {
+    changeIframeValue(event.target.value)
+  }
+
+  function onRemove () {
+    changeIframeValue('')
+  }
+
+  function setEmbedType (type?: string) {
+    if (!embedCodeIframe) return
+
+    setEmbedCodeIframe({
+      ...embedCodeIframe,
+      type: type as EmbedCode['type']
+    })
+  }
+
+  const defaultTitle = embedCode?.title
+    ? embedCode?.title
+    : embedCodeIframe && embedCodeIframe.host && embedCodeIframe.host !== 'youtube'
+      ? `${camelToSentence(embedCodeIframe.host)}: ${embedCodeIframe.title || 'Untitled'}`
+      : embedCodeIframe?.title || ''
 
   return (
     <>
       <div>
         {embedCodeIframe && (
-          <figure
-            style={{
-              width: '100%',
-              position: 'relative',
-              aspectRatio: `${embedCodeIframe.width} / ${embedCodeIframe.height}`
+          <EmbedCodeItem
+            embedCode={{
+              ...embedCode,
+              iframe: iframeInputValue
             }}
-          >
-            <iframe
-              src={embedCodeIframe.src}
-              loading='lazy'
-              title='Embedded media preview'
-              sandbox='allow-scripts allow-same-origin allow-presentation allow-popups'
-              allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-              allowFullScreen
-              style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                border: 0
-              }}
-            />
-
-            <button
-              title='Remove embed code'
-              aria-label='Remove embed'
-              type='button'
-              onClick={() => setEmbedCodeIframe(null)}
-              className='button-icon button-primary'
-            >
-              <XMarkIcon />
-            </button>
-          </figure>
+            onRemove={onRemove}
+          />
         )}
         <Input
           attributes={{
@@ -84,21 +122,35 @@ export const EditEmbedCode = ({
             readOnly: !!embedCodeIframe?.src,
             type: embedCodeIframe?.src ? 'hidden' : 'text'
           }}
-          description='Paste the full iframe embed code from a service like YouTube, Bandcamp, or Spotify.'
-          value={embedCodeIframe?.src || ''}
+          description='Paste a full iframe embed code. Supported services: Bandcamp, Mixcloud, Soundcloud, Spotify, YouTube. Others may work but no guarantees.'
+          value={iframeInputValue}
           label='Embed iframe code'
           errors={errors?.iframe}
           onKeyDown={onKeyDown}
           onDrop={(e) => e.preventDefault()}
           onPaste={onPaste}
-          onChange={() => {}}
+          onChange={onChange}
+          onBeforeInput={onBeforeInput}
         />
       </div>
+      <Select
+        key={embedCodeIframe?.host}
+        options={['audio', 'video']}
+        onChange={setEmbedType}
+        label='Embed type'
+        placeholder='Select a type'
+        value={embedCodeIframe?.type}
+        attributes={{
+          hidden: !embedCodeIframe,
+          required: true,
+          name: `${namePrefix}type`
+        }}
+      />
       <Input
         attributes={{
           maxLength: 255,
           name: `${namePrefix}caption`,
-          placeholder: 'Caption'
+          placeholder: 'Video by Artist Name (2024)'
         }}
         defaultValue={embedCode?.caption}
         description='Displayed below the iframe wherever it appears.'
@@ -109,7 +161,7 @@ export const EditEmbedCode = ({
         attributes={{
           maxLength: 255,
           name: `${namePrefix}title`,
-          placeholder: 'Title'
+          placeholder: 'Hostname: descriptive title'
         }}
         defaultValue={defaultTitle}
         description='Used for internal search only, never displayed publicly.'

@@ -30,7 +30,7 @@ export function CreateItemButton ({
       onClick={onClick}
       ref={ref}
     >
-      <PlusIcon /> Create new {formattedItemType}
+      <PlusIcon /> Create {formattedItemType}
     </button>
   )
 }

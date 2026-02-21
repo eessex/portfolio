@@ -26,6 +26,7 @@ export interface InputProps<T extends InputElement> {
   errors?: string[]
   isLabelHidden?: boolean
   label: string
+  onBeforeInput?: (event: React.FormEvent<T>) => void
   onChange?: (event: React.ChangeEvent<T>, isDirty: boolean) => void
   onDrop?: (event: React.DragEvent<T>) => void
   onKeyDown?: (event: React.KeyboardEvent<T>) => void
@@ -45,6 +46,7 @@ export function Input<T extends InputElement = HTMLInputElement> ({
   errors,
   isLabelHidden,
   label,
+  onBeforeInput,
   onChange,
   onDrop,
   onKeyDown,
@@ -66,7 +68,6 @@ export function Input<T extends InputElement = HTMLInputElement> ({
 
   const onChangeHandler = (event: React.ChangeEvent<T>) => {
     const changed = event.target.value !== defaultValue
-    debugger
     if (!isDirty) {
       // FIXME: confirm handle checked works
       setIsDirty(!!(event.target.value) && changed)
@@ -88,6 +89,7 @@ export function Input<T extends InputElement = HTMLInputElement> ({
     ...attributes,
     className: clsx(className, styles.input, isDirty && 'dirty', errors?.length && 'error'),
     defaultValue,
+    onBeforeInput,
     onBlur,
     onChange: onChangeHandler,
     onDrop,

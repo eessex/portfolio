@@ -23,7 +23,6 @@ export const EmbedCodes = ({ embedCodes }: {
         <EmbedCodeItem
           key={index}
           embedCode={embedCode}
-          isLazy={index === 0 && true}
         />
       ))}
     </section>

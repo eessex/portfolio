@@ -62,17 +62,6 @@ export function getUtcOffsetMinutes (utcDate: string | Date, timeZone: string): 
   return offsetMs / 60000
 }
 
-export function displayUrl (url: string) {
-  const parsedUrl = new URL(url || '')
-  const formattedUrl = parsedUrl.hostname.replace(/^www\./, '') + parsedUrl.pathname.replace(/\/+$/, '')
-  return formattedUrl
-}
-
-export function urlHostName (url: string) {
-  const parsedUrl = new URL(url || '')
-  return parsedUrl.hostname
-}
-
 const getTimeFormat = (format: DateFormatSize = 'lg') => {
   switch (format) {
     case 'xxs':

@@ -265,7 +265,7 @@ export function DashboardItems<T extends DashboardItem> ({
       case 'links':
         return [...linkTypes]
       case 'embedCodes':
-        return Object.keys(embedCodeTypes)
+        return [...embedCodeTypes]
       default:
         return undefined
     }

@@ -1,13 +1,28 @@
 import {
+  fireEvent,
   render,
-  screen
+  screen,
+  waitFor
 } from '@testing-library/react'
 
-import {
-  embedCodeFixture,
-  newEmbedCodeFixture
-} from '@/lib/embed-codes/fixtures'
+import { embedCodeFixture } from '@/lib/embed-codes/fixtures'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
+import {
+  embedCodeBandcampFixtureMedium,
+  embedCodeSoundcloudFixture
+} from '@/ui/embed-codes/fixtures'
+import { useToast } from '@/ui/toast/toast-context'
+
+jest.mock('@/ui/toast/toast-context', () => {
+  return { useToast: jest.fn() }
+})
+const mockAddError = jest.fn()
+const mockAddSuccess = jest.fn()
+;(useToast as jest.Mock).mockReturnValue({
+  addErrorMessage: mockAddError,
+  addSuccessMessage: mockAddSuccess,
+  removeMessage: jest.fn()
+})
 
 function renderComponent (props = {}) {
   return render(
@@ -21,6 +36,7 @@ function renderComponent (props = {}) {
 const iframeRegex = /iframe/i
 const titleRegex = /title/i
 const captionRegex = /caption/i
+const typeRegex = /type/i
 
 describe('EditEmbedCode', () => {
   describe('initial render', () => {
@@ -33,6 +49,8 @@ describe('EditEmbedCode', () => {
       expect(screen.getByLabelText(titleRegex)).toHaveAttribute('name', 'title')
       expect(screen.getByLabelText(captionRegex)).toBeInTheDocument()
       expect(screen.getByLabelText(captionRegex)).toHaveAttribute('name', 'caption')
+      expect(screen.getByLabelText(typeRegex)).toBeInTheDocument()
+      expect(screen.getByLabelText(typeRegex)).toHaveAttribute('name', 'type')
     })
 
     it('renders hidden ID input if embedCode.id is provided', () => {
@@ -48,7 +66,7 @@ describe('EditEmbedCode', () => {
     it('renders description for iframe, caption and title inputs', () => {
       renderComponent()
       expect(
-        screen.getByText(/paste the full iframe embed code/i)
+        screen.getByText(/paste a full iframe embed code/i)
       ).toBeInTheDocument()
       expect(
         screen.getByText(/displayed below the iframe/i)
@@ -67,33 +85,61 @@ describe('EditEmbedCode', () => {
       expect(screen.getByLabelText(iframeRegex)).toHaveAttribute('name', 'embedCodes[2].iframe')
       expect(screen.getByLabelText(titleRegex)).toHaveAttribute('name', 'embedCodes[2].title')
       expect(screen.getByLabelText(captionRegex)).toHaveAttribute('name', 'embedCodes[2].caption')
+      expect(screen.getByLabelText(typeRegex)).toHaveAttribute('name', 'embedCodes[2].type')
     })
   })
 
   describe('default values', () => {
     it('sets defaultValue for each input from the embedCode prop', () => {
-      renderComponent({ embedCode: embedCodeFixture })
-
-      expect(screen.getByLabelText(iframeRegex))
-        .toHaveValue('<iframe src="https://example.com/embed"></iframe>')
+      renderComponent({
+        embedCode: {
+          iframe: embedCodeSoundcloudFixture,
+          caption: 'This is an embed code for testing purposes.',
+          title: 'Eve Essex - Honeypot'
+        }
+      })
+      const input = document.querySelector('input[name="iframe"]')
+      expect(input).toHaveValue(embedCodeSoundcloudFixture)
 
       expect(screen.getByLabelText(titleRegex))
-        .toHaveValue('Test Embed Code')
+        .toHaveValue('Eve Essex - Honeypot')
 
       expect(screen.getByLabelText(captionRegex))
         .toHaveValue('This is an embed code for testing purposes.')
+
+      expect(screen.getByLabelText(typeRegex))
+        .toHaveValue('audio')
     })
 
-    it('handles partial embedCode data without errors', () => {
-      renderComponent({ embedCode: { iframe: embedCodeFixture.iframe } })
+    it('auto-populates title from iframe if title is not provided in embedCode prop', () => {
+      renderComponent({ embedCode: { iframe: embedCodeSoundcloudFixture } })
 
-      expect(screen.getByLabelText(iframeRegex)).toHaveValue(embedCodeFixture.iframe)
-      expect(screen.getByLabelText(titleRegex)).toHaveValue('')
+      expect(screen.getByLabelText(titleRegex))
+        .toHaveValue('Soundcloud: Eve Essex - Honeypot')
+    })
+
+    it('handles partial embedCode data without errors', async () => {
+      renderComponent({ embedCode: { iframe: embedCodeBandcampFixtureMedium } })
+      const input = document.querySelector('input[name="iframe"]')
+
+      expect(input).toHaveValue(embedCodeBandcampFixtureMedium)
+      await waitFor(() => {
+        expect(screen.getByLabelText(titleRegex))
+          .toHaveValue('Bandcamp: The Fabulous Truth by Eve Essex')
+      })
       expect(screen.getByLabelText(captionRegex)).toHaveValue('')
     })
   })
 
   describe('error display', () => {
+    it('handles invalid iframe input with toast message', () => {
+      renderComponent()
+      const iframeInput = screen.getByLabelText(iframeRegex) as HTMLInputElement
+      fireEvent.change(iframeInput, { target: { value: 'invalid iframe code' } })
+
+      expect(mockAddError).toHaveBeenCalledWith('Error parsing iframe.')
+    })
+
     it('handles errors passed via the errors prop', () => {
       const errors = { iframe: ['iframe is required'] }
       renderComponent({ errors })
@@ -118,28 +164,23 @@ describe('EditEmbedCode', () => {
     })
   })
 
-  describe.skip('input attributes', () => {
+  describe('input attributes', () => {
     it('applies attributes correctly', () => {
       renderComponent()
 
       const iframeInput = screen.getByLabelText(iframeRegex)
-      expect(iframeInput).toHaveAttribute('maxlength', '255')
-      expect(iframeInput).toHaveAttribute('placeholder', 'https://example.com')
-      expect(iframeInput).toHaveAttribute('type', 'iframe')
+      expect(iframeInput).toHaveAttribute('maxlength', '1500')
+      expect(iframeInput).toHaveAttribute('placeholder', '<iframe></iframe>')
+      expect(iframeInput).toHaveAttribute('type', 'text')
       expect(iframeInput).toBeRequired()
 
       const titleInput = screen.getByLabelText(titleRegex)
       expect(titleInput).toHaveAttribute('maxlength', '255')
-      expect(titleInput).toHaveAttribute('placeholder', 'Title')
+      expect(titleInput).toHaveAttribute('placeholder', 'Hostname: descriptive title')
 
-      const typeInput = screen.getByLabelText(captionRegex)
-      expect(typeInput).toHaveAttribute('aria-expanded', 'false')
-
-      const controlsId = typeInput.getAttribute('aria-controls')
-      expect(controlsId).toBeTruthy()
-
-      const fieldset = document.getElementById(controlsId!)
-      expect(fieldset).toHaveAttribute('hidden')
+      const captionInput = screen.getByLabelText(captionRegex)
+      expect(captionInput).toHaveAttribute('maxlength', '255')
+      expect(captionInput).toHaveAttribute('placeholder', 'Video by Artist Name (2024)')
     })
   })
 })

@@ -26,7 +26,10 @@ export function Select ({
   if (!options || options.length === 0 || !onChange) return null
 
   return (
-    <div className={styles['select-container']}>
+    <div
+      className={styles['select-container']}
+      hidden={attributes?.hidden}
+    >
       <label
         className={isLabelHidden ? 'visually-hidden' : ''}
         htmlFor={label}

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { NewEmbedCodeForm } from './new-embed-code-form'
+import { NewEmbedCodeForm } from '@/app/dashboard/embed_codes/new/new-embed-code-form'
 
 const title = 'New Embed Code'
 export const metadata: Metadata = { title }

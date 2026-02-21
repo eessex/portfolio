@@ -28,13 +28,11 @@
   figure {
     margin-bottom: grids.space-rem(4);
     width: 100%;
+    max-width: var(--body-width);
+    margin-left: 0;
 
     &:has(img) {
       max-width: 450px;
-    }
-    
-    &:has(iframe) {
-      width: minmax(var(--body-width), 100%);
     }
   }
 

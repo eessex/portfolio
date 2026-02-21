@@ -46,7 +46,7 @@ describe('Embed Code Actions', () => {
       const res = await editEmbedCode(formDataFromObject(embedCodeFixture))
 
       expect(res?.ok).toBe(true)
-      expect((res?.res as EmbedCode)?.caption).toEqual('This is a new embed code for testing purposes.')
+      expect((res?.res as EmbedCode)?.caption).toEqual('This is an embed code for testing purposes.')
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard/embed_codes')
     })
 
@@ -55,7 +55,7 @@ describe('Embed Code Actions', () => {
       const res = await editEmbedCode(formDataFromObject(newEmbedCodeFixture))
 
       expect(res?.ok).toBe(true)
-      expect((res?.res as EmbedCode)?.caption).toEqual('This is a new embed code for testing purposes.')
+      expect((res?.res as EmbedCode)?.caption).toEqual('This is an embed code for testing purposes.')
       expect((res?.res as EmbedCode)?.id).toEqual('123e4567-e89b-12d3-a456-426614174000')
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard/embed_codes')
     })

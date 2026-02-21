@@ -4,9 +4,9 @@ import type {
 } from '@/lib/embed-codes/types'
 
 export const newEmbedCodeFixture: CreateEmbedCode = {
-  title: 'New Embed Code',
-  iframe: '<iframe src="https://example.com/embed/new"></iframe>',
-  caption: 'This is a new embed code for testing purposes.',
+  title: 'Test Embed Code',
+  iframe: '<iframe src="https://example.com/embed"></iframe>',
+  caption: 'This is an embed code for testing purposes.',
   type: 'video',
   tagIds: []
 }

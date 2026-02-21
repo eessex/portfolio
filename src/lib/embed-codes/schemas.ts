@@ -14,6 +14,7 @@ export const embedCodeTypes = [
   'audio',
   'video'
 ] as const
+export type EmbedCodeType = typeof embedCodeTypes[number]
 
 /**
  * The type of content depicted in the embed.

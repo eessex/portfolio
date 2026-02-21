@@ -27,6 +27,9 @@ export interface InputProps<T extends InputElement> {
   isLabelHidden?: boolean
   label: string
   onChange?: (event: React.ChangeEvent<T>, isDirty: boolean) => void
+  onDrop?: (event: React.DragEvent<T>) => void
+  onKeyDown?: (event: React.KeyboardEvent<T>) => void
+  onPaste?: (event: React.ClipboardEvent<T>) => void
   ref?: (el: T | null) => void
   value?: string | number
 }
@@ -43,6 +46,9 @@ export function Input<T extends InputElement = HTMLInputElement> ({
   isLabelHidden,
   label,
   onChange,
+  onDrop,
+  onKeyDown,
+  onPaste,
   ref,
   value
 }: InputProps<T> & { as?: 'input' | 'textarea' }) {
@@ -60,6 +66,7 @@ export function Input<T extends InputElement = HTMLInputElement> ({
 
   const onChangeHandler = (event: React.ChangeEvent<T>) => {
     const changed = event.target.value !== defaultValue
+    debugger
     if (!isDirty) {
       // FIXME: confirm handle checked works
       setIsDirty(!!(event.target.value) && changed)
@@ -83,6 +90,9 @@ export function Input<T extends InputElement = HTMLInputElement> ({
     defaultValue,
     onBlur,
     onChange: onChangeHandler,
+    onDrop,
+    onKeyDown,
+    onPaste,
     ref,
     value
   } as Omit<InputProps<T>, 'label'> & { onBlur: (event: React.FocusEvent<T>) => void }

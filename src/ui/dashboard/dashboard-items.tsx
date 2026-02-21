@@ -36,7 +36,7 @@ import { itemBadges } from '@/ui/badges'
 import type { CreateItemDetail } from '@/ui/buttons/create-item-button'
 import styles from '@/ui/dashboard/dashboard.module.scss'
 import { Dialog } from '@/ui/dialog/dialog'
-import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code'
+import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { ExpandCollapseButton } from '@/ui/filters/expand-collapse-button'
 import { FiltersWrapper } from '@/ui/filters/filters'
@@ -265,7 +265,7 @@ export function DashboardItems<T extends DashboardItem> ({
       case 'links':
         return [...linkTypes]
       case 'embedCodes':
-        return [...embedCodeTypes]
+        return Object.keys(embedCodeTypes)
       default:
         return undefined
     }

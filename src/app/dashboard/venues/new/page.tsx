@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
-import { Suspense } from 'react'
 
-import { NewVenueForm } from '@/app/dashboard/venues/new/new-venue-form'
+import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
 
 const title = 'New Venue'
 export const metadata: Metadata = { title }
@@ -13,9 +12,7 @@ export default function NewVenuePage () {
         <h1>{title}</h1>
       </header>
 
-      <Suspense>
-        <NewVenueForm />
-      </Suspense>
+      <EditEmbeddedItemForm itemType='venues' />
     </article>
   )
 }

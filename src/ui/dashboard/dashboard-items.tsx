@@ -3,7 +3,6 @@
 import NextLink from 'next/link'
 import {
   useCallback,
-  useEffect,
   useId,
   useState
 } from 'react'
@@ -35,19 +34,14 @@ import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { itemBadges } from '@/ui/badges'
 import type { CreateItemDetail } from '@/ui/buttons/create-item-button'
 import styles from '@/ui/dashboard/dashboard.module.scss'
-import { Dialog } from '@/ui/dialog/dialog'
-import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { ExpandCollapseButton } from '@/ui/filters/expand-collapse-button'
 import { FiltersWrapper } from '@/ui/filters/filters'
 import { SortButton } from '@/ui/filters/sort-button'
 import { EditItemNav } from '@/ui/form/edit-item-nav'
-import { Form } from '@/ui/form/form'
 import { Select } from '@/ui/form/select'
-import { EditImage } from '@/ui/images/edit-image-form'
 import { ImageFigure } from '@/ui/images/image-figure'
 import itemsStyles from '@/ui/items/items.module.scss'
-import { EditLink } from '@/ui/links/edit-link-form'
 import { LinkItem } from '@/ui/links/link-item'
 import { Loading } from '@/ui/loading'
 import { SearchInput } from '@/ui/search-input/search-input'
@@ -57,10 +51,8 @@ import {
   formattedItemType,
   formatVenueInline,
   singularizePath,
-  usedOnPages,
-  usedOnSlugKeys
+  usedOnPages
 } from '@/ui/util'
-import { EditVenue } from '@/ui/venues/edit-venue-form'
 
 declare global {
   interface DocumentEventMap {
@@ -96,13 +88,9 @@ export function DashboardItems<T extends DashboardItem> ({
   apiEndpoint,
   itemType,
   res,
-  editItem,
-  deleteItem,
-  fetchMaybeExistingItem
+  deleteItem
 }: DashboardProps<T>) {
   const [isExpanded, setIsExpanded] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [itemToEdit, setItemToEdit] = useState<T | undefined>(undefined)
   const [filterType, setFilterType] = useState<string | undefined>(undefined)
 
   const {
@@ -119,8 +107,6 @@ export function DashboardItems<T extends DashboardItem> ({
     sortDirection,
     setSortDirection,
     nextCursor,
-    onAddItem,
-    onEditItem,
     onRemoveItem,
     totalCount
   } = useResultsList<T>(apiEndpoint, res)
@@ -137,73 +123,6 @@ export function DashboardItems<T extends DashboardItem> ({
 
     return typeFilteredItems
   }
-
-  async function onBeforeSubmit (formData: FormData) {
-    let isConfirmed = false
-    console.info('Checking for duplicate before submitting form data:', Object.fromEntries(formData))
-    try {
-      if (fetchMaybeExistingItem) {
-        const maybeExistingItem = await fetchMaybeExistingItem(Object.fromEntries(formData) as Omit<T, 'id'>)
-        if (maybeExistingItem?.res) {
-          const usedOn = usedOnPages(maybeExistingItem.res)
-          const usedOnMessage = usedOn.length > 0
-            ? `\n\nThis will also affect the ${usedOn.length} page(s) where this item is used.`
-            : ''
-          isConfirmed = confirm(`An item already exists with the same ${String(maybeExistingItem.fieldName)}. Do you want to overwrite the existing entry? ${usedOnMessage}`)
-        } else {
-          isConfirmed = true
-        }
-      } else {
-        isConfirmed = true
-      }
-      return isConfirmed
-    } catch (error) {
-      // Fail silently and allow submission, server will catch duplicates
-      console.error(DashboardErrrorMessages.FetchExistingFailed, error)
-      return true
-    }
-  }
-
-  async function onSubmit (formData: FormData): Promise<FormResponse<T>> {
-    try {
-      const isConfirmed = await onBeforeSubmit(formData)
-      if (!isConfirmed) {
-        return {
-          ok: false,
-          message: DashboardErrrorMessages.OperationCancelled
-        }
-      } else {
-        const res = await editItem(formData)
-        if (!res || !res.ok) {
-          const message = res?.message || DashboardErrrorMessages.FailedToSave
-          console.debug(message, itemToEdit?.id)
-          addErrorMessage(message)
-          return // leave the dialog open for retry
-        } else if (res.res) {
-          addSuccessMessage(DashboardSuccessMessages.SavedSuccessfully)
-          if (itemToEdit?.id) {
-            onEditItem(res.res as T, usedOnSlugKeys(itemToEdit as T) ?? {})
-          } else {
-            onAddItem(res.res as T)
-          }
-        }
-        setIsEditDialogOpen(false)
-        setItemToEdit(undefined)
-        return res
-      }
-    } catch (error) {
-      console.debug(error, itemToEdit?.id)
-      addErrorMessage(DashboardErrrorMessages.FailedToSave)
-    }
-  }
-
-  const onEdit = useCallback((id: string) => {
-    const item = items.find(i => i.id === id)
-    if (item) {
-      setItemToEdit(item)
-      setIsEditDialogOpen(true)
-    }
-  }, [items])
 
   const onDelete = useCallback(async (item: T) => {
     const confirmed = confirm(`Are you sure you want to delete this ${singularizePath(itemType)}? This action cannot be undone.`)
@@ -222,20 +141,6 @@ export function DashboardItems<T extends DashboardItem> ({
       addErrorMessage((error as Error)?.message || DashboardErrrorMessages.FailedToDelete)
     }
   }, [itemType, deleteItem, addSuccessMessage, onRemoveItem, addErrorMessage])
-
-  // Listen for "Add item" button clicks from DashboardLayout
-  useEffect(() => {
-    function handleOpenNewItemForm (event: CustomEvent<CreateItemDetail>) {
-      if (event.detail.itemType === itemType) {
-        setItemToEdit(undefined)
-        setIsEditDialogOpen(true)
-      }
-    }
-    document.addEventListener('openNewItemForm', handleOpenNewItemForm)
-    return () => {
-      document.removeEventListener('openNewItemForm', handleOpenNewItemForm)
-    }
-  }, [itemType])
 
   function formatItemType () {
     return formattedItemType(itemType, false, true)
@@ -333,7 +238,6 @@ export function DashboardItems<T extends DashboardItem> ({
                 item={item}
                 itemType={itemType}
                 isExpanded={isExpanded}
-                onEdit={onEdit}
                 onDelete={() => onDelete(item)}
               />
             ))}
@@ -354,23 +258,6 @@ export function DashboardItems<T extends DashboardItem> ({
           )}
         </section>
       </div>
-
-      {isEditDialogOpen && (
-        <Dialog
-          title={itemToEdit?.id ? `Edit ${singularizePath(itemType)}` : `Add ${singularizePath(itemType)}`}
-          onClose={() => setIsEditDialogOpen(false)}
-        >
-          <Form
-            action={onSubmit}
-            submitButtonClassName='button-primary button-lg'
-          >
-            <EditItem
-              item={itemToEdit}
-              itemType={itemType}
-            />
-          </Form>
-        </Dialog>
-      )}
     </div>
   )
 }
@@ -379,13 +266,11 @@ function DashboardListItem<T extends DashboardItem> ({
   itemType,
   item,
   isExpanded,
-  onEdit,
   onDelete
 }: {
   itemType: EmbeddedItemType
   item: T
   isExpanded?: boolean
-  onEdit: (id: string) => void
   onDelete: (id: string) => void
 }) {
   const usedOn = usedOnPages(item)
@@ -432,7 +317,7 @@ function DashboardListItem<T extends DashboardItem> ({
       >
         <EditItemNav
           id={item.id!}
-          onEdit={onEdit}
+          itemType={itemType}
           onDelete={onDelete}
         />
         <ItemDisplay
@@ -478,27 +363,6 @@ function DashboardListItem<T extends DashboardItem> ({
       </AccordionDropdown>
     </li>
   )
-}
-
-export function EditItem ({
-  item,
-  itemType
-}: {
-  item?: DashboardItem
-  itemType: EmbeddedItemType
-}) {
-  switch (itemType) {
-    case 'embedCodes':
-      return <EditEmbedCode embedCode={item as EmbedCode | undefined} />
-    case 'images':
-      return <EditImage image={item as Image | undefined} />
-    case 'links':
-      return <EditLink link={item as Link | undefined} />
-    case 'venues':
-      return <EditVenue venue={item as Venue | undefined} />
-    default:
-      return <div>Unknown item type: {itemType}</div>
-  }
 }
 
 export function ItemDisplay ({

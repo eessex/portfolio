@@ -110,6 +110,10 @@ export function snakeToCamel (str: string) {
   return str.replace(/_([a-z])/g, (_match, letter) => letter.toUpperCase())
 }
 
+export function camelToSnake (str: string) {
+  return str.replace(/([A-Z])/g, '_$1').toLowerCase()
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function camelizeKeys (obj: any): any {
   if (typeof obj !== 'object' || obj === null) {

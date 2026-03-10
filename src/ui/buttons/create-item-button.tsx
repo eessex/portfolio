@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { embeddedItemTypes } from '@/lib/schemas'
 import type { EmbeddedItemType } from '@/lib/types'
 import {
+  camelToSnake,
   itemTypeToLabel,
   snakeToCamel
 } from '@/ui/util'
@@ -14,25 +15,39 @@ export function CreateItemButton ({
   className,
   itemType,
   onClick,
+  href,
   ref
 }: {
   className?: string
   itemType: EmbeddedItemType
   onClick: () => void
+  href?: string
   ref?: React.Ref<HTMLButtonElement>
 }) {
   const formattedItemType = itemTypeToLabel(itemType, true, true)
 
-  return (
-    <button
-      type='button'
-      className={className}
-      onClick={onClick}
-      ref={ref}
-    >
-      <PlusIcon /> Create {formattedItemType}
-    </button>
-  )
+  if (href) {
+    return (
+      <a
+        className={className}
+        href={href}
+        ref={ref as React.Ref<HTMLAnchorElement>}
+      >
+        <PlusIcon /> Create {formattedItemType}
+      </a>
+    )
+  } else {
+    return (
+      <button
+        type='button'
+        className={className}
+        onClick={onClick}
+        ref={ref}
+      >
+        <PlusIcon /> Create {formattedItemType}
+      </button>
+    )
+  }
 }
 
 export type CreateItemDetail = { itemType: EmbeddedItemType }
@@ -42,6 +57,7 @@ export function CreateItemFromPathnameButton () {
   const pathnameParts = pathname.split('/')
   const itemPart = pathnameParts[2] ? snakeToCamel(pathnameParts[2]) as EmbeddedItemType : undefined // after /dashboard/
   const itemType = embeddedItemTypes.find(type => type === itemPart)
+  const href = itemType ? `/dashboard/${camelToSnake(itemType)}/new` : undefined
 
   if (!itemType) return null
 
@@ -56,6 +72,7 @@ export function CreateItemFromPathnameButton () {
       className='button-primary'
       itemType={itemType}
       onClick={onClick}
+      href={href}
     />
   )
 }

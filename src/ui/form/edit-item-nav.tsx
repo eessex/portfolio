@@ -1,15 +1,17 @@
 import PencilIcon from '@heroicons/react/24/outline/PencilIcon'
 import TrashIcon from '@heroicons/react/24/outline/TrashIcon'
 
+import type { EmbeddedItemType } from '@/lib/types'
 import styles from '@/ui/form/form.module.scss'
+import { camelToSnake } from '@/ui/util'
 
 export function EditItemNav ({
   id,
-  onEdit,
+  itemType,
   onDelete
 }: {
   id: string
-  onEdit: (id: string) => void
+  itemType: EmbeddedItemType
   onDelete: (id: string) => void
 }) {
   return (
@@ -17,12 +19,12 @@ export function EditItemNav ({
       <h3 className='visually-hidden'>Edit Item</h3>
       <ul className={styles['edit-item-nav']}>
         <li>
-          <button
+          <a
             className='button-primary'
-            onClick={() => onEdit(id)}
+            href={`${camelToSnake(itemType)}/${id}/edit`}
           >
             <PencilIcon /> Edit
-          </button>
+          </a>
         </li>
         <li>
           <button

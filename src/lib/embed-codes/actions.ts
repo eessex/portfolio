@@ -5,6 +5,7 @@ import postgres from 'postgres'
 
 import {
   createEmbedCodeSchema,
+  editEmbedCodeSchema,
   embedCodeSchema
 } from '@/lib/embed-codes/schemas'
 import type {
@@ -21,7 +22,7 @@ export async function editEmbedCode (formData: FormData): Promise<FormResponse<E
   const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)
 
   if (formData.get('id')) {
-    validatedEmbedCode = embedCodeSchema.safeParse(data)
+    validatedEmbedCode = editEmbedCodeSchema.safeParse(data)
   } else {
     validatedEmbedCode = createEmbedCodeSchema.safeParse(data)
   }

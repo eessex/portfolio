@@ -25,7 +25,21 @@ import {
 export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]) => {
   try {
     const { rows } = await sql<EmbedCode>`
-      SELECT * FROM embed_codes
+      SELECT
+        embed_codes.*,
+        ARRAY(
+          SELECT slug FROM events AS e
+          WHERE e.embed_code_ids @> ARRAY[embed_codes.id]
+        ) AS event_slugs,
+        ARRAY(
+          SELECT slug FROM projects AS p
+          WHERE p.embed_code_ids @> ARRAY[embed_codes.id]
+        ) AS project_slugs,
+        ARRAY(
+          SELECT slug FROM releases AS r
+          WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
+        ) AS release_slugs
+      FROM embed_codes
       WHERE id = ANY(${ids})
     `
     return rows.map(row => formatDbResponseForClient(row, embedCodeSchema))

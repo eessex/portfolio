@@ -54,7 +54,7 @@ export async function fetchImageByUrl (image: CreateImage) {
   }
 }
 
-async function _fetchImage (id: string) {
+export async function fetchImageById (id: string) {
   try {
     const data = await sql<Image>`
       SELECT * FROM images

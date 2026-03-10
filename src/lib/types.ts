@@ -29,6 +29,10 @@ export type PageItemProps = {
   params: Promise<{ slug: string }>
 }
 
+export type PageEmbeddedItemProps = {
+  params: Promise<{ id: string }>
+}
+
 export type EmbeddedItemType = typeof embeddedItemTypes[number]
 
 // FIXME: multiple not yet used, but some endpoints might need it

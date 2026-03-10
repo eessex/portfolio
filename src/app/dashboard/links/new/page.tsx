@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
-import { Suspense } from 'react'
 
-import { NewLinkForm } from '@/app/dashboard/links/new/new-link-form'
+import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
 
 const title = 'New Link'
 export const metadata: Metadata = { title }
@@ -13,9 +12,7 @@ export default function NewLinkPage () {
         <h1>{title}</h1>
       </header>
 
-      <Suspense>
-        <NewLinkForm />
-      </Suspense>
+      <EditEmbeddedItemForm itemType='links' />
     </article>
   )
 }

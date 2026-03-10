@@ -9,6 +9,7 @@ import {
 } from '@/lib/images/s3'
 import {
   createImageSchema,
+  editImageSchema,
   imageSchema
 } from '@/lib/images/schemas'
 import type {
@@ -76,7 +77,7 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
     }
   })
   if (formData.get('id')) {
-    validatedImage = imageSchema.safeParse(data)
+    validatedImage = editImageSchema.safeParse(data)
   } else {
     validatedImage = createImageSchema.safeParse(data)
   }

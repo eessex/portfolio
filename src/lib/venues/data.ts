@@ -15,6 +15,30 @@ import type {
   DashboardVenue
 } from '@/lib/venues/types'
 
+export async function fetchVenueById (id: string) {
+  try {
+    const { rows } = await sql<DashboardVenue>`
+      SELECT
+        venues.*,
+        ARRAY(
+          SELECT slug FROM events e
+          WHERE e.venue_id = venues.id
+        ) AS event_slugs
+      FROM venues
+      WHERE venues.id = ${id}
+      LIMIT 1
+    `
+    if (rows.length === 0) {
+      return null
+    } else {
+      return formatDbResponseForClient(rows[0], dashboardVenueSchema)
+    }
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch venue.')
+  }
+}
+
 /**
  * dashboard: fetch all the venues
  */

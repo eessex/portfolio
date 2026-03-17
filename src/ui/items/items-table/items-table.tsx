@@ -13,10 +13,7 @@ import type {
   PageItemClient,
   PagePathType
 } from '@/lib/types'
-import { ExpandCollapseButton } from '@/ui/filters/expand-collapse-button'
 import { FiltersWrapper } from '@/ui/filters/filters'
-import { SortButton } from '@/ui/filters/sort-button'
-import { Select } from '@/ui/form/select'
 import { itemSortDate } from '@/ui/items/item-date'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import { ItemsTableRow } from '@/ui/items/items-table/items-table-row'
@@ -41,10 +38,10 @@ export function ItemsTable ({
   isExpandedOnLoad?: boolean
   isPathTypeVisible?: boolean
 }) {
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
+  const [sortDirection, _setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [searchTerm, setSearchTerm] = useState('')
-  const [isExpanded, setIsExpanded] = useState(!!isExpandedOnLoad)
-  const [filterType, setFilterType] = useState<string | undefined>(undefined)
+  const [isExpanded, _setIsExpanded] = useState(!!isExpandedOnLoad)
+  const [filterType, _setFilterType] = useState<string | undefined>(undefined)
 
   const activeCategories: string[] = items.length
     ? items.map(item =>
@@ -204,40 +201,11 @@ export function ItemsTable ({
 
   return (
     <div className={styles['items-table']}>
-      <FiltersWrapper
-        itemType={path}
-        controlsId={tableId}
-      >
-        <ExpandCollapseButton
-          ariaControls={tableId}
-          isExpanded={!!isExpanded}
-          onExpand={setIsExpanded}
-          openLabel='Show me the art'
-          closeLabel='Hide the art'
-        />
-        {isFilterable && setSortDirection && (
-          <SortButton
-            ariaControls={tableId}
-            isAsc={sortDirection === 'asc'}
-            onClick={() => {
-              if (setSortDirection) {
-                setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-              }
-            }}
-          />
-        )}
-        {isFilterable && activeCategories.length > 1 && (
-          <Select
-            ariaControls={tableId}
-            options={activeCategories}
-            onChange={setFilterType}
-            placeholder='No filters'
-            label={`Filter ${path}`}
-            value={filterType}
-            isLabelHidden
-          />
-        )}
-        {isFilterable && (
+      {isFilterable && (
+        <FiltersWrapper
+          itemType={path}
+          controlsId={tableId}
+        >
           <SearchInput
             ariaControls={tableId}
             value={searchTerm}
@@ -245,8 +213,8 @@ export function ItemsTable ({
             label={`Search ${path}`}
             isLabelHidden
           />
-        )}
-      </FiltersWrapper>
+        </FiltersWrapper>
+      )}
 
       <table
         id={tableId}
@@ -255,14 +223,12 @@ export function ItemsTable ({
       >
         <thead className='visually-hidden'>
           <tr>
-            {isExpanded && (
-              <th
-                aria-hidden='true'
-                scope='col'
-              >
-                Image
-              </th>
-            )}
+            <th
+              aria-hidden='true'
+              scope='col'
+            >
+              Image
+            </th>
             {isPathTypeVisible && <th scope='col'>Type</th>}
             <th scope='col'>Date</th>
             <th scope='col'>Title</th>

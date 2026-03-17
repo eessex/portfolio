@@ -40,7 +40,8 @@ export function ItemsTableRow ({
   } = item as ReleaseClient
   const linkTarget = itemUrl(item)
   const rowLabel = `${item.title}${artist ? ', by ' + artist : ''}`
-  const isPriorityImage = !!(isFeatured || (index || 0) < 2)
+  const isPriorityImage = !!(isFeatured || (index || 0) < 12)
+  const imageWidth = 350
 
   return (
     <tr
@@ -57,21 +58,21 @@ export function ItemsTableRow ({
       role='link'
       aria-label={rowLabel}
     >
-      {isExpanded && coverImage && (
-        <td className={styles['table-row-img']}>
+      <td className={styles['table-row-img']}>
+        {coverImage && (
           <NextImage
             src={coverImage.url}
             alt={coverImage.alt || coverImage.caption || ''}
             title={coverImage.caption || coverImage.alt || undefined}
-            width={350}
-            height={350 / coverImage.aspect}
-            loading={(index || 0) > 4 ? 'lazy' : undefined}
+            width={imageWidth}
+            height={imageWidth / coverImage.aspect}
+            loading={(index || 0) > 12 ? 'lazy' : undefined}
             priority={isPriorityImage}
             fetchPriority={isPriorityImage ? 'high' : 'auto'}
             aria-hidden='true'
           />
-        </td>
-      )}
+        )}
+      </td>
 
       {isPathTypeVisible && (
         <td className='category path-type'>
@@ -79,18 +80,18 @@ export function ItemsTableRow ({
         </td>
       )}
 
-      <td>
-        <FormattedItemDate
-          item={item}
-          timezone={(item as EventClient).venue?.timezone}
-        />
-      </td>
-
       <td className={clsx(styles['table-row-title'], isExpanded && styles['table-row-title--expanded'])}>
         <NextLink href={linkTarget}>
           {formattedItemTitle(item)}
           {!item.isPublished && <DraftBadge />}
         </NextLink>
+      </td>
+
+      <td>
+        <FormattedItemDate
+          item={item}
+          timezone={(item as EventClient).venue?.timezone}
+        />
       </td>
 
       {children && (

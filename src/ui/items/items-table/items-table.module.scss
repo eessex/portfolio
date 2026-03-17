@@ -66,18 +66,28 @@
 }
 
 .table-row-link {
+  // FIXME: use grids for img size
+  --img-width-compact: 52px;
+  --img-height-compact: 52px;
+  --row-padding-block-compact: #{grids.space-em(2)};
+  --row-padding-inline-compact: #{grids.space-em(4)};
+
   display: grid;
-  grid-template-columns: 1fr 4fr 2fr;
+  grid-template-columns: var(--img-width-compact) 4fr 1fr 2fr;
+  grid-template-areas: "img title date meta";
   cursor: pointer;
-  padding: var(--items-list-padding);
+  padding-inline: var(--row-padding-inline-compact);
+  padding-block: var(--row-padding-block-compact);
   box-shadow: inset 0 -1px 0 var(--transparency-primary);
+  min-height: calc(var(--img-height-compact) + (var(--row-padding-block-compact) * 2));
 
   + tr[class$="rowgroup-heading"] {
     margin-top: grids.space-rem(6);
   }
 
   &.item-type-visible {
-    grid-template-columns: 12% 15% 50% 20%;
+    // FIXME: make sure this works with images visible
+    grid-template-columns: var(--img-width-compact) 50% 12% 15% 20%;
 
     @include breakpoints.sm-width {
       grid-template-columns: 1fr;
@@ -85,7 +95,14 @@
   }
 
   @include breakpoints.sm-width {
-    grid-template-columns: 1fr;
+    --img-width-compact: 86px;
+    --img-height-compact: 86px;
+
+    grid-template-columns: var(--img-width-compact) 1fr;
+    grid-template-areas:
+      "img title"
+      "img date"
+      "img meta";
   }
 
   &:hover,
@@ -94,15 +111,33 @@
   }
 
   > * {
+    // TODO: invert breakpoint to skip unset
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-   
+    align-self: center;
+    padding-left: grids.space-em(4);
+
     @include breakpoints.sm-width {
       overflow: unset;
       text-overflow: unset;
       white-space: unset;
       max-width: unset;
+      align-self: unset;
+    }
+
+    &:first-child {
+      display: flex;
+      height: var(--img-height-compact);
+      padding-left: unset;
+      grid-area: img;
+
+      img {
+        object-fit: cover;
+        height: 100%;
+        width: auto;
+        margin: auto;
+      }
     }
   }
 
@@ -138,6 +173,8 @@
   }
 
   &.table-row-link--expanded {
+    --img-height-compact: unset;
+
     display: flex;
     flex-direction: column;
     box-shadow: none;
@@ -153,6 +190,7 @@
       margin-bottom: grids.space-rem(2);
       width: 100%;
       height: auto;
+      max-height: unset;
     }
 
     > * {
@@ -160,12 +198,11 @@
       white-space: wrap;
       max-width: unset;
       display: flex;
-      align-items: center;
+      padding-left: 0;
+      align-self: unset;
     }
 
     > td:has(time) {
-      order: 1;
-
       @include breakpoints.sm-width {
         @include type.size("sm", "normal", "sm");
       }
@@ -175,7 +212,6 @@
       @include type.size("sm", "normal", "sm");
 
       margin-top: grids.space-rem(1);
-      order: 1;
 
       @include breakpoints.sm-width {
         @include type.size("xs", "normal", "sm");

@@ -27,7 +27,6 @@ export default async function ReleasesPage () {
         <ItemsTable
           path={path}
           items={[releases]}
-          isExpandedOnLoad
         />
       </Suspense>
     </div>

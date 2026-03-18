@@ -61,7 +61,7 @@
   }
 
   @include breakpoints.sm-width {
-    @include type.heading("lg");
+    @include type.heading("base");
   }
 }
 
@@ -95,8 +95,8 @@
   }
 
   @include breakpoints.sm-width {
-    --img-width-compact: 86px;
-    --img-height-compact: 86px;
+    --img-width-compact: 92px;
+    --img-height-compact: 92px;
 
     grid-template-columns: var(--img-width-compact) 1fr;
     grid-template-areas:
@@ -124,6 +124,7 @@
       white-space: unset;
       max-width: unset;
       align-self: unset;
+      padding-left: grids.space-em(2);
     }
 
     &:first-child {
@@ -161,7 +162,7 @@
 
     @include breakpoints.mobile {
       flex-direction: column;
-      gap: unset;
+      --column-gap: unset;
 
       li {
         padding: 0;

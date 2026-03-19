@@ -214,6 +214,6 @@ footer {
 // FIXME: move to filters.module.scss
 .open + table {
   tr.heading {
-    top: calc(var(--header-height) + 79px);
+    top: calc(var(--header-height) + 39px);
   }
 }

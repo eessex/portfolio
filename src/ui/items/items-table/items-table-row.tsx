@@ -82,6 +82,11 @@ export function ItemsTableRow ({
 
       <td className={clsx(styles['table-row-title'], isExpanded && styles['table-row-title--expanded'])}>
         <NextLink href={linkTarget}>
+          {isCategoryVisible && (item as ReleaseClient | ProjectClient).type && (
+            <span className={styles['item-type'] + ' category'}>
+              {formattedItemType((item as ReleaseClient | ProjectClient).type!)}
+            </span>
+          )}
           {formattedItemTitle(item)}
           {!item.isPublished && <DraftBadge />}
         </NextLink>
@@ -97,12 +102,6 @@ export function ItemsTableRow ({
       {children && (
         <td>
           {children}
-        </td>
-      )}
-
-      {isCategoryVisible && (item as ReleaseClient | ProjectClient).type && (
-        <td className={styles['item-type'] + ' category'}>
-          {formattedItemType((item as ReleaseClient | ProjectClient).type!)}
         </td>
       )}
     </tr>

@@ -9,7 +9,7 @@
 .table-rowgroup-heading {
   position: sticky;
   text-align: left;
-  top: calc(var(--header-height) - 2px);
+  top: calc(var(--header-height) - 1px);
   transition: all 0.25s ease-in-out;
   height: grids.space-em(12);
   z-index: 100;
@@ -45,6 +45,8 @@
 }
 
 .table-row-title {
+  font-weight: 600;
+
   mark {
     vertical-align: text-bottom;
   }
@@ -53,7 +55,12 @@
     @include type.heading("lg");
 
     display: block;
-    margin: grids.space-rem(1, 0);
+    margin: grids.space-rem(0, 0, 1, 0);
+
+    a {
+      display: flex;
+      flex-direction: column-reverse;
+    }
 
     @include breakpoints.sm-width {
       @include type.size("base", "normal", "sm");
@@ -140,6 +147,13 @@
         margin: auto;
       }
     }
+
+    > a {
+      .item-type {
+        display: block;
+        margin-bottom: grids.space-rem(1);
+      }
+    }
   }
 
   ul {
@@ -201,6 +215,16 @@
       display: flex;
       padding-left: 0;
       align-self: unset;
+    }
+
+    > td {
+      > a {
+        .item-type {
+          display: block;
+          margin-top: grids.space-rem(1);
+          margin-bottom: unset;
+        }
+      }
     }
 
     > td:has(time) {

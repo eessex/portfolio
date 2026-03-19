@@ -31,7 +31,7 @@
 
   .projects-list {
     grid-template-columns: repeat(auto-fill, minmax(calc(50% - var(--column-gap)/2), 1fr));
-    gap: grids.space-rem(8), var(--column-gap);
+    gap: grids.space-rem(8) var(--column-gap);
 
     h3 {
       @include type.heading("lg");

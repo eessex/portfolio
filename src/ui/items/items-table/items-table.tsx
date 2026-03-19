@@ -22,7 +22,7 @@ import { SearchInput } from '@/ui/search-input/search-input'
 import {
   formattedItemType,
   formatVenueInline,
-  snakeToCamel
+  itemTypeToLabel
 } from '@/ui/util'
 
 export function ItemsTable ({
@@ -40,16 +40,7 @@ export function ItemsTable ({
 }) {
   const [sortDirection, _setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [searchTerm, setSearchTerm] = useState('')
-  const [isExpanded, _setIsExpanded] = useState(!!isExpandedOnLoad)
   const [filterType, _setFilterType] = useState<string | undefined>(undefined)
-
-  const activeCategories: string[] = items.length
-    ? items.map(item =>
-      Object.entries(item)
-        .map(([k, v]) => v.length > 0 ? snakeToCamel(k) : null)
-        .filter(Boolean) as string[]
-    ).flat()
-    : []
 
   function allItems () {
     const allItems: PageItemClient[][] = []
@@ -99,8 +90,6 @@ export function ItemsTable ({
   function searchResults () {
     if (filterType) {
       return searchFilteredNestedArrays(filteredItems())
-    } else if (activeCategories.length > 1) {
-      return searchFilteredNestedArrays(sortedItems())
     } else {
       const searchResults = sortedItemArray(searchResultMatches(allItems()))
       return [{ searchResults }]
@@ -169,7 +158,7 @@ export function ItemsTable ({
     if (category) {
       const typeLabel = formattedItemType(category, false, true)
       if (searchTerm.length > 0) {
-        return `${typeLabel} matching "${searchTerm}" (${itemCount})`
+        return `${itemTypeToLabel(path)} matching "${searchTerm}" (${itemCount})`
       } else {
         return typeLabel
       }
@@ -182,12 +171,8 @@ export function ItemsTable ({
 
   function tableColspan () {
     let cols = 2
-    /** subtype: i.e. soloRelease, featuredOn */
-    if (isCategoryVisible) cols += 1
     /** item has type-specific children, venue, publishedEditions */
     if (isDetailColumnVisible) cols += 1
-    /** is grid view: image visible */
-    if (isExpanded) cols += 1
     /** multiple item types present: path/type column visible (i.e. events, releases) */
     if (isPathTypeVisible) cols += 1
     return cols
@@ -233,13 +218,12 @@ export function ItemsTable ({
             <th scope='col'>Date</th>
             <th scope='col'>Title</th>
             {isDetailColumnVisible && <th scope='col'>Details</th>}
-            {isCategoryVisible && <th scope='col'>Category</th>}
           </tr>
         </thead>
 
         {!flatItems(displayedItems()).length && (
           <tbody
-            className={clsx(styles['table-body'], isExpanded && styles['table-body--expanded'])}
+            className={clsx(styles['table-body'], isExpandedOnLoad && styles['table-body--expanded'])}
             aria-labelledby={`${tbodyId}-search`}
           >
             <tr className={styles['table-rowgroup-heading'] + ' heading'}>
@@ -262,7 +246,7 @@ export function ItemsTable ({
           <tbody
             key={`${index}-${key}`}
             aria-labelledby={`${tbodyId}-${key}`}
-            className={clsx(styles['table-body'], isExpanded && styles['table-body--expanded'])}
+            className={clsx(styles['table-body'], isExpandedOnLoad && styles['table-body--expanded'])}
           >
             <tr className={styles['table-rowgroup-heading'] + ' heading'}>
               <td
@@ -277,8 +261,8 @@ export function ItemsTable ({
                 item={item}
                 index={index}
                 key={`${item.id}-${index}`}
-                isExpanded={!!isExpanded}
-                isCategoryVisible={!!isCategoryVisible}
+                isExpanded={!!isExpandedOnLoad}
+                isCategoryVisible={!!(isCategoryVisible || searchTerm.length > 0)}
                 isPathTypeVisible={!!isPathTypeVisible}
               />
             ))}
@@ -302,50 +286,26 @@ function ItemsTableItem ({
   isCategoryVisible?: boolean
   isPathTypeVisible?: boolean
 }) {
-  switch (item.path) {
-    case 'events':
-      return (
-        <ItemsTableRow
-          item={item}
-          index={index}
-          isExpanded={isExpanded}
-          isCategoryVisible={isCategoryVisible}
-          isPathTypeVisible={isPathTypeVisible}
-        >
-          {(item as EventClient).venue && (
-            formatVenueInline({
-              venue: (item as EventClient).venue!,
-              format: 'sm'
-            })
-          )}
-        </ItemsTableRow>
-      )
-    case 'releases':
-      return (
-        <ItemsTableRow
-          item={item}
-          index={index}
-          isExpanded={isExpanded}
-          isCategoryVisible={isCategoryVisible}
-          isPathTypeVisible={isPathTypeVisible}
-        >
-          {(item as ReleaseClient).publishedEditions && (
-            <PublishedEditionsCombined
-              publishedEditions={(item as ReleaseClient).publishedEditions}
-              format='sm'
-            />
-          )}
-        </ItemsTableRow>
-      )
-    default:
-      return (
-        <ItemsTableRow
-          item={item}
-          index={index}
-          isExpanded={isExpanded}
-          isCategoryVisible={isCategoryVisible}
-          isPathTypeVisible={isPathTypeVisible}
+  return (
+    <ItemsTableRow
+      item={item}
+      index={index}
+      isExpanded={isExpanded}
+      isCategoryVisible={isCategoryVisible}
+      isPathTypeVisible={isPathTypeVisible}
+    >
+      {(item as EventClient).venue && (
+        formatVenueInline({
+          venue: (item as EventClient).venue!,
+          format: 'sm'
+        })
+      )}
+      {(item as ReleaseClient).publishedEditions && (
+        <PublishedEditionsCombined
+          publishedEditions={(item as ReleaseClient).publishedEditions}
+          format='sm'
         />
-      )
-  }
+      )}
+    </ItemsTableRow>
+  )
 }

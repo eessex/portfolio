@@ -25,7 +25,7 @@ export const EditEmbedCode = ({
   embedCode,
   errors
 }: EmbedCodeProps) => {
-  const [embedCodeIframe, setEmbedCodeIframe] = useState<ReturnType<typeof extractIframeParams> | null>(null)
+  const [embedCodeIframe, setEmbedCodeIframe] = useState<ReturnType<typeof extractIframeParams> | null>(embedCode ? extractIframeParams(embedCode) : null)
   const [iframeInputValue, setIframeInputValue] = useState(embedCode?.iframe || '')
   const namePrefix = typeof index === 'number' ? `embedCodes[${index}].` : ''
 
@@ -39,7 +39,7 @@ export const EditEmbedCode = ({
     }
 
     try {
-      const iframeData = extractIframeParams(value, true)
+      const iframeData = extractIframeParams({ iframe: value }, true)
       setEmbedCodeIframe(iframeData)
       setIframeInputValue(value)
     } catch {

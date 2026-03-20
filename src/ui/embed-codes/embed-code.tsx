@@ -6,8 +6,12 @@ import {
   useState
 } from 'react'
 
+import type { EmbedCodeHost } from '@/lib/embed-codes/schemas'
 import type { EmbedCode } from '@/lib/embed-codes/types'
-import { extractIframeParams } from '@/ui/embed-codes/util'
+import {
+  defaultEmbedSizeByHost,
+  extractIframeParams
+} from '@/ui/embed-codes/util'
 
 export function EmbedCodeItem ({
   embedCode,
@@ -16,34 +20,23 @@ export function EmbedCodeItem ({
   embedCode: Partial<EmbedCode>
   onRemove?: (id?: string) => void
 }) {
-  const [embedCodeIframe, setEmbedCodeIframe] = useState<ReturnType<typeof extractIframeParams> | null>(null)
-  const [mounted, setMounted] = useState(false)
+  const [embedCodeIframe, setEmbedCodeIframe] = useState<ReturnType<typeof extractIframeParams> | null>(extractIframeParams(embedCode))
 
   useEffect(() => {
-    const props = extractIframeParams(embedCode.iframe || '')
+    const props = extractIframeParams(embedCode)
     setEmbedCodeIframe(props)
-    setMounted(true)
-  }, [embedCode?.iframe])
-
-  if (!mounted) return null
+  }, [embedCode])
 
   function handleRemove () {
     setEmbedCodeIframe(null)
     onRemove?.(embedCode.id)
   }
 
-  function iframeDimensionProps (): React.CSSProperties {
-    return {
-      position: 'relative',
-      width: embedCodeIframe?.width ? (embedCodeIframe.width === '100%' ? '100%' : `${embedCodeIframe.width}px`) : '100%',
-      height: embedCodeIframe?.height && !isNaN(embedCodeIframe?.height) ? `${embedCodeIframe.height}px` : 'auto',
-      aspectRatio: embedCodeIframe?.aspectRatio ? `${embedCodeIframe.aspectRatio}` : 'unset'
-    }
-  }
+  if (!embedCodeIframe) return null
 
   return (
-    <figure>
-      <div style={iframeDimensionProps()}>
+    <figure style={{ position: 'relative' }}>
+      <div style={embedCodeIframe?.host ? defaultEmbedSizeByHost(embedCodeIframe.host as EmbedCodeHost) : undefined}>
         {embedCodeIframe && (
           <iframe
             src={embedCodeIframe.src}

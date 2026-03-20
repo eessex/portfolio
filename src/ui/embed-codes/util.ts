@@ -1,6 +1,12 @@
 'use client'
 
-import type { EmbedCodeType } from '@/lib/embed-codes/schemas'
+import {
+  audioEmbedCodeHosts,
+  type EmbedCodeHost,
+  type EmbedCodeType,
+  videoEmbedCodeHosts
+} from '@/lib/embed-codes/schemas'
+import type { EmbedCode } from '@/lib/embed-codes/types'
 
 export interface IFrameProps {
   src: string
@@ -12,33 +18,39 @@ export interface IFrameProps {
   title?: string
 }
 
-export const AudioEmbedCodeHosts = [
-  'bandcamp',
-  'mixcloud',
-  'soundcloud',
-  'spotify'
-] as const
-
-export const VideoEmbedCodeHosts = [
-  'vimeo',
-  'youtube'
-] as const
-
-type EmbedCodeHost = typeof AudioEmbedCodeHosts[number] | typeof VideoEmbedCodeHosts[number]
+export function defaultEmbedSizeByHost (host?: EmbedCodeHost): EmbedCodeDimensions {
+  switch (host) {
+    case 'bandcamp':
+    case 'mixcloud':
+      return {
+        width: '100%', height: '120px'
+      }
+    case 'soundcloud':
+      return {
+        width: '100%', height: '166px'
+      }
+    case 'spotify':
+      return {
+        width: '100%', height: '80px'
+      }
+    default:
+      return { aspectRatio: 16 / 9 }
+  }
+}
 
 export function extractHostnameType (hostname: string) {
-  const audioType = AudioEmbedCodeHosts.find(host => hostname.includes(host))
+  const audioType = audioEmbedCodeHosts.find(host => hostname.includes(host))
   if (audioType) return 'audio'
 
-  const videoType = VideoEmbedCodeHosts.find(host => hostname.includes(host))
+  const videoType = videoEmbedCodeHosts.find(host => hostname.includes(host))
   if (videoType) return 'video'
 }
 
-export function extractHostFromUrl (url: string): EmbedCodeHost | string {
+export function extractHostFromUrl (url: string): EmbedCodeHost {
   const parsed = new URL(url)
-  const hosts = [...AudioEmbedCodeHosts, ...VideoEmbedCodeHosts]
+  const hosts = [...audioEmbedCodeHosts, ...videoEmbedCodeHosts]
   const host = hosts.find(h => parsed.hostname.includes(h))
-  return host || parsed.hostname
+  return host as EmbedCodeHost // FIXME
 }
 
 function isSafeIframeUrl (url: string): boolean {
@@ -51,8 +63,8 @@ function isSafeIframeUrl (url: string): boolean {
 }
 
 interface EmbedCodeDimensions {
-  width?: number | '100%' | undefined
-  height?: number
+  width?: '100%' | number
+  height?: string | number
   aspectRatio?: number
 }
 
@@ -147,42 +159,54 @@ export function extractIframeTitle (iframe: string, iframeEl: HTMLIFrameElement)
 }
 
 export function extractIframeParams (
-  iframe: string,
+  embedCode: Partial<EmbedCode>,
   isThrowOnError?: boolean
 ): EmbedCodeParams | null {
-  if (typeof window === 'undefined' || !iframe) {
+  if (typeof window === 'undefined' && !embedCode.src) {
     return null
   }
+  let params: EmbedCodeParams
 
-  const parser = new DOMParser()
-  const doc = parser.parseFromString(iframe, 'text/html')
-  const iframeEl = doc.querySelector('iframe')
-
-  const src = iframeEl?.getAttribute('src')
-  if (!src || !isSafeIframeUrl(src) || !iframeEl) {
-    if (isThrowOnError) {
-      throw new Error('Invalid iframe code.')
+  if (embedCode.src) {
+    params = {
+      src: embedCode.src,
+      host: embedCode.host || extractHostFromUrl(embedCode.src),
+      type: embedCode.type || extractHostnameType(embedCode.src),
+      title: embedCode.caption,
+      ...defaultEmbedSizeByHost(embedCode.host || extractHostFromUrl(embedCode.src))
     }
-    return null
-  }
-  const url = new URL(src || '')
-  const host = extractHostFromUrl(src)
-  const type = extractHostnameType(url.hostname)
-  const title = extractIframeTitle(iframe, iframeEl)
+    return params
+  } else {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(embedCode.iframe!, 'text/html')
+    const iframeEl = doc.querySelector('iframe')
 
-  const {
-    width,
-    height,
-    aspectRatio
-  } = extractIframeDimensions(iframeEl, host)
+    const src = iframeEl?.getAttribute('src')
+    if (!src || !isSafeIframeUrl(src) || !iframeEl) {
+      if (isThrowOnError) {
+        throw new Error('Invalid iframe code.')
+      }
+      return null
+    }
+    const url = new URL(src || '')
+    const host = extractHostFromUrl(src)
+    const type = extractHostnameType(url.hostname)
+    const title = extractIframeTitle(embedCode.iframe!, iframeEl)
 
-  return {
-    aspectRatio,
-    height,
-    host,
-    src,
-    title,
-    type,
-    width
+    const {
+      width,
+      height,
+      aspectRatio
+    } = extractIframeDimensions(iframeEl, host)
+
+    return {
+      aspectRatio,
+      height,
+      host,
+      src,
+      title,
+      type,
+      width
+    }
   }
 }

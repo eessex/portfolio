@@ -34,12 +34,28 @@ export const embedCodeContentTypes = [
   'trailer'
 ] as const
 
+export const audioEmbedCodeHosts = [
+  'bandcamp',
+  'mixcloud',
+  'soundcloud',
+  'spotify'
+] as const
+
+export const videoEmbedCodeHosts = [
+  'vimeo',
+  'youtube'
+] as const
+
+const embedCodeHosts = [...audioEmbedCodeHosts, ...videoEmbedCodeHosts] as const
+export type EmbedCodeHost = typeof embedCodeHosts[number]
+
 const embedCodeBaseSchema = z.lazy(() => z.object({
   caption: shortText.optional(),
+  host: z.enum(embedCodeHosts).optional(),
   iframe: longText.min(12),
+  src: z.string().url().optional(),
   type: z.enum(embedCodeTypes).optional()
-})
-)
+}))
 
 /**
  * An iframe embed code, such as a Bandcamp or YouTube embed, with metadata.

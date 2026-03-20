@@ -9,10 +9,12 @@ export type Release = z.infer<typeof releaseSchema>
 export type ReleaseClient = z.infer<typeof releaseClientSchema>
 
 export interface FetchReleasesResult {
-  soloReleases: ReleaseClient[]
-  singles: ReleaseClient[]
-  compilations: ReleaseClient[]
+  albums: ReleaseClient[]
+  eps: ReleaseClient[]
+  soundtracks: ReleaseClient[]
+  singlesAndCompilations: ReleaseClient[]
   collaborativeReleases: ReleaseClient[]
   featuredOn: ReleaseClient[]
-  releases: ReleaseClient[]
+  everythingElse: ReleaseClient[]
+  releases?: ReleaseClient[] // For project pages, pages where there's only a couple releases
 }

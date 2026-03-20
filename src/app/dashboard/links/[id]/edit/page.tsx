@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
+import { editLink } from '@/lib/links/actions'
 import { fetchLinksByIds } from '@/lib/links/data'
+import type { Link } from '@/lib/links/types'
 import type { PageEmbeddedItemProps } from '@/lib/types'
 import { Loading } from '@/ui/loading'
 
@@ -24,9 +26,10 @@ export default async function EditLinkPage ({ params }: PageEmbeddedItemProps) {
       </header>
 
       <Suspense fallback={<Loading />}>
-        <EditEmbeddedItemForm
+        <EditEmbeddedItemForm<Link>
           item={link}
           itemType='links'
+          editItem={editLink}
         />
       </Suspense>
     </article>

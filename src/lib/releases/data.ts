@@ -125,12 +125,14 @@ export async function fetchReleases (isAuthed: boolean = false, projectSlug?: st
 
 const sortReleasesByCategory = (releases: ReleaseClient[], isProject: boolean) => {
   const result: FetchReleasesResult = {
-    soloReleases: [],
-    singles: [],
+    albums: [],
+    soundtracks: [],
+    eps: [],
+    singlesAndCompilations: [],
     collaborativeReleases: [],
-    compilations: [],
     featuredOn: [],
-    releases: []
+    everythingElse: [],
+    releases: [] // For project pages, pages where there's only a couple releases
   }
 
   const hasMultipleTypes = new Set(releases.map(r => r.type)).size > 1
@@ -142,20 +144,27 @@ const sortReleasesByCategory = (releases: ReleaseClient[], isProject: boolean) =
 
   for (const release of releases) {
     switch (release.type) {
+      case 'album':
+        result.albums.push(release)
+        break
       case 'single':
-        result.singles.push(release)
+      case 'compilation':
+        result.singlesAndCompilations.push(release)
+        break
+      case 'soundtrack':
+        result.soundtracks.push(release)
         break
       case 'collaborative_release':
         result.collaborativeReleases.push(release)
         break
-      case 'compilation':
-        result.compilations.push(release)
-        break
       case 'feature':
         result.featuredOn.push(release)
         break
+      case 'ep':
+        result.eps.push(release)
+        break
       default:
-        result.soloReleases.push(release)
+        result.everythingElse.push(release)
     }
   }
 

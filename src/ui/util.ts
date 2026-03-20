@@ -103,7 +103,9 @@ export function isUpcomingDate (date: string | Date) {
 
 export function camelToSentence (str: string) {
   const result = str.replace(/([A-Z])/g, ' $1')
-  return result.charAt(0).toUpperCase() + result.slice(1)
+  // Replace "And" with "&"
+  const resultWithAmp = result.replace(/\bAnd\b/g, '&')
+  return resultWithAmp.charAt(0).toUpperCase() + resultWithAmp.slice(1)
 }
 
 export function snakeToCamel (str: string) {
@@ -217,9 +219,6 @@ export const formattedItemType = (type: string, isUpcoming = false, isPlural = f
   switch (type) {
     case 'feature':
       unformatted = 'featuredOn'
-      break
-    case 'album':
-      unformatted = 'soloRelease'
       break
   }
   return `${isUpcoming ? ' Upcoming ' : ''} ${camelToSentence(isPlural ? unformatted : singularizePath(unformatted))}`

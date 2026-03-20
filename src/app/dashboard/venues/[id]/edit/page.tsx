@@ -4,7 +4,9 @@ import { Suspense } from 'react'
 
 import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
 import type { PageEmbeddedItemProps } from '@/lib/types'
+import { editVenue } from '@/lib/venues/actions'
 import { fetchVenueById } from '@/lib/venues/data'
+import type { Venue } from '@/lib/venues/types'
 import { Loading } from '@/ui/loading'
 
 const title = 'Edit Venue'
@@ -24,9 +26,10 @@ export default async function EditVenuePage ({ params }: PageEmbeddedItemProps) 
       </header>
 
       <Suspense fallback={<Loading />}>
-        <EditEmbeddedItemForm
+        <EditEmbeddedItemForm<Venue>
           item={venue}
           itemType='venues'
+          editItem={editVenue}
         />
       </Suspense>
     </article>

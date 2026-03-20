@@ -1,7 +1,10 @@
+import type { EmbedCode } from '@/lib/embed-codes/types'
 import type {
   EventClient,
   FetchEventsResult
 } from '@/lib/events/types'
+import type { Image } from '@/lib/images/types'
+import type { Link } from '@/lib/links/types'
 import type {
   FetchProjectsResult,
   ProjectClient
@@ -14,6 +17,7 @@ import type {
   embeddedItemTypes,
   pagePathTypes
 } from '@/lib/schemas'
+import type { Venue } from '@/lib/venues/types'
 
 export type PagePathType = typeof pagePathTypes[number]
 
@@ -34,6 +38,7 @@ export type PageEmbeddedItemProps = {
 }
 
 export type EmbeddedItemType = typeof embeddedItemTypes[number]
+export type EmbeddedItem = EmbedCode | Image | Link | Venue
 
 // FIXME: multiple not yet used, but some endpoints might need it
 export type FormState<T, Multiple extends boolean = false> = {

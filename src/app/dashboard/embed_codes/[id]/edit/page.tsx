@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
+import { editEmbedCode } from '@/lib/embed-codes/actions'
 import { fetchEmbedCodesByIds } from '@/lib/embed-codes/data'
+import type { EmbedCode } from '@/lib/embed-codes/types'
 import type { PageEmbeddedItemProps } from '@/lib/types'
 import { Loading } from '@/ui/loading'
 
@@ -24,9 +26,10 @@ export default async function EditEmbedCodePage ({ params }: PageEmbeddedItemPro
       </header>
 
       <Suspense fallback={<Loading />}>
-        <EditEmbeddedItemForm
+        <EditEmbeddedItemForm<EmbedCode>
           itemType='embedCodes'
           item={embedCode}
+          editItem={editEmbedCode}
         />
       </Suspense>
     </article>

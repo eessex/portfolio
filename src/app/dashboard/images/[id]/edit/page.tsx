@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
+import { editImage } from '@/lib/images/actions'
 import { fetchImageById } from '@/lib/images/data'
+import type { Image } from '@/lib/images/types'
 import type { PageEmbeddedItemProps } from '@/lib/types'
 import { Loading } from '@/ui/loading'
 
@@ -24,9 +26,10 @@ export default async function EditImagePage ({ params }: PageEmbeddedItemProps) 
       </header>
 
       <Suspense fallback={<Loading />}>
-        <EditEmbeddedItemForm
+        <EditEmbeddedItemForm<Image>
           item={image}
           itemType='images'
+          editItem={editImage}
         />
       </Suspense>
     </article>

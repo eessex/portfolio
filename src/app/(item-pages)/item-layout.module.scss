@@ -18,7 +18,8 @@
         margin-block: grids.space-em(1);
       }
 
-      p {
+      p,
+      li {
         margin-block: grids.space-em(1, 0);
       }
 

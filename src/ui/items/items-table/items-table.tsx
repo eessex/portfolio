@@ -215,8 +215,8 @@ export function ItemsTable ({
               Image
             </th>
             {isPathTypeVisible && <th scope='col'>Type</th>}
-            <th scope='col'>Date</th>
             <th scope='col'>Title</th>
+            <th scope='col'>Date</th>
             {isDetailColumnVisible && <th scope='col'>Details</th>}
           </tr>
         </thead>

@@ -19,22 +19,27 @@ export interface IFrameProps {
 }
 
 export function defaultEmbedSizeByHost (host?: EmbedCodeHost): EmbedCodeDimensions {
+  const params: EmbedCodeDimensions = {
+    width: '100%', position: 'relative'
+  }
   switch (host) {
     case 'bandcamp':
     case 'mixcloud':
       return {
-        width: '100%', height: '120px'
+        ...params, height: '120px'
       }
     case 'soundcloud':
       return {
-        width: '100%', height: '166px'
+        ...params, height: '166px'
       }
     case 'spotify':
       return {
-        width: '100%', height: '80px'
+        ...params, height: '80px'
       }
     default:
-      return { aspectRatio: 16 / 9 }
+      return {
+        ...params, aspectRatio: 1.777
+      }
   }
 }
 
@@ -66,6 +71,7 @@ interface EmbedCodeDimensions {
   width?: '100%' | number
   height?: string | number
   aspectRatio?: number
+  position?: 'relative'
 }
 
 interface EmbedCodeParams extends EmbedCodeDimensions {

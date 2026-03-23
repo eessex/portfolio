@@ -5,7 +5,7 @@ import type { PageItemClient } from '@/lib/types'
 import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 import { camelizeKeys } from '@/ui/util'
 
-export const DEFAULT_PAGE_SIZE = 36
+export const DEFAULT_PAGE_SIZE = 24
 
 export interface ResponseWithCursor<T extends DashboardItem | PageItemClient> {
   res: T[]

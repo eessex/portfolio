@@ -3,6 +3,10 @@ import { Suspense } from 'react'
 
 import { auth } from '@/api/auth'
 import { fetchProjects } from '@/lib/projects/data'
+import type {
+  FetchProjectsResult,
+  ProjectClient
+} from '@/lib/projects/types'
 import type { PagePathType } from '@/lib/types'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
@@ -15,7 +19,7 @@ export const metadata: Metadata = { title }
 
 export default async function ProjectsPage () {
   const session = await auth()
-  const { res: projects } = await fetchProjects(!!session?.user)
+  const projects = await fetchProjects(!!session?.user)
 
   return (
     <div>
@@ -24,9 +28,9 @@ export default async function ProjectsPage () {
       </h1>
 
       <Suspense fallback={<Loading />}>
-        <ItemsTable
+        <ItemsTable<ProjectClient, FetchProjectsResult>
           path={path}
-          items={[projects]}
+          initialItems={projects}
           isExpandedOnLoad
           isCategoryVisible
         />

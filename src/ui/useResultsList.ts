@@ -5,18 +5,32 @@ import {
   useState
 } from 'react'
 
+import type {
+  PageDataResponse, PageItemClient, PageItemResponseWithCursor
+} from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
 import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
-import type { usedOnSlugKeys } from '@/ui/util'
 
 type SortDirection = 'asc' | 'desc'
+
+export type ResultsResponse<
+  TDashboard extends DashboardItem,
+  TPage extends PageItemClient,
+  S extends PageDataResponse | undefined = undefined
+> = S extends PageDataResponse
+  ? PageItemResponseWithCursor<TPage, S>
+  : ResponseWithCursor<TDashboard>
 
 /**
  * Fetch paginated results with infinite scroll, search, and sort.
  */
-export function useResultsList<T extends DashboardItem> (
+export function useResultsList<
+  TDashboard extends DashboardItem,
+  TPage extends PageItemClient = never,
+  S extends PageDataResponse | undefined = undefined
+> (
   apiEndpoint: string,
-  initial: ResponseWithCursor<T>,
+  initial: ResultsResponse<TDashboard, TPage, S>,
   defaultQuery?: string
 ) {
   /** User search query */
@@ -28,7 +42,9 @@ export function useResultsList<T extends DashboardItem> (
 
   const [isLoading, setIsLoading] = useState(false)
   /** Current list of items (filtered and sorted) */
-  const [items, setItems] = useState<T[]>(initial.res)
+  const [items, setItems] = useState<(TDashboard | TPage)[]>(
+    normalizeItems<TDashboard | TPage>(initial.res)
+  )
   /** Cursor for next page */
   const [nextCursor, setNextCursor] = useState<string | null>(initial.nextCursor)
   /** Count of filtered results */
@@ -41,11 +57,23 @@ export function useResultsList<T extends DashboardItem> (
   /** Abort controller for fetch requests */
   const abortControllerRef = useRef<AbortController | null>(null)
   /** Cache: full unfiltered results */
-  const fullResultsCache = useRef<T[]>(initial.res)
+  const fullResultsCache = useRef<(TDashboard | TPage)[]>(
+    normalizeItems<TDashboard | TPage>(initial.res)
+  )
   /** Fetching state ref to prevent duplicate requests */
   const isFetchingRef = useRef(false)
   /** Cache: one item's normalized search text */
   const searchIndexRef = useRef<Map<string, string>>(new Map())
+  const [groupedItems, setGroupedItems] = useState<
+  Record<string, (TDashboard | TPage)[]> | null
+    >(
+    Array.isArray(initial.res) ? null : initial.res
+    )
+  const groupedCache = useRef<
+  Record<string, (TDashboard | TPage)[]>
+    >(
+    Array.isArray(initial.res) ? {} : initial.res
+    )
 
   useEffect(() => {
     queryRef.current = query
@@ -63,21 +91,48 @@ export function useResultsList<T extends DashboardItem> (
     [apiEndpoint]
   )
 
-  const getSearchText = useCallback((item: T): string => {
+  function normalizeItems<T> (
+    res: T[] | Record<string, T[]>
+  ): T[] {
+    if (Array.isArray(res)) {
+      return res
+    }
+
+    return Object.values(res).flat()
+  }
+
+  const extractStrings = useCallback((value: unknown): string[] => {
+    if (!value) return []
+
+    if (typeof value === 'string') {
+      return [value]
+    }
+
+    if (Array.isArray(value)) {
+      return value.flatMap(extractStrings)
+    }
+
+    if (typeof value === 'object') {
+      return Object.values(value).flatMap(extractStrings)
+    }
+
+    return []
+  }, [])
+
+  const getSearchText = useCallback((item: TDashboard | TPage): string => {
     const cached = searchIndexRef.current.get(item.id)
     if (cached) return cached
 
-    const text = Object.values(item)
-      .filter(v => typeof v === 'string')
+    const text = extractStrings(item)
       .join(', ')
       .toLowerCase()
 
     searchIndexRef.current.set(item.id, text)
     return text
-  }, [])
+  }, [extractStrings])
 
   const applyFilter = useCallback(
-    (list: T[], q: string, sortDirection: SortDirection) => {
+    (list: (TDashboard | TPage)[], q: string, sortDirection: SortDirection) => {
       let filtered = list
 
       if (q) {
@@ -105,17 +160,46 @@ export function useResultsList<T extends DashboardItem> (
 
       try {
         const res = await fetch(buildUrl(options.cursor, currentQuery), { signal: abortControllerRef.current.signal })
-        const data: ResponseWithCursor<T> = await res.json()
+        const data: ResultsResponse<TDashboard, TPage, S> = await res.json()
+        const isGrouped = !Array.isArray(data.res)
+        if (isGrouped) {
+          const res = data.res as Record<string, (TDashboard | TPage)[]>
 
-        const newItems = options.replace
-          ? data.res
-          : data.res.filter(newItem => !fullResultsCache.current.some(i => i.id === newItem.id))
+          if (options.replace) {
+            groupedCache.current = res
+          } else {
+            for (const key of Object.keys(res)) {
+              const existing = groupedCache.current[key] || []
+              const incoming = res[key]
 
-        fullResultsCache.current = options.replace
-          ? newItems
-          : [...fullResultsCache.current, ...newItems]
+              const deduped = incoming.filter(
+                newItem => !existing.some(i => i.id === newItem.id)
+              )
 
-        setItems(applyFilter(fullResultsCache.current, currentQuery, currentSort))
+              groupedCache.current[key] = [...existing, ...deduped]
+            }
+          }
+
+          // Flatten for filtering/search
+          const flat = Object.values(groupedCache.current).flat()
+
+          fullResultsCache.current = flat
+          setGroupedItems(groupedCache.current)
+          setItems(applyFilter(flat, currentQuery, currentSort))
+        } else {
+          const normalized = normalizeItems<TDashboard | TPage>(data.res)
+
+          const newItems = options.replace
+            ? normalized
+            : normalized.filter(
+              newItem => !fullResultsCache.current.some(i => i.id === newItem.id)
+            )
+
+          fullResultsCache.current = options.replace
+            ? newItems
+            : [...fullResultsCache.current, ...newItems]
+          setItems(applyFilter(fullResultsCache.current, currentQuery, currentSort))
+        }
         setNextCursor(data.nextCursor)
         setCount(data.totalCount)
       } catch (err: Error | unknown) {
@@ -129,6 +213,22 @@ export function useResultsList<T extends DashboardItem> (
     },
     [applyFilter, buildUrl]
   )
+
+  const getFilteredGroupedItems = useCallback(() => {
+    if (!groupedItems) return null
+
+    const result: Record<string, (TDashboard | TPage)[]> = {}
+
+    for (const key of Object.keys(groupedItems)) {
+      result[key] = applyFilter(
+        groupedItems[key],
+        queryRef.current,
+        sortDirectionRef.current
+      )
+    }
+
+    return result
+  }, [groupedItems, applyFilter])
 
   // Infinite scroll
   const loadMore = useCallback(
@@ -204,33 +304,6 @@ export function useResultsList<T extends DashboardItem> (
     }
   }, [])
 
-  function onAddItem (item: T) {
-    fullResultsCache.current = [item, ...fullResultsCache.current]
-    setItems(applyFilter(fullResultsCache.current, queryRef.current, sortDirectionRef.current))
-    setCount(prevCount => prevCount + 1)
-  }
-
-  function onEditItem (item: T, usedOnPages: ReturnType<typeof usedOnSlugKeys>) {
-    fullResultsCache.current = fullResultsCache.current.map(i =>
-      i.id === item.id
-        ? {
-            ...item,
-            ...usedOnPages
-          }
-        : i
-    )
-
-    searchIndexRef.current.delete(item.id)
-
-    setItems(
-      applyFilter(
-        fullResultsCache.current,
-        queryRef.current,
-        sortDirectionRef.current
-      )
-    )
-  }
-
   function onRemoveItem (itemId: string) {
     fullResultsCache.current = fullResultsCache.current.filter(i => i.id !== itemId)
     setItems(applyFilter(fullResultsCache.current, queryRef.current, sortDirectionRef.current))
@@ -240,15 +313,14 @@ export function useResultsList<T extends DashboardItem> (
   return {
     count,
     isLoading,
-    items,
+    items, // flat
+    groupedItems: getFilteredGroupedItems(), // grouped
     loadMoreRef,
     query,
     setQuery,
     sortDirection,
     setSortDirection,
     nextCursor,
-    onAddItem,
-    onEditItem,
     onRemoveItem,
     totalCount
   }

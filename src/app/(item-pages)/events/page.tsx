@@ -3,6 +3,10 @@ import { Suspense } from 'react'
 
 import { auth } from '@/api/auth'
 import { fetchEvents } from '@/lib/events/data'
+import type {
+  EventClient,
+  FetchEventsResult
+} from '@/lib/events/types'
 import type { PagePathType } from '@/lib/types'
 import { ItemsList } from '@/ui/items/items-list'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
@@ -16,12 +20,7 @@ export const metadata: Metadata = { title }
 
 export default async function EventsPage () {
   const session = await auth()
-  const {
-    res: {
-      upcomingEvents,
-      pastEvents
-    }
-  } = await fetchEvents(!!session?.user)
+  const events = await fetchEvents(!!session?.user)
 
   return (
     <div>
@@ -31,16 +30,14 @@ export default async function EventsPage () {
 
       <Suspense fallback={<Loading />}>
         <ItemsList
-          items={upcomingEvents}
+          items={events.res.upcomingEvents}
           isFeatured
           title={formattedItemType(path, true, true)}
         />
-        <ItemsTable
+        <ItemsTable<EventClient, FetchEventsResult>
           path={path}
-          items={[{
-            pastEvents,
-            upcomingEvents: []
-          }]}
+          initialItems={events}
+          omitKeys={['upcomingEvents']}
         />
       </Suspense>
     </div>

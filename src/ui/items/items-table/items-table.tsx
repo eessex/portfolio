@@ -1,10 +1,7 @@
 'use client'
 
 import { clsx } from 'clsx'
-import React, {
-  useId,
-  useState
-} from 'react'
+import React, { useId } from 'react'
 
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
@@ -13,159 +10,65 @@ import type {
   PageItemClient,
   PagePathType
 } from '@/lib/types'
+import { DEFAULT_PAGE_SIZE } from '@/lib/util'
 import { FiltersWrapper } from '@/ui/filters/filters'
-import { itemSortDate } from '@/ui/items/item-date'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import { ItemsTableRow } from '@/ui/items/items-table/items-table-row'
+import { Loading } from '@/ui/loading'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import { SearchInput } from '@/ui/search-input/search-input'
+import type { ResultsResponse } from '@/ui/useResultsList'
+import { useResultsList } from '@/ui/useResultsList'
 import {
+  capitalizeFirstLetter,
   formattedItemType,
   formatVenueInline,
   itemTypeToLabel
 } from '@/ui/util'
 
-export function ItemsTable ({
-  items,
-  path = 'items',
+export function ItemsTable<T extends PageItemClient, S extends PageDataResponse> ({
+  initialItems,
+  path,
   isCategoryVisible,
   isExpandedOnLoad,
-  isPathTypeVisible
+  isPathTypeVisible,
+  omitKeys
 }: {
-  items: PageDataResponse[]
-  path?: PagePathType | 'items'
+  initialItems: ResultsResponse<never, T, S>
+  path: PagePathType
   isCategoryVisible?: boolean
   isExpandedOnLoad?: boolean
   isPathTypeVisible?: boolean
+  omitKeys?: Array<keyof S>
 }) {
-  const [sortDirection, _setSortDirection] = useState<'asc' | 'desc'>('desc')
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filterType, _setFilterType] = useState<string | undefined>(undefined)
-
-  function allItems () {
-    const allItems: PageItemClient[][] = []
-    if (items.length) {
-      items.map(item =>
-        Object.entries(item)
-          .filter(([_k, v]) => v.length > 0 && allItems.push(v))
-      )
-    }
-    return allItems.flat()
-  }
-
-  function flatItems (_items: ReturnType<typeof displayedItems>) {
-    const allItems: PageItemClient[][] = []
-    if (_items.length) {
-      _items.map(item =>
-        Object.entries(item)
-          .filter(([_k, v]) => v.length > 0 && allItems.push(v))
-      )
-    }
-    return allItems.flat()
-  }
+  const {
+    isLoading,
+    items,
+    groupedItems,
+    loadMoreRef,
+    query,
+    setQuery,
+    nextCursor
+  } = useResultsList<never, T, S>(`/api/${path}`, initialItems)
 
   function displayedItems () {
-    if (searchTerm.length > 0) {
-      return searchResults()
-    } else if (filterType) {
-      return filteredItems()
-    } else {
-      return sortedItems()
-    }
-  }
+    if (groupedItems) return groupedItems
 
-  function filteredItems () {
-    if (!filterType) return sortedItems()
-
-    const filteredItems: { [key: string]: PageItemClient[] } = {}
-
-    sortedItems().forEach(i => Object.entries(i).forEach(e => {
-      if (e[0] === filterType) {
-        filteredItems[e[0]] = e[1]
-      }
-    }))
-    return filteredItems ? [filteredItems] : []
-  }
-
-  function searchResults () {
-    if (filterType) {
-      return searchFilteredNestedArrays(filteredItems())
-    } else {
-      const searchResults = sortedItemArray(searchResultMatches(allItems()))
-      return [{ searchResults }]
-    }
-  }
-
-  function searchResultMatches (items: PageItemClient[]) {
-    const lowerSearch = searchTerm.toLowerCase()
-
-    function valueMatches (val: unknown): boolean {
-      if (typeof val === 'string') {
-        return val.toLowerCase().includes(lowerSearch)
-      }
-      if (typeof val === 'object' && val !== null) {
-        return Object.values(val).some(valueMatches)
-      }
-      return false
-    }
-
-    return items.filter(item =>
-      Object.values(item).some(valueMatches)
-    )
-  }
-
-  function searchFilteredNestedArrays (data: { [key: string]: PageItemClient[] }[]) {
-    return data.map(entry => {
-      const filteredEntry: Record<string, PageItemClient[]> = {}
-
-      for (const key in entry) {
-        const value = entry[key]
-        filteredEntry[key] = searchResultMatches(value)
-      }
-      return filteredEntry
-    })
-  }
-
-  function sortedItems () {
-    return items.map(entry => {
-      const reversedEntry = { ...entry }
-      Object.entries(entry).forEach(([key, value]) => {
-        if (Array.isArray(value) && sortDirection === 'asc') {
-          // @ts-expect-error FIXME
-          (reversedEntry as PageDataResponse)[key] = [...value].reverse()
-        }
-      })
-      return reversedEntry
-    })
-  }
-
-  function sortedItemArray (itemArray: PageItemClient[]) {
-    const isDefaultDatePreferred = items.length > 0
-
-    const sortedArray = itemArray.sort((a, b) => {
-      const dateA = itemSortDate(a, isDefaultDatePreferred) ? new Date(itemSortDate(a, isDefaultDatePreferred)).getTime() : 0
-      const dateB = itemSortDate(b, isDefaultDatePreferred) ? new Date(itemSortDate(b, isDefaultDatePreferred)).getTime() : 0
-      return dateB - dateA
-    })
-
-    if (sortDirection === 'asc') {
-      return [...sortedArray].reverse()
-    }
-    return sortedArray
+    return { [`all${capitalizeFirstLetter(path)}`]: items }
   }
 
   function tableSectionTitle (category?: string, itemCount?: number) {
     if (category) {
       const typeLabel = formattedItemType(category, false, true)
-      if (searchTerm.length > 0) {
-        return `${itemTypeToLabel(path)} matching "${searchTerm}" (${itemCount})`
+      if (query.length > 0) {
+        return `${itemTypeToLabel(path)} matching "${query}" (${itemCount})`
       } else {
         return typeLabel
       }
     }
   }
 
-  const isFilterable = allItems().length > 20
+  const isFilterable = initialItems.totalCount >= DEFAULT_PAGE_SIZE
 
   const isDetailColumnVisible = ['events', 'releases', 'items'].includes(path)
 
@@ -181,8 +84,8 @@ export function ItemsTable ({
   const colSpan = tableColspan()
   const tableId = useId()
   const tbodyId = useId()
-
-  if (allItems().length === 0) return null
+  const loadMoreId = useId()
+  if (initialItems.totalCount === 0) return null
 
   return (
     <div className={styles['items-table']}>
@@ -193,8 +96,8 @@ export function ItemsTable ({
         >
           <SearchInput
             ariaControls={tableId}
-            value={searchTerm}
-            onChange={setSearchTerm}
+            value={query}
+            onChange={setQuery}
             label={`Search ${path}`}
             isLabelHidden
           />
@@ -221,7 +124,7 @@ export function ItemsTable ({
           </tr>
         </thead>
 
-        {!flatItems(displayedItems()).length && (
+        {!Object.values(displayedItems()).flat().length && (
           <tbody
             className={clsx(styles['table-body'], isExpandedOnLoad && styles['table-body--expanded'])}
             aria-labelledby={`${tbodyId}-search`}
@@ -231,7 +134,7 @@ export function ItemsTable ({
                 id={`${tbodyId}-search`}
                 colSpan={colSpan}
               >
-                Search results for "{searchTerm}"
+                Search results for "{query}"
               </td>
             </tr>
             <tr className={styles['no-results']}>
@@ -242,11 +145,10 @@ export function ItemsTable ({
           </tbody>
         )}
 
-        {displayedItems().map((category, index) => Object.entries(category).map(([key, value]) => value.length > 0 && (
+        {Object.entries(displayedItems()).map(([key, value], index) => !(omitKeys?.includes(key as keyof S)) && value.length > 0 && (
           <tbody
-            key={`${index}-${key}`}
-            aria-labelledby={`${tbodyId}-${key}`}
             className={clsx(styles['table-body'], isExpandedOnLoad && styles['table-body--expanded'])}
+            key={`${index}-${key}`}
           >
             <tr className={styles['table-rowgroup-heading'] + ' heading'}>
               <td
@@ -256,19 +158,33 @@ export function ItemsTable ({
                 {tableSectionTitle(key, value.length)}
               </td>
             </tr>
-            {value.map((item, index) => (
+            {value.map((item, idx) => (
               <ItemsTableItem
+                key={`${item.id}-${idx}`}
                 item={item}
-                index={index}
-                key={`${item.id}-${index}`}
+                index={idx}
                 isExpanded={!!isExpandedOnLoad}
-                isCategoryVisible={!!(isCategoryVisible || searchTerm.length > 0)}
+                isCategoryVisible={!!(isCategoryVisible || query.length > 0)}
                 isPathTypeVisible={!!isPathTypeVisible}
               />
             ))}
           </tbody>
-        )))}
+        ))}
       </table>
+      {nextCursor && (
+        <>
+          <li
+            id={loadMoreId}
+            style={{ height: 1 }}
+            tabIndex={-1}
+            aria-hidden='true'
+            ref={loadMoreRef}
+          />
+          {isLoading && (
+            <Loading />
+          )}
+        </>
+      )}
     </div>
   )
 }

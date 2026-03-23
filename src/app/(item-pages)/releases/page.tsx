@@ -3,6 +3,10 @@ import { Suspense } from 'react'
 
 import { auth } from '@/api/auth'
 import { fetchReleases } from '@/lib/releases/data'
+import type {
+  FetchReleasesResult,
+  ReleaseClient
+} from '@/lib/releases/types'
 import type { PagePathType } from '@/lib/types'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
@@ -15,7 +19,7 @@ export const metadata: Metadata = { title }
 
 export default async function ReleasesPage () {
   const session = await auth()
-  const { res: releases } = await fetchReleases(!!session?.user)
+  const releases = await fetchReleases(!!session?.user)
 
   return (
     <div>
@@ -24,9 +28,9 @@ export default async function ReleasesPage () {
       </h1>
 
       <Suspense fallback={<Loading />}>
-        <ItemsTable
+        <ItemsTable<ReleaseClient, FetchReleasesResult>
           path={path}
-          items={[releases]}
+          initialItems={releases}
         />
       </Suspense>
     </div>

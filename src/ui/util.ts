@@ -105,7 +105,7 @@ export function camelToSentence (str: string) {
   const result = str.replace(/([A-Z])/g, ' $1')
   // Replace "And" with "&"
   const resultWithAmp = result.replace(/\bAnd\b/g, '&')
-  return resultWithAmp.charAt(0).toUpperCase() + resultWithAmp.slice(1)
+  return capitalizeFirstLetter(resultWithAmp)
 }
 
 export function snakeToCamel (str: string) {
@@ -114,6 +114,13 @@ export function snakeToCamel (str: string) {
 
 export function camelToSnake (str: string) {
   return str.replace(/([A-Z])/g, '_$1').toLowerCase()
+}
+
+export function capitalizeFirstLetter (string: string) {
+  if (typeof string !== 'string' || string.length === 0) {
+    return string
+  }
+  return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

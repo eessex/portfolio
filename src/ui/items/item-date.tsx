@@ -45,7 +45,7 @@ export function FormattedItemDate ({
   format?: DateFormatSize
   timezone?: Intl.DateTimeFormatOptions['timeZone']
 }) {
-  const date = itemSortDate(item)
+  const date = new Date(itemSortDate(item))
   const isProject = item.path === 'projects'
   const isUpcomingEvent = item.path === 'events' && isUpcomingDate((item as EventClient).startTime)
   const dateFormat = isUpcomingEvent ? undefined : format || itemDisplayDateFormat(item)

@@ -23,7 +23,7 @@ export async function fetchEvents (isAuthed: boolean = false, projectSlug?: stri
   const totalCount = await getTotalCount(isAuthed, projectSlug, query)
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
   const like = query ? `%${query}%` : null
-  const cursorStartTime = decodedCursor?.startTime ?? null
+  const cursorStartTime = decodedCursor?.name ?? null
   const cursorId = decodedCursor?.id ?? null
 
   try {
@@ -43,10 +43,18 @@ export async function fetchEvents (isAuthed: boolean = false, projectSlug?: stri
         ) AS venue
       FROM events AS e
       LEFT JOIN projects AS p ON e.project_id = p.id
+      LEFT JOIN venues AS v ON e.venue_id = v.id
       WHERE
         (${projectSlug}::text IS NULL OR p.slug = ${projectSlug}::text)
         AND (${isAuthed} OR e.is_published = true)
-        AND (${like}::text IS NULL OR e.title ILIKE ${like} OR e.description ILIKE ${like})
+        AND (
+          ${like}::text IS NULL
+          OR e.title ILIKE ${like}
+          OR e.description ILIKE ${like}
+          OR COALESCE(v.name, '') ILIKE ${like}
+          OR COALESCE(v.city, '') ILIKE ${like}
+          OR COALESCE(v.state, '') ILIKE ${like}
+        )
         AND (
           ${cursorStartTime}::timestamptz IS NULL
           OR (
@@ -57,7 +65,7 @@ export async function fetchEvents (isAuthed: boolean = false, projectSlug?: stri
       ORDER BY e.start_time DESC, e.id ASC
       LIMIT ${DEFAULT_PAGE_SIZE};
     `
-    const formatted = formatResponseWithCursor(data, 'id', eventClientSchema)
+    const formatted = formatResponseWithCursor(data, 'startTime', eventClientSchema)
     const res: PageItemResponseWithCursor<EventClient, FetchEventsResult> = {
       res: sortEventsByCategory(formatted.res),
       nextCursor: formatted.nextCursor,
@@ -131,7 +139,7 @@ export async function fetchEventBySlug (slug: string, isAuthed: boolean = false)
   }
 }
 
-export function sortEventsByCategory (events: EventClient[]): FetchEventsResult {
+function sortEventsByCategory (events: EventClient[]): FetchEventsResult {
   const upcomingEvents = events.filter(event => isUpcomingDate(event.startTime))
     .sort((a, b) => {
       return new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
@@ -153,6 +161,7 @@ async function getTotalCount (isAuthed: boolean = false, projectSlug?: string, q
       SELECT COUNT(*)::int AS count
       FROM events AS e
       LEFT JOIN projects AS p ON e.project_id = p.id
+      LEFT JOIN venues AS v ON e.venue_id = v.id
       WHERE (
         ${projectSlug}::text IS NULL OR p.slug = ${projectSlug}::text
       )
@@ -161,6 +170,9 @@ async function getTotalCount (isAuthed: boolean = false, projectSlug?: string, q
         ${like}::text IS NULL
         OR e.title ILIKE ${like}
         OR e.description ILIKE ${like}
+        OR COALESCE(v.name, '') ILIKE ${like}
+        OR COALESCE(v.city, '') ILIKE ${like}
+        OR COALESCE(v.state, '') ILIKE ${like}
       );
     `
     return data.rows[0]?.count ?? 0

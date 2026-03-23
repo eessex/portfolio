@@ -34,8 +34,8 @@ export default async function ProjectPage ({ params }: PageItemProps) {
   ])
   const [
     project,
-    { res: releases },
-    { res: events }
+    releases,
+    events
   ] = await Promise.all([
     fetchProjectBySlug(slug, !!session?.user),
     fetchReleases(!!session?.user, slug),
@@ -46,7 +46,14 @@ export default async function ProjectPage ({ params }: PageItemProps) {
   return (
     <ItemLayout item={project}>
       <Suspense fallback={<Loading />}>
-        <ItemsTable items={[releases, events]} />
+        <ItemsTable
+          path='releases'
+          initialItems={releases}
+        />
+        <ItemsTable
+          path='events'
+          initialItems={events}
+        />
       </Suspense>
     </ItemLayout>
   )

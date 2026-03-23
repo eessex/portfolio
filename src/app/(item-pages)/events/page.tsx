@@ -17,8 +17,10 @@ export const metadata: Metadata = { title }
 export default async function EventsPage () {
   const session = await auth()
   const {
-    upcomingEvents,
-    pastEvents
+    res: {
+      upcomingEvents,
+      pastEvents
+    }
   } = await fetchEvents(!!session?.user)
 
   return (

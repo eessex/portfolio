@@ -34,7 +34,7 @@ export default async function EventPage ({ params }: PageItemProps) {
 
   const [
     event,
-    { upcomingEvents }
+    { res: { upcomingEvents } }
   ] = await Promise.all([
     fetchEventBySlug(slug, !!session?.user),
     fetchEvents(!!session?.user)

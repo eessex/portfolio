@@ -8,7 +8,9 @@ import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type {
   PageDataResponse,
-  PageItemClient, PageItemProps
+  PageItemClient,
+  PageItemProps,
+  PageItemResponseWithCursor
 } from '@/lib/types'
 import { TicketButton } from '@/ui/buttons/ticket-button'
 import { DraftBadge } from '@/ui/draft-badge'
@@ -191,9 +193,9 @@ export async function generateItemMetadata (
   return meta
 }
 
-export async function generateItemStaticParams (
-  fetchFn: () => Promise<PageDataResponse>
+export async function generateItemStaticParams<T extends PageItemClient, S extends PageDataResponse> (
+  fetchFn: () => Promise<PageItemResponseWithCursor<T, S>>
 ) {
   const items = await fetchFn()
-  return Object.values(items).flat().map(i => ({ slug: i.slug }))
+  return Object.values(items.res).flat().map(i => ({ slug: (i as T).slug }))
 }

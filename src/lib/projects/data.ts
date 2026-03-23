@@ -6,32 +6,66 @@ import type {
   ProjectClient
 } from '@/lib/projects/types'
 import type { pagePathTypes } from '@/lib/schemas'
-import { formatDbResponseForClient } from '@/lib/util'
+import type { PageItemResponseWithCursor } from '@/lib/types'
+import {
+  decodeCursor,
+  DEFAULT_PAGE_SIZE,
+  formatDbResponseForClient,
+  formatResponseWithCursor
+} from '@/lib/util'
 
 const path: typeof pagePathTypes[number] = 'projects'
 const projectPathType = 'project'
 
-export async function fetchProjects (isAuthed: boolean = false): Promise<FetchProjectsResult> {
+export async function fetchProjects (isAuthed: boolean = false, cursor?: string, query?: string) {
+  const totalCount = await getTotalCount(isAuthed, query)
+  const decodedCursor = cursor ? decodeCursor(cursor) : null
+  const cursorHasEndDate = decodedCursor?.hasEndDate ?? null
+  const cursorStartDate = decodedCursor?.startDate ?? null
+  const cursorId = decodedCursor?.id ?? null
+  const like = query ? `%${query}%` : null
+
   try {
     const data = await sql<ProjectClient>`
       SELECT
         p.*,
+        ${path} AS path,
         (
           SELECT build_image_json(i)
           FROM images i
           WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
         ) AS cover_image
-      FROM projects as p
-      WHERE ${isAuthed} OR p.is_published = true
+      FROM projects AS p
+      WHERE
+        (${isAuthed} OR p.is_published = true)
+        AND (${like}::text IS NULL OR p.title ILIKE ${like} OR p.description ILIKE ${like})
+        AND (${cursorHasEndDate}::text IS NULL
+        OR (
+          (p.end_date IS NOT NULL)::text < ${cursorHasEndDate}::text
+          OR (
+            (p.end_date IS NOT NULL)::text = ${cursorHasEndDate}::text
+            AND p.start_date < ${cursorStartDate}::timestamptz
+          )
+          OR (
+            (p.end_date IS NOT NULL)::text = ${cursorHasEndDate}::text
+            AND p.start_date = ${cursorStartDate}::timestamptz
+            AND p.id > ${cursorId}::uuid
+          )
+        )
+      )
       ORDER BY
         (p.end_date IS NOT NULL),
-        p.start_date DESC
+        p.start_date DESC,
+        p.id ASC
+      LIMIT ${DEFAULT_PAGE_SIZE}
     ;`
-    const parsedProjects = data.rows.map(p => formatDbResponseForClient({
-      ...p,
-      path
-    }, projectClientSchema))
-    return { allProjects: parsedProjects }
+    const formatted = formatResponseWithCursor(data, 'id', projectClientSchema)
+    const res: PageItemResponseWithCursor<ProjectClient, FetchProjectsResult> = {
+      res: { allProjects: formatted.res },
+      nextCursor: formatted.nextCursor,
+      totalCount
+    }
+    return res
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error(`Failed to fetch ${path}.`)
@@ -86,5 +120,25 @@ export async function fetchProjectBySlug (slug: string, isAuthed: boolean = fals
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error(`Failed to fetch ${projectPathType}: ${slug}.`)
+  }
+}
+
+async function getTotalCount (isAuthed: boolean = false, query?: string) {
+  try {
+    const like = query ? `%${query}%` : null
+    const data = await sql<{ count: number }>`
+      SELECT COUNT(*)::int AS count
+      FROM projects AS p
+      WHERE (${isAuthed} OR p.is_published = true)
+      AND (
+        ${like}::text IS NULL
+        OR p.title ILIKE ${like}
+        OR p.description ILIKE ${like}
+      );
+    `
+    return data.rows[0]?.count ?? 0
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch project count.')
   }
 }

@@ -34,8 +34,8 @@ export default async function ProjectPage ({ params }: PageItemProps) {
   ])
   const [
     project,
-    releases,
-    events
+    { res: releases },
+    { res: events }
   ] = await Promise.all([
     fetchProjectBySlug(slug, !!session?.user),
     fetchReleases(!!session?.user, slug),

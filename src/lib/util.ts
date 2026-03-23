@@ -1,12 +1,13 @@
 import type { QueryResult } from '@vercel/postgres'
 import type { z } from 'zod'
 
+import type { PageItemClient } from '@/lib/types'
 import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 import { camelizeKeys } from '@/ui/util'
 
-export const DEFAULT_PAGE_SIZE = 24
+export const DEFAULT_PAGE_SIZE = 36
 
-export interface ResponseWithCursor<T extends DashboardItem> {
+export interface ResponseWithCursor<T extends DashboardItem | PageItemClient> {
   res: T[]
   nextCursor: string | null
   totalCount: number
@@ -36,7 +37,8 @@ export function formatResponseWithCursor<T extends z.ZodTypeAny> (
   cursorKey: keyof z.infer<T>,
   schema: T
 ) {
-  const formatted = result.rows.map(row => formatDbResponseForClient(row, schema))
+  const formatted: z.infer<T>[] = result.rows.map(row => formatDbResponseForClient(row, schema))
+
   const lastItem = formatted[formatted.length - 1]
   const isLoadMoreAvailable =
     formatted.length === DEFAULT_PAGE_SIZE &&
@@ -44,7 +46,7 @@ export function formatResponseWithCursor<T extends z.ZodTypeAny> (
 
   const cursorObj = isLoadMoreAvailable
     ? {
-        name: lastItem[cursorKey],  // Always encoded as `name`
+        name: lastItem[cursorKey], // Always encoded as `name`
         id: lastItem.id
       }
     : null

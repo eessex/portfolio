@@ -16,5 +16,5 @@ export interface FetchReleasesResult {
   collaborativeReleases: ReleaseClient[]
   featuredOn: ReleaseClient[]
   everythingElse: ReleaseClient[]
-  releases?: ReleaseClient[] // For project pages, pages where there's only a couple releases
+  releases: ReleaseClient[] // For project pages, pages where there's only a couple releases
 }

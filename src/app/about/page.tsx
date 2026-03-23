@@ -53,7 +53,7 @@ export default async function AboutPage () {
     auth()
   ])
 
-  const { allProjects } = await fetchProjects(!!session?.user)
+  const { res: { allProjects } } = await fetchProjects(!!session?.user)
 
   const [pressLinksWithQuotes, pressLinksWithoutQuotes] = links.reduce(
     ([withQuotes, withoutQuotes], link) =>

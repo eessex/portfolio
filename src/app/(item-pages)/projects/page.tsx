@@ -15,7 +15,7 @@ export const metadata: Metadata = { title }
 
 export default async function ProjectsPage () {
   const session = await auth()
-  const projects = await fetchProjects(!!session?.user)
+  const { res: projects } = await fetchProjects(!!session?.user)
 
   return (
     <div>

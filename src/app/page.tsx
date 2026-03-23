@@ -12,7 +12,7 @@ export default async function Home () {
     fetchSiteSettings(),
     auth()
   ])
-  const { upcomingEvents } = await fetchEvents(!!session?.user)
+  const { res: { upcomingEvents } } = await fetchEvents(!!session?.user)
 
   return (
     <div className={styles.home}>

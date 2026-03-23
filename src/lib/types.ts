@@ -29,6 +29,12 @@ export type PageDataResponseKey
 
 export type PageItemClient = EventClient | ProjectClient | ReleaseClient
 
+export interface PageItemResponseWithCursor<T extends PageItemClient, S extends PageDataResponse> {
+  res: Record<keyof S, T[]>
+  nextCursor: string | null
+  totalCount: number
+}
+
 export type PageItemProps = {
   params: Promise<{ slug: string }>
 }

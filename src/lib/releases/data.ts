@@ -5,8 +5,16 @@ import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import type { PagePathType } from '@/lib/types'
-import { formatDbResponseForClient } from '@/lib/util'
+import type {
+  PageItemResponseWithCursor,
+  PagePathType
+} from '@/lib/types'
+import {
+  decodeCursor,
+  DEFAULT_PAGE_SIZE,
+  formatDbResponseForClient,
+  formatResponseWithCursor
+} from '@/lib/util'
 
 const path: PagePathType = 'releases'
 
@@ -70,13 +78,25 @@ export async function fetchReleaseBySlug (slug: string, isAuthed: boolean = fals
   }
 }
 
-export async function fetchReleases (isAuthed: boolean = false, projectSlug?: string) {
+export async function fetchReleases (
+  isAuthed: boolean = false,
+  projectSlug?: string,
+  cursor?: string,
+  query?: string
+) {
+  const totalCount = await getTotalCount(isAuthed, projectSlug, query)
+  const decodedCursor = cursor
+    ? decodeCursor(cursor)
+    : null
+  const cursorReleaseDate = decodedCursor?.releaseDate ?? null
+  const cursorId = decodedCursor?.id ?? null
+  const like = query ? `%${query}%` : null
+
   try {
-    let data
-    if (projectSlug) {
-      data = await sql<ReleaseClient>`
+    const data = await sql<ReleaseClient>`
       SELECT
         r.*,
+        ${path} AS path,
         (
           SELECT build_image_json(i)
           FROM images i
@@ -87,36 +107,30 @@ export async function fetchReleases (isAuthed: boolean = false, projectSlug?: st
           FROM published_editions pe
           WHERE pe.release_id = r.id
         ) AS published_editions
-      FROM releases as r
-      JOIN projects p ON p.id = r.project_id
-      WHERE p.slug = ${projectSlug}
-        AND (${isAuthed} OR r.is_published = true)
-      ORDER BY r.release_date DESC
+      FROM releases AS r
+      LEFT JOIN projects p ON r.project_id = p.id
+      WHERE
+        (${projectSlug}::text IS NULL OR p.slug = ${projectSlug}::text)
+        AND (${isAuthed}::boolean OR r.is_published = true)
+        AND (${like}::text IS NULL OR r.title ILIKE ${like} OR r.description ILIKE ${like})
+        AND (
+          ${cursorReleaseDate}::timestamptz IS NULL
+          OR (
+            r.release_date < ${cursorReleaseDate}::timestamptz
+            OR (r.release_date = ${cursorReleaseDate}::timestamptz AND r.id > ${cursorId}::uuid)
+          )
+        )
+      ORDER BY r.release_date DESC, r.id ASC
+      LIMIT ${DEFAULT_PAGE_SIZE};
     `
-    } else {
-      data = await sql<ReleaseClient>`
-      SELECT
-        r.*,
-        (
-          SELECT build_image_json(i)
-          FROM images i
-          WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
-        ) AS cover_image,
-        (
-          SELECT COALESCE(jsonb_agg(build_published_edition_json(pe)), '[]'::jsonb)
-          FROM published_editions pe
-          WHERE pe.release_id = r.id
-        ) AS published_editions
-      FROM releases as r
-      WHERE ${isAuthed} OR r.is_published = true
-      ORDER BY r.release_date DESC
-    `
+    const formatted = formatResponseWithCursor(data, 'id', releaseClientSchema)
+    const res: PageItemResponseWithCursor<ReleaseClient, FetchReleasesResult> = {
+      res: sortReleasesByCategory(formatted.res, !!projectSlug),
+      nextCursor: formatted.nextCursor,
+      totalCount
     }
-    const parsedReleases = data.rows.map(r => formatDbResponseForClient({
-      ...r,
-      path
-    }, releaseClientSchema))
-    return sortReleasesByCategory(parsedReleases, !!projectSlug)
+
+    return res
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch releases.')
@@ -138,7 +152,7 @@ const sortReleasesByCategory = (releases: ReleaseClient[], isProject: boolean) =
   const hasMultipleTypes = new Set(releases.map(r => r.type)).size > 1
 
   if (isProject && !hasMultipleTypes) {
-    result.releases = releases
+    result.releases = [...releases]
     return result
   }
 
@@ -169,4 +183,27 @@ const sortReleasesByCategory = (releases: ReleaseClient[], isProject: boolean) =
   }
 
   return result
+}
+
+async function getTotalCount (isAuthed: boolean, projectSlug?: string, query?: string) {
+  try {
+    const like = query ? `%${query}%` : null
+    const data = await sql<{ count: number }>`
+      SELECT COUNT(*)::int AS count
+      FROM releases AS r
+      LEFT JOIN projects p ON r.project_id = p.id
+      WHERE
+        (${projectSlug}::text IS NULL OR p.slug = ${projectSlug}::text)
+        AND (${isAuthed}::boolean OR r.is_published = true)
+        AND (
+          ${like}::text IS NULL
+          OR r.title ILIKE ${like}
+          OR r.description ILIKE ${like}
+      );
+    `
+    return data.rows[0]?.count ?? 0
+  } catch (error) {
+    console.error('Database Error:', error)
+    throw new Error('Failed to fetch releases count.')
+  }
 }

@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { redirect } from 'next/navigation'
 
 import { auth } from '@/api/auth'
 import ItemLayout, {
@@ -29,7 +29,9 @@ export default async function ReleasePage ({ params }: PageItemProps) {
   ])
 
   const release = await fetchReleaseBySlug(slug, !!session?.user)
-  if (!release) return notFound()
+  if (!release) {
+    redirect('/releases')
+  }
 
   return (
     <ItemLayout item={release} />

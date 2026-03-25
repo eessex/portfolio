@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { auth } from '@/api/auth'
@@ -39,7 +39,9 @@ export default async function EventPage ({ params }: PageItemProps) {
     fetchEventBySlug(slug, !!session?.user),
     fetchEvents(!!session?.user)
   ])
-  if (!event) return notFound()
+  if (!event) {
+    redirect('/events')
+  }
 
   const moreEvents = upcomingEvents.filter(e => e.id !== event.id)
 

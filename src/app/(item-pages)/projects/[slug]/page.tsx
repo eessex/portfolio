@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { auth } from '@/api/auth'
@@ -41,7 +41,9 @@ export default async function ProjectPage ({ params }: PageItemProps) {
     fetchReleases(!!session?.user, slug),
     fetchEvents(!!session?.user, slug)
   ])
-  if (!project) return notFound()
+  if (!project) {
+    redirect('/projects')
+  }
 
   return (
     <ItemLayout item={project}>

@@ -11,6 +11,8 @@ import type {
 import type { ResponseWithCursor } from '@/lib/util'
 import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 
+import { buildApiUrl } from './util'
+
 type SortDirection = 'asc' | 'desc'
 
 export type ResultsResponse<
@@ -82,11 +84,10 @@ export function useResultsList<
 
   const buildUrl = useCallback(
     (cursor?: string, searchQuery?: string) => {
-      const params = new URLSearchParams()
-      if (searchQuery) params.set('query', searchQuery)
-      if (cursor) params.set('cursor', cursor)
-      const queryString = params.toString()
-      return queryString ? `${apiEndpoint}?${queryString}` : apiEndpoint
+      return buildApiUrl(apiEndpoint, {
+        query: searchQuery,
+        cursor
+      })
     },
     [apiEndpoint]
   )

@@ -75,20 +75,29 @@ export async function deleteEmbedCode (embedCode: EmbedCode): Promise<FormRespon
 async function createEmbedCode (embedCode: CreateEmbedCode) {
   try {
     const {
+      src,
       iframe,
+      type,
       caption,
-      title
+      title,
+      host
     } = embedCode
     return await sql<EmbedCode[]>`
       INSERT INTO embed_codes (
+        src,
         iframe,
+        type,
         caption,
         title,
+        host,
         created_at
       ) VALUES (
+        ${src},
         ${iframe},
+        ${type},
         ${caption || null},
         ${title || null},
+        ${host},
         current_timestamp
       )
       RETURNING *
@@ -104,21 +113,30 @@ async function updateEmbedCode (embedCode: CreateEmbedCode | EmbedCode) {
       return await createEmbedCode(embedCode)
     } else {
       const {
+        src,
         iframe,
+        type,
         caption,
-        title
+        title,
+        host
       } = embedCode
       return await sql<EmbedCode[]>`
         UPDATE embed_codes
         SET (
+          src,
           iframe,
+          type,
           caption,
           title,
+          host,
           updated_at
         ) = (
+          ${src},
           ${iframe},
+          ${type},
           ${caption || null},
           ${title || null},
+          ${host || null},
           current_timestamp
         )
         WHERE id = ${(embedCode as EmbedCode).id}

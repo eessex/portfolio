@@ -5,14 +5,16 @@ import {
 } from 'react'
 import type { z } from 'zod'
 
-import type { createEmbedCodeSchema } from '@/lib/embed-codes/schemas'
+import {
+  type createEmbedCodeSchema,
+  embedCodeTypes
+} from '@/lib/embed-codes/schemas'
 import type { EmbedCode } from '@/lib/embed-codes/types'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { extractIframeParams } from '@/ui/embed-codes/util'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
 import { useToast } from '@/ui/toast/toast-context'
-import { camelToSentence } from '@/ui/util'
 
 interface EmbedCodeProps {
   embedCode?: Partial<EmbedCode>
@@ -25,7 +27,7 @@ export const EditEmbedCode = ({
   embedCode,
   errors
 }: EmbedCodeProps) => {
-  const [embedCodeIframe, setEmbedCodeIframe] = useState<ReturnType<typeof extractIframeParams> | null>(embedCode ? extractIframeParams(embedCode) : null)
+  const [embedCodeIframe, setEmbedCodeIframe] = useState<Partial<EmbedCode> | null>(embedCode ?? null)
   const [iframeInputValue, setIframeInputValue] = useState(embedCode?.iframe || '')
   const namePrefix = typeof index === 'number' ? `embedCodes[${index}].` : ''
 
@@ -86,30 +88,23 @@ export const EditEmbedCode = ({
     changeIframeValue('')
   }
 
-  function setEmbedType (type?: string) {
+  function setEmbedType (type: EmbedCode['type']) {
     if (!embedCodeIframe) return
 
     setEmbedCodeIframe({
       ...embedCodeIframe,
-      type: type as EmbedCode['type']
+      type
     })
   }
 
-  const defaultTitle = embedCode?.title
-    ? embedCode?.title
-    : embedCodeIframe && embedCodeIframe.host && embedCodeIframe.host !== 'youtube'
-      ? `${camelToSentence(embedCodeIframe.host)}: ${embedCodeIframe.title || 'Untitled'}`
-      : embedCodeIframe?.title || ''
+  const defaultTitle = embedCode?.title || embedCodeIframe?.title || 'Untitled'
 
   return (
     <>
       <div>
         {embedCodeIframe && (
           <EmbedCodeItem
-            embedCode={{
-              ...embedCode,
-              iframe: iframeInputValue
-            }}
+            embedCode={embedCodeIframe}
             onRemove={onRemove}
           />
         )}
@@ -120,9 +115,9 @@ export const EditEmbedCode = ({
             placeholder: '<iframe></iframe>',
             required: true,
             readOnly: !!embedCodeIframe?.src,
-            type: embedCodeIframe?.src ? 'hidden' : 'text'
+            type: embedCode?.src || embedCodeIframe?.src ? 'hidden' : 'text'
           }}
-          description='Paste a full iframe embed code. Supported services: Bandcamp, Mixcloud, Soundcloud, Spotify, YouTube. Others may work but no guarantees.'
+          description='Paste a full iframe embed code. Supported services: Bandcamp, Mixcloud, Soundcloud, Spotify, YouTube.'
           value={iframeInputValue}
           label='Embed iframe code'
           errors={errors?.iframe}
@@ -134,9 +129,9 @@ export const EditEmbedCode = ({
         />
       </div>
       <Select
-        key={embedCodeIframe?.host}
-        options={['audio', 'video']}
-        onChange={setEmbedType}
+        key={embedCodeIframe?.type}
+        options={[...embedCodeTypes]}
+        onChange={v => setEmbedType((v || 'audio') as EmbedCode['type'])}
         label='Embed type'
         placeholder='Select a type'
         value={embedCodeIframe?.type}
@@ -161,10 +156,10 @@ export const EditEmbedCode = ({
         attributes={{
           maxLength: 255,
           name: `${namePrefix}title`,
-          placeholder: 'Hostname: descriptive title'
+          placeholder: 'Music video for Artist Name - Song Name'
         }}
         defaultValue={defaultTitle}
-        description='Used for internal search only, never displayed publicly.'
+        description='Used for internal search only, not displayed publicly.'
         errors={errors?.title}
         label='Title'
       />
@@ -176,6 +171,27 @@ export const EditEmbedCode = ({
           }}
           defaultValue={embedCode.id}
           label='Embed Code ID'
+        />
+      )}
+      {embedCodeIframe?.src && (
+        <Input
+          attributes={{
+            name: `${namePrefix}src`
+            // type: 'hidden'
+          }}
+          defaultValue={embedCodeIframe.src}
+          label='Embed Code Source'
+        />
+      )}
+      {embedCodeIframe?.host && (
+        <Input
+          attributes={{
+            name: `${namePrefix}host`,
+            // type: 'hidden',
+            required: true
+          }}
+          defaultValue={embedCodeIframe.host}
+          label='Embed Code Host'
         />
       )}
     </>

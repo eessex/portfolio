@@ -314,3 +314,23 @@ export function formatVenueInline ({
   if (venue.country) parts.push(venue.country)
   return parts.join(', ').replace(':,', ':').trim()
 }
+
+type BaseParams = {
+  query?: string
+  cursor?: string
+} & Record<string, string | number | boolean | undefined | null>
+
+export function buildApiUrl (endpoint: string, params?: BaseParams) {
+  const searchParams = new URLSearchParams()
+
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        searchParams.set(key, String(value))
+      }
+    })
+  }
+
+  const queryString = searchParams.toString()
+  return queryString ? `${endpoint}?${queryString}` : endpoint
+}

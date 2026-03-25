@@ -46,15 +46,15 @@ export const videoEmbedCodeHosts = [
   'youtube'
 ] as const
 
-const embedCodeHosts = [...audioEmbedCodeHosts, ...videoEmbedCodeHosts] as const
+export const embedCodeHosts = [...audioEmbedCodeHosts, ...videoEmbedCodeHosts, 'unknown'] as const
 export type EmbedCodeHost = typeof embedCodeHosts[number]
 
 const embedCodeBaseSchema = z.lazy(() => z.object({
   caption: shortText.optional(),
-  host: z.enum(embedCodeHosts).optional(),
+  host: z.enum(embedCodeHosts),
   iframe: longText.min(12),
-  src: z.string().url().optional(),
-  type: z.enum(embedCodeTypes).optional()
+  src: z.string().url(),
+  type: z.enum(embedCodeTypes)
 }))
 
 /**

@@ -8,8 +8,8 @@ import {
 import { embedCodeFixture } from '@/lib/embed-codes/fixtures'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
 import {
-  embedCodeBandcampFixtureMedium,
-  embedCodeSoundcloudFixture
+  embedCodeSoundcloudFixture,
+  embedCodeYoutubeFixture
 } from '@/ui/embed-codes/fixtures'
 import { useToast } from '@/ui/toast/toast-context'
 
@@ -95,14 +95,14 @@ describe('EditEmbedCode', () => {
         embedCode: {
           iframe: embedCodeSoundcloudFixture,
           caption: 'This is an embed code for testing purposes.',
-          title: 'Eve Essex - Honeypot'
+          title: 'Artist Name - Song Name'
         }
       })
       const input = document.querySelector('input[name="iframe"]')
       expect(input).toHaveValue(embedCodeSoundcloudFixture)
 
       expect(screen.getByLabelText(titleRegex))
-        .toHaveValue('Eve Essex - Honeypot')
+        .toHaveValue('Artist Name - Song Name')
 
       expect(screen.getByLabelText(captionRegex))
         .toHaveValue('This is an embed code for testing purposes.')
@@ -111,21 +111,15 @@ describe('EditEmbedCode', () => {
         .toHaveValue('audio')
     })
 
-    it('auto-populates title from iframe if title is not provided in embedCode prop', () => {
-      renderComponent({ embedCode: { iframe: embedCodeSoundcloudFixture } })
+    it('auto-populates src, host and type from iframe ', async () => {
+      renderComponent({ embedCode: { iframe: embedCodeYoutubeFixture } })
 
-      expect(screen.getByLabelText(titleRegex))
-        .toHaveValue('Soundcloud: Eve Essex - Honeypot')
-    })
-
-    it('handles partial embedCode data without errors', async () => {
-      renderComponent({ embedCode: { iframe: embedCodeBandcampFixtureMedium } })
-      const input = document.querySelector('input[name="iframe"]')
-
-      expect(input).toHaveValue(embedCodeBandcampFixtureMedium)
+      expect(document.querySelector('input[name="iframe"]')).toHaveValue(embedCodeYoutubeFixture)
       await waitFor(() => {
-        expect(screen.getByLabelText(titleRegex))
-          .toHaveValue('Bandcamp: The Fabulous Truth by Eve Essex')
+        expect(screen.getByDisplayValue(embedCodeFixture.src)).toBeInTheDocument()
+        expect(screen.getByDisplayValue(embedCodeFixture.host)).toBeInTheDocument()
+        const option = screen.getByRole('option', { name: /video/i }) as HTMLOptionElement
+        expect(option.selected).toBe(true)
       })
       expect(screen.getByLabelText(captionRegex)).toHaveValue('')
     })
@@ -176,7 +170,7 @@ describe('EditEmbedCode', () => {
 
       const titleInput = screen.getByLabelText(titleRegex)
       expect(titleInput).toHaveAttribute('maxlength', '255')
-      expect(titleInput).toHaveAttribute('placeholder', 'Hostname: descriptive title')
+      expect(titleInput).toHaveAttribute('placeholder', 'Music video for Artist Name - Song Name')
 
       const captionInput = screen.getByLabelText(captionRegex)
       expect(captionInput).toHaveAttribute('maxlength', '255')

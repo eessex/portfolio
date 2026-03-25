@@ -2,12 +2,15 @@ import type {
   CreateEmbedCode,
   EmbedCode
 } from '@/lib/embed-codes/types'
+import { embedCodeYoutubeFixture } from '@/ui/embed-codes/fixtures'
 
 export const newEmbedCodeFixture: CreateEmbedCode = {
   title: 'Test Embed Code',
-  iframe: '<iframe src="https://example.com/embed"></iframe>',
+  iframe: embedCodeYoutubeFixture,
   caption: 'This is an embed code for testing purposes.',
   type: 'video',
+  host: 'youtube',
+  src: 'https://www.youtube-nocookie.com/embed/mkveEuKy6B8?si=kgECvQiU_ZySMCC1&controls=0',
   tagIds: []
 }
 

@@ -3,59 +3,39 @@
 import {
   audioEmbedCodeHosts,
   type EmbedCodeHost,
-  type EmbedCodeType,
+  embedCodeHosts,
   videoEmbedCodeHosts
 } from '@/lib/embed-codes/schemas'
-import type { EmbedCode } from '@/lib/embed-codes/types'
-
-export interface IFrameProps {
-  src: string
-  width: number
-  height: number
-  prettySrc?: string
-  host: EmbedCodeHost | string
-  type?: EmbedCodeType
-  title?: string
-}
+import type { CreateEmbedCode } from '@/lib/embed-codes/types'
 
 export function defaultEmbedSizeByHost (host?: EmbedCodeHost): EmbedCodeDimensions {
-  const params: EmbedCodeDimensions = {
-    width: '100%', position: 'relative'
-  }
   switch (host) {
     case 'bandcamp':
     case 'mixcloud':
-      return {
-        ...params, height: '120px'
-      }
+      return { height: '120px' }
     case 'soundcloud':
-      return {
-        ...params, height: '166px'
-      }
+      return { height: '166px' }
     case 'spotify':
-      return {
-        ...params, height: '80px'
-      }
+      return { height: '80px' }
     default:
-      return {
-        ...params, aspectRatio: 1.777
-      }
+      return { aspectRatio: 1.777 }
   }
 }
 
-export function extractHostnameType (hostname: string) {
+export function extractHostnameType (hostname: EmbedCodeHost) {
   const audioType = audioEmbedCodeHosts.find(host => hostname.includes(host))
   if (audioType) return 'audio'
 
   const videoType = videoEmbedCodeHosts.find(host => hostname.includes(host))
   if (videoType) return 'video'
+
+  return 'audio' // default to audio if unknown
 }
 
 export function extractHostFromUrl (url: string): EmbedCodeHost {
   const parsed = new URL(url)
-  const hosts = [...audioEmbedCodeHosts, ...videoEmbedCodeHosts]
-  const host = hosts.find(h => parsed.hostname.includes(h))
-  return host as EmbedCodeHost // FIXME
+  const host = embedCodeHosts.find(h => parsed.hostname.includes(h))
+  return host ?? 'unknown'
 }
 
 function isSafeIframeUrl (url: string): boolean {
@@ -68,63 +48,8 @@ function isSafeIframeUrl (url: string): boolean {
 }
 
 interface EmbedCodeDimensions {
-  width?: '100%' | number
   height?: string | number
   aspectRatio?: number
-  position?: 'relative'
-}
-
-interface EmbedCodeParams extends EmbedCodeDimensions {
-  host?: EmbedCodeHost | string
-  src: string
-  title?: string
-  type?: EmbedCodeType
-}
-
-function parseDimension (value?: string | null) {
-  if (!value) return undefined
-  const num = parseInt(value)
-  return Number.isNaN(num) ? undefined : num
-}
-
-function extractIframeDimensions (
-  iframeEl: HTMLIFrameElement,
-  host: EmbedCodeHost | string
-): EmbedCodeDimensions {
-  let width: EmbedCodeDimensions['width']
-  let height: EmbedCodeDimensions['height']
-  let aspectRatio: EmbedCodeDimensions['aspectRatio']
-
-  const widthAttr = iframeEl.getAttribute('width')
-  const heightAttr = iframeEl.getAttribute('height')
-
-  const rawWidth = widthAttr || iframeEl.style.width
-  const rawHeight = heightAttr || iframeEl.style.height
-
-  const parsedWidth = parseDimension(rawWidth)
-  const parsedHeight = parseDimension(rawHeight)
-
-  if (host === 'youtube' || host === 'vimeo') {
-    return { aspectRatio: 16 / 9 }
-  }
-
-  // 100% width embeds (audio players etc)
-  if (rawWidth === '100%' && parsedHeight) {
-    width = '100%'
-    height = parsedHeight
-    return {
-      width,
-      height
-    }
-  }
-
-  // Standard ratio calculation
-  if (parsedWidth && parsedHeight) {
-    aspectRatio = parsedWidth / parsedHeight
-    return { aspectRatio }
-  }
-
-  return { aspectRatio: 16 / 9 }
 }
 
 export function extractIframeFallbackText (html: string): string | undefined {
@@ -165,21 +90,25 @@ export function extractIframeTitle (iframe: string, iframeEl: HTMLIFrameElement)
 }
 
 export function extractIframeParams (
-  embedCode: Partial<EmbedCode>,
+  embedCode: Partial<CreateEmbedCode> & { iframe: string },
   isThrowOnError?: boolean
-): EmbedCodeParams | null {
+): CreateEmbedCode | null {
   if (typeof window === 'undefined' && !embedCode.src) {
     return null
   }
-  let params: EmbedCodeParams
+  let params: CreateEmbedCode
+  const host = embedCode.host || (embedCode.src ? extractHostFromUrl(embedCode.src) : 'unknown')
+  const type = embedCode.type || (embedCode.src ? extractHostnameType(host) : 'audio')
 
   if (embedCode.src) {
     params = {
       src: embedCode.src,
-      host: embedCode.host || extractHostFromUrl(embedCode.src),
-      type: embedCode.type || extractHostnameType(embedCode.src),
+      host,
+      type,
       title: embedCode.caption,
-      ...defaultEmbedSizeByHost(embedCode.host || extractHostFromUrl(embedCode.src))
+      iframe: embedCode.iframe,
+      tagIds: [], // FIXME: should be optional
+      ...defaultEmbedSizeByHost(host)
     }
     return params
   } else {
@@ -194,25 +123,18 @@ export function extractIframeParams (
       }
       return null
     }
-    const url = new URL(src || '')
     const host = extractHostFromUrl(src)
-    const type = extractHostnameType(url.hostname)
+    const type = extractHostnameType(host)
     const title = extractIframeTitle(embedCode.iframe!, iframeEl)
 
-    const {
-      width,
-      height,
-      aspectRatio
-    } = extractIframeDimensions(iframeEl, host)
-
     return {
-      aspectRatio,
-      height,
       host,
       src,
       title,
       type,
-      width
+      iframe: embedCode.iframe,
+      tagIds: [], // FIXME: should be optional
+      ...defaultEmbedSizeByHost(host)
     }
   }
 }

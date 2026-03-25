@@ -49,7 +49,7 @@ export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]) => {
   }
 }
 
-export async function fetchEmbedCodeByIframe (embedCode: CreateEmbedCode) {
+export async function fetchEmbedCodeByIframe (iframe: string) {
   try {
     const { rows } = await sql<EmbedCode>`
       SELECT
@@ -67,7 +67,7 @@ export async function fetchEmbedCodeByIframe (embedCode: CreateEmbedCode) {
           WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
         ) AS release_slugs
       FROM embed_codes
-      WHERE iframe = ${embedCode.iframe}
+      WHERE iframe = ${iframe}
       LIMIT 1
     `
     if (rows.length === 0) {
@@ -116,6 +116,9 @@ export async function fetchEmbedCodes (cursor?: string, query?: string) {
         ${like}::text IS NULL
         OR title ILIKE ${like}
         OR iframe ILIKE ${like}
+        OR src ILIKE ${like}
+        OR host ILIKE ${like}
+        OR type ILIKE ${like}
         OR caption ILIKE ${like}
       )
       AND (
@@ -151,6 +154,9 @@ async function getTotalCount (query?: string) {
         ${like}::text IS NULL
         OR title ILIKE ${like}
         OR iframe ILIKE ${like}
+        OR src ILIKE ${like}
+        OR host ILIKE ${like}
+        OR type ILIKE ${like}
         OR caption ILIKE ${like}
       )
     `

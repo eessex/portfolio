@@ -1,14 +1,8 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import {
-  deleteEmbedCode,
-  editEmbedCode
-} from '@/lib/embed-codes/actions'
-import {
-  fetchEmbedCodeByIframe,
-  fetchEmbedCodes
-} from '@/lib/embed-codes/data'
+import { deleteEmbedCode } from '@/lib/embed-codes/actions'
+import { fetchEmbedCodes } from '@/lib/embed-codes/data'
 import type { EmbeddedItemType } from '@/lib/types'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
@@ -29,9 +23,7 @@ export default async function EmbedCodesPage () {
           apiEndpoint='/api/embed_codes'
           res={res}
           itemType={itemType}
-          editItem={editEmbedCode}
           deleteItem={deleteEmbedCode}
-          fetchMaybeExistingItem={fetchEmbedCodeByIframe}
         />
       </Suspense>
     </DashboardLayout>

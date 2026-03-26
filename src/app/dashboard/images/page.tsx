@@ -1,14 +1,8 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import {
-  deleteImage,
-  editImage
-} from '@/lib/images/actions'
-import {
-  fetchImageByUrl,
-  fetchImages
-} from '@/lib/images/data'
+import { deleteImage } from '@/lib/images/actions'
+import { fetchImages } from '@/lib/images/data'
 import type { EmbeddedItemType } from '@/lib/types'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
@@ -29,9 +23,7 @@ export default async function ImagesPage () {
           apiEndpoint='/api/images'
           res={res}
           itemType={itemType}
-          editItem={editImage}
           deleteItem={deleteImage}
-          fetchMaybeExistingItem={fetchImageByUrl}
         />
       </Suspense>
     </DashboardLayout>

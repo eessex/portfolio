@@ -1,14 +1,8 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import {
-  deleteLink,
-  editLink
-} from '@/lib/links/actions'
-import {
-  fetchLinkByUrl,
-  fetchLinks
-} from '@/lib/links/data'
+import { deleteLink } from '@/lib/links/actions'
+import { fetchLinks } from '@/lib/links/data'
 import type { EmbeddedItemType } from '@/lib/types'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
@@ -29,9 +23,7 @@ export default async function LinksPage () {
           apiEndpoint='/api/links'
           res={res}
           itemType={itemType}
-          editItem={editLink}
           deleteItem={deleteLink}
-          fetchMaybeExistingItem={fetchLinkByUrl}
         />
       </Suspense>
     </DashboardLayout>

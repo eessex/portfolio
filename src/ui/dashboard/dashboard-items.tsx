@@ -48,6 +48,7 @@ import { SearchInput } from '@/ui/search-input/search-input'
 import { useToast } from '@/ui/toast/toast-context'
 import { useResultsList } from '@/ui/useResultsList'
 import {
+  capitalizeFirstLetter,
   formattedItemType,
   formatVenueInline,
   singularizePath,
@@ -280,10 +281,17 @@ function DashboardListItem<T extends DashboardItem> ({
 
   function title () {
     switch (itemType) {
-      case 'embedCodes':
+      case 'embedCodes': {
+        const castItem = item as EmbedCode
+        let formattedPrefix = capitalizeFirstLetter(castItem.host)
+        if (castItem.type === 'video' && castItem.host === 'youtube') {
+          formattedPrefix = 'YouTube'
+        }
+        return `${formattedPrefix}: ${castItem.title}` || 'Untitled'
+      }
       case 'links': {
-        const castItem = item as EmbedCode | Link
-        return castItem.title || 'Untitled'
+        const castItem = item as Link
+        return `${castItem.title}` || 'Untitled'
       }
       case 'images': {
         const imageItem = item as Image

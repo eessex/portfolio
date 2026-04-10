@@ -425,8 +425,10 @@ async function setupJsonbFunctions () {
     CREATE OR REPLACE FUNCTION build_embed_code_json(e embed_codes)
     RETURNS jsonb AS $$
       SELECT jsonb_build_object(
+        'host', e.host,
         'id', e.id,
         'iframe', e.iframe,
+        'src', e.src,
         'title', e.title,
         'caption', e.caption,
         'type', e.type

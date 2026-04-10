@@ -32,6 +32,11 @@ export async function fetchEvents (isAuthed: boolean = false, projectSlug?: stri
         e.*,
         ${path} AS path,
         (
+          SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
+          FROM embed_codes ec
+          WHERE ec.id = ANY(e.embed_code_ids)
+        ) AS embed_codes,
+        (
           SELECT build_image_json(i)
           FROM images i
           WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])

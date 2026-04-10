@@ -44,34 +44,6 @@
   padding: grids.space-rem(4);
 }
 
-.table-row-title {
-  font-weight: 600;
-
-  mark {
-    vertical-align: text-bottom;
-  }
-
-  &.table-row-title--expanded {
-    @include type.heading("lg");
-
-    display: block;
-    margin: grids.space-rem(0, 0, 1, 0);
-
-    a {
-      display: flex;
-      flex-direction: column-reverse;
-    }
-
-    @include breakpoints.sm-width {
-      @include type.size("base", "normal", "sm");
-    }
-  }
-
-  @include breakpoints.sm-width {
-    @include type.heading("base");
-  }
-}
-
 .table-row-link {
   // FIXME: use grids for img size
   --img-width-compact: 52px;
@@ -80,8 +52,8 @@
   --row-padding-inline-compact: #{grids.space-em(4)};
 
   display: grid;
-  grid-template-columns: var(--img-width-compact) 4fr 1fr 2fr;
-  grid-template-areas: "img title date meta";
+  grid-template-columns: var(--img-width-compact) 8fr 3fr 4fr calc(52px + 1em);
+  grid-template-areas: "img title date meta media";
   cursor: pointer;
   padding-inline: var(--row-padding-inline-compact);
   padding-block: var(--row-padding-block-compact);
@@ -101,6 +73,34 @@
     }
   }
 
+  .table-row-title {
+    font-weight: 600;
+
+    mark {
+      vertical-align: text-bottom;
+    }
+
+    &.table-row-title--expanded {
+      @include type.heading("lg");
+
+      display: block;
+      margin: grids.space-rem(0, 0, 1, 0);
+
+      a {
+        display: flex;
+        flex-direction: column-reverse;
+      }
+
+      @include breakpoints.sm-width {
+        @include type.size("base", "normal", "sm");
+      }
+    }
+
+    @include breakpoints.sm-width {
+      @include type.heading("base");
+    }
+  }
+
   @include breakpoints.sm-width {
     --img-width-compact: 92px;
     --img-height-compact: 92px;
@@ -109,7 +109,8 @@
     grid-template-areas:
       "img title"
       "img date"
-      "img meta";
+      "img meta"
+      "img media";
   }
 
   &:hover,
@@ -132,6 +133,8 @@
       max-width: unset;
       align-self: unset;
       padding-left: grids.space-em(2);
+
+      @include type.size("sm", "normal", "sm");
     }
 
     &:first-child {
@@ -258,5 +261,27 @@
     margin-top: grids.space-rem(12);
     display: block;
     text-align: left;
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.table-row-media {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 5px;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  @include breakpoints.sm-width {
+    justify-content: flex-start;
   }
 }

@@ -1,3 +1,7 @@
+import {
+  SpeakerWaveIcon,
+  VideoCameraIcon
+} from '@heroicons/react/24/outline'
 import { clsx } from 'clsx'
 import NextImage from 'next/image'
 import NextLink from 'next/link'
@@ -42,6 +46,8 @@ export function ItemsTableRow ({
   const rowLabel = `${item.title}${artist ? ', by ' + artist : ''}`
   const isPriorityImage = !!(isFeatured || (index || 0) < 12)
   const imageWidth = 350
+  const hasVideo = !!item.embedCodes?.some(code => code.type === 'video')
+  const hasAudio = item.path !== 'releases' && !!item.embedCodes?.some(code => code.type === 'audio')
 
   return (
     <tr
@@ -58,7 +64,10 @@ export function ItemsTableRow ({
       role='link'
       aria-label={rowLabel}
     >
-      <td className={styles['table-row-img']}>
+      <td
+        className={styles['table-row-img']}
+        aria-hidden='true'
+      >
         {coverImage && (
           <NextImage
             src={coverImage.url}
@@ -104,6 +113,20 @@ export function ItemsTableRow ({
           {children}
         </td>
       )}
+      <td className={styles['table-row-media']}>
+        {hasAudio && (
+          <SpeakerWaveIcon
+            className={styles['media-icon']}
+            aria-label='Contains audio'
+          />
+        )}
+        {hasVideo && (
+          <VideoCameraIcon
+            className={styles['media-icon']}
+            aria-label='Contains video'
+          />
+        )}
+      </td>
     </tr>
   )
 }

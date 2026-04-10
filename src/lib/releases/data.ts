@@ -103,6 +103,11 @@ export async function fetchReleases (
           WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
         ) AS cover_image,
         (
+          SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
+          FROM embed_codes ec
+          WHERE ec.id = ANY(r.embed_code_ids)
+        ) AS embed_codes,
+        (
           SELECT COALESCE(jsonb_agg(build_published_edition_json(pe)), '[]'::jsonb)
           FROM published_editions pe
           WHERE pe.release_id = r.id

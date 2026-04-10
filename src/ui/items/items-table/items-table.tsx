@@ -121,6 +121,7 @@ export function ItemsTable<T extends PageItemClient, S extends PageDataResponse>
             <th scope='col'>Title</th>
             <th scope='col'>Date</th>
             {isDetailColumnVisible && <th scope='col'>Details</th>}
+            <th scope='col'>Media</th>
           </tr>
         </thead>
 

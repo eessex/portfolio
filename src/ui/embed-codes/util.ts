@@ -107,7 +107,6 @@ export function extractIframeParams (
       type,
       title: embedCode.caption,
       iframe: embedCode.iframe,
-      tagIds: [], // FIXME: should be optional
       ...defaultEmbedSizeByHost(host)
     }
     return params
@@ -133,7 +132,6 @@ export function extractIframeParams (
       title,
       type,
       iframe: embedCode.iframe,
-      tagIds: [], // FIXME: should be optional
       ...defaultEmbedSizeByHost(host)
     }
   }

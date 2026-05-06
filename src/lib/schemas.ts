@@ -69,7 +69,7 @@ export const defaultSchema = z.object({
  * Fields on all content tables: tagIds, title, projectId
  */
 export const baseContentSchema = z.object({
-  tagIds: z.array(uuid).default([]),
+  tagIds: z.array(uuid).optional(),
   title: shortText.optional(),
   projectId: uuid.optional()
 }).extend(defaultSchema.shape)

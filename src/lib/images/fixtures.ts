@@ -6,8 +6,7 @@ import type {
 export const newImageFixture: CreateImage = {
   aspect: 1.7777,
   caption: 'This is a new image for testing purposes.',
-  tagIds: [],
-  title: 'Test Embed Code',
+  title: 'Test image',
   url: 'https://example.com/image.jpg'
 }
 

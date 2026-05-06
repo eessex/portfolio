@@ -10,8 +10,7 @@ export const newEmbedCodeFixture: CreateEmbedCode = {
   caption: 'This is an embed code for testing purposes.',
   type: 'video',
   host: 'youtube',
-  src: 'https://www.youtube-nocookie.com/embed/mkveEuKy6B8?si=kgECvQiU_ZySMCC1&controls=0',
-  tagIds: []
+  src: 'https://www.youtube-nocookie.com/embed/mkveEuKy6B8?si=kgECvQiU_ZySMCC1&controls=0'
 }
 
 export const embedCodeFixture: EmbedCode = {

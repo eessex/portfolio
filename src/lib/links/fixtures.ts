@@ -5,8 +5,7 @@ import type {
 
 export const newLinkFixture: CreateLink = {
   url: 'https://testlink.com',
-  title: 'Test Link',
-  tagIds: []
+  title: 'Test Link'
 }
 
 export const newPressLinkFixture: CreateLink = {
@@ -15,8 +14,7 @@ export const newPressLinkFixture: CreateLink = {
   attribution: 'Test Attribution',
   publishDate: new Date(),
   type: 'press',
-  quotation: 'Test Quotation',
-  tagIds: []
+  quotation: 'Test Quotation'
 }
 
 export const linkFixture: Link = {

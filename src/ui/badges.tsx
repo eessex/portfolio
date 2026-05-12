@@ -1,8 +1,10 @@
 import type { EmbedCode } from '@/lib/embed-codes/types'
 import type { Image } from '@/lib/images/types'
 import type { Link } from '@/lib/links/types'
-import type { Badge } from '@/lib/types'
-import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
+import type {
+  Badge,
+  EmbeddedItem
+} from '@/lib/types'
 import { usedOnPages } from '@/ui/util'
 
 export function Badges ({ badges }: { badges: Badge[] }) {
@@ -20,7 +22,7 @@ export function Badges ({ badges }: { badges: Badge[] }) {
   )
 }
 
-export function itemBadges (item: Partial<DashboardItem>, isUnusedIncluded = false): Badge[] {
+export function itemBadges (item: Partial<EmbeddedItem>, isUnusedIncluded = false): Badge[] {
   const usedOn = usedOnPages(item)
   const badges: Badge[] = []
   const link = item as Link

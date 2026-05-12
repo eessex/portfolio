@@ -7,17 +7,19 @@ import {
   useState
 } from 'react'
 
-import type { EmbeddedItemType } from '@/lib/types'
+import type {
+  EmbeddedItem,
+  EmbeddedItemType
+} from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
 import { CreateItemButton } from '@/ui/buttons/create-item-button'
 import styles from '@/ui/combobox/combobox.module.scss'
-import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 import { Loading } from '@/ui/loading'
 import { SearchInput } from '@/ui/search-input/search-input'
 import { useResultsList } from '@/ui/useResultsList'
 import { itemTypeToLabel } from '@/ui/util'
 
-export interface ComboboxProps<T extends DashboardItem> {
+export interface ComboboxProps<T extends EmbeddedItem> {
   defaultQuery?: string
   initialResults: ResponseWithCursor<T>
   itemType: EmbeddedItemType
@@ -28,7 +30,7 @@ export interface ComboboxProps<T extends DashboardItem> {
   onSelect: (item: T) => void
 }
 
-export function Combobox<T extends DashboardItem> ({
+export function Combobox<T extends EmbeddedItem> ({
   defaultQuery,
   initialResults,
   itemType,

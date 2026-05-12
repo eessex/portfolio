@@ -1,13 +1,15 @@
 import type { QueryResult } from '@vercel/postgres'
 import type { z } from 'zod'
 
-import type { PageItemClient } from '@/lib/types'
-import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
+import type {
+  EmbeddedItem,
+  PageItemClient
+} from '@/lib/types'
 import { camelizeKeys } from '@/ui/util'
 
 export const DEFAULT_PAGE_SIZE = 24
 
-export interface ResponseWithCursor<T extends DashboardItem | PageItemClient> {
+export interface ResponseWithCursor<T extends EmbeddedItem | PageItemClient> {
   res: T[]
   nextCursor: string | null
   totalCount: number

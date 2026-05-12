@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import {
   baseContentSchema,
-  baseDashboardItemSlugsSchema,
+  baseEmbeddedItemSlugsSchema,
   bool,
   date,
   shortText,
@@ -54,5 +54,5 @@ export const createLinkSchema = z.lazy(() =>
  * Extends `linkSchema` with the pages that embed it.
  */
 export const dashboardLinkSchema = z.lazy(() =>
-  baseDashboardItemSlugsSchema.and(linkSchema)
+  baseEmbeddedItemSlugsSchema.and(linkSchema)
 )

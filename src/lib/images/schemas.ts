@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import {
   baseContentSchema,
-  baseDashboardItemSlugsSchema,
+  baseEmbeddedItemSlugsSchema,
   bool,
   shortText,
   url
@@ -52,5 +52,5 @@ export const createImageSchema = z.lazy(() =>
  * Extends `imageSchema` with the pages that embed it.
  */
 export const dashboardImageSchema = z.lazy(() =>
-  baseDashboardItemSlugsSchema.and(imageSchema)
+  baseEmbeddedItemSlugsSchema.and(imageSchema)
 )

@@ -2,15 +2,17 @@
 
 import { useState } from 'react'
 
-import type { EmbeddedItemType } from '@/lib/types'
+import type {
+  EmbeddedItem,
+  EmbeddedItemType
+} from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
 import { Combobox } from '@/ui/combobox/combobox'
-import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 import styles from '@/ui/form/form.module.scss'
 import { SelectedResult } from '@/ui/selected-results/selected-result'
 import { itemTypeToLabel } from '@/ui/util'
 
-export interface AttachEmbeddedItemProps<T extends DashboardItem> {
+export interface AttachEmbeddedItemProps<T extends EmbeddedItem> {
   existingItem?: T
   initialResults: ResponseWithCursor<T>
   isRequired?: boolean
@@ -25,7 +27,7 @@ export interface AttachEmbeddedItemProps<T extends DashboardItem> {
  *
  * TODO: does search input need to be required?
  */
-export function AttachEmbeddedItem<T extends DashboardItem> ({
+export function AttachEmbeddedItem<T extends EmbeddedItem> ({
   existingItem,
   initialResults,
   isRequired,

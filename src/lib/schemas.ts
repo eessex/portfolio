@@ -89,7 +89,7 @@ export const basePageSchema = z.object({
  * Fields on items visible in dashboard: eventSlugs, releaseSlugs
  * Represents the slugs of pages that embed the item.
  */
-export const baseDashboardItemSlugsSchema = z.object({
+export const baseEmbeddedItemSlugsSchema = z.object({
   eventSlugs: z.array(slug).optional(),
   projectSlugs: z.array(slug).optional(),
   releaseSlugs: z.array(slug).optional()

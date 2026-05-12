@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import {
-  baseDashboardItemSlugsSchema,
+  baseEmbeddedItemSlugsSchema,
   defaultSchema,
   shortText,
   url,
@@ -45,5 +45,5 @@ export const createVenueSchema = z.lazy(() =>
  * Extends `venueSchema` with the pages that embed it.
 */
 export const dashboardVenueSchema = z.lazy(() =>
-  baseDashboardItemSlugsSchema.and(venueSchema)
+  baseEmbeddedItemSlugsSchema.and(venueSchema)
 )

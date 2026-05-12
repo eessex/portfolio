@@ -6,33 +6,35 @@ import {
 } from 'react'
 
 import type {
-  PageDataResponse, PageItemClient, PageItemResponseWithCursor
+  EmbeddedItem,
+  PageDataResponse,
+  PageItemClient,
+  PageItemResponseWithCursor
 } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
-import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 
 import { buildApiUrl } from './util'
 
 type SortDirection = 'asc' | 'desc'
 
 export type ResultsResponse<
-  TDashboard extends DashboardItem,
+  TEmbeddedItem extends EmbeddedItem,
   TPage extends PageItemClient,
   S extends PageDataResponse | undefined = undefined
 > = S extends PageDataResponse
   ? PageItemResponseWithCursor<TPage, S>
-  : ResponseWithCursor<TDashboard>
+  : ResponseWithCursor<TEmbeddedItem>
 
 /**
  * Fetch paginated results with infinite scroll, search, and sort.
  */
 export function useResultsList<
-  TDashboard extends DashboardItem,
+  TEmbeddedItem extends EmbeddedItem,
   TPage extends PageItemClient = never,
   S extends PageDataResponse | undefined = undefined
 > (
   apiEndpoint: string,
-  initial: ResultsResponse<TDashboard, TPage, S>,
+  initial: ResultsResponse<TEmbeddedItem, TPage, S>,
   defaultQuery?: string
 ) {
   /** User search query */
@@ -44,8 +46,8 @@ export function useResultsList<
 
   const [isLoading, setIsLoading] = useState(false)
   /** Current list of items (filtered and sorted) */
-  const [items, setItems] = useState<(TDashboard | TPage)[]>(
-    normalizeItems<TDashboard | TPage>(initial.res)
+  const [items, setItems] = useState<(TEmbeddedItem | TPage)[]>(
+    normalizeItems<TEmbeddedItem | TPage>(initial.res)
   )
   /** Cursor for next page */
   const [nextCursor, setNextCursor] = useState<string | null>(initial.nextCursor)
@@ -59,20 +61,20 @@ export function useResultsList<
   /** Abort controller for fetch requests */
   const abortControllerRef = useRef<AbortController | null>(null)
   /** Cache: full unfiltered results */
-  const fullResultsCache = useRef<(TDashboard | TPage)[]>(
-    normalizeItems<TDashboard | TPage>(initial.res)
+  const fullResultsCache = useRef<(TEmbeddedItem | TPage)[]>(
+    normalizeItems<TEmbeddedItem | TPage>(initial.res)
   )
   /** Fetching state ref to prevent duplicate requests */
   const isFetchingRef = useRef(false)
   /** Cache: one item's normalized search text */
   const searchIndexRef = useRef<Map<string, string>>(new Map())
   const [groupedItems, setGroupedItems] = useState<
-  Record<string, (TDashboard | TPage)[]> | null
+  Record<string, (TEmbeddedItem | TPage)[]> | null
     >(
     Array.isArray(initial.res) ? null : initial.res
     )
   const groupedCache = useRef<
-  Record<string, (TDashboard | TPage)[]>
+  Record<string, (TEmbeddedItem | TPage)[]>
     >(
     Array.isArray(initial.res) ? {} : initial.res
     )
@@ -120,7 +122,7 @@ export function useResultsList<
     return []
   }, [])
 
-  const getSearchText = useCallback((item: TDashboard | TPage): string => {
+  const getSearchText = useCallback((item: TEmbeddedItem | TPage): string => {
     const cached = searchIndexRef.current.get(item.id)
     if (cached) return cached
 
@@ -133,7 +135,7 @@ export function useResultsList<
   }, [extractStrings])
 
   const applyFilter = useCallback(
-    (list: (TDashboard | TPage)[], q: string, sortDirection: SortDirection) => {
+    (list: (TEmbeddedItem | TPage)[], q: string, sortDirection: SortDirection) => {
       let filtered = list
 
       if (q) {
@@ -161,10 +163,10 @@ export function useResultsList<
 
       try {
         const res = await fetch(buildUrl(options.cursor, currentQuery), { signal: abortControllerRef.current.signal })
-        const data: ResultsResponse<TDashboard, TPage, S> = await res.json()
+        const data: ResultsResponse<TEmbeddedItem, TPage, S> = await res.json()
         const isGrouped = !Array.isArray(data.res)
         if (isGrouped) {
-          const res = data.res as Record<string, (TDashboard | TPage)[]>
+          const res = data.res as Record<string, (TEmbeddedItem | TPage)[]>
 
           if (options.replace) {
             groupedCache.current = res
@@ -188,7 +190,7 @@ export function useResultsList<
           setGroupedItems(groupedCache.current)
           setItems(applyFilter(flat, currentQuery, currentSort))
         } else {
-          const normalized = normalizeItems<TDashboard | TPage>(data.res)
+          const normalized = normalizeItems<TEmbeddedItem | TPage>(data.res)
 
           const newItems = options.replace
             ? normalized
@@ -218,7 +220,7 @@ export function useResultsList<
   const getFilteredGroupedItems = useCallback(() => {
     if (!groupedItems) return null
 
-    const result: Record<string, (TDashboard | TPage)[]> = {}
+    const result: Record<string, (TEmbeddedItem | TPage)[]> = {}
 
     for (const key of Object.keys(groupedItems)) {
       result[key] = applyFilter(

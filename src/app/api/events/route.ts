@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { auth } from '@/api/auth'
+import { auth } from '@/auth'
 import { fetchEvents } from '@/lib/events/data'
 
 export async function GET (req: Request) {

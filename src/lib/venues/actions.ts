@@ -1,8 +1,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import postgres from 'postgres'
 
+import { sql } from '@/lib/db'
 import type { FormResponse } from '@/lib/types'
 import { formatDbResponseForClient } from '@/lib/util'
 import {
@@ -14,8 +14,6 @@ import type {
   CreateVenue,
   Venue
 } from '@/lib/venues/types'
-
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 export async function editVenue (formData: FormData): Promise<FormResponse<Venue>> {
   const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)

@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation'
 
-import { auth } from '@/api/auth'
 import ItemLayout, {
   generateItemMetadata,
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
+import { auth } from '@/auth'
 import {
   fetchReleaseBySlug,
   fetchReleases

@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 
-import { auth } from '@/api/auth'
 import ItemLayout, {
   generateItemMetadata,
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
+import { auth } from '@/auth'
 import {
   fetchEventBySlug,
   fetchEvents

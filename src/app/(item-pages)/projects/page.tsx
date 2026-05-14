@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { auth } from '@/api/auth'
+import { auth } from '@/auth'
 import { fetchProjects } from '@/lib/projects/data'
 import type {
   FetchProjectsResult,

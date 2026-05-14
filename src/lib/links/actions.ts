@@ -1,8 +1,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import postgres from 'postgres'
 
+import { sql } from '@/lib/db'
 import {
   createLinkSchema,
   editLinkSchema,
@@ -14,8 +14,6 @@ import type {
 } from '@/lib/links/types'
 import type { FormResponse } from '@/lib/types'
 import { formatDbResponseForClient } from '@/lib/util'
-
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 export async function editLink (formData: FormData): Promise<FormResponse<Link>> {
   const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)

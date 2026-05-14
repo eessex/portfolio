@@ -1,13 +1,11 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import postgres from 'postgres'
 
 import { aboutSchema } from '@/lib/about/schemas'
 import type { About } from '@/lib/about/types'
+import { sql } from '@/lib/db'
 import type { FormResponse } from '@/lib/types'
-
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 export async function editAbout (formData: FormData, id: string): Promise<FormResponse<About>> {
   const validatedFields = aboutSchema.safeParse(Object.fromEntries(formData))

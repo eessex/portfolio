@@ -1,7 +1,6 @@
 'use server'
 
-import postgres from 'postgres'
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
+import { sql } from '@/lib/db'
 
 /**
  * Enables the UUID extension for generating default UUIDs in tables.

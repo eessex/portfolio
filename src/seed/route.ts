@@ -1,5 +1,4 @@
 // import bcrypt from 'bcrypt'
-// import postgres from 'postgres'
 // import {
 // about,
 // siteSettings
@@ -9,8 +8,7 @@
 // venues,
 // users
 // } from '../../placeholder-data'
-
-// const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
+// import { sql } from '@/lib/db'
 
 // async function seedSiteSettings () {
 //   // await sql`

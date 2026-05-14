@@ -4,7 +4,7 @@ import clsx from 'clsx'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 
-import { auth } from '@/api/auth'
+import { auth } from '@/auth'
 import { DeviceProvider } from '@/lib/device-context'
 import { SessionProvider } from '@/lib/session-context'
 import { fetchSiteSettings } from '@/lib/site-settings/data'

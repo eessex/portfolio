@@ -1,8 +1,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import postgres from 'postgres'
 
+import { sql } from '@/lib/db'
 import {
   deleteFromS3,
   uploadFile
@@ -18,8 +18,6 @@ import type {
 } from '@/lib/images/types'
 import type { FormResponse } from '@/lib/types'
 import { formatDbResponseForClient } from '@/lib/util'
-
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 const s3Prefix = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/images/`
 

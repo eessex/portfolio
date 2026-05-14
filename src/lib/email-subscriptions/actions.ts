@@ -1,12 +1,9 @@
 'use server'
 
-import postgres from 'postgres'
-
+import { sql } from '@/lib/db'
 import { emailSubscriptionSchema } from '@/lib/email-subscriptions/schemas'
 import type { FormResponse } from '@/lib/types'
 import { escapeHtml } from '@/ui/util'
-
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 /** save email subscriptions */
 export async function createEmailSubscription<T> (formData: FormData): Promise<FormResponse<T>> {

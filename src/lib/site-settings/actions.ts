@@ -1,13 +1,11 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import postgres from 'postgres'
 
+import { sql } from '@/lib/db'
 import { siteSettingsSchema } from '@/lib/site-settings/schemas'
 import type { SiteSettings } from '@/lib/site-settings/types'
 import type { FormResponse } from '@/lib/types'
-
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
 export async function editSiteSettings (formData: FormData, id: string): Promise<FormResponse<SiteSettings>> {
   const validatedFields = siteSettingsSchema.safeParse(Object.fromEntries(formData))

@@ -1,6 +1,6 @@
 'use server'
 
-import { signIn } from '@/api/auth'
+import { signIn } from '@/auth'
 import type { FormResponse } from '@/lib/types'
 
 export async function authenticate (

@@ -1,8 +1,8 @@
 import NextImage from 'next/image'
 import NextLink from 'next/link'
 
-import { auth } from '@/api/auth'
 import styles from '@/app/home.module.scss'
+import { auth } from '@/auth'
 import { fetchEvents } from '@/lib/events/data'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { ItemsList } from '@/ui/items/items-list'

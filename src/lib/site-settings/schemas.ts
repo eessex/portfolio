@@ -1,9 +1,9 @@
 import {
   basePageSchema,
   defaultSchema,
-  hydratedItemIdSchemas,
   shortText
 } from '@/lib/schemas'
+import { hydratedItemIdSchemas } from '@/lib/schemas/hydratedItemIdSchemas'
 
 /**
  * Site settings represent global settings for the site.

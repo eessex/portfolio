@@ -4,10 +4,10 @@ import {
   basePageSchema,
   date,
   embeddedItemIdSchemas,
-  hydratedItemIdSchemas,
   url,
   uuid
 } from '@/lib/schemas'
+import { hydratedItemIdSchemas } from '@/lib/schemas/hydratedItemIdSchemas'
 
 /**
  * An event, such as a concert, performance, opening, or screening.
@@ -32,3 +32,9 @@ export const eventClientSchema = eventSchema.extend(
     venue: true
   }).shape
 )
+
+export const createEventSchema = eventSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+})

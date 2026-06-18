@@ -1,13 +1,5 @@
 import { z } from 'zod'
 
-import { embedCodeSchema } from '@/lib/embed-codes/schemas'
-import { imageSchema } from '@/lib/images/schemas'
-import { linkSchema } from '@/lib/links/schemas'
-import { projectSchema } from '@/lib/projects/schemas'
-import { publishedEditionSchema } from '@/lib/published-editions/schemas'
-import { tagSchema } from '@/lib/tags/schemas'
-import { venueSchema } from '@/lib/venues/schemas'
-
 /**
  * Types of pages that can have paths
  * (i.e. that can be accessed on the public site)
@@ -65,6 +57,16 @@ export const defaultSchema = z.object({
   updatedAt: date.optional()
 })
 
+export const defaultEditOmitFields = {
+  createdAt: true,
+  updatedAt: true
+}
+
+export const defaultCreateOmitFields = {
+  ...defaultEditOmitFields,
+  id: true
+}
+
 /**
  * Fields on all content tables: tagIds, title, projectId
  */
@@ -103,22 +105,6 @@ export const embeddedItemIdSchemas = z.object({
   embedCodeIds: z.array(uuid).optional(),
   imageIds: z.array(uuid).optional(),
   linkIds: z.array(uuid).optional()
-})
-
-/**
- * IDs of items that can be embedded within pages,
- * their metadata will be included when fetching a page.
- */
-export const hydratedItemIdSchemas = z.object({
-  coverImage: z.lazy(() => imageSchema).optional(),
-  embedCodes: z.lazy(() => embedCodeSchema.array()).optional(),
-  featuredEmbedCode: z.lazy(() => embedCodeSchema).optional(),
-  images: z.lazy(() => imageSchema.array()).optional(),
-  links: z.lazy(() => linkSchema.array()).optional(),
-  project: projectSchema.optional(),
-  publishedEditions: z.array(publishedEditionSchema).optional(),
-  tags: z.array(tagSchema).optional(),
-  venue: z.lazy(() => venueSchema).optional()
 })
 
 /**

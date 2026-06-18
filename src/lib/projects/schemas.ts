@@ -3,9 +3,9 @@ import { z } from 'zod'
 import {
   basePageSchema,
   date,
-  embeddedItemIdSchemas,
-  hydratedItemIdSchemas
+  embeddedItemIdSchemas
 } from '@/lib/schemas'
+import { hydratedItemIdSchemas } from '@/lib/schemas/hydratedItemIdSchemas'
 
 export const projectTypes = [
   'band',

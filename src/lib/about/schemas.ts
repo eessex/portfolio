@@ -3,10 +3,10 @@ import { z } from 'zod'
 import {
   basePageSchema,
   defaultSchema,
-  hydratedItemIdSchemas,
   shortText,
   uuid
 } from '@/lib/schemas'
+import { hydratedItemIdSchemas } from '@/lib/schemas/hydratedItemIdSchemas'
 
 /**
  * The about page, with contact info and other details.

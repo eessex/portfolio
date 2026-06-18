@@ -4,9 +4,9 @@ import {
   basePageSchema,
   date,
   embeddedItemIdSchemas,
-  hydratedItemIdSchemas,
   shortText
 } from '@/lib/schemas'
+import { hydratedItemIdSchemas } from '@/lib/schemas/hydratedItemIdSchemas'
 
 export const releaseTypes = [
   'album',

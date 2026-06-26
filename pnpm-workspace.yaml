@@ -1,0 +1,6 @@
+allowBuilds:
+  '@parcel/watcher': true
+  bcrypt: true
+  bufferutil: true
+  sharp: true
+  unrs-resolver: true

@@ -13,9 +13,10 @@ import { Loading } from '@/ui/loading'
 import { formattedItemType } from '@/ui/util'
 
 const path: PagePathType = 'projects'
+const description = 'Additional projects and collaborations.'
 const title = formattedItemType(path, false, true)
 
-export const metadata: Metadata = { title }
+export const metadata: Metadata = { title, description }
 
 export default async function ProjectsPage() {
   const session = await auth()

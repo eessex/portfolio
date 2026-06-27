@@ -13,9 +13,10 @@ import { Loading } from '@/ui/loading'
 import { formattedItemType } from '@/ui/util'
 
 const path: PagePathType = 'releases'
+const description = 'Selected discography.'
 const title = formattedItemType(path, false, true)
 
-export const metadata: Metadata = { title }
+export const metadata: Metadata = { title, description }
 
 export default async function ReleasesPage() {
   const session = await auth()

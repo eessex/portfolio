@@ -17,11 +17,15 @@ import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { ImageFigure } from '@/ui/images/image-figure'
-import { FormattedItemDate } from '@/ui/items/item-date'
+import {
+  FormattedItemDate,
+  itemDisplayDateFormat
+} from '@/ui/items/item-date'
 import { LinksList } from '@/ui/links/link-list'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import {
   filteredLinksByPress,
+  formattedDateTime,
   formattedItemTitle,
   formattedItemType,
   formatVenueInline,
@@ -169,23 +173,40 @@ export async function generateItemMetadata(
   const item = await fetchFn(slug, true)
   if (!slug || !item) return notFound()
 
+  const description = generateItemDescription(item)
   const { coverImage, path } = item
-
   const images = coverImage && [
     {
       url: coverImage.url,
       width: 1200,
       height: 1200 * coverImage.aspect,
-      alt: coverImage.alt || coverImage.caption || ''
+      alt: coverImage.alt || ''
     }
   ]
   const openGraph = images ? { images } : undefined
 
   const meta: Metadata = {
     title: `${formattedItemType(path)} | ${formattedItemTitle(item)}`,
+    description,
     openGraph
   }
   return meta
+}
+
+function generateEventDescription(item: PageItemClient) {
+  const { startTime, venue } = item as EventClient
+  const dateFormat = itemDisplayDateFormat(item)
+
+  return `Live event at ${venue?.name || ''} on ${formattedDateTime(startTime, dateFormat, venue?.timezone)}.`
+}
+
+function generateItemDescription(item: PageItemClient) {
+  switch (item.path) {
+    case 'events':
+      return generateEventDescription(item)
+    default:
+      return undefined
+  }
 }
 
 export async function generateItemStaticParams<

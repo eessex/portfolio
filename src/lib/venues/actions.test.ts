@@ -1,24 +1,20 @@
 import { revalidatePath } from 'next/cache'
-import postgres from 'postgres'
 
-import {
-  deleteVenue,
-  editVenue
-} from '@/lib/venues/actions'
+import { sql } from '@/lib/db'
+import { deleteVenue, editVenue } from '@/lib/venues/actions'
 import {
   newVenueFixtureAlpha,
   venueFixtureAlpha
 } from '@/lib/venues/fixtures'
-import type {
-  CreateVenue,
-  Venue
-} from '@/lib/venues/types'
+import type { CreateVenue, Venue } from '@/lib/venues/types'
 import { formDataFromObject } from '@/test/helpers'
 
-jest.mock('postgres')
 jest.mock('next/cache')
 
-const mockSql = (postgres as unknown as { __sql: jest.Mock }).__sql
+jest.mock('@/lib/db', () => ({
+  sql: jest.fn()
+}))
+const mockSql = jest.mocked(sql)
 
 describe('Venue Actions', () => {
   beforeEach(() => jest.clearAllMocks())
@@ -55,7 +51,9 @@ describe('Venue Actions', () => {
 
       expect(res?.ok).toBe(true)
       expect((res?.res as Venue)?.name).toEqual('Test Venue Texas')
-      expect((res?.res as Venue)?.id).toEqual('b3b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a')
+      expect((res?.res as Venue)?.id).toEqual(
+        'b3b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a'
+      )
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard/venues')
     })
 

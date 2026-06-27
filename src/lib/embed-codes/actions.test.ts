@@ -1,24 +1,20 @@
 import { revalidatePath } from 'next/cache'
-import postgres from 'postgres'
 
-import {
-  deleteEmbedCode,
-  editEmbedCode
-} from '@/lib/embed-codes/actions'
+import { sql } from '@/lib/db'
+import { deleteEmbedCode, editEmbedCode } from '@/lib/embed-codes/actions'
 import {
   embedCodeFixture,
   newEmbedCodeFixture
 } from '@/lib/embed-codes/fixtures'
-import type {
-  CreateEmbedCode,
-  EmbedCode
-} from '@/lib/embed-codes/types'
+import type { CreateEmbedCode, EmbedCode } from '@/lib/embed-codes/types'
 import { formDataFromObject } from '@/test/helpers'
 
-jest.mock('postgres')
 jest.mock('next/cache')
 
-const mockSql = (postgres as unknown as { __sql: jest.Mock }).__sql
+jest.mock('@/lib/db', () => ({
+  sql: jest.fn()
+}))
+const mockSql = jest.mocked(sql)
 
 describe('Embed Code Actions', () => {
   beforeEach(() => jest.clearAllMocks())
@@ -46,17 +42,25 @@ describe('Embed Code Actions', () => {
       const res = await editEmbedCode(formDataFromObject(embedCodeFixture))
 
       expect(res?.ok).toBe(true)
-      expect((res?.res as EmbedCode)?.caption).toEqual('This is an embed code for testing purposes.')
+      expect((res?.res as EmbedCode)?.caption).toEqual(
+        'This is an embed code for testing purposes.'
+      )
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard/embed_codes')
     })
 
     it('can create a new embedCode', async () => {
       mockSql.mockResolvedValueOnce([embedCodeFixture])
-      const res = await editEmbedCode(formDataFromObject(newEmbedCodeFixture))
+      const res = await editEmbedCode(
+        formDataFromObject(newEmbedCodeFixture)
+      )
 
       expect(res?.ok).toBe(true)
-      expect((res?.res as EmbedCode)?.caption).toEqual('This is an embed code for testing purposes.')
-      expect((res?.res as EmbedCode)?.id).toEqual('123e4567-e89b-12d3-a456-426614174000')
+      expect((res?.res as EmbedCode)?.caption).toEqual(
+        'This is an embed code for testing purposes.'
+      )
+      expect((res?.res as EmbedCode)?.id).toEqual(
+        '123e4567-e89b-12d3-a456-426614174000'
+      )
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard/embed_codes')
     })
 

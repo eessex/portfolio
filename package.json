@@ -11,6 +11,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "preinstall": "corepack enable",
     "prettier": "prettier --write .",
     "test": "NODE_OPTIONS=--no-deprecation jest",
     "test:watch": "npm run test -- --watch"

@@ -40,18 +40,11 @@ export function FileInputImage({
     : 0
 
   useEffect(() => {
-    // todo: move everything that doesn't need cleanup outside of the return function
-    if (!file) {
-      setPreviewUrl(null)
-      setAspectRatio(undefined)
-      onChange?.('', undefined, true)
+    if (!file || !previewUrl) {
       return
     }
-    const url = URL.createObjectURL(file)
-    setPreviewUrl(url)
-
     const img = new Image()
-    img.src = url
+    img.src = previewUrl
     img.onload = () => {
       const width = img.naturalWidth
       const height = img.naturalHeight
@@ -59,12 +52,40 @@ export function FileInputImage({
       setAspectRatio(ratio)
       onChange?.(file.name, ratio, true)
     }
-    return () => URL.revokeObjectURL(url)
-  }, [file, onChange])
+    return () => {
+      img.onload = null
+    }
+  }, [file, previewUrl, onChange])
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl)
+      }
+    }
+  }, [previewUrl])
 
   function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selectedFile = e.target.files?.[0] ?? null
+    if (!selectedFile) {
+      setPreviewUrl(null)
+      setAspectRatio(
+        imageUrl ? image?.aspect || undefined : undefined
+      )
+      onChange?.('', undefined, true)
+      setFile(null)
+      return
+    }
+    const url = URL.createObjectURL(selectedFile)
+    setPreviewUrl(url)
     setFile(selectedFile)
+  }
+
+  function onRemovePreviewImage() {
+    setPreviewUrl(null)
+    setAspectRatio(imageUrl ? image?.aspect || undefined : undefined)
+    onChange?.('', undefined, true)
+    setFile(null)
   }
 
   function onRemoveSavedImage() {
@@ -101,7 +122,7 @@ export function FileInputImage({
               aria-label='Remove image'
               type='button'
               onClick={
-                previewUrl ? () => setFile(null) : onRemoveSavedImage
+                previewUrl ? onRemovePreviewImage : onRemoveSavedImage
               }
               className='button-icon button-primary'
             >

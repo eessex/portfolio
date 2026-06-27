@@ -136,7 +136,7 @@ export function ItemsTable<
               }
             >
               <td id={`${tbodyId}-search`} colSpan={colSpan}>
-                Search results for "{query}"
+                Search results for “{query}”
               </td>
             </tr>
             <tr className={styles['no-results']}>

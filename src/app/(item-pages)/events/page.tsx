@@ -14,9 +14,9 @@ import { Loading } from '@/ui/loading'
 import { formattedItemType } from '@/ui/util'
 
 const path: PagePathType = 'events'
-
+const description = 'Upcoming and past live performances.'
 const title = formattedItemType(path, false, true)
-export const metadata: Metadata = { title }
+export const metadata: Metadata = { title, description }
 
 export default async function EventsPage() {
   const session = await auth()

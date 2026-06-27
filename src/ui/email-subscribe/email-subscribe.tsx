@@ -1,7 +1,7 @@
 'use client'
 
 import Cookies from 'js-cookie'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { createEmailSubscription } from '@/lib/email-subscriptions/actions'
 import styles from '@/ui/email-subscribe/email-subscribe.module.scss'
@@ -9,13 +9,11 @@ import { Form } from '@/ui/form/form'
 import { useToast } from '@/ui/toast/toast-context'
 
 export function EmailSubscribe() {
-  const [isSubscribed, setIsSubscribed] = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(() => {
+    if (typeof document === 'undefined') return false
+    return !!Cookies.get('is_subscribed')
+  })
   const { addSuccessMessage } = useToast()
-
-  useEffect(() => {
-    const cookie = Cookies.get('is_subscribed')
-    setIsSubscribed(!!cookie)
-  }, [])
 
   function onSuccess() {
     addSuccessMessage('Thank you for subscribing!')

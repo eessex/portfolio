@@ -1,10 +1,11 @@
+import stylistic from '@stylistic/eslint-plugin'
 import next from 'eslint-config-next'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import tseslint from 'typescript-eslint'
 
 const eslintConfig = [
   {
-    ignores: ['**/node_modules/**', '.next/**', 'out/**', 'build/**']
+    ignores: ['**/node_modules/**', '.next/**', 'coverage/**']
   },
 
   ...next,
@@ -12,7 +13,8 @@ const eslintConfig = [
 
   {
     plugins: {
-      'simple-import-sort': simpleImportSort
+      'simple-import-sort': simpleImportSort,
+      '@stylistic': stylistic
     },
 
     rules: {
@@ -33,6 +35,14 @@ const eslintConfig = [
         {
           prefer: 'type-imports',
           fixStyle: 'separate-type-imports'
+        }
+      ],
+      '@stylistic/quotes': [
+        'error',
+        'single',
+        {
+          avoidEscape: true,
+          allowTemplateLiterals: 'never'
         }
       ],
       'simple-import-sort/imports': 'error',

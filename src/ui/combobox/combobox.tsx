@@ -65,6 +65,12 @@ export function Combobox<T extends EmbeddedItem>({
     )
   }
 
+  function isTargetInsideComponent(target: EventTarget | null) {
+    if (!target) return false
+    if (target === createButtonRef.current) return false
+    return rootRef.current?.contains(target as Node)
+  }
+
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (!rootRef.current) return
@@ -133,12 +139,6 @@ export function Combobox<T extends EmbeddedItem>({
       setIsOpen(false)
       setHighlightedIndex(-1)
     }
-  }
-
-  function isTargetInsideComponent(target: EventTarget | null) {
-    if (!target) return false
-    if (target === createButtonRef.current) return false
-    return rootRef.current?.contains(target as Node)
   }
 
   return (

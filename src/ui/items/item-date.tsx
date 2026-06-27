@@ -30,7 +30,9 @@ export function itemSortDate(
   }
 }
 
-function itemDisplayDateFormat(item: PageItemClient): DateFormatSize {
+export function itemDisplayDateFormat(
+  item: PageItemClient
+): DateFormatSize {
   switch (item.path) {
     case 'events':
       return 'md'

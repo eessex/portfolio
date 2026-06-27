@@ -6,7 +6,7 @@ import { LoginForm } from '@/app/login/login-form/login-form'
 const title = 'Log in'
 export const metadata: Metadata = { title }
 
-export default function LoginPage () {
+export default function LoginPage() {
   return (
     <article>
       <header>

@@ -1,5 +1,5 @@
-@use "@/ui/styles/grids";
-@use "@/ui/styles/type";
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
 
 .menubar {
   position: sticky;
@@ -13,11 +13,11 @@
   flex-shrink: 0;
 
   > div > a:first-child {
-    @include type.heading("lg");
+    @include type.heading('lg');
   }
 
   a {
-    @include type.heading("base");
+    @include type.heading('base');
   }
 
   > div {

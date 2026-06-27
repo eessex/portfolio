@@ -1,6 +1,5 @@
-
-@use "@/ui/styles/grids";
-@use "@/ui/styles/type";
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
 
 .item-layout {
   > article {
@@ -13,7 +12,7 @@
       text-align: center;
 
       h1 {
-        @include type.heading("xxl");
+        @include type.heading('xxl');
 
         margin-block: grids.space-em(1);
       }
@@ -24,7 +23,7 @@
       }
 
       .venue {
-        @include type.size("sm");
+        @include type.size('sm');
       }
 
       .ticket-link {

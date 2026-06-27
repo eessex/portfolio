@@ -16,27 +16,17 @@ import type { PageItemProps } from '@/lib/types'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
 
-export async function generateMetadata ({ params }: PageItemProps) {
+export async function generateMetadata({ params }: PageItemProps) {
   return generateItemMetadata(params, fetchProjectBySlug)
 }
 
-export async function generateStaticParams () {
+export async function generateStaticParams() {
   return generateItemStaticParams(fetchProjects)
 }
 
-export default async function ProjectPage ({ params }: PageItemProps) {
-  const [
-    { slug },
-    session
-  ] = await Promise.all([
-    params,
-    auth()
-  ])
-  const [
-    project,
-    releases,
-    events
-  ] = await Promise.all([
+export default async function ProjectPage({ params }: PageItemProps) {
+  const [{ slug }, session] = await Promise.all([params, auth()])
+  const [project, releases, events] = await Promise.all([
     fetchProjectBySlug(slug, !!session?.user),
     fetchReleases(!!session?.user, slug),
     fetchEvents(!!session?.user, slug)
@@ -48,14 +38,8 @@ export default async function ProjectPage ({ params }: PageItemProps) {
   return (
     <ItemLayout item={project}>
       <Suspense fallback={<Loading />}>
-        <ItemsTable
-          path='releases'
-          initialItems={releases}
-        />
-        <ItemsTable
-          path='events'
-          initialItems={events}
-        />
+        <ItemsTable path='releases' initialItems={releases} />
+        <ItemsTable path='events' initialItems={events} />
       </Suspense>
     </ItemLayout>
   )

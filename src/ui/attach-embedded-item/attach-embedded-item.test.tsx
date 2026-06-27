@@ -1,7 +1,4 @@
-import {
-  render,
-  screen
-} from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { venueFixtureAlpha } from '@/lib/venues/fixtures'
@@ -22,33 +19,30 @@ const defaultProps: AttachEmbeddedItemProps<Venue> = {
   renderEditItemForm: () => <div>New Venue Form</div>
 }
 
-function renderComponent (props = {}) {
-  return render(
-    <AttachEmbeddedItem
-      {...defaultProps}
-      {...props}
-    />
-  )
+function renderComponent(props = {}) {
+  return render(<AttachEmbeddedItem {...defaultProps} {...props} />)
 }
 
 describe('AttachEmbeddedItem', () => {
   beforeEach(() => {
     fetchMock.resetMocks()
 
-    fetchMock.mockImplementation((_url, _options: RequestInit = {}) => {
-      const body = JSON.stringify({
-        res: [],
-        nextCursor: null,
-        totalCount: 0
-      })
-
-      return Promise.resolve(
-        new Response(body, {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
+    fetchMock.mockImplementation(
+      (_url, _options: RequestInit = {}) => {
+        const body = JSON.stringify({
+          res: [],
+          nextCursor: null,
+          totalCount: 0
         })
-      )
-    })
+
+        return Promise.resolve(
+          new Response(body, {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          })
+        )
+      }
+    )
   })
 
   describe('initial render', () => {
@@ -59,10 +53,9 @@ describe('AttachEmbeddedItem', () => {
     })
 
     it('renders the selected item when an existing item is provided', () => {
-      const {
-        getByText,
-        queryByText
-      } = renderComponent({ existingItem: venueFixtureAlpha })
+      const { getByText, queryByText } = renderComponent({
+        existingItem: venueFixtureAlpha
+      })
 
       expect(getByText('Test Venue Texas')).toBeInTheDocument()
       expect(queryByText('New Venue Form')).not.toBeInTheDocument()
@@ -111,7 +104,11 @@ describe('AttachEmbeddedItem', () => {
 
     it('passes the search query to the edit item form', async () => {
       const user = userEvent.setup()
-      renderComponent({ renderEditItemForm: (query: string) => <div>Query: {query}</div> })
+      renderComponent({
+        renderEditItemForm: (query: string) => (
+          <div>Query: {query}</div>
+        )
+      })
 
       const input = screen.getByRole('combobox')
       await user.type(input, 'Alpha')
@@ -134,13 +131,17 @@ describe('AttachEmbeddedItem', () => {
       await user.click(screen.getByText('Cancel'))
 
       expect(screen.getByRole('combobox')).toBeInTheDocument()
-      expect(screen.queryByText('New Venue Form')).not.toBeInTheDocument()
+      expect(
+        screen.queryByText('New Venue Form')
+      ).not.toBeInTheDocument()
     })
   })
 
   describe('selected item state', () => {
     it('renders the formatted selected item', () => {
-      const { getByText } = renderComponent({ existingItem: venueFixtureAlpha })
+      const { getByText } = renderComponent({
+        existingItem: venueFixtureAlpha
+      })
 
       expect(getByText('Test Venue Texas')).toBeInTheDocument()
     })
@@ -149,9 +150,13 @@ describe('AttachEmbeddedItem', () => {
       const user = userEvent.setup()
       renderComponent({ existingItem: venueFixtureAlpha })
 
-      await user.click(screen.getByRole('button', { name: /remove venue/i }))
+      await user.click(
+        screen.getByRole('button', { name: /remove venue/i })
+      )
 
-      expect(screen.queryByText('Test Venue Texas')).not.toBeInTheDocument()
+      expect(
+        screen.queryByText('Test Venue Texas')
+      ).not.toBeInTheDocument()
       expect(screen.getByRole('combobox')).toBeInTheDocument()
     })
   })

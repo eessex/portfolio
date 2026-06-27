@@ -84,7 +84,10 @@ export async function fetchEmbedCodeByIframe(iframe: string) {
 /**
  * dashboard: fetch all the embed codes
  */
-export async function fetchEmbedCodes(cursor?: string, query?: string) {
+export async function fetchEmbedCodes(
+  cursor?: string,
+  query?: string
+) {
   const totalCount = await getTotalCount(query)
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
 

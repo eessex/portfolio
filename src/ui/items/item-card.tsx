@@ -18,7 +18,7 @@ import {
   itemUrl
 } from '@/ui/util'
 
-export function ItemCard ({
+export function ItemCard({
   children,
   externalLink,
   index,
@@ -43,18 +43,21 @@ export function ItemCard ({
   const isPriorityImage = !!(isFeatured || (index || 0) < 2)
   return (
     <article
-      className={clsx(styles.card, isFeatured && styles['featured-card'])}
+      className={clsx(
+        styles.card,
+        isFeatured && styles['featured-card']
+      )}
     >
       {item.coverImage && !isTextOnly && (
-        <NextLink
-          href={linkTarget}
-          aria-hidden='true'
-          tabIndex={-1}
-        >
+        <NextLink href={linkTarget} aria-hidden='true' tabIndex={-1}>
           <NextImage
             src={item.coverImage.url}
             alt={item.coverImage.alt || item.coverImage.caption || ''}
-            title={item.coverImage.caption || item.coverImage.alt || undefined}
+            title={
+              item.coverImage.caption ||
+              item.coverImage.alt ||
+              undefined
+            }
             width={imageSize}
             height={imageSize / item.coverImage.aspect}
             loading={(index || 0) > 4 ? 'lazy' : undefined}
@@ -78,11 +81,14 @@ export function ItemCard ({
           </NextLink>
         </h3>
 
-        {isCategoryVisible && (item as ReleaseClient | ProjectClient).type && (
-          <p className={styles['card-item-type'] + ' category'}>
-            {formattedItemType((item as ReleaseClient | ProjectClient).type!)}
-          </p>
-        )}
+        {isCategoryVisible &&
+          (item as ReleaseClient | ProjectClient).type && (
+            <p className={styles['card-item-type'] + ' category'}>
+              {formattedItemType(
+                (item as ReleaseClient | ProjectClient).type!
+              )}
+            </p>
+          )}
 
         <p className={styles['card-item-date']}>
           <FormattedItemDate
@@ -93,9 +99,7 @@ export function ItemCard ({
 
         {children}
 
-        <p className={styles['card-external-link']}>
-          {externalLink}
-        </p>
+        <p className={styles['card-external-link']}>{externalLink}</p>
       </div>
     </article>
   )

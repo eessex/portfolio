@@ -1,16 +1,15 @@
-import {
-  useEffect,
-  useState
-} from 'react'
+import { useEffect, useState } from 'react'
 
 export const useWindowScrollPosition = () => {
   const [isAtContentTop, setIsAtContentTop] = useState(true)
   const [isScrollingDown, setIsScrollingDown] = useState(false)
 
   useEffect(() => {
-    function observeContentTop (target: HTMLElement | null = null) {
+    function observeContentTop(target: HTMLElement | null = null) {
       if (!target) {
-        console.warn('No target element found for scroll position observer')
+        console.warn(
+          'No target element found for scroll position observer'
+        )
         return
       }
       const observer = new IntersectionObserver(
@@ -26,7 +25,9 @@ export const useWindowScrollPosition = () => {
       return observer
     }
 
-    const observer = observeContentTop(document.getElementById('content'))
+    const observer = observeContentTop(
+      document.getElementById('content')
+    )
 
     let lastScrollY = window.scrollY
     let scrollTimeout: number | null = null

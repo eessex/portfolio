@@ -1,10 +1,7 @@
 import styles from '@/ui/form/form.module.scss'
-import {
-  camelToSentence,
-  snakeToCamel
-} from '@/ui/util'
+import { camelToSentence, snakeToCamel } from '@/ui/util'
 
-export function Select ({
+export function Select({
   ariaControls,
   attributes,
   isLabelHidden,
@@ -42,18 +39,13 @@ export function Select ({
           aria-controls={ariaControls}
           defaultValue={value}
           id={label}
-          onChange={e => onChange(e.target.value)}
+          onChange={(e) => onChange(e.target.value)}
           {...attributes}
         >
-          <option value=''>
-            {placeholder}
-          </option>
+          <option value=''>{placeholder}</option>
 
           {options.map((type, i) => (
-            <option
-              key={i}
-              value={type}
-            >
+            <option key={i} value={type}>
               {camelToSentence(snakeToCamel(type))}
             </option>
           ))}

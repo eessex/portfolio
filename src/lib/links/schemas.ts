@@ -16,17 +16,19 @@ export const linkTypes = [
   'stream_link'
 ] as const
 
-const linksBaseSchema = z.lazy(() => z.object({
-  attribution: shortText.optional(),
-  isHiddenOnAboutPage: bool.optional(),
-  publishDate: date.optional(),
-  quotation: shortText.optional(),
-  type: z.preprocess(
-    (val) => val === '' ? undefined : val,
-    z.enum(linkTypes).optional()
-  ),
-  url
-}))
+const linksBaseSchema = z.lazy(() =>
+  z.object({
+    attribution: shortText.optional(),
+    isHiddenOnAboutPage: bool.optional(),
+    publishDate: date.optional(),
+    quotation: shortText.optional(),
+    type: z.preprocess(
+      (val) => (val === '' ? undefined : val),
+      z.enum(linkTypes).optional()
+    ),
+    url
+  })
+)
 
 /**
  * A link to an external resource with metadata.
@@ -43,11 +45,13 @@ export const editLinkSchema = z.lazy(() =>
 )
 
 export const createLinkSchema = z.lazy(() =>
-  baseContentSchema.omit({
-    id: true,
-    createdAt: true,
-    updatedAt: true
-  }).and(linksBaseSchema)
+  baseContentSchema
+    .omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true
+    })
+    .and(linksBaseSchema)
 )
 
 /**

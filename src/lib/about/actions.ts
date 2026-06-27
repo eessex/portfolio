@@ -7,16 +7,18 @@ import type { About } from '@/lib/about/types'
 import { sql } from '@/lib/db'
 import type { FormResponse } from '@/lib/types'
 
-export async function editAbout (formData: FormData, id: string): Promise<FormResponse<About>> {
-  const validatedFields = aboutSchema.safeParse(Object.fromEntries(formData))
+export async function editAbout(
+  formData: FormData,
+  id: string
+): Promise<FormResponse<About>> {
+  const validatedFields = aboutSchema.safeParse(
+    Object.fromEntries(formData)
+  )
   if (!validatedFields.success) {
     console.error('Validation error', validatedFields.error.format())
     throw new Error('Validation error')
   } else {
-    const {
-      coverImageId,
-      description
-    } = validatedFields.data
+    const { coverImageId, description } = validatedFields.data
 
     try {
       await sql`

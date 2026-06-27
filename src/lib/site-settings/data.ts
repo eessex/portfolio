@@ -15,7 +15,10 @@ export async function fetchSiteSettings() {
     if (data.length === 0) {
       return
     }
-    return formatDbResponseForClient(data[0], siteSettingsClientSchema)
+    return formatDbResponseForClient(
+      data[0],
+      siteSettingsClientSchema
+    )
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch site settings.')

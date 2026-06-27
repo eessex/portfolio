@@ -26,7 +26,10 @@ import {
   itemTypeToLabel
 } from '@/ui/util'
 
-export function ItemsTable<T extends PageItemClient, S extends PageDataResponse> ({
+export function ItemsTable<
+  T extends PageItemClient,
+  S extends PageDataResponse
+>({
   initialItems,
   path,
   isCategoryVisible,
@@ -51,13 +54,13 @@ export function ItemsTable<T extends PageItemClient, S extends PageDataResponse>
     nextCursor
   } = useResultsList<never, T, S>(`/api/${path}`, initialItems)
 
-  function displayedItems () {
+  function displayedItems() {
     if (groupedItems) return groupedItems
 
     return { [`all${capitalizeFirstLetter(path)}`]: items }
   }
 
-  function tableSectionTitle (category?: string, itemCount?: number) {
+  function tableSectionTitle(category?: string, itemCount?: number) {
     if (category) {
       const typeLabel = formattedItemType(category, false, true)
       if (query.length > 0) {
@@ -70,9 +73,13 @@ export function ItemsTable<T extends PageItemClient, S extends PageDataResponse>
 
   const isFilterable = initialItems.totalCount >= DEFAULT_PAGE_SIZE
 
-  const isDetailColumnVisible = ['events', 'releases', 'items'].includes(path)
+  const isDetailColumnVisible = [
+    'events',
+    'releases',
+    'items'
+  ].includes(path)
 
-  function tableColspan () {
+  function tableColspan() {
     let cols = 2
     /** item has type-specific children, venue, publishedEditions */
     if (isDetailColumnVisible) cols += 1
@@ -90,10 +97,7 @@ export function ItemsTable<T extends PageItemClient, S extends PageDataResponse>
   return (
     <div className={styles['items-table']}>
       {isFilterable && (
-        <FiltersWrapper
-          itemType={path}
-          controlsId={tableId}
-        >
+        <FiltersWrapper itemType={path} controlsId={tableId}>
           <SearchInput
             ariaControls={tableId}
             value={query}
@@ -104,17 +108,10 @@ export function ItemsTable<T extends PageItemClient, S extends PageDataResponse>
         </FiltersWrapper>
       )}
 
-      <table
-        id={tableId}
-        role='region'
-        aria-live='polite'
-      >
+      <table id={tableId} role='region' aria-live='polite'>
         <thead className='visually-hidden'>
           <tr>
-            <th
-              aria-hidden='true'
-              scope='col'
-            >
+            <th aria-hidden='true' scope='col'>
               Image
             </th>
             {isPathTypeVisible && <th scope='col'>Type</th>}
@@ -127,50 +124,62 @@ export function ItemsTable<T extends PageItemClient, S extends PageDataResponse>
 
         {!Object.values(displayedItems()).flat().length && (
           <tbody
-            className={clsx(styles['table-body'], isExpandedOnLoad && styles['table-body--expanded'])}
+            className={clsx(
+              styles['table-body'],
+              isExpandedOnLoad && styles['table-body--expanded']
+            )}
             aria-labelledby={`${tbodyId}-search`}
           >
-            <tr className={styles['table-rowgroup-heading'] + ' heading'}>
-              <td
-                id={`${tbodyId}-search`}
-                colSpan={colSpan}
-              >
+            <tr
+              className={
+                styles['table-rowgroup-heading'] + ' heading'
+              }
+            >
+              <td id={`${tbodyId}-search`} colSpan={colSpan}>
                 Search results for "{query}"
               </td>
             </tr>
             <tr className={styles['no-results']}>
-              <td colSpan={colSpan}>
-                No results found.
-              </td>
+              <td colSpan={colSpan}>No results found.</td>
             </tr>
           </tbody>
         )}
 
-        {Object.entries(displayedItems()).map(([key, value], index) => !(omitKeys?.includes(key as keyof S)) && value.length > 0 && (
-          <tbody
-            className={clsx(styles['table-body'], isExpandedOnLoad && styles['table-body--expanded'])}
-            key={`${index}-${key}`}
-          >
-            <tr className={styles['table-rowgroup-heading'] + ' heading'}>
-              <td
-                id={`${tbodyId}-${key}`}
-                colSpan={colSpan}
+        {Object.entries(displayedItems()).map(
+          ([key, value], index) =>
+            !omitKeys?.includes(key as keyof S) &&
+            value.length > 0 && (
+              <tbody
+                className={clsx(
+                  styles['table-body'],
+                  isExpandedOnLoad && styles['table-body--expanded']
+                )}
+                key={`${index}-${key}`}
               >
-                {tableSectionTitle(key, value.length)}
-              </td>
-            </tr>
-            {value.map((item, idx) => (
-              <ItemsTableItem
-                key={`${item.id}-${idx}`}
-                item={item}
-                index={idx}
-                isExpanded={!!isExpandedOnLoad}
-                isCategoryVisible={!!(isCategoryVisible || query.length > 0)}
-                isPathTypeVisible={!!isPathTypeVisible}
-              />
-            ))}
-          </tbody>
-        ))}
+                <tr
+                  className={
+                    styles['table-rowgroup-heading'] + ' heading'
+                  }
+                >
+                  <td id={`${tbodyId}-${key}`} colSpan={colSpan}>
+                    {tableSectionTitle(key, value.length)}
+                  </td>
+                </tr>
+                {value.map((item, idx) => (
+                  <ItemsTableItem
+                    key={`${item.id}-${idx}`}
+                    item={item}
+                    index={idx}
+                    isExpanded={!!isExpandedOnLoad}
+                    isCategoryVisible={
+                      !!(isCategoryVisible || query.length > 0)
+                    }
+                    isPathTypeVisible={!!isPathTypeVisible}
+                  />
+                ))}
+              </tbody>
+            )
+        )}
       </table>
       {nextCursor && (
         <>
@@ -181,16 +190,14 @@ export function ItemsTable<T extends PageItemClient, S extends PageDataResponse>
             aria-hidden='true'
             ref={loadMoreRef}
           />
-          {isLoading && (
-            <Loading />
-          )}
+          {isLoading && <Loading />}
         </>
       )}
     </div>
   )
 }
 
-function ItemsTableItem ({
+function ItemsTableItem({
   item,
   index,
   isExpanded,
@@ -211,15 +218,16 @@ function ItemsTableItem ({
       isCategoryVisible={isCategoryVisible}
       isPathTypeVisible={isPathTypeVisible}
     >
-      {(item as EventClient).venue && (
+      {(item as EventClient).venue &&
         formatVenueInline({
           venue: (item as EventClient).venue!,
           format: 'sm'
-        })
-      )}
+        })}
       {(item as ReleaseClient).publishedEditions && (
         <PublishedEditionsCombined
-          publishedEditions={(item as ReleaseClient).publishedEditions}
+          publishedEditions={
+            (item as ReleaseClient).publishedEditions
+          }
           format='sm'
         />
       )}

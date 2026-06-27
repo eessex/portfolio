@@ -5,14 +5,14 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import type { EmbedCode } from '@/lib/embed-codes/types'
 import { defaultEmbedSizeByHost } from '@/ui/embed-codes/util'
 
-export function EmbedCodeItem ({
+export function EmbedCodeItem({
   embedCode,
   onRemove
 }: {
   embedCode: Partial<EmbedCode>
   onRemove?: (id?: string) => void
 }) {
-  function handleRemove () {
+  function handleRemove() {
     onRemove?.(embedCode.id)
   }
 
@@ -37,7 +37,9 @@ export function EmbedCodeItem ({
           }}
         />
       </div>
-      {embedCode.caption && !onRemove && <figcaption>{embedCode.caption}</figcaption>}
+      {embedCode.caption && !onRemove && (
+        <figcaption>{embedCode.caption}</figcaption>
+      )}
 
       {onRemove && (
         <button

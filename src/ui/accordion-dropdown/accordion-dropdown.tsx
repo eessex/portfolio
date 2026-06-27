@@ -5,17 +5,13 @@ import {
   ChevronUpIcon
 } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
-import {
-  useEffect,
-  useId,
-  useState
-} from 'react'
+import { useEffect, useId, useState } from 'react'
 
 import type { Badge } from '@/lib/types'
 import styles from '@/ui/accordion-dropdown/accordion-dropdown.module.scss'
 import { Badges } from '@/ui/badges'
 
-export function AccordionDropdown ({
+export function AccordionDropdown({
   badges,
   children,
   isExpanded,
@@ -45,7 +41,11 @@ export function AccordionDropdown ({
       <h2>
         <button
           aria-expanded={isOpen}
-          className={clsx(styles['accordion-trigger'], isFullWidth && styles['full-width'], buttonClassname)}
+          className={clsx(
+            styles['accordion-trigger'],
+            isFullWidth && styles['full-width'],
+            buttonClassname
+          )}
           aria-controls={panelId}
           id={triggerId}
           onClick={() => setIsOpen(!isOpen)}

@@ -1,8 +1,8 @@
-@use "sass:map";
+@use 'sass:map';
 
-@use "@/ui/styles/breakpoints";
-@use "@/ui/styles/grids";
-@use "@/ui/styles/type";
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
 
 .form {
   --input-width: 100%;
@@ -14,7 +14,7 @@
     display: none;
   }
 
-  input[type="checkbox"] {
+  input[type='checkbox'] {
     width: auto;
     margin-right: grids.space-rem(2);
   }
@@ -26,7 +26,8 @@
   figure {
     position: relative;
 
-    iframe, img {
+    iframe,
+    img {
       margin-top: grids.space-rem(1);
     }
 
@@ -93,7 +94,7 @@
     }
   }
 
-  button[type="submit"] {
+  button[type='submit'] {
     margin-top: grids.space-rem(2);
   }
 }
@@ -124,7 +125,7 @@
 
   input {
     width: auto;
-    margin: .35rem #{grids.space-rem(4)} 0.35rem 0;
+    margin: 0.35rem #{grids.space-rem(4)} 0.35rem 0;
   }
 }
 
@@ -145,16 +146,16 @@
   }
 
   &::before {
-    --select-icon-size: #{map.get(type.$size, "lg")};
+    --select-icon-size: #{map.get(type.$size, 'lg')};
 
-    content: "";
+    content: '';
     position: absolute;
     z-index: -1;
     top: 50%;
     right: grids.space-rem(2);
     width: var(--select-icon-size);
     height: var(--select-icon-size);
-    background-image: url("/chevron-down.svg");
+    background-image: url('/chevron-down.svg');
     background-repeat: no-repeat;
     background-size: var(--select-icon-size);
     background-size: contain;

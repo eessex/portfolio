@@ -1,7 +1,7 @@
 import type { Link } from '@/lib/links/types'
 import { formattedDateTime } from '@/ui/util'
 
-export function LinkItem ({
+export function LinkItem({
   link,
   className
 }: {
@@ -15,37 +15,44 @@ export function LinkItem ({
       rel='noopener noreferrer'
       className={className}
     >
-      {link.type === 'press'
-        ? (
-          <div>
-            {link.quotation
-              ? (
-                <>
-                  <blockquote cite={link.url}>{link.quotation}</blockquote>
-                  <cite>
-                    {link.attribution && (
-                      <>{link.title ? `— ${link.title} in ` : '— '}{link.attribution}, </>
-                    )}
-                    <span>{formattedDateTime(link.publishDate || link.createdAt!, 'xs')}</span>
-                  </cite>
-                </>
-                )
-              : (
-                <>
-                  <b>{link.title || link.url}</b>
-                  <div>
-                    {link.attribution && (<em>— {link.attribution}, </em>)}
-                    {formattedDateTime(link.publishDate || link.createdAt!, 'xs')}
-                  </div>
-                </>
+      {link.type === 'press' ? (
+        <div>
+          {link.quotation ? (
+            <>
+              <blockquote cite={link.url}>
+                {link.quotation}
+              </blockquote>
+              <cite>
+                {link.attribution && (
+                  <>
+                    {link.title ? `— ${link.title} in ` : '— '}
+                    {link.attribution},{' '}
+                  </>
                 )}
-          </div>
-          )
-        : (
-          <>
-            {link.title || link.url}
-          </>
+                <span>
+                  {formattedDateTime(
+                    link.publishDate || link.createdAt!,
+                    'xs'
+                  )}
+                </span>
+              </cite>
+            </>
+          ) : (
+            <>
+              <b>{link.title || link.url}</b>
+              <div>
+                {link.attribution && <em>— {link.attribution}, </em>}
+                {formattedDateTime(
+                  link.publishDate || link.createdAt!,
+                  'xs'
+                )}
+              </div>
+            </>
           )}
+        </div>
+      ) : (
+        <>{link.title || link.url}</>
+      )}
     </a>
   )
 }

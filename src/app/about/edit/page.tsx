@@ -5,17 +5,19 @@ import { EditAboutForm } from '@/ui/form/edit-about'
 
 const title = 'Edit: About'
 
-export async function generateMetadata () {
+export async function generateMetadata() {
   const about = await fetchAboutPage()
   const settings = await fetchSiteSettings()
   const image = (about || settings)?.coverImage
   const images = image
-    ? [{
-        url: image.url,
-        width: 1200,
-        height: 1200 * image.aspect,
-        alt: image.caption
-      }]
+    ? [
+        {
+          url: image.url,
+          width: 1200,
+          height: 1200 * image.aspect,
+          alt: image.caption
+        }
+      ]
     : []
 
   return {
@@ -25,7 +27,7 @@ export async function generateMetadata () {
   }
 }
 
-export default async function AboutPage () {
+export default async function AboutPage() {
   const about = await fetchAboutPage()
 
   return (
@@ -36,11 +38,12 @@ export default async function AboutPage () {
 
       {about && (
         <section>
-          <EditAboutForm about={{
-            ...about,
-            coverImageId: about.coverImageId,
-            coverImage: about.coverImage
-          }}
+          <EditAboutForm
+            about={{
+              ...about,
+              coverImageId: about.coverImageId,
+              coverImage: about.coverImage
+            }}
           />
         </section>
       )}

@@ -1,7 +1,4 @@
-import type {
-  CreateVenue,
-  Venue
-} from '@/lib/venues/types'
+import type { CreateVenue, Venue } from '@/lib/venues/types'
 
 export const newVenueFixtureAlpha: CreateVenue = {
   name: 'Test Venue Texas',

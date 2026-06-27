@@ -8,7 +8,10 @@ import {
   isUpcomingDate
 } from '@/ui/util'
 
-export function itemSortDate (item: PageItemClient, isDefaultPreferred = false): Date {
+export function itemSortDate(
+  item: PageItemClient,
+  isDefaultPreferred = false
+): Date {
   if (isDefaultPreferred) {
     return item.updatedAt || item.createdAt
   }
@@ -20,11 +23,14 @@ export function itemSortDate (item: PageItemClient, isDefaultPreferred = false):
     case 'releases':
       return (item as ReleaseClient).releaseDate
     default:
-      return (item as PageItemClient).updatedAt || (item as PageItemClient).createdAt
+      return (
+        (item as PageItemClient).updatedAt ||
+        (item as PageItemClient).createdAt
+      )
   }
 }
 
-function itemDisplayDateFormat (item: PageItemClient): DateFormatSize {
+function itemDisplayDateFormat(item: PageItemClient): DateFormatSize {
   switch (item.path) {
     case 'events':
       return 'md'
@@ -36,7 +42,7 @@ function itemDisplayDateFormat (item: PageItemClient): DateFormatSize {
   }
 }
 
-export function FormattedItemDate ({
+export function FormattedItemDate({
   item,
   format,
   timezone
@@ -47,8 +53,12 @@ export function FormattedItemDate ({
 }) {
   const date = new Date(itemSortDate(item))
   const isProject = item.path === 'projects'
-  const isUpcomingEvent = item.path === 'events' && isUpcomingDate((item as EventClient).startTime)
-  const dateFormat = isUpcomingEvent ? undefined : format || itemDisplayDateFormat(item)
+  const isUpcomingEvent =
+    item.path === 'events' &&
+    isUpcomingDate((item as EventClient).startTime)
+  const dateFormat = isUpcomingEvent
+    ? undefined
+    : format || itemDisplayDateFormat(item)
 
   return (
     <>
@@ -56,11 +66,22 @@ export function FormattedItemDate ({
         {formattedDateTime(date, dateFormat, timezone)}
       </time>
 
-      {isProject && (item as ProjectClient).endDate
-        ? (
-          <>–<time dateTime={(item as ProjectClient).endDate?.toISOString()}>{formattedDateTime((item as ProjectClient).endDate!, dateFormat, timezone)}</time></>
-          )
-        : isProject && '–present'}
+      {isProject && (item as ProjectClient).endDate ? (
+        <>
+          –
+          <time
+            dateTime={(item as ProjectClient).endDate?.toISOString()}
+          >
+            {formattedDateTime(
+              (item as ProjectClient).endDate!,
+              dateFormat,
+              timezone
+            )}
+          </time>
+        </>
+      ) : (
+        isProject && '–present'
+      )}
     </>
   )
 }

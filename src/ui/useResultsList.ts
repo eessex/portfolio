@@ -1,9 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState
-} from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type {
   EmbeddedItem,
@@ -32,7 +27,7 @@ export function useResultsList<
   TEmbeddedItem extends EmbeddedItem,
   TPage extends PageItemClient = never,
   S extends PageDataResponse | undefined = undefined
-> (
+>(
   apiEndpoint: string,
   initial: ResultsResponse<TEmbeddedItem, TPage, S>,
   defaultQuery?: string
@@ -41,7 +36,8 @@ export function useResultsList<
   const [query, setQuery] = useState<string>(defaultQuery || '')
   const queryRef = useRef(query)
 
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+  const [sortDirection, setSortDirection] =
+    useState<SortDirection>('desc')
   const sortDirectionRef = useRef(sortDirection)
 
   const [isLoading, setIsLoading] = useState(false)
@@ -50,7 +46,9 @@ export function useResultsList<
     normalizeItems<TEmbeddedItem | TPage>(initial.res)
   )
   /** Cursor for next page */
-  const [nextCursor, setNextCursor] = useState<string | null>(initial.nextCursor)
+  const [nextCursor, setNextCursor] = useState<string | null>(
+    initial.nextCursor
+  )
   /** Count of filtered results */
   const [count, setCount] = useState(initial.totalCount)
 
@@ -68,16 +66,13 @@ export function useResultsList<
   const isFetchingRef = useRef(false)
   /** Cache: one item's normalized search text */
   const searchIndexRef = useRef<Map<string, string>>(new Map())
-  const [groupedItems, setGroupedItems] = useState<
-  Record<string, (TEmbeddedItem | TPage)[]> | null
-    >(
-    Array.isArray(initial.res) ? null : initial.res
-    )
+  const [groupedItems, setGroupedItems] = useState<Record<
+    string,
+    (TEmbeddedItem | TPage)[]
+  > | null>(Array.isArray(initial.res) ? null : initial.res)
   const groupedCache = useRef<
-  Record<string, (TEmbeddedItem | TPage)[]>
-    >(
-    Array.isArray(initial.res) ? {} : initial.res
-    )
+    Record<string, (TEmbeddedItem | TPage)[]>
+  >(Array.isArray(initial.res) ? {} : initial.res)
 
   useEffect(() => {
     queryRef.current = query
@@ -94,9 +89,7 @@ export function useResultsList<
     [apiEndpoint]
   )
 
-  function normalizeItems<T> (
-    res: T[] | Record<string, T[]>
-  ): T[] {
+  function normalizeItems<T>(res: T[] | Record<string, T[]>): T[] {
     if (Array.isArray(res)) {
       return res
     }
@@ -122,34 +115,43 @@ export function useResultsList<
     return []
   }, [])
 
-  const getSearchText = useCallback((item: TEmbeddedItem | TPage): string => {
-    const cached = searchIndexRef.current.get(item.id)
-    if (cached) return cached
+  const getSearchText = useCallback(
+    (item: TEmbeddedItem | TPage): string => {
+      const cached = searchIndexRef.current.get(item.id)
+      if (cached) return cached
 
-    const text = extractStrings(item)
-      .join(', ')
-      .toLowerCase()
+      const text = extractStrings(item).join(', ').toLowerCase()
 
-    searchIndexRef.current.set(item.id, text)
-    return text
-  }, [extractStrings])
+      searchIndexRef.current.set(item.id, text)
+      return text
+    },
+    [extractStrings]
+  )
 
   const applyFilter = useCallback(
-    (list: (TEmbeddedItem | TPage)[], q: string, sortDirection: SortDirection) => {
+    (
+      list: (TEmbeddedItem | TPage)[],
+      q: string,
+      sortDirection: SortDirection
+    ) => {
       let filtered = list
 
       if (q) {
         const formattedQ = q.toLowerCase()
-        filtered = list.filter(item => getSearchText(item).includes(formattedQ))
+        filtered = list.filter((item) =>
+          getSearchText(item).includes(formattedQ)
+        )
       }
 
-      return sortDirection === 'asc' ? [...filtered].reverse() : filtered
+      return sortDirection === 'asc'
+        ? [...filtered].reverse()
+        : filtered
     },
     [getSearchText]
   )
 
   const fetchPage = useCallback(
-    async (options: { cursor?: string, replace?: boolean } = {}) => {
+    async (options: { cursor?: string; replace?: boolean } = {}) => {
       if (isFetchingRef.current) return
 
       abortControllerRef.current?.abort()
@@ -162,11 +164,20 @@ export function useResultsList<
       const currentSort = sortDirectionRef.current
 
       try {
-        const res = await fetch(buildUrl(options.cursor, currentQuery), { signal: abortControllerRef.current.signal })
-        const data: ResultsResponse<TEmbeddedItem, TPage, S> = await res.json()
+        const res = await fetch(
+          buildUrl(options.cursor, currentQuery),
+          {
+            signal: abortControllerRef.current.signal
+          }
+        )
+        const data: ResultsResponse<TEmbeddedItem, TPage, S> =
+          await res.json()
         const isGrouped = !Array.isArray(data.res)
         if (isGrouped) {
-          const res = data.res as Record<string, (TEmbeddedItem | TPage)[]>
+          const res = data.res as Record<
+            string,
+            (TEmbeddedItem | TPage)[]
+          >
 
           if (options.replace) {
             groupedCache.current = res
@@ -176,7 +187,8 @@ export function useResultsList<
               const incoming = res[key]
 
               const deduped = incoming.filter(
-                newItem => !existing.some(i => i.id === newItem.id)
+                (newItem) =>
+                  !existing.some((i) => i.id === newItem.id)
               )
 
               groupedCache.current[key] = [...existing, ...deduped]
@@ -190,18 +202,29 @@ export function useResultsList<
           setGroupedItems(groupedCache.current)
           setItems(applyFilter(flat, currentQuery, currentSort))
         } else {
-          const normalized = normalizeItems<TEmbeddedItem | TPage>(data.res)
+          const normalized = normalizeItems<TEmbeddedItem | TPage>(
+            data.res
+          )
 
           const newItems = options.replace
             ? normalized
             : normalized.filter(
-              newItem => !fullResultsCache.current.some(i => i.id === newItem.id)
-            )
+                (newItem) =>
+                  !fullResultsCache.current.some(
+                    (i) => i.id === newItem.id
+                  )
+              )
 
           fullResultsCache.current = options.replace
             ? newItems
             : [...fullResultsCache.current, ...newItems]
-          setItems(applyFilter(fullResultsCache.current, currentQuery, currentSort))
+          setItems(
+            applyFilter(
+              fullResultsCache.current,
+              currentQuery,
+              currentSort
+            )
+          )
         }
         setNextCursor(data.nextCursor)
         setCount(data.totalCount)
@@ -234,13 +257,10 @@ export function useResultsList<
   }, [groupedItems, applyFilter])
 
   // Infinite scroll
-  const loadMore = useCallback(
-    async () => {
-      if (!nextCursor || isFetchingRef.current) return
-      await fetchPage({ cursor: nextCursor })
-    },
-    [nextCursor, fetchPage]
-  )
+  const loadMore = useCallback(async () => {
+    if (!nextCursor || isFetchingRef.current) return
+    await fetchPage({ cursor: nextCursor })
+  }, [nextCursor, fetchPage])
 
   // Infinite scroll observer
   const observerRef = useRef<IntersectionObserver | null>(null)
@@ -257,7 +277,7 @@ export function useResultsList<
       observerRef.current?.disconnect()
 
       observerRef.current = new IntersectionObserver(
-        entries => {
+        (entries) => {
           if (entries[0].isIntersecting) loadMore()
         },
         { threshold: 0.1 }
@@ -286,7 +306,9 @@ export function useResultsList<
 
       if (!nextCursor || !query) {
         if (cancelled) return
-        setItems(applyFilter(fullResultsCache.current, query, sortDirection))
+        setItems(
+          applyFilter(fullResultsCache.current, query, sortDirection)
+        )
         return
       }
 
@@ -307,10 +329,18 @@ export function useResultsList<
     }
   }, [])
 
-  function onRemoveItem (itemId: string) {
-    fullResultsCache.current = fullResultsCache.current.filter(i => i.id !== itemId)
-    setItems(applyFilter(fullResultsCache.current, queryRef.current, sortDirectionRef.current))
-    setCount(prevCount => prevCount - 1)
+  function onRemoveItem(itemId: string) {
+    fullResultsCache.current = fullResultsCache.current.filter(
+      (i) => i.id !== itemId
+    )
+    setItems(
+      applyFilter(
+        fullResultsCache.current,
+        queryRef.current,
+        sortDirectionRef.current
+      )
+    )
+    setCount((prevCount) => prevCount - 1)
   }
 
   return {

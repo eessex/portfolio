@@ -4,7 +4,9 @@ import type { EmbedCode } from '@/lib/embed-codes/types'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import styles from '@/ui/embed-codes/embed-codes.module.scss'
 
-export const EmbedCodes = ({ embedCodes }: {
+export const EmbedCodes = ({
+  embedCodes
+}: {
   embedCodes: EmbedCode[]
 }) => {
   const sectionId = useId()
@@ -13,17 +15,11 @@ export const EmbedCodes = ({ embedCodes }: {
       className={styles['embed-codes']}
       aria-labelledby={sectionId}
     >
-      <h2
-        id={sectionId}
-        className='visually-hidden'
-      >
+      <h2 id={sectionId} className='visually-hidden'>
         Related Media
       </h2>
       {embedCodes.map((embedCode, index) => (
-        <EmbedCodeItem
-          key={index}
-          embedCode={embedCode}
-        />
+        <EmbedCodeItem key={index} embedCode={embedCode} />
       ))}
     </section>
   )

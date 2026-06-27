@@ -20,7 +20,9 @@ export async function fetchLinksByIds(ids: string[]) {
       ORDER BY
       COALESCE(publish_date, created_at) DESC
     `
-    return data.map((row) => formatDbResponseForClient(row, linkSchema))
+    return data.map((row) =>
+      formatDbResponseForClient(row, linkSchema)
+    )
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')
@@ -125,7 +127,9 @@ export async function fetchPressLinks() {
       WHERE type = 'press'
       ORDER BY publish_date DESC, created_at DESC
     `
-    return data.map((row) => formatDbResponseForClient(row, linkSchema))
+    return data.map((row) =>
+      formatDbResponseForClient(row, linkSchema)
+    )
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch press links.')
@@ -141,7 +145,9 @@ export async function fetchSocialLinks() {
       AND title IS NOT NULL
       ORDER BY title ASC
     `
-    return data.map((row) => formatDbResponseForClient(row, linkSchema))
+    return data.map((row) =>
+      formatDbResponseForClient(row, linkSchema)
+    )
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')

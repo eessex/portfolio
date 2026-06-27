@@ -13,7 +13,7 @@ const itemType: EmbeddedItemType = 'venues'
 const title = `Dashboard: ${camelToSentence(itemType)}`
 export const metadata: Metadata = { title }
 
-export default async function VenuesPage () {
+export default async function VenuesPage() {
   const res = await fetchVenues()
 
   return (

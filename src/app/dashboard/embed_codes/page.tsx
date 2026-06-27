@@ -13,7 +13,7 @@ const itemType: EmbeddedItemType = 'embedCodes'
 const title = `Dashboard: ${camelToSentence(itemType)}`
 export const metadata: Metadata = { title }
 
-export default async function EmbedCodesPage () {
+export default async function EmbedCodesPage() {
   const res = await fetchEmbedCodes()
 
   return (

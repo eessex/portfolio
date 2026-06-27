@@ -6,14 +6,21 @@ import type { FormResponse } from '@/lib/types'
 import { escapeHtml } from '@/ui/util'
 
 /** save email subscriptions */
-export async function createEmailSubscription<T> (formData: FormData): Promise<FormResponse<T>> {
-  const validatedFields = emailSubscriptionSchema.omit({
-    exportedAt: true,
-    createdAt: true,
-    updatedAt: true
-  }).safeParse(Object.fromEntries(formData))
+export async function createEmailSubscription<T>(
+  formData: FormData
+): Promise<FormResponse<T>> {
+  const validatedFields = emailSubscriptionSchema
+    .omit({
+      exportedAt: true,
+      createdAt: true,
+      updatedAt: true
+    })
+    .safeParse(Object.fromEntries(formData))
   if (!validatedFields.success) {
-    console.error('Failed to validate email, try again.', validatedFields.error.flatten().fieldErrors)
+    console.error(
+      'Failed to validate email, try again.',
+      validatedFields.error.flatten().fieldErrors
+    )
     return {
       ok: false,
       errors: validatedFields.error.flatten().fieldErrors,

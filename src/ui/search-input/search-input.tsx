@@ -1,8 +1,5 @@
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import {
-  useId,
-  useState
-} from 'react'
+import { useId, useState } from 'react'
 
 import styles from '@/ui/search-input/search-input.module.scss'
 
@@ -20,7 +17,7 @@ export interface SearchInputProps {
   value: string
 }
 
-export function SearchInput ({
+export function SearchInput({
   ariaControls,
   ariaActivedescendant,
   beforeInputChildren,
@@ -36,7 +33,7 @@ export function SearchInput ({
   const [inputValue, setInputValue] = useState(value)
   const inputId = useId()
 
-  function onInputChange (v: string) {
+  function onInputChange(v: string) {
     setInputValue(v)
     onChange(v)
 
@@ -62,11 +59,13 @@ export function SearchInput ({
           aria-controls={ariaControls}
           aria-activedescendant={ariaActivedescendant}
           id={inputId}
-          placeholder={placeholder || (isLabelHidden ? label : undefined)}
+          placeholder={
+            placeholder || (isLabelHidden ? label : undefined)
+          }
           role={role}
           type='search'
           value={inputValue}
-          onChange={e => onInputChange(e.target.value)}
+          onChange={(e) => onInputChange(e.target.value)}
           onKeyDown={onKeyDown}
         />
         {inputValue && (

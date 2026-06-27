@@ -2,7 +2,7 @@ import { fetchSocialLinks } from '@/lib/links/data'
 import { EmailSubscribe } from '@/ui/email-subscribe/email-subscribe'
 import styles from '@/ui/footer/footer.module.scss'
 
-export async function Footer () {
+export async function Footer() {
   const socialLinks = await fetchSocialLinks()
 
   return (
@@ -12,11 +12,7 @@ export async function Footer () {
           <ul>
             {socialLinks.map((link, index) => (
               <li key={index}>
-                <a
-                  href={link.url}
-                  target='_blank'
-                  rel='noreferrer'
-                >
+                <a href={link.url} target='_blank' rel='noreferrer'>
                   {link.title}
                 </a>
               </li>

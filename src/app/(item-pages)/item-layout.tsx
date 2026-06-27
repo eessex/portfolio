@@ -28,7 +28,7 @@ import {
   isUpcomingDate
 } from '@/ui/util'
 
-export default async function ItemLayout ({
+export default async function ItemLayout({
   item,
   children
 }: {
@@ -36,19 +36,18 @@ export default async function ItemLayout ({
   children?: React.ReactNode
 }) {
   const { publishedEditions } = item as ReleaseClient
-  const {
-    startTime,
-    ticketLink,
-    venue,
-    project
-  } = item as EventClient
+  const { startTime, ticketLink, venue, project } =
+    item as EventClient
   const isUpcoming = startTime ? isUpcomingDate(startTime) : false
 
-  function category () {
+  function category() {
     switch (item.path) {
       case 'projects':
       case 'releases':
-        return formattedItemType((item as ReleaseClient | ProjectClient).type || item.path, isUpcoming)
+        return formattedItemType(
+          (item as ReleaseClient | ProjectClient).type || item.path,
+          isUpcoming
+        )
       default:
         return formattedItemType(item.path, isUpcoming)
     }
@@ -60,41 +59,37 @@ export default async function ItemLayout ({
         <header>
           <p className='category'>
             <NextLink href={`/${item.path}`}>{category()}</NextLink>
-            {!item.isPublished && (<DraftBadge />)}
+            {!item.isPublished && <DraftBadge />}
           </p>
 
-          <h1>
-            {formattedItemTitle(item)}
-          </h1>
+          <h1>{formattedItemTitle(item)}</h1>
 
-          {publishedEditions
-            ? (
-              <PublishedEditionsCombined publishedEditions={publishedEditions} />
-              )
-            : (
-              <p>
-                <FormattedItemDate
-                  item={item}
-                  timezone={(item as EventClient).venue?.timezone}
-                />
-              </p>
-              )}
+          {publishedEditions ? (
+            <PublishedEditionsCombined
+              publishedEditions={publishedEditions}
+            />
+          ) : (
+            <p>
+              <FormattedItemDate
+                item={item}
+                timezone={(item as EventClient).venue?.timezone}
+              />
+            </p>
+          )}
 
           {venue && (
             <p className={styles.venue}>
-              {venue.url
-                ? (
-                  <a
-                    href={venue.url}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                  >
-                    {formatVenueInline({ venue })}
-                  </a>
-                  )
-                : (
-                    formatVenueInline({ venue })
-                  )}
+              {venue.url ? (
+                <a
+                  href={venue.url}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                >
+                  {formatVenueInline({ venue })}
+                </a>
+              ) : (
+                formatVenueInline({ venue })
+              )}
             </p>
           )}
 
@@ -114,10 +109,7 @@ export default async function ItemLayout ({
             <EmbedCodeItem embedCode={item.featuredEmbedCode} />
           )}
           {item.coverImage && (
-            <ImageFigure
-              image={item.coverImage}
-              isPriority
-            />
+            <ImageFigure image={item.coverImage} isPriority />
           )}
         </section>
 
@@ -141,19 +133,21 @@ export default async function ItemLayout ({
           </p>
         )}
 
-        {item.links && !!filteredLinksByPress(item.links)[0].length && (
-          <LinksList
-            links={filteredLinksByPress(item.links)[0]}
-            className={styles['press-links']}
-            isPress
-          />
-        )}
-        {item.links && !!filteredLinksByPress(item.links)[1].length && (
-          <LinksList
-            links={filteredLinksByPress(item.links)[1]}
-            className={styles['related-links']}
-          />
-        )}
+        {item.links &&
+          !!filteredLinksByPress(item.links)[0].length && (
+            <LinksList
+              links={filteredLinksByPress(item.links)[0]}
+              className={styles['press-links']}
+              isPress
+            />
+          )}
+        {item.links &&
+          !!filteredLinksByPress(item.links)[1].length && (
+            <LinksList
+              links={filteredLinksByPress(item.links)[1]}
+              className={styles['related-links']}
+            />
+          )}
         {item.embedCodes && (
           <EmbedCodes embedCodes={item.embedCodes} />
         )}
@@ -164,26 +158,27 @@ export default async function ItemLayout ({
   )
 }
 
-export async function generateItemMetadata (
+export async function generateItemMetadata(
   params: PageItemProps['params'],
-  fetchFn: (slug: string, includeUnpublished?: boolean) => Promise<PageItemClient | undefined>
+  fetchFn: (
+    slug: string,
+    includeUnpublished?: boolean
+  ) => Promise<PageItemClient | undefined>
 ): Promise<Metadata> {
   const { slug } = await params
   const item = await fetchFn(slug, true)
   if (!slug || !item) return notFound()
 
-  const {
-    coverImage,
-    path
-  } = item
+  const { coverImage, path } = item
 
-  const images = coverImage &&
-    [{
+  const images = coverImage && [
+    {
       url: coverImage.url,
       width: 1200,
       height: 1200 * coverImage.aspect,
       alt: coverImage.alt || coverImage.caption || ''
-    }]
+    }
+  ]
   const openGraph = images ? { images } : undefined
 
   const meta: Metadata = {
@@ -193,9 +188,12 @@ export async function generateItemMetadata (
   return meta
 }
 
-export async function generateItemStaticParams<T extends PageItemClient, S extends PageDataResponse> (
-  fetchFn: () => Promise<PageItemResponseWithCursor<T, S>>
-) {
+export async function generateItemStaticParams<
+  T extends PageItemClient,
+  S extends PageDataResponse
+>(fetchFn: () => Promise<PageItemResponseWithCursor<T, S>>) {
   const items = await fetchFn()
-  return Object.values(items.res).flat().map(i => ({ slug: (i as T).slug }))
+  return Object.values(items.res)
+    .flat()
+    .map((i) => ({ slug: (i as T).slug }))
 }

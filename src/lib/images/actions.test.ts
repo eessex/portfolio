@@ -48,7 +48,9 @@ describe('Image Actions', () => {
       const res = await deleteImage(imageFixture)
       expect(deleteFromS3Mock).not.toHaveBeenCalled()
 
-      expect(res!.message).toBe('Failed to delete image: Image not found.')
+      expect(res!.message).toBe(
+        'Failed to delete image: Image not found.'
+      )
     })
 
     it('can handle S3 deletion errors', async () => {

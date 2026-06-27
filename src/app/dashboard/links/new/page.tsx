@@ -7,7 +7,7 @@ import type { Link } from '@/lib/links/types'
 const title = 'New Link'
 export const metadata: Metadata = { title }
 
-export default function NewLinkPage () {
+export default function NewLinkPage() {
   return (
     <article>
       <header>

@@ -5,7 +5,7 @@ import {
   fetchEmbedCodes
 } from '@/lib/embed-codes/data'
 
-export async function GET (req: Request) {
+export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
 
   const cursor = searchParams.get('cursor') || undefined

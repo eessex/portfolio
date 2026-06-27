@@ -1,5 +1,5 @@
-@use "@/ui/styles/grids";
-@use "@/ui/styles/type";
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
 
 .about {
   section {
@@ -30,11 +30,14 @@
   margin: grids.space-rem(12, auto);
 
   .projects-list {
-    grid-template-columns: repeat(auto-fill, minmax(calc(50% - var(--column-gap)/2), 1fr));
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(calc(50% - var(--column-gap) / 2), 1fr)
+    );
     gap: grids.space-rem(8) var(--column-gap);
 
     h3 {
-      @include type.heading("lg");
+      @include type.heading('lg');
     }
 
     article {

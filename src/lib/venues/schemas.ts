@@ -8,16 +8,18 @@ import {
   uuid
 } from '@/lib/schemas'
 
-const venueBaseSchema = z.lazy(() => z.object({
-  address: shortText.optional(),
-  city: shortText,
-  name: shortText.optional(),
-  state: shortText.optional(),
-  country: shortText.optional(),
-  url: url.optional(),
-  timezone: shortText.max(100).optional(),
-  primaryVenueId: uuid.optional()
-}))
+const venueBaseSchema = z.lazy(() =>
+  z.object({
+    address: shortText.optional(),
+    city: shortText,
+    name: shortText.optional(),
+    state: shortText.optional(),
+    country: shortText.optional(),
+    url: url.optional(),
+    timezone: shortText.max(100).optional(),
+    primaryVenueId: uuid.optional()
+  })
+)
 
 /**
  * A venue where an event or exhibition takes place.
@@ -34,16 +36,18 @@ export const editVenueSchema = z.lazy(() =>
 )
 
 export const createVenueSchema = z.lazy(() =>
-  defaultSchema.omit({
-    id: true,
-    createdAt: true,
-    updatedAt: true
-  }).and(venueBaseSchema)
+  defaultSchema
+    .omit({
+      id: true,
+      createdAt: true,
+      updatedAt: true
+    })
+    .and(venueBaseSchema)
 )
 
 /**
  * Extends `venueSchema` with the pages that embed it.
-*/
+ */
 export const dashboardVenueSchema = z.lazy(() =>
   baseEmbeddedItemSlugsSchema.and(venueSchema)
 )

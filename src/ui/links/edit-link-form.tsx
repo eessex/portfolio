@@ -1,8 +1,5 @@
 import NextLink from 'next/link'
-import {
-  useId,
-  useState
-} from 'react'
+import { useId, useState } from 'react'
 import type { z } from 'zod'
 
 import type { createLinkSchema } from '@/lib/links/schemas'
@@ -15,18 +12,19 @@ import { Select } from '@/ui/form/select'
 const linkTypeOptions = [...linkTypes]
 
 interface LinkProps {
-  errors?: z.inferFlattenedErrors<typeof createLinkSchema>['fieldErrors']
+  errors?: z.inferFlattenedErrors<
+    typeof createLinkSchema
+  >['fieldErrors']
   index?: number
   link?: Partial<Link>
 }
 
-export const EditLink = ({
-  errors,
-  index,
-  link
-}: LinkProps) => {
-  const [type, setType] = useState<string | undefined>(link?.type || undefined)
-  const namePrefix = typeof index === 'number' ? `links[${index}].` : ''
+export const EditLink = ({ errors, index, link }: LinkProps) => {
+  const [type, setType] = useState<string | undefined>(
+    link?.type || undefined
+  )
+  const namePrefix =
+    typeof index === 'number' ? `links[${index}].` : ''
   const pressControlsId = useId()
 
   return (
@@ -76,12 +74,11 @@ export const EditLink = ({
         <legend>Press link details</legend>
         <p>
           {'Press links are automatically shown on your '}
-          <NextLink
-            href='/about'
-            target='_blank'
-          >
+          <NextLink href='/about' target='_blank'>
             /about
-          </NextLink> page, and can include additional data like an attribution and a quotation.
+          </NextLink>{' '}
+          page, and can include additional data like an attribution
+          and a quotation.
         </p>
 
         <Input
@@ -113,7 +110,11 @@ export const EditLink = ({
             placeholder: 'YYYY-MM-DD',
             type: 'date'
           }}
-          defaultValue={link?.publishDate ? new Date(link.publishDate).toISOString().split('T')[0] : ''}
+          defaultValue={
+            link?.publishDate
+              ? new Date(link.publishDate).toISOString().split('T')[0]
+              : ''
+          }
           label='Publish date'
         />
       </fieldset>

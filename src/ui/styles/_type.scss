@@ -1,35 +1,35 @@
-@use "sass:map";
+@use 'sass:map';
 
 $size: (
-  "xxs": 0.725rem,
-  "xs": 0.875rem,
-  "sm": 0.925rem,
-  "base": 1rem,
-  "lg": 1.25rem,
-  "xl": 1.5rem,
-  "xxl": 1.75rem
+  'xxs': 0.725rem,
+  'xs': 0.875rem,
+  'sm': 0.925rem,
+  'base': 1rem,
+  'lg': 1.25rem,
+  'xl': 1.5rem,
+  'xxl': 1.75rem
 );
 
 $heading-size: (
-  "base": map.get($size, "base"),
-  "lg": map.get($size, "lg"),
-  "xl": map.get($size, "xl"),
-  "xxl": map.get($size, "xxl")
+  'base': map.get($size, 'base'),
+  'lg': map.get($size, 'lg'),
+  'xl': map.get($size, 'xl'),
+  'xxl': map.get($size, 'xxl')
 );
 
 $line-height: (
-  "xs": 1.15em,
-  "sm": 1.35em,
-  "base": 1.5em
+  'xs': 1.15em,
+  'sm': 1.35em,
+  'base': 1.5em
 );
 
 $font-weight: (
-  "normal": 400,
-  "medium": 600,
-  "bold": 700
+  'normal': 400,
+  'medium': 600,
+  'bold': 700
 );
 
-@mixin font-size($size-key: "base") {
+@mixin font-size($size-key: 'base') {
   @if map.has-key($size, $size-key) {
     font-size: map.get($size, $size-key);
   } @else {
@@ -37,7 +37,7 @@ $font-weight: (
   }
 }
 
-@mixin font-weight($weight-key: "normal") {
+@mixin font-weight($weight-key: 'normal') {
   @if map.has-key($font-weight, $weight-key) {
     font-weight: map.get($font-weight, $weight-key);
   } @else {
@@ -45,7 +45,7 @@ $font-weight: (
   }
 }
 
-@mixin line-height($line-height-key: "base") {
+@mixin line-height($line-height-key: 'base') {
   @if map.has-key($line-height, $line-height-key) {
     line-height: map.get($line-height, $line-height-key);
   } @else {
@@ -54,23 +54,23 @@ $font-weight: (
 }
 
 @mixin size(
-  $size-key: "base",
-  $font-weight-key: "normal",
-  $line-height-key: "base"
+  $size-key: 'base',
+  $font-weight-key: 'normal',
+  $line-height-key: 'base'
 ) {
   @include font-size($size-key);
   @include font-weight($font-weight-key);
   @include line-height($line-height-key);
 }
 
-@mixin heading($size-key: "xl") {
+@mixin heading($size-key: 'xl') {
   @include font-size($size-key);
-  @include font-weight("bold");
-  @include line-height("sm");
+  @include font-weight('bold');
+  @include line-height('sm');
 }
 
 @mixin meta() {
-  @include size("xxs", "bold", "xs");
+  @include size('xxs', 'bold', 'xs');
 
   text-transform: uppercase;
   letter-spacing: 0.07em;

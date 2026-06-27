@@ -3,7 +3,7 @@ import {
   ArrowUpIcon
 } from '@heroicons/react/24/outline'
 
-export function SortButton ({
+export function SortButton({
   ariaControls,
   isAsc,
   onClick

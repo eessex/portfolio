@@ -3,7 +3,7 @@ import {
   ArrowsPointingOutIcon
 } from '@heroicons/react/24/outline'
 
-export function ExpandCollapseButton ({
+export function ExpandCollapseButton({
   ariaControls,
   closeLabel,
   isExpanded,
@@ -21,10 +21,14 @@ export function ExpandCollapseButton ({
       className='button-sm'
       aria-controls={ariaControls}
       aria-label={isExpanded ? closeLabel : openLabel}
-      onClick={() => onExpand(prev => !prev)}
+      onClick={() => onExpand((prev) => !prev)}
     >
       {isExpanded ? 'Collapse' : 'Expand'}
-      {isExpanded ? <ArrowsPointingInIcon /> : <ArrowsPointingOutIcon />}
+      {isExpanded ? (
+        <ArrowsPointingInIcon />
+      ) : (
+        <ArrowsPointingOutIcon />
+      )}
     </button>
   )
 }

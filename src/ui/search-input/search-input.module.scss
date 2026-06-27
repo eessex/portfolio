@@ -1,4 +1,4 @@
-@use "@/ui/styles/grids";
+@use '@/ui/styles/grids';
 
 .search-input {
   position: relative;
@@ -19,7 +19,7 @@
   .search-input-container {
     position: relative;
 
-    input[type="search"] {
+    input[type='search'] {
       padding-left: grids.space-em(8);
       min-width: 260px;
       width: 100%;
@@ -43,14 +43,14 @@
     }
 
     &::before {
-      content: "";
+      content: '';
       position: absolute;
       z-index: 1;
       top: 48%;
       left: grids.space-em(2);
       width: grids.space-em(5);
       height: grids.space-em(5);
-      background-image: url("/magnifying-glass.svg");
+      background-image: url('/magnifying-glass.svg');
       background-repeat: no-repeat;
       background-size: grids.space-em(5) grids.space-em(5);
       background-size: contain;

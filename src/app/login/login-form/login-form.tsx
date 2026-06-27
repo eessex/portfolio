@@ -7,19 +7,19 @@ import { authenticate } from '@/lib/users/actions'
 import { Form } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 
-function authErrorMessage (error: AuthError) {
+function authErrorMessage(error: AuthError) {
   if (error.name === 'CredentialsSignin') {
     return 'Invalid credentials.'
   }
 }
 
-function getErrorMessage (error: unknown): string | undefined {
+function getErrorMessage(error: unknown): string | undefined {
   const authError = authErrorMessage(error as AuthError)
   if (authError) return authError
   throw error
 }
 
-async function onAuthenticate (
+async function onAuthenticate(
   formData: FormData
 ): Promise<FormResponse<Record<string, never>>> {
   try {
@@ -32,7 +32,7 @@ async function onAuthenticate (
   }
 }
 
-export function LoginForm () {
+export function LoginForm() {
   return (
     <Form
       action={onAuthenticate}
@@ -55,11 +55,7 @@ export function LoginForm () {
           required: true
         }}
       />
-      <input
-        type='hidden'
-        name='redirectTo'
-        value='/'
-      />
+      <input type='hidden' name='redirectTo' value='/' />
     </Form>
   )
 }

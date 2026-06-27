@@ -40,7 +40,9 @@ export async function checkIfImageExists(
       return false
     }
   } catch (err) {
-    throw new Error('Failed to check if image exists.', { cause: err })
+    throw new Error('Failed to check if image exists.', {
+      cause: err
+    })
   }
 }
 
@@ -106,7 +108,9 @@ export async function editImage(
     } catch (err) {
       const errMsg = 'Failed to edit image'
       const message =
-        err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+        err instanceof Error
+          ? `${errMsg}: ${err.message}`
+          : `${errMsg}.`
       return {
         ok: false,
         message
@@ -138,7 +142,9 @@ export async function deleteImage(
     return { ok: true }
   } catch (err) {
     const message =
-      err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+      err instanceof Error
+        ? `${errMsg}: ${err.message}`
+        : `${errMsg}.`
     return {
       ok: false,
       message
@@ -148,8 +154,14 @@ export async function deleteImage(
 
 async function createImage(image: CreateImage) {
   try {
-    const { aspect, caption, isHiddenOnAboutPage, isPress, title, url } =
-      image
+    const {
+      aspect,
+      caption,
+      isHiddenOnAboutPage,
+      isPress,
+      title,
+      url
+    } = image
     return await sql`
       INSERT INTO images (
         aspect,
@@ -182,8 +194,14 @@ async function updateImage(image: CreateImage | Image) {
     if (!(image as Image).id) {
       return await createImage(image)
     } else {
-      const { aspect, caption, isHiddenOnAboutPage, isPress, title, url } =
-        image
+      const {
+        aspect,
+        caption,
+        isHiddenOnAboutPage,
+        isPress,
+        title,
+        url
+      } = image
       return await sql`
         UPDATE images
         SET (
@@ -206,7 +224,9 @@ async function updateImage(image: CreateImage | Image) {
         )
         WHERE id = ${(image as Image).id}
         RETURNING *
-      `.then((rows) => formatDbResponseForClient(rows[0], imageSchema))
+      `.then((rows) =>
+        formatDbResponseForClient(rows[0], imageSchema)
+      )
     }
   } catch (err) {
     throw new Error(

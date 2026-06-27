@@ -17,7 +17,7 @@ import { Loading } from '@/ui/loading'
 
 const title = 'About'
 
-export async function generateMetadata () {
+export async function generateMetadata() {
   const [settings, about] = await Promise.all([
     fetchSiteSettings(),
     fetchAboutPage()
@@ -25,12 +25,14 @@ export async function generateMetadata () {
 
   const image = (about || settings)?.coverImage
   const images = image
-    ? [{
-        url: image.url,
-        width: 1200,
-        height: 1200 * image.aspect,
-        alt: image.caption
-      }]
+    ? [
+        {
+          url: image.url,
+          width: 1200,
+          height: 1200 * image.aspect,
+          alt: image.caption
+        }
+      ]
     : []
 
   return {
@@ -40,30 +42,35 @@ export async function generateMetadata () {
   }
 }
 
-export default async function AboutPage () {
-  const [
-    about,
-    links,
-    pressImages,
-    session
-  ] = await Promise.all([
+export default async function AboutPage() {
+  const [about, links, pressImages, session] = await Promise.all([
     fetchAboutPage(),
     fetchPressLinks(),
     fetchPressImages(),
     auth()
   ])
 
-  const { res: { allProjects } } = await fetchProjects(!!session?.user)
+  const {
+    res: { allProjects }
+  } = await fetchProjects(!!session?.user)
 
-  const [pressLinksWithQuotes, pressLinksWithoutQuotes] = links.reduce(
-    ([withQuotes, withoutQuotes], link) =>
-      link.quotation
-        ? [[...withQuotes, link], withoutQuotes]
-        : [withQuotes, [...withoutQuotes, link]],
-    [[], []] as [typeof links, typeof links]
+  const [pressLinksWithQuotes, pressLinksWithoutQuotes] =
+    links.reduce(
+      ([withQuotes, withoutQuotes], link) =>
+        link.quotation
+          ? [[...withQuotes, link], withoutQuotes]
+          : [withQuotes, [...withoutQuotes, link]],
+      [[], []] as [typeof links, typeof links]
+    )
+
+  const filteredPressImages = pressImages.filter(
+    (image) =>
+      !!(
+        image.isPress &&
+        !image.isHiddenOnAboutPage &&
+        image.id !== about?.coverImageId
+      )
   )
-
-  const filteredPressImages = pressImages.filter(image => !!(image.isPress && !image.isHiddenOnAboutPage && image.id !== about?.coverImageId))
 
   return (
     <article className={styles.about}>
@@ -89,12 +96,14 @@ export default async function AboutPage () {
           </p>
         )}
 
-        {about?.contactInfo?.map(({
-          title,
-          contact
-        }: AboutContact, i) => (
-          <p key={i}>{title && <b>{title}: </b>}{contact}</p>
-        ))}
+        {about?.contactInfo?.map(
+          ({ title, contact }: AboutContact, i) => (
+            <p key={i}>
+              {title && <b>{title}: </b>}
+              {contact}
+            </p>
+          )
+        )}
         <Suspense>
           <LinksList
             className={styles['links-list']}
@@ -107,10 +116,7 @@ export default async function AboutPage () {
       <div className={styles['press-info']}>
         <Suspense fallback={<Loading />}>
           {!!allProjects.length && (
-            <AccordionDropdown
-              title='More Projects'
-              isFullWidth
-            >
+            <AccordionDropdown title='More Projects' isFullWidth>
               <ItemsList
                 className={styles['projects-list']}
                 items={allProjects}
@@ -122,10 +128,7 @@ export default async function AboutPage () {
 
         <Suspense fallback={<Loading />}>
           {!!filteredPressImages.length && (
-            <AccordionDropdown
-              title='More Images'
-              isFullWidth
-            >
+            <AccordionDropdown title='More Images' isFullWidth>
               <ImageGrid images={filteredPressImages} />
             </AccordionDropdown>
           )}
@@ -133,10 +136,7 @@ export default async function AboutPage () {
 
         <Suspense>
           {!!pressLinksWithoutQuotes.length && (
-            <AccordionDropdown
-              title='More Press'
-              isFullWidth
-            >
+            <AccordionDropdown title='More Press' isFullWidth>
               <LinksList links={pressLinksWithoutQuotes} />
             </AccordionDropdown>
           )}

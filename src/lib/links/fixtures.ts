@@ -1,7 +1,4 @@
-import type {
-  CreateLink,
-  Link
-} from '@/lib/links/types'
+import type { CreateLink, Link } from '@/lib/links/types'
 
 export const newLinkFixture: CreateLink = {
   url: 'https://testlink.com',

@@ -1,6 +1,6 @@
-@use "@/ui/styles/breakpoints";
-@use "@/ui/styles/grids";
-@use "@/ui/styles/type";
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
 
 .filters-section {
   position: sticky;
@@ -21,7 +21,7 @@
     @include breakpoints.sm-width {
       margin-top: 0;
 
-      tr[class$="rowgroup-heading"] {
+      tr[class$='rowgroup-heading'] {
         top: calc(var(--header-height) + 39px);
       }
     }
@@ -35,7 +35,8 @@
   justify-content: flex-end;
   padding: grids.space-rem(0, 2);
 
-  input, select {
+  input,
+  select {
     height: grids.space-em(9);
   }
 
@@ -43,14 +44,14 @@
     width: 100%;
     justify-content: space-between;
     align-items: flex-end;
-    flex-wrap: wrap; 
+    flex-wrap: wrap;
     overflow: hidden;
 
     > * {
       width: min-content;
     }
 
-    div:has(input[type="search"]) {
+    div:has(input[type='search']) {
       width: 100%;
       margin-bottom: 2px;
     }
@@ -60,7 +61,7 @@
 .filters-tray {
   position: sticky;
   top: calc(var(--header-height) - 1px);
-  transition: all .25s ease-in-out;
+  transition: all 0.25s ease-in-out;
   z-index: 200;
   display: flex;
   justify-content: flex-end;
@@ -69,11 +70,11 @@
   > button {
     position: absolute;
     right: grids.space-rem(2);
-    bottom: -.35rem;
+    bottom: -0.35rem;
     transform: translate(0, 100%);
     min-width: max-content;
-    padding-left: .5rem;
-    padding-right: .5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
 
   > section {
@@ -81,13 +82,13 @@
     flex: 1;
     max-height: 0;
     overflow: hidden;
-    transition: max-height .25s ease-in-out;
+    transition: max-height 0.25s ease-in-out;
   }
 }
 
 .open {
   > section {
     max-height: unset;
-    margin-top: .35rem;
+    margin-top: 0.35rem;
   }
 }

@@ -1,5 +1,5 @@
-@use "@/ui/styles/breakpoints";
-@use "@/ui/styles/grids";
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
 
 :root {
   --menubar-height: #{grids.space-rem(13)};

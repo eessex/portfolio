@@ -1,14 +1,14 @@
-@use "@/ui/styles/breakpoints";
-@use "@/ui/styles/grids";
-@use "@/ui/styles/type";
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
 
 /** buttons, links, form elements **/
 
 :where(
   button,
   a[href].button,
-  a[href][class^="button-"],
-  a[href][class*=" button-"]
+  a[href][class^='button-'],
+  a[href][class*=' button-']
 ) {
   display: inline-flex;
   gap: 0.4em;
@@ -18,12 +18,12 @@
   background: none transparent;
   color: currentColor;
   transition:
-    color .15s cubic-bezier(.4, 0, .2, 1),
-    background .15s cubic-bezier(.4, 0, .2, 1),
-    fill .15s cubic-bezier(.4, 0, .2, 1),
-    stroke .15s cubic-bezier(.4, 0, .2, 1);
+    color 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    fill 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    stroke 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   padding: grids.space-em(2, 3);
-  
+
   &:has(svg) {
     padding-right: grids.space-em(4);
   }
@@ -40,11 +40,12 @@
 }
 
 :where(
-  button,
-  a[href].button,
-  a[href][class^="button-"],
-  a[href][class*=" button-"]
-) svg {
+    button,
+    a[href].button,
+    a[href][class^='button-'],
+    a[href][class*=' button-']
+  )
+  svg {
   width: grids.space-em(5);
   height: grids.space-em(5);
   flex-shrink: 0;
@@ -83,7 +84,7 @@ a[href] {
   }
 
   &.button-icon {
-    padding: .45em grids.space-em(2);
+    padding: 0.45em grids.space-em(2);
 
     svg {
       margin-top: 0;
@@ -91,13 +92,13 @@ a[href] {
   }
 
   &.button-sm {
-    @include type.size("sm", "normal", "sm");
+    @include type.size('sm', 'normal', 'sm');
 
     padding: grids.space-em(1, 2);
   }
 
   &.button-lg {
-    @include type.font-weight("bold");
+    @include type.font-weight('bold');
 
     padding: grids.space-em(3, 4);
     justify-content: center;
@@ -120,7 +121,7 @@ a[href] {
   padding: grids.space-em(2, 3);
   background: var(--input-background-color);
   border: 2px solid transparent;
-  vertical-align: middle; 
+  vertical-align: middle;
   color: currentColor;
 
   &.dirty:invalid {
@@ -132,12 +133,12 @@ a[href] {
   }
 
   &::placeholder,
-  &:has(option[value=""]:checked) {
+  &:has(option[value='']:checked) {
     color: var(--placeholder-color);
   }
 
-  &[type="date"],
-  &[type="datetime-local"] {
+  &[type='date'],
+  &[type='datetime-local'] {
     height: grids.space-em(11);
 
     // FIXME: placeholder color
@@ -174,7 +175,12 @@ a[href] {
   line-height: 1.15em;
 }
 
-:where(button:disabled, input:disabled, textarea:disabled, select:disabled) {
+:where(
+  button:disabled,
+  input:disabled,
+  textarea:disabled,
+  select:disabled
+) {
   --input-background-color: var(--transparency-light);
   --placeholder-color: var(--transparency-secondary);
 
@@ -182,15 +188,15 @@ a[href] {
 }
 
 :where(label, legend) {
-  @include type.font-weight("bold");
-  @include type.line-height("sm");
+  @include type.font-weight('bold');
+  @include type.line-height('sm');
 
   display: block;
 
-  &:has(input[type="checkbox"]) {
+  &:has(input[type='checkbox']) {
     font-weight: normal;
 
-    &:has(input[type="checkbox"]:disabled) {
+    &:has(input[type='checkbox']:disabled) {
       color: var(--disabled-color);
     }
   }

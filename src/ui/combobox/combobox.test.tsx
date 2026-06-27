@@ -1,18 +1,11 @@
-import {
-  fireEvent,
-  render,
-  screen
-} from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 
 import {
   venueFixtureAlpha,
   venueFixtureBeta
 } from '@/lib/venues/fixtures'
 import type { Venue } from '@/lib/venues/types'
-import {
-  Combobox,
-  type ComboboxProps
-} from '@/ui/combobox/combobox'
+import { Combobox, type ComboboxProps } from '@/ui/combobox/combobox'
 import { useResultsList } from '@/ui/useResultsList'
 
 jest.mock('@/ui/useResultsList')
@@ -36,10 +29,7 @@ const defaultProps: ComboboxProps<Venue> = {
   onSelect: onSelectMock
 }
 
-const defaultVenues: Venue[] = [
-  venueFixtureAlpha,
-  venueFixtureBeta
-]
+const defaultVenues: Venue[] = [venueFixtureAlpha, venueFixtureBeta]
 
 const initialResults: ComboboxProps<Venue>['initialResults'] = {
   res: defaultVenues,
@@ -47,13 +37,8 @@ const initialResults: ComboboxProps<Venue>['initialResults'] = {
   totalCount: defaultVenues.length
 }
 
-function renderCombobox (props = {}) {
-  return render(
-    <Combobox
-      {...defaultProps}
-      {...props}
-    />
-  )
+function renderCombobox(props = {}) {
+  return render(<Combobox {...defaultProps} {...props} />)
 }
 
 describe('Combobox', () => {
@@ -65,7 +50,9 @@ describe('Combobox', () => {
     beforeEach(() => {
       const actual = jest.requireActual('@/ui/useResultsList')
 
-      ;(useResultsList as jest.Mock).mockImplementation(actual.useResultsList)
+      ;(useResultsList as jest.Mock).mockImplementation(
+        actual.useResultsList
+      )
     })
 
     describe('rendering and basic wiring', () => {
@@ -74,7 +61,9 @@ describe('Combobox', () => {
 
         expect(screen.getByRole('combobox')).toBeInTheDocument()
         expect(screen.getByLabelText('Venue')).toBeInTheDocument()
-        expect(screen.getByPlaceholderText('Search venues')).toBeInTheDocument()
+        expect(
+          screen.getByPlaceholderText('Search venues')
+        ).toBeInTheDocument()
         expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
       })
 
@@ -83,8 +72,12 @@ describe('Combobox', () => {
         fireEvent.focus(screen.getByRole('combobox'))
 
         expect(screen.getByRole('listbox')).toBeInTheDocument()
-        expect(screen.getByText(venueFixtureAlpha.name!)).toBeInTheDocument()
-        expect(screen.getByText(venueFixtureBeta.name!)).toBeInTheDocument()
+        expect(
+          screen.getByText(venueFixtureAlpha.name!)
+        ).toBeInTheDocument()
+        expect(
+          screen.getByText(venueFixtureBeta.name!)
+        ).toBeInTheDocument()
       })
 
       it('uses provided label and placeholder', () => {
@@ -93,8 +86,12 @@ describe('Combobox', () => {
           placeholder: 'Custom Venue Placeholder'
         })
 
-        expect(screen.getByLabelText('Custom Venue Label')).toBeInTheDocument()
-        expect(screen.getByPlaceholderText('Custom Venue Placeholder')).toBeInTheDocument()
+        expect(
+          screen.getByLabelText('Custom Venue Label')
+        ).toBeInTheDocument()
+        expect(
+          screen.getByPlaceholderText('Custom Venue Placeholder')
+        ).toBeInTheDocument()
       })
     })
 
@@ -151,16 +148,25 @@ describe('Combobox', () => {
 
         // ArrowDown highlights first option
         fireEvent.keyDown(combobox, { key: 'ArrowDown' })
-        expect(combobox).toHaveAttribute('aria-activedescendant', options()[0].id)
+        expect(combobox).toHaveAttribute(
+          'aria-activedescendant',
+          options()[0].id
+        )
 
         // ArrowDown moves highlight to second option
         fireEvent.keyDown(combobox, { key: 'ArrowDown' })
-        expect(combobox).toHaveAttribute('aria-activedescendant', options()[1].id)
+        expect(combobox).toHaveAttribute(
+          'aria-activedescendant',
+          options()[1].id
+        )
 
         // ArrowUp wraps from first to last
         fireEvent.keyDown(combobox, { key: 'ArrowUp' })
         fireEvent.keyDown(combobox, { key: 'ArrowUp' })
-        expect(combobox).toHaveAttribute('aria-activedescendant', options()[1].id)
+        expect(combobox).toHaveAttribute(
+          'aria-activedescendant',
+          options()[1].id
+        )
 
         // Escape clears highlight
         fireEvent.keyDown(combobox, { key: 'Escape' })
@@ -228,7 +234,7 @@ describe('Combobox', () => {
 
   describe('loading and pagination', () => {
     it('renders the load-more sentinel and loading indicator when nextCursor is present', () => {
-      (useResultsList as jest.Mock).mockReturnValue({
+      ;(useResultsList as jest.Mock).mockReturnValue({
         query: '',
         setQuery: jest.fn(),
         items: defaultVenues,
@@ -240,12 +246,14 @@ describe('Combobox', () => {
       renderCombobox({ initialResults })
       fireEvent.focus(screen.getByRole('combobox'))
 
-      expect(screen.getByTestId('load-more-sentinel')).toBeInTheDocument()
+      expect(
+        screen.getByTestId('load-more-sentinel')
+      ).toBeInTheDocument()
       expect(screen.getByText('Loading...')).toBeInTheDocument()
     })
 
     it('does not render pagination elements when nextCursor is null', () => {
-      (useResultsList as jest.Mock).mockReturnValue({
+      ;(useResultsList as jest.Mock).mockReturnValue({
         query: '',
         setQuery: jest.fn(),
         items: defaultVenues,
@@ -258,7 +266,9 @@ describe('Combobox', () => {
 
       fireEvent.focus(screen.getByRole('combobox'))
 
-      expect(screen.queryByTestId('load-more-sentinel')).not.toBeInTheDocument()
+      expect(
+        screen.queryByTestId('load-more-sentinel')
+      ).not.toBeInTheDocument()
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     })
   })

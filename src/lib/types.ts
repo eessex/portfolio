@@ -13,23 +13,29 @@ import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import type {
-  embeddedItemTypes,
-  pagePathTypes
-} from '@/lib/schemas'
+import type { embeddedItemTypes, pagePathTypes } from '@/lib/schemas'
 import type { Venue } from '@/lib/venues/types'
 
-export type PagePathType = typeof pagePathTypes[number]
+export type PagePathType = (typeof pagePathTypes)[number]
 
-export type PageDataResponse = FetchEventsResult | FetchProjectsResult | FetchReleasesResult
-export type PageDataResponseKey
-  = keyof FetchEventsResult
+export type PageDataResponse =
+  | FetchEventsResult
+  | FetchProjectsResult
+  | FetchReleasesResult
+export type PageDataResponseKey =
+  | keyof FetchEventsResult
   | keyof FetchProjectsResult
   | keyof FetchReleasesResult
 
-export type PageItemClient = EventClient | ProjectClient | ReleaseClient
+export type PageItemClient =
+  | EventClient
+  | ProjectClient
+  | ReleaseClient
 
-export interface PageItemResponseWithCursor<T extends PageItemClient, S extends PageDataResponse> {
+export interface PageItemResponseWithCursor<
+  T extends PageItemClient,
+  S extends PageDataResponse
+> {
   res: Record<keyof S, T[]>
   nextCursor: string | null
   totalCount: number
@@ -43,7 +49,7 @@ export type PageEmbeddedItemProps = {
   params: Promise<{ id: string }>
 }
 
-export type EmbeddedItemType = typeof embeddedItemTypes[number]
+export type EmbeddedItemType = (typeof embeddedItemTypes)[number]
 export type EmbeddedItem = EmbedCode | Image | Link | Venue
 
 // FIXME: multiple not yet used, but some endpoints might need it
@@ -54,6 +60,11 @@ export type FormState<T, Multiple extends boolean = false> = {
   errors?: Record<string, string[] | undefined> | string[]
 }
 
-export type FormResponse<T, Multiple extends boolean = false> = FormState<T, Multiple> | undefined
+export type FormResponse<T, Multiple extends boolean = false> =
+  | FormState<T, Multiple>
+  | undefined
 
-export interface Badge { text: string, color?: 'green' | 'blue' | 'purple' | 'orange' | 'red' }
+export interface Badge {
+  text: string
+  color?: 'green' | 'blue' | 'purple' | 'orange' | 'red'
+}

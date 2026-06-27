@@ -6,7 +6,9 @@ import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 
 interface EditVenueProps {
-  errors?: z.inferFlattenedErrors<typeof createVenueSchema>['fieldErrors']
+  errors?: z.inferFlattenedErrors<
+    typeof createVenueSchema
+  >['fieldErrors']
   isPrefixEnabled?: boolean
   venue?: Partial<Venue>
 }

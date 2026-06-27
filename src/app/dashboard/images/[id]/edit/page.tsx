@@ -13,7 +13,9 @@ const title = 'Edit Image'
 
 export const metadata: Metadata = { title }
 
-export default async function EditImagePage ({ params }: PageEmbeddedItemProps) {
+export default async function EditImagePage({
+  params
+}: PageEmbeddedItemProps) {
   const { id } = await params
   const image = await fetchImageById(id)
 

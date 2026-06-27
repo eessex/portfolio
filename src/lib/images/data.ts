@@ -1,7 +1,10 @@
 'use server'
 
 import { sql } from '@/lib/db'
-import { dashboardImageSchema, imageSchema } from '@/lib/images/schemas'
+import {
+  dashboardImageSchema,
+  imageSchema
+} from '@/lib/images/schemas'
 import type { CreateImage, DashboardImage } from '@/lib/images/types'
 import {
   decodeCursor,
@@ -68,7 +71,9 @@ const _fetchImagesByIds = async (ids: string[]) => {
       SELECT * FROM images
       WHERE id = ANY(${ids})
     `
-    return data.map((row) => formatDbResponseForClient(row, imageSchema))
+    return data.map((row) =>
+      formatDbResponseForClient(row, imageSchema)
+    )
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch images.')
@@ -142,7 +147,9 @@ export async function fetchPressImages() {
       SELECT * FROM images
       WHERE is_press = true
     `
-    return data.map((row) => formatDbResponseForClient(row, imageSchema))
+    return data.map((row) =>
+      formatDbResponseForClient(row, imageSchema)
+    )
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch press images.')

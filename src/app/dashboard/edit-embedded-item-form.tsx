@@ -12,13 +12,10 @@ import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
 import { Form } from '@/ui/form/form'
 import { EditImage } from '@/ui/images/edit-image-form'
 import { EditLink } from '@/ui/links/edit-link-form'
-import {
-  camelToSnake,
-  singularizePath
-} from '@/ui/util'
+import { camelToSnake, singularizePath } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 
-function getEditFormComponent (itemType: EmbeddedItemType) {
+function getEditFormComponent(itemType: EmbeddedItemType) {
   switch (itemType) {
     case 'embedCodes':
       return EditEmbedCode
@@ -33,7 +30,7 @@ function getEditFormComponent (itemType: EmbeddedItemType) {
   }
 }
 
-export function EditEmbeddedItemForm<T = EmbeddedItem> ({
+export function EditEmbeddedItemForm<T = EmbeddedItem>({
   item,
   itemType,
   editItem
@@ -44,7 +41,7 @@ export function EditEmbeddedItemForm<T = EmbeddedItem> ({
 }) {
   const router = useRouter()
 
-  async function handleSubmit (formData: FormData) {
+  async function handleSubmit(formData: FormData) {
     const res = await editItem(formData)
     if (res?.ok && res.res) {
       router.push(`/dashboard/${camelToSnake(itemType)}`)

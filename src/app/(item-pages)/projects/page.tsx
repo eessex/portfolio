@@ -17,15 +17,13 @@ const title = formattedItemType(path, false, true)
 
 export const metadata: Metadata = { title }
 
-export default async function ProjectsPage () {
+export default async function ProjectsPage() {
   const session = await auth()
   const projects = await fetchProjects(!!session?.user)
 
   return (
     <div>
-      <h1 className='visually-hidden'>
-        {title}
-      </h1>
+      <h1 className='visually-hidden'>{title}</h1>
 
       <Suspense fallback={<Loading />}>
         <ItemsTable<ProjectClient, FetchProjectsResult>

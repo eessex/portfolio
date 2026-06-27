@@ -279,7 +279,7 @@
 // // //   return insertedImages
 // // // }
 
-export async function GET () {
+export async function GET() {
   // try {
   //   const result = await sql.begin((sql) => [
   //   // seedEvents(),

@@ -70,22 +70,26 @@ export const defaultCreateOmitFields = {
 /**
  * Fields on all content tables: tagIds, title, projectId
  */
-export const baseContentSchema = z.object({
-  tagIds: z.array(uuid).optional(),
-  title: shortText.optional(),
-  projectId: uuid.optional()
-}).extend(defaultSchema.shape)
+export const baseContentSchema = z
+  .object({
+    tagIds: z.array(uuid).optional(),
+    title: shortText.optional(),
+    projectId: uuid.optional()
+  })
+  .extend(defaultSchema.shape)
 
 /**
  * Fields on all "page" tables: coverImageId, description, isPublished, slug
  */
-export const basePageSchema = z.object({
-  coverImageId: uuid.optional(),
-  description: longText.optional(),
-  isPublished: bool.optional(),
-  path: z.enum(pagePathTypes),
-  slug
-}).extend(baseContentSchema.shape)
+export const basePageSchema = z
+  .object({
+    coverImageId: uuid.optional(),
+    description: longText.optional(),
+    isPublished: bool.optional(),
+    path: z.enum(pagePathTypes),
+    slug
+  })
+  .extend(baseContentSchema.shape)
 
 /**
  * Fields on items visible in dashboard: eventSlugs, releaseSlugs
@@ -118,11 +122,13 @@ export const embeddedItemIdSchemas = z.object({
 /**
  * Slug history to track changes to slugs for SEO and redirect purposes.
  */
-export const SlugHistorySchema = baseContentSchema.omit({ updatedAt: true }).extend({
-  tableName: z.string().max(50),
-  rowId: uuid,
-  oldSlug: slug
-})
+export const SlugHistorySchema = baseContentSchema
+  .omit({ updatedAt: true })
+  .extend({
+    tableName: z.string().max(50),
+    rowId: uuid,
+    oldSlug: slug
+  })
 
 /**
  * END Utility types and interfaces

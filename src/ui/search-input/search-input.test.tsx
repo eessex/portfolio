@@ -1,8 +1,4 @@
-import {
-  fireEvent,
-  render,
-  screen
-} from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 
 import {
   SearchInput,
@@ -24,12 +20,7 @@ const defaultProps: SearchInputProps = {
 }
 
 const renderComponent = (props = {}) => {
-  return render(
-    <SearchInput
-      {...defaultProps}
-      {...props}
-    />
-  )
+  return render(<SearchInput {...defaultProps} {...props} />)
 }
 
 describe('SearchInput', () => {
@@ -67,9 +58,7 @@ describe('SearchInput', () => {
     it('renders role when provided', () => {
       renderComponent({ role: 'combobox' })
 
-      expect(
-        screen.getByRole('combobox')
-      ).toBeInTheDocument()
+      expect(screen.getByRole('combobox')).toBeInTheDocument()
     })
   })
 

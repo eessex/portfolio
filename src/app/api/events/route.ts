@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { fetchEvents } from '@/lib/events/data'
 
-export async function GET (req: Request) {
+export async function GET(req: Request) {
   const session = await auth()
   const { searchParams } = new URL(req.url)
   const cursor = searchParams.get('cursor') || undefined
@@ -11,7 +11,12 @@ export async function GET (req: Request) {
   const projectSlug = searchParams.get('projectSlug') || undefined
 
   try {
-    const result = await fetchEvents(!!session?.user, projectSlug, cursor, query)
+    const result = await fetchEvents(
+      !!session?.user,
+      projectSlug,
+      cursor,
+      query
+    )
     return NextResponse.json(result)
   } catch (error) {
     console.error('Database Error:', error)

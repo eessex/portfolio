@@ -6,5 +6,8 @@ import type {
 } from '@/lib/venues/schemas'
 
 export type Venue = z.infer<typeof venueSchema>
-export type CreateVenue = Omit<Venue, 'id' | 'createdAt' | 'updatedAt'>
+export type CreateVenue = Omit<
+  Venue,
+  'id' | 'createdAt' | 'updatedAt'
+>
 export type DashboardVenue = z.infer<typeof dashboardVenueSchema>

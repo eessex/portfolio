@@ -5,7 +5,7 @@ type ObserverRecord = {
 
 let observers: ObserverRecord[] = []
 
-export function installIntersectionObserverMock () {
+export function installIntersectionObserverMock() {
   class MockIntersectionObserver {
     callback: IntersectionObserverCallback
     root = null
@@ -17,7 +17,7 @@ export function installIntersectionObserverMock () {
     disconnect = jest.fn()
     takeRecords = jest.fn()
 
-    constructor (callback: IntersectionObserverCallback) {
+    constructor(callback: IntersectionObserverCallback) {
       this.callback = callback
       observers.push({
         callback,
@@ -30,19 +30,16 @@ export function installIntersectionObserverMock () {
   global.IntersectionObserver = MockIntersectionObserver
 }
 
-export function triggerIntersection (
-  entries: Partial<IntersectionObserverEntry>[] = [{ isIntersecting: true }]
+export function triggerIntersection(
+  entries: Partial<IntersectionObserverEntry>[] = [
+    { isIntersecting: true }
+  ]
 ) {
-  for (const {
-    callback, instance
-  } of observers) {
-    callback(
-      entries as IntersectionObserverEntry[],
-      instance
-    )
+  for (const { callback, instance } of observers) {
+    callback(entries as IntersectionObserverEntry[], instance)
   }
 }
 
-export function resetIntersectionObservers () {
+export function resetIntersectionObservers() {
   observers = []
 }

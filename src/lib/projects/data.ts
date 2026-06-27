@@ -139,7 +139,10 @@ export async function fetchProjectBySlug(
   }
 }
 
-async function getTotalCount(isAuthed: boolean = false, query?: string) {
+async function getTotalCount(
+  isAuthed: boolean = false,
+  query?: string
+) {
   try {
     const like = query ? `%${query}%` : null
     const data = await sql`

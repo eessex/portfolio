@@ -19,7 +19,9 @@ export const hydratedItemIdSchemas = z.object({
   images: z.lazy(() => imageSchema.array()).optional(),
   links: z.lazy(() => linkSchema.array()).optional(),
   project: z.lazy(() => projectSchema).optional(),
-  publishedEditions: z.lazy(() => publishedEditionSchema.array()).optional(),
+  publishedEditions: z
+    .lazy(() => publishedEditionSchema.array())
+    .optional(),
   tags: z.lazy(() => tagSchema.array()).optional(),
   venue: z.lazy(() => venueSchema).optional()
 })

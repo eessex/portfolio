@@ -16,11 +16,7 @@ video {
   background: var(--transparency-secondary);
 }
 
-:where(
-  button,
-  input,
-  textarea
-) {
+:where(button, input, textarea) {
   font: inherit;
 }
 

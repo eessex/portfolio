@@ -18,15 +18,13 @@ const path: PagePathType = 'events'
 const title = formattedItemType(path, false, true)
 export const metadata: Metadata = { title }
 
-export default async function EventsPage () {
+export default async function EventsPage() {
   const session = await auth()
   const events = await fetchEvents(!!session?.user)
 
   return (
     <div>
-      <h1 className='visually-hidden'>
-        {title}
-      </h1>
+      <h1 className='visually-hidden'>{title}</h1>
 
       <Suspense fallback={<Loading />}>
         <ItemsList

@@ -10,7 +10,7 @@ import styles from '@/ui/items/items.module.scss'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import { formatVenueInline } from '@/ui/util'
 
-export function ItemsList ({
+export function ItemsList({
   isCategoryVisible = false,
   isFeatured = false,
   isTextOnly = false,
@@ -29,9 +29,15 @@ export function ItemsList ({
 
   if (items.length === 0) return null
 
-  function List () {
+  function List() {
     return (
-      <ul className={clsx(styles['items-grid'], isFeatured && styles['items-grid-featured'], className)}>
+      <ul
+        className={clsx(
+          styles['items-grid'],
+          isFeatured && styles['items-grid-featured'],
+          className
+        )}
+      >
         {items.map((item, index) => (
           <li key={item.id}>
             <ItemGridItem
@@ -60,13 +66,11 @@ export function ItemsList ({
       </section>
     )
   } else {
-    return (
-      <List />
-    )
+    return <List />
   }
 }
 
-function ItemGridItem ({
+function ItemGridItem({
   item,
   index,
   isCategoryVisible,
@@ -80,10 +84,7 @@ function ItemGridItem ({
   isTextOnly?: boolean
 }) {
   const { publishedEditions } = item as ReleaseClient
-  const {
-    ticketLink,
-    venue
-  } = item as EventClient
+  const { ticketLink, venue } = item as EventClient
   switch (item.path) {
     case 'events':
       return (
@@ -93,7 +94,9 @@ function ItemGridItem ({
           isCategoryVisible={isCategoryVisible}
           isFeatured={isFeatured}
           isTextOnly={isTextOnly}
-          externalLink={ticketLink && (<TicketButton url={ticketLink} />)}
+          externalLink={
+            ticketLink && <TicketButton url={ticketLink} />
+          }
         >
           {venue && (
             <p className={styles['card-item-venue']}>
@@ -110,7 +113,11 @@ function ItemGridItem ({
           isCategoryVisible={isCategoryVisible}
           isFeatured={isFeatured}
         >
-          {publishedEditions && <PublishedEditionsCombined publishedEditions={publishedEditions} />}
+          {publishedEditions && (
+            <PublishedEditionsCombined
+              publishedEditions={publishedEditions}
+            />
+          )}
         </ItemCard>
       )
     default:

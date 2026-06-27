@@ -1,8 +1,4 @@
-import {
-  act,
-  renderHook,
-  waitFor
-} from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 
 import {
   venueFixtureAlpha,
@@ -20,7 +16,7 @@ import {
 } from '@/test/__mocks__/browser/intersectionObserver'
 import { useResultsList } from '@/ui/useResultsList'
 
-function makeResponse (
+function makeResponse(
   res: Venue[],
   overrides: Partial<{
     nextCursor: string | null
@@ -34,12 +30,9 @@ function makeResponse (
   }
 }
 
-const defaultVenues: Venue[] = [
-  venueFixtureAlpha,
-  venueFixtureBeta
-]
+const defaultVenues: Venue[] = [venueFixtureAlpha, venueFixtureBeta]
 
-function setup (
+function setup(
   options: Partial<{
     initialVenues: Venue[]
     nextCursor: string | null
@@ -72,8 +65,10 @@ function setup (
   }
 }
 
-function mockFetchOnce (data: unknown) {
-  global.fetch = jest.fn().mockResolvedValue({ json: async () => data } as Response)
+function mockFetchOnce(data: unknown) {
+  global.fetch = jest
+    .fn()
+    .mockResolvedValue({ json: async () => data } as Response)
 }
 
 describe('useResultsList', () => {
@@ -86,10 +81,7 @@ describe('useResultsList', () => {
 
   describe('initialization', () => {
     it('initializes items, count, nextCursor, and loading state from initial data', () => {
-      const {
-        result,
-        initialVenues
-      } = setup({
+      const { result, initialVenues } = setup({
         nextCursor: 'cursor-1',
         totalCount: 10
       })
@@ -120,10 +112,9 @@ describe('useResultsList', () => {
         totalCount: 3
       })
 
-      const {
-        result,
-        initialVenues
-      } = setup({ nextCursor: 'cursor-1' })
+      const { result, initialVenues } = setup({
+        nextCursor: 'cursor-1'
+      })
 
       act(() => {
         result.current.loadMoreRef(
@@ -158,7 +149,9 @@ describe('useResultsList', () => {
       })
 
       expect(global.fetch).not.toHaveBeenCalled()
-      expect(result.current.items).toHaveLength(result.current.items.length)
+      expect(result.current.items).toHaveLength(
+        result.current.items.length
+      )
       expect(result.current.nextCursor).toBeNull()
       expect(result.current.isLoading).toBe(false)
     })
@@ -168,7 +161,7 @@ describe('useResultsList', () => {
 
       global.fetch = jest.fn().mockImplementation(
         () =>
-          new Promise(resolve => {
+          new Promise((resolve) => {
             resolveFetch = resolve
           })
       )
@@ -211,10 +204,7 @@ describe('useResultsList', () => {
       global.fetch = jest.fn()
 
       const { result } = setup({
-        initialVenues: [
-          venueFixtureAlpha,
-          venueFixtureBeta
-        ]
+        initialVenues: [venueFixtureAlpha, venueFixtureBeta]
       })
 
       expect(result.current.items).toHaveLength(2)
@@ -231,9 +221,7 @@ describe('useResultsList', () => {
     })
 
     it('fetches additional pages when a query is active and more pages exist', async () => {
-      const nextPageVenues = [
-        venueFixtureGamma
-      ]
+      const nextPageVenues = [venueFixtureGamma]
 
       mockFetchOnce({
         res: nextPageVenues,
@@ -259,13 +247,8 @@ describe('useResultsList', () => {
 
   describe('sorting', () => {
     it('reverses item order when sortDirection changes', async () => {
-      const {
-        result, initialVenues
-      } = setup({
-        initialVenues: [
-          venueFixtureAlpha,
-          venueFixtureBeta
-        ]
+      const { result, initialVenues } = setup({
+        initialVenues: [venueFixtureAlpha, venueFixtureBeta]
       })
 
       // Default sortDirection
@@ -306,7 +289,7 @@ describe('useResultsList', () => {
 
       global.fetch = jest.fn().mockImplementation(
         () =>
-          new Promise(resolve => {
+          new Promise((resolve) => {
             resolveFetch = resolve
           })
       )
@@ -342,8 +325,8 @@ describe('useResultsList', () => {
 
     it('deduplicates items returned by the API', async () => {
       const duplicateAndNew = [
-        venueFixtureBeta,   // duplicate
-        venueFixtureGamma   // new
+        venueFixtureBeta, // duplicate
+        venueFixtureGamma // new
       ]
 
       mockFetchOnce({
@@ -352,10 +335,9 @@ describe('useResultsList', () => {
         totalCount: 3
       })
 
-      const {
-        result,
-        initialVenues
-      } = setup({ nextCursor: 'cursor-1' })
+      const { result, initialVenues } = setup({
+        nextCursor: 'cursor-1'
+      })
 
       act(() => {
         result.current.loadMoreRef(
@@ -408,10 +390,7 @@ describe('useResultsList', () => {
     it('aborts in-flight requests on unmount', () => {
       global.fetch = jest.fn(() => new Promise(() => {}))
 
-      const {
-        result,
-        unmount
-      } = setup({ nextCursor: 'cursor-1' })
+      const { result, unmount } = setup({ nextCursor: 'cursor-1' })
 
       resetAbortControllers()
 
@@ -481,9 +460,9 @@ describe('useResultsList', () => {
         totalCount: 3
       })
 
-      const {
-        result, initialVenues
-      } = setup({ nextCursor: 'cursor-1' })
+      const { result, initialVenues } = setup({
+        nextCursor: 'cursor-1'
+      })
 
       act(() => {
         result.current.loadMoreRef(

@@ -1,11 +1,6 @@
 'use client'
 
-import {
-  useActionState,
-  useEffect,
-  useRef,
-  useState
-} from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
 
 import type { FormResponse } from '@/lib/types'
 import styles from '@/ui/form/form.module.scss'
@@ -13,7 +8,7 @@ import { useToast } from '@/ui/toast/toast-context'
 
 import { DashboardErrrorMessages } from '../dashboard/dashboard-items'
 
-export function Form<T> ({
+export function Form<T>({
   action,
   children,
   className,
@@ -28,12 +23,11 @@ export function Form<T> ({
   submitButtonText?: string
   submitButtonClassName?: string
 }) {
-  const [initialState, setInitialState] = useState<FormData | null>(null)
+  const [initialState, setInitialState] = useState<FormData | null>(
+    null
+  )
   const formRef = useRef(null)
-  const {
-    addErrorMessage,
-    addSuccessMessage
-  } = useToast()
+  const { addErrorMessage, addSuccessMessage } = useToast()
 
   useEffect(() => {
     if (formRef.current && !initialState) {
@@ -47,7 +41,7 @@ export function Form<T> ({
     null
   )
 
-  async function onSubmit (_state: void | null, formData: FormData) {
+  async function onSubmit(_state: void | null, formData: FormData) {
     if (isPending) return
 
     const isDirty = isFormDirty(formData, initialState)
@@ -65,11 +59,14 @@ export function Form<T> ({
     try {
       const res = await action(formData)
       if (!res || !res.ok) {
-        if (res?.message === DashboardErrrorMessages.OperationCancelled) {
+        if (
+          res?.message === DashboardErrrorMessages.OperationCancelled
+        ) {
           console.info(DashboardErrrorMessages.OperationCancelled)
           return
         }
-        const message = res?.message || DashboardErrrorMessages.FailedToSave
+        const message =
+          res?.message || DashboardErrrorMessages.FailedToSave
         addErrorMessage(message)
         return
       }
@@ -80,7 +77,9 @@ export function Form<T> ({
       }
       setInitialState(formData)
     } catch (error) {
-      const message = (error as Error)?.message || 'An error occurred, please try again.'
+      const message =
+        (error as Error)?.message ||
+        'An error occurred, please try again.'
       // Handle case where error is thrown to trigger redirect in Next.js action
       if (message === 'NEXT_REDIRECT') {
         addSuccessMessage('Success! Redirecting...')
@@ -109,7 +108,10 @@ export function Form<T> ({
   )
 }
 
-function isFormDirty (current: FormData, initial?: FormData | null): boolean {
+function isFormDirty(
+  current: FormData,
+  initial?: FormData | null
+): boolean {
   if (!initial) return true
 
   const currentObj = Object.fromEntries(current.entries())
@@ -117,10 +119,12 @@ function isFormDirty (current: FormData, initial?: FormData | null): boolean {
 
   const nonFileDiff =
     JSON.stringify({
-      ...currentObj, file: undefined
+      ...currentObj,
+      file: undefined
     }) !==
     JSON.stringify({
-      ...initialObj, file: undefined
+      ...initialObj,
+      file: undefined
     })
 
   if (nonFileDiff) return true
@@ -132,7 +136,9 @@ function isFormDirty (current: FormData, initial?: FormData | null): boolean {
   if (
     (currentFile && !initialFile) ||
     (!currentFile && initialFile) ||
-    (currentFile && initialFile && currentFile.name !== initialFile.name)
+    (currentFile &&
+      initialFile &&
+      currentFile.name !== initialFile.name)
   ) {
     return true
   }

@@ -13,7 +13,7 @@ const itemType: EmbeddedItemType = 'images'
 const title = `Dashboard: ${camelToSentence(itemType)}`
 export const metadata: Metadata = { title }
 
-export default async function ImagesPage () {
+export default async function ImagesPage() {
   const res = await fetchImages()
 
   return (

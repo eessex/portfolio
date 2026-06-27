@@ -19,7 +19,7 @@ const DeviceContext = createContext<DeviceContextType>({
 
 export const useDevice = () => useContext(DeviceContext)
 
-export function DeviceProvider ({
+export function DeviceProvider({
   initialIsMobile,
   children
 }: {
@@ -27,7 +27,8 @@ export function DeviceProvider ({
   children: React.ReactNode
 }) {
   const [isMobile, setIsMobile] = useState(initialIsMobile)
-  const [isSmBreakpoint, setIsSmBreakpoint] = useState(initialIsMobile)
+  const [isSmBreakpoint, setIsSmBreakpoint] =
+    useState(initialIsMobile)
 
   useEffect(() => {
     const mobileQuery = window.matchMedia('(max-width: 768px)')
@@ -50,10 +51,11 @@ export function DeviceProvider ({
   }, [])
 
   return (
-    <DeviceContext.Provider value={{
-      isMobile,
-      isSmBreakpoint
-    }}
+    <DeviceContext.Provider
+      value={{
+        isMobile,
+        isSmBreakpoint
+      }}
     >
       {children}
     </DeviceContext.Provider>

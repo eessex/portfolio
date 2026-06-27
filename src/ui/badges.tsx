@@ -1,13 +1,10 @@
 import type { EmbedCode } from '@/lib/embed-codes/types'
 import type { Image } from '@/lib/images/types'
 import type { Link } from '@/lib/links/types'
-import type {
-  Badge,
-  EmbeddedItem
-} from '@/lib/types'
+import type { Badge, EmbeddedItem } from '@/lib/types'
 import { usedOnPages } from '@/ui/util'
 
-export function Badges ({ badges }: { badges: Badge[] }) {
+export function Badges({ badges }: { badges: Badge[] }) {
   return (
     <>
       {badges.map((badge, index) => (
@@ -22,7 +19,10 @@ export function Badges ({ badges }: { badges: Badge[] }) {
   )
 }
 
-export function itemBadges (item: Partial<EmbeddedItem>, isUnusedIncluded = false): Badge[] {
+export function itemBadges(
+  item: Partial<EmbeddedItem>,
+  isUnusedIncluded = false
+): Badge[] {
   const usedOn = usedOnPages(item)
   const badges: Badge[] = []
   const link = item as Link
@@ -59,7 +59,11 @@ export function itemBadges (item: Partial<EmbeddedItem>, isUnusedIncluded = fals
       color: 'blue'
     })
   }
-  if (isUnusedIncluded && usedOn.length === 0 && link.type !== 'social') {
+  if (
+    isUnusedIncluded &&
+    usedOn.length === 0 &&
+    link.type !== 'social'
+  ) {
     badges.push({
       text: 'Not used',
       color: 'red'

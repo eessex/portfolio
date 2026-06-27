@@ -8,10 +8,7 @@ import {
   useState
 } from 'react'
 
-import {
-  Toast,
-  type ToastProps
-} from '@/ui/toast/toast'
+import { Toast, type ToastProps } from '@/ui/toast/toast'
 import styles from '@/ui/toast/toast.module.scss'
 
 interface ToastContextValue {
@@ -22,7 +19,7 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null)
 
-export function useToast () {
+export function useToast() {
   const ctx = useContext(ToastContext)
   if (!ctx) {
     throw new Error('useToast must be used within ToastProvider')
@@ -30,22 +27,36 @@ export function useToast () {
   return ctx
 }
 
-export function ToastProvider ({ children }: { children: React.ReactNode }) {
-  const [toasts, setToasts] = useState<(ToastProps & { id: number })[]>([])
+export function ToastProvider({
+  children
+}: {
+  children: React.ReactNode
+}) {
+  const [toasts, setToasts] = useState<
+    (ToastProps & { id: number })[]
+  >([])
   const nextId = useRef(0)
 
   const removeMessage = useCallback((id: number) => {
-    setToasts(prev => prev.filter(t => t.id !== id))
+    setToasts((prev) => prev.filter((t) => t.id !== id))
   }, [])
 
-  const add = useCallback((type: ToastProps['type'], message: string) => {
-    const id = nextId.current++
-    setToasts(prev => [...prev, {
-      id, type, message
-    }])
-    setTimeout(() => removeMessage(id), 3000)
-    return id
-  }, [removeMessage])
+  const add = useCallback(
+    (type: ToastProps['type'], message: string) => {
+      const id = nextId.current++
+      setToasts((prev) => [
+        ...prev,
+        {
+          id,
+          type,
+          message
+        }
+      ])
+      setTimeout(() => removeMessage(id), 3000)
+      return id
+    },
+    [removeMessage]
+  )
 
   const value = {
     addSuccessMessage: (message: string) => add('success', message),
@@ -58,12 +69,8 @@ export function ToastProvider ({ children }: { children: React.ReactNode }) {
       {children}
 
       <div className={styles['toast-container']}>
-        {toasts.map(t => (
-          <Toast
-            key={t.id}
-            type={t.type}
-            message={t.message}
-          />
+        {toasts.map((t) => (
+          <Toast key={t.id} type={t.type} message={t.message} />
         ))}
       </div>
     </ToastContext.Provider>

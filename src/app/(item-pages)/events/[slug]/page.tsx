@@ -6,35 +6,28 @@ import ItemLayout, {
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
 import { auth } from '@/auth'
-import {
-  fetchEventBySlug,
-  fetchEvents
-} from '@/lib/events/data'
+import { fetchEventBySlug, fetchEvents } from '@/lib/events/data'
 import type { PageItemProps } from '@/lib/types'
 import { ItemsList } from '@/ui/items/items-list'
 import { Loading } from '@/ui/loading'
 import { formattedItemType } from '@/ui/util'
 
-export async function generateMetadata ({ params }: PageItemProps) {
+export async function generateMetadata({ params }: PageItemProps) {
   return generateItemMetadata(params, fetchEventBySlug)
 }
 
-export async function generateStaticParams () {
+export async function generateStaticParams() {
   return generateItemStaticParams(fetchEvents)
 }
 
-export default async function EventPage ({ params }: PageItemProps) {
-  const [
-    { slug },
-    session
-  ] = await Promise.all([
-    params,
-    auth()
-  ])
+export default async function EventPage({ params }: PageItemProps) {
+  const [{ slug }, session] = await Promise.all([params, auth()])
 
   const [
     event,
-    { res: { upcomingEvents } }
+    {
+      res: { upcomingEvents }
+    }
   ] = await Promise.all([
     fetchEventBySlug(slug, !!session?.user),
     fetchEvents(!!session?.user)
@@ -43,7 +36,7 @@ export default async function EventPage ({ params }: PageItemProps) {
     redirect('/events')
   }
 
-  const moreEvents = upcomingEvents.filter(e => e.id !== event.id)
+  const moreEvents = upcomingEvents.filter((e) => e.id !== event.id)
 
   return (
     <ItemLayout item={event}>

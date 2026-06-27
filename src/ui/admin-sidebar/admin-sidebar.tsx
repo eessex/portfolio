@@ -4,12 +4,9 @@ import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
 import { CreateItemFromPathnameButton } from '@/ui/buttons/create-item-button'
 import { EditButton } from '@/ui/buttons/edit-button'
 import { LogoutButton } from '@/ui/buttons/logout-button'
-import {
-  camelToSentence,
-  snakeToCamel
-} from '@/ui/util'
+import { camelToSentence, snakeToCamel } from '@/ui/util'
 
-export async function AdminSidebar () {
+export async function AdminSidebar() {
   const links = [
     'dashboard',
     'embed_codes',
@@ -28,7 +25,7 @@ export async function AdminSidebar () {
           <li>
             <EditButton />
           </li>
-          {links.map(link => (
+          {links.map((link) => (
             <li key={link}>
               <NextLink
                 href={`/dashboard${link === 'dashboard' ? '' : `/${link}`}`}

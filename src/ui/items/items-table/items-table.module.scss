@@ -1,6 +1,6 @@
-@use "@/ui/styles/breakpoints";
-@use "@/ui/styles/grids";
-@use "@/ui/styles/type";
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
 
 .items-table {
   margin-top: grids.space-em(3);
@@ -14,7 +14,7 @@
   height: grids.space-em(12);
   z-index: 100;
   background-color: var(--page-background-color);
-  box-shadow: inset 0 -1px 0 var(--transparency-primary); 
+  box-shadow: inset 0 -1px 0 var(--transparency-primary);
   grid-column: 1 / -1;
 
   td {
@@ -52,15 +52,19 @@
   --row-padding-inline-compact: #{grids.space-em(4)};
 
   display: grid;
-  grid-template-columns: var(--img-width-compact) 8fr 3fr 4fr calc(52px + 1em);
-  grid-template-areas: "img title date meta media";
+  grid-template-columns: var(--img-width-compact) 8fr 3fr 4fr calc(
+      52px + 1em
+    );
+  grid-template-areas: 'img title date meta media';
   cursor: pointer;
   padding-inline: var(--row-padding-inline-compact);
   padding-block: var(--row-padding-block-compact);
   box-shadow: inset 0 -1px 0 var(--transparency-primary);
-  min-height: calc(var(--img-height-compact) + (var(--row-padding-block-compact) * 2));
+  min-height: calc(
+    var(--img-height-compact) + (var(--row-padding-block-compact) * 2)
+  );
 
-  + tr[class$="rowgroup-heading"] {
+  + tr[class$='rowgroup-heading'] {
     margin-top: grids.space-rem(6);
   }
 
@@ -81,7 +85,7 @@
     }
 
     &.table-row-title--expanded {
-      @include type.heading("lg");
+      @include type.heading('lg');
 
       display: block;
       margin: grids.space-rem(0, 0, 1, 0);
@@ -92,12 +96,12 @@
       }
 
       @include breakpoints.sm-width {
-        @include type.size("base", "normal", "sm");
+        @include type.size('base', 'normal', 'sm');
       }
     }
 
     @include breakpoints.sm-width {
-      @include type.heading("base");
+      @include type.heading('base');
     }
   }
 
@@ -107,10 +111,10 @@
 
     grid-template-columns: var(--img-width-compact) 1fr;
     grid-template-areas:
-      "img title"
-      "img date"
-      "img meta"
-      "img media";
+      'img title'
+      'img date'
+      'img meta'
+      'img media';
   }
 
   &:hover,
@@ -134,7 +138,7 @@
       align-self: unset;
       padding-left: grids.space-em(2);
 
-      @include type.size("sm", "normal", "sm");
+      @include type.size('sm', 'normal', 'sm');
     }
 
     &:first-child {
@@ -232,17 +236,17 @@
 
     > td:has(time) {
       @include breakpoints.sm-width {
-        @include type.size("sm", "normal", "sm");
+        @include type.size('sm', 'normal', 'sm');
       }
     }
 
     > td:last-child:not(.item-type) {
-      @include type.size("sm", "normal", "sm");
+      @include type.size('sm', 'normal', 'sm');
 
       margin-top: grids.space-rem(1);
 
       @include breakpoints.sm-width {
-        @include type.size("xs", "normal", "sm");
+        @include type.size('xs', 'normal', 'sm');
       }
     }
 
@@ -257,7 +261,7 @@
     }
   }
 
-  + tr[class$="rowgroup-heading"] {
+  + tr[class$='rowgroup-heading'] {
     margin-top: grids.space-rem(12);
     display: block;
     text-align: left;

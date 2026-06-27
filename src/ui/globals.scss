@@ -1,16 +1,21 @@
-@use "@/ui/styles/breakpoints";
-@use "@/ui/styles/colors";
-@use "@/ui/styles/grids";
-@use "@/ui/styles/interactions";
-@use "@/ui/styles/reset";
-@use "@/ui/styles/layout";
-@use "@/ui/styles/type";
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/colors';
+@use '@/ui/styles/grids';
+@use '@/ui/styles/interactions';
+@use '@/ui/styles/reset';
+@use '@/ui/styles/layout';
+@use '@/ui/styles/type';
 
 body {
   max-width: var(--max-body-width);
   margin: 0 auto;
   padding: 0;
-  font: 16px / 1.5 "Geist","Geist Fallback", Helvetica Neue, Arial, sans-serif;
+  font:
+    16px / 1.5 'Geist',
+    'Geist Fallback',
+    Helvetica Neue,
+    Arial,
+    sans-serif;
   font-variant: proportional-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -25,7 +30,7 @@ body {
 }
 
 :where(h1, h2, h3, h4, h5, h6) {
-  @include type.heading("base");
+  @include type.heading('base');
 
   text-wrap: pretty;
   margin: 0;
@@ -45,7 +50,7 @@ body {
 }
 
 :where(blockquote) {
-  @include type.heading("xl");
+  @include type.heading('xl');
 
   position: relative;
   margin: unset;
@@ -53,7 +58,7 @@ body {
   &::before {
     content: '“';
     position: absolute;
-    left: -.6em;
+    left: -0.6em;
     top: 0;
   }
 
@@ -142,8 +147,13 @@ body:has(.menubar.hide) {
   }
 }
 
-.visually-hidden:not(:focus,:focus-visible,:active),
-.visible-focus-only:not(:focus,:focus-visible,:active,:focus-within) {
+.visually-hidden:not(:focus, :focus-visible, :active),
+.visible-focus-only:not(
+  :focus,
+  :focus-visible,
+  :active,
+  :focus-within
+) {
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
   height: 1px;
@@ -170,7 +180,7 @@ footer {
 }
 
 :where(figcaption) {
-  @include type.size("sm");
+  @include type.size('sm');
 
   margin: grids.space-rem(1, 2);
   text-align: center;

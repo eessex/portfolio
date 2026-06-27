@@ -25,7 +25,9 @@ export function encodeCursor(cursor: Cursor) {
 export function decodeCursor(cursor?: string | null): Cursor | null {
   if (!cursor) return null
   try {
-    const decodedCursor = Buffer.from(cursor, 'base64').toString('utf8')
+    const decodedCursor = Buffer.from(cursor, 'base64').toString(
+      'utf8'
+    )
     return JSON.parse(decodedCursor)
   } catch {
     return null
@@ -54,7 +56,10 @@ export function formatResponseWithCursor<T extends z.ZodTypeAny>(
 
   const nextCursor = cursorObj ? encodeCursor(cursorObj) : null
 
-  const response: Omit<ResponseWithCursor<z.infer<T>>, 'totalCount'> = {
+  const response: Omit<
+    ResponseWithCursor<z.infer<T>>,
+    'totalCount'
+  > = {
     res: formatted,
     nextCursor
   }

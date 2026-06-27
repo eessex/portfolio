@@ -7,8 +7,13 @@ import { siteSettingsSchema } from '@/lib/site-settings/schemas'
 import type { SiteSettings } from '@/lib/site-settings/types'
 import type { FormResponse } from '@/lib/types'
 
-export async function editSiteSettings (formData: FormData, id: string): Promise<FormResponse<SiteSettings>> {
-  const validatedFields = siteSettingsSchema.safeParse(Object.fromEntries(formData))
+export async function editSiteSettings(
+  formData: FormData,
+  id: string
+): Promise<FormResponse<SiteSettings>> {
+  const validatedFields = siteSettingsSchema.safeParse(
+    Object.fromEntries(formData)
+  )
   if (!validatedFields.success) {
     console.error('Validation error', validatedFields.error.format())
     return {
@@ -17,11 +22,7 @@ export async function editSiteSettings (formData: FormData, id: string): Promise
       message: 'Missing Fields. Failed to save.'
     }
   } else {
-    const {
-      coverImageId,
-      description,
-      title
-    } = validatedFields.data
+    const { coverImageId, description, title } = validatedFields.data
 
     try {
       await sql`

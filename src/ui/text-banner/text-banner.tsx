@@ -29,9 +29,14 @@ export const TextBanner = ({
 
   const icon = iconMap[type] || null
 
-  const classes = clsx(styles['text-banner'], className, type === 'success' && styles.success, type === 'error' && styles.error)
+  const classes = clsx(
+    styles['text-banner'],
+    className,
+    type === 'success' && styles.success,
+    type === 'error' && styles.error
+  )
 
-  function message () {
+  function message() {
     if (children) {
       return children
     } else if (type === 'error') {

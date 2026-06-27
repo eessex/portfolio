@@ -5,12 +5,12 @@ type AbortControllerRecord = {
 
 let controllers: AbortControllerRecord[] = []
 
-export function installAbortControllerMock () {
+export function installAbortControllerMock() {
   class MockAbortController {
     abort = jest.fn()
     signal = {} as AbortSignal
 
-    constructor () {
+    constructor() {
       controllers.push({
         abort: this.abort,
         signal: this.signal
@@ -21,10 +21,10 @@ export function installAbortControllerMock () {
   global.AbortController = MockAbortController
 }
 
-export function getAbortControllers () {
+export function getAbortControllers() {
   return controllers
 }
 
-export function resetAbortControllers () {
+export function resetAbortControllers() {
   controllers = []
 }

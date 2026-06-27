@@ -1,9 +1,6 @@
 'use client'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import {
-  useEffect,
-  useId
-} from 'react'
+import { useEffect, useId } from 'react'
 
 import styles from '@/ui/dialog/dialog.module.scss'
 
@@ -32,9 +29,7 @@ export const Dialog = ({
   const dialogTitleId = useId()
 
   return (
-    <div
-      className={`dialog-container ${styles['dialog-container']}`}
-    >
+    <div className={`dialog-container ${styles['dialog-container']}`}>
       <div
         aria-labelledby={dialogTitleId}
         className={`dialog ${styles['dialog']}`}

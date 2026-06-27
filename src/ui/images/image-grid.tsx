@@ -2,7 +2,7 @@ import type { Image } from '@/lib/images/types'
 import { ImageFigure } from '@/ui/images/image-figure'
 import styles from '@/ui/images/images-grid.module.scss'
 
-export function ImageGrid ({ images }: { images: Image[] }) {
+export function ImageGrid({ images }: { images: Image[] }) {
   return (
     <ul className={styles['images-grid']}>
       {images.map((image, i) => (
@@ -12,11 +12,7 @@ export function ImageGrid ({ images }: { images: Image[] }) {
             target='_blank'
             rel='noopener noreferrer'
           >
-            <ImageFigure
-              image={image}
-              width={340}
-              isLazy
-            />
+            <ImageFigure image={image} width={340} isLazy />
           </a>
         </li>
       ))}

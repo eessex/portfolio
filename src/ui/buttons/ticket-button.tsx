@@ -1,6 +1,6 @@
 import { TicketIcon } from '@heroicons/react/24/outline'
 
-export function TicketButton ({ url }: { url: string }) {
+export function TicketButton({ url }: { url: string }) {
   return (
     <a
       className='button-primary'
@@ -8,7 +8,8 @@ export function TicketButton ({ url }: { url: string }) {
       target='_blank'
       rel='noreferrer'
     >
-      <TicketIcon />Tickets
+      <TicketIcon />
+      Tickets
     </a>
   )
 }

@@ -1,6 +1,6 @@
-@use "@/ui/styles/breakpoints";
-@use "@/ui/styles/grids";
-@use "@/ui/styles/type";
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
 
 .home {
   > section:nth-child(2) {
@@ -9,7 +9,9 @@
 }
 
 .cover {
-  height: calc(100vh - var(--menubar-height) - var(--footer-height) - 4rem); // 4rem for figcaption
+  height: calc(
+    100vh - var(--menubar-height) - var(--footer-height) - 4rem
+  ); // 4rem for figcaption
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
@@ -48,7 +50,7 @@
 }
 
 .description {
-  @include type.size("lg", "bold");
+  @include type.size('lg', 'bold');
 
   margin: grids.space-rem(16, 9);
   max-width: 485px;

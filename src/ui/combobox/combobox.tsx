@@ -1,16 +1,8 @@
 'use client'
 
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState
-} from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 
-import type {
-  EmbeddedItem,
-  EmbeddedItemType
-} from '@/lib/types'
+import type { EmbeddedItem, EmbeddedItemType } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
 import { CreateItemButton } from '@/ui/buttons/create-item-button'
 import styles from '@/ui/combobox/combobox.module.scss'
@@ -30,7 +22,7 @@ export interface ComboboxProps<T extends EmbeddedItem> {
   onSelect: (item: T) => void
 }
 
-export function Combobox<T extends EmbeddedItem> ({
+export function Combobox<T extends EmbeddedItem>({
   defaultQuery,
   initialResults,
   itemType,
@@ -62,16 +54,19 @@ export function Combobox<T extends EmbeddedItem> ({
   const rootRef = useRef<HTMLDivElement>(null)
   const createButtonRef = useRef<HTMLButtonElement>(null)
 
-  function labelText () {
+  function labelText() {
     return label || itemTypeToLabel(itemType, true)
   }
 
-  function placeholderText () {
-    return placeholder || `Search ${itemTypeToLabel(itemType, false, true)}`
+  function placeholderText() {
+    return (
+      placeholder ||
+      `Search ${itemTypeToLabel(itemType, false, true)}`
+    )
   }
 
   useEffect(() => {
-    function handleClickOutside (e: MouseEvent) {
+    function handleClickOutside(e: MouseEvent) {
       if (!rootRef.current) return
       if (!isTargetInsideComponent(e.target as Node)) {
         setIsOpen(false)
@@ -80,24 +75,29 @@ export function Combobox<T extends EmbeddedItem> ({
     }
 
     document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    return () =>
+      document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  function optionId (item?: T) {
+  function optionId(item?: T) {
     return `${listId}-${item?.id || 'new'}`
   }
 
-  function changeHighlightedIndex (index: number) {
+  function changeHighlightedIndex(index: number) {
     setHighlightedIndex(index)
     const selector = optionId(items[index])
-    document.getElementById(selector)?.scrollIntoView({ block: 'nearest' })
+    document
+      .getElementById(selector)
+      ?.scrollIntoView({ block: 'nearest' })
   }
 
-  function handleKeyDown (e: React.KeyboardEvent) {
+  function handleKeyDown(e: React.KeyboardEvent) {
     if (!items.length) return
 
-    const nextIndex = highlightedIndex < items.length - 1 ? highlightedIndex + 1 : 0
-    const prevIndex = highlightedIndex > 0 ? highlightedIndex - 1 : items.length - 1
+    const nextIndex =
+      highlightedIndex < items.length - 1 ? highlightedIndex + 1 : 0
+    const prevIndex =
+      highlightedIndex > 0 ? highlightedIndex - 1 : items.length - 1
 
     switch (e.key) {
       case 'ArrowDown':
@@ -122,12 +122,12 @@ export function Combobox<T extends EmbeddedItem> ({
     }
   }
 
-  function handleFocus (e: React.FocusEvent) {
+  function handleFocus(e: React.FocusEvent) {
     if (!isTargetInsideComponent(e.target)) return
     setIsOpen(true)
   }
 
-  function handleBlur (e: React.FocusEvent) {
+  function handleBlur(e: React.FocusEvent) {
     // If focus is moving *outside* the combobox entirely
     if (!isTargetInsideComponent(e.relatedTarget)) {
       setIsOpen(false)
@@ -135,7 +135,7 @@ export function Combobox<T extends EmbeddedItem> ({
     }
   }
 
-  function isTargetInsideComponent (target: EventTarget | null) {
+  function isTargetInsideComponent(target: EventTarget | null) {
     if (!target) return false
     if (target === createButtonRef.current) return false
     return rootRef.current?.contains(target as Node)
@@ -160,26 +160,25 @@ export function Combobox<T extends EmbeddedItem> ({
             ? optionId(items[highlightedIndex])
             : undefined
         }
-        beforeInputChildren={onCreateNew && (
-          <CreateItemButton
-            className='button-sm'
-            ref={createButtonRef}
-            itemType={itemType}
-            onClick={() => onCreateNew(query || undefined)}
-          />
-        )}
+        beforeInputChildren={
+          onCreateNew && (
+            <CreateItemButton
+              className='button-sm'
+              ref={createButtonRef}
+              itemType={itemType}
+              onClick={() => onCreateNew(query || undefined)}
+            />
+          )
+        }
         onKeyDown={handleKeyDown}
       />
       {isOpen && (
-        <ul
-          id={listId}
-          role='listbox'
-        >
+        <ul id={listId} role='listbox'>
           {items.map((item, index) => (
             <li
               key={item.id}
               id={optionId(item)}
-              onMouseDown={e => {
+              onMouseDown={(e) => {
                 e.preventDefault()
                 onSelect(item)
               }}
@@ -200,9 +199,7 @@ export function Combobox<T extends EmbeddedItem> ({
                 aria-hidden='true'
                 ref={loadMoreRef}
               />
-              {isLoading && (
-                <Loading />
-              )}
+              {isLoading && <Loading />}
             </>
           )}
         </ul>

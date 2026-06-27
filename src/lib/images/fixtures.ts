@@ -1,7 +1,4 @@
-import type {
-  CreateImage,
-  Image
-} from '@/lib/images/types'
+import type { CreateImage, Image } from '@/lib/images/types'
 
 export const newImageFixture: CreateImage = {
   aspect: 1.7777,

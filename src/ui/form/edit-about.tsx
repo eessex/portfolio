@@ -6,7 +6,11 @@ import type { Image } from '@/lib/images/types'
 import { Form } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 
-export function EditAboutForm ({ about }: { about: About & { coverImage?: Image } }) {
+export function EditAboutForm({
+  about
+}: {
+  about: About & { coverImage?: Image }
+}) {
   return (
     <Form
       action={(formData: FormData) => editAbout(formData, about.id)}

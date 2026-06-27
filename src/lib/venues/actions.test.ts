@@ -39,7 +39,9 @@ describe('Venue Actions', () => {
   describe('#editVenue', () => {
     it('can edit an existing venue', async () => {
       mockSql.mockResolvedValueOnce([venueFixtureAlpha])
-      const res = await editVenue(formDataFromObject(venueFixtureAlpha))
+      const res = await editVenue(
+        formDataFromObject(venueFixtureAlpha)
+      )
       expect(res?.ok).toBe(true)
       expect((res?.res as Venue)?.name).toEqual('Test Venue Texas')
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard/venues')
@@ -47,7 +49,9 @@ describe('Venue Actions', () => {
 
     it('can create a new venue', async () => {
       mockSql.mockResolvedValueOnce([venueFixtureAlpha])
-      const res = await editVenue(formDataFromObject(newVenueFixtureAlpha))
+      const res = await editVenue(
+        formDataFromObject(newVenueFixtureAlpha)
+      )
 
       expect(res?.ok).toBe(true)
       expect((res?.res as Venue)?.name).toEqual('Test Venue Texas')
@@ -59,13 +63,17 @@ describe('Venue Actions', () => {
 
     it('can handle generic errors', async () => {
       mockSql.mockRejectedValueOnce(new Error('DB error'))
-      const res = await editVenue(formDataFromObject(venueFixtureAlpha))
+      const res = await editVenue(
+        formDataFromObject(venueFixtureAlpha)
+      )
 
       expect(res!.message).toBe('Failed to edit venue: DB error')
     })
 
     it('can handle validation errors', async () => {
-      const invalid: Partial<CreateVenue> = { ...newVenueFixtureAlpha }
+      const invalid: Partial<CreateVenue> = {
+        ...newVenueFixtureAlpha
+      }
       delete invalid.city
       const res = await editVenue(formDataFromObject(invalid))
 

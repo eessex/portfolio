@@ -19,7 +19,7 @@ import {
   itemUrl
 } from '@/ui/util'
 
-export function ItemsTableRow ({
+export function ItemsTableRow({
   children,
   index,
   isCategoryVisible = false,
@@ -38,21 +38,26 @@ export function ItemsTableRow ({
 }) {
   if (!item) return null
 
-  const {
-    artist,
-    coverImage
-  } = item as ReleaseClient
+  const { artist, coverImage } = item as ReleaseClient
   const linkTarget = itemUrl(item)
   const rowLabel = `${item.title}${artist ? ', by ' + artist : ''}`
   const isPriorityImage = !!(isFeatured || (index || 0) < 12)
   const imageWidth = 350
-  const hasVideo = !!item.embedCodes?.some(code => code.type === 'video')
-  const hasAudio = item.path !== 'releases' && !!item.embedCodes?.some(code => code.type === 'audio')
+  const hasVideo = !!item.embedCodes?.some(
+    (code) => code.type === 'video'
+  )
+  const hasAudio =
+    item.path !== 'releases' &&
+    !!item.embedCodes?.some((code) => code.type === 'audio')
 
   return (
     <tr
       data-index={index}
-      className={clsx(styles['table-row-link'], isExpanded && styles['table-row-link--expanded'], isPathTypeVisible && styles['item-type-visible'])}
+      className={clsx(
+        styles['table-row-link'],
+        isExpanded && styles['table-row-link--expanded'],
+        isPathTypeVisible && styles['item-type-visible']
+      )}
       onClick={() => location.assign(linkTarget)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -64,10 +69,7 @@ export function ItemsTableRow ({
       role='link'
       aria-label={rowLabel}
     >
-      <td
-        className={styles['table-row-img']}
-        aria-hidden='true'
-      >
+      <td className={styles['table-row-img']} aria-hidden='true'>
         {coverImage && (
           <NextImage
             src={coverImage.url}
@@ -89,13 +91,21 @@ export function ItemsTableRow ({
         </td>
       )}
 
-      <td className={clsx(styles['table-row-title'], isExpanded && styles['table-row-title--expanded'])}>
+      <td
+        className={clsx(
+          styles['table-row-title'],
+          isExpanded && styles['table-row-title--expanded']
+        )}
+      >
         <NextLink href={linkTarget}>
-          {isCategoryVisible && (item as ReleaseClient | ProjectClient).type && (
-            <span className={styles['item-type'] + ' category'}>
-              {formattedItemType((item as ReleaseClient | ProjectClient).type!)}
-            </span>
-          )}
+          {isCategoryVisible &&
+            (item as ReleaseClient | ProjectClient).type && (
+              <span className={styles['item-type'] + ' category'}>
+                {formattedItemType(
+                  (item as ReleaseClient | ProjectClient).type!
+                )}
+              </span>
+            )}
           {formattedItemTitle(item)}
           {!item.isPublished && <DraftBadge />}
         </NextLink>
@@ -108,11 +118,7 @@ export function ItemsTableRow ({
         />
       </td>
 
-      {children && (
-        <td>
-          {children}
-        </td>
-      )}
+      {children && <td>{children}</td>}
       <td className={styles['table-row-media']}>
         {hasAudio && (
           <SpeakerWaveIcon

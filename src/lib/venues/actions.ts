@@ -52,7 +52,9 @@ export async function editVenue(
   } catch (err) {
     const errMsg = 'Failed to edit venue'
     const message =
-      err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+      err instanceof Error
+        ? `${errMsg}: ${err.message}`
+        : `${errMsg}.`
     return {
       ok: false,
       message
@@ -73,7 +75,9 @@ export async function deleteVenue(
   } catch (err) {
     const errMsg = 'Failed to delete venue'
     const message =
-      err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+      err instanceof Error
+        ? `${errMsg}: ${err.message}`
+        : `${errMsg}.`
     return {
       ok: false,
       message

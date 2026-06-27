@@ -1,5 +1,5 @@
-@use "@/ui/styles/breakpoints";
-@use "@/ui/styles/grids";
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
 @use '@/ui/styles/type';
 
 .footer {
@@ -17,7 +17,7 @@
       // adjust clickable area for a11y
       padding: grids.space-em(2, 3);
 
-      @include type.size("sm");
+      @include type.size('sm');
     }
   }
 
@@ -43,7 +43,7 @@
 
     nav ul {
       flex-direction: column;
-      gap: .65em;
+      gap: 0.65em;
       align-items: flex-start;
     }
 

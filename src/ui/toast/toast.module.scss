@@ -1,5 +1,5 @@
-@use "@/ui/styles/breakpoints";
-@use "@/ui/styles/grids";
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
 
 .toast {
   margin: 0 auto;
@@ -15,7 +15,6 @@
   left: 15%;
   right: 15%;
   z-index: 200;
-
 
   @include breakpoints.mobile {
     left: 10%;

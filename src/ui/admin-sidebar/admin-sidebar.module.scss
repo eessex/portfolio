@@ -1,4 +1,4 @@
-@use "@/ui/styles/grids";
+@use '@/ui/styles/grids';
 
 .admin-sidebar {
   display: flex;
@@ -17,10 +17,13 @@
     flex-direction: column;
     justify-content: space-between;
     // align bottom button with page footer
-    height: calc(100vh - var(--menubar-height) - 1px - #{grids.space-em(1)});
+    height: calc(
+      100vh - var(--menubar-height) - 1px - #{grids.space-em(1)}
+    );
   }
 
-  li, li > form {
+  li,
+  li > form {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -31,7 +34,7 @@
     border-bottom: 1px solid var(--transparency-extra-light);
   }
 
-  ul:last-child li:last-child{
+  ul:last-child li:last-child {
     border-bottom: none;
   }
 }

@@ -5,7 +5,7 @@ import type { EmbeddedItemType } from '@/lib/types'
 import styles from '@/ui/form/form.module.scss'
 import { camelToSnake } from '@/ui/util'
 
-export function EditItemNav ({
+export function EditItemNav({
   id,
   itemType,
   onDelete

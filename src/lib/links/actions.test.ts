@@ -72,7 +72,9 @@ describe('Link Actions', () => {
 
     it('can create a new press link', async () => {
       mockSql.mockResolvedValueOnce([pressLinkFixture])
-      const res = await editLink(formDataFromObject(newPressLinkFixture))
+      const res = await editLink(
+        formDataFromObject(newPressLinkFixture)
+      )
 
       expect(res?.ok).toBe(true)
       expect((res?.res as Link)?.title).toEqual('Test Press Link')

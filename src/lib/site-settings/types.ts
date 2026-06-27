@@ -6,4 +6,6 @@ import type {
 } from '@/lib/site-settings/schemas'
 
 export type SiteSettings = z.infer<typeof siteSettingsSchema>
-export type SiteSettingsClient = z.infer<typeof siteSettingsClientSchema>
+export type SiteSettingsClient = z.infer<
+  typeof siteSettingsClientSchema
+>

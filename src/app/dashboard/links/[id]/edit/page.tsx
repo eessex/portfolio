@@ -13,7 +13,9 @@ const title = 'Edit Link'
 
 export const metadata: Metadata = { title }
 
-export default async function EditLinkPage ({ params }: PageEmbeddedItemProps) {
+export default async function EditLinkPage({
+  params
+}: PageEmbeddedItemProps) {
   const { id } = await params
   const [link] = await fetchLinksByIds([id])
 

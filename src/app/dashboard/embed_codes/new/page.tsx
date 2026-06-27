@@ -7,7 +7,7 @@ import type { EmbedCode } from '@/lib/embed-codes/types'
 const title = 'New Embed Code'
 export const metadata: Metadata = { title }
 
-export default function NewEmbedCodePage () {
+export default function NewEmbedCodePage() {
   return (
     <article>
       <header>

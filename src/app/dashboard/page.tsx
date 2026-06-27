@@ -10,7 +10,7 @@ import { Loading } from '@/ui/loading'
 const title = 'Dashboard'
 export const metadata: Metadata = { title }
 
-export default async function DashboardPage () {
+export default async function DashboardPage() {
   const settings = await fetchSiteSettings()
 
   return (

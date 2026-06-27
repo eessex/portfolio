@@ -3,18 +3,10 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline'
 import { clsx } from 'clsx'
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState
-} from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 
 import { useDevice } from '@/lib/device-context'
-import type {
-  EmbeddedItemType,
-  PagePathType
-} from '@/lib/types'
+import type { EmbeddedItemType, PagePathType } from '@/lib/types'
 import styles from '@/ui/filters/filters.module.scss'
 
 type FiltersWrapperProps = {
@@ -23,7 +15,7 @@ type FiltersWrapperProps = {
   itemType: PagePathType | EmbeddedItemType | 'items'
 }
 
-export function FiltersWrapper ({
+export function FiltersWrapper({
   controlsId,
   itemType,
   children
@@ -42,16 +34,13 @@ export function FiltersWrapper ({
     : FiltersContainerDesktop
 
   return (
-    <FiltersComponent
-      itemType={itemType}
-      controlsId={controlsId}
-    >
+    <FiltersComponent itemType={itemType} controlsId={controlsId}>
       {children}
     </FiltersComponent>
   )
 }
 
-export function FiltersContainerDesktop ({
+export function FiltersContainerDesktop({
   children,
   controlsId,
   itemType
@@ -63,10 +52,7 @@ export function FiltersContainerDesktop ({
       aria-labelledby={headingId}
       className={clsx(styles['filters-section'])}
     >
-      <h2
-        id={headingId}
-        className='visually-hidden'
-      >
+      <h2 id={headingId} className='visually-hidden'>
         Filter {itemType}
       </h2>
       <div
@@ -80,7 +66,7 @@ export function FiltersContainerDesktop ({
   )
 }
 
-export function FiltersContainerMobile ({
+export function FiltersContainerMobile({
   children,
   controlsId,
   itemType
@@ -98,7 +84,13 @@ export function FiltersContainerMobile ({
   }, [isOpen])
 
   return (
-    <div className={clsx(styles['filters-tray'], isOpen && styles.open, isOpen && 'open')}>
+    <div
+      className={clsx(
+        styles['filters-tray'],
+        isOpen && styles.open,
+        isOpen && 'open'
+      )}
+    >
       <button
         ref={openButtonRef}
         aria-haspopup='dialog'
@@ -119,10 +111,7 @@ export function FiltersContainerMobile ({
         ref={trayRef}
         className={styles['filters-tray']}
       >
-        <h2
-          id={headingId}
-          className='visually-hidden'
-        >
+        <h2 id={headingId} className='visually-hidden'>
           Filter {itemType}
         </h2>
         <div

@@ -9,11 +9,21 @@ import type { SiteSettingsClient } from '@/lib/site-settings/types'
 import { Form } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 
-export function EditSettings ({ settings }: { settings: SiteSettingsClient }) {
-  const [coverImageId, setCoverImageId] = useState<string | undefined>(settings?.coverImage?.id)
+export function EditSettings({
+  settings
+}: {
+  settings: SiteSettingsClient
+}) {
+  const [coverImageId, setCoverImageId] = useState<
+    string | undefined
+  >(settings?.coverImage?.id)
 
   return (
-    <Form action={(formData: FormData) => editSiteSettings(formData, settings.id)}>
+    <Form
+      action={(formData: FormData) =>
+        editSiteSettings(formData, settings.id)
+      }
+    >
       <Input
         label='Site title'
         description='Shown in menubar and as meta title for search engines.'
@@ -53,11 +63,21 @@ export function EditSettings ({ settings }: { settings: SiteSettingsClient }) {
         />
 
         {coverImageId && settings?.coverImage && (
-          <figure style={{ aspectRatio: settings?.coverImage?.aspect }}>
+          <figure
+            style={{ aspectRatio: settings?.coverImage?.aspect }}
+          >
             <NextImage
               src={settings?.coverImage?.url}
-              alt={settings?.coverImage?.alt || settings?.coverImage?.caption || ''}
-              title={settings?.coverImage?.caption || settings?.coverImage?.alt || undefined}
+              alt={
+                settings?.coverImage?.alt ||
+                settings?.coverImage?.caption ||
+                ''
+              }
+              title={
+                settings?.coverImage?.caption ||
+                settings?.coverImage?.alt ||
+                undefined
+              }
               width={500 * settings?.coverImage?.aspect}
               height={500}
             />

@@ -1,6 +1,6 @@
 /** testing-only helper functions */
 
-export function mockFile (
+export function mockFile(
   name = 'test.jpg',
   size = 1024,
   type = 'image/jpeg'
@@ -21,7 +21,7 @@ export const formDataFromObject = (v: Record<string, unknown>) => {
     }
 
     if (Array.isArray(val)) {
-      val.forEach(item => {
+      val.forEach((item) => {
         if (item === undefined || item === null) return
         fd.append(k, String(item))
       })

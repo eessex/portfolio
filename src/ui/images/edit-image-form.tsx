@@ -1,7 +1,4 @@
-import {
-  useId,
-  useState
-} from 'react'
+import { useId, useState } from 'react'
 import type { z } from 'zod'
 
 import { checkIfImageExists } from '@/lib/images/actions'
@@ -12,7 +9,9 @@ import { FileInputImage } from '@/ui/form/file-input-image'
 import { Input } from '@/ui/form/input'
 
 interface EditImageProps {
-  errors?: z.inferFlattenedErrors<typeof createImageSchema>['fieldErrors']
+  errors?: z.inferFlattenedErrors<
+    typeof createImageSchema
+  >['fieldErrors']
   image?: Partial<Image>
   index?: number
 }
@@ -23,33 +22,46 @@ export const EditImage = ({
   index
 }: EditImageProps) => {
   const [isPress, setIsPress] = useState(!!image?.isPress)
-  const [aspectRatio, setAspectRatio] = useState<number | undefined>(image?.aspect || undefined)
-  const [isHiddenOnAboutPage, setIsHiddenOnAboutPage] = useState(!!image?.isHiddenOnAboutPage)
-  const [formImage, setFormImage] = useState<Partial<Image>>(image || {})
-  const namePrefix = typeof index === 'number' ? `images[${index}].` : ''
+  const [aspectRatio, setAspectRatio] = useState<number | undefined>(
+    image?.aspect || undefined
+  )
+  const [isHiddenOnAboutPage, setIsHiddenOnAboutPage] = useState(
+    !!image?.isHiddenOnAboutPage
+  )
+  const [formImage, setFormImage] = useState<Partial<Image>>(
+    image || {}
+  )
+  const namePrefix =
+    typeof index === 'number' ? `images[${index}].` : ''
 
-  const {
-    createdAt,
-    id,
-    url
-  } = (formImage || {}) as Image
+  const { createdAt, id, url } = (formImage || {}) as Image
 
-  async function onFileChange (filename: string, aspectRatio: number | undefined) {
+  async function onFileChange(
+    filename: string,
+    aspectRatio: number | undefined
+  ) {
     const aspectRatioValue = aspectRatio || formImage.aspect
     setAspectRatio(aspectRatioValue)
     if (filename) {
       try {
         if (image?.url) {
           const urlPath = image.url.split('/images/')[1]
-          const isProbablyExisting = urlPath && urlPath === filename && aspectRatio === image.aspect
+          const isProbablyExisting =
+            urlPath &&
+            urlPath === filename &&
+            aspectRatio === image.aspect
           if (isProbablyExisting) return
         }
         const existingImage = await checkIfImageExists(filename)
         if (existingImage) {
           if (id && existingImage.id !== id) {
-            alert('An image with this URL already exists, use a unique filename.')
+            alert(
+              'An image with this URL already exists, use a unique filename.'
+            )
           } else if (!id) {
-            const confirmed = confirm('This image URL already exists. Confirm to edit the existing image. Cancel to choose another image with a unique filename.')
+            const confirmed = confirm(
+              'This image URL already exists. Confirm to edit the existing image. Cancel to choose another image with a unique filename.'
+            )
             if (confirmed) {
               setFormImage(existingImage)
               setAspectRatio(existingImage.aspect)
@@ -93,7 +105,8 @@ export const EditImage = ({
           attributes={{
             maxLength: 255,
             name: `${namePrefix}url`,
-            placeholder: 'https://aws.s3.bucket/images/your-image.jpg',
+            placeholder:
+              'https://aws.s3.bucket/images/your-image.jpg',
             required: true,
             type: 'hidden'
           }}
@@ -116,7 +129,9 @@ export const EditImage = ({
       />
       <fieldset>
         <legend>Press Image Details</legend>
-        <p>Press images are displayed on the about page by default.</p>
+        <p>
+          Press images are displayed on the about page by default.
+        </p>
         <Checkbox
           attributes={{
             'aria-controls': controlledCheckboxId,
@@ -135,7 +150,9 @@ export const EditImage = ({
           controlledId={controlledCheckboxId}
           isChecked={isHiddenOnAboutPage}
           label='Hide this image on the About page.'
-          onChange={() => setIsHiddenOnAboutPage(!isHiddenOnAboutPage)}
+          onChange={() =>
+            setIsHiddenOnAboutPage(!isHiddenOnAboutPage)
+          }
         />
       </fieldset>
       <Input

@@ -7,7 +7,7 @@ import {
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
-export async function getKeyFromS3Url (url: string): Promise<string> {
+export async function getKeyFromS3Url(url: string): Promise<string> {
   try {
     const parsed = new URL(url)
     return decodeURIComponent(parsed.pathname.replace(/^\/+/, ''))
@@ -24,7 +24,7 @@ const s3 = new S3Client({
   }
 })
 
-export async function deleteFromS3 (url: string) {
+export async function deleteFromS3(url: string) {
   const key = await getKeyFromS3Url(url)
   try {
     const res = await s3.send(
@@ -39,7 +39,10 @@ export async function deleteFromS3 (url: string) {
   }
 }
 
-async function getPresignedUploadUrl (filename: string, contentType: string) {
+async function getPresignedUploadUrl(
+  filename: string,
+  contentType: string
+) {
   const bucketName = process.env.AWS_S3_BUCKET_NAME!
   const key = `images/${filename}`
 
@@ -53,7 +56,7 @@ async function getPresignedUploadUrl (filename: string, contentType: string) {
   return await getSignedUrl(s3, command, { expiresIn: 60 * 5 }) // 5 minutes
 }
 
-export async function uploadFile (file: File) {
+export async function uploadFile(file: File) {
   const res = await getPresignedUploadUrl(file.name, file.type)
   const uploadRes = await fetch(res, {
     method: 'PUT',

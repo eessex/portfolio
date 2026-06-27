@@ -11,7 +11,7 @@ import {
   snakeToCamel
 } from '@/ui/util'
 
-export function CreateItemButton ({
+export function CreateItemButton({
   className,
   itemType,
   onClick,
@@ -52,18 +52,27 @@ export function CreateItemButton ({
 
 export type CreateItemDetail = { itemType: EmbeddedItemType }
 
-export function CreateItemFromPathnameButton () {
+export function CreateItemFromPathnameButton() {
   const pathname = usePathname()
   const pathnameParts = pathname.split('/')
-  const itemPart = pathnameParts[2] ? snakeToCamel(pathnameParts[2]) as EmbeddedItemType : undefined // after /dashboard/
-  const itemType = embeddedItemTypes.find(type => type === itemPart)
-  const href = itemType ? `/dashboard/${camelToSnake(itemType)}/new` : undefined
+  const itemPart = pathnameParts[2]
+    ? (snakeToCamel(pathnameParts[2]) as EmbeddedItemType)
+    : undefined // after /dashboard/
+  const itemType = embeddedItemTypes.find((type) => type === itemPart)
+  const href = itemType
+    ? `/dashboard/${camelToSnake(itemType)}/new`
+    : undefined
 
   if (!itemType) return null
 
-  function onClick () {
+  function onClick() {
     if (!itemType) return
-    const event = new CustomEvent<CreateItemDetail>('openNewItemForm', { detail: { itemType } })
+    const event = new CustomEvent<CreateItemDetail>(
+      'openNewItemForm',
+      {
+        detail: { itemType }
+      }
+    )
     document.dispatchEvent(event)
   }
 

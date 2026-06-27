@@ -7,7 +7,7 @@ import type { Venue } from '@/lib/venues/types'
 const title = 'New Venue'
 export const metadata: Metadata = { title }
 
-export default function NewVenuePage () {
+export default function NewVenuePage() {
   return (
     <article>
       <header>

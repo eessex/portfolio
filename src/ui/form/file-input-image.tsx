@@ -1,8 +1,5 @@
 import { XMarkIcon } from '@heroicons/react/16/solid'
-import React, {
-  useEffect,
-  useState
-} from 'react'
+import React, { useEffect, useState } from 'react'
 
 import type { Image } from '@/lib/images/types'
 import styles from '@/ui/form/form.module.scss'
@@ -10,7 +7,7 @@ import type { InputProps } from '@/ui/form/input'
 import { Input } from '@/ui/form/input'
 import { usedOnPages } from '@/ui/util'
 
-export function FileInputImage ({
+export function FileInputImage({
   label,
   className,
   description,
@@ -23,14 +20,24 @@ export function FileInputImage ({
   image
 }: Omit<InputProps<HTMLInputElement>, 'children' | 'onChange'> & {
   image?: Partial<Image>
-  onChange?: (fileName: string, aspectRatio: number | undefined, isDirty: boolean) => void
+  onChange?: (
+    fileName: string,
+    aspectRatio: number | undefined,
+    isDirty: boolean
+  ) => void
 }) {
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [_aspectRatio, setAspectRatio] = useState<number | undefined>(image?.aspect || undefined)
-  const [imageUrl, setImageUrl] = useState<string | undefined>(image?.url || undefined)
+  const [_aspectRatio, setAspectRatio] = useState<number | undefined>(
+    image?.aspect || undefined
+  )
+  const [imageUrl, setImageUrl] = useState<string | undefined>(
+    image?.url || undefined
+  )
 
-  const usedOnCount = (image as Image)?.id ? usedOnPages(image as Image).length : 0
+  const usedOnCount = (image as Image)?.id
+    ? usedOnPages(image as Image).length
+    : 0
 
   useEffect(() => {
     // todo: move everything that doesn't need cleanup outside of the return function
@@ -55,14 +62,16 @@ export function FileInputImage ({
     return () => URL.revokeObjectURL(url)
   }, [file, onChange])
 
-  function onFileChange (e: React.ChangeEvent<HTMLInputElement>) {
+  function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selectedFile = e.target.files?.[0] ?? null
     setFile(selectedFile)
   }
 
-  function onRemoveSavedImage () {
+  function onRemoveSavedImage() {
     if (usedOnCount > 0) {
-      const confirmed = confirm(`This image is used on ${usedOnCount} existing page(s). Changing it here will update all pages it is used on. Are you sure you want to remove it?`)
+      const confirmed = confirm(
+        `This image is used on ${usedOnCount} existing page(s). Changing it here will update all pages it is used on. Are you sure you want to remove it?`
+      )
       if (!confirmed) return
     }
     // keep changes local to this component in case we want to cancel.
@@ -72,30 +81,35 @@ export function FileInputImage ({
 
   return (
     <div className={styles['file-input']}>
-      {(previewUrl || imageUrl) &&
-        (
-          <>
-            <figure
-              className={styles['image-preview']}
-              style={{ aspectRatio: _aspectRatio ? _aspectRatio.toString() : 'auto' }}
+      {(previewUrl || imageUrl) && (
+        <>
+          <figure
+            className={styles['image-preview']}
+            style={{
+              aspectRatio: _aspectRatio
+                ? _aspectRatio.toString()
+                : 'auto'
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewUrl || imageUrl}
+              alt='Uploaded image preview'
+            />
+            <button
+              title='Remove image'
+              aria-label='Remove image'
+              type='button'
+              onClick={
+                previewUrl ? () => setFile(null) : onRemoveSavedImage
+              }
+              className='button-icon button-primary'
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={previewUrl || imageUrl}
-                alt='Uploaded image preview'
-              />
-              <button
-                title='Remove image'
-                aria-label='Remove image'
-                type='button'
-                onClick={previewUrl ? () => setFile(null) : onRemoveSavedImage}
-                className='button-icon button-primary'
-              >
-                <XMarkIcon />
-              </button>
-            </figure>
-          </>
-        )}
+              <XMarkIcon />
+            </button>
+          </figure>
+        </>
+      )}
       <Input
         ref={ref}
         attributes={{

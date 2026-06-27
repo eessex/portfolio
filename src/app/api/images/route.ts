@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { fetchImages } from '@/lib/images/data'
 
-export async function GET (req: Request) {
+export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const cursor = searchParams.get('cursor') || undefined
   const query = searchParams.get('query') || undefined

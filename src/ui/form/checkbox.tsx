@@ -1,15 +1,15 @@
 'use client'
 
 import clsx from 'clsx'
-import {
-  useId,
-  useState
-} from 'react'
+import { useId, useState } from 'react'
 
 import styles from '@/ui/form/form.module.scss'
 import type { InputProps } from '@/ui/form/input'
 
-interface CheckboxProps extends Omit<InputProps<HTMLInputElement>, 'isLabelHidden' | 'as'> {
+interface CheckboxProps extends Omit<
+  InputProps<HTMLInputElement>,
+  'isLabelHidden' | 'as'
+> {
   controlledId?: string
   isChecked?: boolean
 }
@@ -30,7 +30,9 @@ export const Checkbox = ({
     }
   }
 
-  const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeHandler = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (!isDirty) {
       setIsDirty(event.target.checked !== isChecked)
     }
@@ -57,10 +59,7 @@ export const Checkbox = ({
       hidden={isHidden}
       id={controlledId}
     >
-      <input
-        {...props}
-        id={id}
-      />
+      <input {...props} id={id} />
       <span>{label}</span>
     </label>
   )

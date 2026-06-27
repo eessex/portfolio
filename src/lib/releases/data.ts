@@ -4,7 +4,10 @@ import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import type { PageItemResponseWithCursor, PagePathType } from '@/lib/types'
+import type {
+  PageItemResponseWithCursor,
+  PagePathType
+} from '@/lib/types'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -164,7 +167,8 @@ const sortReleasesByCategory = (
     releases: [] // For project pages, pages where there's only a couple releases
   }
 
-  const hasMultipleTypes = new Set(releases.map((r) => r.type)).size > 1
+  const hasMultipleTypes =
+    new Set(releases.map((r) => r.type)).size > 1
 
   if (isProject && !hasMultipleTypes) {
     result.releases = [...releases]

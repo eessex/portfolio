@@ -1,7 +1,13 @@
 import { sql } from '@/lib/db'
 import { eventClientSchema } from '@/lib/events/schemas'
-import type { EventClient, FetchEventsResult } from '@/lib/events/types'
-import type { PageItemResponseWithCursor, PagePathType } from '@/lib/types'
+import type {
+  EventClient,
+  FetchEventsResult
+} from '@/lib/events/types'
+import type {
+  PageItemResponseWithCursor,
+  PagePathType
+} from '@/lib/types'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -73,12 +79,14 @@ export async function fetchEvents(
       'startTime',
       eventClientSchema
     )
-    const res: PageItemResponseWithCursor<EventClient, FetchEventsResult> =
-      {
-        res: sortEventsByCategory(formatted.res),
-        nextCursor: formatted.nextCursor,
-        totalCount
-      }
+    const res: PageItemResponseWithCursor<
+      EventClient,
+      FetchEventsResult
+    > = {
+      res: sortEventsByCategory(formatted.res),
+      nextCursor: formatted.nextCursor,
+      totalCount
+    }
     return res
   } catch (error) {
     console.error('Database Error:', error)
@@ -153,19 +161,23 @@ export async function fetchEventBySlug(
   }
 }
 
-function sortEventsByCategory(events: EventClient[]): FetchEventsResult {
+function sortEventsByCategory(
+  events: EventClient[]
+): FetchEventsResult {
   const upcomingEvents = events
     .filter((event) => isUpcomingDate(event.startTime))
     .sort((a, b) => {
       return (
-        new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+        new Date(a.startTime).getTime() -
+        new Date(b.startTime).getTime()
       )
     })
   const pastEvents = events
     .filter((event) => !isUpcomingDate(event.startTime))
     .sort((a, b) => {
       return (
-        new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+        new Date(b.startTime).getTime() -
+        new Date(a.startTime).getTime()
       )
     })
   return {

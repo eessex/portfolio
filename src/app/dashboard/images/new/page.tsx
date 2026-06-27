@@ -7,7 +7,7 @@ import type { Image } from '@/lib/images/types'
 const title = 'New Image'
 export const metadata: Metadata = { title }
 
-export default function NewImagePage () {
+export default function NewImagePage() {
   return (
     <article>
       <header>

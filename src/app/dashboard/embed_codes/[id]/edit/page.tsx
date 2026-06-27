@@ -13,7 +13,9 @@ const title = 'Edit Embed Code'
 
 export const metadata: Metadata = { title }
 
-export default async function EditEmbedCodePage ({ params }: PageEmbeddedItemProps) {
+export default async function EditEmbedCodePage({
+  params
+}: PageEmbeddedItemProps) {
   const { id } = await params
   const [embedCode] = await fetchEmbedCodesByIds([id])
 

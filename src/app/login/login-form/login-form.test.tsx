@@ -1,7 +1,4 @@
-import {
-  render,
-  screen
-} from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { LoginForm } from '@/app/login/login-form/login-form'
@@ -10,8 +7,12 @@ import { authenticate } from '@/lib/users/actions'
 import { useToast } from '@/ui/toast/toast-context'
 
 jest.mock('@/lib/users/actions', () => ({ authenticate: jest.fn() }))
-const mockAuthenticate = authenticate as jest.MockedFunction<typeof authenticate>
-const successResponse: FormResponse<Record<string, never>> = { ok: true }
+const mockAuthenticate = authenticate as jest.MockedFunction<
+  typeof authenticate
+>
+const successResponse: FormResponse<Record<string, never>> = {
+  ok: true
+}
 
 jest.mock('@/ui/toast/toast-context', () => {
   return { useToast: jest.fn() }
@@ -24,7 +25,7 @@ const mockAddSuccess = jest.fn()
   removeMessage: jest.fn()
 })
 
-function renderComponent () {
+function renderComponent() {
   return render(<LoginForm />)
 }
 
@@ -38,9 +39,7 @@ describe('LoginForm', () => {
       expect(
         screen.getByRole('textbox', { name: /email/i })
       ).toBeInTheDocument()
-      expect(
-        screen.getByLabelText(/password/i)
-      ).toBeInTheDocument()
+      expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
       const redirectInput = screen.getByDisplayValue('/')
       expect(redirectInput).toHaveAttribute('type', 'hidden')
       expect(redirectInput).toHaveAttribute('name', 'redirectTo')
@@ -85,7 +84,9 @@ describe('LoginForm', () => {
 
     it('passes email, password, and redirectTo values in submitted FormData', async () => {
       const user = userEvent.setup()
-      const successResponse: FormResponse<Record<string, never>> = { ok: true }
+      const successResponse: FormResponse<Record<string, never>> = {
+        ok: true
+      }
       mockAuthenticate.mockResolvedValue(successResponse)
       renderComponent()
 
@@ -116,9 +117,17 @@ describe('LoginForm', () => {
       mockAuthenticate.mockResolvedValue({ ok: true })
       renderComponent()
 
-      await user.type(screen.getByRole('textbox', { name: /email/i }), 'test@example.com')
-      await user.type(screen.getByLabelText(/password/i), 'supersecret')
-      await user.click(screen.getByRole('button', { name: /log in/i }))
+      await user.type(
+        screen.getByRole('textbox', { name: /email/i }),
+        'test@example.com'
+      )
+      await user.type(
+        screen.getByLabelText(/password/i),
+        'supersecret'
+      )
+      await user.click(
+        screen.getByRole('button', { name: /log in/i })
+      )
 
       expect(mockAuthenticate).toHaveBeenCalledTimes(1)
       expect(mockAddError).not.toHaveBeenCalled()
@@ -130,9 +139,17 @@ describe('LoginForm', () => {
       mockAuthenticate.mockResolvedValue({ ok: true })
       renderComponent()
 
-      await user.type(screen.getByRole('textbox', { name: /email/i }), 'test@example.com')
-      await user.type(screen.getByLabelText(/password/i), 'supersecret')
-      await user.click(screen.getByRole('button', { name: /log in/i }))
+      await user.type(
+        screen.getByRole('textbox', { name: /email/i }),
+        'test@example.com'
+      )
+      await user.type(
+        screen.getByLabelText(/password/i),
+        'supersecret'
+      )
+      await user.click(
+        screen.getByRole('button', { name: /log in/i })
+      )
 
       expect(mockAuthenticate).toHaveBeenCalledTimes(1)
       const res = mockAuthenticate.mock.calls[0][0]
@@ -154,12 +171,22 @@ describe('LoginForm', () => {
       mockAuthenticate.mockRejectedValue(credentialsError)
       renderComponent()
 
-      await user.type(screen.getByRole('textbox', { name: /email/i }), 'wrong@example.com')
-      await user.type(screen.getByLabelText(/password/i), 'badpassword')
-      await user.click(screen.getByRole('button', { name: /log in/i }))
+      await user.type(
+        screen.getByRole('textbox', { name: /email/i }),
+        'wrong@example.com'
+      )
+      await user.type(
+        screen.getByLabelText(/password/i),
+        'badpassword'
+      )
+      await user.click(
+        screen.getByRole('button', { name: /log in/i })
+      )
 
       expect(mockAuthenticate).toHaveBeenCalledTimes(1)
-      expect(mockAddError).toHaveBeenCalledWith('Invalid credentials.')
+      expect(mockAddError).toHaveBeenCalledWith(
+        'Invalid credentials.'
+      )
       expect(mockAddSuccess).not.toHaveBeenCalled()
     })
 
@@ -168,16 +195,26 @@ describe('LoginForm', () => {
       mockAuthenticate.mockRejectedValue(credentialsError)
       renderComponent()
 
-      await user.type(screen.getByRole('textbox', { name: /email/i }), 'wrong@example.com')
-      await user.type(screen.getByLabelText(/password/i), 'badpassword')
-      await user.click(screen.getByRole('button', { name: /log in/i }))
+      await user.type(
+        screen.getByRole('textbox', { name: /email/i }),
+        'wrong@example.com'
+      )
+      await user.type(
+        screen.getByLabelText(/password/i),
+        'badpassword'
+      )
+      await user.click(
+        screen.getByRole('button', { name: /log in/i })
+      )
 
       expect(mockAuthenticate).toHaveBeenCalledTimes(1)
       const callArg = mockAuthenticate.mock.calls[0][0] as FormData
 
       expect(callArg.get('email')).toBe('wrong@example.com')
       expect(callArg.get('password')).toBe('badpassword')
-      expect(mockAddError).toHaveBeenCalledWith('Invalid credentials.')
+      expect(mockAddError).toHaveBeenCalledWith(
+        'Invalid credentials.'
+      )
     })
   })
 
@@ -188,9 +225,17 @@ describe('LoginForm', () => {
 
       renderComponent()
 
-      await user.type(screen.getByRole('textbox', { name: /email/i }), 'test@example.com')
-      await user.type(screen.getByLabelText(/password/i), 'supersecret')
-      await user.click(screen.getByRole('button', { name: /log in/i }))
+      await user.type(
+        screen.getByRole('textbox', { name: /email/i }),
+        'test@example.com'
+      )
+      await user.type(
+        screen.getByLabelText(/password/i),
+        'supersecret'
+      )
+      await user.click(
+        screen.getByRole('button', { name: /log in/i })
+      )
 
       expect(mockAddError).toHaveBeenCalledWith('Network error')
       expect(mockAddSuccess).not.toHaveBeenCalled()

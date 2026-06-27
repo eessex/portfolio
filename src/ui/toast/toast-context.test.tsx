@@ -7,29 +7,19 @@ import {
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import {
-  ToastProvider,
-  useToast
-} from '@/ui/toast/toast-context'
+import { ToastProvider, useToast } from '@/ui/toast/toast-context'
 
-function ToastTestHarness () {
-  const {
-    addSuccessMessage,
-    addErrorMessage,
-    removeMessage
-  } = useToast()
+function ToastTestHarness() {
+  const { addSuccessMessage, addErrorMessage, removeMessage } =
+    useToast()
 
   return (
     <div>
-      <button
-        onClick={() => addSuccessMessage('Success message')}
-      >
+      <button onClick={() => addSuccessMessage('Success message')}>
         Add success
       </button>
 
-      <button
-        onClick={() => addErrorMessage('Error message')}
-      >
+      <button onClick={() => addErrorMessage('Error message')}>
         Add error
       </button>
 
@@ -45,18 +35,14 @@ function ToastTestHarness () {
   )
 }
 
-function renderWithToastProvider (ui: React.ReactNode) {
-  return render(
-    <ToastProvider>
-      {ui}
-    </ToastProvider>
-  )
+function renderWithToastProvider(ui: React.ReactNode) {
+  return render(<ToastProvider>{ui}</ToastProvider>)
 }
 
 describe('ToastProvider and useToast', () => {
   describe('useToast hook', () => {
     it('throws an error when used outside of ToastProvider', () => {
-      function OutsideProvider () {
+      function OutsideProvider() {
         useToast()
         return null
       }
@@ -93,7 +79,7 @@ describe('ToastProvider and useToast', () => {
     })
 
     it('returns a unique id when adding a success toast', async () => {
-      function IdTestHarness () {
+      function IdTestHarness() {
         const { addSuccessMessage } = useToast()
 
         return (
@@ -132,7 +118,9 @@ describe('ToastProvider and useToast', () => {
       await userEvent.click(screen.getByText('Remove'))
 
       await waitFor(() => {
-        expect(screen.queryByText('Removable message')).not.toBeInTheDocument()
+        expect(
+          screen.queryByText('Removable message')
+        ).not.toBeInTheDocument()
       })
     })
 
@@ -149,7 +137,9 @@ describe('ToastProvider and useToast', () => {
         jest.runAllTimers()
       })
 
-      expect(screen.queryByText('Success message')).not.toBeInTheDocument()
+      expect(
+        screen.queryByText('Success message')
+      ).not.toBeInTheDocument()
 
       jest.useRealTimers()
     })
@@ -163,7 +153,9 @@ describe('ToastProvider and useToast', () => {
 
       const container = document.querySelector('.toast-container')
       expect(container).toBeInTheDocument()
-      expect(container).toContainElement(screen.getByText('Success message'))
+      expect(container).toContainElement(
+        screen.getByText('Success message')
+      )
     })
 
     it('renders multiple toasts when multiple messages are added', async () => {

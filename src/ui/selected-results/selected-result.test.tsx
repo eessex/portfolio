@@ -1,7 +1,4 @@
-import {
-  render,
-  screen
-} from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 
 import { venueFixtureAlpha } from '@/lib/venues/fixtures'
 import {
@@ -19,12 +16,7 @@ const defaultProps: SelectedResultProps = {
 }
 
 const renderSelectedResult = (props = {}) => {
-  return render(
-    <SelectedResult
-      {...defaultProps}
-      {...props}
-    />
-  )
+  return render(<SelectedResult {...defaultProps} {...props} />)
 }
 
 describe('SelectedResult', () => {
@@ -60,7 +52,9 @@ describe('SelectedResult', () => {
 
   it('calls the onClick handler when remove button is clicked', () => {
     renderSelectedResult()
-    const button = screen.getByRole('button', { name: 'Remove venue' })
+    const button = screen.getByRole('button', {
+      name: 'Remove venue'
+    })
     button.click()
     expect(onClick).toHaveBeenCalledTimes(1)
   })
@@ -68,14 +62,18 @@ describe('SelectedResult', () => {
   it('renders an Input with the correct label and value', () => {
     renderSelectedResult()
     const expectedLabel = 'Venue ID'
-    const input = screen.getByLabelText(expectedLabel) as HTMLInputElement
+    const input = screen.getByLabelText(
+      expectedLabel
+    ) as HTMLInputElement
     expect(input).toBeInTheDocument()
     expect(input.value).toBe(defaultProps.itemId)
   })
 
   it('Input has readOnly and hidden attributes', () => {
     renderSelectedResult()
-    const input = screen.getByLabelText('Venue ID') as HTMLInputElement
+    const input = screen.getByLabelText(
+      'Venue ID'
+    ) as HTMLInputElement
     expect(input).toHaveAttribute('readOnly')
     expect(input).toHaveAttribute('hidden')
     expect(input).not.toBeRequired()
@@ -83,7 +81,9 @@ describe('SelectedResult', () => {
 
   it('Input is required when isRequired is true', () => {
     renderSelectedResult({ isRequired: true })
-    const input = screen.getByLabelText('Venue ID') as HTMLInputElement
+    const input = screen.getByLabelText(
+      'Venue ID'
+    ) as HTMLInputElement
     expect(input).toBeRequired()
   })
 })

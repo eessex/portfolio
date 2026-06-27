@@ -1,7 +1,9 @@
-export function Loading ({ className }: { className?: string }) {
+export function Loading({ className }: { className?: string }) {
   return (
     <div className={className || 'loading'}>
-      <p><b>Loading...</b></p>
+      <p>
+        <b>Loading...</b>
+      </p>
     </div>
   )
 }

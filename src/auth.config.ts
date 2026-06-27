@@ -13,24 +13,19 @@ const authedPathPatterns = [
   /^\/dashboard(?:\/.*)?$/
 ]
 
-const unauthedPathPatterns = [
-  /^\/login$/
-]
+const unauthedPathPatterns = [/^\/login$/]
 
 export const authConfig = {
   pages: { signIn: '/' },
   callbacks: {
-    authorized ({
-      auth,
-      request: { nextUrl }
-    }) {
+    authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
 
-      const isAuthedPath = authedPathPatterns.some(pattern =>
+      const isAuthedPath = authedPathPatterns.some((pattern) =>
         pattern.test(nextUrl.pathname)
       )
 
-      const isUnauthedPath = unauthedPathPatterns.some(pattern =>
+      const isUnauthedPath = unauthedPathPatterns.some((pattern) =>
         pattern.test(nextUrl.pathname)
       )
 

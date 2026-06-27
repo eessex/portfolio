@@ -33,16 +33,18 @@ export const projectSchema = z.lazy(() =>
 
 /**
  * Extends `projectSchema` embedded item metadata.
-*/
+ */
 export const projectClientSchema = z.lazy(() =>
-  z.object({
-    ...hydratedItemIdSchemas.pick({
-      coverImage: true,
-      embedCodes: true,
-      featuredEmbedCode: true,
-      images: true,
-      links: true,
-      venue: true
-    }).shape
-  }).and(projectSchema)
+  z
+    .object({
+      ...hydratedItemIdSchemas.pick({
+        coverImage: true,
+        embedCodes: true,
+        featuredEmbedCode: true,
+        images: true,
+        links: true,
+        venue: true
+      }).shape
+    })
+    .and(projectSchema)
 )

@@ -45,7 +45,9 @@ export async function editLink(
   } catch (err) {
     const errMsg = 'Failed to edit link'
     const message =
-      err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+      err instanceof Error
+        ? `${errMsg}: ${err.message}`
+        : `${errMsg}.`
     return {
       ok: false,
       message
@@ -53,7 +55,9 @@ export async function editLink(
   }
 }
 
-export async function deleteLink(link: Link): Promise<FormResponse<Link>> {
+export async function deleteLink(
+  link: Link
+): Promise<FormResponse<Link>> {
   try {
     await sql`
       DELETE FROM links
@@ -65,7 +69,9 @@ export async function deleteLink(link: Link): Promise<FormResponse<Link>> {
   } catch (err) {
     const errMsg = 'Failed to delete link'
     const message =
-      err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+      err instanceof Error
+        ? `${errMsg}: ${err.message}`
+        : `${errMsg}.`
     return {
       ok: false,
       message

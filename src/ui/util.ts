@@ -32,7 +32,10 @@ const dateFormatXxs: Intl.DateTimeFormatOptions = { year: 'numeric' }
 
 export type DateFormatSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg'
 
-export function getUtcOffsetMinutes (utcDate: string | Date, timeZone: string): number {
+export function getUtcOffsetMinutes(
+  utcDate: string | Date,
+  timeZone: string
+): number {
   const date = new Date(utcDate)
 
   const formatter = new Intl.DateTimeFormat('en-US', {
@@ -48,14 +51,39 @@ export function getUtcOffsetMinutes (utcDate: string | Date, timeZone: string): 
 
   const parts = formatter.formatToParts(date)
 
-  const year = parseInt(parts.find(p => p.type === 'year')?.value || '0', 10)
-  const month = parseInt(parts.find(p => p.type === 'month')?.value || '1', 10)
-  const day = parseInt(parts.find(p => p.type === 'day')?.value || '1', 10)
-  const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10)
-  const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10)
-  const second = parseInt(parts.find(p => p.type === 'second')?.value || '0', 10)
+  const year = parseInt(
+    parts.find((p) => p.type === 'year')?.value || '0',
+    10
+  )
+  const month = parseInt(
+    parts.find((p) => p.type === 'month')?.value || '1',
+    10
+  )
+  const day = parseInt(
+    parts.find((p) => p.type === 'day')?.value || '1',
+    10
+  )
+  const hour = parseInt(
+    parts.find((p) => p.type === 'hour')?.value || '0',
+    10
+  )
+  const minute = parseInt(
+    parts.find((p) => p.type === 'minute')?.value || '0',
+    10
+  )
+  const second = parseInt(
+    parts.find((p) => p.type === 'second')?.value || '0',
+    10
+  )
 
-  const localTzTimestamp = Date.UTC(year, month - 1, day, hour, minute, second)
+  const localTzTimestamp = Date.UTC(
+    year,
+    month - 1,
+    day,
+    hour,
+    minute,
+    second
+  )
 
   const offsetMs = localTzTimestamp - date.getTime()
 
@@ -75,12 +103,19 @@ const getTimeFormat = (format: DateFormatSize = 'lg') => {
   }
 }
 
-export function formattedDateTime (utcDate: string | Date, format?: DateFormatSize, tz?: Intl.DateTimeFormatOptions['timeZone']) {
+export function formattedDateTime(
+  utcDate: string | Date,
+  format?: DateFormatSize,
+  tz?: Intl.DateTimeFormatOptions['timeZone']
+) {
   const timeZone = tz || 'America/New_York'
   const startTime = new Date(utcDate)
   const offsetMinutes = getUtcOffsetMinutes(startTime, timeZone)
   const adjustedTime = startTime.getTime() - offsetMinutes * 60 * 1000
-  const localDate = format === 'xs' || format === 'xxs' ? new Date(startTime) : new Date(adjustedTime)
+  const localDate =
+    format === 'xs' || format === 'xxs'
+      ? new Date(startTime)
+      : new Date(adjustedTime)
 
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     ...getTimeFormat(format),
@@ -90,33 +125,36 @@ export function formattedDateTime (utcDate: string | Date, format?: DateFormatSi
   return formattedDate
 }
 
-export function escapeHtml (s: string) {
-  return s.replace(/&/g, '&amp;')
+export function escapeHtml(s: string) {
+  return s
+    .replace(/&/g, '&amp;')
     .replace(/"/g, '&quot;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
 }
 
-export function isUpcomingDate (date: string | Date) {
+export function isUpcomingDate(date: string | Date) {
   return new Date(date) > new Date()
 }
 
-export function camelToSentence (str: string) {
+export function camelToSentence(str: string) {
   const result = str.replace(/([A-Z])/g, ' $1')
   // Replace "And" with "&"
   const resultWithAmp = result.replace(/\bAnd\b/g, '&')
   return capitalizeFirstLetter(resultWithAmp)
 }
 
-export function snakeToCamel (str: string) {
-  return str.replace(/_([a-z])/g, (_match, letter) => letter.toUpperCase())
+export function snakeToCamel(str: string) {
+  return str.replace(/_([a-z])/g, (_match, letter) =>
+    letter.toUpperCase()
+  )
 }
 
-export function camelToSnake (str: string) {
+export function camelToSnake(str: string) {
   return str.replace(/([A-Z])/g, '_$1').toLowerCase()
 }
 
-export function capitalizeFirstLetter (string: string) {
+export function capitalizeFirstLetter(string: string) {
   if (typeof string !== 'string' || string.length === 0) {
     return string
   }
@@ -124,7 +162,7 @@ export function capitalizeFirstLetter (string: string) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function camelizeKeys (obj: any): any {
+export function camelizeKeys(obj: any): any {
   if (typeof obj !== 'object' || obj === null) {
     return obj
   }
@@ -139,19 +177,19 @@ export function camelizeKeys (obj: any): any {
   return camelizedObject
 }
 
-export function eventUrl (slug: string) {
+export function eventUrl(slug: string) {
   return `/events/${slug}`
 }
 
-export function releaseUrl (slug: string) {
+export function releaseUrl(slug: string) {
   return `/releases/${slug}`
 }
 
-export function projectUrl (slug: string) {
+export function projectUrl(slug: string) {
   return `/projects/${slug}`
 }
 
-export function filteredLinksByPress (links: Array<Link>) {
+export function filteredLinksByPress(links: Array<Link>) {
   const sortByDate = (a: Link, b: Link) => {
     const aDate = new Date(a.publishDate ?? a.createdAt)
     const bDate = new Date(b.publishDate ?? b.createdAt)
@@ -162,7 +200,7 @@ export function filteredLinksByPress (links: Array<Link>) {
   const otherLinks: Array<Link> = []
 
   links.forEach((link) => {
-    (link.type === 'press' ? pressLinks : otherLinks).push(link)
+    ;(link.type === 'press' ? pressLinks : otherLinks).push(link)
   })
 
   pressLinks.sort(sortByDate)
@@ -171,16 +209,25 @@ export function filteredLinksByPress (links: Array<Link>) {
   return [pressLinks, otherLinks]
 }
 
-export function combinePublishedEditions (publishedEditions: ReleaseClient['publishedEditions']) {
-  const combined: Array<Omit<PublishedEditionClient, 'format'> & { formats?: string[], format?: string }> = []
-  if (!publishedEditions || publishedEditions.length === 0) return combined
+export function combinePublishedEditions(
+  publishedEditions: ReleaseClient['publishedEditions']
+) {
+  const combined: Array<
+    Omit<PublishedEditionClient, 'format'> & {
+      formats?: string[]
+      format?: string
+    }
+  > = []
+  if (!publishedEditions || publishedEditions.length === 0)
+    return combined
 
   publishedEditions.forEach((edition) => {
-    const existing = combined.find(item => (
-      item.publisher === edition.publisher &&
-      new Date(item.publishDate).toISOString().substring(0, 10) ===
-      new Date(edition.publishDate).toISOString().substring(0, 10)
-    ))
+    const existing = combined.find(
+      (item) =>
+        item.publisher === edition.publisher &&
+        new Date(item.publishDate).toISOString().substring(0, 10) ===
+          new Date(edition.publishDate).toISOString().substring(0, 10)
+    )
     if (!existing) {
       combined.push({
         ...edition,
@@ -193,7 +240,7 @@ export function combinePublishedEditions (publishedEditions: ReleaseClient['publ
   })
 
   // Format the formats array into a grammatical list, e.g., "LP, Cassette & Digital"
-  combined.forEach(item => {
+  combined.forEach((item) => {
     if (item.formats?.length === 1) {
       item.format = item.formats[0]
     } else if (item.formats?.length === 2) {
@@ -206,21 +253,27 @@ export function combinePublishedEditions (publishedEditions: ReleaseClient['publ
   return combined
 }
 
-export function singularizePath (path: string) {
+export function singularizePath(path: string) {
   return path.endsWith('s') ? path.slice(0, -1) : path
 }
 
-export function itemTypeToLabel (itemType: string, isSingular = false, isDownCased = false) {
+export function itemTypeToLabel(
+  itemType: string,
+  isSingular = false,
+  isDownCased = false
+) {
   let formatted = camelToSentence(itemType)
   if (isDownCased) {
     formatted = formatted.toLowerCase()
   }
-  return isSingular
-    ? singularizePath(formatted)
-    : formatted
+  return isSingular ? singularizePath(formatted) : formatted
 }
 
-export const formattedItemType = (type: string, isUpcoming = false, isPlural = false) => {
+export const formattedItemType = (
+  type: string,
+  isUpcoming = false,
+  isPlural = false
+) => {
   let unformatted = snakeToCamel(type)
 
   switch (type) {
@@ -231,36 +284,39 @@ export const formattedItemType = (type: string, isUpcoming = false, isPlural = f
   return `${isUpcoming ? ' Upcoming ' : ''} ${camelToSentence(isPlural ? unformatted : singularizePath(unformatted))}`
 }
 
-export function formattedItemTitle (item: PageItemClient) {
+export function formattedItemTitle(item: PageItemClient) {
   const { artist } = item as ReleaseClient
   return artist ? `${artist}: ${item.title}` : item.title
 }
 
-export function itemUrl (item: PageItemClient) {
+export function itemUrl(item: PageItemClient) {
   return `/${item.path}/${item.slug}`
 }
 
 // queried on page fetch, but not returned in save actions,
 // extract these keys so we can store them when editing items
-export function usedOnSlugKeys ({
+export function usedOnSlugKeys({
   eventSlugs,
   projectSlugs,
   releaseSlugs
-}: DashboardItem): Pick<DashboardUsedOnPagesKeys, 'eventSlugs' | 'projectSlugs' | 'releaseSlugs'> {
-  return ({
+}: DashboardItem): Pick<
+  DashboardUsedOnPagesKeys,
+  'eventSlugs' | 'projectSlugs' | 'releaseSlugs'
+> {
+  return {
     eventSlugs: eventSlugs ?? [],
     projectSlugs: projectSlugs ?? [],
     releaseSlugs: releaseSlugs ?? []
-  })
+  }
 }
 
-export function usedOnPages (item: Partial<DashboardItem>) {
-  const events = item.eventSlugs?.map(i => eventUrl(i)) || []
-  const projects = item.projectSlugs?.map(i => projectUrl(i)) || []
+export function usedOnPages(item: Partial<DashboardItem>) {
+  const events = item.eventSlugs?.map((i) => eventUrl(i)) || []
+  const projects = item.projectSlugs?.map((i) => projectUrl(i)) || []
   const releases =
-      'releaseSlugs' in item && Array.isArray(item.releaseSlugs)
-        ? item.releaseSlugs.map(i => releaseUrl(i))
-        : []
+    'releaseSlugs' in item && Array.isArray(item.releaseSlugs)
+      ? item.releaseSlugs.map((i) => releaseUrl(i))
+      : []
   const about = []
   if ((item as Link).type === 'press' || (item as Image).isPress) {
     if (!(item as Link | Image).isHiddenOnAboutPage) {
@@ -268,15 +324,10 @@ export function usedOnPages (item: Partial<DashboardItem>) {
     }
   }
 
-  return [
-    ...events,
-    ...releases,
-    ...projects,
-    ...about
-  ]
+  return [...events, ...releases, ...projects, ...about]
 }
 
-export function formatVenueInline ({
+export function formatVenueInline({
   venue,
   format,
   isNameHidden
@@ -320,7 +371,7 @@ type BaseParams = {
   cursor?: string
 } & Record<string, string | number | boolean | undefined | null>
 
-export function buildApiUrl (endpoint: string, params?: BaseParams) {
+export function buildApiUrl(endpoint: string, params?: BaseParams) {
   const searchParams = new URLSearchParams()
 
   if (params) {

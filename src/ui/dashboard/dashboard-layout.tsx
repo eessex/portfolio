@@ -5,16 +5,14 @@ interface DashboardLayoutProps {
   title: string
 }
 
-export function DashboardLayout ({
+export function DashboardLayout({
   children,
   title
 }: DashboardLayoutProps) {
   return (
     <div className={styles['dashboard-layout']}>
       <header>
-        <h1>
-          {title}
-        </h1>
+        <h1>{title}</h1>
       </header>
 
       {children}

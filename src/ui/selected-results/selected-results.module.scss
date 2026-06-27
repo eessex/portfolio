@@ -1,8 +1,8 @@
-@use "@/ui/styles/grids";
-@use "@/ui/styles/type";
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
 
 .selected-result {
-  @include type.line-height("sm");
+  @include type.line-height('sm');
 
   position: relative;
   display: flex;

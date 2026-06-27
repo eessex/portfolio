@@ -1,6 +1,6 @@
-@use "@/ui/styles/breakpoints";
-@use "@/ui/styles/grids";
-@use "@/ui/styles/type";
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
 
 .email-subscribe {
   display: flex;
@@ -10,13 +10,13 @@
   justify-content: center;
 
   input,
-  button[type="submit"] {
-    @include type.size("sm", "normal", "sm");
+  button[type='submit'] {
+    @include type.size('sm', 'normal', 'sm');
 
     height: grids.space-em(9);
   }
 
-  button[type="submit"] {
+  button[type='submit'] {
     color: currentColor;
     background-color: unset;
     padding: grids.space-rem(0, 3);
@@ -36,8 +36,8 @@
     }
 
     input,
-    button[type="submit"] {
-      @include type.size("base", "normal", "sm");
+    button[type='submit'] {
+      @include type.size('base', 'normal', 'sm');
     }
   }
 }

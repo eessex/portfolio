@@ -6,17 +6,15 @@ import NextLink from 'next/link'
 import style from '@/ui/nav/nav.module.scss'
 import { useWindowScrollPosition } from '@/ui/nav/scroll-position'
 
-export function Nav ({ title }: { title?: string }) {
-  const {
-    isAtContentTop,
-    isScrollingDown
-  } = useWindowScrollPosition()
+export function Nav({ title }: { title?: string }) {
+  const { isAtContentTop, isScrollingDown } =
+    useWindowScrollPosition()
 
   return (
     <header
       className={clsx(`
         ${style['menubar']} menubar
-        ${(isScrollingDown && !isAtContentTop) && style['hide'] + ' hide'}
+        ${isScrollingDown && !isAtContentTop && style['hide'] + ' hide'}
       `)}
       role='banner'
     >

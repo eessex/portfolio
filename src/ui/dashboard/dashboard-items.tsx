@@ -1,35 +1,19 @@
 'use client'
 
 import NextLink from 'next/link'
-import {
-  useCallback,
-  useId,
-  useState
-} from 'react'
+import { useCallback, useId, useState } from 'react'
 
 import { embedCodeTypes } from '@/lib/embed-codes/schemas'
 import type {
   DashboardEmbedCode,
   EmbedCode
 } from '@/lib/embed-codes/types'
-import type {
-  DashboardImage,
-  Image
-} from '@/lib/images/types'
+import type { DashboardImage, Image } from '@/lib/images/types'
 import { linkTypes } from '@/lib/links/schemas'
-import type {
-  DashboardLink,
-  Link
-} from '@/lib/links/types'
-import type {
-  EmbeddedItemType,
-  FormResponse
-} from '@/lib/types'
+import type { DashboardLink, Link } from '@/lib/links/types'
+import type { EmbeddedItemType, FormResponse } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
-import type {
-  DashboardVenue,
-  Venue
-} from '@/lib/venues/types'
+import type { DashboardVenue, Venue } from '@/lib/venues/types'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { itemBadges } from '@/ui/badges'
 import type { CreateItemDetail } from '@/ui/buttons/create-item-button'
@@ -61,7 +45,11 @@ declare global {
   }
 }
 
-export type DashboardItem = DashboardEmbedCode | DashboardImage | DashboardLink | DashboardVenue
+export type DashboardItem =
+  | DashboardEmbedCode
+  | DashboardImage
+  | DashboardLink
+  | DashboardVenue
 
 const DashboardSuccessMessages = {
   SavedSuccessfully: 'Item saved successfully.',
@@ -69,33 +57,34 @@ const DashboardSuccessMessages = {
 } as const
 
 export const DashboardErrrorMessages = {
-  DuplicateEntry: 'An item with the same unique field already exists.',
+  DuplicateEntry:
+    'An item with the same unique field already exists.',
   FailedToDelete: 'Attempt to delete the item failed, try again.',
   FailedToSave: 'Failed to save changes, try again.',
-  FetchExistingFailed: 'Failed to fetch existing item for duplicate check.',
+  FetchExistingFailed:
+    'Failed to fetch existing item for duplicate check.',
   OperationCancelled: 'Operation was cancelled by the user.'
 } as const
 
-interface DashboardProps <T extends DashboardItem> {
+interface DashboardProps<T extends DashboardItem> {
   apiEndpoint: string
   itemType: EmbeddedItemType
   res: ResponseWithCursor<T>
   deleteItem: (item: T) => Promise<FormResponse<T> | undefined>
 }
 
-export function DashboardItems<T extends DashboardItem> ({
+export function DashboardItems<T extends DashboardItem>({
   apiEndpoint,
   itemType,
   res,
   deleteItem
 }: DashboardProps<T>) {
   const [isExpanded, setIsExpanded] = useState(false)
-  const [filterType, setFilterType] = useState<string | undefined>(undefined)
+  const [filterType, setFilterType] = useState<string | undefined>(
+    undefined
+  )
 
-  const {
-    addErrorMessage,
-    addSuccessMessage
-  } = useToast()
+  const { addErrorMessage, addSuccessMessage } = useToast()
 
   const {
     isLoading,
@@ -111,11 +100,13 @@ export function DashboardItems<T extends DashboardItem> ({
   } = useResultsList<T>(apiEndpoint, res)
 
   // TODO: move to useResultsList
-  function filteredItems () {
-    const savedItems = items.filter(item => !!item.id)
+  function filteredItems() {
+    const savedItems = items.filter((item) => !!item.id)
 
     const typeFilteredItems = filterType
-      ? savedItems.filter(item => (item as Link | EmbedCode).type === filterType)
+      ? savedItems.filter(
+          (item) => (item as Link | EmbedCode).type === filterType
+        )
       : savedItems
 
     if (!query && sortDirection === 'desc') return typeFilteredItems
@@ -123,29 +114,47 @@ export function DashboardItems<T extends DashboardItem> ({
     return typeFilteredItems
   }
 
-  const onDelete = useCallback(async (item: T) => {
-    const confirmed = confirm(`Are you sure you want to delete this ${singularizePath(itemType)}? This action cannot be undone.`)
-    if (!confirmed) return
-    try {
-      const res = await deleteItem(item)
-      if (res && res.ok) {
-        addSuccessMessage(DashboardSuccessMessages.DeletedSuccessfully)
-        onRemoveItem(item.id)
-      } else {
-        console.debug(res?.message, item.id)
-        addErrorMessage(res?.message || DashboardErrrorMessages.FailedToDelete)
+  const onDelete = useCallback(
+    async (item: T) => {
+      const confirmed = confirm(
+        `Are you sure you want to delete this ${singularizePath(itemType)}? This action cannot be undone.`
+      )
+      if (!confirmed) return
+      try {
+        const res = await deleteItem(item)
+        if (res && res.ok) {
+          addSuccessMessage(
+            DashboardSuccessMessages.DeletedSuccessfully
+          )
+          onRemoveItem(item.id)
+        } else {
+          console.debug(res?.message, item.id)
+          addErrorMessage(
+            res?.message || DashboardErrrorMessages.FailedToDelete
+          )
+        }
+      } catch (error) {
+        console.debug(error, item.id)
+        addErrorMessage(
+          (error as Error)?.message ||
+            DashboardErrrorMessages.FailedToDelete
+        )
       }
-    } catch (error) {
-      console.debug(error, item.id)
-      addErrorMessage((error as Error)?.message || DashboardErrrorMessages.FailedToDelete)
-    }
-  }, [itemType, deleteItem, addSuccessMessage, onRemoveItem, addErrorMessage])
+    },
+    [
+      itemType,
+      deleteItem,
+      addSuccessMessage,
+      onRemoveItem,
+      addErrorMessage
+    ]
+  )
 
-  function formatItemType () {
+  function formatItemType() {
     return formattedItemType(itemType, false, true)
   }
 
-  function headingTitle () {
+  function headingTitle() {
     const count = filteredItems().length
     const typeLabel = formatItemType()
 
@@ -164,7 +173,7 @@ export function DashboardItems<T extends DashboardItem> ({
     return `All ${typeLabel} (${totalCount})`
   }
 
-  function filterTypes () {
+  function filterTypes() {
     switch (itemType) {
       case 'links':
         return [...linkTypes]
@@ -181,10 +190,7 @@ export function DashboardItems<T extends DashboardItem> ({
 
   return (
     <div>
-      <FiltersWrapper
-        itemType={itemType}
-        controlsId={tableId}
-      >
+      <FiltersWrapper itemType={itemType} controlsId={tableId}>
         <ExpandCollapseButton
           ariaControls={tableId}
           isExpanded={!!isExpanded}
@@ -219,13 +225,8 @@ export function DashboardItems<T extends DashboardItem> ({
         />
       </FiltersWrapper>
 
-      <div
-        className={itemsStyles['items-section']}
-        id={tableId}
-      >
-        <section
-          aria-labelledby={headingId}
-        >
+      <div className={itemsStyles['items-section']} id={tableId}>
+        <section aria-labelledby={headingId}>
           <header className={itemsStyles['items-section-header']}>
             <h2 id={headingId}>{headingTitle()}</h2>
           </header>
@@ -250,9 +251,7 @@ export function DashboardItems<T extends DashboardItem> ({
                 aria-hidden='true'
                 ref={loadMoreRef}
               />
-              {isLoading && (
-                <Loading />
-              )}
+              {isLoading && <Loading />}
             </>
           )}
         </section>
@@ -261,7 +260,7 @@ export function DashboardItems<T extends DashboardItem> ({
   )
 }
 
-function DashboardListItem<T extends DashboardItem> ({
+function DashboardListItem<T extends DashboardItem>({
   itemType,
   item,
   isExpanded,
@@ -274,17 +273,20 @@ function DashboardListItem<T extends DashboardItem> ({
 }) {
   const usedOn = usedOnPages(item)
 
-  function titleWithCount () {
+  function titleWithCount() {
     const count = usedOn.length > 0 ? ` (${usedOn.length})` : ''
     return title() + count
   }
 
-  function title () {
+  function title() {
     switch (itemType) {
       case 'embedCodes': {
         const castItem = item as EmbedCode
         let formattedPrefix = capitalizeFirstLetter(castItem.host)
-        if (castItem.type === 'video' && castItem.host === 'youtube') {
+        if (
+          castItem.type === 'video' &&
+          castItem.host === 'youtube'
+        ) {
           formattedPrefix = 'YouTube'
         }
         return `${formattedPrefix}: ${castItem.title}` || 'Untitled'
@@ -295,8 +297,11 @@ function DashboardListItem<T extends DashboardItem> ({
       }
       case 'images': {
         const imageItem = item as Image
-        const fileName = imageItem.url ? decodeURIComponent(imageItem.url).split('/').pop() : 'Untitled'
-        const imageTitle = imageItem.title || imageItem.caption || 'Untitled image'
+        const fileName = imageItem.url
+          ? decodeURIComponent(imageItem.url).split('/').pop()
+          : 'Untitled'
+        const imageTitle =
+          imageItem.title || imageItem.caption || 'Untitled image'
         return `${imageTitle}${fileName ? `: ${fileName}` : ''}`
       }
       case 'venues': {
@@ -310,10 +315,7 @@ function DashboardListItem<T extends DashboardItem> ({
   }
 
   return (
-    <li
-      key={item.id}
-      className={styles['dashboard-list-item']}
-    >
+    <li key={item.id} className={styles['dashboard-list-item']}>
       <AccordionDropdown
         badges={itemBadges(item)}
         isExpanded={isExpanded}
@@ -347,23 +349,21 @@ function DashboardListItem<T extends DashboardItem> ({
         <div>
           <h3>Visible on:</h3>
           <ul>
-            {usedOn.length > 0
-              ? (
-                  usedOn.map((page) => (
-                    <li key={page}>
-                      <NextLink
-                        href={page}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                      >
-                        {page}
-                      </NextLink>
-                    </li>
-                  ))
-                )
-              : (
-                <li>No pages yet.</li>
-                )}
+            {usedOn.length > 0 ? (
+              usedOn.map((page) => (
+                <li key={page}>
+                  <NextLink
+                    href={page}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  >
+                    {page}
+                  </NextLink>
+                </li>
+              ))
+            ) : (
+              <li>No pages yet.</li>
+            )}
           </ul>
         </div>
       </AccordionDropdown>
@@ -371,7 +371,7 @@ function DashboardListItem<T extends DashboardItem> ({
   )
 }
 
-export function ItemDisplay ({
+export function ItemDisplay({
   item,
   itemType
 }: {
@@ -382,14 +382,10 @@ export function ItemDisplay ({
     case 'embedCodes':
       return <EmbedCodeItem embedCode={item as EmbedCode} />
     case 'images':
-      return (
-        <ImageFigure image={item as Image} />
-      )
+      return <ImageFigure image={item as Image} />
     case 'links':
       if ((item as Link).quotation || (item as Link).attribution) {
-        return (
-          <LinkItem link={item as Link} />
-        )
+        return <LinkItem link={item as Link} />
       }
       break
     case 'venues':

@@ -3,40 +3,39 @@
 import { revalidatePath } from 'next/cache'
 
 import { sql } from '@/lib/db'
-import {
-  deleteFromS3,
-  uploadFile
-} from '@/lib/images/s3'
+import { deleteFromS3, uploadFile } from '@/lib/images/s3'
 import {
   createImageSchema,
   editImageSchema,
   imageSchema
 } from '@/lib/images/schemas'
-import type {
-  CreateImage,
-  Image
-} from '@/lib/images/types'
+import type { CreateImage, Image } from '@/lib/images/types'
 import type { FormResponse } from '@/lib/types'
 import { formatDbResponseForClient } from '@/lib/util'
 
 const s3Prefix = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/images/`
 
-function makeS3SafeKey (filename: string) {
-  return encodeURIComponent(filename)
-    // S3 allows slashes for "folders", so restore them if needed
-    .replace(/%2F/g, '/')
+function makeS3SafeKey(filename: string) {
+  return (
+    encodeURIComponent(filename)
+      // S3 allows slashes for "folders", so restore them if needed
+      .replace(/%2F/g, '/')
+  )
 }
 
-export async function checkIfImageExists (filename: string, id?: string): Promise<Image | false> {
+export async function checkIfImageExists(
+  filename: string,
+  id?: string
+): Promise<Image | false> {
   try {
     const formattedFilename = s3Prefix + makeS3SafeKey(filename)
-    const rows = await sql<Image[]>`
+    const rows = await sql`
       SELECT * FROM images WHERE url = ${formattedFilename}
     `
     const existingImage = rows[0]
 
-    if (existingImage && existingImage.id !== id) {
-      return existingImage
+    if (existingImage && (existingImage as Image).id !== id) {
+      return existingImage as Image
     } else {
       return false
     }
@@ -45,15 +44,18 @@ export async function checkIfImageExists (filename: string, id?: string): Promis
   }
 }
 
-export async function editImage (formData: FormData): Promise<FormResponse<Image>> {
+export async function editImage(
+  formData: FormData
+): Promise<FormResponse<Image>> {
   let validatedImage
   const clientFile = formData.get('file') as File | undefined
-  const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)
+  const data: Record<FormData['entries']['name'], unknown> =
+    Object.fromEntries(formData)
 
   if (clientFile?.name && clientFile.size > 0) {
     try {
       const uploadedUrl = await uploadFile(clientFile)
-      if ((data.url as string || '').length > 0) {
+      if (((data.url as string) || '').length > 0) {
         await deleteFromS3(data.url as string)
       }
       data.url = uploadedUrl
@@ -103,15 +105,19 @@ export async function editImage (formData: FormData): Promise<FormResponse<Image
       }
     } catch (err) {
       const errMsg = 'Failed to edit image'
-      const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+      const message =
+        err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
       return {
-        ok: false, message
+        ok: false,
+        message
       }
     }
   }
 }
 
-export async function deleteImage (image: Image): Promise<FormResponse<Image>> {
+export async function deleteImage(
+  image: Image
+): Promise<FormResponse<Image>> {
   const errMsg = 'Failed to delete image'
 
   try {
@@ -131,7 +137,8 @@ export async function deleteImage (image: Image): Promise<FormResponse<Image>> {
     revalidatePath('/dashboard/images')
     return { ok: true }
   } catch (err) {
-    const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+    const message =
+      err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
     return {
       ok: false,
       message
@@ -139,17 +146,11 @@ export async function deleteImage (image: Image): Promise<FormResponse<Image>> {
   }
 }
 
-async function createImage (image: CreateImage) {
+async function createImage(image: CreateImage) {
   try {
-    const {
-      aspect,
-      caption,
-      isHiddenOnAboutPage,
-      isPress,
-      title,
-      url
-    } = image
-    return await sql<Image[]>`
+    const { aspect, caption, isHiddenOnAboutPage, isPress, title, url } =
+      image
+    return await sql`
       INSERT INTO images (
         aspect,
         created_at,
@@ -168,26 +169,22 @@ async function createImage (image: CreateImage) {
         ${url}
       )
       RETURNING *
-    `.then(rows => formatDbResponseForClient(rows[0], imageSchema))
+    `.then((rows) => formatDbResponseForClient(rows[0], imageSchema))
   } catch (err) {
-    throw new Error(err instanceof Error ? err.message : 'Failed to create image.')
+    throw new Error(
+      err instanceof Error ? err.message : 'Failed to create image.'
+    )
   }
 }
 
-async function updateImage (image: CreateImage | Image) {
+async function updateImage(image: CreateImage | Image) {
   try {
     if (!(image as Image).id) {
       return await createImage(image)
     } else {
-      const {
-        aspect,
-        caption,
-        isHiddenOnAboutPage,
-        isPress,
-        title,
-        url
-      } = image
-      return await sql<Image[]>`
+      const { aspect, caption, isHiddenOnAboutPage, isPress, title, url } =
+        image
+      return await sql`
         UPDATE images
         SET (
           aspect,
@@ -209,9 +206,11 @@ async function updateImage (image: CreateImage | Image) {
         )
         WHERE id = ${(image as Image).id}
         RETURNING *
-      `.then(rows => formatDbResponseForClient(rows[0], imageSchema))
+      `.then((rows) => formatDbResponseForClient(rows[0], imageSchema))
     }
   } catch (err) {
-    throw new Error(err instanceof Error ? err.message : 'Failed to update image.')
+    throw new Error(
+      err instanceof Error ? err.message : 'Failed to update image.'
+    )
   }
 }

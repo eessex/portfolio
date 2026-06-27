@@ -8,15 +8,15 @@ import {
   editLinkSchema,
   linkSchema
 } from '@/lib/links/schemas'
-import type {
-  CreateLink,
-  Link
-} from '@/lib/links/types'
+import type { CreateLink, Link } from '@/lib/links/types'
 import type { FormResponse } from '@/lib/types'
 import { formatDbResponseForClient } from '@/lib/util'
 
-export async function editLink (formData: FormData): Promise<FormResponse<Link>> {
-  const data: Record<FormData['entries']['name'], unknown> = Object.fromEntries(formData)
+export async function editLink(
+  formData: FormData
+): Promise<FormResponse<Link>> {
+  const data: Record<FormData['entries']['name'], unknown> =
+    Object.fromEntries(formData)
   Object.entries(data).forEach(([n, v]) => {
     if (n.includes('Date')) {
       data[n] = v || undefined
@@ -44,7 +44,8 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
     }
   } catch (err) {
     const errMsg = 'Failed to edit link'
-    const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+    const message =
+      err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
     return {
       ok: false,
       message
@@ -52,7 +53,7 @@ export async function editLink (formData: FormData): Promise<FormResponse<Link>>
   }
 }
 
-export async function deleteLink (link: Link): Promise<FormResponse<Link>> {
+export async function deleteLink(link: Link): Promise<FormResponse<Link>> {
   try {
     await sql`
       DELETE FROM links
@@ -63,7 +64,8 @@ export async function deleteLink (link: Link): Promise<FormResponse<Link>> {
     return { ok: true }
   } catch (err) {
     const errMsg = 'Failed to delete link'
-    const message = err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
+    const message =
+      err instanceof Error ? `${errMsg}: ${err.message}` : `${errMsg}.`
     return {
       ok: false,
       message
@@ -71,7 +73,7 @@ export async function deleteLink (link: Link): Promise<FormResponse<Link>> {
   }
 }
 
-async function createLink (link: CreateLink) {
+async function createLink(link: CreateLink) {
   try {
     const {
       attribution,
@@ -83,7 +85,7 @@ async function createLink (link: CreateLink) {
       url
     } = formatLink(link)
 
-    return await sql<Link[]>`
+    return await sql`
         INSERT INTO links (
           attribution,
           created_at,
@@ -104,14 +106,16 @@ async function createLink (link: CreateLink) {
           ${url}
         )
         RETURNING *
-      `.then(rows => formatDbResponseForClient(rows[0], linkSchema))
+      `.then((rows) => formatDbResponseForClient(rows[0], linkSchema))
   } catch (err) {
     console.error('Error creating link:', err)
-    throw new Error(err instanceof Error ? err.message : 'Failed to create link.')
+    throw new Error(
+      err instanceof Error ? err.message : 'Failed to create link.'
+    )
   }
 }
 
-async function updateLink (link: CreateLink | Link) {
+async function updateLink(link: CreateLink | Link) {
   try {
     if (!(link as Link).id) {
       return await createLink(link)
@@ -125,7 +129,7 @@ async function updateLink (link: CreateLink | Link) {
         title,
         url
       } = formatLink(link)
-      return await sql<Link[]>`
+      return await sql`
         UPDATE links
         SET (
           attribution,
@@ -148,14 +152,16 @@ async function updateLink (link: CreateLink | Link) {
         )
         WHERE id = ${(link as Link).id}
         RETURNING *
-      `.then(rows => formatDbResponseForClient(rows[0], linkSchema))
+      `.then((rows) => formatDbResponseForClient(rows[0], linkSchema))
     }
   } catch (err) {
-    throw new Error(err instanceof Error ? err.message : 'Failed to update link.')
+    throw new Error(
+      err instanceof Error ? err.message : 'Failed to update link.'
+    )
   }
 }
 
-function formatLink (link: CreateLink | Link) {
+function formatLink(link: CreateLink | Link) {
   const data = { ...link }
   if (data.type !== 'press') {
     delete data.attribution

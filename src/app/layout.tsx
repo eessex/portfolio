@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
     ? [
         {
           url: siteSettings?.coverImage.url,
-          width: 1200 * siteSettings?.coverImage.aspect,
+          width: Math.round(1200 * siteSettings?.coverImage.aspect),
           height: 1200,
           alt:
             siteSettings?.coverImage.alt ||

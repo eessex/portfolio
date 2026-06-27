@@ -175,7 +175,7 @@ export async function generateItemMetadata(
     {
       url: coverImage.url,
       width: 1200,
-      height: 1200 * coverImage.aspect,
+      height: Math.round(1200 * coverImage.aspect),
       alt: coverImage.alt || coverImage.caption || ''
     }
   ]

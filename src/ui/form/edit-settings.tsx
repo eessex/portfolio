@@ -78,7 +78,7 @@ export function EditSettings({
                 settings?.coverImage?.alt ||
                 undefined
               }
-              width={500 * settings?.coverImage?.aspect}
+              width={Math.round(500 * settings?.coverImage?.aspect)}
               height={500}
             />
             <button

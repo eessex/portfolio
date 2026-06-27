@@ -76,7 +76,7 @@ export function ItemsTableRow({
             alt={coverImage.alt || coverImage.caption || ''}
             title={coverImage.caption || coverImage.alt || undefined}
             width={imageWidth}
-            height={imageWidth / coverImage.aspect}
+            height={Math.round(imageWidth / coverImage.aspect)}
             loading={(index || 0) > 12 ? 'lazy' : undefined}
             priority={isPriorityImage}
             fetchPriority={isPriorityImage ? 'high' : 'auto'}

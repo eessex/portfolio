@@ -37,8 +37,9 @@ export default async function Home() {
                 siteSettings.coverImage.alt ||
                 undefined
               }
-              width={800 * siteSettings.coverImage.aspect}
+              width={Math.round(800 * siteSettings.coverImage.aspect)}
               height={800}
+              sizes="(max-width: 768px) 100vw, 800px"
               priority
             />
           </figure>

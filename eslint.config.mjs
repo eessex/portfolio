@@ -1,82 +1,44 @@
-import { FlatCompat } from '@eslint/eslintrc'
-import react from 'eslint-plugin-react'
+import next from 'eslint-config-next'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
-import neostandard from 'neostandard'
-import { dirname } from 'path'
-import { fileURLToPath } from 'url'
+import tseslint from 'typescript-eslint'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
-const compat = new FlatCompat({ baseDirectory: __dirname })
-
-const eslintConfig = [{
-  ignores: [
-    'node_modules/**',
-    '.next/**',
-    'out/**',
-    'build/**',
-    'next-env.d.ts'
-  ]
-},
-...compat.extends('next/core-web-vitals', 'next/typescript'),
-...neostandard({ ts: true }), {
-  plugins: {
-    'simple-import-sort': simpleImportSort,
-    react
+const eslintConfig = [
+  {
+    ignores: ['**/node_modules/**', '.next/**', 'out/**', 'build/**']
   },
-  rules: {
-    'comma-dangle': ['error', 'never'],
-    '@typescript-eslint/no-unused-vars': [
-      'error',
-      {
-        args: 'all',
-        argsIgnorePattern: '^_',
-        caughtErrors: 'all',
-        caughtErrorsIgnorePattern: '^_',
-        destructuredArrayIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-        ignoreRestSiblings: true
-      }
-    ],
-    '@typescript-eslint/consistent-type-imports': [
-      'error',
-      {
-        prefer: 'type-imports',
-        fixStyle: 'separate-type-imports'
-      }
-    ],
-    'simple-import-sort/imports': 'error',
-    'simple-import-sort/exports': 'error',
-    'react/jsx-max-props-per-line': ['error', { maximum: 1 }],
-    '@stylistic/member-delimiter-style': [
-      'error',
-      {
-        multiline: {
-          delimiter: 'none',
-          requireLast: true
-        },
-        singleline: {
-          delimiter: 'comma',
-          requireLast: false
+
+  ...next,
+  ...tseslint.configs.recommended,
+
+  {
+    plugins: {
+      'simple-import-sort': simpleImportSort
+    },
+
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          args: 'all',
+          argsIgnorePattern: '^_',
+          caughtErrors: 'all',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true
         }
-      }
-    ],
-    'object-curly-newline': ['error', {
-      ObjectPattern: {
-        multiline: true, minProperties: 2
-      },
-      ObjectExpression: {
-        multiline: true, minProperties: 2
-      },
-      ImportDeclaration: {
-        multiline: true, minProperties: 2
-      },
-      ExportDeclaration: {
-        multiline: true, minProperties: 2
-      }
-    }]
+      ],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          prefer: 'type-imports',
+          fixStyle: 'separate-type-imports'
+        }
+      ],
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error'
+    }
   }
-}]
+]
 
 export default eslintConfig

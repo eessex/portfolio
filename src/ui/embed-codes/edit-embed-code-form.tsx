@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import type { z } from 'zod'
 
 import {
@@ -26,7 +26,17 @@ export const EditEmbedCode = ({
   errors
 }: EmbedCodeProps) => {
   const [embedCodeIframe, setEmbedCodeIframe] =
-    useState<Partial<EmbedCode> | null>(embedCode ?? null)
+    useState<Partial<EmbedCode> | null>(() => {
+      if (!embedCode?.iframe) {
+        return embedCode ?? null
+      }
+
+      try {
+        return extractIframeParams({ iframe: embedCode.iframe }, true)
+      } catch {
+        return null
+      }
+    })
   const [iframeInputValue, setIframeInputValue] = useState(
     embedCode?.iframe || ''
   )
@@ -58,10 +68,6 @@ export const EditEmbedCode = ({
     },
     [addErrorMessage]
   )
-
-  useEffect(() => {
-    changeIframeValue(embedCode?.iframe || '')
-  }, [changeIframeValue, embedCode?.iframe])
 
   function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'v' && event.ctrlKey) {

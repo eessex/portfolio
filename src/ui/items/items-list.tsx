@@ -29,29 +29,27 @@ export function ItemsList({
 
   if (items.length === 0) return null
 
-  function List() {
-    return (
-      <ul
-        className={clsx(
-          styles['items-grid'],
-          isFeatured && styles['items-grid-featured'],
-          className
-        )}
-      >
-        {items.map((item, index) => (
-          <li key={item.id}>
-            <ItemGridItem
-              item={item}
-              index={index}
-              isCategoryVisible={isCategoryVisible}
-              isFeatured={isFeatured}
-              isTextOnly={isTextOnly}
-            />
-          </li>
-        ))}
-      </ul>
-    )
-  }
+  const list = (
+    <ul
+      className={clsx(
+        styles['items-grid'],
+        isFeatured && styles['items-grid-featured'],
+        className
+      )}
+    >
+      {items.map((item, index) => (
+        <li key={item.id}>
+          <ItemGridItem
+            item={item}
+            index={index}
+            isCategoryVisible={isCategoryVisible}
+            isFeatured={isFeatured}
+            isTextOnly={isTextOnly}
+          />
+        </li>
+      ))}
+    </ul>
+  )
 
   if (title) {
     return (
@@ -62,11 +60,11 @@ export function ItemsList({
         <header className={styles['items-section-header']}>
           <h2 id={headingId}>{title}</h2>
         </header>
-        <List />
+        {list}
       </section>
     )
   } else {
-    return <List />
+    return list
   }
 }
 

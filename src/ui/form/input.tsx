@@ -88,14 +88,16 @@ export function Input<T extends InputElement = HTMLInputElement>({
       .filter(Boolean)
       .join(' ') || undefined
 
-  const props = {
+  const inputClassName = clsx(
+    className,
+    styles.input,
+    isDirty && 'dirty',
+    errors?.length && 'error'
+  )
+
+  const elementProps = {
     ...attributes,
-    className: clsx(
-      className,
-      styles.input,
-      isDirty && 'dirty',
-      errors?.length && 'error'
-    ),
+    className: inputClassName,
     defaultValue,
     onBeforeInput,
     onBlur,
@@ -113,7 +115,7 @@ export function Input<T extends InputElement = HTMLInputElement>({
       ?.type ?? 'text'
 
   return (
-    <div className={props.className} hidden={isHidden}>
+    <div className={className} hidden={isHidden}>
       {!isHidden && (
         <>
           <label
@@ -129,13 +131,13 @@ export function Input<T extends InputElement = HTMLInputElement>({
       )}
       {as === 'textarea' ? (
         <textarea
-          {...(props as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
+          {...(elementProps as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
           id={id}
           aria-describedby={describedby}
         />
       ) : (
         <input
-          {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
+          {...(elementProps as React.InputHTMLAttributes<HTMLInputElement>)}
           id={id}
           aria-describedby={describedby}
           type={inputType}

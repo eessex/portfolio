@@ -97,7 +97,9 @@ export function useResultsList<
     return Object.values(res).flat()
   }
 
-  const extractStrings = useCallback((value: unknown): string[] => {
+  const extractStrings = useCallback(function extractStringsInner(
+    value: unknown
+  ): string[] {
     if (!value) return []
 
     if (typeof value === 'string') {
@@ -105,11 +107,11 @@ export function useResultsList<
     }
 
     if (Array.isArray(value)) {
-      return value.flatMap(extractStrings)
+      return value.flatMap(extractStringsInner)
     }
 
     if (typeof value === 'object') {
-      return Object.values(value).flatMap(extractStrings)
+      return Object.values(value).flatMap(extractStringsInner)
     }
 
     return []

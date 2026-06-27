@@ -3,7 +3,13 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline'
 import { clsx } from 'clsx'
-import { useEffect, useId, useRef, useState } from 'react'
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore
+} from 'react'
 
 import { useDevice } from '@/lib/device-context'
 import type { EmbeddedItemType, PagePathType } from '@/lib/types'
@@ -21,11 +27,11 @@ export function FiltersWrapper({
   children
 }: FiltersWrapperProps) {
   const { isSmBreakpoint } = useDevice()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
 
   if (!mounted) return null
 

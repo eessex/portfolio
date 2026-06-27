@@ -80,6 +80,7 @@ export function EditSettings({
               }
               width={Math.round(500 * settings?.coverImage?.aspect)}
               height={500}
+              sizes='(max-width: 768px) 100vw, 680px'
             />
             <button
               type='button'

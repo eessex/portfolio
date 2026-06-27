@@ -62,8 +62,8 @@ export function ItemCard({
             height={Math.round(imageSize / item.coverImage.aspect)}
             sizes={
               isFeatured
-                ? "(max-width: 768px) 100vw, 680px"
-                : "(max-width: 768px) 50vw, 350px"
+                ? '(max-width: 768px) 100vw, 680px'
+                : '(max-width: 768px) 50vw, 350px'
             }
             loading={(index || 0) > 4 ? 'lazy' : undefined}
             priority={isPriorityImage}

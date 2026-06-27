@@ -1,7 +1,6 @@
 'use server'
 
-import { sql } from '@vercel/postgres'
-
+import { sql } from '@/lib/db'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -10,14 +9,11 @@ import {
   type ResponseWithCursor
 } from '@/lib/util'
 import { dashboardVenueSchema } from '@/lib/venues/schemas'
-import type {
-  CreateVenue,
-  DashboardVenue
-} from '@/lib/venues/types'
+import type { CreateVenue, DashboardVenue } from '@/lib/venues/types'
 
-export async function fetchVenueById (id: string) {
+export async function fetchVenueById(id: string) {
   try {
-    const { rows } = await sql<DashboardVenue>`
+    const data = await sql`
       SELECT
         venues.*,
         ARRAY(
@@ -28,10 +24,10 @@ export async function fetchVenueById (id: string) {
       WHERE venues.id = ${id}
       LIMIT 1
     `
-    if (rows.length === 0) {
+    if (data.length === 0) {
       return null
     } else {
-      return formatDbResponseForClient(rows[0], dashboardVenueSchema)
+      return formatDbResponseForClient(data[0], dashboardVenueSchema)
     }
   } catch (error) {
     console.error('Database Error:', error)
@@ -42,7 +38,7 @@ export async function fetchVenueById (id: string) {
 /**
  * dashboard: fetch all the venues
  */
-export async function fetchVenues (cursor?: string, query?: string) {
+export async function fetchVenues(cursor?: string, query?: string) {
   const totalCount = await getTotalCount(query)
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
 
@@ -51,7 +47,7 @@ export async function fetchVenues (cursor?: string, query?: string) {
   const cursorId = decodedCursor?.id ?? null
 
   try {
-    const data = await sql<DashboardVenue>`
+    const data = await sql`
       SELECT
         venues.*,
         ARRAY(
@@ -95,9 +91,9 @@ export async function fetchVenues (cursor?: string, query?: string) {
   }
 }
 
-export async function fetchSimilarVenue (venue: CreateVenue) {
+export async function fetchSimilarVenue(venue: CreateVenue) {
   try {
-    const { rows } = await sql<DashboardVenue>`
+    const data = await sql`
       SELECT
         venues.*,
         ARRAY(
@@ -116,11 +112,11 @@ export async function fetchSimilarVenue (venue: CreateVenue) {
       )
       LIMIT 1
     `
-    if (rows.length === 0) {
+    if (data.length === 0) {
       return null
     } else {
       return {
-        res: formatDbResponseForClient(rows[0], dashboardVenueSchema),
+        res: formatDbResponseForClient(data[0], dashboardVenueSchema),
         fieldName: 'similar' as keyof CreateVenue
       }
     }
@@ -130,10 +126,10 @@ export async function fetchSimilarVenue (venue: CreateVenue) {
   }
 }
 
-async function getTotalCount (query?: string) {
+async function getTotalCount(query?: string) {
   try {
     const like = query ? `%${query}%` : null
-    const result = await sql<{ count: number }>`
+    const result = await sql`
       SELECT COUNT(*)::int AS count
       FROM venues
       WHERE (
@@ -145,7 +141,7 @@ async function getTotalCount (query?: string) {
         OR venues.country ILIKE ${like}
       )
     `
-    return result.rows[0].count ?? 0
+    return result[0]?.count ?? 0
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch venue count.')

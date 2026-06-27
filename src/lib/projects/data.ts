@@ -1,5 +1,4 @@
-import { sql } from '@vercel/postgres'
-
+import { sql } from '@/lib/db'
 import { projectClientSchema } from '@/lib/projects/schemas'
 import type {
   FetchProjectsResult,
@@ -14,10 +13,14 @@ import {
   formatResponseWithCursor
 } from '@/lib/util'
 
-const path: typeof pagePathTypes[number] = 'projects'
+const path: (typeof pagePathTypes)[number] = 'projects'
 const projectPathType = 'project'
 
-export async function fetchProjects (isAuthed: boolean = false, cursor?: string, query?: string) {
+export async function fetchProjects(
+  isAuthed: boolean = false,
+  cursor?: string,
+  query?: string
+) {
   const totalCount = await getTotalCount(isAuthed, query)
   const decodedCursor = cursor ? decodeCursor(cursor) : null
   const cursorHasEndDate = decodedCursor?.hasEndDate ?? null
@@ -26,7 +29,7 @@ export async function fetchProjects (isAuthed: boolean = false, cursor?: string,
   const like = query ? `%${query}%` : null
 
   try {
-    const data = await sql<ProjectClient>`
+    const data = await sql`
       SELECT
         p.*,
         ${path} AS path,
@@ -59,8 +62,15 @@ export async function fetchProjects (isAuthed: boolean = false, cursor?: string,
         p.id ASC
       LIMIT ${DEFAULT_PAGE_SIZE}
     ;`
-    const formatted = formatResponseWithCursor(data, 'id', projectClientSchema)
-    const res: PageItemResponseWithCursor<ProjectClient, FetchProjectsResult> = {
+    const formatted = formatResponseWithCursor(
+      data,
+      'id',
+      projectClientSchema
+    )
+    const res: PageItemResponseWithCursor<
+      ProjectClient,
+      FetchProjectsResult
+    > = {
       res: { allProjects: formatted.res },
       nextCursor: formatted.nextCursor,
       totalCount
@@ -72,9 +82,12 @@ export async function fetchProjects (isAuthed: boolean = false, cursor?: string,
   }
 }
 
-export async function fetchProjectBySlug (slug: string, isAuthed: boolean = false): Promise<ProjectClient | undefined> {
+export async function fetchProjectBySlug(
+  slug: string,
+  isAuthed: boolean = false
+): Promise<ProjectClient | undefined> {
   try {
-    const data = await sql<ProjectClient>`
+    const data = await sql`
       SELECT
         p.*,
         (
@@ -109,13 +122,16 @@ export async function fetchProjectBySlug (slug: string, isAuthed: boolean = fals
         AND (${isAuthed} OR p.is_published = true)
       LIMIT 1
     ;`
-    if (data.rows.length === 0) {
+    if (data.length === 0) {
       return undefined
     }
-    const project = formatDbResponseForClient({
-      ...data.rows[0],
-      path
-    }, projectClientSchema)
+    const project = formatDbResponseForClient(
+      {
+        ...data[0],
+        path
+      },
+      projectClientSchema
+    )
     return project
   } catch (error) {
     console.error('Database Error:', error)
@@ -123,10 +139,10 @@ export async function fetchProjectBySlug (slug: string, isAuthed: boolean = fals
   }
 }
 
-async function getTotalCount (isAuthed: boolean = false, query?: string) {
+async function getTotalCount(isAuthed: boolean = false, query?: string) {
   try {
     const like = query ? `%${query}%` : null
-    const data = await sql<{ count: number }>`
+    const data = await sql`
       SELECT COUNT(*)::int AS count
       FROM projects AS p
       WHERE (${isAuthed} OR p.is_published = true)
@@ -136,7 +152,7 @@ async function getTotalCount (isAuthed: boolean = false, query?: string) {
         OR p.description ILIKE ${like}
       );
     `
-    return data.rows[0]?.count ?? 0
+    return data[0]?.count ?? 0
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch project count.')

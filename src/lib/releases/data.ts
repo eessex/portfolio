@@ -1,14 +1,10 @@
-import { sql } from '@vercel/postgres'
-
+import { sql } from '@/lib/db'
 import { releaseClientSchema } from '@/lib/releases/schemas'
 import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import type {
-  PageItemResponseWithCursor,
-  PagePathType
-} from '@/lib/types'
+import type { PageItemResponseWithCursor, PagePathType } from '@/lib/types'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -18,9 +14,12 @@ import {
 
 const path: PagePathType = 'releases'
 
-export async function fetchReleaseBySlug (slug: string, isAuthed: boolean = false) {
+export async function fetchReleaseBySlug(
+  slug: string,
+  isAuthed: boolean = false
+) {
   try {
-    const data = await sql<ReleaseClient>`
+    const data = await sql`
       SELECT
         r.*,
         (
@@ -65,35 +64,36 @@ export async function fetchReleaseBySlug (slug: string, isAuthed: boolean = fals
       WHERE (${isAuthed} OR r.is_published = true)
        AND r.slug = ${slug}
     `
-    if (data.rowCount === 0) {
+    if (data.length === 0) {
       return
     }
-    return formatDbResponseForClient({
-      ...data.rows[0],
-      path
-    }, releaseClientSchema)
+    return formatDbResponseForClient(
+      {
+        ...data[0],
+        path
+      },
+      releaseClientSchema
+    )
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error(`Failed to fetch release ${slug}.`)
   }
 }
 
-export async function fetchReleases (
+export async function fetchReleases(
   isAuthed: boolean = false,
   projectSlug?: string,
   cursor?: string,
   query?: string
 ) {
   const totalCount = await getTotalCount(isAuthed, projectSlug, query)
-  const decodedCursor = cursor
-    ? decodeCursor(cursor)
-    : null
+  const decodedCursor = cursor ? decodeCursor(cursor) : null
   const cursorReleaseDate = decodedCursor?.releaseDate ?? null
   const cursorId = decodedCursor?.id ?? null
   const like = query ? `%${query}%` : null
 
   try {
-    const data = await sql<ReleaseClient>`
+    const data = await sql`
       SELECT
         r.*,
         ${path} AS path,
@@ -128,8 +128,15 @@ export async function fetchReleases (
       ORDER BY r.release_date DESC, r.id ASC
       LIMIT ${DEFAULT_PAGE_SIZE};
     `
-    const formatted = formatResponseWithCursor(data, 'id', releaseClientSchema)
-    const res: PageItemResponseWithCursor<ReleaseClient, FetchReleasesResult> = {
+    const formatted = formatResponseWithCursor(
+      data,
+      'id',
+      releaseClientSchema
+    )
+    const res: PageItemResponseWithCursor<
+      ReleaseClient,
+      FetchReleasesResult
+    > = {
       res: sortReleasesByCategory(formatted.res, !!projectSlug),
       nextCursor: formatted.nextCursor,
       totalCount
@@ -142,7 +149,10 @@ export async function fetchReleases (
   }
 }
 
-const sortReleasesByCategory = (releases: ReleaseClient[], isProject: boolean) => {
+const sortReleasesByCategory = (
+  releases: ReleaseClient[],
+  isProject: boolean
+) => {
   const result: FetchReleasesResult = {
     albums: [],
     soundtracks: [],
@@ -154,7 +164,7 @@ const sortReleasesByCategory = (releases: ReleaseClient[], isProject: boolean) =
     releases: [] // For project pages, pages where there's only a couple releases
   }
 
-  const hasMultipleTypes = new Set(releases.map(r => r.type)).size > 1
+  const hasMultipleTypes = new Set(releases.map((r) => r.type)).size > 1
 
   if (isProject && !hasMultipleTypes) {
     result.releases = [...releases]
@@ -190,10 +200,14 @@ const sortReleasesByCategory = (releases: ReleaseClient[], isProject: boolean) =
   return result
 }
 
-async function getTotalCount (isAuthed: boolean, projectSlug?: string, query?: string) {
+async function getTotalCount(
+  isAuthed: boolean,
+  projectSlug?: string,
+  query?: string
+) {
   try {
     const like = query ? `%${query}%` : null
-    const data = await sql<{ count: number }>`
+    const data = await sql`
       SELECT COUNT(*)::int AS count
       FROM releases AS r
       LEFT JOIN projects p ON r.project_id = p.id
@@ -206,7 +220,7 @@ async function getTotalCount (isAuthed: boolean, projectSlug?: string, query?: s
           OR r.description ILIKE ${like}
       );
     `
-    return data.rows[0]?.count ?? 0
+    return data[0]?.count ?? 0
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch releases count.')

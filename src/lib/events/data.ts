@@ -1,14 +1,7 @@
-import { sql } from '@vercel/postgres'
-
+import { sql } from '@/lib/db'
 import { eventClientSchema } from '@/lib/events/schemas'
-import type {
-  EventClient,
-  FetchEventsResult
-} from '@/lib/events/types'
-import type {
-  PageItemResponseWithCursor,
-  PagePathType
-} from '@/lib/types'
+import type { EventClient, FetchEventsResult } from '@/lib/events/types'
+import type { PageItemResponseWithCursor, PagePathType } from '@/lib/types'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -19,7 +12,12 @@ import { isUpcomingDate } from '@/ui/util'
 
 const path: PagePathType = 'events'
 
-export async function fetchEvents (isAuthed: boolean = false, projectSlug?: string, cursor?: string, query?: string) {
+export async function fetchEvents(
+  isAuthed: boolean = false,
+  projectSlug?: string,
+  cursor?: string,
+  query?: string
+) {
   const totalCount = await getTotalCount(isAuthed, projectSlug, query)
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
   const like = query ? `%${query}%` : null
@@ -27,7 +25,7 @@ export async function fetchEvents (isAuthed: boolean = false, projectSlug?: stri
   const cursorId = decodedCursor?.id ?? null
 
   try {
-    const data = await sql<EventClient>`
+    const data = await sql`
       SELECT
         e.*,
         ${path} AS path,
@@ -70,12 +68,17 @@ export async function fetchEvents (isAuthed: boolean = false, projectSlug?: stri
       ORDER BY e.start_time DESC, e.id ASC
       LIMIT ${DEFAULT_PAGE_SIZE};
     `
-    const formatted = formatResponseWithCursor(data, 'startTime', eventClientSchema)
-    const res: PageItemResponseWithCursor<EventClient, FetchEventsResult> = {
-      res: sortEventsByCategory(formatted.res),
-      nextCursor: formatted.nextCursor,
-      totalCount
-    }
+    const formatted = formatResponseWithCursor(
+      data,
+      'startTime',
+      eventClientSchema
+    )
+    const res: PageItemResponseWithCursor<EventClient, FetchEventsResult> =
+      {
+        res: sortEventsByCategory(formatted.res),
+        nextCursor: formatted.nextCursor,
+        totalCount
+      }
     return res
   } catch (error) {
     console.error('Database Error:', error)
@@ -83,9 +86,12 @@ export async function fetchEvents (isAuthed: boolean = false, projectSlug?: stri
   }
 }
 
-export async function fetchEventBySlug (slug: string, isAuthed: boolean = false) {
+export async function fetchEventBySlug(
+  slug: string,
+  isAuthed: boolean = false
+) {
   try {
-    const data = await sql<EventClient>`
+    const data = await sql`
       SELECT
         e.*,
         (
@@ -131,27 +137,36 @@ export async function fetchEventBySlug (slug: string, isAuthed: boolean = false)
        AND e.slug = ${slug};
     `
 
-    if (!data.rows[0]) {
+    if (!data[0]) {
       return
     }
-    return formatDbResponseForClient({
-      ...data.rows[0],
-      path
-    }, eventClientSchema)
+    return formatDbResponseForClient(
+      {
+        ...data[0],
+        path
+      },
+      eventClientSchema
+    )
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error(`Failed to fetch event: ${slug}.`)
   }
 }
 
-function sortEventsByCategory (events: EventClient[]): FetchEventsResult {
-  const upcomingEvents = events.filter(event => isUpcomingDate(event.startTime))
+function sortEventsByCategory(events: EventClient[]): FetchEventsResult {
+  const upcomingEvents = events
+    .filter((event) => isUpcomingDate(event.startTime))
     .sort((a, b) => {
-      return new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+      return (
+        new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+      )
     })
-  const pastEvents = events.filter(event => !isUpcomingDate(event.startTime))
+  const pastEvents = events
+    .filter((event) => !isUpcomingDate(event.startTime))
     .sort((a, b) => {
-      return new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+      return (
+        new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+      )
     })
   return {
     upcomingEvents,
@@ -159,10 +174,14 @@ function sortEventsByCategory (events: EventClient[]): FetchEventsResult {
   }
 }
 
-async function getTotalCount (isAuthed: boolean = false, projectSlug?: string, query?: string) {
+async function getTotalCount(
+  isAuthed: boolean = false,
+  projectSlug?: string,
+  query?: string
+) {
   try {
     const like = query ? `%${query}%` : null
-    const data = await sql<{ count: number }>`
+    const data = await sql`
       SELECT COUNT(*)::int AS count
       FROM events AS e
       LEFT JOIN projects AS p ON e.project_id = p.id
@@ -180,7 +199,7 @@ async function getTotalCount (isAuthed: boolean = false, projectSlug?: string, q
         OR COALESCE(v.state, '') ILIKE ${like}
       );
     `
-    return data.rows[0]?.count ?? 0
+    return data[0]?.count ?? 0
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch event count.')

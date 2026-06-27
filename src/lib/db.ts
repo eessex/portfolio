@@ -1,6 +1,7 @@
-import postgres from 'postgres'
+import { neon } from '@neondatabase/serverless'
 
-export const sql = postgres(
-  process.env.POSTGRES_URL!,
-  { ssl: 'require' }
-)
+if (!process.env.DATABASE_URL) {
+  throw new Error('Missing DATABASE_URL')
+}
+
+export const sql = neon(process.env.DATABASE_URL)

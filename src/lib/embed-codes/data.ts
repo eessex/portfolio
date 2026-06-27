@@ -1,18 +1,13 @@
 'use server'
 
-import {
-  type QueryResultRow,
-  sql
-} from '@vercel/postgres'
-
+import { sql } from '@/lib/db'
 import {
   dashboardEmbedCodeSchema,
   embedCodeSchema
 } from '@/lib/embed-codes/schemas'
 import type {
   CreateEmbedCode,
-  DashboardEmbedCode,
-  EmbedCode
+  DashboardEmbedCode
 } from '@/lib/embed-codes/types'
 import {
   decodeCursor,
@@ -22,9 +17,9 @@ import {
   type ResponseWithCursor
 } from '@/lib/util'
 
-export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]) => {
+export const fetchEmbedCodesByIds = async (ids: string[]) => {
   try {
-    const { rows } = await sql<EmbedCode>`
+    const data = await sql`
       SELECT
         embed_codes.*,
         ARRAY(
@@ -42,16 +37,18 @@ export const fetchEmbedCodesByIds = async (ids: QueryResultRow[string]) => {
       FROM embed_codes
       WHERE id = ANY(${ids})
     `
-    return rows.map(row => formatDbResponseForClient(row, embedCodeSchema))
+    return data.map((row) =>
+      formatDbResponseForClient(row, embedCodeSchema)
+    )
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch embed codes.')
   }
 }
 
-export async function fetchEmbedCodeByIframe (iframe: string) {
+export async function fetchEmbedCodeByIframe(iframe: string) {
   try {
-    const { rows } = await sql<EmbedCode>`
+    const data = await sql`
       SELECT
         embed_codes.*,
         ARRAY(
@@ -70,11 +67,11 @@ export async function fetchEmbedCodeByIframe (iframe: string) {
       WHERE iframe = ${iframe}
       LIMIT 1
     `
-    if (rows.length === 0) {
+    if (data.length === 0) {
       return null
     } else {
       return {
-        res: formatDbResponseForClient(rows[0], embedCodeSchema),
+        res: formatDbResponseForClient(data[0], embedCodeSchema),
         fieldName: 'iframe' as keyof CreateEmbedCode
       }
     }
@@ -87,7 +84,7 @@ export async function fetchEmbedCodeByIframe (iframe: string) {
 /**
  * dashboard: fetch all the embed codes
  */
-export async function fetchEmbedCodes (cursor?: string, query?: string) {
+export async function fetchEmbedCodes(cursor?: string, query?: string) {
   const totalCount = await getTotalCount(query)
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
 
@@ -96,7 +93,7 @@ export async function fetchEmbedCodes (cursor?: string, query?: string) {
   const cursorId = decodedCursor?.id ?? null
 
   try {
-    const data = await sql<DashboardEmbedCode>`
+    const data = await sql`
       SELECT
         embed_codes.*,
         ARRAY(
@@ -132,7 +129,11 @@ export async function fetchEmbedCodes (cursor?: string, query?: string) {
         id DESC
       LIMIT ${DEFAULT_PAGE_SIZE}
     `
-    const formatted = formatResponseWithCursor(data, 'id', dashboardEmbedCodeSchema)
+    const formatted = formatResponseWithCursor(
+      data,
+      'id',
+      dashboardEmbedCodeSchema
+    )
     const res: ResponseWithCursor<DashboardEmbedCode> = {
       ...formatted,
       totalCount
@@ -144,10 +145,10 @@ export async function fetchEmbedCodes (cursor?: string, query?: string) {
   }
 }
 
-async function getTotalCount (query?: string) {
+async function getTotalCount(query?: string) {
   try {
     const like = query ? `%${query}%` : null
-    const result = await sql<{ count: number }>`
+    const result = await sql`
       SELECT COUNT(*)::int AS count
       FROM embed_codes
       WHERE (
@@ -160,7 +161,7 @@ async function getTotalCount (query?: string) {
         OR caption ILIKE ${like}
       )
     `
-    return result.rows[0]?.count ?? 0
+    return result[0]?.count ?? 0
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch embed codes count.')

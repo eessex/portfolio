@@ -6,7 +6,7 @@ import { sql } from '@/lib/db'
  * Enables the UUID extension for generating default UUIDs in tables.
  * Should be called before creating any table with UUID primary keys.
  */
-async function enableUuidExtension () {
+async function enableUuidExtension() {
   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`
 }
 
@@ -14,7 +14,7 @@ async function enableUuidExtension () {
  * Creates the projects table.
  * Must be created before tables referencing projects via foreign keys.
  */
-async function createProjectsTable () {
+async function createProjectsTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS projects (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -43,7 +43,7 @@ async function createProjectsTable () {
  * Creates the tags table.
  * Enforces kebab-case format, uniqueness, and prevents case-insensitive duplicates.
  */
-async function createTagsTable () {
+async function createTagsTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS tags (
       id VARCHAR(255) PRIMARY KEY CHECK (id ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
@@ -58,7 +58,7 @@ async function createTagsTable () {
  * Creates the images table.
  * Must be created after projects and tags to set up foreign keys.
  */
-async function createImagesTable () {
+async function createImagesTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS images (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -82,7 +82,7 @@ async function createImagesTable () {
  * Creates the embed_codes table.
  * Must be created after projects and tags to set up foreign keys.
  */
-async function createEmbedCodesTable () {
+async function createEmbedCodesTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS embed_codes (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -105,7 +105,7 @@ async function createEmbedCodesTable () {
  * Creates the links table.
  * Must be created after projects and tags to set up foreign keys.
  */
-async function createLinksTable () {
+async function createLinksTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS links (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -131,7 +131,7 @@ async function createLinksTable () {
  * Creates the users table.
  * Does not depend on other tables.
  */
-async function createUsersTable () {
+async function createUsersTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS users (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -151,7 +151,7 @@ async function createUsersTable () {
  * Creates the site_settings table.
  * Must be created after images.
  */
-async function createSiteSettingsTable () {
+async function createSiteSettingsTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS site_settings (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -170,7 +170,7 @@ async function createSiteSettingsTable () {
  * Creates the about table.
  * Must be created after images and embed_codes.
  */
-async function createAboutTable () {
+async function createAboutTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS about (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -194,7 +194,7 @@ async function createAboutTable () {
  * Creates the email_subscriptions table.
  * Does not depend on other tables.
  */
-async function createEmailSubscriptionsTable () {
+async function createEmailSubscriptionsTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS email_subscriptions (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -211,7 +211,7 @@ async function createEmailSubscriptionsTable () {
  * Creates the venues table.
  * Does not depend on other tables.
  */
-async function createVenuesTable () {
+async function createVenuesTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS venues (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -256,7 +256,7 @@ async function createVenuesTable () {
  * Creates the releases table.
  * Must be created after projects and tags.
  */
-async function createReleasesTable () {
+async function createReleasesTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS releases (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -288,7 +288,7 @@ async function createReleasesTable () {
  * Creates the published_edition table.
  * Must be created after releases and projects.
  */
-async function createPublishedEditionTable () {
+async function createPublishedEditionTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS published_edition (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -315,7 +315,7 @@ async function createPublishedEditionTable () {
  * Creates the events table.
  * Must be created after projects, venues, tags, images, embed_codes, links.
  */
-async function createEventsTable () {
+async function createEventsTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS events (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -353,7 +353,7 @@ async function createEventsTable () {
  * Sets up slug history for tables with slugs.
  * Must be created before any slug update triggers are installed.
  */
-async function setupSlugHistory () {
+async function setupSlugHistory() {
   await sql`
     CREATE TABLE IF NOT EXISTS slug_history (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
@@ -383,21 +383,17 @@ async function setupSlugHistory () {
  * Installs triggers for tables with slugs to record old slugs in slug_history.
  * Must be called after the table and slug_history function are created.
  */
-async function setupSlugTriggers () {
-  const tablesWithSlugs = [
-    'projects',
-    'releases',
-    'events',
-    'about'
-  ]
-
+async function setupSlugTriggers() {
+  const tablesWithSlugs = ['projects', 'releases', 'events', 'about']
   for (const table of tablesWithSlugs) {
-    await sql`
-      DROP TRIGGER IF EXISTS trg_${table}_slug ON ${sql(table)};
-      CREATE TRIGGER trg_${table}_slug
-      BEFORE UPDATE OF slug ON ${sql(table)}
+    const triggerName = `trg_${table}_slug`
+
+    await sql.unsafe(`
+      DROP TRIGGER IF EXISTS ${triggerName} ON ${table};
+      CREATE TRIGGER ${triggerName}
+      BEFORE UPDATE OF slug ON ${table}
       FOR EACH ROW EXECUTE FUNCTION save_old_slug();
-    `
+    `)
   }
 }
 
@@ -406,7 +402,7 @@ async function setupSlugTriggers () {
  * Must be called after all relevant tables are created.
  * includes: dates, embed codes, images, links, venues, published editions
  */
-async function setupJsonbFunctions () {
+async function setupJsonbFunctions() {
   await sql`
     CREATE OR REPLACE FUNCTION build_write_dates_json(
       created_at TIMESTAMP,
@@ -553,7 +549,7 @@ async function setupJsonbFunctions () {
 /**
  * Creates all tables in correct order.
  */
-export async function createTables () {
+export async function createTables() {
   await enableUuidExtension()
   await createProjectsTable()
   await createTagsTable()

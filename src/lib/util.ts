@@ -1,15 +1,13 @@
-import type { QueryResult } from '@vercel/postgres'
 import type { z } from 'zod'
 
-import type {
-  EmbeddedItem,
-  PageItemClient
-} from '@/lib/types'
+import type { EmbeddedItem, PageItemClient } from '@/lib/types'
 import { camelizeKeys } from '@/ui/util'
 
 export const DEFAULT_PAGE_SIZE = 24
 
-export interface ResponseWithCursor<T extends EmbeddedItem | PageItemClient> {
+export interface ResponseWithCursor<
+  T extends EmbeddedItem | PageItemClient
+> {
   res: T[]
   nextCursor: string | null
   totalCount: number
@@ -20,11 +18,11 @@ type Cursor = {
   id: string
 }
 
-export function encodeCursor (cursor: Cursor) {
+export function encodeCursor(cursor: Cursor) {
   return Buffer.from(JSON.stringify(cursor)).toString('base64')
 }
 
-export function decodeCursor (cursor?: string | null): Cursor | null {
+export function decodeCursor(cursor?: string | null): Cursor | null {
   if (!cursor) return null
   try {
     const decodedCursor = Buffer.from(cursor, 'base64').toString('utf8')
@@ -34,17 +32,18 @@ export function decodeCursor (cursor?: string | null): Cursor | null {
   }
 }
 
-export function formatResponseWithCursor<T extends z.ZodTypeAny> (
-  result: QueryResult,
+export function formatResponseWithCursor<T extends z.ZodTypeAny>(
+  result: unknown[],
   cursorKey: keyof z.infer<T>,
   schema: T
 ) {
-  const formatted: z.infer<T>[] = result.rows.map(row => formatDbResponseForClient(row, schema))
+  const formatted: z.infer<T>[] = result.map((row) =>
+    formatDbResponseForClient(row, schema)
+  )
 
   const lastItem = formatted[formatted.length - 1]
   const isLoadMoreAvailable =
-    formatted.length === DEFAULT_PAGE_SIZE &&
-    lastItem?.id != null
+    formatted.length === DEFAULT_PAGE_SIZE && lastItem?.id != null
 
   const cursorObj = isLoadMoreAvailable
     ? {
@@ -62,7 +61,7 @@ export function formatResponseWithCursor<T extends z.ZodTypeAny> (
   return response
 }
 
-function nullsToUndefined<T> (obj: T): T {
+function nullsToUndefined<T>(obj: T): T {
   if (obj === null) return undefined as unknown as T
 
   if (typeof obj === 'number') return obj as T
@@ -76,14 +75,17 @@ function nullsToUndefined<T> (obj: T): T {
 
   if (typeof obj === 'object' && obj !== null) {
     return Object.fromEntries(
-      Object.entries(obj).map(([key, value]) => [key, nullsToUndefined(value)])
+      Object.entries(obj).map(([key, value]) => [
+        key,
+        nullsToUndefined(value)
+      ])
     ) as T
   }
 
   return obj
 }
 
-export function formatDbResponseForClient<T extends z.ZodTypeAny> (
+export function formatDbResponseForClient<T extends z.ZodTypeAny>(
   data: unknown,
   schema: T
 ): z.infer<T> {

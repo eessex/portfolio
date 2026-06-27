@@ -1,20 +1,9 @@
 'use server'
 
-import {
-  type QueryResultRow,
-  sql
-} from '@vercel/postgres'
-
+import { sql } from '@/lib/db'
 import { imageSchema } from '@/lib/images/schemas'
-import {
-  dashboardLinkSchema,
-  linkSchema
-} from '@/lib/links/schemas'
-import type {
-  CreateLink,
-  DashboardLink,
-  Link
-} from '@/lib/links/types'
+import { dashboardLinkSchema, linkSchema } from '@/lib/links/schemas'
+import type { CreateLink, DashboardLink } from '@/lib/links/types'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -23,24 +12,24 @@ import {
   type ResponseWithCursor
 } from '@/lib/util'
 
-export async function fetchLinksByIds (ids: QueryResultRow[string]) {
+export async function fetchLinksByIds(ids: string[]) {
   try {
-    const data = await sql<Link>`
+    const data = await sql`
       SELECT * FROM links
       WHERE id = ANY(${ids})
       ORDER BY
       COALESCE(publish_date, created_at) DESC
     `
-    return data.rows.map(row => formatDbResponseForClient(row, linkSchema))
+    return data.map((row) => formatDbResponseForClient(row, linkSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')
   }
 }
 
-export async function fetchLinkByUrl (link: CreateLink) {
+export async function fetchLinkByUrl(link: CreateLink) {
   try {
-    const { rows } = await sql<Link>`
+    const data = await sql`
       SELECT
         links.*,
         ARRAY(
@@ -56,11 +45,11 @@ export async function fetchLinkByUrl (link: CreateLink) {
       WHERE url = ${link.url}
       LIMIT 1
     `
-    if (rows.length === 0) {
+    if (data.length === 0) {
       return null
     } else {
       return {
-        res: formatDbResponseForClient(rows[0], imageSchema),
+        res: formatDbResponseForClient(data[0], imageSchema),
         fieldName: 'url' as keyof CreateLink
       }
     }
@@ -73,7 +62,7 @@ export async function fetchLinkByUrl (link: CreateLink) {
 /**
  * dashboard: fetch all the links
  */
-export async function fetchLinks (cursor?: string, query?: string) {
+export async function fetchLinks(cursor?: string, query?: string) {
   const totalCount = await getTotalCount(query)
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
 
@@ -82,7 +71,7 @@ export async function fetchLinks (cursor?: string, query?: string) {
   const cursorId = decodedCursor?.id ?? null
 
   try {
-    const data = await sql<DashboardLink>`
+    const data = await sql`
       SELECT
         links.*,
         ARRAY(
@@ -112,7 +101,11 @@ export async function fetchLinks (cursor?: string, query?: string) {
         id DESC
       LIMIT ${DEFAULT_PAGE_SIZE}
     `
-    const formatted = formatResponseWithCursor(data, 'id', dashboardLinkSchema)
+    const formatted = formatResponseWithCursor(
+      data,
+      'id',
+      dashboardLinkSchema
+    )
     const res: ResponseWithCursor<DashboardLink> = {
       ...formatted,
       totalCount
@@ -125,14 +118,14 @@ export async function fetchLinks (cursor?: string, query?: string) {
 }
 
 /** Only the press links */
-export async function fetchPressLinks () {
+export async function fetchPressLinks() {
   try {
-    const data = await sql<Link>`
+    const data = await sql`
       SELECT * FROM links
       WHERE type = 'press'
       ORDER BY publish_date DESC, created_at DESC
     `
-    return data.rows.map(row => formatDbResponseForClient(row, linkSchema))
+    return data.map((row) => formatDbResponseForClient(row, linkSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch press links.')
@@ -140,25 +133,25 @@ export async function fetchPressLinks () {
 }
 
 /** links to social media profiles */
-export async function fetchSocialLinks () {
+export async function fetchSocialLinks() {
   try {
-    const data = await sql<Link>`
+    const data = await sql`
       SELECT * FROM links
       WHERE type = 'social'
       AND title IS NOT NULL
       ORDER BY title ASC
     `
-    return data.rows.map(row => formatDbResponseForClient(row, linkSchema))
+    return data.map((row) => formatDbResponseForClient(row, linkSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')
   }
 }
 
-async function getTotalCount (query?: string) {
+async function getTotalCount(query?: string) {
   try {
     const like = query ? `%${query}%` : null
-    const result = await sql<{ count: number }>`
+    const result = await sql`
       SELECT COUNT(*)::int AS count
       FROM links
       WHERE (
@@ -168,7 +161,7 @@ async function getTotalCount (query?: string) {
         OR quotation ILIKE ${like}
       )
     `
-    return result.rows[0].count ?? 0
+    return result[0].count ?? 0
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch link count.')

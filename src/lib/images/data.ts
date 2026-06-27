@@ -1,17 +1,8 @@
 'use server'
 
-import type { QueryResultRow } from '@vercel/postgres'
-import { sql } from '@vercel/postgres'
-
-import {
-  dashboardImageSchema,
-  imageSchema
-} from '@/lib/images/schemas'
-import type {
-  CreateImage,
-  DashboardImage,
-  Image
-} from '@/lib/images/types'
+import { sql } from '@/lib/db'
+import { dashboardImageSchema, imageSchema } from '@/lib/images/schemas'
+import type { CreateImage, DashboardImage } from '@/lib/images/types'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -20,9 +11,9 @@ import {
   type ResponseWithCursor
 } from '@/lib/util'
 
-export async function fetchImageByUrl (image: CreateImage) {
+export async function fetchImageByUrl(image: CreateImage) {
   try {
-    const { rows } = await sql<Image>`
+    const data = await sql`
       SELECT
         images.*,
         ARRAY(
@@ -40,11 +31,11 @@ export async function fetchImageByUrl (image: CreateImage) {
       WHERE url = ${image.url}
       LIMIT 1
     `
-    if (rows.length === 0) {
+    if (data.length === 0) {
       return null
     } else {
       return {
-        res: formatDbResponseForClient(rows[0], imageSchema),
+        res: formatDbResponseForClient(data[0], imageSchema),
         fieldName: 'url' as keyof CreateImage
       }
     }
@@ -54,30 +45,30 @@ export async function fetchImageByUrl (image: CreateImage) {
   }
 }
 
-export async function fetchImageById (id: string) {
+export async function fetchImageById(id: string) {
   try {
-    const data = await sql<Image>`
+    const data = await sql`
       SELECT * FROM images
       WHERE id = ${id}
     `
-    if (data.rowCount === 0) {
+    if (data.length === 0) {
       console.debug(`Image with id ${id} not found.`)
       return
     }
-    return formatDbResponseForClient(data.rows[0], imageSchema)
+    return formatDbResponseForClient(data[0], imageSchema)
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error(`Failed to fetch image ${id}.`)
   }
 }
 
-const _fetchImagesByIds = async (ids: QueryResultRow[string]) => {
+const _fetchImagesByIds = async (ids: string[]) => {
   try {
-    const data = await sql<Image>`
+    const data = await sql`
       SELECT * FROM images
       WHERE id = ANY(${ids})
     `
-    return data.rows.map(row => formatDbResponseForClient(row, imageSchema))
+    return data.map((row) => formatDbResponseForClient(row, imageSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch images.')
@@ -87,7 +78,7 @@ const _fetchImagesByIds = async (ids: QueryResultRow[string]) => {
 /**
  * dashboard: fetch all the images
  */
-export async function fetchImages (cursor?: string, query?: string) {
+export async function fetchImages(cursor?: string, query?: string) {
   const totalCount = await getTotalCount(query)
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
 
@@ -96,7 +87,7 @@ export async function fetchImages (cursor?: string, query?: string) {
   const cursorId = decodedCursor?.id ?? null
 
   try {
-    const data = await sql<DashboardImage>`
+    const data = await sql`
       SELECT 
         images.*,
         ARRAY(
@@ -128,7 +119,11 @@ export async function fetchImages (cursor?: string, query?: string) {
         id DESC
       LIMIT ${DEFAULT_PAGE_SIZE}
     `
-    const formatted = formatResponseWithCursor(data, 'id', dashboardImageSchema)
+    const formatted = formatResponseWithCursor(
+      data,
+      'id',
+      dashboardImageSchema
+    )
     const res: ResponseWithCursor<DashboardImage> = {
       ...formatted,
       totalCount
@@ -141,23 +136,23 @@ export async function fetchImages (cursor?: string, query?: string) {
 }
 
 /** Only the press photos */
-export async function fetchPressImages () {
+export async function fetchPressImages() {
   try {
-    const data = await sql<Image>`
+    const data = await sql`
       SELECT * FROM images
       WHERE is_press = true
     `
-    return data.rows.map(row => formatDbResponseForClient(row, imageSchema))
+    return data.map((row) => formatDbResponseForClient(row, imageSchema))
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch press images.')
   }
 }
 
-async function getTotalCount (query?: string) {
+async function getTotalCount(query?: string) {
   try {
     const like = query ? `%${query}%` : null
-    const result = await sql<{ count: number }>`
+    const result = await sql`
       SELECT COUNT(*)::int AS count
       FROM images
       WHERE (
@@ -167,7 +162,7 @@ async function getTotalCount (query?: string) {
         OR caption ILIKE ${like}
       )
     `
-    return result.rows[0].count ?? 0
+    return result[0]?.count ?? 0
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch image count.')

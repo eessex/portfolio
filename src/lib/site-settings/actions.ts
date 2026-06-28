@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import { siteSettingsSchema } from '@/lib/site-settings/schemas'
@@ -33,7 +33,7 @@ export async function editSiteSettings(
             updated_at = current_timestamp
         WHERE id = ${id}
       `
-      revalidatePath('/dashboard')
+      updateTag('settings')
       return { ok: true }
     } catch (err) {
       console.error('Database Error', err)

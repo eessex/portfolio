@@ -1,16 +1,14 @@
 import '@/ui/globals.scss'
 
-import clsx from 'clsx'
 import type { Metadata } from 'next'
-import { headers } from 'next/headers'
+import { Suspense } from 'react'
 
-import { auth } from '@/auth'
-import { DeviceProvider } from '@/lib/device-context'
-import { SessionProvider } from '@/lib/session-context'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
-import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
+import { AuthLayout } from '@/ui/auth-layout'
+import { DeviceLayout } from '@/ui/device-layout'
 import { geistMono, geistSans } from '@/ui/fonts'
 import { Footer } from '@/ui/footer/footer'
+import { Loading } from '@/ui/loading'
 import { Nav } from '@/ui/nav/nav'
 import { ToastProvider } from '@/ui/toast/toast-context'
 
@@ -43,23 +41,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const [siteSettings, session, reqHeaders] = await Promise.all([
-    fetchSiteSettings(),
-    auth(),
-    headers()
-  ])
-  const isLoggedIn = !!session?.user
-  const userAgent = reqHeaders.get('user-agent') || ''
-  const isMobileUA = /Mobile|Android|iPhone|iPad|iPod/i.test(
-    userAgent
-  )
-
   return (
     <html lang='en'>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ToastProvider>
-          <SessionProvider session={session}>
-            <DeviceProvider initialIsMobile={isMobileUA}>
+          <Suspense fallback={<Loading />}>
+            <DeviceLayout>
               <a
                 className='button-primary visible-focus-only'
                 id='skip-to-content'
@@ -68,15 +55,8 @@ export default async function RootLayout({
                 Skip to content
               </a>
 
-              <Nav title={siteSettings?.title} />
-
-              <div
-                className={clsx(
-                  'body-container',
-                  isLoggedIn && 'admin'
-                )}
-              >
-                {isLoggedIn && <AdminSidebar />}
+              <Nav />
+              <AuthLayout>
                 <div>
                   <main>
                     <div id='content' />
@@ -85,9 +65,9 @@ export default async function RootLayout({
 
                   <Footer />
                 </div>
-              </div>
-            </DeviceProvider>
-          </SessionProvider>
+              </AuthLayout>
+            </DeviceLayout>
+          </Suspense>
         </ToastProvider>
       </body>
     </html>

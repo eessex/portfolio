@@ -29,10 +29,10 @@ export function EmbedCodeItem({
           allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
           allowFullScreen
           style={{
+            ...defaultEmbedSizeByHost(embedCode.host),
             position: 'absolute',
             inset: 0,
             width: '100%',
-            height: '100%',
             border: 0
           }}
         />

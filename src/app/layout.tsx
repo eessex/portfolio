@@ -8,7 +8,6 @@ import { AuthLayout } from '@/ui/auth-layout'
 import { DeviceLayout } from '@/ui/device-layout'
 import { geistMono, geistSans } from '@/ui/fonts'
 import { Footer } from '@/ui/footer/footer'
-import { Loading } from '@/ui/loading'
 import { Nav } from '@/ui/nav/nav'
 import { ToastProvider } from '@/ui/toast/toast-context'
 
@@ -45,7 +44,7 @@ export default async function RootLayout({
     <html lang='en'>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ToastProvider>
-          <Suspense fallback={<Loading />}>
+          <Suspense fallback={null}>
             <DeviceLayout>
               <a
                 className='button-primary visible-focus-only'

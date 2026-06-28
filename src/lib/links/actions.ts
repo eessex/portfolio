@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import {
@@ -37,7 +37,7 @@ export async function editLink(
 
   try {
     const updatedLink = await updateLink(validatedLink.data)
-    revalidatePath('/dashboard/links')
+    updateTag('links')
     return {
       ok: true,
       res: updatedLink
@@ -64,7 +64,7 @@ export async function deleteLink(
       WHERE id = ${link.id}
         OR url = ${link.url}
     `
-    revalidatePath('/dashboard/links')
+    updateTag('links')
     return { ok: true }
   } catch (err) {
     const errMsg = 'Failed to delete link'

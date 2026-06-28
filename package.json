@@ -50,6 +50,7 @@
     "postcss": "^8.5",
     "prettier": "^3.8",
     "sass": "^1.101",
+    "ts-node": "^10.9.2",
     "typescript": "^6",
     "typescript-eslint": "^8.62"
   }

@@ -1,4 +1,4 @@
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import { deleteLink, editLink } from '@/lib/links/actions'
@@ -26,7 +26,7 @@ describe('Link Actions', () => {
       const res = await deleteLink(linkFixture)
 
       expect(res).toEqual({ ok: true })
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/links')
+      expect(updateTag).toHaveBeenCalledWith('links')
     })
 
     it('can handle errors', async () => {
@@ -44,7 +44,7 @@ describe('Link Actions', () => {
 
       expect(res?.ok).toBe(true)
       expect((res?.res as Link)?.title).toEqual('Test Link')
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/links')
+      expect(updateTag).toHaveBeenCalledWith('links')
     })
 
     it('can edit an existing press link', async () => {
@@ -55,7 +55,7 @@ describe('Link Actions', () => {
       expect((res?.res as Link)?.title).toEqual('Test Press Link')
       expect((res?.res as Link)?.quotation).toEqual('Test Quotation')
       expect((res?.res as Link)?.type).toEqual('press')
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/links')
+      expect(updateTag).toHaveBeenCalledWith('links')
     })
 
     it('can create a new link', async () => {
@@ -67,7 +67,7 @@ describe('Link Actions', () => {
       expect((res?.res as Link)?.id).toEqual(
         'a3b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a'
       )
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/links')
+      expect(updateTag).toHaveBeenCalledWith('links')
     })
 
     it('can create a new press link', async () => {
@@ -80,7 +80,7 @@ describe('Link Actions', () => {
       expect((res?.res as Link)?.title).toEqual('Test Press Link')
       expect((res?.res as Link)?.quotation).toEqual('Test Quotation')
       expect((res?.res as Link)?.type).toEqual('press')
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/links')
+      expect(updateTag).toHaveBeenCalledWith('links')
     })
 
     it('can handle generic errors', async () => {

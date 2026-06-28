@@ -1,7 +1,7 @@
 'use server'
 
 import { sql } from '@/lib/db'
-import { imageSchema } from '@/lib/images/schemas'
+import { fetchCachedLinksFirstPage } from '@/lib/links/cached'
 import { dashboardLinkSchema, linkSchema } from '@/lib/links/schemas'
 import type { CreateLink, DashboardLink } from '@/lib/links/types'
 import {
@@ -51,7 +51,7 @@ export async function fetchLinkByUrl(link: CreateLink) {
       return null
     } else {
       return {
-        res: formatDbResponseForClient(data[0], imageSchema),
+        res: formatDbResponseForClient(data[0], linkSchema),
         fieldName: 'url' as keyof CreateLink
       }
     }
@@ -61,10 +61,18 @@ export async function fetchLinkByUrl(link: CreateLink) {
   }
 }
 
+export async function fetchLinks(cursor?: string, query?: string) {
+  if (!cursor && !query) {
+    return fetchCachedLinksFirstPage()
+  }
+
+  return fetchLinksRaw(cursor, query)
+}
+
 /**
  * dashboard: fetch all the links
  */
-export async function fetchLinks(cursor?: string, query?: string) {
+export async function fetchLinksRaw(cursor?: string, query?: string) {
   const totalCount = await getTotalCount(query)
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
 
@@ -113,41 +121,6 @@ export async function fetchLinks(cursor?: string, query?: string) {
       totalCount
     }
     return res
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch links.')
-  }
-}
-
-/** Only the press links */
-export async function fetchPressLinks() {
-  try {
-    const data = await sql`
-      SELECT * FROM links
-      WHERE type = 'press'
-      ORDER BY publish_date DESC, created_at DESC
-    `
-    return data.map((row) =>
-      formatDbResponseForClient(row, linkSchema)
-    )
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch press links.')
-  }
-}
-
-/** links to social media profiles */
-export async function fetchSocialLinks() {
-  try {
-    const data = await sql`
-      SELECT * FROM links
-      WHERE type = 'social'
-      AND title IS NOT NULL
-      ORDER BY title ASC
-    `
-    return data.map((row) =>
-      formatDbResponseForClient(row, linkSchema)
-    )
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch links.')

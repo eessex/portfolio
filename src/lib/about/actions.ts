@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 
 import { aboutSchema } from '@/lib/about/schemas'
 import type { About } from '@/lib/about/types'
@@ -28,7 +28,7 @@ export async function editAbout(
           cover_image_id = ${coverImageId || null}
         WHERE id = ${id}
       `
-      revalidatePath('/about')
+      updateTag('about')
       return { ok: true }
     } catch (err) {
       console.error('Database Error', err)

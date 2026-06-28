@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import { deleteFromS3, uploadFile } from '@/lib/images/s3'
@@ -94,7 +94,7 @@ export async function editImage(
     try {
       const updatedImage = await updateImage(validatedImage.data)
       if (updatedImage) {
-        revalidatePath('/dashboard/images')
+        updateTag('images')
         return {
           ok: true,
           res: updatedImage
@@ -138,7 +138,7 @@ export async function deleteImage(
       }
     }
     await deleteFromS3(res.url)
-    revalidatePath('/dashboard/images')
+    updateTag('images')
     return { ok: true }
   } catch (err) {
     const message =

@@ -6,18 +6,23 @@ import ItemLayout, {
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
 import { auth } from '@/auth'
-import { fetchEventBySlug, fetchEvents } from '@/lib/events/data'
+import { fetchCachedEventBySlug } from '@/lib/events/cached'
+import {
+  fetchEventBySlug,
+  fetchEvents,
+  fetchEventsRaw
+} from '@/lib/events/data'
 import type { PageItemProps } from '@/lib/types'
 import { ItemsList } from '@/ui/items/items-list'
 import { Loading } from '@/ui/loading'
 import { formattedItemType } from '@/ui/util'
 
 export async function generateMetadata({ params }: PageItemProps) {
-  return generateItemMetadata(params, fetchEventBySlug)
+  return generateItemMetadata(params, fetchCachedEventBySlug)
 }
 
 export async function generateStaticParams() {
-  return generateItemStaticParams(fetchEvents)
+  return generateItemStaticParams(fetchEventsRaw)
 }
 
 export default async function EventPage({ params }: PageItemProps) {

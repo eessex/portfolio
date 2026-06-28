@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import type { FormResponse } from '@/lib/types'
@@ -44,7 +44,7 @@ export async function editVenue(
 
   try {
     const updatedVenue = await updateVenue(validatedVenue.data)
-    revalidatePath('/dashboard/venues')
+    updateTag('venues')
     return {
       ok: true,
       res: updatedVenue
@@ -70,7 +70,7 @@ export async function deleteVenue(
       DELETE FROM venues
       WHERE id = ${venue.id}
     `
-    revalidatePath('/dashboard/venues')
+    updateTag('venues')
     return { ok: true }
   } catch (err) {
     const errMsg = 'Failed to delete venue'

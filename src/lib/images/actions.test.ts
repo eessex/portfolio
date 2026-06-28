@@ -1,4 +1,4 @@
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import { deleteImage, editImage } from '@/lib/images/actions'
@@ -32,7 +32,7 @@ describe('Image Actions', () => {
 
       expect(res).toEqual({ ok: true })
       expect(deleteFromS3Mock).toHaveBeenCalledWith(imageFixture.url)
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/images')
+      expect(updateTag).toHaveBeenCalledWith('images')
     })
 
     it('can handle generic errors', async () => {
@@ -72,7 +72,7 @@ describe('Image Actions', () => {
       expect((res?.res as Image)?.caption).toEqual(
         'This is a new image for testing purposes.'
       )
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/images')
+      expect(updateTag).toHaveBeenCalledWith('images')
     })
 
     it('can create a new image', async () => {
@@ -100,7 +100,7 @@ describe('Image Actions', () => {
       expect((res?.res as Image)?.id).toEqual(
         '3fa85f64-5717-4562-b3fc-2c963f66afa6'
       )
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/images')
+      expect(updateTag).toHaveBeenCalledWith('images')
     })
 
     it('can handle generic errors', async () => {

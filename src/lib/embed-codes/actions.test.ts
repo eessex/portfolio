@@ -1,4 +1,4 @@
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import {
@@ -31,9 +31,7 @@ describe('Embed Code Actions', () => {
       const res = await deleteEmbedCode(embedCodeFixture)
 
       expect(res).toEqual({ ok: true })
-      expect(revalidatePath).toHaveBeenCalledWith(
-        '/dashboard/embed_codes'
-      )
+      expect(updateTag).toHaveBeenCalledWith('embed-codes')
     })
 
     it('can handle errors', async () => {
@@ -57,9 +55,7 @@ describe('Embed Code Actions', () => {
       expect((res?.res as EmbedCode)?.caption).toEqual(
         'This is an embed code for testing purposes.'
       )
-      expect(revalidatePath).toHaveBeenCalledWith(
-        '/dashboard/embed_codes'
-      )
+      expect(updateTag).toHaveBeenCalledWith('embed-codes')
     })
 
     it('can create a new embedCode', async () => {
@@ -75,9 +71,7 @@ describe('Embed Code Actions', () => {
       expect((res?.res as EmbedCode)?.id).toEqual(
         '123e4567-e89b-12d3-a456-426614174000'
       )
-      expect(revalidatePath).toHaveBeenCalledWith(
-        '/dashboard/embed_codes'
-      )
+      expect(updateTag).toHaveBeenCalledWith('embed-codes')
     })
 
     it('can handle generic errors', async () => {

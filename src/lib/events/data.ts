@@ -1,4 +1,5 @@
 import { sql } from '@/lib/db'
+import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import { eventClientSchema } from '@/lib/events/schemas'
 import type {
   EventClient,
@@ -19,6 +20,19 @@ import { isUpcomingDate } from '@/ui/util'
 const path: PagePathType = 'events'
 
 export async function fetchEvents(
+  isAuthed = false,
+  projectSlug?: string,
+  cursor?: string,
+  query?: string
+) {
+  if (!cursor && !query) {
+    return fetchCachedEventsFirstPage(isAuthed, projectSlug)
+  }
+
+  return fetchEventsRaw(isAuthed, projectSlug, cursor, query)
+}
+
+export async function fetchEventsRaw(
   isAuthed: boolean = false,
   projectSlug?: string,
   cursor?: string,

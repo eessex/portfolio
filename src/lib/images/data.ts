@@ -1,6 +1,7 @@
 'use server'
 
 import { sql } from '@/lib/db'
+import { fetchCachedImagesFirstPage } from '@/lib/images/cached'
 import {
   dashboardImageSchema,
   imageSchema
@@ -80,10 +81,21 @@ const _fetchImagesByIds = async (ids: string[]) => {
   }
 }
 
+export async function fetchImages(cursor?: string, query?: string) {
+  if (!cursor && !query) {
+    return fetchCachedImagesFirstPage()
+  }
+
+  return fetchImagesRaw(cursor, query)
+}
+
 /**
  * dashboard: fetch all the images
  */
-export async function fetchImages(cursor?: string, query?: string) {
+export async function fetchImagesRaw(
+  cursor?: string,
+  query?: string
+) {
   const totalCount = await getTotalCount(query)
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
 
@@ -137,22 +149,6 @@ export async function fetchImages(cursor?: string, query?: string) {
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch images.')
-  }
-}
-
-/** Only the press photos */
-export async function fetchPressImages() {
-  try {
-    const data = await sql`
-      SELECT * FROM images
-      WHERE is_press = true
-    `
-    return data.map((row) =>
-      formatDbResponseForClient(row, imageSchema)
-    )
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch press images.')
   }
 }
 

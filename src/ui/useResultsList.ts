@@ -7,8 +7,7 @@ import type {
   PageItemResponseWithCursor
 } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
-
-import { buildApiUrl } from './util'
+import { buildApiUrl } from '@/ui/util'
 
 type SortDirection = 'asc' | 'desc'
 

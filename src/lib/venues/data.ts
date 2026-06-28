@@ -8,6 +8,7 @@ import {
   formatResponseWithCursor,
   type ResponseWithCursor
 } from '@/lib/util'
+import { fetchCachedVenuesFirstPage } from '@/lib/venues/cached'
 import { dashboardVenueSchema } from '@/lib/venues/schemas'
 import type { CreateVenue, DashboardVenue } from '@/lib/venues/types'
 
@@ -35,10 +36,21 @@ export async function fetchVenueById(id: string) {
   }
 }
 
+export async function fetchVenues(cursor?: string, query?: string) {
+  if (!cursor && !query) {
+    return fetchCachedVenuesFirstPage()
+  }
+
+  return fetchVenuesRaw(cursor, query)
+}
+
 /**
  * dashboard: fetch all the venues
  */
-export async function fetchVenues(cursor?: string, query?: string) {
+export async function fetchVenuesRaw(
+  cursor?: string,
+  query?: string
+) {
   const totalCount = await getTotalCount(query)
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
 

@@ -7,9 +7,10 @@ import ItemLayout, {
 } from '@/app/(item-pages)/item-layout'
 import { auth } from '@/auth'
 import { fetchEvents } from '@/lib/events/data'
+import { fetchCachedProjectBySlug } from '@/lib/projects/cached'
 import {
   fetchProjectBySlug,
-  fetchProjects
+  fetchProjectsRaw
 } from '@/lib/projects/data'
 import { fetchReleases } from '@/lib/releases/data'
 import type { PageItemProps } from '@/lib/types'
@@ -17,11 +18,11 @@ import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
 
 export async function generateMetadata({ params }: PageItemProps) {
-  return generateItemMetadata(params, fetchProjectBySlug)
+  return generateItemMetadata(params, fetchCachedProjectBySlug)
 }
 
 export async function generateStaticParams() {
-  return generateItemStaticParams(fetchProjects)
+  return generateItemStaticParams(fetchProjectsRaw)
 }
 
 export default async function ProjectPage({ params }: PageItemProps) {

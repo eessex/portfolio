@@ -1,5 +1,3 @@
-import { extractIframeParams } from '@/ui/embed-codes/util'
-
 import {
   embedCodeBandcampFixtureMedium,
   embedCodeMixcloudFixtureRegular,
@@ -8,7 +6,8 @@ import {
   embedCodeUnknownFixtureAttrs,
   embedCodeVimeoFixture,
   embedCodeYoutubeFixture
-} from './fixtures'
+} from '@/ui/embed-codes/fixtures'
+import { extractIframeParams } from '@/ui/embed-codes/util'
 
 describe('#extractIframeParams', () => {
   describe('invalid iframe', () => {

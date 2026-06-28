@@ -1,4 +1,5 @@
 import { sql } from '@/lib/db'
+import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import { releaseClientSchema } from '@/lib/releases/schemas'
 import type {
   FetchReleasesResult,
@@ -84,6 +85,19 @@ export async function fetchReleaseBySlug(
 }
 
 export async function fetchReleases(
+  isAuthed = false,
+  projectSlug?: string,
+  cursor?: string,
+  query?: string
+) {
+  if (!cursor && !query) {
+    return fetchCachedReleasesFirstPage(isAuthed, projectSlug)
+  }
+
+  return fetchReleasesRaw(isAuthed, projectSlug, cursor, query)
+}
+
+export async function fetchReleasesRaw(
   isAuthed: boolean = false,
   projectSlug?: string,
   cursor?: string,

@@ -1,4 +1,4 @@
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import { deleteVenue, editVenue } from '@/lib/venues/actions'
@@ -25,7 +25,7 @@ describe('Venue Actions', () => {
       const res = await deleteVenue(venueFixtureAlpha)
 
       expect(res).toEqual({ ok: true })
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/venues')
+      expect(updateTag).toHaveBeenCalledWith('venues')
     })
 
     it('can handle errors', async () => {
@@ -44,7 +44,7 @@ describe('Venue Actions', () => {
       )
       expect(res?.ok).toBe(true)
       expect((res?.res as Venue)?.name).toEqual('Test Venue Texas')
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/venues')
+      expect(updateTag).toHaveBeenCalledWith('venues')
     })
 
     it('can create a new venue', async () => {
@@ -58,7 +58,7 @@ describe('Venue Actions', () => {
       expect((res?.res as Venue)?.id).toEqual(
         'b3b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a'
       )
-      expect(revalidatePath).toHaveBeenCalledWith('/dashboard/venues')
+      expect(updateTag).toHaveBeenCalledWith('venues')
     })
 
     it('can handle generic errors', async () => {

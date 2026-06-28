@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import {
@@ -39,7 +39,7 @@ export async function editEmbedCode(
       validatedEmbedCode.data
     )
     if (updatedEmbedCode) {
-      revalidatePath('/dashboard/embed_codes')
+      updateTag('embed-codes')
       return {
         ok: true,
         res: updatedEmbedCode
@@ -68,7 +68,7 @@ export async function deleteEmbedCode(
         id = ${embedCode.id}
         OR iframe = ${embedCode.iframe}
     `
-    revalidatePath('/dashboard/embed_codes')
+    updateTag('embed-codes')
     return { ok: true }
   } catch (err) {
     const errMsg = 'Failed to delete embed code'

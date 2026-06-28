@@ -1,6 +1,7 @@
 'use server'
 
 import { sql } from '@/lib/db'
+import { fetchCachedEmbedCodesFirstPage } from '@/lib/embed-codes/cached'
 import {
   dashboardEmbedCodeSchema,
   embedCodeSchema
@@ -81,10 +82,21 @@ export async function fetchEmbedCodeByIframe(iframe: string) {
   }
 }
 
+export async function fetchEmbedCodes(
+  cursor?: string,
+  query?: string
+) {
+  if (!cursor && !query) {
+    return fetchCachedEmbedCodesFirstPage()
+  }
+
+  return fetchEmbedCodesRaw(cursor, query)
+}
+
 /**
  * dashboard: fetch all the embed codes
  */
-export async function fetchEmbedCodes(
+export async function fetchEmbedCodesRaw(
   cursor?: string,
   query?: string
 ) {

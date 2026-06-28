@@ -1,1 +1,1 @@
-export const revalidatePath = jest.fn()
+export const updateTag = jest.fn()

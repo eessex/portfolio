@@ -3,10 +3,9 @@
 import { useActionState, useEffect, useRef, useState } from 'react'
 
 import type { FormResponse } from '@/lib/types'
+import { DashboardErrrorMessages } from '@/ui/dashboard/dashboard-items'
 import styles from '@/ui/form/form.module.scss'
 import { useToast } from '@/ui/toast/toast-context'
-
-import { DashboardErrrorMessages } from '../dashboard/dashboard-items'
 
 export function Form<T>({
   action,

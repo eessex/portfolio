@@ -1,4 +1,5 @@
 import { sql } from '@/lib/db'
+import { fetchCachedProjectsFirstPage } from '@/lib/projects/cached'
 import { projectClientSchema } from '@/lib/projects/schemas'
 import type {
   FetchProjectsResult,
@@ -17,6 +18,18 @@ const path: (typeof pagePathTypes)[number] = 'projects'
 const projectPathType = 'project'
 
 export async function fetchProjects(
+  isAuthed: boolean = false,
+  cursor?: string,
+  query?: string
+) {
+  if (!cursor && !query) {
+    return fetchCachedProjectsFirstPage(isAuthed)
+  }
+
+  return fetchProjectsRaw(isAuthed, cursor, query)
+}
+
+export async function fetchProjectsRaw(
   isAuthed: boolean = false,
   cursor?: string,
   query?: string

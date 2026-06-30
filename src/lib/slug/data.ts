@@ -1,5 +1,6 @@
 import { sql } from '@/lib/db'
 import { type SlugTableName, TablesWithSlugs } from '@/lib/schemas'
+import { getTableIdentifier, slugify } from '@/lib/slug/util'
 
 export async function generateUniqueSlug(
   title: string,
@@ -18,7 +19,6 @@ export async function generateUniqueSlug(
 
   return slug
 }
-
 async function slugExists(
   slug: string,
   tableName: SlugTableName,
@@ -27,37 +27,19 @@ async function slugExists(
   if (!TablesWithSlugs.includes(tableName)) {
     throw new Error(`Invalid table name: ${tableName}`)
   }
-
+  const excludeClause = excludeId
+    ? sql`AND id <> ${excludeId}`
+    : undefined
   const result = await sql`
     SELECT EXISTS (
       SELECT 1
       FROM ${tableName}
       WHERE slug = ${slug}
-      ${excludeId ? sql`AND id <> ${excludeId}` : sql``}
+      ${excludeClause}
     ) AS exists
   `
 
   return result[0]?.exists ?? false
-}
-
-export function slugify(str: string, separator = '-') {
-  return str
-    .toString()
-    .normalize('NFD') // Split accented characters
-    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-    .toLowerCase() // Convert to lowercase
-    .replace(/[^a-z0-9 -]/g, '') // Remove non-alphanumeric chars
-    .trim() // Trim leading/trailing spaces
-    .replace(/\s+/g, separator) // Replace spaces with separator
-    .replace(/-+/g, separator) // Collapse consecutive separators
-}
-
-function getTableIdentifier(table: SlugTableName) {
-  if (!TablesWithSlugs.includes(table)) {
-    throw new Error(`Invalid table name: ${table}`)
-  }
-
-  return sql.unsafe(table)
 }
 
 type ResolveSlugResult = {

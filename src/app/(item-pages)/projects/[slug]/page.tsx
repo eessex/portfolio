@@ -13,7 +13,7 @@ import {
   fetchProjectsRaw
 } from '@/lib/projects/data'
 import { fetchReleases } from '@/lib/releases/data'
-import { resolveSlug } from '@/lib/slug'
+import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'

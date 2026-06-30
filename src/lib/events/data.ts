@@ -5,6 +5,7 @@ import type {
   EventClient,
   FetchEventsResult
 } from '@/lib/events/types'
+import { sortEventsByCategory } from '@/lib/events/util'
 import type {
   PageItemResponseWithCursor,
   PagePathType
@@ -15,7 +16,6 @@ import {
   formatDbResponseForClient,
   formatResponseWithCursor
 } from '@/lib/util'
-import { isUpcomingDate } from '@/ui/util'
 
 const path: PagePathType = 'events'
 
@@ -175,32 +175,8 @@ export async function fetchEventBySlug(
   }
 }
 
-function sortEventsByCategory(
-  events: EventClient[]
-): FetchEventsResult {
-  const upcomingEvents = events
-    .filter((event) => isUpcomingDate(event.startTime))
-    .sort((a, b) => {
-      return (
-        new Date(a.startTime).getTime() -
-        new Date(b.startTime).getTime()
-      )
-    })
-  const pastEvents = events
-    .filter((event) => !isUpcomingDate(event.startTime))
-    .sort((a, b) => {
-      return (
-        new Date(b.startTime).getTime() -
-        new Date(a.startTime).getTime()
-      )
-    })
-  return {
-    upcomingEvents,
-    pastEvents
-  }
-}
-
-async function getTotalCount(
+// exported so it can be mocked in tests
+export async function getTotalCount(
   isAuthed: boolean = false,
   projectId?: string,
   query?: string

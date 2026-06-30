@@ -8,11 +8,13 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const cursor = searchParams.get('cursor') || undefined
   const query = searchParams.get('query') || undefined
+  const projectId = searchParams.get('projectId') || undefined
   const projectSlug = searchParams.get('projectSlug') || undefined
 
   try {
     const result = await fetchReleases(
       !!session?.user,
+      projectId,
       projectSlug,
       cursor,
       query

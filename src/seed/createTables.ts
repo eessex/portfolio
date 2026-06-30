@@ -1,6 +1,7 @@
 'use server'
 
 import { sql } from '@/lib/db'
+import { TablesWithSlugs } from '@/lib/schemas'
 
 /**
  * Enables the UUID extension for generating default UUIDs in tables.
@@ -384,8 +385,7 @@ async function setupSlugHistory() {
  * Must be called after the table and slug_history function are created.
  */
 async function setupSlugTriggers() {
-  const tablesWithSlugs = ['projects', 'releases', 'events', 'about']
-  for (const table of tablesWithSlugs) {
+  for (const table of TablesWithSlugs) {
     const triggerName = `trg_${table}_slug`
 
     await sql.unsafe(`

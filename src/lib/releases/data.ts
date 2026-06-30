@@ -86,6 +86,7 @@ export async function fetchReleaseBySlug(
 
 export async function fetchReleases(
   isAuthed = false,
+  projectId?: string,
   projectSlug?: string,
   cursor?: string,
   query?: string
@@ -94,16 +95,28 @@ export async function fetchReleases(
     return fetchCachedReleasesFirstPage(isAuthed, projectSlug)
   }
 
-  return fetchReleasesRaw(isAuthed, projectSlug, cursor, query)
+  return fetchReleasesRaw(
+    isAuthed,
+    projectId,
+    projectSlug,
+    cursor,
+    query
+  )
 }
 
 export async function fetchReleasesRaw(
   isAuthed: boolean = false,
+  projectId?: string,
   projectSlug?: string,
   cursor?: string,
   query?: string
 ) {
-  const totalCount = await getTotalCount(isAuthed, projectSlug, query)
+  const totalCount = await getTotalCount(
+    isAuthed,
+    projectId,
+    projectSlug,
+    query
+  )
   const decodedCursor = cursor ? decodeCursor(cursor) : null
   const cursorReleaseDate = decodedCursor?.releaseDate ?? null
   const cursorId = decodedCursor?.id ?? null
@@ -220,6 +233,7 @@ const sortReleasesByCategory = (
 
 async function getTotalCount(
   isAuthed: boolean,
+  _projectId?: string,
   projectSlug?: string,
   query?: string
 ) {

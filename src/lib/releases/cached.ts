@@ -25,6 +25,7 @@ export async function fetchCachedReleasesFirstPage(
 
   return await fetchReleasesRaw(
     isAuthed,
+    undefined,
     projectSlug,
     undefined,
     undefined

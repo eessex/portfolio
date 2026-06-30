@@ -12,6 +12,15 @@ export const pagePathTypes = [
   'releases'
 ] as const
 
+export const TablesWithSlugs = [
+  'projects',
+  'releases',
+  'events',
+  'about'
+] as const
+
+export type SlugTableName = (typeof TablesWithSlugs)[number]
+
 /**
  * Types of items that can be embedded within pages
  * (e.g. an embed code, image, link, or venue).

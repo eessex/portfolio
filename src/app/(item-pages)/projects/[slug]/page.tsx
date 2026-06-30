@@ -9,10 +9,11 @@ import { auth } from '@/auth'
 import { fetchEvents } from '@/lib/events/data'
 import { fetchCachedProjectBySlug } from '@/lib/projects/cached'
 import {
-  fetchProjectBySlug,
+  fetchProjectById,
   fetchProjectsRaw
 } from '@/lib/projects/data'
 import { fetchReleases } from '@/lib/releases/data'
+import { resolveSlug } from '@/lib/slug'
 import type { PageItemProps } from '@/lib/types'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
@@ -27,11 +28,25 @@ export async function generateStaticParams() {
 
 export default async function ProjectPage({ params }: PageItemProps) {
   const [{ slug }, session] = await Promise.all([params, auth()])
+
+  const resolved = await resolveSlug('projects', slug)
+
+  if (!resolved) {
+    redirect('/projects')
+  }
+
+  if (resolved.isRedirect) {
+    redirect(`/projects/${resolved.slug}`)
+  }
+
   const [project, releases, events] = await Promise.all([
-    fetchProjectBySlug(slug, !!session?.user),
-    fetchReleases(!!session?.user, slug),
-    fetchEvents(!!session?.user, slug)
+    fetchProjectById(resolved.id, !!session?.user),
+    // fixme: use id instead of slug for releases
+    fetchReleases(!!session?.user, resolved.id, resolved.slug),
+    // fixme: use id instead of slug for events
+    fetchEvents(!!session?.user, resolved.slug)
   ])
+
   if (!project) {
     redirect('/projects')
   }

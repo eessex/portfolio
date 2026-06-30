@@ -6,7 +6,7 @@ import { fetchEventBySlug, fetchEventsRaw } from '@/lib/events/data'
 
 export async function fetchCachedEventsFirstPage(
   isAuthed: boolean,
-  projectSlug?: string
+  projectId?: string
 ) {
   cacheTag('events')
 
@@ -16,13 +16,13 @@ export async function fetchCachedEventsFirstPage(
     cacheTag('events:public')
   }
 
-  if (projectSlug) {
-    cacheTag(`project:${projectSlug}:events`)
+  if (projectId) {
+    cacheTag(`project:${projectId}:events`)
   }
 
   return await fetchEventsRaw(
     isAuthed,
-    projectSlug,
+    projectId,
     undefined,
     undefined
   )

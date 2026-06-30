@@ -21,24 +21,24 @@ const path: PagePathType = 'events'
 
 export async function fetchEvents(
   isAuthed = false,
-  projectSlug?: string,
+  projectId?: string,
   cursor?: string,
   query?: string
 ) {
   if (!cursor && !query) {
-    return fetchCachedEventsFirstPage(isAuthed, projectSlug)
+    return fetchCachedEventsFirstPage(isAuthed, projectId)
   }
 
-  return fetchEventsRaw(isAuthed, projectSlug, cursor, query)
+  return fetchEventsRaw(isAuthed, projectId, cursor, query)
 }
 
 export async function fetchEventsRaw(
   isAuthed: boolean = false,
-  projectSlug?: string,
+  projectId?: string,
   cursor?: string,
   query?: string
 ) {
-  const totalCount = await getTotalCount(isAuthed, projectSlug, query)
+  const totalCount = await getTotalCount(isAuthed, projectId, query)
   const decodedCursor = cursor ? decodeCursor(cursor) : undefined
   const like = query ? `%${query}%` : null
   const cursorStartTime = decodedCursor?.name ?? null
@@ -68,7 +68,7 @@ export async function fetchEventsRaw(
       LEFT JOIN projects AS p ON e.project_id = p.id
       LEFT JOIN venues AS v ON e.venue_id = v.id
       WHERE
-        (${projectSlug}::text IS NULL OR p.slug = ${projectSlug}::text)
+        (${projectId}::uuid IS NULL OR e.project_id = ${projectId}::uuid)
         AND (${isAuthed} OR e.is_published = true)
         AND (
           ${like}::text IS NULL
@@ -202,7 +202,7 @@ function sortEventsByCategory(
 
 async function getTotalCount(
   isAuthed: boolean = false,
-  projectSlug?: string,
+  projectId?: string,
   query?: string
 ) {
   try {
@@ -212,18 +212,17 @@ async function getTotalCount(
       FROM events AS e
       LEFT JOIN projects AS p ON e.project_id = p.id
       LEFT JOIN venues AS v ON e.venue_id = v.id
-      WHERE (
-        ${projectSlug}::text IS NULL OR p.slug = ${projectSlug}::text
-      )
-      AND (${isAuthed} OR e.is_published = true)
-      AND (
-        ${like}::text IS NULL
-        OR e.title ILIKE ${like}
-        OR e.description ILIKE ${like}
-        OR COALESCE(v.name, '') ILIKE ${like}
-        OR COALESCE(v.city, '') ILIKE ${like}
-        OR COALESCE(v.state, '') ILIKE ${like}
-      );
+      WHERE 
+        (${projectId}::uuid IS NULL OR e.project_id = ${projectId}::uuid)
+        AND (${isAuthed} OR e.is_published = true)
+        AND (
+          ${like}::text IS NULL
+          OR e.title ILIKE ${like}
+          OR e.description ILIKE ${like}
+          OR COALESCE(v.name, '') ILIKE ${like}
+          OR COALESCE(v.city, '') ILIKE ${like}
+          OR COALESCE(v.state, '') ILIKE ${like}
+        );
     `
     return data[0]?.count ?? 0
   } catch (error) {

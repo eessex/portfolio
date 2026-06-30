@@ -41,10 +41,8 @@ export default async function ProjectPage({ params }: PageItemProps) {
 
   const [project, releases, events] = await Promise.all([
     fetchProjectById(resolved.id, !!session?.user),
-    // fixme: use id instead of slug for releases
-    fetchReleases(!!session?.user, resolved.id, resolved.slug),
-    // fixme: use id instead of slug for events
-    fetchEvents(!!session?.user, resolved.slug)
+    fetchReleases(!!session?.user, resolved.id),
+    fetchEvents(!!session?.user, resolved.id)
   ])
 
   if (!project) {

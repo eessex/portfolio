@@ -9,7 +9,7 @@ import {
 
 export async function fetchCachedReleasesFirstPage(
   isAuthed: boolean,
-  projectSlug?: string
+  projectId?: string
 ) {
   cacheTag('releases')
 
@@ -19,14 +19,13 @@ export async function fetchCachedReleasesFirstPage(
     cacheTag('releases:public')
   }
 
-  if (projectSlug) {
-    cacheTag(`project:${projectSlug}:releases`)
+  if (projectId) {
+    cacheTag(`project:${projectId}:releases`)
   }
 
   return await fetchReleasesRaw(
     isAuthed,
-    undefined,
-    projectSlug,
+    projectId,
     undefined,
     undefined
   )

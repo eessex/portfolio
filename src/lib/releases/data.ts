@@ -87,36 +87,23 @@ export async function fetchReleaseBySlug(
 export async function fetchReleases(
   isAuthed = false,
   projectId?: string,
-  projectSlug?: string,
   cursor?: string,
   query?: string
 ) {
   if (!cursor && !query) {
-    return fetchCachedReleasesFirstPage(isAuthed, projectSlug)
+    return fetchCachedReleasesFirstPage(isAuthed, projectId)
   }
 
-  return fetchReleasesRaw(
-    isAuthed,
-    projectId,
-    projectSlug,
-    cursor,
-    query
-  )
+  return fetchReleasesRaw(isAuthed, projectId, cursor, query)
 }
 
 export async function fetchReleasesRaw(
   isAuthed: boolean = false,
   projectId?: string,
-  projectSlug?: string,
   cursor?: string,
   query?: string
 ) {
-  const totalCount = await getTotalCount(
-    isAuthed,
-    projectId,
-    projectSlug,
-    query
-  )
+  const totalCount = await getTotalCount(isAuthed, projectId, query)
   const decodedCursor = cursor ? decodeCursor(cursor) : null
   const cursorReleaseDate = decodedCursor?.releaseDate ?? null
   const cursorId = decodedCursor?.id ?? null
@@ -145,7 +132,7 @@ export async function fetchReleasesRaw(
       FROM releases AS r
       LEFT JOIN projects p ON r.project_id = p.id
       WHERE
-        (${projectSlug}::text IS NULL OR p.slug = ${projectSlug}::text)
+        (${projectId}::uuid IS NULL OR r.project_id = ${projectId}::uuid)
         AND (${isAuthed}::boolean OR r.is_published = true)
         AND (${like}::text IS NULL OR r.title ILIKE ${like} OR r.description ILIKE ${like})
         AND (
@@ -167,7 +154,7 @@ export async function fetchReleasesRaw(
       ReleaseClient,
       FetchReleasesResult
     > = {
-      res: sortReleasesByCategory(formatted.res, !!projectSlug),
+      res: sortReleasesByCategory(formatted.res, !!projectId),
       nextCursor: formatted.nextCursor,
       totalCount
     }
@@ -233,25 +220,25 @@ const sortReleasesByCategory = (
 
 async function getTotalCount(
   isAuthed: boolean,
-  _projectId?: string,
-  projectSlug?: string,
+  projectId?: string,
   query?: string
 ) {
   try {
     const like = query ? `%${query}%` : null
+
     const data = await sql`
       SELECT COUNT(*)::int AS count
       FROM releases AS r
-      LEFT JOIN projects p ON r.project_id = p.id
       WHERE
-        (${projectSlug}::text IS NULL OR p.slug = ${projectSlug}::text)
+        (${projectId}::uuid IS NULL OR r.project_id = ${projectId}::uuid)
         AND (${isAuthed}::boolean OR r.is_published = true)
         AND (
           ${like}::text IS NULL
           OR r.title ILIKE ${like}
           OR r.description ILIKE ${like}
-      );
+        );
     `
+
     return data[0]?.count ?? 0
   } catch (error) {
     console.error('Database Error:', error)

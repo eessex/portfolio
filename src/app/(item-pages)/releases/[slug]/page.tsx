@@ -5,11 +5,12 @@ import ItemLayout, {
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
 import { auth } from '@/auth'
-import { fetchCachedReleaseBySlug } from '@/lib/releases/cached'
 import {
-  fetchReleaseBySlug,
-  fetchReleasesRaw
-} from '@/lib/releases/data'
+  fetchCachedReleaseById,
+  fetchCachedReleaseBySlug
+} from '@/lib/releases/cached'
+import { fetchReleasesRaw, path } from '@/lib/releases/data'
+import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
 
 export async function generateMetadata({ params }: PageItemProps) {
@@ -22,10 +23,23 @@ export async function generateStaticParams() {
 
 export default async function ReleasePage({ params }: PageItemProps) {
   const [{ slug }, session] = await Promise.all([params, auth()])
+  const resolved = await resolveSlug(path, slug)
 
-  const release = await fetchReleaseBySlug(slug, !!session?.user)
+  if (!resolved) {
+    redirect(`/${path}`)
+  }
+
+  if (resolved.isRedirect) {
+    redirect(`/${path}/${resolved.slug}`)
+  }
+
+  const release = await fetchCachedReleaseById(
+    resolved.id,
+    !!session?.user
+  )
+
   if (!release) {
-    redirect('/releases')
+    redirect(`/${path}`)
   }
 
   return <ItemLayout item={release} />

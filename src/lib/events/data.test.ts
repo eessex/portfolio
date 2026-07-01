@@ -1,3 +1,8 @@
+import {
+  eventFixturePast,
+  eventFixtureUpcoming
+} from '@/lib/events/fixtures'
+
 jest.mock('@/lib/events/cached', () => ({
   fetchCachedEventsFirstPage: jest.fn()
 }))
@@ -21,19 +26,17 @@ jest.mock('@/lib/slug/util', () => {
   return {
     ...actual,
     resolveSlug: jest.fn(() => ({
-      id: '1',
-      slug: 'event-1',
+      id: eventFixtureUpcoming.id,
+      slug: eventFixtureUpcoming.slug,
       isRedirect: true
     })),
-    getTableIdentifier: jest.fn(() => ({ mockedTable: 'projects' }))
+    getTableIdentifier: jest.fn(() => ({ mockedTable: 'events' }))
   }
 })
 
 import { sql } from '@/lib/db'
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import * as Events from '@/lib/events/data'
-
-import { eventFixturePast, eventFixtureUpcoming } from './fixtures'
 
 const mockSql = jest.mocked(sql)
 const mockCached = jest.mocked(fetchCachedEventsFirstPage)
@@ -116,7 +119,7 @@ describe('fetchEventsRaw', () => {
   })
 })
 
-describe('fetchEventBySlug', () => {
+describe('fetchEventById', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -124,7 +127,7 @@ describe('fetchEventBySlug', () => {
   it('returns formatted event when found', async () => {
     mockSql.mockResolvedValue([eventFixturePast])
 
-    const result = await Events.fetchEventBySlug('event-1')
+    const result = await Events.fetchEventById(eventFixturePast.id)
 
     expect(result).toEqual(eventFixturePast)
   })
@@ -132,7 +135,7 @@ describe('fetchEventBySlug', () => {
   it('returns undefined when not found', async () => {
     mockSql.mockResolvedValue([])
 
-    const result = await Events.fetchEventBySlug('missing')
+    const result = await Events.fetchEventById('missing')
 
     expect(result).toBeUndefined()
   })
@@ -140,8 +143,10 @@ describe('fetchEventBySlug', () => {
   it('throws on DB error', async () => {
     mockSql.mockRejectedValue(new Error('db exploded'))
 
-    await expect(Events.fetchEventBySlug('event-1')).rejects.toThrow(
-      'Failed to fetch event: event-1.'
+    await expect(
+      Events.fetchEventById(eventFixturePast.id)
+    ).rejects.toThrow(
+      `Failed to fetch event: ${eventFixturePast.id}.`
     )
   })
 })

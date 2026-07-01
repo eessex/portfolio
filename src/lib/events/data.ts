@@ -103,13 +103,12 @@ export async function fetchEventsRaw(
     }
     return res
   } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch events.')
+    throw new Error('Failed to fetch events.', { cause: error })
   }
 }
 
-export async function fetchEventBySlug(
-  slug: string,
+export async function fetchEventById(
+  id: string,
   isAuthed: boolean = false
 ) {
   try {
@@ -156,7 +155,7 @@ export async function fetchEventBySlug(
         ) AS venue
       FROM events as e
       WHERE (${isAuthed} OR e.is_published = true)
-       AND e.slug = ${slug};
+       AND e.id = ${id};
     `
 
     if (!data[0]) {
@@ -170,8 +169,7 @@ export async function fetchEventBySlug(
       eventClientSchema
     )
   } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error(`Failed to fetch event: ${slug}.`)
+    throw new Error(`Failed to fetch event: ${id}.`, { cause: error })
   }
 }
 
@@ -202,7 +200,6 @@ export async function getTotalCount(
     `
     return data[0]?.count ?? 0
   } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch event count.')
+    throw new Error('Failed to fetch event count.', { cause: error })
   }
 }

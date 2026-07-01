@@ -7,11 +7,11 @@ import ItemLayout, {
 } from '@/app/(item-pages)/item-layout'
 import { auth } from '@/auth'
 import { fetchEvents } from '@/lib/events/data'
-import { fetchCachedProjectBySlug } from '@/lib/projects/cached'
 import {
-  fetchProjectById,
-  fetchProjectsRaw
-} from '@/lib/projects/data'
+  fetchCachedProjectById,
+  fetchCachedProjectBySlug
+} from '@/lib/projects/cached'
+import { fetchProjectsRaw, path } from '@/lib/projects/data'
 import { fetchReleases } from '@/lib/releases/data'
 import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
@@ -28,25 +28,24 @@ export async function generateStaticParams() {
 
 export default async function ProjectPage({ params }: PageItemProps) {
   const [{ slug }, session] = await Promise.all([params, auth()])
-
-  const resolved = await resolveSlug('projects', slug)
+  const resolved = await resolveSlug(path, slug)
 
   if (!resolved) {
-    redirect('/projects')
+    redirect(`/${path}`)
   }
 
   if (resolved.isRedirect) {
-    redirect(`/projects/${resolved.slug}`)
+    redirect(`/${path}/${resolved.slug}`)
   }
 
   const [project, releases, events] = await Promise.all([
-    fetchProjectById(resolved.id, !!session?.user),
+    fetchCachedProjectById(resolved.id, !!session?.user),
     fetchReleases(!!session?.user, resolved.id),
     fetchEvents(!!session?.user, resolved.id)
   ])
 
   if (!project) {
-    redirect('/projects')
+    redirect(`/${path}`)
   }
 
   return (

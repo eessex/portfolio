@@ -6,12 +6,13 @@ import ItemLayout, {
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
 import { auth } from '@/auth'
-import { fetchCachedEventBySlug } from '@/lib/events/cached'
 import {
-  fetchEventBySlug,
-  fetchEvents,
-  fetchEventsRaw
-} from '@/lib/events/data'
+  fetchCachedEventById,
+  fetchCachedEventBySlug
+} from '@/lib/events/cached'
+import { fetchEvents, fetchEventsRaw } from '@/lib/events/data'
+import { path } from '@/lib/projects/data'
+import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
 import { ItemsList } from '@/ui/items/items-list'
 import { Loading } from '@/ui/loading'
@@ -27,6 +28,15 @@ export async function generateStaticParams() {
 
 export default async function EventPage({ params }: PageItemProps) {
   const [{ slug }, session] = await Promise.all([params, auth()])
+  const resolved = await resolveSlug(path, slug)
+
+  if (!resolved) {
+    redirect(`/${path}`)
+  }
+
+  if (resolved.isRedirect) {
+    redirect(`/${path}/${resolved.slug}`)
+  }
 
   const [
     event,
@@ -34,11 +44,12 @@ export default async function EventPage({ params }: PageItemProps) {
       res: { upcomingEvents }
     }
   ] = await Promise.all([
-    fetchEventBySlug(slug, !!session?.user),
+    fetchCachedEventById(resolved.id, !!session?.user),
     fetchEvents(!!session?.user)
   ])
+
   if (!event) {
-    redirect('/events')
+    redirect(`/${path}`)
   }
 
   const moreEvents = upcomingEvents.filter((e) => e.id !== event.id)

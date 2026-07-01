@@ -5,6 +5,7 @@ import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
+import { sortReleasesByCategory } from '@/lib/releases/util'
 import type {
   PageItemResponseWithCursor,
   PagePathType
@@ -16,10 +17,10 @@ import {
   formatResponseWithCursor
 } from '@/lib/util'
 
-const path: PagePathType = 'releases'
+export const path: PagePathType = 'releases'
 
-export async function fetchReleaseBySlug(
-  slug: string,
+export async function fetchReleaseById(
+  id: string,
   isAuthed: boolean = false
 ) {
   try {
@@ -66,7 +67,7 @@ export async function fetchReleaseBySlug(
         ) AS published_editions
       FROM releases as r
       WHERE (${isAuthed} OR r.is_published = true)
-       AND r.slug = ${slug}
+       AND r.id = ${id}
     `
     if (data.length === 0) {
       return
@@ -79,8 +80,9 @@ export async function fetchReleaseBySlug(
       releaseClientSchema
     )
   } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error(`Failed to fetch release ${slug}.`)
+    throw new Error(`Failed to fetch release: ${id}.`, {
+      cause: error
+    })
   }
 }
 
@@ -161,61 +163,8 @@ export async function fetchReleasesRaw(
 
     return res
   } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch releases.')
+    throw new Error('Failed to fetch releases.', { cause: error })
   }
-}
-
-const sortReleasesByCategory = (
-  releases: ReleaseClient[],
-  isProject: boolean
-) => {
-  const result: FetchReleasesResult = {
-    albums: [],
-    soundtracks: [],
-    eps: [],
-    singlesAndCompilations: [],
-    collaborativeReleases: [],
-    featuredOn: [],
-    everythingElse: [],
-    releases: [] // For project pages, pages where there's only a couple releases
-  }
-
-  const hasMultipleTypes =
-    new Set(releases.map((r) => r.type)).size > 1
-
-  if (isProject && !hasMultipleTypes) {
-    result.releases = [...releases]
-    return result
-  }
-
-  for (const release of releases) {
-    switch (release.type) {
-      case 'album':
-        result.albums.push(release)
-        break
-      case 'single':
-      case 'compilation':
-        result.singlesAndCompilations.push(release)
-        break
-      case 'soundtrack':
-        result.soundtracks.push(release)
-        break
-      case 'collaborative_release':
-        result.collaborativeReleases.push(release)
-        break
-      case 'feature':
-        result.featuredOn.push(release)
-        break
-      case 'ep':
-        result.eps.push(release)
-        break
-      default:
-        result.everythingElse.push(release)
-    }
-  }
-
-  return result
 }
 
 async function getTotalCount(
@@ -241,7 +190,8 @@ async function getTotalCount(
 
     return data[0]?.count ?? 0
   } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch releases count.')
+    throw new Error('Failed to fetch release count.', {
+      cause: error
+    })
   }
 }

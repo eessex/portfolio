@@ -84,9 +84,7 @@ describe('Embed Code Actions', () => {
     })
 
     it('can handle validation errors', async () => {
-      const invalid: Partial<CreateEmbedCode> = {
-        ...newEmbedCodeFixture
-      }
+      const invalid: Partial<CreateEmbedCode> = newEmbedCodeFixture
       delete invalid.iframe
       const res = await editEmbedCode(formDataFromObject(invalid))
 

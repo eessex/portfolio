@@ -5,8 +5,10 @@ import type {
   FetchProjectsResult,
   ProjectClient
 } from '@/lib/projects/types'
-import type { pagePathTypes } from '@/lib/schemas'
-import type { PageItemResponseWithCursor } from '@/lib/types'
+import type {
+  PageItemResponseWithCursor,
+  PagePathType
+} from '@/lib/types'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -14,7 +16,7 @@ import {
   formatResponseWithCursor
 } from '@/lib/util'
 
-const path: (typeof pagePathTypes)[number] = 'projects'
+export const path: PagePathType = 'projects'
 const projectPathType = 'project'
 
 export async function fetchProjects(
@@ -40,7 +42,7 @@ export async function fetchProjectsRaw(
   const cursorStartDate = decodedCursor?.startDate ?? null
   const cursorId = decodedCursor?.id ?? null
   const like = query ? `%${query}%` : null
-
+  console.info('EVE totalcount', totalCount, getTotalCount)
   try {
     const data = await sql`
       SELECT
@@ -90,65 +92,7 @@ export async function fetchProjectsRaw(
     }
     return res
   } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error(`Failed to fetch ${path}.`)
-  }
-}
-
-export async function fetchProjectBySlug(
-  slug: string,
-  isAuthed: boolean = false
-): Promise<ProjectClient | undefined> {
-  try {
-    const data = await sql`
-      SELECT
-        p.*,
-        (
-          SELECT build_image_json(i)
-          FROM images i
-          WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
-        ) AS cover_image,
-        (
-          SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
-          FROM embed_codes ec
-          WHERE ec.id = ANY(p.embed_code_ids)
-            AND ec.id != p.embed_code_ids[1]
-        ) AS embed_codes,
-        (
-          SELECT build_embed_code_json(ec)
-          FROM embed_codes ec
-          WHERE ec.id = p.embed_code_ids[1]
-        ) AS featured_embed_code,
-        (
-          SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
-          FROM images i
-          WHERE i.id = ANY(p.image_ids)
-            AND i.id != COALESCE(p.cover_image_id, p.image_ids[1])
-        ) AS images,
-        (
-          SELECT COALESCE(jsonb_agg(build_link_json(l)), '[]'::jsonb)
-          FROM links l
-          WHERE l.id = ANY(p.link_ids)
-        ) AS links
-      FROM projects as p
-      WHERE p.slug = ${slug}
-        AND (${isAuthed} OR p.is_published = true)
-      LIMIT 1
-    ;`
-    if (data.length === 0) {
-      return undefined
-    }
-    const project = formatDbResponseForClient(
-      {
-        ...data[0],
-        path
-      },
-      projectClientSchema
-    )
-    return project
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error(`Failed to fetch ${projectPathType}: ${slug}.`)
+    throw new Error(`Failed to fetch ${path}.`, { cause: error })
   }
 }
 
@@ -204,12 +148,13 @@ export async function fetchProjectById(
     )
     return project
   } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error(`Failed to fetch ${projectPathType}: ${id}.`)
+    throw new Error(`Failed to fetch ${projectPathType}: ${id}.`, {
+      cause: error
+    })
   }
 }
 
-async function getTotalCount(
+export async function getTotalCount(
   isAuthed: boolean = false,
   query?: string
 ) {
@@ -227,7 +172,8 @@ async function getTotalCount(
     `
     return data[0]?.count ?? 0
   } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch project count.')
+    throw new Error('Failed to fetch project count.', {
+      cause: error
+    })
   }
 }

@@ -6,6 +6,7 @@ import type {
   ReleaseClient
 } from '@/lib/releases/types'
 import { sortReleasesByCategory } from '@/lib/releases/util'
+import type { pagePathTypes } from '@/lib/schemas'
 import type {
   PageItemResponseWithCursor,
   PagePathType
@@ -16,8 +17,12 @@ import {
   formatDbResponseForClient,
   formatResponseWithCursor
 } from '@/lib/util'
+import { singularizePath } from '@/ui/util'
 
 export const path: PagePathType = 'releases'
+const pathSingular = singularizePath(
+  path
+) as (typeof pagePathTypes)[number]
 
 export async function fetchReleaseById(
   id: string,
@@ -80,7 +85,7 @@ export async function fetchReleaseById(
       releaseClientSchema
     )
   } catch (error) {
-    throw new Error(`Failed to fetch release: ${id}.`, {
+    throw new Error(`Failed to fetch ${pathSingular}: ${id}.`, {
       cause: error
     })
   }
@@ -163,7 +168,9 @@ export async function fetchReleasesRaw(
 
     return res
   } catch (error) {
-    throw new Error('Failed to fetch releases.', { cause: error })
+    throw new Error(`Failed to fetch ${path}.`, {
+      cause: error
+    })
   }
 }
 
@@ -190,7 +197,7 @@ async function getTotalCount(
 
     return data[0]?.count ?? 0
   } catch (error) {
-    throw new Error('Failed to fetch release count.', {
+    throw new Error(`Failed to fetch ${pathSingular} count.`, {
       cause: error
     })
   }

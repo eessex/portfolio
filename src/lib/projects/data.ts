@@ -5,6 +5,7 @@ import type {
   FetchProjectsResult,
   ProjectClient
 } from '@/lib/projects/types'
+import type { pagePathTypes } from '@/lib/schemas'
 import type {
   PageItemResponseWithCursor,
   PagePathType
@@ -15,9 +16,12 @@ import {
   formatDbResponseForClient,
   formatResponseWithCursor
 } from '@/lib/util'
+import { singularizePath } from '@/ui/util'
 
 export const path: PagePathType = 'projects'
-const projectPathType = 'project'
+const pathSingular = singularizePath(
+  path
+) as (typeof pagePathTypes)[number]
 
 export async function fetchProjects(
   isAuthed: boolean = false,
@@ -42,7 +46,7 @@ export async function fetchProjectsRaw(
   const cursorStartDate = decodedCursor?.startDate ?? null
   const cursorId = decodedCursor?.id ?? null
   const like = query ? `%${query}%` : null
-  console.info('EVE totalcount', totalCount, getTotalCount)
+
   try {
     const data = await sql`
       SELECT
@@ -148,7 +152,7 @@ export async function fetchProjectById(
     )
     return project
   } catch (error) {
-    throw new Error(`Failed to fetch ${projectPathType}: ${id}.`, {
+    throw new Error(`Failed to fetch ${pathSingular}: ${id}.`, {
       cause: error
     })
   }
@@ -172,7 +176,7 @@ export async function getTotalCount(
     `
     return data[0]?.count ?? 0
   } catch (error) {
-    throw new Error('Failed to fetch project count.', {
+    throw new Error(`Failed to fetch ${pathSingular} count.`, {
       cause: error
     })
   }

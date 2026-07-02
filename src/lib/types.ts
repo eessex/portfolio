@@ -1,4 +1,4 @@
-import type { EmbedCode } from '@/lib/embed-codes/types'
+import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import type {
   EventClient,
   FetchEventsResult

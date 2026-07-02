@@ -2,7 +2,7 @@
 
 import { XMarkIcon } from '@heroicons/react/24/outline'
 
-import type { EmbedCode } from '@/lib/embed-codes/types'
+import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import { defaultEmbedSizeByHost } from '@/ui/embed-codes/util'
 
 export function EmbedCodeItem({

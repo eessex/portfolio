@@ -1,6 +1,6 @@
 import z from 'zod'
 
-import { embedCodeSchema } from '@/lib/embed-codes/schemas'
+import { embedCodeSchema } from '@/lib/embed-codes/schemas/db'
 import { imageSchema } from '@/lib/images/schemas'
 import { linkSchema } from '@/lib/links/schemas'
 import { projectSchema } from '@/lib/projects/schemas'
@@ -9,6 +9,7 @@ import { tagSchema } from '@/lib/tags/schemas'
 import { venueSchema } from '@/lib/venues/schemas'
 
 /**
+ * @deprecated
  * IDs of items that can be embedded within pages,
  * their metadata will be included when fetching a page.
  */

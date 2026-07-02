@@ -3,11 +3,13 @@
 import NextLink from 'next/link'
 import { useCallback, useId, useState } from 'react'
 
-import { embedCodeTypes } from '@/lib/embed-codes/schemas'
-import type {
-  DashboardEmbedCode,
-  EmbedCode
-} from '@/lib/embed-codes/types'
+import type { DashboardEmbedCode } from '@/lib/embed-codes/schemas/client'
+import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
+import {
+  EmbedCodeHosts,
+  EmbedCodeTypes,
+  embedCodeTypes
+} from '@/lib/embed-codes/schemas/db'
 import type { DashboardImage, Image } from '@/lib/images/types'
 import { linkTypes } from '@/lib/links/schemas'
 import type { DashboardLink, Link } from '@/lib/links/types'
@@ -74,7 +76,9 @@ interface DashboardProps<T extends DashboardItem> {
   apiEndpoint: string
   itemType: EmbeddedItemType
   res: ResponseWithCursor<T>
-  deleteItem: (item: T) => Promise<FormResponse<T> | undefined>
+  deleteItem: (
+    item: T
+  ) => Promise<FormResponse<Partial<T>> | undefined>
 }
 
 export function DashboardItems<T extends DashboardItem>({
@@ -286,10 +290,12 @@ function DashboardListItem<T extends DashboardItem>({
     switch (itemType) {
       case EmbeddedItemTypes.embedCodes: {
         const castItem = item as EmbedCode
-        let formattedPrefix = capitalizeFirstLetter(castItem.host)
+        let formattedPrefix = castItem.host
+          ? capitalizeFirstLetter(castItem.host)
+          : ''
         if (
-          castItem.type === 'video' &&
-          castItem.host === 'youtube'
+          castItem.type === EmbedCodeTypes.video &&
+          castItem.host === EmbedCodeHosts.youtube
         ) {
           formattedPrefix = 'YouTube'
         }

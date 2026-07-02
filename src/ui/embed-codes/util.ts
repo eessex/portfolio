@@ -1,23 +1,24 @@
 'use client'
 
 import {
-  audioEmbedCodeHosts,
+  type CreateEmbedCode,
   type EmbedCodeHost,
+  EmbedCodeHosts,
   embedCodeHosts,
-  videoEmbedCodeHosts
-} from '@/lib/embed-codes/schemas'
-import type { CreateEmbedCode } from '@/lib/embed-codes/types'
+  EmbedCodeHostsByType,
+  EmbedCodeTypes
+} from '@/lib/embed-codes/schemas/db'
 
 export function defaultEmbedSizeByHost(
   host?: EmbedCodeHost
 ): EmbedCodeDimensions {
   switch (host) {
-    case 'bandcamp':
-    case 'mixcloud':
+    case EmbedCodeHosts.bandcamp:
+    case EmbedCodeHosts.mixcloud:
       return { height: '120px' }
-    case 'soundcloud':
+    case EmbedCodeHosts.soundcloud:
       return { height: '166px' }
-    case 'spotify':
+    case EmbedCodeHosts.spotify:
       return { height: '80px' }
     default:
       return { aspectRatio: 1.777 }
@@ -25,23 +26,18 @@ export function defaultEmbedSizeByHost(
 }
 
 export function extractHostnameType(hostname: EmbedCodeHost) {
-  const audioType = audioEmbedCodeHosts.find((host) =>
+  const videoType = EmbedCodeHostsByType.video.find((host) =>
     hostname.includes(host)
   )
-  if (audioType) return 'audio'
+  if (videoType) return EmbedCodeTypes.video
 
-  const videoType = videoEmbedCodeHosts.find((host) =>
-    hostname.includes(host)
-  )
-  if (videoType) return 'video'
-
-  return 'audio' // default to audio if unknown
+  return EmbedCodeTypes.audio
 }
 
 export function extractHostFromUrl(url: string): EmbedCodeHost {
   const parsed = new URL(url)
   const host = embedCodeHosts.find((h) => parsed.hostname.includes(h))
-  return host ?? 'unknown'
+  return host ?? EmbedCodeHosts.unknown
 }
 
 function isSafeIframeUrl(url: string): boolean {
@@ -111,10 +107,12 @@ export function extractIframeParams(
   let params: CreateEmbedCode
   const host =
     embedCode.host ||
-    (embedCode.src ? extractHostFromUrl(embedCode.src) : 'unknown')
+    (embedCode.src
+      ? extractHostFromUrl(embedCode.src)
+      : EmbedCodeHosts.unknown)
   const type =
     embedCode.type ||
-    (embedCode.src ? extractHostnameType(host) : 'audio')
+    (embedCode.src ? extractHostnameType(host) : EmbedCodeTypes.audio)
 
   if (embedCode.src) {
     params = {

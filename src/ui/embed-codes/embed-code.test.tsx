@@ -1,7 +1,7 @@
 import {
   embedCodeBandcampFixtureMedium,
   embedCodeMixcloudFixtureRegular,
-  embedCodeSoundcloudFixture,
+  embedCodeSoundcloudFixtureRaw,
   embedCodeSpotifyFixture,
   embedCodeUnknownFixtureAttrs,
   embedCodeVimeoFixture,
@@ -62,7 +62,7 @@ describe('#extractIframeParams', () => {
 
     it('returns type for SoundCloud', () => {
       const result = extractIframeParams({
-        iframe: embedCodeSoundcloudFixture
+        iframe: embedCodeSoundcloudFixtureRaw
       })
       expect(result?.type).toBe('audio')
       expect(result?.host).toBe('soundcloud')
@@ -103,7 +103,7 @@ describe('#extractIframeParams', () => {
 
     it('returns title for soundcloud iframe', () => {
       const result = extractIframeParams({
-        iframe: embedCodeSoundcloudFixture
+        iframe: embedCodeSoundcloudFixtureRaw
       })
       expect(result?.title).toBe('Eve Essex - Honeypot')
     })

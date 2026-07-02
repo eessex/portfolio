@@ -30,19 +30,24 @@ function getEditFormComponent(itemType: EmbeddedItemType) {
   }
 }
 
-export function EditEmbeddedItemForm<T = EmbeddedItem>({
+export function EditEmbeddedItemForm<
+  T extends EmbeddedItem = EmbeddedItem
+>({
   item,
   itemType,
   editItem
 }: {
   item?: T
   itemType: EmbeddedItemType
-  editItem: (formData: FormData) => Promise<FormResponse<T>>
+  editItem: (
+    formData: FormData,
+    id?: string
+  ) => Promise<FormResponse<T>>
 }) {
   const router = useRouter()
 
   async function handleSubmit(formData: FormData) {
-    const res = await editItem(formData)
+    const res = await editItem(formData, item?.id)
     if (res?.ok && res.res) {
       router.push(`/dashboard/${camelToSnake(itemType)}`)
     }

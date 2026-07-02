@@ -3,30 +3,25 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
+import { fetchEmbedCodesByIds } from '@/lib/embed-codes/data'
 import {
+  type CreateEmbedCode,
   createEmbedCodeSchema,
-  editEmbedCodeSchema,
+  type EmbedCode,
   embedCodeSchema
-} from '@/lib/embed-codes/schemas'
-import type {
-  CreateEmbedCode,
-  EmbedCode
-} from '@/lib/embed-codes/types'
+} from '@/lib/embed-codes/schemas/db'
 import type { FormResponse } from '@/lib/types'
 import { formatDbResponseForClient } from '@/lib/util'
 
 export async function editEmbedCode(
-  formData: FormData
+  formData: FormData,
+  id?: string
 ): Promise<FormResponse<EmbedCode>> {
-  let validatedEmbedCode
   const data: Record<FormData['entries']['name'], unknown> =
     Object.fromEntries(formData)
 
-  if (formData.get('id')) {
-    validatedEmbedCode = editEmbedCodeSchema.safeParse(data)
-  } else {
-    validatedEmbedCode = createEmbedCodeSchema.safeParse(data)
-  }
+  const validatedEmbedCode = createEmbedCodeSchema.safeParse(data)
+
   if (!validatedEmbedCode.success) {
     return {
       ok: false,
@@ -35,14 +30,20 @@ export async function editEmbedCode(
     }
   }
   try {
-    const updatedEmbedCode = await updateEmbedCode(
-      validatedEmbedCode.data
-    )
-    if (updatedEmbedCode) {
+    let savedEmbedCode: EmbedCode | undefined
+    if (id) {
+      savedEmbedCode = await updateEmbedCode(
+        validatedEmbedCode.data,
+        id
+      )
+    } else {
+      savedEmbedCode = await createEmbedCode(validatedEmbedCode.data)
+    }
+    if (savedEmbedCode) {
       updateTag('embed-codes')
       return {
         ok: true,
-        res: updatedEmbedCode
+        res: savedEmbedCode
       }
     }
   } catch (err) {
@@ -66,7 +67,7 @@ export async function deleteEmbedCode(
       DELETE FROM embed_codes
       WHERE
         id = ${embedCode.id}
-        OR iframe = ${embedCode.iframe}
+        OR src = ${embedCode.src}
     `
     updateTag('embed-codes')
     return { ok: true }
@@ -85,25 +86,18 @@ export async function deleteEmbedCode(
 
 async function createEmbedCode(embedCode: CreateEmbedCode) {
   try {
-    const { src, iframe, type, caption, title, host } = embedCode
+    const { caption, contentType, host, iframe, src, title, type } =
+      toDbRow(embedCode)
     return await sql`
-      INSERT INTO embed_codes (
-        src,
-        iframe,
-        type,
-        caption,
-        title,
-        host,
-        created_at
-      ) VALUES (
-        ${src},
-        ${iframe},
-        ${type},
-        ${caption || null},
-        ${title || null},
-        ${host},
-        current_timestamp
-      )
+      INSERT INTO embed_codes
+        caption = ${caption},
+        content_type = ${contentType},
+        host = ${host},
+        iframe = ${iframe},
+        src = ${src},
+        title = ${title},
+        type = ${type},
+        created_at = current_timestamp
       RETURNING *
     `.then((rows) =>
       formatDbResponseForClient(rows[0], embedCodeSchema)
@@ -118,43 +112,51 @@ async function createEmbedCode(embedCode: CreateEmbedCode) {
 }
 
 async function updateEmbedCode(
-  embedCode: CreateEmbedCode | EmbedCode
+  embedCode: CreateEmbedCode,
+  id: string
 ) {
+  const [existingEmbedCode] = await fetchEmbedCodesByIds([id])
   try {
-    if (!(embedCode as EmbedCode).id) {
-      return await createEmbedCode(embedCode)
-    } else {
-      const { src, iframe, type, caption, title, host } = embedCode
-      return await sql`
-        UPDATE embed_codes
-        SET (
-          src,
-          iframe,
-          type,
-          caption,
-          title,
-          host,
-          updated_at
-        ) = (
-          ${src},
-          ${iframe},
-          ${type},
-          ${caption || null},
-          ${title || null},
-          ${host || null},
-          current_timestamp
-        )
-        WHERE id = ${(embedCode as EmbedCode).id}
-        RETURNING *
+    const { caption, contentType, host, iframe, src, title, type } =
+      toDbRow(embedCode, existingEmbedCode)
+    return await sql`
+      UPDATE embed_codes
+      SET
+        caption = ${caption},
+        content_type = ${contentType},
+        host = ${host},
+        iframe = ${iframe},
+        src = ${src},
+        title = ${title},
+        type = ${type},
+        updated_at = current_timestamp
+      WHERE id = ${id}
+      RETURNING *
       `.then((rows) =>
-        formatDbResponseForClient(rows[0], embedCodeSchema)
-      )
-    }
+      formatDbResponseForClient(rows[0], embedCodeSchema)
+    )
   } catch (err) {
     throw new Error(
       err instanceof Error
         ? err.message
         : 'Failed to update embed code.'
     )
+  }
+}
+
+function toDbRow(embedCode: CreateEmbedCode, existing?: EmbedCode) {
+  const embedCodeToSave = {
+    ...existing,
+    ...embedCode
+  }
+
+  return {
+    caption: embedCodeToSave.caption,
+    contentType: embedCodeToSave.contentType,
+    host: embedCodeToSave.host,
+    iframe: embedCodeToSave.iframe,
+    src: embedCodeToSave.src,
+    title: embedCodeToSave.title,
+    type: embedCodeToSave.type ?? null
   }
 }

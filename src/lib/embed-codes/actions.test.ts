@@ -6,13 +6,13 @@ import {
   editEmbedCode
 } from '@/lib/embed-codes/actions'
 import {
-  embedCodeFixture,
-  newEmbedCodeFixture
+  createEmbedCodeFixture,
+  embedCodeFixture
 } from '@/lib/embed-codes/fixtures'
 import type {
   CreateEmbedCode,
   EmbedCode
-} from '@/lib/embed-codes/types'
+} from '@/lib/embed-codes/schemas/db'
 import { formDataFromObject } from '@/test/helpers'
 
 jest.mock('next/cache')
@@ -61,7 +61,7 @@ describe('Embed Code Actions', () => {
     it('can create a new embedCode', async () => {
       mockSql.mockResolvedValueOnce([embedCodeFixture])
       const res = await editEmbedCode(
-        formDataFromObject(newEmbedCodeFixture)
+        formDataFromObject(createEmbedCodeFixture)
       )
 
       expect(res?.ok).toBe(true)
@@ -85,13 +85,13 @@ describe('Embed Code Actions', () => {
 
     it('can handle validation errors', async () => {
       const invalid: Partial<CreateEmbedCode> = {
-        ...newEmbedCodeFixture
+        ...createEmbedCodeFixture
       }
-      delete invalid.iframe
+      delete invalid.src
       const res = await editEmbedCode(formDataFromObject(invalid))
 
       expect(res!.message).toBe('Failed to validate embed code.')
-      expect(res!.errors).toEqual({ iframe: ['Required'] })
+      expect(res!.errors).toEqual({ src: ['Required'] })
     })
   })
 })

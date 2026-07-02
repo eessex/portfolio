@@ -45,7 +45,7 @@ export async function fetchImageByUrl(image: CreateImage) {
     }
   } catch (error) {
     console.error('Database Error:', error)
-    throw new Error('Failed to fetch embed code by iframe.')
+    throw new Error('Failed to fetch image by URL.')
   }
 }
 

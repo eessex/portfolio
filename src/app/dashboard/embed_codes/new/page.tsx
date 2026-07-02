@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
 import { editEmbedCode } from '@/lib/embed-codes/actions'
-import type { EmbedCode } from '@/lib/embed-codes/types'
+import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import { EmbeddedItemTypes } from '@/lib/schemas'
 
 const title = 'New Embed Code'

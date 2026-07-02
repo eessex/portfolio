@@ -2,14 +2,9 @@
 
 import { sql } from '@/lib/db'
 import { fetchCachedEmbedCodesFirstPage } from '@/lib/embed-codes/cached'
-import {
-  dashboardEmbedCodeSchema,
-  embedCodeSchema
-} from '@/lib/embed-codes/schemas'
-import type {
-  CreateEmbedCode,
-  DashboardEmbedCode
-} from '@/lib/embed-codes/types'
+import type { DashboardEmbedCode } from '@/lib/embed-codes/schemas/client'
+import { dashboardEmbedCodeSchema } from '@/lib/embed-codes/schemas/client'
+import { embedCodeSchema } from '@/lib/embed-codes/schemas/db'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -44,41 +39,6 @@ export const fetchEmbedCodesByIds = async (ids: string[]) => {
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch embed codes.')
-  }
-}
-
-export async function fetchEmbedCodeByIframe(iframe: string) {
-  try {
-    const data = await sql`
-      SELECT
-        embed_codes.*,
-        ARRAY(
-          SELECT slug FROM events AS e
-          WHERE e.embed_code_ids @> ARRAY[embed_codes.id]
-        ) AS event_slugs,
-        ARRAY(
-          SELECT slug FROM projects AS p
-          WHERE p.embed_code_ids @> ARRAY[embed_codes.id]
-        ) AS project_slugs,
-        ARRAY(
-          SELECT slug FROM releases AS r
-          WHERE r.embed_code_ids @> ARRAY[embed_codes.id]
-        ) AS release_slugs
-      FROM embed_codes
-      WHERE iframe = ${iframe}
-      LIMIT 1
-    `
-    if (data.length === 0) {
-      return null
-    } else {
-      return {
-        res: formatDbResponseForClient(data[0], embedCodeSchema),
-        fieldName: 'iframe' as keyof CreateEmbedCode
-      }
-    }
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch embed code by iframe.')
   }
 }
 

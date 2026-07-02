@@ -6,6 +6,7 @@ import { clsx } from 'clsx'
 import NextImage from 'next/image'
 import NextLink from 'next/link'
 
+import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import type { EventClient } from '@/lib/events/types'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
@@ -45,11 +46,13 @@ export function ItemsTableRow({
   const isPriorityImage = !!(isFeatured || (index || 0) < 12)
   const imageWidth = 350
   const hasVideo = !!item.embedCodes?.some(
-    (code) => code.type === 'video'
+    (code) => code.type === EmbedCodeTypes.video
   )
   const hasAudio =
     item.path !== PagePaths.releases &&
-    !!item.embedCodes?.some((code) => code.type === 'audio')
+    !!item.embedCodes?.some(
+      (code) => code.type === EmbedCodeTypes.audio
+    )
 
   return (
     <tr

@@ -332,7 +332,7 @@ export function formatVenueInline({
   format,
   isNameHidden
 }: {
-  venue: Omit<Venue, 'id'>
+  venue: Partial<Venue>
   format?: 'sm' | 'lg'
   isNameHidden?: boolean
 }): string {

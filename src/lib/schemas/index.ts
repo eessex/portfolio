@@ -32,8 +32,15 @@ export const embeddedItemTypes = [
   'embedCodes',
   'images',
   'links',
+  'publishedEditions',
   'venues'
 ] as const
+export const EmbeddedItemTypes = Object.fromEntries(
+  embeddedItemTypes.map((v) => [v, v])
+) as {
+  [K in (typeof embeddedItemTypes)[number]]: K
+}
+export type EmbeddedItemType = (typeof embeddedItemTypes)[number]
 
 /**
  * START Basic reusable schemas

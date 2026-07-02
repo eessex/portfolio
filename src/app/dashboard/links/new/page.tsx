@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
 import { editLink } from '@/lib/links/actions'
 import type { Link } from '@/lib/links/types'
+import { EmbeddedItemTypes } from '@/lib/schemas'
 
 const title = 'New Link'
 export const metadata: Metadata = { title }
@@ -15,7 +16,7 @@ export default function NewLinkPage() {
       </header>
 
       <EditEmbeddedItemForm<Link>
-        itemType='links'
+        itemType={EmbeddedItemTypes.links}
         editItem={editLink}
       />
     </article>

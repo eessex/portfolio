@@ -1,7 +1,7 @@
 import PencilIcon from '@heroicons/react/24/outline/PencilIcon'
 import TrashIcon from '@heroicons/react/24/outline/TrashIcon'
 
-import type { EmbeddedItemType } from '@/lib/types'
+import type { EmbeddedItemType } from '@/lib/schemas'
 import styles from '@/ui/form/form.module.scss'
 import { camelToSnake } from '@/ui/util'
 

@@ -11,7 +11,11 @@ import type {
 import type { DashboardImage, Image } from '@/lib/images/types'
 import { linkTypes } from '@/lib/links/schemas'
 import type { DashboardLink, Link } from '@/lib/links/types'
-import type { EmbeddedItemType, FormResponse } from '@/lib/types'
+import {
+  type EmbeddedItemType,
+  EmbeddedItemTypes
+} from '@/lib/schemas'
+import type { FormResponse } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
 import type { DashboardVenue, Venue } from '@/lib/venues/types'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
@@ -175,9 +179,9 @@ export function DashboardItems<T extends DashboardItem>({
 
   function filterTypes() {
     switch (itemType) {
-      case 'links':
+      case EmbeddedItemTypes.links:
         return [...linkTypes]
-      case 'embedCodes':
+      case EmbeddedItemTypes.embedCodes:
         return [...embedCodeTypes]
       default:
         return undefined
@@ -280,7 +284,7 @@ function DashboardListItem<T extends DashboardItem>({
 
   function title() {
     switch (itemType) {
-      case 'embedCodes': {
+      case EmbeddedItemTypes.embedCodes: {
         const castItem = item as EmbedCode
         let formattedPrefix = capitalizeFirstLetter(castItem.host)
         if (
@@ -291,11 +295,11 @@ function DashboardListItem<T extends DashboardItem>({
         }
         return `${formattedPrefix}: ${castItem.title}` || 'Untitled'
       }
-      case 'links': {
+      case EmbeddedItemTypes.links: {
         const castItem = item as Link
         return `${castItem.title}` || 'Untitled'
       }
-      case 'images': {
+      case EmbeddedItemTypes.images: {
         const imageItem = item as Image
         const fileName = imageItem.url
           ? decodeURIComponent(imageItem.url).split('/').pop()
@@ -304,7 +308,7 @@ function DashboardListItem<T extends DashboardItem>({
           imageItem.title || imageItem.caption || 'Untitled image'
         return `${imageTitle}${fileName ? `: ${fileName}` : ''}`
       }
-      case 'venues': {
+      case EmbeddedItemTypes.venues: {
         const venueItem = item as DashboardVenue
         return formatVenueInline({
           venue: venueItem,
@@ -379,16 +383,16 @@ export function ItemDisplay({
   itemType: EmbeddedItemType
 }) {
   switch (itemType) {
-    case 'embedCodes':
+    case EmbeddedItemTypes.embedCodes:
       return <EmbedCodeItem embedCode={item as EmbedCode} />
-    case 'images':
+    case EmbeddedItemTypes.images:
       return <ImageFigure image={item as Image} />
-    case 'links':
+    case EmbeddedItemTypes.links:
       if ((item as Link).quotation || (item as Link).attribution) {
         return <LinkItem link={item as Link} />
       }
       break
-    case 'venues':
+    case EmbeddedItemTypes.venues:
       return (
         <>
           <div>

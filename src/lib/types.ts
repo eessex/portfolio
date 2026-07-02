@@ -13,7 +13,6 @@ import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import type { embeddedItemTypes } from '@/lib/schemas'
 import type { Venue } from '@/lib/venues/types'
 
 export type PageDataResponse =
@@ -47,7 +46,6 @@ export type PageEmbeddedItemProps = {
   params: Promise<{ id: string }>
 }
 
-export type EmbeddedItemType = (typeof embeddedItemTypes)[number]
 export type EmbeddedItem = EmbedCode | Image | Link | Venue
 
 // FIXME: multiple not yet used, but some endpoints might need it

@@ -6,11 +6,11 @@ import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
 import { editLink } from '@/lib/links/actions'
 import { fetchLinksByIds } from '@/lib/links/data'
 import type { Link } from '@/lib/links/types'
+import { EmbeddedItemTypes } from '@/lib/schemas'
 import type { PageEmbeddedItemProps } from '@/lib/types'
 import { Loading } from '@/ui/loading'
 
 const title = 'Edit Link'
-
 export const metadata: Metadata = { title }
 
 export default async function EditLinkPage({
@@ -30,7 +30,7 @@ export default async function EditLinkPage({
       <Suspense fallback={<Loading />}>
         <EditEmbeddedItemForm<Link>
           item={link}
-          itemType='links'
+          itemType={EmbeddedItemTypes.links}
           editItem={editLink}
         />
       </Suspense>

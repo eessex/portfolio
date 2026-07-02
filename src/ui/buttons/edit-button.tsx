@@ -4,14 +4,13 @@ import { PencilIcon } from '@heroicons/react/24/outline'
 import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 
-// FIXME: use pagePathType
-const editablePaths = ['about', 'events', 'release']
+import { type PagePath, pagePaths } from '@/lib/schemas'
 
 export function EditButton() {
   const pathname = usePathname()
   const pathnameParts = pathname.split('/')
   const firstPart = pathnameParts[1]
-  const isEditablePath = editablePaths.includes(firstPart)
+  const isEditablePath = pagePaths.includes(firstPart as PagePath)
 
   if (
     !isEditablePath ||

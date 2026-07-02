@@ -7,12 +7,12 @@ import type {
   FetchProjectsResult,
   ProjectClient
 } from '@/lib/projects/types'
-import type { PagePathType } from '@/lib/types'
+import { PagePaths } from '@/lib/schemas'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
 import { formattedItemType } from '@/ui/util'
 
-const path: PagePathType = 'projects'
+const path = PagePaths.projects
 const description = 'Additional projects and collaborations.'
 const title = formattedItemType(path, false, true)
 

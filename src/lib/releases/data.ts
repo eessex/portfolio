@@ -5,10 +5,8 @@ import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import type {
-  PageItemResponseWithCursor,
-  PagePathType
-} from '@/lib/types'
+import { PagePaths } from '@/lib/schemas'
+import type { PageItemResponseWithCursor } from '@/lib/types'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -16,7 +14,7 @@ import {
   formatResponseWithCursor
 } from '@/lib/util'
 
-const path: PagePathType = 'releases'
+const path = PagePaths.releases
 
 export async function fetchReleaseBySlug(
   slug: string,

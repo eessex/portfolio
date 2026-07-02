@@ -5,7 +5,7 @@ import type {
   FetchProjectsResult,
   ProjectClient
 } from '@/lib/projects/types'
-import type { pagePathTypes } from '@/lib/schemas'
+import { PagePaths } from '@/lib/schemas'
 import type { PageItemResponseWithCursor } from '@/lib/types'
 import {
   decodeCursor,
@@ -14,7 +14,7 @@ import {
   formatResponseWithCursor
 } from '@/lib/util'
 
-const path: (typeof pagePathTypes)[number] = 'projects'
+const path = PagePaths.projects
 const projectPathType = 'project'
 
 export async function fetchProjects(

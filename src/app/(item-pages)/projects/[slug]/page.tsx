@@ -13,6 +13,7 @@ import {
   fetchProjectsRaw
 } from '@/lib/projects/data'
 import { fetchReleases } from '@/lib/releases/data'
+import { PagePaths } from '@/lib/schemas'
 import type { PageItemProps } from '@/lib/types'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
@@ -33,14 +34,17 @@ export default async function ProjectPage({ params }: PageItemProps) {
     fetchEvents(!!session?.user, slug)
   ])
   if (!project) {
-    redirect('/projects')
+    redirect(`/${PagePaths.projects}`)
   }
 
   return (
     <ItemLayout item={project}>
       <Suspense fallback={<Loading />}>
-        <ItemsTable path='releases' initialItems={releases} />
-        <ItemsTable path='events' initialItems={events} />
+        <ItemsTable
+          path={PagePaths.releases}
+          initialItems={releases}
+        />
+        <ItemsTable path={PagePaths.events} initialItems={events} />
       </Suspense>
     </ItemLayout>
   )

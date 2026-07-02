@@ -13,10 +13,8 @@ import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import type { embeddedItemTypes, pagePathTypes } from '@/lib/schemas'
+import type { embeddedItemTypes } from '@/lib/schemas'
 import type { Venue } from '@/lib/venues/types'
-
-export type PagePathType = (typeof pagePathTypes)[number]
 
 export type PageDataResponse =
   | FetchEventsResult

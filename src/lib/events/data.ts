@@ -5,10 +5,8 @@ import type {
   EventClient,
   FetchEventsResult
 } from '@/lib/events/types'
-import type {
-  PageItemResponseWithCursor,
-  PagePathType
-} from '@/lib/types'
+import { PagePaths } from '@/lib/schemas'
+import type { PageItemResponseWithCursor } from '@/lib/types'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -17,7 +15,7 @@ import {
 } from '@/lib/util'
 import { isUpcomingDate } from '@/ui/util'
 
-const path: PagePathType = 'events'
+const path = PagePaths.events
 
 export async function fetchEvents(
   isAuthed = false,

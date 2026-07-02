@@ -6,11 +6,20 @@ import { z } from 'zod'
  * These values correspond to a `/{path}` index page
  * as well as `/{path}/{slug}` pages for individual entries.
  */
-export const pagePathTypes = [
+export const pagePaths = [
+  'about',
   'events',
   'projects',
   'releases'
 ] as const
+
+export const PagePaths = Object.fromEntries(
+  pagePaths.map((v) => [v, v])
+) as {
+  [K in (typeof pagePaths)[number]]: K
+}
+export const pagePathSchema = z.enum(pagePaths)
+export type PagePath = (typeof pagePaths)[number]
 
 /**
  * Types of items that can be embedded within pages
@@ -86,7 +95,7 @@ export const basePageSchema = z
     coverImageId: uuid.optional(),
     description: longText.optional(),
     isPublished: bool.optional(),
-    path: z.enum(pagePathTypes),
+    path: pagePathSchema,
     slug
   })
   .extend(baseContentSchema.shape)

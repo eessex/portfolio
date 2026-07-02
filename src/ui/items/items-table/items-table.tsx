@@ -1,15 +1,12 @@
 'use client'
 
 import { clsx } from 'clsx'
-import React, { useId } from 'react'
+import { useId } from 'react'
 
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
-import type {
-  PageDataResponse,
-  PageItemClient,
-  PagePathType
-} from '@/lib/types'
+import { type PagePath, PagePaths } from '@/lib/schemas'
+import type { PageDataResponse, PageItemClient } from '@/lib/types'
 import { DEFAULT_PAGE_SIZE } from '@/lib/util'
 import { FiltersWrapper } from '@/ui/filters/filters'
 import styles from '@/ui/items/items-table/items-table.module.scss'
@@ -38,7 +35,7 @@ export function ItemsTable<
   omitKeys
 }: {
   initialItems: ResultsResponse<never, T, S>
-  path: PagePathType
+  path: PagePath
   isCategoryVisible?: boolean
   isExpandedOnLoad?: boolean
   isPathTypeVisible?: boolean
@@ -74,8 +71,8 @@ export function ItemsTable<
   const isFilterable = initialItems.totalCount >= DEFAULT_PAGE_SIZE
 
   const isDetailColumnVisible = [
-    'events',
-    'releases',
+    PagePaths.events,
+    PagePaths.releases,
     'items'
   ].includes(path)
 

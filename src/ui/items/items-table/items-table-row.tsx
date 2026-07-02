@@ -9,6 +9,7 @@ import NextLink from 'next/link'
 import type { EventClient } from '@/lib/events/types'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
+import { PagePaths } from '@/lib/schemas'
 import type { PageItemClient } from '@/lib/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import { FormattedItemDate } from '@/ui/items/item-date'
@@ -47,7 +48,7 @@ export function ItemsTableRow({
     (code) => code.type === 'video'
   )
   const hasAudio =
-    item.path !== 'releases' &&
+    item.path !== PagePaths.releases &&
     !!item.embedCodes?.some((code) => code.type === 'audio')
 
   return (

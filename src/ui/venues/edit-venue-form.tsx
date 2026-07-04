@@ -90,16 +90,6 @@ export const EditVenue = ({
         errors={errors?.url}
         label='Venue website'
       />
-      {venue?.id && (
-        <Input
-          attributes={{
-            name: `${namePrefix}id`,
-            type: 'hidden'
-          }}
-          defaultValue={venue.id}
-          label='Venue ID'
-        />
-      )}
     </>
   )
 }

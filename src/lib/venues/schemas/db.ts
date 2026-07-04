@@ -30,5 +30,3 @@ export const createVenueSchema = z.object({
   ...venueFields
 })
 export type CreateVenue = z.infer<typeof createVenueSchema>
-
-export const editVenueSchema = venueSchema.omit({ createdAt: true })

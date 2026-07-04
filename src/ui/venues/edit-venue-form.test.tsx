@@ -27,18 +27,6 @@ describe('EditVenue', () => {
       ).toBeInTheDocument()
     })
 
-    it('renders hidden ID input if venue.id is provided', () => {
-      renderComponent({ venue: venueFixtureAlpha })
-
-      const idInput = screen.getByDisplayValue(venueFixtureAlpha.id)
-      expect(idInput).toBeInTheDocument()
-      expect(idInput).toHaveAttribute('type', 'hidden')
-      expect(idInput).toHaveAttribute('name', 'id')
-      expect(
-        screen.queryByLabelText(/venue id/i)
-      ).not.toBeInTheDocument()
-    })
-
     it('renders description for name and URL inputs', () => {
       renderComponent()
       expect(

@@ -2,7 +2,8 @@
 
 import { useEffect, useId, useRef, useState } from 'react'
 
-import type { EmbeddedItem, EmbeddedItemType } from '@/lib/types'
+import type { EmbeddedItemType } from '@/lib/schemas'
+import type { EmbeddedItem } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
 import { CreateItemButton } from '@/ui/buttons/create-item-button'
 import styles from '@/ui/combobox/combobox.module.scss'

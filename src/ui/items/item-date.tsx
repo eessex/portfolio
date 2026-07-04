@@ -1,6 +1,7 @@
 import type { EventClient } from '@/lib/events/types'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
+import { PagePaths } from '@/lib/schemas'
 import type { PageItemClient } from '@/lib/types'
 import {
   type DateFormatSize,
@@ -16,11 +17,11 @@ export function itemSortDate(
     return item.updatedAt || item.createdAt
   }
   switch (item.path) {
-    case 'events':
+    case PagePaths.events:
       return (item as EventClient).startTime
-    case 'projects':
+    case PagePaths.projects:
       return (item as ProjectClient).startDate || item.createdAt
-    case 'releases':
+    case PagePaths.releases:
       return (item as ReleaseClient).releaseDate
     default:
       return (
@@ -34,10 +35,10 @@ export function itemDisplayDateFormat(
   item: PageItemClient
 ): DateFormatSize {
   switch (item.path) {
-    case 'events':
+    case PagePaths.events:
       return 'md'
-    case 'projects':
-    case 'releases':
+    case PagePaths.projects:
+    case PagePaths.releases:
       return 'xxs'
     default:
       return 'sm'
@@ -54,9 +55,9 @@ export function FormattedItemDate({
   timezone?: Intl.DateTimeFormatOptions['timeZone']
 }) {
   const date = new Date(itemSortDate(item))
-  const isProject = item.path === 'projects'
+  const isProject = item.path === PagePaths.projects
   const isUpcomingEvent =
-    item.path === 'events' &&
+    item.path === PagePaths.events &&
     isUpcomingDate((item as EventClient).startTime)
   const dateFormat = isUpcomingEvent
     ? undefined

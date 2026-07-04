@@ -5,11 +5,8 @@ import type {
   FetchProjectsResult,
   ProjectClient
 } from '@/lib/projects/types'
-import type { pagePathTypes } from '@/lib/schemas'
-import type {
-  PageItemResponseWithCursor,
-  PagePathType
-} from '@/lib/types'
+import { PagePaths } from '@/lib/schemas'
+import type { PageItemResponseWithCursor } from '@/lib/types'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -18,10 +15,8 @@ import {
 } from '@/lib/util'
 import { singularizePath } from '@/ui/util'
 
-export const path: PagePathType = 'projects'
-const pathSingular = singularizePath(
-  path
-) as (typeof pagePathTypes)[number]
+const path = PagePaths.projects
+const pathSingular = singularizePath(path)
 
 export async function fetchProjects(
   isAuthed: boolean = false,

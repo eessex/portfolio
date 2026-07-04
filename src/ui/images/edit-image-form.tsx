@@ -2,8 +2,11 @@ import { useId, useState } from 'react'
 import type { z } from 'zod'
 
 import { checkIfImageExists } from '@/lib/images/actions'
-import type { createImageSchema } from '@/lib/images/schemas'
-import type { Image } from '@/lib/images/types'
+import type {
+  createImageSchema,
+  Image
+} from '@/lib/images/schemas/db'
+import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import { Checkbox } from '@/ui/form/checkbox'
 import { FileInputImage } from '@/ui/form/file-input-image'
 import { Input } from '@/ui/form/input'
@@ -34,7 +37,7 @@ export const EditImage = ({
   const namePrefix =
     typeof index === 'number' ? `images[${index}].` : ''
 
-  const { createdAt, id, url } = (formImage || {}) as Image
+  const { id, url } = (formImage || {}) as Image
 
   async function onFileChange(
     filename: string,
@@ -103,7 +106,7 @@ export const EditImage = ({
       {url?.length > 0 && id && (
         <Input
           attributes={{
-            maxLength: 255,
+            maxLength: MAX_STRING_LENGTH_SHORT,
             name: `${namePrefix}url`,
             placeholder:
               'https://aws.s3.bucket/images/your-image.jpg',
@@ -118,7 +121,7 @@ export const EditImage = ({
       )}
       <Input
         attributes={{
-          maxLength: 255,
+          maxLength: MAX_STRING_LENGTH_SHORT,
           name: `${namePrefix}caption`,
           placeholder: 'Caption'
         }}
@@ -126,6 +129,17 @@ export const EditImage = ({
         description='Displayed below the image wherever it appears.'
         errors={errors?.caption}
         label='Caption'
+      />
+      <Input
+        attributes={{
+          maxLength: MAX_STRING_LENGTH_SHORT,
+          name: `${namePrefix}alt`,
+          placeholder: 'Alt text'
+        }}
+        defaultValue={formImage?.alt}
+        description='Describes the image for screen readers and search engines.'
+        errors={errors?.alt}
+        label='Alt text'
       />
       <fieldset>
         <legend>Press Image Details</legend>
@@ -157,7 +171,7 @@ export const EditImage = ({
       </fieldset>
       <Input
         attributes={{
-          maxLength: 255,
+          maxLength: MAX_STRING_LENGTH_SHORT,
           name: `${namePrefix}title`,
           placeholder: 'Title'
         }}
@@ -165,26 +179,6 @@ export const EditImage = ({
         description='Used for internal search only, never displayed publicly.'
         label='Title'
       />
-      {id && (
-        <Input
-          attributes={{
-            name: `${namePrefix}id`,
-            type: 'hidden'
-          }}
-          defaultValue={id}
-          label='Image ID'
-        />
-      )}
-      {createdAt && (
-        <Input
-          attributes={{
-            name: `${namePrefix}createdAt`,
-            type: 'hidden'
-          }}
-          defaultValue={createdAt.toISOString()}
-          label='Created At'
-        />
-      )}
     </>
   )
 }

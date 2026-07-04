@@ -1,6 +1,6 @@
 import { useId } from 'react'
 
-import type { EmbedCode } from '@/lib/embed-codes/types'
+import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import styles from '@/ui/embed-codes/embed-codes.module.scss'
 

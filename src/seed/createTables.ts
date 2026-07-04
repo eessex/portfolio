@@ -90,16 +90,68 @@ async function createEmbedCodesTable() {
       project_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
       caption VARCHAR(255),
-      iframe VARCHAR(1000) NOT NULL,
+      iframe VARCHAR(1000),
       title VARCHAR(255),
-      type VARCHAR(30),
-      created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CONSTRAINT fk_embed_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
-      CHECK (type IN ('video', 'audio') OR type IS NULL)
+      host VARCHAR(30) NOT NULL,
+      type VARCHAR(30) NOT NULL,
+      src VARCHAR(1000) NOT NULL,
+      content_type VARCHAR(40),
+      created_at TIMESTAMP WITHOUT TIME ZONE
+        DEFAULT CURRENT_TIMESTAMP
+        NOT NULL,
+      updated_at TIMESTAMP WITHOUT TIME ZONE
+        DEFAULT CURRENT_TIMESTAMP
+        NOT NULL
     );
   `
-  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_embed_codes_iframe ON embed_codes(iframe);`
+
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS embed_codes_src_type_unique
+    ON embed_codes (src, type);
+  `
+
+  await sql`
+    ALTER TABLE embed_codes
+    ADD CONSTRAINT chk_embed_codes_type
+    CHECK (type IN ('video', 'audio'));
+  `
+
+  await sql`
+    ALTER TABLE embed_codes
+    ADD CONSTRAINT chk_embed_codes_host
+    CHECK (
+      host IN (
+        'bandcamp',
+        'mixcloud',
+        'soundcloud',
+        'spotify',
+        'vimeo',
+        'youtube',
+        'unknown'
+      )
+    );
+  `
+
+  await sql`
+    ALTER TABLE embed_codes
+    ADD CONSTRAINT chk_embed_codes_content_type
+    CHECK (
+      content_type IN (
+        'dj_set',
+        'documentation',
+        'interview',
+        'film',
+        'live_performance',
+        'official_audio',
+        'official_music_video',
+        'other',
+        'podcast',
+        'radio_show',
+        'trailer'
+      )
+      OR content_type IS NULL
+    );
+  `
 }
 
 /**
@@ -420,13 +472,14 @@ async function setupJsonbFunctions() {
     CREATE OR REPLACE FUNCTION build_embed_code_json(e embed_codes)
     RETURNS jsonb AS $$
       SELECT jsonb_build_object(
-        'host', e.host,
         'id', e.id,
-        'iframe', e.iframe,
         'src', e.src,
+        'type', e.type,
+        'host', e.host,
+        'contentType', e.content_type,
         'title', e.title,
         'caption', e.caption,
-        'type', e.type
+        'iframe', e.iframe
       ) || build_write_dates_json(e.created_at, e.updated_at);
     $$ LANGUAGE sql IMMUTABLE;
   `

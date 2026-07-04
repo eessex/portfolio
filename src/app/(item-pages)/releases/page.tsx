@@ -7,12 +7,12 @@ import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import type { PagePathType } from '@/lib/types'
+import { PagePaths } from '@/lib/schemas'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
 import { formattedItemType } from '@/ui/util'
 
-const path: PagePathType = 'releases'
+const path = PagePaths.releases
 const description = 'Selected discography.'
 const title = formattedItemType(path, false, true)
 

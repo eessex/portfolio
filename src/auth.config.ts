@@ -1,12 +1,12 @@
 import type { NextAuthConfig } from 'next-auth'
 
-import { pagePathTypes } from '@/lib/schemas'
+import { pagePaths } from '@/lib/schemas'
 
 const authedPathPatterns = [
-  ...pagePathTypes.map(
+  ...pagePaths.map(
     (type) => new RegExp(`^/${type}/[^/]+/edit$`) // /events/:slug/edit
   ),
-  ...pagePathTypes.map(
+  ...pagePaths.map(
     (type) => new RegExp(`^/${type}/new$`) // /events/new
   ),
   /^\/about\/edit$/,

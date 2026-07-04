@@ -3,13 +3,13 @@ import { Suspense } from 'react'
 
 import { deleteEmbedCode } from '@/lib/embed-codes/actions'
 import { fetchEmbedCodes } from '@/lib/embed-codes/data'
-import type { EmbeddedItemType } from '@/lib/types'
+import { EmbeddedItemTypes } from '@/lib/schemas'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
 import { camelToSentence } from '@/ui/util'
 
-const itemType: EmbeddedItemType = 'embedCodes'
+const itemType = EmbeddedItemTypes.embedCodes
 const title = `Dashboard: ${camelToSentence(itemType)}`
 export const metadata: Metadata = { title }
 

@@ -3,8 +3,10 @@
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { usePathname } from 'next/navigation'
 
-import { embeddedItemTypes } from '@/lib/schemas'
-import type { EmbeddedItemType } from '@/lib/types'
+import {
+  type EmbeddedItemType,
+  embeddedItemTypes
+} from '@/lib/schemas'
 import {
   camelToSnake,
   itemTypeToLabel,

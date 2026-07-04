@@ -1,10 +1,10 @@
-import type { DashboardUsedOnPagesKeys } from '@/lib/embed-codes/types'
-import type { Image } from '@/lib/images/types'
-import type { Link } from '@/lib/links/types'
+import type { Image } from '@/lib/images/schemas/db'
+import type { Link } from '@/lib/links/schemas/db'
 import type { PublishedEditionClient } from '@/lib/published-editions/types'
 import type { ReleaseClient } from '@/lib/releases/types'
+import type { DashboardUsedOnPagesKeys } from '@/lib/schemas/fields'
 import type { PageItemClient } from '@/lib/types'
-import type { Venue } from '@/lib/venues/types'
+import type { Venue } from '@/lib/venues/schemas/db'
 import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 
 const dateFormatLg: Intl.DateTimeFormatOptions = {
@@ -299,10 +299,7 @@ export function usedOnSlugKeys({
   eventSlugs,
   projectSlugs,
   releaseSlugs
-}: DashboardItem): Pick<
-  DashboardUsedOnPagesKeys,
-  'eventSlugs' | 'projectSlugs' | 'releaseSlugs'
-> {
+}: DashboardItem): Record<DashboardUsedOnPagesKeys, string[]> {
   return {
     eventSlugs: eventSlugs ?? [],
     projectSlugs: projectSlugs ?? [],
@@ -332,7 +329,7 @@ export function formatVenueInline({
   format,
   isNameHidden
 }: {
-  venue: Omit<Venue, 'id'>
+  venue: Partial<Venue>
   format?: 'sm' | 'lg'
   isNameHidden?: boolean
 }): string {

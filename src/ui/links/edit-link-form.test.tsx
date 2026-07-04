@@ -34,18 +34,6 @@ describe('EditLink', () => {
       )
     })
 
-    it('renders hidden ID input if link.id is provided', () => {
-      renderComponent({ link: linkFixture })
-
-      const idInput = screen.getByDisplayValue(linkFixture.id)
-      expect(idInput).toBeInTheDocument()
-      expect(idInput).toHaveAttribute('type', 'hidden')
-      expect(idInput).toHaveAttribute('name', 'id')
-      expect(
-        screen.queryByLabelText(/link id/i)
-      ).not.toBeInTheDocument()
-    })
-
     it('applies prefix to input names correctly if index is provided', () => {
       renderComponent({
         link: linkFixture,

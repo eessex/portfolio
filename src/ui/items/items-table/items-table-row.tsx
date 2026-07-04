@@ -6,9 +6,11 @@ import { clsx } from 'clsx'
 import NextImage from 'next/image'
 import NextLink from 'next/link'
 
+import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import type { EventClient } from '@/lib/events/types'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
+import { PagePaths } from '@/lib/schemas'
 import type { PageItemClient } from '@/lib/types'
 import { DraftBadge } from '@/ui/draft-badge'
 import { FormattedItemDate } from '@/ui/items/item-date'
@@ -44,11 +46,13 @@ export function ItemsTableRow({
   const isPriorityImage = !!(isFeatured || (index || 0) < 12)
   const imageWidth = 350
   const hasVideo = !!item.embedCodes?.some(
-    (code) => code.type === 'video'
+    (code) => code.type === EmbedCodeTypes.video
   )
   const hasAudio =
-    item.path !== 'releases' &&
-    !!item.embedCodes?.some((code) => code.type === 'audio')
+    item.path !== PagePaths.releases &&
+    !!item.embedCodes?.some(
+      (code) => code.type === EmbedCodeTypes.audio
+    )
 
   return (
     <tr
@@ -77,7 +81,11 @@ export function ItemsTableRow({
             title={coverImage.caption || coverImage.alt || undefined}
             width={imageWidth}
             height={Math.round(imageWidth / coverImage.aspect)}
-            sizes='(max-width: 768px) 92px, 52px'
+            sizes={
+              isExpanded
+                ? '(max-width: 768px) 50vw, 350px'
+                : '(max-width: 768px) 92px, 52px'
+            }
             loading={(index || 0) > 12 ? 'lazy' : undefined}
             priority={isPriorityImage}
             fetchPriority={isPriorityImage ? 'high' : 'auto'}

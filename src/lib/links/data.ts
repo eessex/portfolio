@@ -2,8 +2,9 @@
 
 import { sql } from '@/lib/db'
 import { fetchCachedLinksFirstPage } from '@/lib/links/cached'
-import { dashboardLinkSchema, linkSchema } from '@/lib/links/schemas'
-import type { CreateLink, DashboardLink } from '@/lib/links/types'
+import type { DashboardLink } from '@/lib/links/schemas/client'
+import { dashboardLinkSchema } from '@/lib/links/schemas/client'
+import { type CreateLink, linkSchema } from '@/lib/links/schemas/db'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,

@@ -1,10 +1,10 @@
-import type { EmbedCode } from '@/lib/embed-codes/types'
+import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import type {
   EventClient,
   FetchEventsResult
 } from '@/lib/events/types'
-import type { Image } from '@/lib/images/types'
-import type { Link } from '@/lib/links/types'
+import type { Image } from '@/lib/images/schemas/db'
+import type { Link } from '@/lib/links/schemas/db'
 import type {
   FetchProjectsResult,
   ProjectClient
@@ -13,10 +13,7 @@ import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import type { embeddedItemTypes, pagePathTypes } from '@/lib/schemas'
-import type { Venue } from '@/lib/venues/types'
-
-export type PagePathType = (typeof pagePathTypes)[number]
+import type { Venue } from '@/lib/venues/schemas/db'
 
 export type PageDataResponse =
   | FetchEventsResult
@@ -49,7 +46,6 @@ export type PageEmbeddedItemProps = {
   params: Promise<{ id: string }>
 }
 
-export type EmbeddedItemType = (typeof embeddedItemTypes)[number]
 export type EmbeddedItem = EmbedCode | Image | Link | Venue
 
 // FIXME: multiple not yet used, but some endpoints might need it

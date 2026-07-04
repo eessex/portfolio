@@ -2,7 +2,7 @@
 
 import { editAbout } from '@/lib/about/actions'
 import type { About } from '@/lib/about/types'
-import type { Image } from '@/lib/images/types'
+import type { Image } from '@/lib/images/schemas/db'
 import { Form } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 

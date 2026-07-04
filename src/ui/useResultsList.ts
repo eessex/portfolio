@@ -11,6 +11,9 @@ import { buildApiUrl } from '@/ui/util'
 
 type SortDirection = 'asc' | 'desc'
 
+/** Fields excluded from local search text, e.g. venue.timezone */
+const NON_SEARCHABLE_KEYS = new Set(['timezone'])
+
 export type ResultsResponse<
   TEmbeddedItem extends EmbeddedItem,
   TPage extends PageItemClient,
@@ -97,20 +100,24 @@ export function useResultsList<
   }
 
   const extractStrings = useCallback(function extractStringsInner(
-    value: unknown
+    value: unknown,
+    key?: string
   ): string[] {
     if (!value) return []
+    if (key && NON_SEARCHABLE_KEYS.has(key)) return []
 
     if (typeof value === 'string') {
       return [value]
     }
 
     if (Array.isArray(value)) {
-      return value.flatMap(extractStringsInner)
+      return value.flatMap((v) => extractStringsInner(v))
     }
 
     if (typeof value === 'object') {
-      return Object.values(value).flatMap(extractStringsInner)
+      return Object.entries(value).flatMap(([k, v]) =>
+        extractStringsInner(v, k)
+      )
     }
 
     return []

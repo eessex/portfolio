@@ -1,6 +1,6 @@
 import { XMarkIcon } from '@heroicons/react/16/solid'
 
-import type { EmbeddedItemType } from '@/lib/types'
+import type { EmbeddedItemType } from '@/lib/schemas'
 import { Input } from '@/ui/form/input'
 import styles from '@/ui/selected-results/selected-results.module.scss'
 import { itemTypeToLabel } from '@/ui/util'

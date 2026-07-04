@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 
-import type { EmbeddedItem, EmbeddedItemType } from '@/lib/types'
+import type { EmbeddedItemType } from '@/lib/schemas'
+import type { EmbeddedItem } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
 import { Combobox } from '@/ui/combobox/combobox'
 import styles from '@/ui/form/form.module.scss'

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
 import { editVenue } from '@/lib/venues/actions'
-import type { Venue } from '@/lib/venues/types'
+import type { Venue } from '@/lib/venues/schemas/db'
 
 const title = 'New Venue'
 export const metadata: Metadata = { title }

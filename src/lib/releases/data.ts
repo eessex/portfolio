@@ -6,11 +6,8 @@ import type {
   ReleaseClient
 } from '@/lib/releases/types'
 import { sortReleasesByCategory } from '@/lib/releases/util'
-import type { pagePathTypes } from '@/lib/schemas'
-import type {
-  PageItemResponseWithCursor,
-  PagePathType
-} from '@/lib/types'
+import { PagePaths } from '@/lib/schemas'
+import type { PageItemResponseWithCursor } from '@/lib/types'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -19,10 +16,8 @@ import {
 } from '@/lib/util'
 import { singularizePath } from '@/ui/util'
 
-export const path: PagePathType = 'releases'
-const pathSingular = singularizePath(
-  path
-) as (typeof pagePathTypes)[number]
+const path = PagePaths.releases
+const pathSingular = singularizePath(path)
 
 export async function fetchReleaseById(
   id: string,

@@ -1,6 +1,9 @@
-import type { EmbedCode } from '@/lib/embed-codes/types'
-import type { Image } from '@/lib/images/types'
-import type { Link } from '@/lib/links/types'
+import {
+  type EmbedCode,
+  EmbedCodeTypes
+} from '@/lib/embed-codes/schemas/db'
+import type { Image } from '@/lib/images/schemas/db'
+import type { Link } from '@/lib/links/schemas/db'
 import type { Badge, EmbeddedItem } from '@/lib/types'
 import { usedOnPages } from '@/ui/util'
 
@@ -50,10 +53,10 @@ export function itemBadges(
       color: 'orange'
     })
   }
-  if (embedCode.type === 'audio') {
+  if (embedCode.type === EmbedCodeTypes.audio) {
     badges.push({ text: 'Audio' })
   }
-  if (embedCode.type === 'video') {
+  if (embedCode.type === EmbedCodeTypes.video) {
     badges.push({
       text: 'Video',
       color: 'blue'

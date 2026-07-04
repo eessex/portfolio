@@ -2,9 +2,11 @@ import NextLink from 'next/link'
 import { useId, useState } from 'react'
 import type { z } from 'zod'
 
-import type { createLinkSchema } from '@/lib/links/schemas'
-import { linkTypes } from '@/lib/links/schemas'
-import type { Link } from '@/lib/links/types'
+import {
+  type createLinkSchema,
+  type Link,
+  linkTypes
+} from '@/lib/links/schemas/db'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
@@ -118,17 +120,6 @@ export const EditLink = ({ errors, index, link }: LinkProps) => {
           label='Publish date'
         />
       </fieldset>
-
-      {link?.id && (
-        <Input
-          attributes={{
-            name: `${namePrefix}id`,
-            type: 'hidden'
-          }}
-          defaultValue={link.id}
-          label='Link ID'
-        />
-      )}
     </>
   )
 }

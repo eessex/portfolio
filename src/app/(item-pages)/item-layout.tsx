@@ -6,6 +6,7 @@ import styles from '@/app/(item-pages)/item-layout.module.scss'
 import type { EventClient } from '@/lib/events/types'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
+import { PagePaths } from '@/lib/schemas'
 import type {
   PageDataResponse,
   PageItemClient,
@@ -46,8 +47,8 @@ export default async function ItemLayout({
 
   function category() {
     switch (item.path) {
-      case 'projects':
-      case 'releases':
+      case PagePaths.projects:
+      case PagePaths.releases:
         return formattedItemType(
           (item as ReleaseClient | ProjectClient).type || item.path,
           isUpcoming
@@ -202,7 +203,7 @@ function generateEventDescription(item: PageItemClient) {
 
 function generateItemDescription(item: PageItemClient) {
   switch (item.path) {
-    case 'events':
+    case PagePaths.events:
       return generateEventDescription(item)
     default:
       return undefined

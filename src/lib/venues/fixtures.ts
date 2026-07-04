@@ -1,4 +1,4 @@
-import type { CreateVenue, Venue } from '@/lib/venues/types'
+import type { CreateVenue, Venue } from '@/lib/venues/schemas/db'
 
 export const newVenueFixtureAlpha: CreateVenue = {
   name: 'Test Venue Texas',
@@ -6,7 +6,8 @@ export const newVenueFixtureAlpha: CreateVenue = {
   city: 'Austin',
   state: 'TX',
   country: 'USA',
-  url: 'https://testvenue-texas.com'
+  url: 'https://testvenue-texas.com',
+  timezone: 'America/Chicago'
 }
 
 export const venueFixtureAlpha: Venue = {
@@ -21,7 +22,8 @@ export const newVenueFixtureBeta: CreateVenue = {
   city: 'New York',
   state: 'NY',
   country: 'USA',
-  url: 'https://testvenue-newyork.com'
+  url: 'https://testvenue-newyork.com',
+  timezone: 'America/New_York'
 }
 
 export const venueFixtureBeta: Venue = {
@@ -36,7 +38,8 @@ export const newVenueFixtureGamma: CreateVenue = {
   city: 'Chicago',
   state: 'IL',
   country: 'USA',
-  url: 'https://testvenue-chicago.com'
+  url: 'https://testvenue-chicago.com',
+  timezone: 'America/Chicago'
 }
 
 export const venueFixtureGamma: Venue = {

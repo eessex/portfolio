@@ -3,29 +3,27 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
+import { fetchLinksByIds } from '@/lib/links/data'
 import {
+  type CreateLink,
   createLinkSchema,
-  editLinkSchema,
-  linkSchema
-} from '@/lib/links/schemas'
-import type { CreateLink, Link } from '@/lib/links/types'
+  type Link,
+  linkSchema,
+  LinkTypes
+} from '@/lib/links/schemas/db'
 import type { FormResponse } from '@/lib/types'
-import { formatDbResponseForClient } from '@/lib/util'
+import {
+  formatDbResponseForClient,
+  normalizeFormData
+} from '@/lib/util'
 
 export async function editLink(
-  formData: FormData
+  formData: FormData,
+  id?: string
 ): Promise<FormResponse<Link>> {
-  const data: Record<FormData['entries']['name'], unknown> =
-    Object.fromEntries(formData)
-  Object.entries(data).forEach(([n, v]) => {
-    if (n.includes('Date')) {
-      data[n] = v || undefined
-    }
-  })
+  const data = normalizeFormData(Object.fromEntries(formData))
 
-  const validatedLink = formData.get('id')
-    ? editLinkSchema.safeParse(data)
-    : createLinkSchema.safeParse(data)
+  const validatedLink = createLinkSchema.safeParse(data)
 
   if (!validatedLink.success) {
     return {
@@ -36,18 +34,22 @@ export async function editLink(
   }
 
   try {
-    const updatedLink = await updateLink(validatedLink.data)
-    updateTag('links')
-    return {
-      ok: true,
-      res: updatedLink
+    let savedLink: Link | undefined
+    if (id) {
+      savedLink = await updateLink(validatedLink.data, id)
+    } else {
+      savedLink = await createLink(validatedLink.data)
+    }
+    if (savedLink) {
+      updateTag('links')
+      return {
+        ok: true,
+        res: savedLink
+      }
     }
   } catch (err) {
-    const errMsg = 'Failed to edit link'
     const message =
-      err instanceof Error
-        ? `${errMsg}: ${err.message}`
-        : `${errMsg}.`
+      err instanceof Error ? err.message : 'Failed to edit link.'
     return {
       ok: false,
       message
@@ -70,7 +72,7 @@ export async function deleteLink(
     const errMsg = 'Failed to delete link'
     const message =
       err instanceof Error
-        ? `${errMsg}: ${err.message}`
+        ? `${errMsg}: ${err.message}.`
         : `${errMsg}.`
     return {
       ok: false,
@@ -84,96 +86,93 @@ async function createLink(link: CreateLink) {
     const {
       attribution,
       isHiddenOnAboutPage,
-      type,
       publishDate,
       quotation,
       title,
+      type,
       url
-    } = formatLink(link)
-
-    return await sql`
-        INSERT INTO links (
-          attribution,
-          created_at,
-          is_hidden_on_about_page,
-          type,
-          publish_date,
-          quotation,
-          title,
-          url
-        ) VALUES (
-          ${attribution || null},
-          current_timestamp,
-          ${isHiddenOnAboutPage || null},
-          ${type || null},
-          ${publishDate || null},
-          ${quotation || null},
-          ${title || null},
-          ${url}
-        )
-        RETURNING *
-      `.then((rows) => formatDbResponseForClient(rows[0], linkSchema))
-  } catch (err) {
-    console.error('Error creating link:', err)
-    throw new Error(
-      err instanceof Error ? err.message : 'Failed to create link.'
-    )
-  }
-}
-
-async function updateLink(link: CreateLink | Link) {
-  try {
-    if (!(link as Link).id) {
-      return await createLink(link)
-    } else {
-      const {
+    } = toDbRow(link)
+    const rows = await sql`
+      INSERT INTO links (
         attribution,
-        isHiddenOnAboutPage,
-        type,
-        publishDate,
+        created_at,
+        is_hidden_on_about_page,
+        publish_date,
         quotation,
         title,
+        type,
         url
-      } = formatLink(link)
-      return await sql`
-        UPDATE links
-        SET (
-          attribution,
-          is_hidden_on_about_page,
-          type,
-          publish_date,
-          quotation,
-          title, 
-          updated_at,
-          url
-        ) = (
-          ${attribution || null},
-          ${isHiddenOnAboutPage || null},
-          ${type || null},
-          ${publishDate || null},
-          ${quotation || null},
-          ${title || null},
-          current_timestamp,
-          ${url}
-        )
-        WHERE id = ${(link as Link).id}
-        RETURNING *
-      `.then((rows) => formatDbResponseForClient(rows[0], linkSchema))
-    }
-  } catch (err) {
-    throw new Error(
-      err instanceof Error ? err.message : 'Failed to update link.'
-    )
+      ) VALUES (
+        ${attribution},
+        current_timestamp,
+        ${isHiddenOnAboutPage},
+        ${publishDate},
+        ${quotation},
+        ${title},
+        ${type},
+        ${url}
+      )
+      RETURNING *
+    `
+    const row = rows[0]
+    if (!row) throw new Error('Failed to create link.')
+    return formatDbResponseForClient(row, linkSchema)
+  } catch (cause) {
+    throw new Error('Failed to create link.', { cause })
   }
 }
 
-function formatLink(link: CreateLink | Link) {
-  const data = { ...link }
-  if (data.type !== 'press') {
-    delete data.attribution
-    delete data.publishDate
-    delete data.quotation
-    delete data.isHiddenOnAboutPage
+async function updateLink(link: CreateLink, id: string) {
+  const [existingLink] = await fetchLinksByIds([id])
+  try {
+    const {
+      attribution,
+      isHiddenOnAboutPage,
+      publishDate,
+      quotation,
+      title,
+      type,
+      url
+    } = toDbRow(link, existingLink)
+    const rows = await sql`
+      UPDATE links
+      SET
+        attribution = ${attribution},
+        is_hidden_on_about_page = ${isHiddenOnAboutPage},
+        publish_date = ${publishDate},
+        quotation = ${quotation},
+        title = ${title},
+        type = ${type},
+        updated_at = current_timestamp,
+        url = ${url}
+      WHERE id = ${id}
+      RETURNING *
+    `
+    const row = rows[0]
+    if (!row) throw new Error('Failed to update link.')
+    return formatDbResponseForClient(row, linkSchema)
+  } catch (cause) {
+    throw new Error('Failed to update link.', { cause })
   }
-  return data
+}
+
+/** Press-only fields don't apply to other link types. */
+function toDbRow(link: CreateLink, existing?: Link) {
+  const linkToSave = {
+    ...existing,
+    ...link
+  }
+  const isPress = linkToSave.type === LinkTypes.press
+
+  return {
+    attribution: isPress ? (linkToSave.attribution ?? null) : null,
+    isHiddenOnAboutPage: isPress
+      ? (linkToSave.isHiddenOnAboutPage ?? null)
+      : null,
+    publishDate: isPress ? (linkToSave.publishDate ?? null) : null,
+    quotation: isPress ? (linkToSave.quotation ?? null) : null,
+    title: linkToSave.title ?? null,
+    type: linkToSave.type ?? null,
+    url: linkToSave.url
+  }
 }

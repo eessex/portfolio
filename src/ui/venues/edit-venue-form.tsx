@@ -1,9 +1,13 @@
 import type { z } from 'zod'
 
-import type { createVenueSchema } from '@/lib/venues/schemas'
-import type { Venue } from '@/lib/venues/types'
+import type {
+  createVenueSchema,
+  Venue
+} from '@/lib/venues/schemas/db'
+import { venueTimezones } from '@/lib/venues/schemas/db'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
+import { Select } from '@/ui/form/select'
 
 interface EditVenueProps {
   errors?: z.inferFlattenedErrors<
@@ -76,6 +80,15 @@ export const EditVenue = ({
           label='Country'
         />
       </div>
+      <Select
+        options={[...venueTimezones]}
+        formatOptionLabel={(tz) => tz.replace(/_/g, ' ')}
+        onChange={() => {}}
+        label='Timezone'
+        placeholder='Select a timezone'
+        value={venue?.timezone}
+        attributes={{ name: `${namePrefix}timezone`, required: true }}
+      />
       <Input
         attributes={{
           maxLength: 255,
@@ -88,16 +101,6 @@ export const EditVenue = ({
         errors={errors?.url}
         label='Venue website'
       />
-      {venue?.id && (
-        <Input
-          attributes={{
-            name: `${namePrefix}id`,
-            type: 'hidden'
-          }}
-          defaultValue={venue.id}
-          label='Venue ID'
-        />
-      )}
     </>
   )
 }

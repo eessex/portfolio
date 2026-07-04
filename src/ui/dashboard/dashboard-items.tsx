@@ -3,17 +3,25 @@
 import NextLink from 'next/link'
 import { useCallback, useId, useState } from 'react'
 
-import { embedCodeTypes } from '@/lib/embed-codes/schemas'
-import type {
-  DashboardEmbedCode,
-  EmbedCode
-} from '@/lib/embed-codes/types'
-import type { DashboardImage, Image } from '@/lib/images/types'
-import { linkTypes } from '@/lib/links/schemas'
-import type { DashboardLink, Link } from '@/lib/links/types'
-import type { EmbeddedItemType, FormResponse } from '@/lib/types'
+import type { DashboardEmbedCode } from '@/lib/embed-codes/schemas/client'
+import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
+import {
+  EmbedCodeHosts,
+  EmbedCodeTypes,
+  embedCodeTypes
+} from '@/lib/embed-codes/schemas/db'
+import type { DashboardImage } from '@/lib/images/schemas/client'
+import type { Image } from '@/lib/images/schemas/db'
+import type { DashboardLink } from '@/lib/links/schemas/client'
+import { type Link, linkTypes } from '@/lib/links/schemas/db'
+import {
+  type EmbeddedItemType,
+  EmbeddedItemTypes
+} from '@/lib/schemas'
+import type { FormResponse } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
-import type { DashboardVenue, Venue } from '@/lib/venues/types'
+import type { DashboardVenue } from '@/lib/venues/schemas/client'
+import type { Venue } from '@/lib/venues/schemas/db'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { itemBadges } from '@/ui/badges'
 import type { CreateItemDetail } from '@/ui/buttons/create-item-button'
@@ -70,7 +78,9 @@ interface DashboardProps<T extends DashboardItem> {
   apiEndpoint: string
   itemType: EmbeddedItemType
   res: ResponseWithCursor<T>
-  deleteItem: (item: T) => Promise<FormResponse<T> | undefined>
+  deleteItem: (
+    item: T
+  ) => Promise<FormResponse<Partial<T>> | undefined>
 }
 
 export function DashboardItems<T extends DashboardItem>({
@@ -175,9 +185,9 @@ export function DashboardItems<T extends DashboardItem>({
 
   function filterTypes() {
     switch (itemType) {
-      case 'links':
+      case EmbeddedItemTypes.links:
         return [...linkTypes]
-      case 'embedCodes':
+      case EmbeddedItemTypes.embedCodes:
         return [...embedCodeTypes]
       default:
         return undefined
@@ -280,22 +290,24 @@ function DashboardListItem<T extends DashboardItem>({
 
   function title() {
     switch (itemType) {
-      case 'embedCodes': {
+      case EmbeddedItemTypes.embedCodes: {
         const castItem = item as EmbedCode
-        let formattedPrefix = capitalizeFirstLetter(castItem.host)
+        let formattedPrefix = castItem.host
+          ? capitalizeFirstLetter(castItem.host)
+          : ''
         if (
-          castItem.type === 'video' &&
-          castItem.host === 'youtube'
+          castItem.type === EmbedCodeTypes.video &&
+          castItem.host === EmbedCodeHosts.youtube
         ) {
           formattedPrefix = 'YouTube'
         }
         return `${formattedPrefix}: ${castItem.title}` || 'Untitled'
       }
-      case 'links': {
+      case EmbeddedItemTypes.links: {
         const castItem = item as Link
         return `${castItem.title}` || 'Untitled'
       }
-      case 'images': {
+      case EmbeddedItemTypes.images: {
         const imageItem = item as Image
         const fileName = imageItem.url
           ? decodeURIComponent(imageItem.url).split('/').pop()
@@ -304,7 +316,7 @@ function DashboardListItem<T extends DashboardItem>({
           imageItem.title || imageItem.caption || 'Untitled image'
         return `${imageTitle}${fileName ? `: ${fileName}` : ''}`
       }
-      case 'venues': {
+      case EmbeddedItemTypes.venues: {
         const venueItem = item as DashboardVenue
         return formatVenueInline({
           venue: venueItem,
@@ -379,16 +391,16 @@ export function ItemDisplay({
   itemType: EmbeddedItemType
 }) {
   switch (itemType) {
-    case 'embedCodes':
+    case EmbeddedItemTypes.embedCodes:
       return <EmbedCodeItem embedCode={item as EmbedCode} />
-    case 'images':
+    case EmbeddedItemTypes.images:
       return <ImageFigure image={item as Image} />
-    case 'links':
+    case EmbeddedItemTypes.links:
       if ((item as Link).quotation || (item as Link).attribution) {
         return <LinkItem link={item as Link} />
       }
       break
-    case 'venues':
+    case EmbeddedItemTypes.venues:
       return (
         <>
           <div>

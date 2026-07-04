@@ -4,35 +4,25 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import type { FormResponse } from '@/lib/types'
-import { formatDbResponseForClient } from '@/lib/util'
 import {
+  formatDbResponseForClient,
+  normalizeFormData
+} from '@/lib/util'
+import { fetchVenueById } from '@/lib/venues/data'
+import {
+  type CreateVenue,
   createVenueSchema,
-  editVenueSchema,
+  type Venue,
   venueSchema
-} from '@/lib/venues/schemas'
-import type { CreateVenue, Venue } from '@/lib/venues/types'
+} from '@/lib/venues/schemas/db'
 
 export async function editVenue(
-  formData: FormData
+  formData: FormData,
+  id?: string
 ): Promise<FormResponse<Venue>> {
-  const data: Record<FormData['entries']['name'], unknown> =
-    Object.fromEntries(formData)
-  Object.entries(data).forEach(([n, v]) => {
-    // checkboxes are always 'on' when checked, so we convert them to true
-    if (v === 'on') {
-      data[n] = true
-    } else if (n.includes('Date')) {
-      data[n] = v || undefined
-    } else if (n === 'url' && v === '') {
-      data[n] = undefined
-    } else {
-      data[n] = v
-    }
-  })
+  const data = normalizeFormData(Object.fromEntries(formData))
 
-  const validatedVenue = formData.get('id')
-    ? editVenueSchema.safeParse(data)
-    : createVenueSchema.safeParse(data)
+  const validatedVenue = createVenueSchema.safeParse(data)
 
   if (!validatedVenue.success) {
     return {
@@ -43,18 +33,22 @@ export async function editVenue(
   }
 
   try {
-    const updatedVenue = await updateVenue(validatedVenue.data)
-    updateTag('venues')
-    return {
-      ok: true,
-      res: updatedVenue
+    let savedVenue: Venue | undefined
+    if (id) {
+      savedVenue = await updateVenue(validatedVenue.data, id)
+    } else {
+      savedVenue = await createVenue(validatedVenue.data)
+    }
+    if (savedVenue) {
+      updateTag('venues')
+      return {
+        ok: true,
+        res: savedVenue
+      }
     }
   } catch (err) {
-    const errMsg = 'Failed to edit venue'
     const message =
-      err instanceof Error
-        ? `${errMsg}: ${err.message}`
-        : `${errMsg}.`
+      err instanceof Error ? err.message : 'Failed to edit venue.'
     return {
       ok: false,
       message
@@ -76,7 +70,7 @@ export async function deleteVenue(
     const errMsg = 'Failed to delete venue'
     const message =
       err instanceof Error
-        ? `${errMsg}: ${err.message}`
+        ? `${errMsg}: ${err.message}.`
         : `${errMsg}.`
     return {
       ok: false,
@@ -87,74 +81,88 @@ export async function deleteVenue(
 
 async function createVenue(venue: CreateVenue) {
   try {
-    const { address, city, country, name, state, url } = venue
+    const {
+      address,
+      city,
+      country,
+      name,
+      primaryVenueId,
+      state,
+      timezone,
+      url
+    } = toDbRow(venue)
     const rows = await sql`
-      INSERT INTO venues (
-        address,
-        city,
-        created_at,
-        country,
-        name,
-        state,
-        url
-      ) VALUES (
-        ${address || null},
-        ${city},
-        current_timestamp,
-        ${country || null},
-        ${name || null},
-        ${state || null},
-        ${url || null}
-      )
+      INSERT INTO venues
+        address = ${address},
+        city = ${city},
+        country = ${country},
+        name = ${name},
+        primary_venue_id = ${primaryVenueId},
+        state = ${state},
+        timezone = ${timezone},
+        url = ${url},
+        created_at = current_timestamp
       RETURNING *
     `
     const row = rows[0]
-    if (!row) throw new Error('Failed to create venue')
+    if (!row) throw new Error('Failed to create venue.')
     return formatDbResponseForClient(row, venueSchema)
-  } catch (err) {
-    throw new Error(
-      err instanceof Error ? err.message : 'Failed to create venue.'
-    )
+  } catch (cause) {
+    throw new Error('Failed to create venue.', { cause })
   }
 }
 
-/** if there's an id, create, otherwise update */
-async function updateVenue(venue: CreateVenue | Venue) {
+async function updateVenue(venue: CreateVenue, id: string) {
+  const existingVenue = await fetchVenueById(id)
   try {
-    if (!(venue as Venue).id) {
-      return await createVenue(venue as CreateVenue)
-    } else {
-      const { address, city, country, name, state, url } = venue
-      const rows = await sql`
-        UPDATE venues
-        SET (
-          address,
-          city,
-          country,
-          name,
-          state,
-          updated_at,
-          url
-        ) = (
-          ${address || null},
-          ${city},
-          ${country || null},
-          ${name || null},
-          ${state || null},
-          current_timestamp,
-          ${url || null}
-        )
-        WHERE id = ${(venue as Venue).id}
-        RETURNING *
-      `
+    const {
+      address,
+      city,
+      country,
+      name,
+      primaryVenueId,
+      state,
+      timezone,
+      url
+    } = toDbRow(venue, existingVenue ?? undefined)
+    const rows = await sql`
+      UPDATE venues
+      SET
+        address = ${address},
+        city = ${city},
+        country = ${country},
+        name = ${name},
+        primary_venue_id = ${primaryVenueId},
+        state = ${state},
+        timezone = ${timezone},
+        updated_at = current_timestamp,
+        url = ${url}
+      WHERE id = ${id}
+      RETURNING *
+    `
 
-      const row = rows[0]
-      if (!row) throw new Error('Failed to update venue')
-      return formatDbResponseForClient(row, venueSchema)
-    }
-  } catch (err) {
-    throw new Error(
-      err instanceof Error ? err.message : 'Failed to update venue.'
-    )
+    const row = rows[0]
+    if (!row) throw new Error('Failed to update venue.')
+    return formatDbResponseForClient(row, venueSchema)
+  } catch (cause) {
+    throw new Error('Failed to update venue.', { cause })
+  }
+}
+
+function toDbRow(venue: CreateVenue, existing?: Venue) {
+  const venueToSave = {
+    ...existing,
+    ...venue
+  }
+
+  return {
+    address: venueToSave.address ?? null,
+    city: venueToSave.city,
+    country: venueToSave.country ?? null,
+    name: venueToSave.name ?? null,
+    primaryVenueId: venueToSave.primaryVenueId ?? null,
+    state: venueToSave.state ?? null,
+    timezone: venueToSave.timezone,
+    url: venueToSave.url ?? null
   }
 }

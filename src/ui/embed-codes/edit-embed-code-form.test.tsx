@@ -8,7 +8,7 @@ import {
 import { embedCodeFixture } from '@/lib/embed-codes/fixtures'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
 import {
-  embedCodeSoundcloudFixture,
+  embedCodeSoundcloud,
   embedCodeYoutubeFixture
 } from '@/ui/embed-codes/fixtures'
 import { useToast } from '@/ui/toast/toast-context'
@@ -60,18 +60,6 @@ describe('EditEmbedCode', () => {
       )
     })
 
-    it('renders hidden ID input if embedCode.id is provided', () => {
-      renderComponent({ embedCode: embedCodeFixture })
-      const idInput = screen.getByDisplayValue(embedCodeFixture.id)
-
-      expect(idInput).toBeInTheDocument()
-      expect(idInput).toHaveAttribute('type', 'hidden')
-      expect(idInput).toHaveAttribute('name', 'id')
-      expect(
-        screen.queryByLabelText(/embed code id/i)
-      ).not.toBeInTheDocument()
-    })
-
     it('renders description for iframe, caption and title inputs', () => {
       renderComponent()
       expect(
@@ -114,13 +102,14 @@ describe('EditEmbedCode', () => {
     it('sets defaultValue for each input from the embedCode prop', () => {
       renderComponent({
         embedCode: {
-          iframe: embedCodeSoundcloudFixture,
+          src: embedCodeSoundcloud.src,
           caption: 'This is an embed code for testing purposes.',
-          title: 'Artist Name - Song Name'
+          title: 'Artist Name - Song Name',
+          type: 'audio'
         }
       })
-      const input = document.querySelector('input[name="iframe"]')
-      expect(input).toHaveValue(embedCodeSoundcloudFixture)
+      const input = document.querySelector('input[name="src"]')
+      expect(input).toHaveValue(embedCodeSoundcloud.src)
 
       expect(screen.getByLabelText(titleRegex)).toHaveValue(
         'Artist Name - Song Name'
@@ -134,13 +123,13 @@ describe('EditEmbedCode', () => {
     })
 
     it('auto-populates src, host and type from iframe ', async () => {
-      renderComponent({
-        embedCode: { iframe: embedCodeYoutubeFixture }
-      })
+      renderComponent()
+      const input = document.querySelector('input[name="iframe"]')
 
-      expect(
-        document.querySelector('input[name="iframe"]')
-      ).toHaveValue(embedCodeYoutubeFixture)
+      expect(input).toBeInTheDocument()
+      fireEvent.change(input!, {
+        target: { value: embedCodeYoutubeFixture }
+      })
       await waitFor(() => {
         expect(
           screen.getByDisplayValue(embedCodeFixture.src)
@@ -152,6 +141,9 @@ describe('EditEmbedCode', () => {
           name: /video/i
         }) as HTMLOptionElement
         expect(option.selected).toBe(true)
+        expect(
+          document.querySelector('input[name="iframe"]')
+        ).not.toBeInTheDocument()
       })
       expect(screen.getByLabelText(captionRegex)).toHaveValue('')
     })

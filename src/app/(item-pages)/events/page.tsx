@@ -7,15 +7,16 @@ import type {
   EventClient,
   FetchEventsResult
 } from '@/lib/events/types'
-import type { PagePathType } from '@/lib/types'
+import { PagePaths } from '@/lib/schemas'
 import { ItemsList } from '@/ui/items/items-list'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
 import { formattedItemType } from '@/ui/util'
 
-const path: PagePathType = 'events'
+const path = PagePaths.events
 const description = 'Upcoming and past live performances.'
 const title = formattedItemType(path, false, true)
+
 export const metadata: Metadata = { title, description }
 
 export default async function EventsPage() {

@@ -12,13 +12,14 @@ import {
 } from 'react'
 
 import { useDevice } from '@/lib/device-context'
-import type { EmbeddedItemType, PagePathType } from '@/lib/types'
+import type { PagePath } from '@/lib/schemas'
+import type { EmbeddedItemType } from '@/lib/schemas'
 import styles from '@/ui/filters/filters.module.scss'
 
 type FiltersWrapperProps = {
   children?: React.ReactNode
   controlsId: string
-  itemType: PagePathType | EmbeddedItemType | 'items'
+  itemType: PagePath | EmbeddedItemType | 'items'
 }
 
 export function FiltersWrapper({

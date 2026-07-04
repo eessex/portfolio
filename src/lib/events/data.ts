@@ -6,11 +6,8 @@ import type {
   FetchEventsResult
 } from '@/lib/events/types'
 import { sortEventsByCategory } from '@/lib/events/util'
-import type { pagePathTypes } from '@/lib/schemas'
-import type {
-  PageItemResponseWithCursor,
-  PagePathType
-} from '@/lib/types'
+import { PagePaths } from '@/lib/schemas'
+import type { PageItemResponseWithCursor } from '@/lib/types'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -19,10 +16,8 @@ import {
 } from '@/lib/util'
 import { singularizePath } from '@/ui/util'
 
-const path: PagePathType = 'events'
-const pathSingular = singularizePath(
-  path
-) as (typeof pagePathTypes)[number]
+const path = PagePaths.events
+const pathSingular = singularizePath(path)
 
 export async function fetchEvents(
   isAuthed = false,

@@ -1,20 +1,25 @@
 import NextLink from 'next/link'
 
+import { embeddedItemTypes } from '@/lib/schemas'
 import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
 import { CreateItemFromPathnameButton } from '@/ui/buttons/create-item-button'
 import { EditButton } from '@/ui/buttons/edit-button'
 import { LogoutButton } from '@/ui/buttons/logout-button'
-import { camelToSentence, snakeToCamel } from '@/ui/util'
+import {
+  camelToSentence,
+  camelToSnake,
+  snakeToCamel
+} from '@/ui/util'
+
+const links = [
+  'dashboard',
+  ...embeddedItemTypes.filter(
+    // FIXME: editing not yet supported
+    (itemType) => itemType !== 'publishedEditions'
+  )
+]
 
 export async function AdminSidebar() {
-  const links = [
-    'dashboard',
-    'embed_codes',
-    'images',
-    'links',
-    'venues'
-  ]
-
   return (
     <section className={`admin-sidebar ${styles['admin-sidebar']}`}>
       <nav>
@@ -28,7 +33,7 @@ export async function AdminSidebar() {
           {links.map((link) => (
             <li key={link}>
               <NextLink
-                href={`/dashboard${link === 'dashboard' ? '' : `/${link}`}`}
+                href={`/dashboard${link === 'dashboard' ? '' : `/${camelToSnake(link)}`}`}
                 className='button'
               >
                 {camelToSentence(snakeToCamel(link))}

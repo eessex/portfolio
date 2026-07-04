@@ -3,6 +3,7 @@ import { useId } from 'react'
 
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
+import { PagePaths } from '@/lib/schemas'
 import type { PageItemClient } from '@/lib/types'
 import { TicketButton } from '@/ui/buttons/ticket-button'
 import { ItemCard } from '@/ui/items/item-card'
@@ -84,7 +85,7 @@ function ItemGridItem({
   const { publishedEditions } = item as ReleaseClient
   const { ticketLink, venue } = item as EventClient
   switch (item.path) {
-    case 'events':
+    case PagePaths.events:
       return (
         <ItemCard
           item={item}
@@ -103,7 +104,7 @@ function ItemGridItem({
           )}
         </ItemCard>
       )
-    case 'releases':
+    case PagePaths.releases:
       return (
         <ItemCard
           item={item}

@@ -3,9 +3,11 @@ import type { z } from 'zod'
 
 import {
   type createEmbedCodeSchema,
+  type EmbedCode,
+  EmbedCodeTypes,
   embedCodeTypes
-} from '@/lib/embed-codes/schemas'
-import type { EmbedCode } from '@/lib/embed-codes/types'
+} from '@/lib/embed-codes/schemas/db'
+import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { extractIframeParams } from '@/ui/embed-codes/util'
 import { Input } from '@/ui/form/input'
@@ -27,15 +29,8 @@ export const EditEmbedCode = ({
 }: EmbedCodeProps) => {
   const [embedCodeIframe, setEmbedCodeIframe] =
     useState<Partial<EmbedCode> | null>(() => {
-      if (!embedCode?.iframe) {
-        return embedCode ?? null
-      }
-
-      try {
-        return extractIframeParams({ iframe: embedCode.iframe }, true)
-      } catch {
-        return null
-      }
+      if (!embedCode?.src) return null
+      return embedCode
     })
   const [iframeInputValue, setIframeInputValue] = useState(
     embedCode?.iframe || ''
@@ -117,40 +112,39 @@ export const EditEmbedCode = ({
   return (
     <>
       <div>
-        {embedCodeIframe && (
+        {embedCodeIframe ? (
           <EmbedCodeItem
             embedCode={embedCodeIframe}
             onRemove={onRemove}
           />
+        ) : (
+          <Input
+            attributes={{
+              maxLength: 1500,
+              name: `${namePrefix}iframe`,
+              placeholder: '<iframe></iframe>',
+              required: true,
+              type: 'text'
+            }}
+            description='Paste a full iframe embed code. Supported services: Bandcamp, Mixcloud, Soundcloud, Spotify, YouTube.'
+            value={iframeInputValue}
+            label='Embed iframe code'
+            errors={errors?.iframe}
+            onKeyDown={onKeyDown}
+            onDrop={(e) => e.preventDefault()}
+            onPaste={onPaste}
+            onChange={onChange}
+            onBeforeInput={onBeforeInput}
+          />
         )}
-        <Input
-          attributes={{
-            maxLength: 1500,
-            name: `${namePrefix}iframe`,
-            placeholder: '<iframe></iframe>',
-            required: true,
-            readOnly: !!embedCodeIframe?.src,
-            type:
-              embedCode?.src || embedCodeIframe?.src
-                ? 'hidden'
-                : 'text'
-          }}
-          description='Paste a full iframe embed code. Supported services: Bandcamp, Mixcloud, Soundcloud, Spotify, YouTube.'
-          value={iframeInputValue}
-          label='Embed iframe code'
-          errors={errors?.iframe}
-          onKeyDown={onKeyDown}
-          onDrop={(e) => e.preventDefault()}
-          onPaste={onPaste}
-          onChange={onChange}
-          onBeforeInput={onBeforeInput}
-        />
       </div>
       <Select
         key={embedCodeIframe?.type}
         options={[...embedCodeTypes]}
         onChange={(v) =>
-          setEmbedType((v || 'audio') as EmbedCode['type'])
+          setEmbedType(
+            (v || EmbedCodeTypes.audio) as EmbedCode['type']
+          )
         }
         label='Embed type'
         placeholder='Select a type'
@@ -163,7 +157,7 @@ export const EditEmbedCode = ({
       />
       <Input
         attributes={{
-          maxLength: 255,
+          maxLength: MAX_STRING_LENGTH_SHORT,
           name: `${namePrefix}caption`,
           placeholder: 'Video by Artist Name (2024)'
         }}
@@ -174,7 +168,7 @@ export const EditEmbedCode = ({
       />
       <Input
         attributes={{
-          maxLength: 255,
+          maxLength: MAX_STRING_LENGTH_SHORT,
           name: `${namePrefix}title`,
           placeholder: 'Music video for Artist Name - Song Name'
         }}
@@ -183,16 +177,6 @@ export const EditEmbedCode = ({
         errors={errors?.title}
         label='Title'
       />
-      {embedCode?.id && (
-        <Input
-          attributes={{
-            name: `${namePrefix}id`,
-            type: 'hidden'
-          }}
-          defaultValue={embedCode.id}
-          label='Embed Code ID'
-        />
-      )}
       {embedCodeIframe?.src && (
         <Input
           attributes={{

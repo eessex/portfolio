@@ -4,7 +4,7 @@ import { cacheTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import { fetchLinksRaw } from '@/lib/links/data'
-import { linkSchema } from '@/lib/links/schemas'
+import { linkSchema } from '@/lib/links/schemas/db'
 import { formatDbResponseForClient } from '@/lib/util'
 
 export async function fetchCachedLinksFirstPage() {

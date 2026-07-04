@@ -6,6 +6,7 @@ import type {
   FetchEventsResult
 } from '@/lib/events/types'
 import { sortEventsByCategory } from '@/lib/events/util'
+import type { pagePathTypes } from '@/lib/schemas'
 import type {
   PageItemResponseWithCursor,
   PagePathType
@@ -16,8 +17,12 @@ import {
   formatDbResponseForClient,
   formatResponseWithCursor
 } from '@/lib/util'
+import { singularizePath } from '@/ui/util'
 
 const path: PagePathType = 'events'
+const pathSingular = singularizePath(
+  path
+) as (typeof pagePathTypes)[number]
 
 export async function fetchEvents(
   isAuthed = false,
@@ -103,7 +108,7 @@ export async function fetchEventsRaw(
     }
     return res
   } catch (error) {
-    throw new Error('Failed to fetch events.', { cause: error })
+    throw new Error(`Failed to fetch ${path}.`, { cause: error })
   }
 }
 
@@ -169,7 +174,9 @@ export async function fetchEventById(
       eventClientSchema
     )
   } catch (error) {
-    throw new Error(`Failed to fetch event: ${id}.`, { cause: error })
+    throw new Error(`Failed to fetch ${pathSingular}: ${id}.`, {
+      cause: error
+    })
   }
 }
 
@@ -200,6 +207,8 @@ export async function getTotalCount(
     `
     return data[0]?.count ?? 0
   } catch (error) {
-    throw new Error('Failed to fetch event count.', { cause: error })
+    throw new Error(`Failed to fetch ${pathSingular} count.`, {
+      cause: error
+    })
   }
 }

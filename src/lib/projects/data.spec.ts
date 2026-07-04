@@ -1,3 +1,5 @@
+import { projectFixtureBand } from '@/lib/projects/fixtures'
+
 jest.mock('@/lib/projects/cached', () => ({
   fetchCachedProjectsFirstPage: jest.fn()
 }))
@@ -21,8 +23,8 @@ jest.mock('@/lib/slug/util', () => {
   return {
     ...actual,
     resolveSlug: jest.fn(() => ({
-      id: '1',
-      slug: 'projects-1',
+      id: projectFixtureBand.id,
+      slug: projectFixtureBand.slug,
       isRedirect: true
     })),
     getTableIdentifier: jest.fn(() => ({ mockedTable: 'projects' }))
@@ -32,7 +34,6 @@ jest.mock('@/lib/slug/util', () => {
 import { sql } from '@/lib/db'
 import { fetchCachedProjectsFirstPage } from '@/lib/projects/cached'
 import * as Projects from '@/lib/projects/data'
-import { projectFixtureBand } from '@/lib/projects/fixtures'
 
 const mockSql = jest.mocked(sql)
 const mockCached = jest.mocked(fetchCachedProjectsFirstPage)

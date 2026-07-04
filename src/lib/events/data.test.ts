@@ -1,3 +1,8 @@
+import {
+  eventFixturePast,
+  eventFixtureUpcoming
+} from '@/lib/events/fixtures'
+
 jest.mock('@/lib/events/cached', () => ({
   fetchCachedEventsFirstPage: jest.fn()
 }))
@@ -21,8 +26,8 @@ jest.mock('@/lib/slug/util', () => {
   return {
     ...actual,
     resolveSlug: jest.fn(() => ({
-      id: '1',
-      slug: 'event-1',
+      id: eventFixtureUpcoming.id,
+      slug: eventFixtureUpcoming.slug,
       isRedirect: true
     })),
     getTableIdentifier: jest.fn(() => ({ mockedTable: 'events' }))
@@ -32,10 +37,6 @@ jest.mock('@/lib/slug/util', () => {
 import { sql } from '@/lib/db'
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import * as Events from '@/lib/events/data'
-import {
-  eventFixturePast,
-  eventFixtureUpcoming
-} from '@/lib/events/fixtures'
 
 const mockSql = jest.mocked(sql)
 const mockCached = jest.mocked(fetchCachedEventsFirstPage)

@@ -1,3 +1,8 @@
+import {
+  releaseFixtureAlbum,
+  releaseFixtureSingle
+} from '@/lib/releases/fixtures'
+
 jest.mock('@/lib/releases/cached', () => ({
   fetchCachedReleasesFirstPage: jest.fn()
 }))
@@ -21,8 +26,8 @@ jest.mock('@/lib/slug/util', () => {
   return {
     ...actual,
     resolveSlug: jest.fn(() => ({
-      id: '1',
-      slug: 'release-1',
+      id: releaseFixtureAlbum.id,
+      slug: releaseFixtureAlbum.slug,
       isRedirect: true
     })),
     getTableIdentifier: jest.fn(() => ({ mockedTable: 'releases' }))
@@ -32,10 +37,6 @@ jest.mock('@/lib/slug/util', () => {
 import { sql } from '@/lib/db'
 import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import * as Releases from '@/lib/releases/data'
-import {
-  releaseFixtureAlbum,
-  releaseFixtureSingle
-} from '@/lib/releases/fixtures'
 
 const mockSql = jest.mocked(sql)
 const mockCached = jest.mocked(fetchCachedReleasesFirstPage)

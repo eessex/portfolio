@@ -1,7 +1,7 @@
 import z from 'zod'
 
 import { embedCodeSchema } from '@/lib/embed-codes/schemas/db'
-import { imageSchema } from '@/lib/images/schemas'
+import { imageSchema } from '@/lib/images/schemas/db'
 import { linkSchema } from '@/lib/links/schemas/db'
 import { projectSchema } from '@/lib/projects/schemas'
 import { publishedEditionSchema } from '@/lib/published-editions/schemas'

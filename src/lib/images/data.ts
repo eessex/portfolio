@@ -3,10 +3,13 @@
 import { sql } from '@/lib/db'
 import { fetchCachedImagesFirstPage } from '@/lib/images/cached'
 import {
-  dashboardImageSchema,
+  type DashboardImage,
+  dashboardImageSchema
+} from '@/lib/images/schemas/client'
+import {
+  type CreateImage,
   imageSchema
-} from '@/lib/images/schemas'
-import type { CreateImage, DashboardImage } from '@/lib/images/types'
+} from '@/lib/images/schemas/db'
 import {
   decodeCursor,
   DEFAULT_PAGE_SIZE,
@@ -66,7 +69,7 @@ export async function fetchImageById(id: string) {
   }
 }
 
-const _fetchImagesByIds = async (ids: string[]) => {
+export const fetchImagesByIds = async (ids: string[]) => {
   try {
     const data = await sql`
       SELECT * FROM images

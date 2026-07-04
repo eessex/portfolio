@@ -1,6 +1,6 @@
-import type { CreateImage, Image } from '@/lib/images/types'
+import type { CreateImage, Image } from '@/lib/images/schemas/db'
 
-export const newImageFixture: CreateImage = {
+export const createImageFixture: CreateImage = {
   aspect: 1.7777,
   caption: 'This is a new image for testing purposes.',
   title: 'Test image',
@@ -8,7 +8,7 @@ export const newImageFixture: CreateImage = {
 }
 
 export const imageFixture: Image = {
-  ...newImageFixture,
+  ...createImageFixture,
   createdAt: new Date('2024-01-01T12:00:00Z'),
   updatedAt: new Date(),
   id: '3fa85f64-5717-4562-b3fc-2c963f66afa6'

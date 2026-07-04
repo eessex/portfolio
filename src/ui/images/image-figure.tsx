@@ -1,6 +1,6 @@
 import NextImage from 'next/image'
 
-import type { Image } from '@/lib/images/types'
+import type { Image } from '@/lib/images/schemas/db'
 
 export const ImageFigure = ({
   image,

@@ -2,7 +2,7 @@ import {
   type EmbedCode,
   EmbedCodeTypes
 } from '@/lib/embed-codes/schemas/db'
-import type { Image } from '@/lib/images/types'
+import type { Image } from '@/lib/images/schemas/db'
 import type { Link } from '@/lib/links/schemas/db'
 import type { Badge, EmbeddedItem } from '@/lib/types'
 import { usedOnPages } from '@/ui/util'

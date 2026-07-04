@@ -2,9 +2,12 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import { deleteImage, editImage } from '@/lib/images/actions'
-import { imageFixture, newImageFixture } from '@/lib/images/fixtures'
+import {
+  imageFixture,
+  createImageFixture
+} from '@/lib/images/fixtures'
 import { deleteFromS3, uploadFile } from '@/lib/images/s3'
-import type { CreateImage, Image } from '@/lib/images/types'
+import type { CreateImage, Image } from '@/lib/images/schemas/db'
 import { formDataFromObject, mockFile } from '@/test/helpers'
 
 jest.mock('@/lib/images/s3', () => ({
@@ -40,7 +43,7 @@ describe('Image Actions', () => {
       const res = await deleteImage(imageFixture)
       expect(deleteFromS3Mock).not.toHaveBeenCalled()
 
-      expect(res!.message).toBe('Failed to delete image: DB error')
+      expect(res!.message).toBe('Failed to delete image: DB error.')
     })
 
     it('can handle image not found', async () => {
@@ -58,14 +61,19 @@ describe('Image Actions', () => {
       deleteFromS3Mock.mockRejectedValueOnce(new Error('S3 error'))
       const res = await deleteImage(imageFixture)
 
-      expect(res!.message).toBe('Failed to delete image: S3 error')
+      expect(res!.message).toBe('Failed to delete image: S3 error.')
     })
   })
 
   describe('#editImage', () => {
     it('can edit an existing image', async () => {
-      mockSql.mockResolvedValueOnce([imageFixture])
-      const res = await editImage(formDataFromObject(imageFixture))
+      mockSql
+        .mockResolvedValueOnce([imageFixture]) // fetchImagesByIds
+        .mockResolvedValueOnce([imageFixture]) // UPDATE ... RETURNING *
+      const res = await editImage(
+        formDataFromObject(imageFixture),
+        imageFixture.id
+      )
 
       expect(uploadFileMock).not.toHaveBeenCalled()
       expect(res?.ok).toBe(true)
@@ -73,6 +81,29 @@ describe('Image Actions', () => {
         'This is a new image for testing purposes.'
       )
       expect(updateTag).toHaveBeenCalledWith('images')
+      expect(mockSql).toHaveBeenCalledTimes(2)
+    })
+
+    it('merges submitted fields with the existing image on update', async () => {
+      mockSql
+        .mockResolvedValueOnce([imageFixture])
+        .mockResolvedValueOnce([imageFixture])
+
+      // only aspect and url (required) are submitted; caption/title
+      // should fall back to the existing image's values
+      await editImage(
+        formDataFromObject({
+          aspect: imageFixture.aspect,
+          url: imageFixture.url
+        }),
+        imageFixture.id
+      )
+
+      const [, alt, aspect, caption] = mockSql.mock
+        .calls[1] as unknown as string[]
+      expect(alt).toBe(null)
+      expect(aspect).toBeCloseTo(imageFixture.aspect)
+      expect(caption).toBe(imageFixture.caption)
     })
 
     it('can create a new image', async () => {
@@ -85,7 +116,7 @@ describe('Image Actions', () => {
         'image/jpeg'
       )
       const formData = formDataFromObject({
-        ...newImageFixture,
+        ...createImageFixture,
         file: imageFileFixture
       })
 
@@ -101,17 +132,28 @@ describe('Image Actions', () => {
         '3fa85f64-5717-4562-b3fc-2c963f66afa6'
       )
       expect(updateTag).toHaveBeenCalledWith('images')
+      expect(mockSql).toHaveBeenCalledTimes(1)
     })
 
     it('can handle generic errors', async () => {
       mockSql.mockRejectedValueOnce(new Error('DB error'))
       const res = await editImage(formDataFromObject(imageFixture))
 
-      expect(res!.message).toBe('Failed to edit image: DB error')
+      expect(res!.message).toBe('Failed to create image.')
+    })
+
+    it('can handle errors fetching the existing image on update', async () => {
+      mockSql.mockRejectedValueOnce(new Error('DB error'))
+      const res = await editImage(
+        formDataFromObject(imageFixture),
+        imageFixture.id
+      )
+
+      expect(res!.message).toBe('Failed to fetch images.')
     })
 
     it('can handle validation errors', async () => {
-      const invalid: Partial<CreateImage> = { ...newImageFixture }
+      const invalid: Partial<CreateImage> = { ...createImageFixture }
       delete invalid.url
       const res = await editImage(formDataFromObject(invalid))
 

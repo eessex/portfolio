@@ -3,15 +3,19 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
+import { fetchImagesByIds } from '@/lib/images/data'
 import { deleteFromS3, uploadFile } from '@/lib/images/s3'
 import {
+  type CreateImage,
   createImageSchema,
-  editImageSchema,
+  type Image,
   imageSchema
-} from '@/lib/images/schemas'
-import type { CreateImage, Image } from '@/lib/images/types'
+} from '@/lib/images/schemas/db'
 import type { FormResponse } from '@/lib/types'
-import { formatDbResponseForClient } from '@/lib/util'
+import {
+  formatDbResponseForClient,
+  normalizeFormData
+} from '@/lib/util'
 
 const s3Prefix = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/images/`
 
@@ -47,12 +51,11 @@ export async function checkIfImageExists(
 }
 
 export async function editImage(
-  formData: FormData
+  formData: FormData,
+  id?: string
 ): Promise<FormResponse<Image>> {
-  let validatedImage
-  const clientFile = formData.get('file') as File | undefined
-  const data: Record<FormData['entries']['name'], unknown> =
-    Object.fromEntries(formData)
+  const data: Record<string, unknown> = Object.fromEntries(formData)
+  const clientFile = data.file as File | undefined
 
   if (clientFile?.name && clientFile.size > 0) {
     try {
@@ -68,21 +71,9 @@ export async function editImage(
     }
   }
 
-  Object.entries(data).forEach(([n, v]) => {
-    if (v === 'on') {
-      // checkboxes are always 'on' when checked, so we convert them to true
-      data[n] = true
-    } else if (n.includes('Date')) {
-      data[n] = v || undefined
-    } else if (n === 'aspect') {
-      data[n] = parseFloat(v as string)
-    }
-  })
-  if (formData.get('id')) {
-    validatedImage = editImageSchema.safeParse(data)
-  } else {
-    validatedImage = createImageSchema.safeParse(data)
-  }
+  const validatedImage = createImageSchema.safeParse(
+    normalizeFormData(data)
+  )
 
   if (!validatedImage.success) {
     return {
@@ -90,31 +81,28 @@ export async function editImage(
       errors: validatedImage.error.flatten().fieldErrors,
       message: 'Failed to validate image.'
     }
-  } else {
-    try {
-      const updatedImage = await updateImage(validatedImage.data)
-      if (updatedImage) {
-        updateTag('images')
-        return {
-          ok: true,
-          res: updatedImage
-        }
-      } else {
-        return {
-          ok: false,
-          message: 'Failed to edit image.'
-        }
-      }
-    } catch (err) {
-      const errMsg = 'Failed to edit image'
-      const message =
-        err instanceof Error
-          ? `${errMsg}: ${err.message}`
-          : `${errMsg}.`
+  }
+
+  try {
+    let savedImage: Image | undefined
+    if (id) {
+      savedImage = await updateImage(validatedImage.data, id)
+    } else {
+      savedImage = await createImage(validatedImage.data)
+    }
+    if (savedImage) {
+      updateTag('images')
       return {
-        ok: false,
-        message
+        ok: true,
+        res: savedImage
       }
+    }
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : 'Failed to edit image.'
+    return {
+      ok: false,
+      message
     }
   }
 }
@@ -143,7 +131,7 @@ export async function deleteImage(
   } catch (err) {
     const message =
       err instanceof Error
-        ? `${errMsg}: ${err.message}`
+        ? `${errMsg}: ${err.message}.`
         : `${errMsg}.`
     return {
       ok: false,
@@ -155,82 +143,81 @@ export async function deleteImage(
 async function createImage(image: CreateImage) {
   try {
     const {
+      alt,
       aspect,
       caption,
       isHiddenOnAboutPage,
       isPress,
       title,
       url
-    } = image
-    return await sql`
-      INSERT INTO images (
-        aspect,
-        created_at,
-        caption,
-        is_hidden_on_about_page,
-        is_press,
-        title,
-        url
-      ) VALUES (
-        ${aspect},
-        current_timestamp,
-        ${caption || null},
-        ${isHiddenOnAboutPage ?? null},
-        ${isPress ?? null},
-        ${title || null},
-        ${url}
-      )
+    } = toDbRow(image)
+    const rows = await sql`
+      INSERT INTO images
+        alt = ${alt},
+        aspect = ${aspect},
+        caption = ${caption},
+        is_hidden_on_about_page = ${isHiddenOnAboutPage},
+        is_press = ${isPress},
+        title = ${title},
+        url = ${url},
+        created_at = current_timestamp
       RETURNING *
-    `.then((rows) => formatDbResponseForClient(rows[0], imageSchema))
-  } catch (err) {
-    throw new Error(
-      err instanceof Error ? err.message : 'Failed to create image.'
-    )
+    `
+    const row = rows[0]
+    if (!row) throw new Error('Failed to create image.')
+    return formatDbResponseForClient(row, imageSchema)
+  } catch (cause) {
+    throw new Error('Failed to create image.', { cause })
   }
 }
 
-async function updateImage(image: CreateImage | Image) {
+async function updateImage(image: CreateImage, id: string) {
+  const [existingImage] = await fetchImagesByIds([id])
   try {
-    if (!(image as Image).id) {
-      return await createImage(image)
-    } else {
-      const {
-        aspect,
-        caption,
-        isHiddenOnAboutPage,
-        isPress,
-        title,
-        url
-      } = image
-      return await sql`
-        UPDATE images
-        SET (
-          aspect,
-          caption,
-          is_hidden_on_about_page,
-          is_press,
-          title, 
-          updated_at,
-          url
-        )
-        = (
-          ${aspect || null},
-          ${caption || null},
-          ${isHiddenOnAboutPage ?? null},
-          ${isPress ?? null},
-          ${title || null},
-          current_timestamp,
-          ${url}
-        )
-        WHERE id = ${(image as Image).id}
-        RETURNING *
-      `.then((rows) =>
-        formatDbResponseForClient(rows[0], imageSchema)
-      )
-    }
-  } catch (err) {
-    throw new Error(
-      err instanceof Error ? err.message : 'Failed to update image.'
-    )
+    const {
+      alt,
+      aspect,
+      caption,
+      isHiddenOnAboutPage,
+      isPress,
+      title,
+      url
+    } = toDbRow(image, existingImage)
+    const rows = await sql`
+      UPDATE images
+      SET
+        alt = ${alt},
+        aspect = ${aspect},
+        caption = ${caption},
+        is_hidden_on_about_page = ${isHiddenOnAboutPage},
+        is_press = ${isPress},
+        title = ${title},
+        updated_at = current_timestamp,
+        url = ${url}
+      WHERE id = ${id}
+      RETURNING *
+    `
+    const row = rows[0]
+    if (!row) throw new Error('Failed to update image.')
+    return formatDbResponseForClient(row, imageSchema)
+  } catch (cause) {
+    throw new Error('Failed to update image.', { cause })
+  }
+}
+
+function toDbRow(image: CreateImage, existing?: Image) {
+  const imageToSave = {
+    ...existing,
+    ...image
+  }
+
+  return {
+    alt: imageToSave.alt ?? null,
+    aspect: imageToSave.aspect,
+    caption: imageToSave.caption ?? null,
+    isHiddenOnAboutPage: imageToSave.isHiddenOnAboutPage ?? null,
+    isPress: imageToSave.isPress ?? null,
+    title: imageToSave.title ?? null,
+    url: imageToSave.url
   }
 }

@@ -10,7 +10,8 @@ import {
   EmbedCodeTypes,
   embedCodeTypes
 } from '@/lib/embed-codes/schemas/db'
-import type { DashboardImage, Image } from '@/lib/images/types'
+import type { DashboardImage } from '@/lib/images/schemas/client'
+import type { Image } from '@/lib/images/schemas/db'
 import type { DashboardLink } from '@/lib/links/schemas/client'
 import { type Link, linkTypes } from '@/lib/links/schemas/db'
 import {

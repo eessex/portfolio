@@ -1,7 +1,7 @@
 import { XMarkIcon } from '@heroicons/react/16/solid'
 import React, { useEffect, useState } from 'react'
 
-import type { Image } from '@/lib/images/types'
+import type { Image } from '@/lib/images/schemas/db'
 import styles from '@/ui/form/form.module.scss'
 import type { InputProps } from '@/ui/form/input'
 import { Input } from '@/ui/form/input'

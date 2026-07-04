@@ -3,7 +3,7 @@ import type {
   EventClient,
   FetchEventsResult
 } from '@/lib/events/types'
-import type { Image } from '@/lib/images/types'
+import type { Image } from '@/lib/images/schemas/db'
 import type { Link } from '@/lib/links/schemas/db'
 import type {
   FetchProjectsResult,

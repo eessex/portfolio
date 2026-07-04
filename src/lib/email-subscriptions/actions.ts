@@ -11,6 +11,7 @@ export async function createEmailSubscription<T>(
 ): Promise<FormResponse<T>> {
   const validatedFields = emailSubscriptionSchema
     .omit({
+      id: true,
       exportedAt: true,
       createdAt: true,
       updatedAt: true

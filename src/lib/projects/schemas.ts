@@ -1,11 +1,17 @@
 import { z } from 'zod'
 
+import { embedCodeSchema } from '@/lib/embed-codes/schemas/db'
+import { imageSchema } from '@/lib/images/schemas/db'
+import { linkSchema } from '@/lib/links/schemas/db'
+import { pagePathSchema } from '@/lib/schemas'
 import {
-  basePageSchema,
-  date,
-  embeddedItemIdSchemas
-} from '@/lib/schemas'
-import { hydratedItemIdSchemas } from '@/lib/schemas/hydratedItemIdSchemas'
+  contentFields,
+  relationFields,
+  systemFields,
+  taxonomyFields
+} from '@/lib/schemas/fields'
+import { date } from '@/lib/schemas/primitives'
+import { venueSchema } from '@/lib/venues/schemas/db'
 
 export const projectTypes = [
   'band',
@@ -14,6 +20,13 @@ export const projectTypes = [
   'radioShow',
   'recordLabel'
 ] as const
+export const projectTypeSchema = z.enum(projectTypes)
+export const ProjectTypes = Object.fromEntries(
+  projectTypes.map((v) => [v, v])
+) as {
+  [K in (typeof projectTypes)[number]]: K
+}
+export type ProjectType = z.infer<typeof projectTypeSchema>
 
 /**
  * Represents a grouping of content that may be associated with multiple events, releases or embedCodes.
@@ -22,29 +35,28 @@ export const projectTypes = [
  *
  * Site settings is essentially the "default" project, a project should represent a subset of work from overall site.
  */
-export const projectSchema = z.lazy(() =>
-  basePageSchema.omit({ projectId: true }).extend({
-    ...embeddedItemIdSchemas.shape,
-    type: z.enum(projectTypes).optional(),
-    startDate: date.optional(),
-    endDate: date.optional()
-  })
-)
+export const projectSchema = z.object({
+  ...systemFields,
+  ...taxonomyFields,
+  ...contentFields,
+  coverImageId: relationFields.coverImageId,
+  embedCodeIds: relationFields.embedCodeIds,
+  endDate: date.optional(),
+  imageIds: relationFields.imageIds,
+  linkIds: relationFields.linkIds,
+  path: pagePathSchema,
+  startDate: date.optional(),
+  type: projectTypeSchema.optional()
+})
 
 /**
  * Extends `projectSchema` embedded item metadata.
  */
-export const projectClientSchema = z.lazy(() =>
-  z
-    .object({
-      ...hydratedItemIdSchemas.pick({
-        coverImage: true,
-        embedCodes: true,
-        featuredEmbedCode: true,
-        images: true,
-        links: true,
-        venue: true
-      }).shape
-    })
-    .and(projectSchema)
-)
+export const projectClientSchema = projectSchema.extend({
+  coverImage: z.lazy(() => imageSchema).optional(),
+  embedCodes: z.lazy(() => embedCodeSchema.array()).optional(),
+  featuredEmbedCode: z.lazy(() => embedCodeSchema).optional(),
+  images: z.lazy(() => imageSchema.array()).optional(),
+  links: z.lazy(() => linkSchema.array()).optional(),
+  venue: z.lazy(() => venueSchema).optional()
+})

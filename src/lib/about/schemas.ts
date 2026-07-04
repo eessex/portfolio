@@ -1,12 +1,14 @@
 import { z } from 'zod'
 
+import { embedCodeSchema } from '@/lib/embed-codes/schemas/db'
+import { imageSchema } from '@/lib/images/schemas/db'
+import { relationFields, systemFields } from '@/lib/schemas/fields'
 import {
-  basePageSchema,
-  defaultSchema,
+  longText,
   shortText,
+  slug,
   uuid
-} from '@/lib/schemas'
-import { hydratedItemIdSchemas } from '@/lib/schemas/hydratedItemIdSchemas'
+} from '@/lib/schemas/primitives'
 
 /**
  * The about page, with contact info and other details.
@@ -16,17 +18,16 @@ export const aboutContactSchema = z.object({
   contact: shortText.optional()
 })
 
-export const aboutSchema = defaultSchema.extend({
+export const aboutSchema = z.object({
+  ...systemFields,
   contactInfo: z.array(aboutContactSchema).optional(),
-  coverImageId: basePageSchema.shape.coverImageId,
-  description: basePageSchema.shape.description,
+  coverImageId: relationFields.coverImageId,
+  description: longText.optional(),
   featuredEmbedCodeId: uuid.optional(),
-  slug: basePageSchema.shape.slug
+  slug
 })
 
-export const aboutClientSchema = aboutSchema.extend(
-  hydratedItemIdSchemas.pick({
-    coverImage: true,
-    featuredEmbedCode: true
-  }).shape
-)
+export const aboutClientSchema = aboutSchema.extend({
+  coverImage: z.lazy(() => imageSchema).optional(),
+  featuredEmbedCode: z.lazy(() => embedCodeSchema).optional()
+})

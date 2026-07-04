@@ -9,7 +9,8 @@ import {
   fetchCachedReleaseById,
   fetchCachedReleaseBySlug
 } from '@/lib/releases/cached'
-import { fetchReleasesRaw, path } from '@/lib/releases/data'
+import { fetchReleasesRaw } from '@/lib/releases/data'
+import { PagePaths } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
 
@@ -23,14 +24,14 @@ export async function generateStaticParams() {
 
 export default async function ReleasePage({ params }: PageItemProps) {
   const [{ slug }, session] = await Promise.all([params, auth()])
-  const resolved = await resolveSlug(path, slug)
+  const resolved = await resolveSlug(PagePaths.releases, slug)
 
   if (!resolved) {
-    redirect(`/${path}`)
+    redirect(`/${PagePaths.releases}`)
   }
 
   if (resolved.isRedirect) {
-    redirect(`/${path}/${resolved.slug}`)
+    redirect(`/${PagePaths.releases}/${resolved.slug}`)
   }
 
   const release = await fetchCachedReleaseById(
@@ -39,7 +40,7 @@ export default async function ReleasePage({ params }: PageItemProps) {
   )
 
   if (!release) {
-    redirect(`/${path}`)
+    redirect(`/${PagePaths.releases}`)
   }
 
   return <ItemLayout item={release} />

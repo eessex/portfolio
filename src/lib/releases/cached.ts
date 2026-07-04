@@ -31,7 +31,7 @@ export async function fetchCachedReleaseBySlug(
   slug: string,
   isAuthed: boolean = false
 ) {
-  const resolved = await resolveSlug('projects', slug)
+  const resolved = await resolveSlug('releases', slug)
   if (!resolved) return undefined
 
   cacheTag(`releases:${isAuthed ? 'authed' : 'public'}`)

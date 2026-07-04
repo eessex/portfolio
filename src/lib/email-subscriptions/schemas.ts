@@ -1,11 +1,13 @@
-import { date, defaultSchema, email } from '@/lib/schemas'
+import { z } from 'zod'
+
+import { systemFields } from '@/lib/schemas/fields'
+import { date, email } from '@/lib/schemas/primitives'
 
 /**
  * Newsletter subscription
  */
-export const emailSubscriptionSchema = defaultSchema
-  .omit({ id: true })
-  .extend({
-    email,
-    exportedAt: date.optional()
-  })
+export const emailSubscriptionSchema = z.object({
+  ...systemFields,
+  email,
+  exportedAt: date.optional()
+})

@@ -3,8 +3,8 @@ import { updateTag } from 'next/cache'
 import { sql } from '@/lib/db'
 import { deleteImage, editImage } from '@/lib/images/actions'
 import {
-  imageFixture,
-  createImageFixture
+  createImageFixture,
+  imageFixture
 } from '@/lib/images/fixtures'
 import { deleteFromS3, uploadFile } from '@/lib/images/s3'
 import type { CreateImage, Image } from '@/lib/images/schemas/db'

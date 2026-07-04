@@ -4,7 +4,8 @@ import { camelToSentence, snakeToCamel } from '@/ui/util'
 export function Select({
   ariaControls,
   attributes,
-  formatOptionLabel = (option) => camelToSentence(snakeToCamel(option)),
+  formatOptionLabel = (option) =>
+    camelToSentence(snakeToCamel(option)),
   isLabelHidden,
   label,
   onChange,

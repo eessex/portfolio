@@ -1,6 +1,5 @@
 import { sql } from '@/lib/db'
-import type { SlugTableName } from '@/lib/schemas'
-import { TablesWithSlugs } from '@/lib/schemas'
+import { type PagePath, pagePaths } from '@/lib/schemas'
 import { getTableIdentifier, slugify } from '@/lib/slug/util'
 
 jest.mock('@/lib/db', () => ({
@@ -30,7 +29,7 @@ describe('getTableIdentifier', () => {
   })
 
   it('calls sql.unsafe with a valid table name', () => {
-    const table = TablesWithSlugs[0]
+    const table = pagePaths[0]
 
     const result = getTableIdentifier(table)
 
@@ -40,7 +39,7 @@ describe('getTableIdentifier', () => {
 
   it('throws for an invalid table name', () => {
     expect(() =>
-      getTableIdentifier('not_a_table' as unknown as SlugTableName)
+      getTableIdentifier('not_a_table' as unknown as PagePath)
     ).toThrow('Invalid table name: not_a_table')
 
     expect(sql.unsafe).not.toHaveBeenCalled()

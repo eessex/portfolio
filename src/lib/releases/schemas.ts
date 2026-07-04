@@ -1,12 +1,18 @@
 import { z } from 'zod'
 
+import { embedCodeSchema } from '@/lib/embed-codes/schemas/db'
+import { imageSchema } from '@/lib/images/schemas/db'
+import { linkSchema } from '@/lib/links/schemas/db'
+import { projectSchema } from '@/lib/projects/schemas'
+import { publishedEditionSchema } from '@/lib/published-editions/schemas'
 import {
-  basePageSchema,
-  date,
-  embeddedItemIdSchemas,
-  shortText
-} from '@/lib/schemas'
-import { hydratedItemIdSchemas } from '@/lib/schemas/hydratedItemIdSchemas'
+  contentFields,
+  ownershipFields,
+  relationFields,
+  systemFields,
+  taxonomyFields
+} from '@/lib/schemas/fields'
+import { date, shortText } from '@/lib/schemas/primitives'
 
 export const releaseTypes = [
   'album',
@@ -17,26 +23,40 @@ export const releaseTypes = [
   'collaborative_release',
   'single'
 ] as const
+export const releaseTypeSchema = z.enum(releaseTypes)
+export const ReleaseTypes = Object.fromEntries(
+  releaseTypes.map((v) => [v, v])
+) as {
+  [K in (typeof releaseTypes)[number]]: K
+}
+export type ReleaseType = z.infer<typeof releaseTypeSchema>
 
 /**
  * A music release, such as an album, EP, single, or soundtrack.
  */
-export const releaseSchema = basePageSchema.extend({
-  ...embeddedItemIdSchemas.shape,
-  artist: shortText,
-  type: z.enum(releaseTypes),
+export const releaseSchema = z.object({
+  ...systemFields,
+  ...taxonomyFields,
+  ...ownershipFields,
+  ...contentFields,
+  artist: shortText.optional(),
+  coverImageId: relationFields.coverImageId,
+  embedCodeIds: relationFields.embedCodeIds,
+  imageIds: relationFields.imageIds,
+  linkIds: relationFields.linkIds,
+  path: z.literal('releases'),
   releaseDate: date,
-  path: z.literal('releases')
+  type: releaseTypeSchema
 })
 
-export const releaseClientSchema = releaseSchema.extend(
-  hydratedItemIdSchemas.pick({
-    coverImage: true,
-    embedCodes: true,
-    featuredEmbedCode: true,
-    images: true,
-    links: true,
-    project: true,
-    publishedEditions: true
-  }).shape
-)
+export const releaseClientSchema = releaseSchema.extend({
+  coverImage: z.lazy(() => imageSchema).optional(),
+  embedCodes: z.lazy(() => embedCodeSchema.array()).optional(),
+  featuredEmbedCode: z.lazy(() => embedCodeSchema).optional(),
+  images: z.lazy(() => imageSchema.array()).optional(),
+  links: z.lazy(() => linkSchema.array()).optional(),
+  project: z.lazy(() => projectSchema).optional(),
+  publishedEditions: z
+    .lazy(() => publishedEditionSchema.array())
+    .optional()
+})

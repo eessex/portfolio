@@ -7,7 +7,8 @@ export const eventFixtureUpcoming: EventClient = {
   createdAt: new Date('2025-01-01'),
   updatedAt: new Date('2025-01-01'),
   slug: 'event-2',
-  venueId: '550e8400-e29b-41d4-a716-446655440000'
+  venueId: '550e8400-e29b-41d4-a716-446655440000',
+  title: 'Ultimate party: Madonna, Abba, Tina Turner'
 }
 
 export const eventFixturePast: EventClient = {
@@ -17,5 +18,6 @@ export const eventFixturePast: EventClient = {
   createdAt: new Date('2019-01-01'),
   updatedAt: new Date('2019-01-01'),
   slug: 'event-1',
-  venueId: '550e8400-e29b-41d4-a716-446655440000'
+  venueId: '550e8400-e29b-41d4-a716-446655440000',
+  title: 'Tina Turner, ABBA, Madonna'
 }

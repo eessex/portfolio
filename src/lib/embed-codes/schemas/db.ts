@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { systemFields } from '@/lib/schemas/fields'
-import { shortText, url } from '@/lib/schemas/primitives'
+import { shortText } from '@/lib/schemas/primitives'
 
 /**
  * The variety of media displayed in an iframe embed.
@@ -66,7 +66,7 @@ const embedCodeFields = {
   host: embedCodeHostSchema,
   /** @deprecated use src */
   iframe: z.string().optional(),
-  src: url.min(5),
+  src: z.string().url().min(5).max(1000),
   title: shortText.optional(),
   type: embedCodeTypesSchema
 }

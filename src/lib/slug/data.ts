@@ -1,10 +1,10 @@
 import { sql } from '@/lib/db'
-import { type SlugTableName, TablesWithSlugs } from '@/lib/schemas'
+import { type PagePath, pagePaths } from '@/lib/schemas'
 import { getTableIdentifier, slugify } from '@/lib/slug/util'
 
 export async function generateUniqueSlug(
   title: string,
-  table: SlugTableName,
+  table: PagePath,
   existingRowId?: string
 ): Promise<string> {
   const slugBase = slugify(title) || 'untitled'
@@ -21,10 +21,10 @@ export async function generateUniqueSlug(
 }
 async function slugExists(
   slug: string,
-  tableName: SlugTableName,
+  tableName: PagePath,
   excludeId?: string
 ) {
-  if (!TablesWithSlugs.includes(tableName)) {
+  if (!pagePaths.includes(tableName)) {
     throw new Error(`Invalid table name: ${tableName}`)
   }
   const excludeClause = excludeId
@@ -49,7 +49,7 @@ type ResolveSlugResult = {
 }
 
 export async function resolveSlug(
-  tableName: SlugTableName,
+  tableName: PagePath,
   slug: string
 ): Promise<ResolveSlugResult | null> {
   const table = getTableIdentifier(tableName)

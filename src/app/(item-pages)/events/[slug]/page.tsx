@@ -11,7 +11,7 @@ import {
   fetchCachedEventBySlug
 } from '@/lib/events/cached'
 import { fetchEvents, fetchEventsRaw } from '@/lib/events/data'
-import { path } from '@/lib/projects/data'
+import { PagePaths } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
 import { ItemsList } from '@/ui/items/items-list'
@@ -28,14 +28,14 @@ export async function generateStaticParams() {
 
 export default async function EventPage({ params }: PageItemProps) {
   const [{ slug }, session] = await Promise.all([params, auth()])
-  const resolved = await resolveSlug(path, slug)
+  const resolved = await resolveSlug(PagePaths.events, slug)
 
   if (!resolved) {
-    redirect(`/${path}`)
+    redirect(`/${PagePaths.events}`)
   }
 
   if (resolved.isRedirect) {
-    redirect(`/${path}/${resolved.slug}`)
+    redirect(`/${PagePaths.events}/${resolved.slug}`)
   }
 
   const [
@@ -49,7 +49,7 @@ export default async function EventPage({ params }: PageItemProps) {
   ])
 
   if (!event) {
-    redirect(`/${path}`)
+    redirect(`/${PagePaths.events}`)
   }
 
   const moreEvents = upcomingEvents.filter((e) => e.id !== event.id)

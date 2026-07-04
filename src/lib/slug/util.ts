@@ -1,5 +1,5 @@
 import { sql } from '@/lib/db'
-import { type SlugTableName, TablesWithSlugs } from '@/lib/schemas'
+import { type PagePath, pagePaths } from '@/lib/schemas'
 
 export function slugify(str: string, separator = '-') {
   return str
@@ -13,8 +13,8 @@ export function slugify(str: string, separator = '-') {
     .replace(/-+/g, separator) // Collapse consecutive separators
 }
 
-export function getTableIdentifier(table: SlugTableName) {
-  if (!TablesWithSlugs.includes(table)) {
+export function getTableIdentifier(table: PagePath) {
+  if (!pagePaths.includes(table)) {
     throw new Error(`Invalid table name: ${table}`)
   }
 

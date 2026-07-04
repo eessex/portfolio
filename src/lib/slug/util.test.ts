@@ -17,7 +17,10 @@ describe('slugify', () => {
     ['hello     world', 'hello-world'],
     ['Version 2 Release 10', 'version-2-release-10'],
     ['     ', ''],
-    ['foo - bar', 'foo-bar']
+    ['foo - bar', 'foo-bar'],
+    ['-Hello World-', 'hello-world'],
+    ['--leading', 'leading'],
+    ['trailing--', 'trailing']
   ])('slugify(%s) -> %s', (input, expected) => {
     expect(slugify(input)).toBe(expected)
   })

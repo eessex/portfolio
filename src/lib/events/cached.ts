@@ -3,7 +3,6 @@
 import { cacheTag } from 'next/cache'
 
 import { fetchEventById, fetchEventsRaw } from '@/lib/events/data'
-import { resolveSlug } from '@/lib/slug/data'
 
 export async function fetchCachedEventsFirstPage(
   isAuthed: boolean,
@@ -27,19 +26,6 @@ export async function fetchCachedEventsFirstPage(
     undefined,
     undefined
   )
-}
-
-export async function fetchCachedEventBySlug(
-  slug: string,
-  isAuthed: boolean = false
-) {
-  const resolved = await resolveSlug('events', slug)
-  if (!resolved) return undefined
-
-  cacheTag(`events:${isAuthed ? 'authed' : 'public'}`)
-  cacheTag(`event:${resolved.id}`)
-
-  return fetchEventById(resolved.id, isAuthed)
 }
 
 export async function fetchCachedEventById(

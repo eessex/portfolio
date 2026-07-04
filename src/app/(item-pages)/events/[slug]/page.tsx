@@ -6,10 +6,7 @@ import ItemLayout, {
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
 import { auth } from '@/auth'
-import {
-  fetchCachedEventById,
-  fetchCachedEventBySlug
-} from '@/lib/events/cached'
+import { fetchCachedEventById } from '@/lib/events/cached'
 import { fetchEvents, fetchEventsRaw } from '@/lib/events/data'
 import { PagePaths } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
@@ -19,7 +16,11 @@ import { Loading } from '@/ui/loading'
 import { formattedItemType } from '@/ui/util'
 
 export async function generateMetadata({ params }: PageItemProps) {
-  return generateItemMetadata(params, fetchCachedEventBySlug)
+  return generateItemMetadata(
+    params,
+    PagePaths.events,
+    fetchCachedEventById
+  )
 }
 
 export async function generateStaticParams() {

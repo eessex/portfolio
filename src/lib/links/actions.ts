@@ -93,25 +93,15 @@ async function createLink(link: CreateLink) {
       url
     } = toDbRow(link)
     const rows = await sql`
-      INSERT INTO links (
-        attribution,
-        created_at,
-        is_hidden_on_about_page,
-        publish_date,
-        quotation,
-        title,
-        type,
-        url
-      ) VALUES (
-        ${attribution},
-        current_timestamp,
-        ${isHiddenOnAboutPage},
-        ${publishDate},
-        ${quotation},
-        ${title},
-        ${type},
-        ${url}
-      )
+      INSERT INTO links 
+        attribution = ${attribution},
+        is_hidden_on_about_page = ${isHiddenOnAboutPage},
+        publish_date = ${publishDate},
+        quotation = ${quotation},
+        title = ${title},
+        type = ${type},
+        url = ${url},
+        created_at = current_timestamp
       RETURNING *
     `
     const row = rows[0]

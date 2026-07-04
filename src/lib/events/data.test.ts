@@ -20,20 +20,6 @@ jest.mock('@/lib/events/data', () => {
   }
 })
 
-jest.mock('@/lib/slug/util', () => {
-  const actual = jest.requireActual('@/lib/slug/util')
-
-  return {
-    ...actual,
-    resolveSlug: jest.fn(() => ({
-      id: eventFixtureUpcoming.id,
-      slug: eventFixtureUpcoming.slug,
-      isRedirect: true
-    })),
-    getTableIdentifier: jest.fn(() => ({ mockedTable: 'events' }))
-  }
-})
-
 import { sql } from '@/lib/db'
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import * as Events from '@/lib/events/data'

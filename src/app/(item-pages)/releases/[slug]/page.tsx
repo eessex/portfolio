@@ -5,17 +5,18 @@ import ItemLayout, {
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
 import { auth } from '@/auth'
-import {
-  fetchCachedReleaseById,
-  fetchCachedReleaseBySlug
-} from '@/lib/releases/cached'
+import { fetchCachedReleaseById } from '@/lib/releases/cached'
 import { fetchReleasesRaw } from '@/lib/releases/data'
 import { PagePaths } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
 
 export async function generateMetadata({ params }: PageItemProps) {
-  return generateItemMetadata(params, fetchCachedReleaseBySlug)
+  return generateItemMetadata(
+    params,
+    PagePaths.releases,
+    fetchCachedReleaseById
+  )
 }
 
 export async function generateStaticParams() {

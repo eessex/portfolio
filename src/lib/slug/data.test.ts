@@ -1,5 +1,6 @@
 import { sql } from '@/lib/db'
 import { generateUniqueSlug, resolveSlug } from '@/lib/slug/data'
+import { getTableIdentifier } from '@/lib/slug/util'
 
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
@@ -21,11 +22,12 @@ jest.mock('@/lib/slug/util', () => {
     ...actual,
     getTableIdentifier: jest
       .fn()
-      .mockResolvedValue({ mockedTable: 'projects' })
+      .mockReturnValue({ mockedTable: 'projects' })
   }
 })
 
 const mockSql = sql as unknown as jest.Mock
+const mockGetTableIdentifier = jest.mocked(getTableIdentifier)
 
 describe('generateUniqueSlug', () => {
   beforeEach(() => {
@@ -40,6 +42,9 @@ describe('generateUniqueSlug', () => {
 
     expect(slug).toBe('hello-world')
     expect(mockSql).toHaveBeenCalledTimes(1)
+    // slugExists must resolve the table name via getTableIdentifier
+    // rather than interpolating the raw string into the query
+    expect(mockGetTableIdentifier).toHaveBeenCalledWith('projects')
   })
 
   it('appends "-2" when the slug already exists', async () => {

@@ -17,20 +17,6 @@ jest.mock('@/lib/projects/data', () => {
   }
 })
 
-jest.mock('@/lib/slug/util', () => {
-  const actual = jest.requireActual('@/lib/slug/util')
-
-  return {
-    ...actual,
-    resolveSlug: jest.fn(() => ({
-      id: projectFixtureBand.id,
-      slug: projectFixtureBand.slug,
-      isRedirect: true
-    })),
-    getTableIdentifier: jest.fn(() => ({ mockedTable: 'projects' }))
-  }
-})
-
 import { sql } from '@/lib/db'
 import { fetchCachedProjectsFirstPage } from '@/lib/projects/cached'
 import * as Projects from '@/lib/projects/data'

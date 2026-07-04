@@ -6,7 +6,8 @@ import styles from '@/app/(item-pages)/item-layout.module.scss'
 import type { EventClient } from '@/lib/events/types'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
-import { PagePaths } from '@/lib/schemas'
+import { type PagePath, PagePaths } from '@/lib/schemas'
+import { resolveSlug } from '@/lib/slug/data'
 import type {
   PageDataResponse,
   PageItemClient,
@@ -165,14 +166,16 @@ export default async function ItemLayout({
 
 export async function generateItemMetadata(
   params: PageItemProps['params'],
-  fetchFn: (
-    slug: string,
+  pagePath: PagePath,
+  fetchById: (
+    id: string,
     includeUnpublished?: boolean
   ) => Promise<PageItemClient | undefined>
 ): Promise<Metadata> {
   const { slug } = await params
-  const item = await fetchFn(slug, true)
-  if (!slug || !item) return notFound()
+  const resolved = slug ? await resolveSlug(pagePath, slug) : null
+  const item = resolved && (await fetchById(resolved.id, true))
+  if (!resolved || !item) return notFound()
 
   const description = generateItemDescription(item)
   const { coverImage, path } = item
@@ -189,7 +192,11 @@ export async function generateItemMetadata(
   const meta: Metadata = {
     title: `${formattedItemType(path)} | ${formattedItemTitle(item)}`,
     description,
-    openGraph
+    openGraph,
+    // point crawlers at the canonical URL when reached via a historical slug
+    alternates: resolved.isRedirect
+      ? { canonical: `/${pagePath}/${resolved.slug}` }
+      : undefined
   }
   return meta
 }

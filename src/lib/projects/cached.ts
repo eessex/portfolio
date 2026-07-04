@@ -6,7 +6,6 @@ import {
   fetchProjectById,
   fetchProjectsRaw
 } from '@/lib/projects/data'
-import { resolveSlug } from '@/lib/slug/data'
 
 export async function fetchCachedProjectsFirstPage(
   isAuthed: boolean
@@ -15,19 +14,6 @@ export async function fetchCachedProjectsFirstPage(
   cacheTag(`projects:${isAuthed ? 'authed' : 'public'}`)
 
   return await fetchProjectsRaw(isAuthed, undefined, undefined)
-}
-
-export async function fetchCachedProjectBySlug(
-  slug: string,
-  isAuthed: boolean = false
-) {
-  const resolved = await resolveSlug('projects', slug)
-  if (!resolved) return undefined
-
-  cacheTag(`projects:${isAuthed ? 'authed' : 'public'}`)
-  cacheTag(`project:${slug}`)
-
-  return fetchProjectById(resolved.id, isAuthed)
 }
 
 export async function fetchCachedProjectById(

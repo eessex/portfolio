@@ -2,6 +2,11 @@ import { sql } from '@/lib/db'
 import { type PagePath, pagePaths } from '@/lib/schemas'
 
 export function slugify(str: string, separator = '-') {
+  const escapedSeparator = separator.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    '\\$&'
+  )
+
   return str
     .toString()
     .normalize('NFD') // Split accented characters
@@ -11,6 +16,10 @@ export function slugify(str: string, separator = '-') {
     .trim() // Trim leading/trailing spaces
     .replace(/\s+/g, separator) // Replace spaces with separator
     .replace(/-+/g, separator) // Collapse consecutive separators
+    .replace(
+      new RegExp(`^${escapedSeparator}+|${escapedSeparator}+$`, 'g'),
+      ''
+    )
 }
 
 export function getTableIdentifier(table: PagePath) {

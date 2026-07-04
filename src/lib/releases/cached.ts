@@ -6,7 +6,6 @@ import {
   fetchReleaseById,
   fetchReleasesRaw
 } from '@/lib/releases/data'
-import { resolveSlug } from '@/lib/slug/data'
 
 export async function fetchCachedReleasesFirstPage(
   isAuthed: boolean,
@@ -25,19 +24,6 @@ export async function fetchCachedReleasesFirstPage(
     undefined,
     undefined
   )
-}
-
-export async function fetchCachedReleaseBySlug(
-  slug: string,
-  isAuthed: boolean = false
-) {
-  const resolved = await resolveSlug('releases', slug)
-  if (!resolved) return undefined
-
-  cacheTag(`releases:${isAuthed ? 'authed' : 'public'}`)
-  cacheTag(`release:${slug}`)
-
-  return fetchReleaseById(resolved.id, isAuthed)
 }
 
 export async function fetchCachedReleaseById(

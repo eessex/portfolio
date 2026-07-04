@@ -1,5 +1,7 @@
+import { cache } from 'react'
+
 import { sql } from '@/lib/db'
-import { type PagePath, pagePaths } from '@/lib/schemas'
+import type { PagePath } from '@/lib/schemas'
 import { getTableIdentifier, slugify } from '@/lib/slug/util'
 
 export async function generateUniqueSlug(
@@ -24,16 +26,14 @@ async function slugExists(
   tableName: PagePath,
   excludeId?: string
 ) {
-  if (!pagePaths.includes(tableName)) {
-    throw new Error(`Invalid table name: ${tableName}`)
-  }
+  const table = getTableIdentifier(tableName)
   const excludeClause = excludeId
     ? sql`AND id <> ${excludeId}`
     : undefined
   const result = await sql`
     SELECT EXISTS (
       SELECT 1
-      FROM ${tableName}
+      FROM ${table}
       WHERE slug = ${slug}
       ${excludeClause}
     ) AS exists
@@ -48,7 +48,12 @@ type ResolveSlugResult = {
   isRedirect: boolean
 }
 
-export async function resolveSlug(
+/**
+ * Wrapped in React's `cache()` so repeated calls with the same args within
+ * a single request (e.g. from `generateMetadata` and the page body) share
+ * one DB lookup instead of resolving the slug twice.
+ */
+export const resolveSlug = cache(async function resolveSlug(
   tableName: PagePath,
   slug: string
 ): Promise<ResolveSlugResult | null> {
@@ -92,4 +97,4 @@ export async function resolveSlug(
 
   // 404: redirect to index
   return null
-}
+})

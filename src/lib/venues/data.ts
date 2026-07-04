@@ -33,9 +33,8 @@ export async function fetchVenueById(id: string) {
     } else {
       return formatDbResponseForClient(data[0], dashboardVenueSchema)
     }
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch venue.')
+  } catch (cause) {
+    throw new Error('Failed to fetch venue.', { cause })
   }
 }
 
@@ -100,9 +99,8 @@ export async function fetchVenuesRaw(
       totalCount
     }
     return res
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch venues.')
+  } catch (cause) {
+    throw new Error('Failed to fetch venues.', { cause })
   }
 }
 
@@ -135,9 +133,8 @@ export async function fetchSimilarVenue(venue: CreateVenue) {
         fieldName: 'similar' as keyof CreateVenue
       }
     }
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch similar venues.')
+  } catch (cause) {
+    throw new Error('Failed to fetch similar venues.', { cause })
   }
 }
 
@@ -157,8 +154,7 @@ async function getTotalCount(query?: string) {
       )
     `
     return result[0]?.count ?? 0
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch venue count.')
+  } catch (cause) {
+    throw new Error('Failed to fetch venue count.', { cause })
   }
 }

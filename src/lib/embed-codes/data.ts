@@ -36,9 +36,8 @@ export const fetchEmbedCodesByIds = async (ids: string[]) => {
     return data.map((row) =>
       formatDbResponseForClient(row, embedCodeSchema)
     )
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch embed codes.')
+  } catch (cause) {
+    throw new Error('Failed to fetch embed codes.', { cause })
   }
 }
 
@@ -114,9 +113,8 @@ export async function fetchEmbedCodesRaw(
       totalCount
     }
     return res
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch embed codes.')
+  } catch (cause) {
+    throw new Error('Failed to fetch embed codes.', { cause })
   }
 }
 
@@ -137,8 +135,7 @@ async function getTotalCount(query?: string) {
       )
     `
     return result[0]?.count ?? 0
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch embed codes count.')
+  } catch (cause) {
+    throw new Error('Failed to fetch embed codes count.', { cause })
   }
 }

@@ -15,8 +15,9 @@ export async function editAbout(
     Object.fromEntries(formData)
   )
   if (!validatedFields.success) {
-    console.error('Validation error', validatedFields.error.format())
-    throw new Error('Validation error')
+    throw new Error('Validation error', {
+      cause: validatedFields.error
+    })
   } else {
     const { coverImageId, description } = validatedFields.data
 
@@ -30,9 +31,8 @@ export async function editAbout(
       `
       updateTag('about')
       return { ok: true }
-    } catch (err) {
-      console.error('Database Error', err)
-      throw new Error('Database Error: Failed to save.')
+    } catch (cause) {
+      throw new Error('Database Error: Failed to save.', { cause })
     }
   }
 }

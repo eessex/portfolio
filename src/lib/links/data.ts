@@ -24,9 +24,8 @@ export async function fetchLinksByIds(ids: string[]) {
     return data.map((row) =>
       formatDbResponseForClient(row, linkSchema)
     )
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch links.')
+  } catch (cause) {
+    throw new Error('Failed to fetch links.', { cause })
   }
 }
 
@@ -56,9 +55,8 @@ export async function fetchLinkByUrl(link: CreateLink) {
         fieldName: 'url' as keyof CreateLink
       }
     }
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch link.')
+  } catch (cause) {
+    throw new Error('Failed to fetch link.', { cause })
   }
 }
 
@@ -122,9 +120,8 @@ export async function fetchLinksRaw(cursor?: string, query?: string) {
       totalCount
     }
     return res
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch links.')
+  } catch (cause) {
+    throw new Error('Failed to fetch links.', { cause })
   }
 }
 
@@ -142,8 +139,7 @@ async function getTotalCount(query?: string) {
       )
     `
     return result[0].count ?? 0
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch link count.')
+  } catch (cause) {
+    throw new Error('Failed to fetch link count.', { cause })
   }
 }

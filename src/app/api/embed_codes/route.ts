@@ -11,8 +11,7 @@ export async function GET(req: Request) {
   try {
     const result = await fetchEmbedCodes(cursor, query)
     return NextResponse.json(result)
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch embed codes.')
+  } catch (cause) {
+    throw new Error('Failed to fetch embed codes.', { cause })
   }
 }

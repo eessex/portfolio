@@ -10,8 +10,7 @@ export async function GET(req: Request) {
   try {
     const result = await fetchLinks(cursor, query)
     return NextResponse.json(result)
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch links.')
+  } catch (cause) {
+    throw new Error('Failed to fetch links.', { cause })
   }
 }

@@ -15,7 +15,7 @@ import {
 } from '@/lib/util'
 
 const path = PagePaths.projects
-const projectPathType = 'project'
+const pathSingular = 'project'
 
 export async function fetchProjects(
   isAuthed: boolean = false,
@@ -89,9 +89,8 @@ export async function fetchProjectsRaw(
       totalCount
     }
     return res
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error(`Failed to fetch ${path}.`)
+  } catch (cause) {
+    throw new Error(`Failed to fetch ${path}.`, { cause })
   }
 }
 
@@ -146,9 +145,10 @@ export async function fetchProjectBySlug(
       projectClientSchema
     )
     return project
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error(`Failed to fetch ${projectPathType}: ${slug}.`)
+  } catch (cause) {
+    throw new Error(`Failed to fetch ${pathSingular}: ${slug}.`, {
+      cause
+    })
   }
 }
 
@@ -169,8 +169,9 @@ async function getTotalCount(
       );
     `
     return data[0]?.count ?? 0
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch project count.')
+  } catch (cause) {
+    throw new Error(`Failed to fetch ${pathSingular} count.`, {
+      cause
+    })
   }
 }

@@ -12,8 +12,7 @@ export async function fetchUserByEmail(
     `
 
     return (users[0] as User) ?? null
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch user.')
+  } catch (cause) {
+    throw new Error('Failed to fetch user.', { cause })
   }
 }

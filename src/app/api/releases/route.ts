@@ -18,8 +18,7 @@ export async function GET(req: Request) {
       query
     )
     return NextResponse.json(result)
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch releases.')
+  } catch (cause) {
+    throw new Error('Failed to fetch releases.', { cause })
   }
 }

@@ -4,7 +4,10 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import type { FormResponse } from '@/lib/types'
-import { formatDbResponseForClient } from '@/lib/util'
+import {
+  formatDbResponseForClient,
+  normalizeFormData
+} from '@/lib/util'
 import { fetchVenueById } from '@/lib/venues/data'
 import {
   type CreateVenue,
@@ -17,20 +20,7 @@ export async function editVenue(
   formData: FormData,
   id?: string
 ): Promise<FormResponse<Venue>> {
-  const data: Record<FormData['entries']['name'], unknown> =
-    Object.fromEntries(formData)
-  Object.entries(data).forEach(([n, v]) => {
-    // checkboxes are always 'on' when checked, so we convert them to true
-    if (v === 'on') {
-      data[n] = true
-    } else if (n.includes('Date')) {
-      data[n] = v || undefined
-    } else if (n === 'url' && v === '') {
-      data[n] = undefined
-    } else {
-      data[n] = v
-    }
-  })
+  const data = normalizeFormData(Object.fromEntries(formData))
 
   const validatedVenue = createVenueSchema.safeParse(data)
 
@@ -120,10 +110,8 @@ async function createVenue(venue: CreateVenue) {
     const row = rows[0]
     if (!row) throw new Error('Failed to create venue')
     return formatDbResponseForClient(row, venueSchema)
-  } catch (err) {
-    throw new Error(
-      err instanceof Error ? err.message : 'Failed to create venue.'
-    )
+  } catch (cause) {
+    throw new Error('Failed to create venue.', { cause })
   }
 }
 
@@ -159,10 +147,8 @@ async function updateVenue(venue: CreateVenue, id: string) {
     const row = rows[0]
     if (!row) throw new Error('Failed to update venue')
     return formatDbResponseForClient(row, venueSchema)
-  } catch (err) {
-    throw new Error(
-      err instanceof Error ? err.message : 'Failed to update venue.'
-    )
+  } catch (cause) {
+    throw new Error('Failed to update venue.', { cause })
   }
 }
 

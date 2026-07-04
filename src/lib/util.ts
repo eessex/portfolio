@@ -97,3 +97,25 @@ export function formatDbResponseForClient<T extends z.ZodTypeAny>(
   const formatted = nullsToUndefined(camelizeKeys(data))
   return schema.parse(formatted)
 }
+
+/**
+ * Normalizes raw FormData entries before schema validation.
+ * Mutates and returns the given object.
+ */
+export function normalizeFormData(
+  data: Record<string, unknown>
+): Record<string, unknown> {
+  Object.entries(data).forEach(([key, value]) => {
+    if (value === 'on') {
+      // checkboxes are always 'on' when checked, so we convert them to true
+      data[key] = true
+    } else if (key.includes('Date')) {
+      data[key] = value || undefined
+    } else if (value === '') {
+      // empty optional fields submit as '' rather than being omitted
+      data[key] = undefined
+    }
+  })
+
+  return data
+}

@@ -4,6 +4,7 @@ import { camelToSentence, snakeToCamel } from '@/ui/util'
 export function Select({
   ariaControls,
   attributes,
+  formatOptionLabel = (option) => camelToSentence(snakeToCamel(option)),
   isLabelHidden,
   label,
   onChange,
@@ -13,6 +14,7 @@ export function Select({
 }: {
   ariaControls?: string
   attributes?: React.SelectHTMLAttributes<HTMLSelectElement>
+  formatOptionLabel?: (option: string) => string
   isLabelHidden?: boolean
   label: string
   onChange?: (term: string | undefined) => void | undefined
@@ -44,9 +46,9 @@ export function Select({
         >
           <option value=''>{placeholder}</option>
 
-          {options.map((type, i) => (
-            <option key={i} value={type}>
-              {camelToSentence(snakeToCamel(type))}
+          {options.map((option, i) => (
+            <option key={i} value={option}>
+              {formatOptionLabel(option)}
             </option>
           ))}
         </select>

@@ -37,7 +37,7 @@ describe('Venue Actions', () => {
       mockSql.mockRejectedValueOnce(new Error('DB error'))
       const res = await deleteVenue(venueFixtureAlpha)
 
-      expect(res!.message).toBe('Failed to delete venue: DB error')
+      expect(res!.message).toBe('Failed to delete venue: DB error.')
     })
   })
 
@@ -63,15 +63,19 @@ describe('Venue Actions', () => {
         .mockResolvedValueOnce([existingVenueRow])
         .mockResolvedValueOnce([venueFixtureAlpha])
 
-      // only city is submitted; other fields should fall back to the
-      // existing venue's values rather than being nulled out
+      // only city and timezone (required) are submitted; other
+      // fields should fall back to the existing venue's values
+      // rather than being nulled out
       await editVenue(
-        formDataFromObject({ city: 'Austin' }),
+        formDataFromObject({
+          city: 'Austin',
+          timezone: venueFixtureAlpha.timezone
+        }),
         venueFixtureAlpha.id
       )
 
-      const [, address, city, country, name] =
-        mockSql.mock.calls[1] as unknown as string[]
+      const [, address, city, country, name] = mockSql.mock
+        .calls[1] as unknown as string[]
       expect(address).toBe(venueFixtureAlpha.address)
       expect(city).toBe('Austin')
       expect(country).toBe(venueFixtureAlpha.country)
@@ -99,7 +103,7 @@ describe('Venue Actions', () => {
         formDataFromObject(venueFixtureAlpha)
       )
 
-      expect(res!.message).toBe('Failed to edit venue: DB error')
+      expect(res!.message).toBe('Failed to create venue.')
     })
 
     it('can handle errors fetching the existing venue on update', async () => {
@@ -109,9 +113,7 @@ describe('Venue Actions', () => {
         venueFixtureAlpha.id
       )
 
-      expect(res!.message).toBe(
-        'Failed to edit venue: Failed to fetch venue.'
-      )
+      expect(res!.message).toBe('Failed to fetch venue.')
     })
 
     it('can handle validation errors', async () => {

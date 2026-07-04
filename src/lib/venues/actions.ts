@@ -47,11 +47,8 @@ export async function editVenue(
       }
     }
   } catch (err) {
-    const errMsg = 'Failed to edit venue'
     const message =
-      err instanceof Error
-        ? `${errMsg}: ${err.message}`
-        : `${errMsg}.`
+      err instanceof Error ? err.message : 'Failed to edit venue.'
     return {
       ok: false,
       message
@@ -73,7 +70,7 @@ export async function deleteVenue(
     const errMsg = 'Failed to delete venue'
     const message =
       err instanceof Error
-        ? `${errMsg}: ${err.message}`
+        ? `${errMsg}: ${err.message}.`
         : `${errMsg}.`
     return {
       ok: false,
@@ -108,7 +105,7 @@ async function createVenue(venue: CreateVenue) {
       RETURNING *
     `
     const row = rows[0]
-    if (!row) throw new Error('Failed to create venue')
+    if (!row) throw new Error('Failed to create venue.')
     return formatDbResponseForClient(row, venueSchema)
   } catch (cause) {
     throw new Error('Failed to create venue.', { cause })
@@ -145,16 +142,12 @@ async function updateVenue(venue: CreateVenue, id: string) {
     `
 
     const row = rows[0]
-    if (!row) throw new Error('Failed to update venue')
+    if (!row) throw new Error('Failed to update venue.')
     return formatDbResponseForClient(row, venueSchema)
   } catch (cause) {
     throw new Error('Failed to update venue.', { cause })
   }
 }
-
-/** DB column default for venues.timezone, applied here since an explicit
- *  NULL would override the column default and violate its NOT NULL constraint */
-const DEFAULT_VENUE_TIMEZONE = 'America/New_York'
 
 function toDbRow(venue: CreateVenue, existing?: Venue) {
   const venueToSave = {
@@ -169,7 +162,7 @@ function toDbRow(venue: CreateVenue, existing?: Venue) {
     name: venueToSave.name ?? null,
     primaryVenueId: venueToSave.primaryVenueId ?? null,
     state: venueToSave.state ?? null,
-    timezone: venueToSave.timezone ?? DEFAULT_VENUE_TIMEZONE,
+    timezone: venueToSave.timezone,
     url: venueToSave.url ?? null
   }
 }

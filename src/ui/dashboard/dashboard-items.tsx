@@ -11,8 +11,8 @@ import {
   embedCodeTypes
 } from '@/lib/embed-codes/schemas/db'
 import type { DashboardImage, Image } from '@/lib/images/types'
-import { linkTypes } from '@/lib/links/schemas'
-import type { DashboardLink, Link } from '@/lib/links/types'
+import type { DashboardLink } from '@/lib/links/schemas/client'
+import { type Link, linkTypes } from '@/lib/links/schemas/db'
 import {
   type EmbeddedItemType,
   EmbeddedItemTypes

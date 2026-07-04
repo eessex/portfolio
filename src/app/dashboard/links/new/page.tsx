@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
 import { editLink } from '@/lib/links/actions'
-import type { Link } from '@/lib/links/types'
+import type { Link } from '@/lib/links/schemas/db'
 import { EmbeddedItemTypes } from '@/lib/schemas'
 
 const title = 'New Link'

@@ -4,7 +4,7 @@ import type {
   FetchEventsResult
 } from '@/lib/events/types'
 import type { Image } from '@/lib/images/types'
-import type { Link } from '@/lib/links/types'
+import type { Link } from '@/lib/links/schemas/db'
 import type {
   FetchProjectsResult,
   ProjectClient

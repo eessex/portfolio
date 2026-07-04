@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { useId } from 'react'
 
-import type { Link } from '@/lib/links/types'
+import type { Link } from '@/lib/links/schemas/db'
 import { LinkItem } from '@/ui/links//link-item'
 import styles from '@/ui/links/links.module.scss'
 

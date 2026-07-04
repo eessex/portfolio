@@ -1,4 +1,4 @@
-import type { Link } from '@/lib/links/types'
+import type { Link } from '@/lib/links/schemas/db'
 import { formattedDateTime } from '@/ui/util'
 
 export function LinkItem({

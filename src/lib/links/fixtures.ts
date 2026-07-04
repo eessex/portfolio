@@ -1,4 +1,4 @@
-import type { CreateLink, Link } from '@/lib/links/types'
+import type { CreateLink, Link } from '@/lib/links/schemas/db'
 
 export const newLinkFixture: CreateLink = {
   url: 'https://testlink.com',

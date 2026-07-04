@@ -1,5 +1,5 @@
 import type { Image } from '@/lib/images/types'
-import type { Link } from '@/lib/links/types'
+import type { Link } from '@/lib/links/schemas/db'
 import type { PublishedEditionClient } from '@/lib/published-editions/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { DashboardUsedOnPagesKeys } from '@/lib/schemas/fields'

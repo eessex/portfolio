@@ -39,7 +39,7 @@ export const releaseSchema = z.object({
   ...taxonomyFields,
   ...ownershipFields,
   ...contentFields,
-  artist: shortText,
+  artist: shortText.optional(),
   coverImageId: relationFields.coverImageId,
   embedCodeIds: relationFields.embedCodeIds,
   imageIds: relationFields.imageIds,

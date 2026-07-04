@@ -46,6 +46,5 @@ export const publishedEditionSchema = z.object({
   imageIds: relationFields.imageIds,
   publishDate: date,
   publisher: shortText,
-  releaseId: uuid,
-  title: shortText.optional()
+  releaseId: uuid
 })

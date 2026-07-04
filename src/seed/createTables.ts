@@ -41,17 +41,19 @@ async function createProjectsTable() {
 
 /**
  * Creates the tags table.
- * Enforces kebab-case format, uniqueness, and prevents case-insensitive duplicates.
+ * `name` enforces kebab-case format and uniqueness.
  */
 async function createTagsTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS tags (
-      id VARCHAR(255) PRIMARY KEY CHECK (id ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+      name VARCHAR(255) NOT NULL CHECK (name ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
       is_published BOOLEAN DEFAULT true,
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
     );
   `
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_tags_name ON tags(name);`
 }
 
 /**
@@ -337,12 +339,12 @@ async function createReleasesTable() {
 }
 
 /**
- * Creates the published_edition table.
+ * Creates the published_editions table.
  * Must be created after releases and projects.
  */
 async function createPublishedEditionTable() {
   await sql`
-    CREATE TABLE IF NOT EXISTS published_edition (
+    CREATE TABLE IF NOT EXISTS published_editions (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
       release_id UUID NOT NULL,
       project_id UUID,
@@ -358,7 +360,7 @@ async function createPublishedEditionTable() {
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       CONSTRAINT fk_published_release FOREIGN KEY (release_id) REFERENCES releases(id) ON DELETE CASCADE,
       CONSTRAINT fk_published_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
-      CHECK (format IN ('LP','2xLP','Cassette','2xCassette','Digital','iOSApp','CD'));
+      CHECK (format IN ('LP','2xLP','Cassette','2xCassette','Digital','iOSApp','CD'))
     );
   `
 }

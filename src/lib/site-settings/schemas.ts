@@ -12,7 +12,7 @@ import { shortText } from '@/lib/schemas/primitives'
 export const siteSettingsSchema = z.object({
   ...systemFields,
   coverImageId: relationFields.coverImageId,
-  description: shortText,
+  description: shortText.optional(),
   title: shortText.optional()
 })
 

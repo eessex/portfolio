@@ -1,7 +1,9 @@
 import type { z } from 'zod'
 
-import type { createVenueSchema } from '@/lib/venues/schemas'
-import type { Venue } from '@/lib/venues/types'
+import type {
+  createVenueSchema,
+  Venue
+} from '@/lib/venues/schemas/db'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 

@@ -6,11 +6,12 @@ import { sql } from '@/lib/db'
 import type { FormResponse } from '@/lib/types'
 import { formatDbResponseForClient } from '@/lib/util'
 import {
+  type CreateVenue,
   createVenueSchema,
   editVenueSchema,
+  type Venue,
   venueSchema
-} from '@/lib/venues/schemas'
-import type { CreateVenue, Venue } from '@/lib/venues/types'
+} from '@/lib/venues/schemas/db'
 
 export async function editVenue(
   formData: FormData

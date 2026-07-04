@@ -1,4 +1,4 @@
-import type { CreateVenue, Venue } from '@/lib/venues/types'
+import type { CreateVenue, Venue } from '@/lib/venues/schemas/db'
 
 export const newVenueFixtureAlpha: CreateVenue = {
   name: 'Test Venue Texas',

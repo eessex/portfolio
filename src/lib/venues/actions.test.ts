@@ -6,7 +6,7 @@ import {
   newVenueFixtureAlpha,
   venueFixtureAlpha
 } from '@/lib/venues/fixtures'
-import type { CreateVenue, Venue } from '@/lib/venues/types'
+import type { CreateVenue, Venue } from '@/lib/venues/schemas/db'
 import { formDataFromObject } from '@/test/helpers'
 
 jest.mock('next/cache')

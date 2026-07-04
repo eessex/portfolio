@@ -6,7 +6,7 @@ import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
 import type { PageEmbeddedItemProps } from '@/lib/types'
 import { editVenue } from '@/lib/venues/actions'
 import { fetchVenueById } from '@/lib/venues/data'
-import type { Venue } from '@/lib/venues/types'
+import type { Venue } from '@/lib/venues/schemas/db'
 import { Loading } from '@/ui/loading'
 
 const title = 'Edit Venue'

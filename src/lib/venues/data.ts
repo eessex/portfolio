@@ -9,8 +9,11 @@ import {
   type ResponseWithCursor
 } from '@/lib/util'
 import { fetchCachedVenuesFirstPage } from '@/lib/venues/cached'
-import { dashboardVenueSchema } from '@/lib/venues/schemas'
-import type { CreateVenue, DashboardVenue } from '@/lib/venues/types'
+import {
+  type DashboardVenue,
+  dashboardVenueSchema
+} from '@/lib/venues/schemas/client'
+import type { CreateVenue } from '@/lib/venues/schemas/db'
 
 export async function fetchVenueById(id: string) {
   try {

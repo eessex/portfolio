@@ -4,7 +4,7 @@ import {
   venueFixtureAlpha,
   venueFixtureBeta
 } from '@/lib/venues/fixtures'
-import type { Venue } from '@/lib/venues/types'
+import type { Venue } from '@/lib/venues/schemas/db'
 import { Combobox, type ComboboxProps } from '@/ui/combobox/combobox'
 import { useResultsList } from '@/ui/useResultsList'
 

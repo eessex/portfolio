@@ -4,7 +4,7 @@ import type { PublishedEditionClient } from '@/lib/published-editions/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { DashboardUsedOnPagesKeys } from '@/lib/schemas/fields'
 import type { PageItemClient } from '@/lib/types'
-import type { Venue } from '@/lib/venues/types'
+import type { Venue } from '@/lib/venues/schemas/db'
 import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
 
 const dateFormatLg: Intl.DateTimeFormatOptions = {

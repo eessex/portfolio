@@ -13,7 +13,7 @@ import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import type { Venue } from '@/lib/venues/types'
+import type { Venue } from '@/lib/venues/schemas/db'
 
 export type PageDataResponse =
   | FetchEventsResult

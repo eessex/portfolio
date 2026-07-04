@@ -5,7 +5,7 @@ import {
   venueFixtureBeta,
   venueFixtureGamma
 } from '@/lib/venues/fixtures'
-import type { Venue } from '@/lib/venues/types'
+import type { Venue } from '@/lib/venues/schemas/db'
 import {
   getAbortControllers,
   resetAbortControllers

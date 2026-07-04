@@ -6,7 +6,7 @@ import { linkSchema } from '@/lib/links/schemas'
 import { projectSchema } from '@/lib/projects/schemas'
 import { publishedEditionSchema } from '@/lib/published-editions/schemas'
 import { tagSchema } from '@/lib/tags/schemas'
-import { venueSchema } from '@/lib/venues/schemas'
+import { venueSchema } from '@/lib/venues/schemas/db'
 
 /**
  * @deprecated

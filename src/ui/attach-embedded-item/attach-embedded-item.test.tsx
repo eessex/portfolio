@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { venueFixtureAlpha } from '@/lib/venues/fixtures'
-import type { Venue } from '@/lib/venues/types'
+import type { Venue } from '@/lib/venues/schemas/db'
 import {
   AttachEmbeddedItem,
   type AttachEmbeddedItemProps

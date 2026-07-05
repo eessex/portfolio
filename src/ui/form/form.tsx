@@ -82,9 +82,11 @@ export function Form<T>({
           console.info(DashboardErrrorMessages.OperationCancelled)
           return prevState
         }
-        const message =
-          res?.message || DashboardErrrorMessages.FailedToSave
-        addErrorMessage(message)
+        if (!hasFieldErrors(res?.errors)) {
+          const message =
+            res?.message || DashboardErrrorMessages.FailedToSave
+          addErrorMessage(message)
+        }
         return res ?? null
       }
       if (onSuccess) {
@@ -127,6 +129,14 @@ export function Form<T>({
       </button>
     </form>
   )
+}
+
+function hasFieldErrors(
+  errors: Record<string, string[] | undefined> | string[] | undefined
+): boolean {
+  if (!errors) return false
+  if (Array.isArray(errors)) return errors.length > 0
+  return Object.values(errors).some((fieldErrors) => fieldErrors?.length)
 }
 
 function isFormDirty(

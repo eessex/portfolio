@@ -53,6 +53,40 @@ describe('EditEmbeddedItemForm', () => {
     ).toBeInTheDocument()
   })
 
+  it('does not show a redundant toast when a field error is displayed', async () => {
+    const editItem = jest.fn().mockResolvedValue({
+      ok: false,
+      errors: { name: ['Name is required'] },
+      message: 'Failed to validate venue.'
+    })
+    renderComponent(editItem)
+
+    fireEvent.change(screen.getByLabelText(/name/i), {
+      target: { value: 'Changed' }
+    })
+    fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+    await screen.findByText(/name is required/i)
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('shows a toast when a failure has no field errors', async () => {
+    const editItem = jest.fn().mockResolvedValue({
+      ok: false,
+      message: 'Failed to edit venue: connection refused.'
+    })
+    renderComponent(editItem)
+
+    fireEvent.change(screen.getByLabelText(/name/i), {
+      target: { value: 'Changed' }
+    })
+    fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Failed to edit venue: connection refused.'
+    )
+  })
+
   it('clears the error once the form is resubmitted successfully', async () => {
     const editItem = jest
       .fn()

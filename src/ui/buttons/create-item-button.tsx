@@ -7,11 +7,8 @@ import {
   type EmbeddedItemType,
   embeddedItemTypes
 } from '@/lib/schemas'
-import {
-  camelToSnake,
-  itemTypeToLabel,
-  snakeToCamel
-} from '@/ui/util'
+import { camelToSnake, snakeToCamel } from '@/lib/strings'
+import { itemTypeToLabel } from '@/ui/util'
 
 export function CreateItemButton({
   className,

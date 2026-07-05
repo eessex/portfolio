@@ -1,5 +1,5 @@
+import { camelToSentence, snakeToCamel } from '@/lib/strings'
 import styles from '@/ui/form/form.module.scss'
-import { camelToSentence, snakeToCamel } from '@/ui/util'
 
 export function Select({
   ariaControls,

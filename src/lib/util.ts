@@ -1,7 +1,7 @@
 import type { z } from 'zod'
 
+import { camelizeKeys } from '@/lib/strings'
 import type { EmbeddedItem, PageItemClient } from '@/lib/types'
-import { camelizeKeys } from '@/ui/util'
 
 export const DEFAULT_PAGE_SIZE = 24
 
@@ -112,7 +112,10 @@ export function formatErrorResponse(prefix: string, err: unknown) {
   }
 
   const cause = err.cause instanceof Error ? err.cause : err
-  return { ok: false as const, message: `${prefix}: ${cause.message}.` }
+  return {
+    ok: false as const,
+    message: `${prefix}: ${cause.message}.`
+  }
 }
 
 /**

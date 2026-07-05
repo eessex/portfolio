@@ -18,6 +18,7 @@ import {
   type EmbeddedItemType,
   EmbeddedItemTypes
 } from '@/lib/schemas'
+import { capitalizeFirstLetter } from '@/lib/strings'
 import type { FormResponse } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
 import type { DashboardVenue } from '@/lib/venues/schemas/client'
@@ -40,7 +41,6 @@ import { SearchInput } from '@/ui/search-input/search-input'
 import { useToast } from '@/ui/toast/toast-context'
 import { useResultsList } from '@/ui/useResultsList'
 import {
-  capitalizeFirstLetter,
   formattedItemType,
   formatVenueInline,
   singularizePath,

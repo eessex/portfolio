@@ -2,12 +2,12 @@
 
 import { sql } from '@/lib/db'
 import { emailSubscriptionSchema } from '@/lib/email-subscriptions/schemas'
+import { escapeHtml } from '@/lib/strings'
 import type { FormResponse } from '@/lib/types'
 import {
   formatErrorResponse,
   formatValidationResponse
 } from '@/lib/util'
-import { escapeHtml } from '@/ui/util'
 
 /** save email subscriptions */
 export async function createEmailSubscription<T>(

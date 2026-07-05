@@ -6,6 +6,7 @@ import { useId } from 'react'
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import { type PagePath, PagePaths } from '@/lib/schemas'
+import { capitalizeFirstLetter } from '@/lib/strings'
 import type { PageDataResponse, PageItemClient } from '@/lib/types'
 import { DEFAULT_PAGE_SIZE } from '@/lib/util'
 import { FiltersWrapper } from '@/ui/filters/filters'
@@ -17,7 +18,6 @@ import { SearchInput } from '@/ui/search-input/search-input'
 import type { ResultsResponse } from '@/ui/useResultsList'
 import { useResultsList } from '@/ui/useResultsList'
 import {
-  capitalizeFirstLetter,
   formattedItemType,
   formatVenueInline,
   itemTypeToLabel

@@ -3,6 +3,7 @@ import type { Link } from '@/lib/links/schemas/db'
 import type { PublishedEditionClient } from '@/lib/published-editions/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { DashboardUsedOnPagesKeys } from '@/lib/schemas/fields'
+import { camelToSentence, snakeToCamel } from '@/lib/strings'
 import type { PageItemClient } from '@/lib/types'
 import type { Venue } from '@/lib/venues/schemas/db'
 import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
@@ -125,56 +126,8 @@ export function formattedDateTime(
   return formattedDate
 }
 
-export function escapeHtml(s: string) {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-}
-
 export function isUpcomingDate(date: string | Date) {
   return new Date(date) > new Date()
-}
-
-export function camelToSentence(str: string) {
-  const result = str.replace(/([A-Z])/g, ' $1')
-  // Replace "And" with "&"
-  const resultWithAmp = result.replace(/\bAnd\b/g, '&')
-  return capitalizeFirstLetter(resultWithAmp)
-}
-
-export function snakeToCamel(str: string) {
-  return str.replace(/_([a-z])/g, (_match, letter) =>
-    letter.toUpperCase()
-  )
-}
-
-export function camelToSnake(str: string) {
-  return str.replace(/([A-Z])/g, '_$1').toLowerCase()
-}
-
-export function capitalizeFirstLetter(string: string) {
-  if (typeof string !== 'string' || string.length === 0) {
-    return string
-  }
-  return string.charAt(0).toUpperCase() + string.slice(1)
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function camelizeKeys(obj: any): any {
-  if (typeof obj !== 'object' || obj === null) {
-    return obj
-  }
-
-  const camelizedObject: Record<string, unknown> = {}
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key.toString())) {
-      const camelKey = snakeToCamel(key)
-      camelizedObject[camelKey] = obj[key]
-    }
-  }
-  return camelizedObject
 }
 
 export function eventUrl(slug: string) {

@@ -1,15 +1,15 @@
 import NextLink from 'next/link'
 
 import { embeddedItemTypes } from '@/lib/schemas'
-import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
-import { CreateItemFromPathnameButton } from '@/ui/buttons/create-item-button'
-import { EditButton } from '@/ui/buttons/edit-button'
-import { LogoutButton } from '@/ui/buttons/logout-button'
 import {
   camelToSentence,
   camelToSnake,
   snakeToCamel
-} from '@/ui/util'
+} from '@/lib/strings'
+import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
+import { CreateItemFromPathnameButton } from '@/ui/buttons/create-item-button'
+import { EditButton } from '@/ui/buttons/edit-button'
+import { LogoutButton } from '@/ui/buttons/logout-button'
 
 const links = [
   'dashboard',

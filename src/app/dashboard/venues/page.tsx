@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
 import { EmbeddedItemTypes } from '@/lib/schemas'
+import { camelToSentence } from '@/lib/strings'
 import { deleteVenue } from '@/lib/venues/actions'
 import { fetchVenues } from '@/lib/venues/data'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
-import { camelToSentence } from '@/ui/util'
 
 const itemType = EmbeddedItemTypes.venues
 const title = `Dashboard: ${camelToSentence(itemType)}`

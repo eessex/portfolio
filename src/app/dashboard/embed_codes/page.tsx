@@ -4,10 +4,10 @@ import { Suspense } from 'react'
 import { deleteEmbedCode } from '@/lib/embed-codes/actions'
 import { fetchEmbedCodes } from '@/lib/embed-codes/data'
 import { EmbeddedItemTypes } from '@/lib/schemas'
+import { camelToSentence } from '@/lib/strings'
 import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
-import { camelToSentence } from '@/ui/util'
 
 const itemType = EmbeddedItemTypes.embedCodes
 const title = `Dashboard: ${camelToSentence(itemType)}`

@@ -1,0 +1,5 @@
+@use '@/ui/styles/grids';
+
+.error-message {
+  padding: grids.space-rem(4);
+}

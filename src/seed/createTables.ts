@@ -357,6 +357,7 @@ async function createPublishedEditionTable() {
       image_ids UUID[],
       edition_size INT,
       buy_link_id UUID,
+      catalog_number VARCHAR(255),
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       CONSTRAINT fk_published_release FOREIGN KEY (release_id) REFERENCES releases(id) ON DELETE CASCADE,
@@ -567,7 +568,8 @@ async function setupJsonbFunctions() {
             SELECT build_link_json(l)
             FROM links l
             WHERE l.id = pe.buy_link_id
-          )
+          ),
+          'catalogNumber', pe.catalog_number
         )
         || COALESCE(build_write_dates_json(pe.created_at, pe.updated_at), '{}'::jsonb)
       );

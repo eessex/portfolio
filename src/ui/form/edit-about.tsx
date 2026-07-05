@@ -3,23 +3,23 @@
 import { editAbout } from '@/lib/about/actions'
 import type { About } from '@/lib/about/types'
 import type { Image } from '@/lib/images/schemas/db'
-import { Form } from '@/ui/form/form'
+import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 
-export function EditAboutForm({
+function AboutFormFields({
   about
 }: {
   about: About & { coverImage?: Image }
 }) {
+  const errors = useFormErrors()
+
   return (
-    <Form
-      action={(formData: FormData) => editAbout(formData, about.id)}
-      submitButtonClassName='button-primary button-lg'
-    >
+    <>
       <Input
         as='textarea'
         label='Description'
         defaultValue={about?.description}
+        errors={errors?.description}
         attributes={{
           name: 'description',
           maxLength: 15000
@@ -75,6 +75,21 @@ export function EditAboutForm({
           readOnly: true
         }}
       />
+    </>
+  )
+}
+
+export function EditAboutForm({
+  about
+}: {
+  about: About & { coverImage?: Image }
+}) {
+  return (
+    <Form
+      action={(formData: FormData) => editAbout(formData, about.id)}
+      submitButtonClassName='button-primary button-lg'
+    >
+      <AboutFormFields about={about} />
     </Form>
   )
 }

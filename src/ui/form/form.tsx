@@ -1,11 +1,26 @@
 'use client'
 
-import { useActionState, useEffect, useRef, useState } from 'react'
+import {
+  createContext,
+  useActionState,
+  useContext,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 
 import type { FormResponse } from '@/lib/types'
 import { DashboardErrrorMessages } from '@/ui/dashboard/dashboard-items'
 import styles from '@/ui/form/form.module.scss'
 import { useToast } from '@/ui/toast/toast-context'
+
+type FormFieldErrors = Record<string, string[] | undefined> | undefined
+
+const FormErrorsContext = createContext<FormFieldErrors>(undefined)
+
+export function useFormErrors() {
+  return useContext(FormErrorsContext)
+}
 
 export function Form<T>({
   action,
@@ -35,13 +50,16 @@ export function Form<T>({
     }
   }, [formRef, initialState])
 
-  const [_state, formAction, isPending] = useActionState(
-    onSubmit,
-    null
-  )
+  const [state, formAction, isPending] = useActionState<
+    FormResponse<T> | null,
+    FormData
+  >(onSubmit, null)
 
-  async function onSubmit(_state: void | null, formData: FormData) {
-    if (isPending) return
+  async function onSubmit(
+    prevState: FormResponse<T> | null,
+    formData: FormData
+  ) {
+    if (isPending) return prevState
 
     const isDirty = isFormDirty(formData, initialState)
 
@@ -52,7 +70,7 @@ export function Form<T>({
         addSuccessMessage('Changes saved.')
         console.info('No changes made.')
       }
-      return
+      return null
     }
 
     try {
@@ -62,12 +80,12 @@ export function Form<T>({
           res?.message === DashboardErrrorMessages.OperationCancelled
         ) {
           console.info(DashboardErrrorMessages.OperationCancelled)
-          return
+          return prevState
         }
         const message =
           res?.message || DashboardErrrorMessages.FailedToSave
         addErrorMessage(message)
-        return
+        return res ?? null
       }
       if (onSuccess) {
         onSuccess()
@@ -75,6 +93,7 @@ export function Form<T>({
         addSuccessMessage('Changes saved.')
       }
       setInitialState(formData)
+      return null
     } catch (error) {
       const message =
         (error as Error)?.message ||
@@ -85,6 +104,7 @@ export function Form<T>({
       } else {
         addErrorMessage(message)
       }
+      return null
     }
   }
 
@@ -94,7 +114,9 @@ export function Form<T>({
       action={formAction}
       ref={formRef}
     >
-      {children}
+      <FormErrorsContext.Provider value={state?.errors as FormFieldErrors}>
+        {children}
+      </FormErrorsContext.Provider>
 
       <button
         className={submitButtonClassName || ''}

@@ -9,7 +9,7 @@ import {
 } from '@/lib/schemas'
 import type { EmbeddedItem, FormResponse } from '@/lib/types'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
-import { Form } from '@/ui/form/form'
+import { Form, useFormErrors } from '@/ui/form/form'
 import { EditImage } from '@/ui/images/edit-image-form'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { camelToSnake, singularizePath } from '@/ui/util'
@@ -28,6 +28,21 @@ function getEditFormComponent(itemType: EmbeddedItemType) {
     default:
       throw new Error(`Unsupported item type: ${itemType}`)
   }
+}
+
+function EmbeddedItemFormFields<T extends EmbeddedItem>({
+  item,
+  itemType
+}: {
+  item?: T
+  itemType: EmbeddedItemType
+}) {
+  const errors = useFormErrors()
+
+  return React.createElement(
+    getEditFormComponent(itemType) as React.ElementType,
+    { [singularizePath(itemType)]: item, errors }
+  )
 }
 
 export function EditEmbeddedItemForm<
@@ -59,10 +74,7 @@ export function EditEmbeddedItemForm<
       action={handleSubmit}
       submitButtonClassName='button-lg button-primary'
     >
-      {React.createElement(
-        getEditFormComponent(itemType) as React.ElementType,
-        { [singularizePath(itemType)]: item }
-      )}
+      <EmbeddedItemFormFields item={item} itemType={itemType} />
     </Form>
   )
 }

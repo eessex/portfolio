@@ -14,7 +14,9 @@ import { DashboardErrrorMessages } from '@/ui/dashboard/dashboard-items'
 import styles from '@/ui/form/form.module.scss'
 import { useToast } from '@/ui/toast/toast-context'
 
-type FormFieldErrors = Record<string, string[] | undefined> | undefined
+type FormFieldErrors =
+  | Record<string, string[] | undefined>
+  | undefined
 
 const FormErrorsContext = createContext<FormFieldErrors>(undefined)
 
@@ -116,7 +118,9 @@ export function Form<T>({
       action={formAction}
       ref={formRef}
     >
-      <FormErrorsContext.Provider value={state?.errors as FormFieldErrors}>
+      <FormErrorsContext.Provider
+        value={state?.errors as FormFieldErrors}
+      >
         {children}
       </FormErrorsContext.Provider>
 
@@ -136,7 +140,9 @@ function hasFieldErrors(
 ): boolean {
   if (!errors) return false
   if (Array.isArray(errors)) return errors.length > 0
-  return Object.values(errors).some((fieldErrors) => fieldErrors?.length)
+  return Object.values(errors).some(
+    (fieldErrors) => fieldErrors?.length
+  )
 }
 
 function isFormDirty(

@@ -15,7 +15,5 @@ export default function Error({
     console.error(error)
   }, [error])
 
-  return (
-    <ErrorMessage title='Something went wrong' onRetry={reset} />
-  )
+  return <ErrorMessage title='Something went wrong' onRetry={reset} />
 }

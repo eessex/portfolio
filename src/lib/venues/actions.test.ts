@@ -103,7 +103,7 @@ describe('Venue Actions', () => {
         formDataFromObject(venueFixtureAlpha)
       )
 
-      expect(res!.message).toBe('Failed to create venue.')
+      expect(res!.message).toBe('Failed to edit venue: DB error.')
     })
 
     it('can handle errors fetching the existing venue on update', async () => {
@@ -113,7 +113,7 @@ describe('Venue Actions', () => {
         venueFixtureAlpha.id
       )
 
-      expect(res!.message).toBe('Failed to fetch venue.')
+      expect(res!.message).toBe('Failed to edit venue: DB error.')
     })
 
     it('can handle validation errors', async () => {

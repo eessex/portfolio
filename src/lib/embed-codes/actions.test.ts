@@ -39,7 +39,7 @@ describe('Embed Code Actions', () => {
       const res = await deleteEmbedCode(embedCodeFixture)
 
       expect(res!.message).toBe(
-        'Failed to delete embed code: DB error'
+        'Failed to delete embed code: DB error.'
       )
     })
   })
@@ -80,7 +80,9 @@ describe('Embed Code Actions', () => {
         formDataFromObject(embedCodeFixture)
       )
 
-      expect(res!.message).toBe('Failed to edit embed code: DB error')
+      expect(res!.message).toBe(
+        'Failed to edit embed code: DB error.'
+      )
     })
 
     it('can handle validation errors', async () => {

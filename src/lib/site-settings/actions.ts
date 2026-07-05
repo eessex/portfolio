@@ -6,6 +6,10 @@ import { sql } from '@/lib/db'
 import { siteSettingsSchema } from '@/lib/site-settings/schemas'
 import type { SiteSettings } from '@/lib/site-settings/types'
 import type { FormResponse } from '@/lib/types'
+import {
+  formatErrorResponse,
+  formatValidationResponse
+} from '@/lib/util'
 
 export async function editSiteSettings(
   formData: FormData,
@@ -14,29 +18,28 @@ export async function editSiteSettings(
   const validatedFields = siteSettingsSchema.safeParse(
     Object.fromEntries(formData)
   )
-  if (!validatedFields.success) {
-    console.error('Validation error', validatedFields.error.format())
-    return {
-      ok: false,
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to save.'
-    }
-  } else {
-    const { coverImageId, description, title } = validatedFields.data
 
-    try {
-      await sql`
-        UPDATE site_settings
-        SET title = ${title || ''},
-            description = ${description || ''},
-            cover_image_id = ${coverImageId || null},
-            updated_at = current_timestamp
-        WHERE id = ${id}
-      `
-      updateTag('settings')
-      return { ok: true }
-    } catch (cause) {
-      throw new Error('Database Error: Failed to save.', { cause })
-    }
+  if (!validatedFields.success) {
+    return formatValidationResponse(
+      validatedFields.error,
+      'Failed to validate site settings.'
+    )
+  }
+
+  const { coverImageId, description, title } = validatedFields.data
+
+  try {
+    await sql`
+      UPDATE site_settings
+      SET title = ${title || ''},
+          description = ${description || ''},
+          cover_image_id = ${coverImageId || null},
+          updated_at = current_timestamp
+      WHERE id = ${id}
+    `
+    updateTag('settings')
+    return { ok: true }
+  } catch (err) {
+    return formatErrorResponse('Failed to save site settings', err)
   }
 }

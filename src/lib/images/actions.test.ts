@@ -139,7 +139,7 @@ describe('Image Actions', () => {
       mockSql.mockRejectedValueOnce(new Error('DB error'))
       const res = await editImage(formDataFromObject(imageFixture))
 
-      expect(res!.message).toBe('Failed to create image.')
+      expect(res!.message).toBe('Failed to edit image: DB error.')
     })
 
     it('can handle errors fetching the existing image on update', async () => {
@@ -149,7 +149,7 @@ describe('Image Actions', () => {
         imageFixture.id
       )
 
-      expect(res!.message).toBe('Failed to fetch images.')
+      expect(res!.message).toBe('Failed to edit image: DB error.')
     })
 
     it('can handle validation errors', async () => {

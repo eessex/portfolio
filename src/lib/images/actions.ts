@@ -14,6 +14,8 @@ import {
 import type { FormResponse } from '@/lib/types'
 import {
   formatDbResponseForClient,
+  formatErrorResponse,
+  formatValidationResponse,
   normalizeFormData
 } from '@/lib/util'
 
@@ -73,11 +75,10 @@ export async function editImage(
   )
 
   if (!validatedImage.success) {
-    return {
-      ok: false,
-      errors: validatedImage.error.flatten().fieldErrors,
-      message: 'Failed to validate image.'
-    }
+    return formatValidationResponse(
+      validatedImage.error,
+      'Failed to validate image.'
+    )
   }
 
   try {
@@ -95,12 +96,7 @@ export async function editImage(
       }
     }
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : 'Failed to edit image.'
-    return {
-      ok: false,
-      message
-    }
+    return formatErrorResponse('Failed to edit image', err)
   }
 }
 
@@ -126,14 +122,7 @@ export async function deleteImage(
     updateTag('images')
     return { ok: true }
   } catch (err) {
-    const message =
-      err instanceof Error
-        ? `${errMsg}: ${err.message}.`
-        : `${errMsg}.`
-    return {
-      ok: false,
-      message
-    }
+    return formatErrorResponse(errMsg, err)
   }
 }
 

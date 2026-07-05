@@ -11,7 +11,11 @@ import {
   embedCodeSchema
 } from '@/lib/embed-codes/schemas/db'
 import type { FormResponse } from '@/lib/types'
-import { formatDbResponseForClient } from '@/lib/util'
+import {
+  formatDbResponseForClient,
+  formatErrorResponse,
+  formatValidationResponse
+} from '@/lib/util'
 
 export async function editEmbedCode(
   formData: FormData,
@@ -23,11 +27,10 @@ export async function editEmbedCode(
   const validatedEmbedCode = createEmbedCodeSchema.safeParse(data)
 
   if (!validatedEmbedCode.success) {
-    return {
-      ok: false,
-      errors: validatedEmbedCode.error.flatten().fieldErrors,
-      message: 'Failed to validate embed code.'
-    }
+    return formatValidationResponse(
+      validatedEmbedCode.error,
+      'Failed to validate embed code.'
+    )
   }
   try {
     let savedEmbedCode: EmbedCode | undefined
@@ -47,15 +50,7 @@ export async function editEmbedCode(
       }
     }
   } catch (err) {
-    const errMsg = 'Failed to edit embed code'
-    const message =
-      err instanceof Error
-        ? `${errMsg}: ${err.message}`
-        : `${errMsg}.`
-    return {
-      ok: false,
-      message
-    }
+    return formatErrorResponse('Failed to edit embed code', err)
   }
 }
 
@@ -72,15 +67,7 @@ export async function deleteEmbedCode(
     updateTag('embed-codes')
     return { ok: true }
   } catch (err) {
-    const errMsg = 'Failed to delete embed code'
-    const message =
-      err instanceof Error
-        ? `${errMsg}: ${err.message}`
-        : `${errMsg}.`
-    return {
-      ok: false,
-      message
-    }
+    return formatErrorResponse('Failed to delete embed code', err)
   }
 }
 
@@ -102,12 +89,8 @@ async function createEmbedCode(embedCode: CreateEmbedCode) {
     `.then((rows) =>
       formatDbResponseForClient(rows[0], embedCodeSchema)
     )
-  } catch (err) {
-    throw new Error(
-      err instanceof Error
-        ? err.message
-        : 'Failed to create embed code.'
-    )
+  } catch (cause) {
+    throw new Error('Failed to create embed code.', { cause })
   }
 }
 
@@ -132,15 +115,11 @@ async function updateEmbedCode(
         updated_at = current_timestamp
       WHERE id = ${id}
       RETURNING *
-      `.then((rows) =>
+    `.then((rows) =>
       formatDbResponseForClient(rows[0], embedCodeSchema)
     )
-  } catch (err) {
-    throw new Error(
-      err instanceof Error
-        ? err.message
-        : 'Failed to update embed code.'
-    )
+  } catch (cause) {
+    throw new Error('Failed to update embed code.', { cause })
   }
 }
 

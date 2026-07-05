@@ -6,6 +6,8 @@ import { sql } from '@/lib/db'
 import type { FormResponse } from '@/lib/types'
 import {
   formatDbResponseForClient,
+  formatErrorResponse,
+  formatValidationResponse,
   normalizeFormData
 } from '@/lib/util'
 import { fetchVenueById } from '@/lib/venues/data'
@@ -25,11 +27,10 @@ export async function editVenue(
   const validatedVenue = createVenueSchema.safeParse(data)
 
   if (!validatedVenue.success) {
-    return {
-      ok: false,
-      errors: validatedVenue.error.flatten().fieldErrors,
-      message: 'Failed to validate venue.'
-    }
+    return formatValidationResponse(
+      validatedVenue.error,
+      'Failed to validate venue.'
+    )
   }
 
   try {
@@ -47,12 +48,7 @@ export async function editVenue(
       }
     }
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : 'Failed to edit venue.'
-    return {
-      ok: false,
-      message
-    }
+    return formatErrorResponse('Failed to edit venue', err)
   }
 }
 
@@ -67,15 +63,7 @@ export async function deleteVenue(
     updateTag('venues')
     return { ok: true }
   } catch (err) {
-    const errMsg = 'Failed to delete venue'
-    const message =
-      err instanceof Error
-        ? `${errMsg}: ${err.message}.`
-        : `${errMsg}.`
-    return {
-      ok: false,
-      message
-    }
+    return formatErrorResponse('Failed to delete venue', err)
   }
 }
 

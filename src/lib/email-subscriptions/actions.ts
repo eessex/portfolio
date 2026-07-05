@@ -3,6 +3,10 @@
 import { sql } from '@/lib/db'
 import { emailSubscriptionSchema } from '@/lib/email-subscriptions/schemas'
 import type { FormResponse } from '@/lib/types'
+import {
+  formatErrorResponse,
+  formatValidationResponse
+} from '@/lib/util'
 import { escapeHtml } from '@/ui/util'
 
 /** save email subscriptions */
@@ -17,17 +21,14 @@ export async function createEmailSubscription<T>(
       updatedAt: true
     })
     .safeParse(Object.fromEntries(formData))
+
   if (!validatedFields.success) {
-    console.error(
-      'Failed to validate email, try again.',
-      validatedFields.error.flatten().fieldErrors
+    return formatValidationResponse(
+      validatedFields.error,
+      'Failed to validate email, try again.'
     )
-    return {
-      ok: false,
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Failed to validate email, try again.'
-    }
   }
+
   const email = formData.get('email') as string
   const cleanedEmail = escapeHtml(email)
 
@@ -43,10 +44,6 @@ export async function createEmailSubscription<T>(
       message: 'Successfully subscribed!'
     }
   } catch (err) {
-    console.error(err)
-    return {
-      ok: false,
-      message: 'Database Error: Failed to Create subscription.'
-    }
+    return formatErrorResponse('Failed to create subscription', err)
   }
 }

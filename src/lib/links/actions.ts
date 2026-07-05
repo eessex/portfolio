@@ -14,6 +14,8 @@ import {
 import type { FormResponse } from '@/lib/types'
 import {
   formatDbResponseForClient,
+  formatErrorResponse,
+  formatValidationResponse,
   normalizeFormData
 } from '@/lib/util'
 
@@ -26,11 +28,10 @@ export async function editLink(
   const validatedLink = createLinkSchema.safeParse(data)
 
   if (!validatedLink.success) {
-    return {
-      ok: false,
-      errors: validatedLink.error.flatten().fieldErrors,
-      message: 'Failed to validate link.'
-    }
+    return formatValidationResponse(
+      validatedLink.error,
+      'Failed to validate link.'
+    )
   }
 
   try {
@@ -48,12 +49,7 @@ export async function editLink(
       }
     }
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : 'Failed to edit link.'
-    return {
-      ok: false,
-      message
-    }
+    return formatErrorResponse('Failed to edit link', err)
   }
 }
 
@@ -69,15 +65,7 @@ export async function deleteLink(
     updateTag('links')
     return { ok: true }
   } catch (err) {
-    const errMsg = 'Failed to delete link'
-    const message =
-      err instanceof Error
-        ? `${errMsg}: ${err.message}.`
-        : `${errMsg}.`
-    return {
-      ok: false,
-      message
-    }
+    return formatErrorResponse('Failed to delete link', err)
   }
 }
 

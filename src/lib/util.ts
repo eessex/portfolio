@@ -99,6 +99,39 @@ export function formatDbResponseForClient<T extends z.ZodTypeAny>(
 }
 
 /**
+ * Builds a `{ ok: false, message }` response for a caught exception, always
+ * surfacing the underlying cause rather than just a generic wrapper message.
+ * If `err` is one of our own thrown Errors wrapping an unknown failure (e.g.
+ * a raw DB error attached via `{ cause }`), the cause's message is used;
+ * otherwise falls back to the error's own message, then to a fully generic
+ * message as a last resort.
+ */
+export function formatErrorResponse(prefix: string, err: unknown) {
+  if (!(err instanceof Error)) {
+    return { ok: false as const, message: `${prefix}.` }
+  }
+
+  const cause = err.cause instanceof Error ? err.cause : err
+  return { ok: false as const, message: `${prefix}: ${cause.message}.` }
+}
+
+/**
+ * Builds a `{ ok: false, errors, message }` response from a failed
+ * `schema.safeParse()` result's `ZodError`, for returning per-field
+ * validation errors to the form.
+ */
+export function formatValidationResponse(
+  error: z.ZodError,
+  message: string
+) {
+  return {
+    ok: false as const,
+    errors: error.flatten().fieldErrors,
+    message
+  }
+}
+
+/**
  * Normalizes raw FormData entries before schema validation.
  * Mutates and returns the given object.
  */

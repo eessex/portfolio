@@ -26,8 +26,7 @@ export async function fetchPressImages() {
     return data.map((row) =>
       formatDbResponseForClient(row, imageSchema)
     )
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch press images.')
+  } catch (cause) {
+    throw new Error('Failed to fetch press images.', { cause })
   }
 }

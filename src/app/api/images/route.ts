@@ -10,8 +10,7 @@ export async function GET(req: Request) {
   try {
     const result = await fetchImages(cursor, query)
     return NextResponse.json(result)
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch images.')
+  } catch (cause) {
+    throw new Error('Failed to fetch images.', { cause })
   }
 }

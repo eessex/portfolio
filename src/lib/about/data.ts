@@ -21,8 +21,7 @@ export async function fetchAboutPage() {
       return
     }
     return formatDbResponseForClient(data[0], aboutClientSchema)
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch about page data.')
+  } catch (cause) {
+    throw new Error('Failed to fetch about page data.', { cause })
   }
 }

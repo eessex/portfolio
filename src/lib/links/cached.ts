@@ -27,9 +27,8 @@ export async function fetchPressLinks() {
     return data.map((row) =>
       formatDbResponseForClient(row, linkSchema)
     )
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch press links.')
+  } catch (cause) {
+    throw new Error('Failed to fetch press links.', { cause })
   }
 }
 
@@ -48,8 +47,7 @@ export async function fetchSocialLinks() {
     return data.map((row) =>
       formatDbResponseForClient(row, linkSchema)
     )
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch social links.')
+  } catch (cause) {
+    throw new Error('Failed to fetch social links.', { cause })
   }
 }

@@ -35,9 +35,8 @@ export async function editSiteSettings(
       `
       updateTag('settings')
       return { ok: true }
-    } catch (err) {
-      console.error('Database Error', err)
-      throw new Error('Database Error: Failed to save.')
+    } catch (cause) {
+      throw new Error('Database Error: Failed to save.', { cause })
     }
   }
 }

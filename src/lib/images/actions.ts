@@ -43,10 +43,8 @@ export async function checkIfImageExists(
     } else {
       return false
     }
-  } catch (err) {
-    throw new Error('Failed to check if image exists.', {
-      cause: err
-    })
+  } catch (cause) {
+    throw new Error('Failed to check if image exists.', { cause })
   }
 }
 
@@ -65,9 +63,8 @@ export async function editImage(
       }
       data.url = uploadedUrl
       delete data.file
-    } catch (err) {
-      console.debug('Failed to upload file:', err)
-      throw new Error('Failed to upload file.')
+    } catch (cause) {
+      throw new Error('Failed to upload file.', { cause })
     }
   }
 

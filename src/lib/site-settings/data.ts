@@ -24,8 +24,7 @@ export async function fetchSiteSettings() {
       data[0],
       siteSettingsClientSchema
     )
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch site settings.')
+  } catch (cause) {
+    throw new Error('Failed to fetch site settings.', { cause })
   }
 }

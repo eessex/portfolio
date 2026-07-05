@@ -46,9 +46,8 @@ export async function fetchImageByUrl(image: CreateImage) {
         fieldName: 'url' as keyof CreateImage
       }
     }
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch image by URL.')
+  } catch (cause) {
+    throw new Error('Failed to fetch image by URL.', { cause })
   }
 }
 
@@ -63,9 +62,8 @@ export async function fetchImageById(id: string) {
       return
     }
     return formatDbResponseForClient(data[0], imageSchema)
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error(`Failed to fetch image ${id}.`)
+  } catch (cause) {
+    throw new Error(`Failed to fetch image ${id}.`, { cause })
   }
 }
 
@@ -78,9 +76,8 @@ export const fetchImagesByIds = async (ids: string[]) => {
     return data.map((row) =>
       formatDbResponseForClient(row, imageSchema)
     )
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch images.')
+  } catch (cause) {
+    throw new Error('Failed to fetch images.', { cause })
   }
 }
 
@@ -149,9 +146,8 @@ export async function fetchImagesRaw(
       totalCount
     }
     return res
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch images.')
+  } catch (cause) {
+    throw new Error('Failed to fetch images.', { cause })
   }
 }
 
@@ -169,8 +165,7 @@ async function getTotalCount(query?: string) {
       )
     `
     return result[0]?.count ?? 0
-  } catch (error) {
-    console.error('Database Error:', error)
-    throw new Error('Failed to fetch image count.')
+  } catch (cause) {
+    throw new Error('Failed to fetch image count.', { cause })
   }
 }

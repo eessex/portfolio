@@ -102,8 +102,8 @@ export async function fetchEventsRaw(
       totalCount
     }
     return res
-  } catch (error) {
-    throw new Error(`Failed to fetch ${path}.`, { cause: error })
+  } catch (cause) {
+    throw new Error(`Failed to fetch ${path}.`, { cause })
   }
 }
 
@@ -168,9 +168,9 @@ export async function fetchEventById(
       },
       eventClientSchema
     )
-  } catch (error) {
+  } catch (cause) {
     throw new Error(`Failed to fetch ${pathSingular}: ${id}.`, {
-      cause: error
+      cause
     })
   }
 }
@@ -201,9 +201,9 @@ export async function getTotalCount(
         );
     `
     return data[0]?.count ?? 0
-  } catch (error) {
+  } catch (cause) {
     throw new Error(`Failed to fetch ${pathSingular} count.`, {
-      cause: error
+      cause
     })
   }
 }

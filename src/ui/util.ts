@@ -2,6 +2,13 @@ import type { Image } from '@/lib/images/schemas/db'
 import type { Link } from '@/lib/links/schemas/db'
 import type { PublishedEditionClient } from '@/lib/published-editions/types'
 import type { ReleaseClient } from '@/lib/releases/types'
+import {
+  type EmbeddedItemType,
+  EmbeddedItemTypes,
+  type PagePath,
+  PagePaths,
+  pagePathSingulars
+} from '@/lib/schemas'
 import type { DashboardUsedOnPagesKeys } from '@/lib/schemas/fields'
 import { camelToSentence, snakeToCamel } from '@/lib/strings'
 import type { PageItemClient } from '@/lib/types'
@@ -131,15 +138,15 @@ export function isUpcomingDate(date: string | Date) {
 }
 
 export function eventUrl(slug: string) {
-  return `/events/${slug}`
+  return `/${PagePaths.events}/${slug}`
 }
 
 export function releaseUrl(slug: string) {
-  return `/releases/${slug}`
+  return `/${PagePaths.releases}/${slug}`
 }
 
 export function projectUrl(slug: string) {
-  return `/projects/${slug}`
+  return `/${PagePaths.projects}/${slug}`
 }
 
 export function filteredLinksByPress(links: Array<Link>) {
@@ -206,7 +213,16 @@ export function combinePublishedEditions(
   return combined
 }
 
+export function isEmbeddedItemType(
+  itemType: EmbeddedItemType | PagePath
+): itemType is EmbeddedItemType {
+  return itemType in EmbeddedItemTypes
+}
+
 export function singularizePath(path: string) {
+  if (pagePathSingulars[path as keyof typeof pagePathSingulars]) {
+    return pagePathSingulars[path as keyof typeof pagePathSingulars]
+  }
   return path.endsWith('s') ? path.slice(0, -1) : path
 }
 

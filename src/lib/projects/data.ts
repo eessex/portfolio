@@ -5,7 +5,7 @@ import type {
   FetchProjectsResult,
   ProjectClient
 } from '@/lib/projects/types'
-import { PagePaths } from '@/lib/schemas'
+import { PagePaths, pagePathSingulars } from '@/lib/schemas'
 import type { PageItemResponseWithCursor } from '@/lib/types'
 import {
   decodeCursor,
@@ -13,10 +13,9 @@ import {
   formatDbResponseForClient,
   formatResponseWithCursor
 } from '@/lib/util'
-import { singularizePath } from '@/ui/util'
 
 const path = PagePaths.projects
-const pathSingular = singularizePath(path)
+const pathSingular = pagePathSingulars[path]
 
 export async function fetchProjects(
   isAuthed: boolean = false,

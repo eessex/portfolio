@@ -22,6 +22,17 @@ export const pagePathSchema = z.enum(pagePaths)
 export type PagePath = (typeof pagePaths)[number]
 
 /**
+ * Singular form of each `PagePath`, e.g. for deriving a form field name
+ * like `releaseId` from the `releases` path.
+ */
+export const pagePathSingulars = {
+  about: 'about',
+  events: 'event',
+  projects: 'project',
+  releases: 'release'
+} as const satisfies Record<PagePath, string>
+
+/**
  * Types of items that can be embedded within pages
  * (e.g. an embed code, image, link, or venue).
  * Their metadata will be included when fetching a page.
@@ -41,3 +52,24 @@ export const EmbeddedItemTypes = Object.fromEntries(
   [K in (typeof embeddedItemTypes)[number]]: K
 }
 export type EmbeddedItemType = (typeof embeddedItemTypes)[number]
+
+/**
+ * Singular form of each `EmbeddedItemType`, e.g. for deriving a form field
+ * name like `venueId` from the `venues` item type.
+ */
+export const embeddedItemTypeSingulars = {
+  embedCodes: 'embedCode',
+  images: 'image',
+  links: 'link',
+  publishedEditions: 'publishedEdition',
+  venues: 'venue'
+} as const satisfies Record<EmbeddedItemType, string>
+
+/**
+ * Combined singular-name lookup covering both `PagePath` and
+ * `EmbeddedItemType` values, since `SelectedResult` accepts either.
+ */
+export const itemTypeSingulars = {
+  ...pagePathSingulars,
+  ...embeddedItemTypeSingulars
+} as const satisfies Record<PagePath | EmbeddedItemType, string>

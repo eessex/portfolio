@@ -6,7 +6,7 @@ import type {
   ReleaseClient
 } from '@/lib/releases/types'
 import { sortReleasesByCategory } from '@/lib/releases/util'
-import { PagePaths } from '@/lib/schemas'
+import { PagePaths, pagePathSingulars } from '@/lib/schemas'
 import type { PageItemResponseWithCursor } from '@/lib/types'
 import {
   decodeCursor,
@@ -14,10 +14,9 @@ import {
   formatDbResponseForClient,
   formatResponseWithCursor
 } from '@/lib/util'
-import { singularizePath } from '@/ui/util'
 
 const path = PagePaths.releases
-const pathSingular = singularizePath(path)
+const pathSingular = pagePathSingulars[path]
 
 export async function fetchReleaseById(
   id: string,

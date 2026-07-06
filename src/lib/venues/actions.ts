@@ -80,16 +80,27 @@ async function createVenue(venue: CreateVenue) {
       url
     } = toDbRow(venue)
     const rows = await sql`
-      INSERT INTO venues
-        address = ${address},
-        city = ${city},
-        country = ${country},
-        name = ${name},
-        primary_venue_id = ${primaryVenueId},
-        state = ${state},
-        timezone = ${timezone},
-        url = ${url},
-        created_at = current_timestamp
+      INSERT INTO venues (
+        address,
+        city,
+        country,
+        name,
+        primary_venue_id,
+        state,
+        timezone,
+        url,
+        created_at
+      ) VALUES (
+        ${address},
+        ${city},
+        ${country},
+        ${name},
+        ${primaryVenueId},
+        ${state},
+        ${timezone},
+        ${url},
+        current_timestamp
+      )
       RETURNING *
     `
     const row = rows[0]

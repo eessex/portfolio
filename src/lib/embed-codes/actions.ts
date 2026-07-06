@@ -76,15 +76,25 @@ async function createEmbedCode(embedCode: CreateEmbedCode) {
     const { caption, contentType, host, iframe, src, title, type } =
       toDbRow(embedCode)
     return await sql`
-      INSERT INTO embed_codes
-        caption = ${caption},
-        content_type = ${contentType},
-        host = ${host},
-        iframe = ${iframe},
-        src = ${src},
-        title = ${title},
-        type = ${type},
-        created_at = current_timestamp
+      INSERT INTO embed_codes (
+        caption,
+        content_type,
+        host,
+        iframe,
+        src,
+        title,
+        type,
+        created_at
+      ) VALUES (
+        ${caption},
+        ${contentType},
+        ${host},
+        ${iframe},
+        ${src},
+        ${title},
+        ${type},
+        current_timestamp
+      )
       RETURNING *
     `.then((rows) =>
       formatDbResponseForClient(rows[0], embedCodeSchema)

@@ -138,15 +138,25 @@ async function createImage(image: CreateImage) {
       url
     } = toDbRow(image)
     const rows = await sql`
-      INSERT INTO images
-        alt = ${alt},
-        aspect = ${aspect},
-        caption = ${caption},
-        is_hidden_on_about_page = ${isHiddenOnAboutPage},
-        is_press = ${isPress},
-        title = ${title},
-        url = ${url},
-        created_at = current_timestamp
+      INSERT INTO images (
+        alt,
+        aspect,
+        caption,
+        is_hidden_on_about_page,
+        is_press,
+        title,
+        url,
+        created_at
+      ) VALUES (
+        ${alt},
+        ${aspect},
+        ${caption},
+        ${isHiddenOnAboutPage},
+        ${isPress},
+        ${title},
+        ${url},
+        current_timestamp
+      )
       RETURNING *
     `
     const row = rows[0]

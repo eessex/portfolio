@@ -14,6 +14,7 @@ import type { DashboardImage } from '@/lib/images/schemas/client'
 import type { Image } from '@/lib/images/schemas/db'
 import type { DashboardLink } from '@/lib/links/schemas/client'
 import { type Link, linkTypes } from '@/lib/links/schemas/db'
+import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import {
   type EmbeddedItemType,
   EmbeddedItemTypes
@@ -57,6 +58,7 @@ export type DashboardItem =
   | DashboardEmbedCode
   | DashboardImage
   | DashboardLink
+  | DashboardPublishedEdition
   | DashboardVenue
 
 const DashboardSuccessMessages = {
@@ -323,6 +325,13 @@ function DashboardListItem<T extends DashboardItem>({
           format: 'sm'
         })
       }
+      case EmbeddedItemTypes.publishedEditions: {
+        const editionItem = item as DashboardPublishedEdition
+        const releasePrefix = editionItem.release?.title
+          ? `${editionItem.release.title}: `
+          : ''
+        return `${releasePrefix}${editionItem.format} — ${editionItem.publisher}`
+      }
     }
   }
 
@@ -414,6 +423,21 @@ export function ItemDisplay({
           </div>
         </>
       )
+    case EmbeddedItemTypes.publishedEditions: {
+      const editionItem = item as DashboardPublishedEdition
+      return (
+        <div>
+          <h3>Publish date:</h3>
+          <p>{new Date(editionItem.publishDate).toDateString()}</p>
+          {editionItem.catalogNumber && (
+            <>
+              <h3>Catalog number:</h3>
+              <p>{editionItem.catalogNumber}</p>
+            </>
+          )}
+        </div>
+      )
+    }
     default:
       return <div>Unknown item type: {itemType}</div>
   }

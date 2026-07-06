@@ -11,13 +11,7 @@ import { CreateItemFromPathnameButton } from '@/ui/buttons/create-item-button'
 import { EditButton } from '@/ui/buttons/edit-button'
 import { LogoutButton } from '@/ui/buttons/logout-button'
 
-const links = [
-  'dashboard',
-  ...embeddedItemTypes.filter(
-    // FIXME: editing not yet supported
-    (itemType) => itemType !== 'publishedEditions'
-  )
-]
+const links = ['dashboard', ...embeddedItemTypes]
 
 export async function AdminSidebar() {
   return (

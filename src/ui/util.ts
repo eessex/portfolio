@@ -268,7 +268,11 @@ export function usedOnSlugKeys({
   eventSlugs,
   projectSlugs,
   releaseSlugs
-}: DashboardItem): Record<DashboardUsedOnPagesKeys, string[]> {
+}: {
+  eventSlugs?: string[]
+  projectSlugs?: string[]
+  releaseSlugs?: string[]
+}): Record<DashboardUsedOnPagesKeys, string[]> {
   return {
     eventSlugs: eventSlugs ?? [],
     projectSlugs: projectSlugs ?? [],
@@ -277,8 +281,14 @@ export function usedOnSlugKeys({
 }
 
 export function usedOnPages(item: Partial<DashboardItem>) {
-  const events = item.eventSlugs?.map((i) => eventUrl(i)) || []
-  const projects = item.projectSlugs?.map((i) => projectUrl(i)) || []
+  const events =
+    'eventSlugs' in item && Array.isArray(item.eventSlugs)
+      ? item.eventSlugs.map((i) => eventUrl(i))
+      : []
+  const projects =
+    'projectSlugs' in item && Array.isArray(item.projectSlugs)
+      ? item.projectSlugs.map((i) => projectUrl(i))
+      : []
   const releases =
     'releaseSlugs' in item && Array.isArray(item.releaseSlugs)
       ? item.releaseSlugs.map((i) => releaseUrl(i))

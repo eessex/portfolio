@@ -13,6 +13,7 @@ import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { EditImage } from '@/ui/images/edit-image-form'
 import { EditLink } from '@/ui/links/edit-link-form'
+import { EditPublishedEdition } from '@/ui/published-editions/edit-published-edition-form'
 import { singularizePath } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 
@@ -24,6 +25,8 @@ function getEditFormComponent(itemType: EmbeddedItemType) {
       return EditImage
     case EmbeddedItemTypes.links:
       return EditLink
+    case EmbeddedItemTypes.publishedEditions:
+      return EditPublishedEdition
     case EmbeddedItemTypes.venues:
       return EditVenue
     default:

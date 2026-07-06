@@ -4,7 +4,7 @@ import { embedCodeSchema } from '@/lib/embed-codes/schemas/db'
 import { imageSchema } from '@/lib/images/schemas/db'
 import { linkSchema } from '@/lib/links/schemas/db'
 import { projectSchema } from '@/lib/projects/schemas'
-import { publishedEditionSchema } from '@/lib/published-editions/schemas'
+import { publishedEditionClientSchema } from '@/lib/published-editions/schemas/client'
 import {
   contentFields,
   ownershipFields,
@@ -57,6 +57,6 @@ export const releaseClientSchema = releaseSchema.extend({
   links: z.lazy(() => linkSchema.array()).optional(),
   project: z.lazy(() => projectSchema).optional(),
   publishedEditions: z
-    .lazy(() => publishedEditionSchema.array())
+    .lazy(() => publishedEditionClientSchema.array())
     .optional()
 })

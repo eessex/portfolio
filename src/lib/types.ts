@@ -9,6 +9,7 @@ import type {
   FetchProjectsResult,
   ProjectClient
 } from '@/lib/projects/types'
+import type { PublishedEdition } from '@/lib/published-editions/schemas/db'
 import type {
   FetchReleasesResult,
   ReleaseClient
@@ -46,7 +47,12 @@ export type PageEmbeddedItemProps = {
   params: Promise<{ id: string }>
 }
 
-export type EmbeddedItem = EmbedCode | Image | Link | Venue
+export type EmbeddedItem =
+  | EmbedCode
+  | Image
+  | Link
+  | PublishedEdition
+  | Venue
 
 // FIXME: multiple not yet used, but some endpoints might need it
 export type FormState<T, Multiple extends boolean = false> = {

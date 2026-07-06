@@ -1,6 +1,6 @@
 import type { Image } from '@/lib/images/schemas/db'
 import type { Link } from '@/lib/links/schemas/db'
-import type { PublishedEditionClient } from '@/lib/published-editions/types'
+import type { PublishedEditionClient } from '@/lib/published-editions/schemas/client'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
   type EmbeddedItemType,

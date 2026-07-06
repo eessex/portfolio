@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio CMS
 
-## Getting Started
+A Next.js CMS for managing and serving a personal portfolio site (releases, events, projects, venues, press links, media, and site-wide "about"/settings content). Built on Next.js 16 (App Router) with Postgres (Neon serverless) as the data store, next-auth for the admin login, and S3 for image storage.
 
-First, run the development server:
+## Prerequisites
+
+- Node 22.x
+- pnpm 11 (`packageManager` is pinned in `package.json`)
+- A Postgres database (this project targets [Neon](https://neon.tech))
+- An S3-compatible bucket for image uploads
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). The dev server runs with Turbopack.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+On first run against a fresh database, the tables need to be created — see `src/seed/createTables.ts`, which defines every table, constraint, and index (there is no migration tool; this file is the schema source of truth).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment variables
 
-## Learn More
+Copy `.env` (or create one) with the following:
 
-To learn more about Next.js, take a look at the following resources:
+**Database**
+- `DATABASE_URL` — Postgres connection string used by `src/lib/db.ts` (the only DB var actually read at runtime; the `PG*`/`POSTGRES_*` variables in `.env` are unused alternates left over from provider templates and can be omitted)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Auth** ([next-auth](https://authjs.dev) v5)
+- `AUTH_SECRET` — session encryption secret
+- `AUTH_URL` — canonical app URL used by next-auth
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Image storage (S3)**
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_S3_BUCKET_NAME`
+- `AWS_S3_REGION`
+- `AWS_S3_BASE_URL`
+- `REMOTE_IMAGE_HOSTNAME` / `REMOTE_IMAGE_HOSTNAME_OLD` — hostnames allow-listed for `next/image` in `next.config.ts` (the "old" one supports serving images from a previous bucket during a migration)
 
-## Deploy on Vercel
+**Site branding (public, client-exposed)**
+- `NEXT_PUBLIC_SITE_TITLE`
+- `NEXT_PUBLIC_SITE_DESCRIPTION`
+- `NEXT_PUBLIC_SITE_IMAGE_LG`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm dev           # start dev server (Turbopack)
+pnpm build         # production build
+pnpm start         # run a production build
+pnpm lint          # eslint .
+pnpm prettier      # prettier --write .
+pnpm test          # run the jest suite
+pnpm test:watch    # jest --watch
+```
+
+## Architecture
+
+**Data layer.** No ORM — all queries are hand-written tagged-template SQL via the `sql` client in `src/lib/db.ts`. Each content type (releases, events, projects, venues, links, images, embed codes, about, site settings, users, email subscriptions) lives under `src/lib/<domain>/` with a consistent split:
+
+- `data.ts` — raw read queries
+- `cached.ts` — `'use cache'` wrappers with `cacheTag`s for targeted invalidation
+- `actions.ts` — `'use server'` mutations that call `updateTag` after writes
+- `schemas.ts` / `types.ts` — Zod validation and inferred types
+- `fixtures.ts` — test fixture builders
+
+DB rows are `snake_case`; everything crossing into the client is converted to `camelCase` and validated against its Zod schema via `formatDbResponseForClient` (`src/lib/util.ts`).
+
+**Content model.** `src/lib/schemas/index.ts` distinguishes two kinds of content: `pagePaths` (about, events, projects, releases — each gets its own `/{path}` index and `/{path}/{slug}` detail page) and `embeddedItemTypes` (embed codes, images, links, published editions, venues — reusable items with no page of their own, attached to page content).
+
+**Auth.** next-auth v5 with a credentials provider (email + bcrypt-hashed password, see `src/auth.ts`). Route protection is centralized in `src/auth.config.ts`, which pattern-matches which paths require a session (e.g. `/*/new`, `/*/:slug/edit`, `/dashboard/*`) versus which are public.
+
+**Images.** Uploads go directly to S3 via presigned URLs (`src/lib/images/s3.ts`); `next.config.ts` restricts `next/image` to the configured S3 hostnames and serves avif/webp at fixed size steps.
+
+**Testing.** Jest + `next/jest` + jsdom. Tests live next to their source as `*.test.ts`. See `src/test/` for shared mocks (fetch, `AbortController`, `IntersectionObserver`, and a `'use cache'`/`cacheTag` mock) and helpers.

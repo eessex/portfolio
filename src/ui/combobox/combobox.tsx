@@ -2,28 +2,42 @@
 
 import { useEffect, useId, useRef, useState } from 'react'
 
-import type { EmbeddedItemType } from '@/lib/schemas'
-import type { EmbeddedItem } from '@/lib/types'
-import type { ResponseWithCursor } from '@/lib/util'
+import type { EmbeddedItemType, PagePath } from '@/lib/schemas'
+import type {
+  EmbeddedItem,
+  PageDataResponse,
+  PageItemClient
+} from '@/lib/types'
 import { CreateItemButton } from '@/ui/buttons/create-item-button'
 import styles from '@/ui/combobox/combobox.module.scss'
 import { Loading } from '@/ui/loading'
 import { SearchInput } from '@/ui/search-input/search-input'
-import { useResultsList } from '@/ui/useResultsList'
-import { itemTypeToLabel } from '@/ui/util'
+import {
+  type ResultsResponse,
+  useResultsList
+} from '@/ui/useResultsList'
+import { isEmbeddedItemType, itemTypeToLabel } from '@/ui/util'
 
-export interface ComboboxProps<T extends EmbeddedItem> {
+export interface ComboboxProps<
+  TEmbeddedItem extends EmbeddedItem,
+  TPage extends PageItemClient = never,
+  S extends PageDataResponse | undefined = undefined
+> {
   defaultQuery?: string
-  initialResults: ResponseWithCursor<T>
-  itemType: EmbeddedItemType
+  initialResults: ResultsResponse<TEmbeddedItem, TPage, S>
+  itemType: EmbeddedItemType | PagePath
   label?: string
   placeholder?: string
-  formatResult: (item: T) => React.ReactNode
-  onCreateNew: (query?: string) => void
-  onSelect: (item: T) => void
+  formatResult: (item: TEmbeddedItem | TPage) => React.ReactNode
+  onCreateNew?: (query?: string) => void
+  onSelect: (item: TEmbeddedItem | TPage) => void
 }
 
-export function Combobox<T extends EmbeddedItem>({
+export function Combobox<
+  TEmbeddedItem extends EmbeddedItem,
+  TPage extends PageItemClient = never,
+  S extends PageDataResponse | undefined = undefined
+>({
   defaultQuery,
   initialResults,
   itemType,
@@ -32,7 +46,7 @@ export function Combobox<T extends EmbeddedItem>({
   formatResult,
   onCreateNew,
   onSelect
-}: ComboboxProps<T>) {
+}: ComboboxProps<TEmbeddedItem, TPage, S>) {
   const {
     query,
     setQuery,
@@ -40,7 +54,7 @@ export function Combobox<T extends EmbeddedItem>({
     isLoading,
     nextCursor,
     loadMoreRef
-  } = useResultsList<T>(
+  } = useResultsList<TEmbeddedItem, TPage, S>(
     `/api/${itemType}`,
     initialResults,
     defaultQuery
@@ -86,7 +100,7 @@ export function Combobox<T extends EmbeddedItem>({
       document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  function optionId(item?: T) {
+  function optionId(item?: TEmbeddedItem | TPage) {
     return `${listId}-${item?.id || 'new'}`
   }
 
@@ -162,7 +176,7 @@ export function Combobox<T extends EmbeddedItem>({
             : undefined
         }
         beforeInputChildren={
-          onCreateNew && (
+          onCreateNew && isEmbeddedItemType(itemType) && (
             <CreateItemButton
               className='button-sm'
               ref={createButtonRef}

@@ -38,7 +38,9 @@ const initialResults: ComboboxProps<Venue>['initialResults'] = {
 }
 
 function renderCombobox(props = {}) {
-  return render(<Combobox {...defaultProps} {...props} />)
+  return render(
+    <Combobox<Venue, never, undefined> {...defaultProps} {...props} />
+  )
 }
 
 describe('Combobox', () => {

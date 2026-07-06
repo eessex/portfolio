@@ -19,3 +19,16 @@
     border-radius: 50%;
   }
 }
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: grids.space-em(2);
+}
+
+.cover-image {
+  height: grids.space-em(8);
+  width: auto;
+  flex-shrink: 0;
+  object-fit: cover;
+}

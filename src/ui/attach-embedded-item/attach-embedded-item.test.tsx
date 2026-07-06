@@ -15,6 +15,7 @@ const defaultProps: AttachEmbeddedItemProps<Venue> = {
     totalCount: 0
   },
   itemType: 'venues',
+  name: 'venueId',
   formatResult: (item) => item.name,
   renderEditItemForm: () => <div>New Venue Form</div>
 }
@@ -87,6 +88,18 @@ describe('AttachEmbeddedItem', () => {
       await userEvent.click(screen.getByText(/create/i))
 
       expect(screen.getByText('New Venue Form')).toBeInTheDocument()
+    })
+  })
+
+  describe('hideCreateNew', () => {
+    it('does not render the create-new button when hideCreateNew is true', async () => {
+      const user = userEvent.setup()
+      renderComponent({ hideCreateNew: true })
+
+      const input = screen.getByRole('combobox')
+      await user.type(input, 'New Venue')
+
+      expect(screen.queryByText(/create/i)).not.toBeInTheDocument()
     })
   })
 

@@ -18,22 +18,28 @@ const title = formattedItemType(path, false, true)
 
 export const metadata: Metadata = { title, description }
 
-export default async function ProjectsPage() {
-  const session = await auth()
-  const projects = await fetchProjects(!!session?.user)
-
+export default function ProjectsPage() {
   return (
     <div>
       <h1 className='visually-hidden'>{title}</h1>
 
       <Suspense fallback={<Loading />}>
-        <ItemsTable<ProjectClient, FetchProjectsResult>
-          path={path}
-          initialItems={projects}
-          isExpandedOnLoad
-          isCategoryVisible
-        />
+        <ProjectsList />
       </Suspense>
     </div>
+  )
+}
+
+async function ProjectsList() {
+  const session = await auth()
+  const projects = await fetchProjects(!!session?.user)
+
+  return (
+    <ItemsTable<ProjectClient, FetchProjectsResult>
+      path={path}
+      initialItems={projects}
+      isExpandedOnLoad
+      isCategoryVisible
+    />
   )
 }

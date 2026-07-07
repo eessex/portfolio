@@ -18,20 +18,26 @@ const title = formattedItemType(path, false, true)
 
 export const metadata: Metadata = { title, description }
 
-export default async function ReleasesPage() {
-  const session = await auth()
-  const releases = await fetchReleases(!!session?.user)
-
+export default function ReleasesPage() {
   return (
     <div>
       <h1 className='visually-hidden'>{title}</h1>
 
       <Suspense fallback={<Loading />}>
-        <ItemsTable<ReleaseClient, FetchReleasesResult>
-          path={path}
-          initialItems={releases}
-        />
+        <ReleasesList />
       </Suspense>
     </div>
+  )
+}
+
+async function ReleasesList() {
+  const session = await auth()
+  const releases = await fetchReleases(!!session?.user)
+
+  return (
+    <ItemsTable<ReleaseClient, FetchReleasesResult>
+      path={path}
+      initialItems={releases}
+    />
   )
 }

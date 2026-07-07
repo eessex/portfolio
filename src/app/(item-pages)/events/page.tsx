@@ -19,26 +19,34 @@ const title = formattedItemType(path, false, true)
 
 export const metadata: Metadata = { title, description }
 
-export default async function EventsPage() {
-  const session = await auth()
-  const events = await fetchEvents(!!session?.user)
-
+export default function EventsPage() {
   return (
     <div>
       <h1 className='visually-hidden'>{title}</h1>
 
       <Suspense fallback={<Loading />}>
-        <ItemsList
-          items={events.res.upcomingEvents}
-          isFeatured
-          title={formattedItemType(path, true, true)}
-        />
-        <ItemsTable<EventClient, FetchEventsResult>
-          path={path}
-          initialItems={events}
-          omitKeys={['upcomingEvents']}
-        />
+        <EventsList />
       </Suspense>
     </div>
+  )
+}
+
+async function EventsList() {
+  const session = await auth()
+  const events = await fetchEvents(!!session?.user)
+
+  return (
+    <>
+      <ItemsList
+        items={events.res.upcomingEvents}
+        isFeatured
+        title={formattedItemType(path, true, true)}
+      />
+      <ItemsTable<EventClient, FetchEventsResult>
+        path={path}
+        initialItems={events}
+        omitKeys={['upcomingEvents']}
+      />
+    </>
   )
 }

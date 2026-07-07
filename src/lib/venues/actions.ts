@@ -22,7 +22,7 @@ export async function editVenue(
   formData: FormData,
   id?: string
 ): Promise<FormResponse<Venue>> {
-  const data = normalizeFormData(Object.fromEntries(formData))
+  const data = normalizeFormData(formData)
 
   const validatedVenue = createVenueSchema.safeParse(data)
 

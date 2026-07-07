@@ -22,7 +22,7 @@ export async function editPublishedEdition(
   formData: FormData,
   id?: string
 ): Promise<FormResponse<PublishedEdition>> {
-  const data = normalizeFormData(Object.fromEntries(formData))
+  const data = normalizeFormData(formData)
 
   const validatedEdition =
     createPublishedEditionSchema.safeParse(data)

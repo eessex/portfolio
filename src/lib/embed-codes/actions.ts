@@ -22,7 +22,7 @@ export async function editEmbedCode(
   formData: FormData,
   id?: string
 ): Promise<FormResponse<EmbedCode>> {
-  const data = normalizeFormData(Object.fromEntries(formData))
+  const data = normalizeFormData(formData)
 
   const validatedEmbedCode = createEmbedCodeSchema.safeParse(data)
 

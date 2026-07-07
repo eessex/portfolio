@@ -48,6 +48,21 @@ describe('#normalizeFormData', () => {
 
     expect(result).toBe(data)
   })
+
+  it('accepts a FormData instance directly', () => {
+    const fd = new FormData()
+    fd.append('isPublished', 'on')
+    fd.append('startDate', '')
+    fd.append('title', '')
+    fd.append('city', 'Austin')
+
+    const result = normalizeFormData(fd)
+
+    expect(result.isPublished).toBe(true)
+    expect(result.startDate).toBeUndefined()
+    expect(result.title).toBeUndefined()
+    expect(result.city).toBe('Austin')
+  })
 })
 
 describe('#formatErrorResponse', () => {

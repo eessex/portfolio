@@ -135,23 +135,27 @@ export function formatValidationResponse(
 }
 
 /**
- * Normalizes raw FormData entries before schema validation.
- * Mutates and returns the given object.
+ * Normalizes raw FormData entries before schema validation. Accepts a
+ * FormData instance directly (or an already-extracted object, e.g. when the
+ * caller needs to tweak entries first).
  */
 export function normalizeFormData(
-  data: Record<string, unknown>
+  data: FormData | Record<string, unknown>
 ): Record<string, unknown> {
-  Object.entries(data).forEach(([key, value]) => {
+  const normalized =
+    data instanceof FormData ? Object.fromEntries(data) : data
+
+  Object.entries(normalized).forEach(([key, value]) => {
     if (value === 'on') {
       // checkboxes are always 'on' when checked, so we convert them to true
-      data[key] = true
+      normalized[key] = true
     } else if (key.includes('Date')) {
-      data[key] = value || undefined
+      normalized[key] = value || undefined
     } else if (value === '') {
       // empty optional fields submit as '' rather than being omitted
-      data[key] = undefined
+      normalized[key] = undefined
     }
   })
 
-  return data
+  return normalized
 }

@@ -23,7 +23,7 @@ export async function editLink(
   formData: FormData,
   id?: string
 ): Promise<FormResponse<Link>> {
-  const data = normalizeFormData(Object.fromEntries(formData))
+  const data = normalizeFormData(formData)
 
   const validatedLink = createLinkSchema.safeParse(data)
 

@@ -42,26 +42,104 @@ export async function generateMetadata() {
   }
 }
 
-export default async function AboutPage() {
-  const [about, links, pressImages, session] = await Promise.all([
+export default function AboutPage() {
+  return (
+    <article className={styles.about}>
+      <header>
+        <h1>{title}</h1>
+      </header>
+
+      <Suspense fallback={<Loading />}>
+        <AboutIntro />
+      </Suspense>
+
+      <div className={styles['press-info']}>
+        <Suspense fallback={<Loading />}>
+          <MoreProjects />
+        </Suspense>
+
+        <Suspense fallback={<Loading />}>
+          <MoreImages />
+        </Suspense>
+
+        <Suspense>
+          <MorePress />
+        </Suspense>
+      </div>
+    </article>
+  )
+}
+
+/** Cover image, bio, contact details, and press quotes. */
+async function AboutIntro() {
+  const [about, links] = await Promise.all([
     fetchAboutPage(),
-    fetchPressLinks(),
-    fetchPressImages(),
-    auth()
+    fetchPressLinks()
   ])
 
+  const pressLinksWithQuotes = links.filter((link) => link.quotation)
+
+  return (
+    <section>
+      {about?.coverImageId && about.coverImage && (
+        <ImageFigure
+          image={{
+            ...about.coverImage,
+            id: about.coverImageId
+          }}
+          className={styles['cover-image']}
+          isPriority
+        />
+      )}
+
+      {about?.description && (
+        <p style={{ whiteSpace: 'pre-line' }}>{about.description}</p>
+      )}
+
+      {about?.contactInfo?.map(
+        ({ title, contact }: AboutContact, i) => (
+          <p key={i}>
+            {title && <b>{title}: </b>}
+            {contact}
+          </p>
+        )
+      )}
+
+      <LinksList
+        className={styles['links-list']}
+        links={pressLinksWithQuotes}
+        isPress
+      />
+    </section>
+  )
+}
+
+/** Collapsible list of related projects. */
+async function MoreProjects() {
+  const session = await auth()
   const {
     res: { allProjects }
   } = await fetchProjects(!!session?.user)
 
-  const [pressLinksWithQuotes, pressLinksWithoutQuotes] =
-    links.reduce(
-      ([withQuotes, withoutQuotes], link) =>
-        link.quotation
-          ? [[...withQuotes, link], withoutQuotes]
-          : [withQuotes, [...withoutQuotes, link]],
-      [[], []] as [typeof links, typeof links]
-    )
+  if (!allProjects.length) return null
+
+  return (
+    <AccordionDropdown title='More Projects' isFullWidth>
+      <ItemsList
+        className={styles['projects-list']}
+        items={allProjects}
+        isCategoryVisible
+      />
+    </AccordionDropdown>
+  )
+}
+
+/** Collapsible grid of press images, excluding the cover image. */
+async function MoreImages() {
+  const [about, pressImages] = await Promise.all([
+    fetchAboutPage(),
+    fetchPressImages()
+  ])
 
   const filteredPressImages = pressImages.filter(
     (image) =>
@@ -72,76 +150,28 @@ export default async function AboutPage() {
       )
   )
 
+  if (!filteredPressImages.length) return null
+
   return (
-    <article className={styles.about}>
-      <header>
-        <h1>{title}</h1>
-      </header>
+    <AccordionDropdown title='More Images' isFullWidth>
+      <ImageGrid images={filteredPressImages} />
+    </AccordionDropdown>
+  )
+}
 
-      <section>
-        {about?.coverImageId && about.coverImage && (
-          <ImageFigure
-            image={{
-              ...about.coverImage,
-              id: about.coverImageId
-            }}
-            className={styles['cover-image']}
-            isPriority
-          />
-        )}
+/** Collapsible list of press links without pull-quotes. */
+async function MorePress() {
+  const links = await fetchPressLinks()
 
-        {about?.description && (
-          <p style={{ whiteSpace: 'pre-line' }}>
-            {about.description}
-          </p>
-        )}
+  const pressLinksWithoutQuotes = links.filter(
+    (link) => !link.quotation
+  )
 
-        {about?.contactInfo?.map(
-          ({ title, contact }: AboutContact, i) => (
-            <p key={i}>
-              {title && <b>{title}: </b>}
-              {contact}
-            </p>
-          )
-        )}
-        <Suspense>
-          <LinksList
-            className={styles['links-list']}
-            links={pressLinksWithQuotes}
-            isPress
-          />
-        </Suspense>
-      </section>
+  if (!pressLinksWithoutQuotes.length) return null
 
-      <div className={styles['press-info']}>
-        <Suspense fallback={<Loading />}>
-          {!!allProjects.length && (
-            <AccordionDropdown title='More Projects' isFullWidth>
-              <ItemsList
-                className={styles['projects-list']}
-                items={allProjects}
-                isCategoryVisible
-              />
-            </AccordionDropdown>
-          )}
-        </Suspense>
-
-        <Suspense fallback={<Loading />}>
-          {!!filteredPressImages.length && (
-            <AccordionDropdown title='More Images' isFullWidth>
-              <ImageGrid images={filteredPressImages} />
-            </AccordionDropdown>
-          )}
-        </Suspense>
-
-        <Suspense>
-          {!!pressLinksWithoutQuotes.length && (
-            <AccordionDropdown title='More Press' isFullWidth>
-              <LinksList links={pressLinksWithoutQuotes} />
-            </AccordionDropdown>
-          )}
-        </Suspense>
-      </div>
-    </article>
+  return (
+    <AccordionDropdown title='More Press' isFullWidth>
+      <LinksList links={pressLinksWithoutQuotes} />
+    </AccordionDropdown>
   )
 }

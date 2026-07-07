@@ -14,15 +14,15 @@ import type { FormResponse } from '@/lib/types'
 import {
   formatDbResponseForClient,
   formatErrorResponse,
-  formatValidationResponse
+  formatValidationResponse,
+  normalizeFormData
 } from '@/lib/util'
 
 export async function editEmbedCode(
   formData: FormData,
   id?: string
 ): Promise<FormResponse<EmbedCode>> {
-  const data: Record<FormData['entries']['name'], unknown> =
-    Object.fromEntries(formData)
+  const data = normalizeFormData(Object.fromEntries(formData))
 
   const validatedEmbedCode = createEmbedCodeSchema.safeParse(data)
 

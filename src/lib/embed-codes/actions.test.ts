@@ -78,6 +78,17 @@ describe('Embed Code Actions', () => {
       expect(updateTag).toHaveBeenCalledWith('releases')
     })
 
+    it('normalizes empty optional fields to undefined before saving', async () => {
+      mockSql.mockResolvedValueOnce([embedCodeFixture])
+      await editEmbedCode(
+        formDataFromObject({ ...createEmbedCodeFixture, caption: '' })
+      )
+
+      const [, caption] = mockSql.mock
+        .calls[0] as unknown as unknown[]
+      expect(caption).toBeUndefined()
+    })
+
     it('can handle generic errors', async () => {
       mockSql.mockRejectedValueOnce(new Error('DB error'))
       const res = await editEmbedCode(

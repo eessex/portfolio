@@ -32,6 +32,8 @@ describe('Embed Code Actions', () => {
 
       expect(res).toEqual({ ok: true })
       expect(updateTag).toHaveBeenCalledWith('embed-codes')
+      // embed codes are embedded into cached release/event/project pages
+      expect(updateTag).toHaveBeenCalledWith('releases')
     })
 
     it('can handle errors', async () => {
@@ -72,6 +74,8 @@ describe('Embed Code Actions', () => {
         '123e4567-e89b-12d3-a456-426614174000'
       )
       expect(updateTag).toHaveBeenCalledWith('embed-codes')
+      // embed codes are embedded into cached release/event/project pages
+      expect(updateTag).toHaveBeenCalledWith('releases')
     })
 
     it('can handle generic errors', async () => {

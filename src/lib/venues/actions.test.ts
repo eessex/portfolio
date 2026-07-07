@@ -31,6 +31,8 @@ describe('Venue Actions', () => {
 
       expect(res).toEqual({ ok: true })
       expect(updateTag).toHaveBeenCalledWith('venues')
+      // venues are embedded into cached event pages
+      expect(updateTag).toHaveBeenCalledWith('events')
     })
 
     it('can handle errors', async () => {
@@ -94,6 +96,8 @@ describe('Venue Actions', () => {
         'b3b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a'
       )
       expect(updateTag).toHaveBeenCalledWith('venues')
+      // venues are embedded into cached event pages
+      expect(updateTag).toHaveBeenCalledWith('events')
       expect(mockSql).toHaveBeenCalledTimes(1)
     })
 

@@ -36,6 +36,8 @@ describe('Image Actions', () => {
       expect(res).toEqual({ ok: true })
       expect(deleteFromS3Mock).toHaveBeenCalledWith(imageFixture.url)
       expect(updateTag).toHaveBeenCalledWith('images')
+      // images are embedded into cached release/event/project/about/edition pages
+      expect(updateTag).toHaveBeenCalledWith('releases')
     })
 
     it('can handle generic errors', async () => {
@@ -132,6 +134,8 @@ describe('Image Actions', () => {
         '3fa85f64-5717-4562-b3fc-2c963f66afa6'
       )
       expect(updateTag).toHaveBeenCalledWith('images')
+      // images are embedded into cached release/event/project/about/edition pages
+      expect(updateTag).toHaveBeenCalledWith('releases')
       expect(mockSql).toHaveBeenCalledTimes(1)
     })
 

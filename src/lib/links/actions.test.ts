@@ -27,6 +27,8 @@ describe('Link Actions', () => {
 
       expect(res).toEqual({ ok: true })
       expect(updateTag).toHaveBeenCalledWith('links')
+      // links are embedded into cached release/event/project/edition pages
+      expect(updateTag).toHaveBeenCalledWith('releases')
     })
 
     it('can handle errors', async () => {
@@ -98,6 +100,8 @@ describe('Link Actions', () => {
         'a3b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a'
       )
       expect(updateTag).toHaveBeenCalledWith('links')
+      // links are embedded into cached release/event/project/edition pages
+      expect(updateTag).toHaveBeenCalledWith('releases')
       expect(mockSql).toHaveBeenCalledTimes(1)
     })
 

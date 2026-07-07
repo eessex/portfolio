@@ -41,7 +41,7 @@ export async function editVenue(
       savedVenue = await createVenue(validatedVenue.data)
     }
     if (savedVenue) {
-      updateTag('venues')
+      invalidateVenueTags()
       return {
         ok: true,
         res: savedVenue
@@ -52,6 +52,16 @@ export async function editVenue(
   }
 }
 
+/**
+ * Venues are embedded directly into their events' cached fetches via
+ * build_venue_json, so saving/deleting one must invalidate the events cache
+ * too, not just the venues list.
+ */
+function invalidateVenueTags() {
+  updateTag('venues')
+  updateTag('events')
+}
+
 export async function deleteVenue(
   venue: Venue
 ): Promise<FormResponse<Venue>> {
@@ -60,7 +70,7 @@ export async function deleteVenue(
       DELETE FROM venues
       WHERE id = ${venue.id}
     `
-    updateTag('venues')
+    invalidateVenueTags()
     return { ok: true }
   } catch (err) {
     return formatErrorResponse('Failed to delete venue', err)

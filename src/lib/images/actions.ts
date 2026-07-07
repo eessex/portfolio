@@ -29,6 +29,21 @@ function makeS3SafeKey(filename: string) {
   )
 }
 
+/**
+ * Images are embedded directly into these parents' cached fetches via
+ * build_image_json, so saving/deleting one must invalidate those caches too,
+ * not just the images list.
+ */
+function invalidateImageTags() {
+  updateTag('images')
+  updateTag('releases')
+  updateTag('events')
+  updateTag('projects')
+  updateTag('about')
+  updateTag('settings')
+  updateTag('publishedEditions')
+}
+
 export async function checkIfImageExists(
   filename: string,
   id?: string
@@ -89,7 +104,7 @@ export async function editImage(
       savedImage = await createImage(validatedImage.data)
     }
     if (savedImage) {
-      updateTag('images')
+      invalidateImageTags()
       return {
         ok: true,
         res: savedImage
@@ -119,7 +134,7 @@ export async function deleteImage(
       }
     }
     await deleteFromS3(res.url)
-    updateTag('images')
+    invalidateImageTags()
     return { ok: true }
   } catch (err) {
     return formatErrorResponse(errMsg, err)

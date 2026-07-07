@@ -42,7 +42,7 @@ export async function editLink(
       savedLink = await createLink(validatedLink.data)
     }
     if (savedLink) {
-      updateTag('links')
+      invalidateLinkTags()
       return {
         ok: true,
         res: savedLink
@@ -51,6 +51,19 @@ export async function editLink(
   } catch (err) {
     return formatErrorResponse('Failed to edit link', err)
   }
+}
+
+/**
+ * Links are embedded directly into these parents' cached fetches via
+ * build_link_json, so saving/deleting one must invalidate those caches too,
+ * not just the links list.
+ */
+function invalidateLinkTags() {
+  updateTag('links')
+  updateTag('releases')
+  updateTag('events')
+  updateTag('projects')
+  updateTag('publishedEditions')
 }
 
 export async function deleteLink(
@@ -62,7 +75,7 @@ export async function deleteLink(
       WHERE id = ${link.id}
         OR url = ${link.url}
     `
-    updateTag('links')
+    invalidateLinkTags()
     return { ok: true }
   } catch (err) {
     return formatErrorResponse('Failed to delete link', err)

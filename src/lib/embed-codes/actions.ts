@@ -43,7 +43,7 @@ export async function editEmbedCode(
       savedEmbedCode = await createEmbedCode(validatedEmbedCode.data)
     }
     if (savedEmbedCode) {
-      updateTag('embed-codes')
+      invalidateEmbedCodeTags()
       return {
         ok: true,
         res: savedEmbedCode
@@ -52,6 +52,18 @@ export async function editEmbedCode(
   } catch (err) {
     return formatErrorResponse('Failed to edit embed code', err)
   }
+}
+
+/**
+ * Embed codes are embedded directly into these parents' cached fetches via
+ * build_embed_code_json, so saving/deleting one must invalidate those caches
+ * too, not just the embed-codes list.
+ */
+function invalidateEmbedCodeTags() {
+  updateTag('embed-codes')
+  updateTag('releases')
+  updateTag('events')
+  updateTag('projects')
 }
 
 export async function deleteEmbedCode(
@@ -64,7 +76,7 @@ export async function deleteEmbedCode(
         id = ${embedCode.id}
         OR src = ${embedCode.src}
     `
-    updateTag('embed-codes')
+    invalidateEmbedCodeTags()
     return { ok: true }
   } catch (err) {
     return formatErrorResponse('Failed to delete embed code', err)

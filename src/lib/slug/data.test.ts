@@ -2,6 +2,11 @@ import { sql } from '@/lib/db'
 import { generateUniqueSlug, resolveSlug } from '@/lib/slug/data'
 import { getTableIdentifier } from '@/lib/slug/util'
 
+jest.mock('next/cache', () => ({
+  cacheTag: jest.fn(),
+  updateTag: jest.fn()
+}))
+
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))

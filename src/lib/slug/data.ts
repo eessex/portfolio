@@ -1,4 +1,4 @@
-import { cache } from 'react'
+import { cacheTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import type { PagePath } from '@/lib/schemas'
@@ -48,15 +48,13 @@ type ResolveSlugResult = {
   isRedirect: boolean
 }
 
-/**
- * Wrapped in React's `cache()` so repeated calls with the same args within
- * a single request (e.g. from `generateMetadata` and the page body) share
- * one DB lookup instead of resolving the slug twice.
- */
-export const resolveSlug = cache(async function resolveSlug(
+export async function resolveSlug(
   tableName: PagePath,
   slug: string
 ): Promise<ResolveSlugResult | null> {
+  'use cache'
+  cacheTag(`slug:${tableName}`)
+
   const table = getTableIdentifier(tableName)
 
   // Current slug
@@ -97,4 +95,4 @@ export const resolveSlug = cache(async function resolveSlug(
 
   // 404: redirect to index
   return null
-})
+}

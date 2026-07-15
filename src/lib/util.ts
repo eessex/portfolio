@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server'
 import type { z } from 'zod'
 
 import { camelizeKeys } from '@/lib/strings'
@@ -132,6 +133,16 @@ export function formatValidationResponse(
     errors: error.flatten().fieldErrors,
     message
   }
+}
+
+/**
+ * Responses that contain unpublished drafts (for authed admins),
+ * must never be cached under a key an anonymous request could reach.
+ */
+export function formatAuthedApiResponseJSON<T>(data: T) {
+  return NextResponse.json(data, {
+    headers: { 'Cache-Control': 'private, no-store' }
+  })
 }
 
 /**

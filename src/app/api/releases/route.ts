@@ -1,7 +1,6 @@
-import { NextResponse } from 'next/server'
-
 import { auth } from '@/auth'
 import { fetchReleases } from '@/lib/releases/data'
+import { formatAuthedApiResponseJSON } from '@/lib/util'
 
 export async function GET(req: Request) {
   const session = await auth()
@@ -17,7 +16,7 @@ export async function GET(req: Request) {
       cursor,
       query
     )
-    return NextResponse.json(result)
+    return formatAuthedApiResponseJSON(result)
   } catch (cause) {
     throw new Error('Failed to fetch releases.', { cause })
   }

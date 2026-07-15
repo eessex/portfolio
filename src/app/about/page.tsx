@@ -13,7 +13,6 @@ import { ImageFigure } from '@/ui/images/image-figure'
 import { ImageGrid } from '@/ui/images/image-grid'
 import { ItemsList } from '@/ui/items/items-list'
 import { LinksList } from '@/ui/links/link-list'
-import { Loading } from '@/ui/loading'
 
 const title = 'About'
 
@@ -49,16 +48,16 @@ export default function AboutPage() {
         <h1>{title}</h1>
       </header>
 
-      <Suspense fallback={<Loading />}>
+      <Suspense>
         <AboutIntro />
       </Suspense>
 
       <div className={styles['press-info']}>
-        <Suspense fallback={<Loading />}>
+        <Suspense>
           <MoreProjects />
         </Suspense>
 
-        <Suspense fallback={<Loading />}>
+        <Suspense>
           <MoreImages />
         </Suspense>
 

@@ -8,6 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 pnpm dev             # start dev server (turbopack) on localhost:3000
 pnpm build           # production build
 pnpm lint            # eslint .
+pnpm typecheck       # tsc --noEmit
 pnpm prettier        # prettier --write .
 pnpm test            # jest
 pnpm test:watch      # jest --watch

@@ -20,10 +20,10 @@ const DeviceContext = createContext<DeviceContextType>({
 export const useDevice = () => useContext(DeviceContext)
 
 export function DeviceProvider({
-  initialIsMobile,
+  initialIsMobile = false,
   children
 }: {
-  initialIsMobile: boolean
+  initialIsMobile?: boolean
   children: React.ReactNode
 }) {
   const [isMobile, setIsMobile] = useState(initialIsMobile)

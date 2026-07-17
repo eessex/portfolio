@@ -120,7 +120,7 @@ main {
     flex-direction: column;
   }
 
-  &.admin {
+  &:has(.admin-sidebar) {
     flex-direction: row-reverse;
 
     > div:has(main) {

@@ -1,5 +1,6 @@
 import NextLink from 'next/link'
 
+import { auth } from '@/auth'
 import { embeddedItemTypes } from '@/lib/schemas'
 import {
   camelToSentence,
@@ -14,6 +15,9 @@ import { LogoutButton } from '@/ui/buttons/logout-button'
 const links = ['dashboard', ...embeddedItemTypes]
 
 export async function AdminSidebar() {
+  const session = await auth()
+  if (!session?.user) return null
+
   return (
     <section className={`admin-sidebar ${styles['admin-sidebar']}`}>
       <nav>

@@ -3,11 +3,13 @@ import '@/ui/globals.scss'
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
+import { auth } from '@/auth'
+import { DeviceProvider } from '@/lib/device-context'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
-import { AuthLayout } from '@/ui/auth-layout'
-import { DeviceLayout } from '@/ui/device-layout'
+import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
 import { geistMono, geistSans } from '@/ui/fonts'
 import { Footer } from '@/ui/footer/footer'
+import { Loading } from '@/ui/loading'
 import { Nav } from '@/ui/nav/nav'
 import { ToastProvider } from '@/ui/toast/toast-context'
 
@@ -44,29 +46,33 @@ export default async function RootLayout({
     <html lang='en'>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ToastProvider>
-          <Suspense fallback={null}>
-            <DeviceLayout>
-              <a
-                className='button-primary visible-focus-only'
-                id='skip-to-content'
-                href='#content'
-              >
-                Skip to content
-              </a>
+          <a
+            className='button-primary visible-focus-only'
+            id='skip-to-content'
+            href='#content'
+          >
+            Skip to content
+          </a>
 
-              <Nav />
-              <AuthLayout>
-                <div>
-                  <main>
-                    <div id='content' />
+          <Nav />
+          <DeviceProvider>
+            <div className='body-container'>
+              <Suspense fallback={null}>
+                <AdminSidebar />
+              </Suspense>
+
+              <div>
+                <main>
+                  <div id='content' />
+                  <Suspense fallback={<Loading />}>
                     {children}
-                  </main>
+                  </Suspense>
+                </main>
 
-                  <Footer />
-                </div>
-              </AuthLayout>
-            </DeviceLayout>
-          </Suspense>
+                <Footer />
+              </div>
+            </div>
+          </DeviceProvider>
         </ToastProvider>
       </body>
     </html>

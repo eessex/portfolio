@@ -10,7 +10,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "setup": "node --import tsx scripts/setup.ts",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "prettier": "prettier --write .",
     "test": "NODE_OPTIONS=--no-deprecation jest",
     "test:watch": "npm run test -- --watch"
@@ -51,6 +53,7 @@
     "prettier": "^3.8",
     "sass": "^1.101",
     "ts-node": "^10.9.2",
+    "tsx": "^4.23.1",
     "typescript": "^6",
     "typescript-eslint": "^8.62"
   }

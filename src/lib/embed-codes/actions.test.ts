@@ -15,8 +15,6 @@ import type {
 } from '@/lib/embed-codes/schemas/db'
 import { formDataFromObject } from '@/test/helpers'
 
-jest.mock('next/cache')
-
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))

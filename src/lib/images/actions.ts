@@ -41,7 +41,7 @@ function invalidateImageTags() {
   updateTag('projects')
   updateTag('about')
   updateTag('settings')
-  updateTag('publishedEditions')
+  updateTag('published-editions')
 }
 
 export async function checkIfImageExists(

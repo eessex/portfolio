@@ -5,7 +5,7 @@ import { cacheTag } from 'next/cache'
 import { fetchPublishedEditionsRaw } from '@/lib/published-editions/data'
 
 export async function fetchCachedPublishedEditionsFirstPage() {
-  cacheTag('publishedEditions')
+  cacheTag('published-editions')
 
   return await fetchPublishedEditionsRaw()
 }

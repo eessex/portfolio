@@ -11,7 +11,6 @@ import {
 import type { CreateLink, Link } from '@/lib/links/schemas/db'
 import { formDataFromObject } from '@/test/helpers'
 
-jest.mock('next/cache')
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))

@@ -12,7 +12,6 @@ import {
 import type { CreatePublishedEdition } from '@/lib/published-editions/schemas/db'
 import { formDataFromObject } from '@/test/helpers'
 
-jest.mock('next/cache')
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))
@@ -38,7 +37,7 @@ describe('Published Edition Actions', () => {
       )
 
       expect(res).toEqual({ ok: true })
-      expect(updateTag).toHaveBeenCalledWith('publishedEditions')
+      expect(updateTag).toHaveBeenCalledWith('published-editions')
       expect(updateTag).toHaveBeenCalledWith('releases')
       expect(updateTag).toHaveBeenCalledWith(
         `release:${publishedEditionFixtureAlpha.releaseId}`
@@ -68,7 +67,7 @@ describe('Published Edition Actions', () => {
       )
 
       expect(res?.ok).toBe(true)
-      expect(updateTag).toHaveBeenCalledWith('publishedEditions')
+      expect(updateTag).toHaveBeenCalledWith('published-editions')
       expect(updateTag).toHaveBeenCalledWith('releases')
       expect(updateTag).toHaveBeenCalledWith(
         `release:${publishedEditionFixtureAlpha.releaseId}`
@@ -114,7 +113,7 @@ describe('Published Edition Actions', () => {
       expect((res?.res as { id: string })?.id).toEqual(
         publishedEditionFixtureAlpha.id
       )
-      expect(updateTag).toHaveBeenCalledWith('publishedEditions')
+      expect(updateTag).toHaveBeenCalledWith('published-editions')
       expect(mockSql).toHaveBeenCalledTimes(1)
 
       const [, , catalogNumber] = mockSql.mock

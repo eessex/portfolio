@@ -86,7 +86,7 @@ export async function deletePublishedEdition(
  * published-editions list.
  */
 function invalidatePublishedEditionTags(releaseId: string) {
-  updateTag('publishedEditions')
+  updateTag('published-editions')
   updateTag('releases')
   updateTag(`release:${releaseId}`)
 }

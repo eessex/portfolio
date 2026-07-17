@@ -63,7 +63,7 @@ function invalidateLinkTags() {
   updateTag('releases')
   updateTag('events')
   updateTag('projects')
-  updateTag('publishedEditions')
+  updateTag('published-editions')
 }
 
 export async function deleteLink(

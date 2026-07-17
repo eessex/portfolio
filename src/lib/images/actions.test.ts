@@ -18,7 +18,6 @@ jest.mock('@/lib/images/s3', () => ({
 const deleteFromS3Mock = deleteFromS3 as jest.Mock
 const uploadFileMock = uploadFile as jest.Mock
 
-jest.mock('next/cache')
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))

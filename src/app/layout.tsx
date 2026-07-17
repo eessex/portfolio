@@ -3,7 +3,6 @@ import '@/ui/globals.scss'
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { auth } from '@/auth'
 import { DeviceProvider } from '@/lib/device-context'
 import { fetchSiteSettings } from '@/lib/site-settings/data'
 import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'

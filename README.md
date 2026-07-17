@@ -13,6 +13,7 @@ A Next.js CMS for managing and serving a personal portfolio site (releases, even
 
 ```bash
 pnpm install
+cp .env.example .env   # then fill in DATABASE_URL, AUTH_SECRET, S3 vars
 pnpm dev
 ```
 
@@ -22,27 +23,29 @@ On first run against a fresh database, the tables need to be created — see `sr
 
 ## Environment variables
 
-Copy `.env` (or create one) with the following:
+Copy `.env.example` to `.env` and fill it in. There are five required vars (plus a
+couple of optional ones); every one is listed and commented in `.env.example`.
 
-**Database**
-- `DATABASE_URL` — Postgres connection string used by `src/lib/db.ts` (the only DB var actually read at runtime; the `PG*`/`POSTGRES_*` variables in `.env` are unused alternates left over from provider templates and can be omitted)
+**Database (required)**
 
-**Auth** ([next-auth](https://authjs.dev) v5)
-- `AUTH_SECRET` — session encryption secret
-- `AUTH_URL` — canonical app URL used by next-auth
+- `DATABASE_URL` — Neon Postgres connection string used by `src/lib/db.ts` (the app throws on startup if it's missing). Set automatically if you deploy via the Vercel + Neon integration.
 
-**Image storage (S3)**
+**Auth (required)** ([next-auth](https://authjs.dev) v5)
+
+- `AUTH_SECRET` — session encryption secret; **unique per instance**. Generate with `npx auth secret`.
+- `AUTH_URL` — _optional on Vercel_ (the deployment URL is auto-detected). Set it only if you hit login callback-URL issues.
+
+**Image storage — S3 (required for uploads)**
+
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
 - `AWS_S3_BUCKET_NAME`
 - `AWS_S3_REGION`
-- `AWS_S3_BASE_URL`
-- `REMOTE_IMAGE_HOSTNAME` / `REMOTE_IMAGE_HOSTNAME_OLD` — hostnames allow-listed for `next/image` in `next.config.ts` (the "old" one supports serving images from a previous bucket during a migration)
 
-**Site branding (public, client-exposed)**
-- `NEXT_PUBLIC_SITE_TITLE`
-- `NEXT_PUBLIC_SITE_DESCRIPTION`
-- `NEXT_PUBLIC_SITE_IMAGE_LG`
+The host that `next/image` is allowed to load uploads from is **derived** in
+`next.config.ts` from `AWS_S3_BUCKET_NAME` + `AWS_S3_REGION` (as
+`<bucket>.s3.<region>.amazonaws.com`) Provide the
+optional `REMOTE_IMAGE_HOSTNAME` only to override it for a non-standard S3 endpoint.
 
 ## Scripts
 

@@ -19,9 +19,7 @@ describe('EditPublishedEdition', () => {
     it('renders publisher, format, publish date, edition size, and catalog number inputs', () => {
       renderComponent()
 
-      expect(
-        screen.getByLabelText(/publisher/i)
-      ).toBeInTheDocument()
+      expect(screen.getByLabelText(/publisher/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/format/i)).toBeInTheDocument()
       expect(
         screen.getByLabelText(/publish date/i)
@@ -87,7 +85,9 @@ describe('EditPublishedEdition', () => {
         }
       })
 
-      expect(screen.getByText(imageFixture.title!)).toBeInTheDocument()
+      expect(
+        screen.getByText(imageFixture.title!)
+      ).toBeInTheDocument()
       expect(screen.getByText(linkFixture.title!)).toBeInTheDocument()
     })
   })

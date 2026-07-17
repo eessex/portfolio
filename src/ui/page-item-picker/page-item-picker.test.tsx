@@ -1,6 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 
-import type { FetchReleasesResult, ReleaseClient } from '@/lib/releases/types'
+import type {
+  FetchReleasesResult,
+  ReleaseClient
+} from '@/lib/releases/types'
 import { PageItemPicker } from '@/ui/page-item-picker/page-item-picker'
 import { useResultsList } from '@/ui/useResultsList'
 

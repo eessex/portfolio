@@ -57,9 +57,7 @@ export default async function Home() {
 
       <Suspense
         fallback={
-          <UpcomingEvents
-            events={publicEvents.res.upcomingEvents}
-          />
+          <UpcomingEvents events={publicEvents.res.upcomingEvents} />
         }
       >
         <AuthedUpcomingEvents />

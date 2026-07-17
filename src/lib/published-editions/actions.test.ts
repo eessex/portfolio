@@ -126,8 +126,10 @@ describe('Published Edition Actions', () => {
 
     it('can save without an optional catalogNumber', async () => {
       mockSql.mockResolvedValueOnce([publishedEditionFixtureAlpha])
-      const { catalogNumber: _catalogNumber, ...withoutCatalogNumber } =
-        newPublishedEditionFixtureAlpha
+      const {
+        catalogNumber: _catalogNumber,
+        ...withoutCatalogNumber
+      } = newPublishedEditionFixtureAlpha
       const res = await editPublishedEdition(
         formDataFromObject(withoutCatalogNumber)
       )

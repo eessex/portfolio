@@ -176,7 +176,8 @@ export function Combobox<
             : undefined
         }
         beforeInputChildren={
-          onCreateNew && isEmbeddedItemType(itemType) && (
+          onCreateNew &&
+          isEmbeddedItemType(itemType) && (
             <CreateItemButton
               className='button-sm'
               ref={createButtonRef}

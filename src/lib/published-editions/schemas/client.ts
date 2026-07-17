@@ -32,7 +32,11 @@ export type PublishedEditionClient = z.infer<
 export const dashboardPublishedEditionSchema =
   publishedEditionClientSchema.extend({
     release: z.lazy(() =>
-      releaseSchema.pick({ id: true, title: true, coverImageId: true })
+      releaseSchema.pick({
+        id: true,
+        title: true,
+        coverImageId: true
+      })
     ),
     releaseSlugs: relationSlugArrays.releaseSlugs
   })

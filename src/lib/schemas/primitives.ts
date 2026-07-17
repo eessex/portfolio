@@ -13,7 +13,9 @@ z.setErrorMap((issue, ctx) => {
   if (issue.code === z.ZodIssueCode.invalid_enum_value) {
     const key = issue.path[issue.path.length - 1]
     const fieldName =
-      typeof key === 'string' ? camelToSentence(key).toLowerCase() : 'field'
+      typeof key === 'string'
+        ? camelToSentence(key).toLowerCase()
+        : 'field'
     return { message: `Please select a valid ${fieldName} option.` }
   }
   if (

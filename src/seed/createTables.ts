@@ -113,46 +113,76 @@ async function createEmbedCodesTable() {
   `
 
   await sql`
-    ALTER TABLE embed_codes
-    ADD CONSTRAINT chk_embed_codes_type
-    CHECK (type IN ('video', 'audio'));
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_name='embed_codes'
+          AND constraint_name='chk_embed_codes_type'
+      ) THEN
+        ALTER TABLE embed_codes
+        ADD CONSTRAINT chk_embed_codes_type
+        CHECK (type IN ('video', 'audio'));
+      END IF;
+    END
+    $$;
   `
 
   await sql`
-    ALTER TABLE embed_codes
-    ADD CONSTRAINT chk_embed_codes_host
-    CHECK (
-      host IN (
-        'bandcamp',
-        'mixcloud',
-        'soundcloud',
-        'spotify',
-        'vimeo',
-        'youtube',
-        'unknown'
-      )
-    );
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_name='embed_codes'
+          AND constraint_name='chk_embed_codes_host'
+      ) THEN
+        ALTER TABLE embed_codes
+        ADD CONSTRAINT chk_embed_codes_host
+        CHECK (
+          host IN (
+            'bandcamp',
+            'mixcloud',
+            'soundcloud',
+            'spotify',
+            'vimeo',
+            'youtube',
+            'unknown'
+          )
+        );
+      END IF;
+    END
+    $$;
   `
 
   await sql`
-    ALTER TABLE embed_codes
-    ADD CONSTRAINT chk_embed_codes_content_type
-    CHECK (
-      content_type IN (
-        'dj_set',
-        'documentation',
-        'interview',
-        'film',
-        'live_performance',
-        'official_audio',
-        'official_music_video',
-        'other',
-        'podcast',
-        'radio_show',
-        'trailer'
-      )
-      OR content_type IS NULL
-    );
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_name='embed_codes'
+          AND constraint_name='chk_embed_codes_content_type'
+      ) THEN
+        ALTER TABLE embed_codes
+        ADD CONSTRAINT chk_embed_codes_content_type
+        CHECK (
+          content_type IN (
+            'dj_set',
+            'documentation',
+            'interview',
+            'film',
+            'live_performance',
+            'official_audio',
+            'official_music_video',
+            'other',
+            'podcast',
+            'radio_show',
+            'trailer'
+          )
+          OR content_type IS NULL
+        );
+      END IF;
+    END
+    $$;
   `
 }
 
@@ -622,10 +652,10 @@ export async function createTables() {
   await createReleasesTable()
   await createPublishedEditionTable()
   await createEventsTable()
-  console.log('All tables created successfully.')
+  console.log('✅ All tables created successfully.')
 
   // post-creation setup
   await setupSlugTriggers()
   await setupJsonbFunctions()
-  console.log('Triggers and JSONB functions set up successfully.')
+  console.log('✅ Triggers and JSONB functions set up successfully.')
 }

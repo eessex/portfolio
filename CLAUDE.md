@@ -12,6 +12,7 @@ pnpm typecheck       # tsc --noEmit
 pnpm prettier        # prettier --write .
 pnpm test            # jest
 pnpm test:watch      # jest --watch
+pnpm setup           # interactive first-run setup: .env, DB schema, first admin user (writes to the real DB)
 ```
 
 Run a single test file: `NODE_OPTIONS=--no-deprecation jest src/lib/releases/data.test.ts`
@@ -43,7 +44,7 @@ Each content type (`releases`, `events`, `projects`, `venues`, `links`, `images`
 - List endpoints use cursor pagination: `encodeCursor`/`decodeCursor` base64-encode `{ name, id }`, `formatResponseWithCursor()` builds the page + `nextCursor`, page size is `DEFAULT_PAGE_SIZE` (24).
 - Server actions (`actions.ts`) receive `FormData`, run it through `normalizeFormData()` (checkbox `'on'` → `true`, empty strings → `undefined`, blank `*Date` fields → `undefined`), then `schema.safeParse()`. Failures return `formatValidationResponse()`; thrown DB errors are caught and returned via `formatErrorResponse()` — actions return a `FormResponse<T>` (`{ ok: true, res }` or `{ ok: false, message, errors? }`) rather than throwing, so UI forms can render field errors inline.
 - Auth-aware reads take an `isAuthed` boolean to decide whether unpublished (`is_published = false`) rows are included; public API routes and cached pages pass this from `!!session?.user`.
-- Postgres schema (tables, constraints, indexes) is defined only in `src/seed/createTables.ts` — there are no migration files, so check that file when the on-disk schema for a table needs to be understood or changed.
+- Postgres schema (tables, constraints, indexes) is defined only in `src/seed/createTables.ts` — idempotent and safe to re-run (`IF NOT EXISTS`-guarded, including constraints). There are no migration files, so check that file when the on-disk schema for a table needs to be understood or changed.
 
 ### Auth
 

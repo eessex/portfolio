@@ -1,14 +1,9 @@
-import { cacheTag } from 'next/cache'
-
 import { sql } from '@/lib/db'
 import { siteSettingsClientSchema } from '@/lib/site-settings/schemas'
 import { formatDbResponseForClient } from '@/lib/util'
 
 /** site title & image, SEO meta */
 export async function fetchSiteSettings() {
-  'use cache'
-  cacheTag('settings')
-
   try {
     const data = await sql`
       SELECT

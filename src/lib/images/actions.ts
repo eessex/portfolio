@@ -2,6 +2,7 @@
 
 import { updateTag } from 'next/cache'
 
+import { requireAuth } from '@/lib/auth/guard'
 import { sql } from '@/lib/db'
 import { fetchImagesByIds } from '@/lib/images/data'
 import { deleteFromS3, uploadFile } from '@/lib/images/s3'
@@ -69,6 +70,9 @@ export async function editImage(
   formData: FormData,
   id?: string
 ): Promise<FormResponse<Image>> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
   const data: Record<string, unknown> = Object.fromEntries(formData)
   const clientFile = data.file as File | undefined
 
@@ -118,6 +122,9 @@ export async function editImage(
 export async function deleteImage(
   image: Image
 ): Promise<FormResponse<Image>> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
   const errMsg = 'Failed to delete image'
 
   try {

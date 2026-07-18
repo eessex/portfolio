@@ -4,6 +4,7 @@ import { updateTag } from 'next/cache'
 
 import { aboutSchema } from '@/lib/about/schemas'
 import type { About } from '@/lib/about/types'
+import { requireAuth } from '@/lib/auth/guard'
 import { sql } from '@/lib/db'
 import type { FormResponse } from '@/lib/types'
 import {
@@ -15,6 +16,9 @@ export async function editAbout(
   formData: FormData,
   id: string
 ): Promise<FormResponse<About>> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
   const validatedFields = aboutSchema.safeParse(
     Object.fromEntries(formData)
   )

@@ -7,6 +7,8 @@ import {
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
+import { assertAuthed } from '@/lib/auth/guard'
+
 export async function getKeyFromS3Url(url: string): Promise<string> {
   try {
     const parsed = new URL(url)
@@ -25,6 +27,8 @@ const s3 = new S3Client({
 })
 
 export async function deleteFromS3(url: string) {
+  await assertAuthed()
+
   const key = await getKeyFromS3Url(url)
   try {
     const res = await s3.send(
@@ -57,6 +61,8 @@ async function getPresignedUploadUrl(
 }
 
 export async function uploadFile(file: File) {
+  await assertAuthed()
+
   const res = await getPresignedUploadUrl(file.name, file.type)
   const uploadRes = await fetch(res, {
     method: 'PUT',

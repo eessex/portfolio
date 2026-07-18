@@ -9,7 +9,11 @@ import {
   formatValidationResponse
 } from '@/lib/util'
 
-/** save email subscriptions */
+/**
+ * Save email subscriptions. Deliberately public — unauthenticated
+ * visitors subscribe from the public site, so this action must not
+ * call requireAuth().
+ */
 export async function createEmailSubscription<T>(
   formData: FormData
 ): Promise<FormResponse<T>> {

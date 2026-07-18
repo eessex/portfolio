@@ -2,6 +2,7 @@
 
 import { updateTag } from 'next/cache'
 
+import { requireAuth } from '@/lib/auth/guard'
 import { sql } from '@/lib/db'
 import { fetchEmbedCodesByIds } from '@/lib/embed-codes/data'
 import {
@@ -22,6 +23,9 @@ export async function editEmbedCode(
   formData: FormData,
   id?: string
 ): Promise<FormResponse<EmbedCode>> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
   const data = normalizeFormData(formData)
 
   const validatedEmbedCode = createEmbedCodeSchema.safeParse(data)
@@ -69,6 +73,9 @@ function invalidateEmbedCodeTags() {
 export async function deleteEmbedCode(
   embedCode: EmbedCode
 ): Promise<FormResponse<EmbedCode>> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
   try {
     await sql`
       DELETE FROM embed_codes

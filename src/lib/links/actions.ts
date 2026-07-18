@@ -2,6 +2,7 @@
 
 import { updateTag } from 'next/cache'
 
+import { requireAuth } from '@/lib/auth/guard'
 import { sql } from '@/lib/db'
 import { fetchLinksByIds } from '@/lib/links/data'
 import {
@@ -23,6 +24,9 @@ export async function editLink(
   formData: FormData,
   id?: string
 ): Promise<FormResponse<Link>> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
   const data = normalizeFormData(formData)
 
   const validatedLink = createLinkSchema.safeParse(data)
@@ -69,6 +73,9 @@ function invalidateLinkTags() {
 export async function deleteLink(
   link: Link
 ): Promise<FormResponse<Link>> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
   try {
     await sql`
       DELETE FROM links

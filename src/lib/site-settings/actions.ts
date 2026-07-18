@@ -2,6 +2,7 @@
 
 import { updateTag } from 'next/cache'
 
+import { requireAuth } from '@/lib/auth/guard'
 import { sql } from '@/lib/db'
 import { siteSettingsSchema } from '@/lib/site-settings/schemas'
 import type { SiteSettings } from '@/lib/site-settings/types'
@@ -15,6 +16,9 @@ export async function editSiteSettings(
   formData: FormData,
   id: string
 ): Promise<FormResponse<SiteSettings>> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
   const validatedFields = siteSettingsSchema.safeParse(
     Object.fromEntries(formData)
   )

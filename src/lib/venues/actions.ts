@@ -2,6 +2,7 @@
 
 import { updateTag } from 'next/cache'
 
+import { requireAuth } from '@/lib/auth/guard'
 import { sql } from '@/lib/db'
 import type { FormResponse } from '@/lib/types'
 import {
@@ -22,6 +23,9 @@ export async function editVenue(
   formData: FormData,
   id?: string
 ): Promise<FormResponse<Venue>> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
   const data = normalizeFormData(formData)
 
   const validatedVenue = createVenueSchema.safeParse(data)
@@ -65,6 +69,9 @@ function invalidateVenueTags() {
 export async function deleteVenue(
   venue: Venue
 ): Promise<FormResponse<Venue>> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
   try {
     await sql`
       DELETE FROM venues

@@ -1,5 +1,5 @@
-'use server'
-
+// Deliberately NOT a server action ('use server' would expose schema
+// creation as a public endpoint). Only run from scripts/setup.ts.
 import { sql } from '@/lib/db'
 import { pagePaths } from '@/lib/schemas'
 

@@ -2,6 +2,7 @@
 
 import { updateTag } from 'next/cache'
 
+import { requireAuth } from '@/lib/auth/guard'
 import { sql } from '@/lib/db'
 import { fetchPublishedEditionById } from '@/lib/published-editions/data'
 import {
@@ -22,6 +23,9 @@ export async function editPublishedEdition(
   formData: FormData,
   id?: string
 ): Promise<FormResponse<PublishedEdition>> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
   const data = normalizeFormData(formData)
 
   const validatedEdition =
@@ -64,6 +68,9 @@ export async function editPublishedEdition(
 export async function deletePublishedEdition(
   edition: PublishedEdition
 ): Promise<FormResponse<PublishedEdition>> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
   try {
     await sql`
       DELETE FROM published_editions

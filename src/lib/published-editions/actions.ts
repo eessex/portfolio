@@ -2,8 +2,8 @@
 
 import { updateTag } from 'next/cache'
 
-import { requireAuth } from '@/lib/auth/guard'
 import { sql } from '@/lib/db'
+import { runDeleteAction, runFormAction } from '@/lib/form-action'
 import { fetchPublishedEditionById } from '@/lib/published-editions/data'
 import {
   type CreatePublishedEdition,
@@ -11,79 +11,40 @@ import {
   type PublishedEdition,
   publishedEditionSchema
 } from '@/lib/published-editions/schemas/db'
-import type { FormResponse } from '@/lib/types'
-import {
-  formatDbResponseForClient,
-  formatErrorResponse,
-  formatValidationResponse,
-  normalizeFormData
-} from '@/lib/util'
+import { formatDbResponseForClient } from '@/lib/util'
 
 export async function editPublishedEdition(
   formData: FormData,
   id?: string
-): Promise<FormResponse<PublishedEdition>> {
-  const denied = await requireAuth()
-  if (denied) return denied
-
-  const data = normalizeFormData(formData)
-
-  const validatedEdition =
-    createPublishedEditionSchema.safeParse(data)
-
-  if (!validatedEdition.success) {
-    return formatValidationResponse(
-      validatedEdition.error,
-      'Failed to validate published edition.'
-    )
-  }
-
-  try {
-    let savedEdition: PublishedEdition | undefined
-    if (id) {
-      savedEdition = await updatePublishedEdition(
-        validatedEdition.data,
-        id
-      )
-    } else {
-      savedEdition = await createPublishedEdition(
-        validatedEdition.data
-      )
-    }
-    if (savedEdition) {
-      invalidatePublishedEditionTags(savedEdition.releaseId)
-      return {
-        ok: true,
-        res: savedEdition
-      }
-    }
-  } catch (err) {
-    return formatErrorResponse(
-      'Failed to edit published edition',
-      err
-    )
-  }
+) {
+  return runFormAction({
+    formData,
+    schema: createPublishedEditionSchema,
+    itemType: 'publishedEditions',
+    invalidate: (saved?: PublishedEdition) => {
+      if (saved) invalidatePublishedEditionTags(saved.releaseId)
+    },
+    save: (edition) =>
+      id
+        ? updatePublishedEdition(edition, id)
+        : createPublishedEdition(edition)
+  })
 }
 
 export async function deletePublishedEdition(
   edition: PublishedEdition
-): Promise<FormResponse<PublishedEdition>> {
-  const denied = await requireAuth()
-  if (denied) return denied
-
-  try {
-    await sql`
-      DELETE FROM published_editions
-      WHERE id = ${edition.id}
-    `
-    invalidatePublishedEditionTags(edition.releaseId)
-    return { ok: true }
-  } catch (err) {
-    return formatErrorResponse(
-      'Failed to delete published edition',
-      err
-    )
-  }
+) {
+  return runDeleteAction<PublishedEdition>({
+    itemType: 'publishedEditions',
+    invalidate: () =>
+      invalidatePublishedEditionTags(edition.releaseId),
+    del: async () => {
+      await sql`
+        DELETE FROM published_editions
+        WHERE id = ${edition.id}
+      `
+    }
+  })
 }
 
 /**

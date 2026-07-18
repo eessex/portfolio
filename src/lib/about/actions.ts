@@ -3,46 +3,23 @@
 import { updateTag } from 'next/cache'
 
 import { aboutSchema } from '@/lib/about/schemas'
-import type { About } from '@/lib/about/types'
-import { requireAuth } from '@/lib/auth/guard'
 import { sql } from '@/lib/db'
-import type { FormResponse } from '@/lib/types'
-import {
-  formatErrorResponse,
-  formatValidationResponse
-} from '@/lib/util'
+import { runFormAction } from '@/lib/form-action'
 
-export async function editAbout(
-  formData: FormData,
-  id: string
-): Promise<FormResponse<About>> {
-  const denied = await requireAuth()
-  if (denied) return denied
-
-  const validatedFields = aboutSchema.safeParse(
-    Object.fromEntries(formData)
-  )
-
-  if (!validatedFields.success) {
-    return formatValidationResponse(
-      validatedFields.error,
-      'Failed to validate about page.'
-    )
-  }
-
-  const { coverImageId, description } = validatedFields.data
-
-  try {
-    await sql`
-      UPDATE about
-      SET updated_at = current_timestamp,
-        description = ${description || ''},
-        cover_image_id = ${coverImageId || null}
-      WHERE id = ${id}
-    `
-    updateTag('about')
-    return { ok: true }
-  } catch (err) {
-    return formatErrorResponse('Failed to save about page', err)
-  }
+export async function editAbout(formData: FormData, id: string) {
+  return runFormAction({
+    formData,
+    schema: aboutSchema,
+    itemType: 'about',
+    invalidate: () => updateTag('about'),
+    save: async ({ coverImageId, description }) => {
+      await sql`
+        UPDATE about
+        SET updated_at = current_timestamp,
+          description = ${description || ''},
+          cover_image_id = ${coverImageId || null}
+        WHERE id = ${id}
+      `
+    }
+  })
 }

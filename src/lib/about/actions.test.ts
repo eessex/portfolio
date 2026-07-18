@@ -42,7 +42,7 @@ describe('editAbout', () => {
     expect(res).toEqual({
       ok: false,
       errors: { slug: ['Required'] },
-      message: 'Failed to validate about page.'
+      message: 'Failed to validate about.'
     })
   })
 
@@ -56,7 +56,7 @@ describe('editAbout', () => {
 
     expect(res).toEqual({
       ok: false,
-      message: 'Failed to save about page: connection refused.'
+      message: 'Failed to save about: connection refused.'
     })
   })
 })

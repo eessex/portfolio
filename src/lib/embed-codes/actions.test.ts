@@ -94,7 +94,7 @@ describe('Embed Code Actions', () => {
       )
 
       expect(res!.message).toBe(
-        'Failed to edit embed code: DB error.'
+        'Failed to save embed code: DB error.'
       )
     })
 

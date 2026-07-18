@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { fetchSiteSettings } from '@/lib/site-settings/data'
+import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { EditSettings } from '@/ui/form/edit-settings'
@@ -11,7 +11,7 @@ const title = 'Dashboard'
 export const metadata: Metadata = { title }
 
 export default async function DashboardPage() {
-  const settings = await fetchSiteSettings()
+  const settings = await fetchCachedSiteSettings()
 
   return (
     <DashboardLayout title={title}>

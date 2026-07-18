@@ -7,12 +7,12 @@ import { isAuthed } from '@/lib/auth/guard'
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import { fetchEvents } from '@/lib/events/data'
 import type { EventClient } from '@/lib/events/types'
-import { fetchSiteSettings } from '@/lib/site-settings/data'
+import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { ItemsList } from '@/ui/items/items-list'
 
 export default async function Home() {
   const [siteSettings, publicEvents] = await Promise.all([
-    fetchSiteSettings(),
+    fetchCachedSiteSettings(),
     fetchCachedEventsFirstPage(false)
   ])
 

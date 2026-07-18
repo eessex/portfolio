@@ -1,14 +1,8 @@
-'use cache'
-
-import { cacheTag } from 'next/cache'
-
 import { aboutClientSchema } from '@/lib/about/schemas'
 import { sql } from '@/lib/db'
 import { formatDbResponseForClient } from '@/lib/util'
 
 export async function fetchAboutPage() {
-  cacheTag('about')
-
   try {
     const data = await sql`
       SELECT

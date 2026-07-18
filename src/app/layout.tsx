@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
 import { DeviceProvider } from '@/lib/device-context'
-import { fetchSiteSettings } from '@/lib/site-settings/data'
+import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
 import { geistMono, geistSans } from '@/ui/fonts'
 import { Footer } from '@/ui/footer/footer'
@@ -13,7 +13,7 @@ import { Nav } from '@/ui/nav/nav'
 import { ToastProvider } from '@/ui/toast/toast-context'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const siteSettings = await fetchSiteSettings()
+  const siteSettings = await fetchCachedSiteSettings()
   const images = siteSettings?.coverImage
     ? [
         {

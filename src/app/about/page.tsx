@@ -1,13 +1,13 @@
 import { Suspense } from 'react'
 
 import styles from '@/app/about/about.module.scss'
-import { fetchAboutPage } from '@/lib/about/data'
+import { fetchCachedAboutPage } from '@/lib/about/cached'
 import type { AboutContact } from '@/lib/about/types'
 import { isAuthed } from '@/lib/auth/guard'
 import { fetchPressImages } from '@/lib/images/cached'
 import { fetchPressLinks } from '@/lib/links/cached'
 import { fetchProjects } from '@/lib/projects/data'
-import { fetchSiteSettings } from '@/lib/site-settings/data'
+import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { ImageFigure } from '@/ui/images/image-figure'
 import { ImageGrid } from '@/ui/images/image-grid'
@@ -18,8 +18,8 @@ const title = 'About'
 
 export async function generateMetadata() {
   const [settings, about] = await Promise.all([
-    fetchSiteSettings(),
-    fetchAboutPage()
+    fetchCachedSiteSettings(),
+    fetchCachedAboutPage()
   ])
 
   const image = (about || settings)?.coverImage
@@ -72,7 +72,7 @@ export default function AboutPage() {
 /** Cover image, bio, contact details, and press quotes. */
 async function AboutIntro() {
   const [about, links] = await Promise.all([
-    fetchAboutPage(),
+    fetchCachedAboutPage(),
     fetchPressLinks()
   ])
 
@@ -135,7 +135,7 @@ async function MoreProjects() {
 /** Collapsible grid of press images, excluding the cover image. */
 async function MoreImages() {
   const [about, pressImages] = await Promise.all([
-    fetchAboutPage(),
+    fetchCachedAboutPage(),
     fetchPressImages()
   ])
 

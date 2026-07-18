@@ -18,7 +18,7 @@ jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))
 
-jest.mock('@/lib/images/actions', () => ({
+jest.mock('@/lib/images/data', () => ({
   checkIfImageExists: jest.fn()
 }))
 

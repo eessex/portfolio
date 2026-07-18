@@ -20,16 +20,6 @@ import {
   normalizeFormData
 } from '@/lib/util'
 
-const s3Prefix = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/images/`
-
-function makeS3SafeKey(filename: string) {
-  return (
-    encodeURIComponent(filename)
-      // S3 allows slashes for "folders", so restore them if needed
-      .replace(/%2F/g, '/')
-  )
-}
-
 /**
  * Images are embedded directly into these parents' cached fetches via
  * build_image_json, so saving/deleting one must invalidate those caches too,
@@ -43,27 +33,6 @@ function invalidateImageTags() {
   updateTag('about')
   updateTag('settings')
   updateTag('published-editions')
-}
-
-export async function checkIfImageExists(
-  filename: string,
-  id?: string
-): Promise<Image | false> {
-  try {
-    const formattedFilename = s3Prefix + makeS3SafeKey(filename)
-    const rows = await sql`
-      SELECT * FROM images WHERE url = ${formattedFilename}
-    `
-    const existingImage = rows[0]
-
-    if (existingImage && (existingImage as Image).id !== id) {
-      return existingImage as Image
-    } else {
-      return false
-    }
-  } catch (cause) {
-    throw new Error('Failed to check if image exists.', { cause })
-  }
 }
 
 export async function editImage(

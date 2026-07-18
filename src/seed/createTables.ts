@@ -203,6 +203,37 @@ async function createUsersTable() {
 }
 
 /**
+ * Creates the login_attempts table, which backs the exponential
+ * backoff in src/lib/auth/rate-limit.ts.
+ * Does not depend on other tables.
+ */
+async function createLoginAttemptsTable() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS login_attempts (
+      email TEXT PRIMARY KEY,
+      failed_count INTEGER DEFAULT 1 NOT NULL,
+      last_failed_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+    );
+  `
+}
+
+/**
+ * Creates the rate_limit_events table, which backs the sliding-window
+ * limiter in src/lib/auth/rate-limit.ts.
+ * Does not depend on other tables.
+ */
+async function createRateLimitEventsTable() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS rate_limit_events (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+      bucket TEXT NOT NULL,
+      created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+    );
+  `
+  await sql`CREATE INDEX IF NOT EXISTS idx_rate_limit_events_bucket ON rate_limit_events(bucket, created_at);`
+}
+
+/**
  * Creates the site_settings table.
  * Must be created after images.
  */
@@ -612,6 +643,8 @@ export async function createTables() {
   await createTagsTable()
   await setupSlugHistory()
   await createUsersTable()
+  await createLoginAttemptsTable()
+  await createRateLimitEventsTable()
   await createImagesTable()
   await createEmbedCodesTable()
   await createLinksTable()

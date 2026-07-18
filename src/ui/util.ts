@@ -7,7 +7,7 @@ import {
   EmbeddedItemTypes,
   type PagePath,
   PagePaths,
-  pagePathSingulars
+  singularizePath
 } from '@/lib/schemas'
 import type { DashboardUsedOnPagesKeys } from '@/lib/schemas/fields'
 import { camelToSentence, snakeToCamel } from '@/lib/strings'
@@ -219,25 +219,6 @@ export function isEmbeddedItemType(
   return itemType in EmbeddedItemTypes
 }
 
-export function singularizePath(path: string) {
-  if (pagePathSingulars[path as keyof typeof pagePathSingulars]) {
-    return pagePathSingulars[path as keyof typeof pagePathSingulars]
-  }
-  return path.endsWith('s') ? path.slice(0, -1) : path
-}
-
-export function itemTypeToLabel(
-  itemType: string,
-  isSingular = false,
-  isDownCased = false
-) {
-  let formatted = camelToSentence(itemType)
-  if (isDownCased) {
-    formatted = formatted.toLowerCase()
-  }
-  return isSingular ? singularizePath(formatted) : formatted
-}
-
 export const formattedItemType = (
   type: string,
   isUpcoming = false,
@@ -250,7 +231,8 @@ export const formattedItemType = (
       unformatted = 'featuredOn'
       break
   }
-  return `${isUpcoming ? ' Upcoming ' : ''} ${camelToSentence(isPlural ? unformatted : singularizePath(unformatted))}`
+  // fixme
+  return `${isUpcoming ? ' Upcoming ' : ''} ${camelToSentence(isPlural ? unformatted : singularizePath(unformatted as EmbeddedItemType))}`
 }
 
 export function formattedItemTitle(item: PageItemClient) {

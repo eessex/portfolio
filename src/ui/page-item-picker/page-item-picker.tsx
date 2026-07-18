@@ -2,7 +2,11 @@
 
 import { useState } from 'react'
 
-import { type PagePath, pagePathSingulars } from '@/lib/schemas'
+import {
+  itemTypeToLabel,
+  type PagePath,
+  pagePathSingulars
+} from '@/lib/schemas'
 import type {
   PageDataResponse,
   PageItemClient,
@@ -11,7 +15,7 @@ import type {
 import { Combobox } from '@/ui/combobox/combobox'
 import { SelectedResult } from '@/ui/selected-results/selected-result'
 import type { ResultsResponse } from '@/ui/useResultsList'
-import { formattedItemTitle, itemTypeToLabel } from '@/ui/util'
+import { formattedItemTitle } from '@/ui/util'
 
 export type SelectedPageItem = Pick<
   PageItemClient,

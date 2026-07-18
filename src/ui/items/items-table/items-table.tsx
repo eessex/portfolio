@@ -5,7 +5,11 @@ import { useId } from 'react'
 
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
-import { type PagePath, PagePaths } from '@/lib/schemas'
+import {
+  itemTypeToLabel,
+  type PagePath,
+  PagePaths
+} from '@/lib/schemas'
 import { capitalizeFirstLetter } from '@/lib/strings'
 import type { PageDataResponse, PageItemClient } from '@/lib/types'
 import { DEFAULT_PAGE_SIZE } from '@/lib/util'
@@ -17,11 +21,7 @@ import { PublishedEditionsCombined } from '@/ui/published-editions/published-edi
 import { SearchInput } from '@/ui/search-input/search-input'
 import type { ResultsResponse } from '@/ui/useResultsList'
 import { useResultsList } from '@/ui/useResultsList'
-import {
-  formattedItemType,
-  formatVenueInline,
-  itemTypeToLabel
-} from '@/ui/util'
+import { formattedItemType, formatVenueInline } from '@/ui/util'
 
 export function ItemsTable<
   T extends PageItemClient,

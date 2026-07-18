@@ -3,10 +3,12 @@ import NextImage from 'next/image'
 
 import type { Image } from '@/lib/images/schemas/db'
 import type { EmbeddedItemType, PagePath } from '@/lib/schemas'
-import { itemTypeSingulars } from '@/lib/schemas'
+import {
+  itemTypeSingulars,
+  itemTypeToLabel
+} from '@/lib/schemas'
 import { Input } from '@/ui/form/input'
 import styles from '@/ui/selected-results/selected-results.module.scss'
-import { itemTypeToLabel } from '@/ui/util'
 
 const COVER_IMAGE_HEIGHT = 24
 

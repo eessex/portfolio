@@ -72,13 +72,13 @@ describe('#formatErrorResponse', () => {
     })
 
     const response = formatErrorResponse(
-      'Failed to edit embed code',
+      'Failed to save embed code',
       err
     )
 
     expect(response).toEqual({
       ok: false,
-      message: 'Failed to edit embed code: DB error.'
+      message: 'Failed to save embed code: DB error.'
     })
   })
 
@@ -98,13 +98,13 @@ describe('#formatErrorResponse', () => {
 
   it('falls back to a generic message when err is not an Error', () => {
     const response = formatErrorResponse(
-      'Failed to edit embed code',
+      'Failed to save embed code',
       'oops'
     )
 
     expect(response).toEqual({
       ok: false,
-      message: 'Failed to edit embed code.'
+      message: 'Failed to save embed code.'
     })
   })
 })

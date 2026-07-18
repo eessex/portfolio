@@ -17,7 +17,8 @@ import { type Link, linkTypes } from '@/lib/links/schemas/db'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import {
   type EmbeddedItemType,
-  EmbeddedItemTypes
+  EmbeddedItemTypes,
+  singularizePath
 } from '@/lib/schemas'
 import { capitalizeFirstLetter } from '@/lib/strings'
 import type { FormResponse } from '@/lib/types'
@@ -44,7 +45,6 @@ import { useResultsList } from '@/ui/useResultsList'
 import {
   formattedItemType,
   formatVenueInline,
-  singularizePath,
   usedOnPages
 } from '@/ui/util'
 

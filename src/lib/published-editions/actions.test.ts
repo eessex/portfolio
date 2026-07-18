@@ -146,7 +146,7 @@ describe('Published Edition Actions', () => {
       )
 
       expect(res!.message).toBe(
-        'Failed to edit published edition: DB error.'
+        'Failed to save published edition: DB error.'
       )
     })
 
@@ -158,7 +158,7 @@ describe('Published Edition Actions', () => {
       )
 
       expect(res!.message).toBe(
-        'Failed to edit published edition: DB error.'
+        'Failed to save published edition: DB error.'
       )
     })
 

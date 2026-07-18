@@ -2,7 +2,11 @@
 
 import { useEffect, useId, useRef, useState } from 'react'
 
-import type { EmbeddedItemType, PagePath } from '@/lib/schemas'
+import {
+  type EmbeddedItemType,
+  itemTypeToLabel,
+  type PagePath
+} from '@/lib/schemas'
 import type {
   EmbeddedItem,
   PageDataResponse,
@@ -16,7 +20,7 @@ import {
   type ResultsResponse,
   useResultsList
 } from '@/ui/useResultsList'
-import { isEmbeddedItemType, itemTypeToLabel } from '@/ui/util'
+import { isEmbeddedItemType } from '@/ui/util'
 
 export interface ComboboxProps<
   TEmbeddedItem extends EmbeddedItem,

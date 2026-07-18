@@ -2,13 +2,15 @@
 
 import { useState } from 'react'
 
-import type { EmbeddedItemType } from '@/lib/schemas'
+import {
+  type EmbeddedItemType,
+  itemTypeToLabel
+} from '@/lib/schemas'
 import type { EmbeddedItem } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
 import { Combobox } from '@/ui/combobox/combobox'
 import styles from '@/ui/form/form.module.scss'
 import { SelectedResult } from '@/ui/selected-results/selected-result'
-import { itemTypeToLabel } from '@/ui/util'
 
 export interface AttachEmbeddedItemProps<T extends EmbeddedItem> {
   existingItem?: T

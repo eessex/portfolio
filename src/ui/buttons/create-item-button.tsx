@@ -5,10 +5,10 @@ import { usePathname } from 'next/navigation'
 
 import {
   type EmbeddedItemType,
-  embeddedItemTypes
+  embeddedItemTypes,
+  itemTypeToLabel
 } from '@/lib/schemas'
 import { camelToSnake, snakeToCamel } from '@/lib/strings'
-import { itemTypeToLabel } from '@/ui/util'
 
 export function CreateItemButton({
   className,

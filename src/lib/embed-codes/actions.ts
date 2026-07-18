@@ -2,7 +2,6 @@
 
 import { updateTag } from 'next/cache'
 
-import { requireAuth } from '@/lib/auth/guard'
 import { sql } from '@/lib/db'
 import { fetchEmbedCodesByIds } from '@/lib/embed-codes/data'
 import {
@@ -11,51 +10,18 @@ import {
   type EmbedCode,
   embedCodeSchema
 } from '@/lib/embed-codes/schemas/db'
-import type { FormResponse } from '@/lib/types'
-import {
-  formatDbResponseForClient,
-  formatErrorResponse,
-  formatValidationResponse,
-  normalizeFormData
-} from '@/lib/util'
+import { runDeleteAction, runFormAction } from '@/lib/form-action'
+import { formatDbResponseForClient } from '@/lib/util'
 
-export async function editEmbedCode(
-  formData: FormData,
-  id?: string
-): Promise<FormResponse<EmbedCode>> {
-  const denied = await requireAuth()
-  if (denied) return denied
-
-  const data = normalizeFormData(formData)
-
-  const validatedEmbedCode = createEmbedCodeSchema.safeParse(data)
-
-  if (!validatedEmbedCode.success) {
-    return formatValidationResponse(
-      validatedEmbedCode.error,
-      'Failed to validate embed code.'
-    )
-  }
-  try {
-    let savedEmbedCode: EmbedCode | undefined
-    if (id) {
-      savedEmbedCode = await updateEmbedCode(
-        validatedEmbedCode.data,
-        id
-      )
-    } else {
-      savedEmbedCode = await createEmbedCode(validatedEmbedCode.data)
-    }
-    if (savedEmbedCode) {
-      invalidateEmbedCodeTags()
-      return {
-        ok: true,
-        res: savedEmbedCode
-      }
-    }
-  } catch (err) {
-    return formatErrorResponse('Failed to edit embed code', err)
-  }
+export async function editEmbedCode(formData: FormData, id?: string) {
+  return runFormAction({
+    formData,
+    schema: createEmbedCodeSchema,
+    itemType: 'embedCodes',
+    invalidate: invalidateEmbedCodeTags,
+    save: (embedCode) =>
+      id ? updateEmbedCode(embedCode, id) : createEmbedCode(embedCode)
+  })
 }
 
 /**
@@ -70,24 +36,19 @@ function invalidateEmbedCodeTags() {
   updateTag('projects')
 }
 
-export async function deleteEmbedCode(
-  embedCode: EmbedCode
-): Promise<FormResponse<EmbedCode>> {
-  const denied = await requireAuth()
-  if (denied) return denied
-
-  try {
-    await sql`
-      DELETE FROM embed_codes
-      WHERE
-        id = ${embedCode.id}
-        OR src = ${embedCode.src}
-    `
-    invalidateEmbedCodeTags()
-    return { ok: true }
-  } catch (err) {
-    return formatErrorResponse('Failed to delete embed code', err)
-  }
+export async function deleteEmbedCode(embedCode: EmbedCode) {
+  return runDeleteAction<EmbedCode>({
+    itemType: 'embedCodes',
+    invalidate: invalidateEmbedCodeTags,
+    del: async () => {
+      await sql`
+        DELETE FROM embed_codes
+        WHERE
+          id = ${embedCode.id}
+          OR src = ${embedCode.src}
+      `
+    }
+  })
 }
 
 async function createEmbedCode(embedCode: CreateEmbedCode) {

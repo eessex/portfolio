@@ -121,7 +121,7 @@ describe('Link Actions', () => {
       mockSql.mockRejectedValueOnce(new Error('DB error'))
       const res = await editLink(formDataFromObject(linkFixture))
 
-      expect(res!.message).toBe('Failed to edit link: DB error.')
+      expect(res!.message).toBe('Failed to save link: DB error.')
     })
 
     it('can handle errors fetching the existing link on update', async () => {
@@ -131,7 +131,7 @@ describe('Link Actions', () => {
         linkFixture.id
       )
 
-      expect(res!.message).toBe('Failed to edit link: DB error.')
+      expect(res!.message).toBe('Failed to save link: DB error.')
     })
 
     it('can handle validation errors', async () => {

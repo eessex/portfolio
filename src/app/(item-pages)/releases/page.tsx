@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { auth } from '@/auth'
+import { isAuthed } from '@/lib/auth/guard'
 import { fetchReleases } from '@/lib/releases/data'
 import type {
   FetchReleasesResult,
@@ -31,8 +31,7 @@ export default function ReleasesPage() {
 }
 
 async function ReleasesList() {
-  const session = await auth()
-  const releases = await fetchReleases(!!session?.user)
+  const releases = await fetchReleases(await isAuthed())
 
   return (
     <ItemsTable<ReleaseClient, FetchReleasesResult>

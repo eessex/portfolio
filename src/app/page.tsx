@@ -3,7 +3,7 @@ import NextLink from 'next/link'
 import { Suspense } from 'react'
 
 import styles from '@/app/home.module.scss'
-import { auth } from '@/auth'
+import { isAuthed } from '@/lib/auth/guard'
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import { fetchEvents } from '@/lib/events/data'
 import type { EventClient } from '@/lib/events/types'
@@ -67,10 +67,9 @@ export default async function Home() {
 }
 
 async function AuthedUpcomingEvents() {
-  const session = await auth()
   const {
     res: { upcomingEvents }
-  } = await fetchEvents(!!session?.user)
+  } = await fetchEvents(await isAuthed())
 
   return <UpcomingEvents events={upcomingEvents} />
 }

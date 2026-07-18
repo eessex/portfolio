@@ -4,7 +4,7 @@ import ItemLayout, {
   generateItemMetadata,
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
-import { auth } from '@/auth'
+import { isAuthed } from '@/lib/auth/guard'
 import { fetchCachedReleaseById } from '@/lib/releases/cached'
 import { fetchReleasesRaw } from '@/lib/releases/data'
 import { PagePaths } from '@/lib/schemas'
@@ -24,7 +24,7 @@ export async function generateStaticParams() {
 }
 
 export default async function ReleasePage({ params }: PageItemProps) {
-  const [{ slug }, session] = await Promise.all([params, auth()])
+  const [{ slug }, authed] = await Promise.all([params, isAuthed()])
   const resolved = await resolveSlug(PagePaths.releases, slug)
 
   if (!resolved) {
@@ -35,10 +35,7 @@ export default async function ReleasePage({ params }: PageItemProps) {
     redirect(`/${PagePaths.releases}/${resolved.slug}`)
   }
 
-  const release = await fetchCachedReleaseById(
-    resolved.id,
-    !!session?.user
-  )
+  const release = await fetchCachedReleaseById(resolved.id, authed)
 
   if (!release) {
     redirect(`/${PagePaths.releases}`)

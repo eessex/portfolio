@@ -1,9 +1,9 @@
 import { Suspense } from 'react'
 
 import styles from '@/app/about/about.module.scss'
-import { auth } from '@/auth'
 import { fetchAboutPage } from '@/lib/about/data'
 import type { AboutContact } from '@/lib/about/types'
+import { isAuthed } from '@/lib/auth/guard'
 import { fetchPressImages } from '@/lib/images/cached'
 import { fetchPressLinks } from '@/lib/links/cached'
 import { fetchProjects } from '@/lib/projects/data'
@@ -115,10 +115,9 @@ async function AboutIntro() {
 
 /** Collapsible list of related projects. */
 async function MoreProjects() {
-  const session = await auth()
   const {
     res: { allProjects }
-  } = await fetchProjects(!!session?.user)
+  } = await fetchProjects(await isAuthed())
 
   if (!allProjects.length) return null
 

@@ -5,7 +5,7 @@ import ItemLayout, {
   generateItemMetadata,
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
-import { auth } from '@/auth'
+import { isAuthed } from '@/lib/auth/guard'
 import { fetchEvents } from '@/lib/events/data'
 import { fetchCachedProjectById } from '@/lib/projects/cached'
 import { fetchProjectsRaw } from '@/lib/projects/data'
@@ -29,7 +29,7 @@ export async function generateStaticParams() {
 }
 
 export default async function ProjectPage({ params }: PageItemProps) {
-  const [{ slug }, session] = await Promise.all([params, auth()])
+  const [{ slug }, authed] = await Promise.all([params, isAuthed()])
   const resolved = await resolveSlug(PagePaths.projects, slug)
 
   if (!resolved) {
@@ -41,9 +41,9 @@ export default async function ProjectPage({ params }: PageItemProps) {
   }
 
   const [project, releases, events] = await Promise.all([
-    fetchCachedProjectById(resolved.id, !!session?.user),
-    fetchReleases(!!session?.user, resolved.id),
-    fetchEvents(!!session?.user, resolved.id)
+    fetchCachedProjectById(resolved.id, authed),
+    fetchReleases(authed, resolved.id),
+    fetchEvents(authed, resolved.id)
   ])
 
   if (!project) {

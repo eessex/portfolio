@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { auth } from '@/auth'
+import { isAuthed } from '@/lib/auth/guard'
 import { fetchEvents } from '@/lib/events/data'
 import type {
   EventClient,
@@ -32,8 +32,7 @@ export default function EventsPage() {
 }
 
 async function EventsList() {
-  const session = await auth()
-  const events = await fetchEvents(!!session?.user)
+  const events = await fetchEvents(await isAuthed())
 
   return (
     <>

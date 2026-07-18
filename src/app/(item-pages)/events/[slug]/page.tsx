@@ -5,7 +5,7 @@ import ItemLayout, {
   generateItemMetadata,
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
-import { auth } from '@/auth'
+import { isAuthed } from '@/lib/auth/guard'
 import { fetchCachedEventById } from '@/lib/events/cached'
 import { fetchEvents, fetchEventsRaw } from '@/lib/events/data'
 import { PagePaths } from '@/lib/schemas'
@@ -28,7 +28,7 @@ export async function generateStaticParams() {
 }
 
 export default async function EventPage({ params }: PageItemProps) {
-  const [{ slug }, session] = await Promise.all([params, auth()])
+  const [{ slug }, authed] = await Promise.all([params, isAuthed()])
   const resolved = await resolveSlug(PagePaths.events, slug)
 
   if (!resolved) {
@@ -45,8 +45,8 @@ export default async function EventPage({ params }: PageItemProps) {
       res: { upcomingEvents }
     }
   ] = await Promise.all([
-    fetchCachedEventById(resolved.id, !!session?.user),
-    fetchEvents(!!session?.user)
+    fetchCachedEventById(resolved.id, authed),
+    fetchEvents(authed)
   ])
 
   if (!event) {

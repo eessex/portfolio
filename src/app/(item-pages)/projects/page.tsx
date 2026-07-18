@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { auth } from '@/auth'
+import { isAuthed } from '@/lib/auth/guard'
 import { fetchProjects } from '@/lib/projects/data'
 import type {
   FetchProjectsResult,
@@ -31,8 +31,7 @@ export default function ProjectsPage() {
 }
 
 async function ProjectsList() {
-  const session = await auth()
-  const projects = await fetchProjects(!!session?.user)
+  const projects = await fetchProjects(await isAuthed())
 
   return (
     <ItemsTable<ProjectClient, FetchProjectsResult>

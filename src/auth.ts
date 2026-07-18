@@ -23,6 +23,15 @@ class ThrottledSignin extends CredentialsSignin {
   code = LOGIN_THROTTLED_CODE
 }
 
+/**
+ * A real bcrypt hash (cost 10, same as user hashes) of a random
+ * value nothing can match. Compared against when no user is found so
+ * unknown and known emails take the same time to reject — otherwise
+ * response timing reveals which emails have accounts.
+ */
+const DUMMY_PASSWORD_HASH =
+  '$2b$10$jbuOzkjIvg398zktHoqbcuNDcVdJhtMq2ZgWpRlLZ0Gldto8CSdQa'
+
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
@@ -43,13 +52,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         }
 
         const user = await fetchUserByEmail(email)
-        if (!user) return null
 
         const passwordsMatch = await bcrypt.compare(
           password,
-          user.password
+          user?.password ?? DUMMY_PASSWORD_HASH
         )
-        if (!passwordsMatch) return null
+        if (!user || !passwordsMatch) return null
 
         await clearFailedLogins(email)
         const { password: _, ...safeUser } = user

@@ -1,20 +1,19 @@
 import { redirect } from 'next/navigation'
-import { Suspense } from 'react'
 
 import ItemLayout, {
   generateItemMetadata,
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
 import { isAuthed } from '@/lib/auth/guard'
-import { fetchEvents } from '@/lib/events/data'
+import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import { fetchCachedProjectById } from '@/lib/projects/cached'
 import { fetchProjectsRaw } from '@/lib/projects/data'
-import { fetchReleases } from '@/lib/releases/data'
+import type { ProjectClient } from '@/lib/projects/types'
+import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import { PagePaths } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
-import { Loading } from '@/ui/loading'
 
 export async function generateMetadata({ params }: PageItemProps) {
   return generateItemMetadata(
@@ -29,7 +28,7 @@ export async function generateStaticParams() {
 }
 
 export default async function ProjectPage({ params }: PageItemProps) {
-  const [{ slug }, authed] = await Promise.all([params, isAuthed()])
+  const { slug } = await params
   const resolved = await resolveSlug(PagePaths.projects, slug)
 
   if (!resolved) {
@@ -40,25 +39,46 @@ export default async function ProjectPage({ params }: PageItemProps) {
     redirect(`/${PagePaths.projects}/${resolved.slug}`)
   }
 
-  const [project, releases, events] = await Promise.all([
-    fetchCachedProjectById(resolved.id, authed),
-    fetchReleases(authed, resolved.id),
-    fetchEvents(authed, resolved.id)
-  ])
+  const project = await fetchCachedProjectById(resolved.id, false)
 
-  if (!project) {
+  if (project) {
+    return <ProjectDetail project={project} isAuthed={false} />
+  }
+
+  const authed = await isAuthed()
+  const draft = await fetchCachedProjectById(resolved.id, authed)
+
+  if (!draft) {
     redirect(`/${PagePaths.projects}`)
   }
 
+  return <ProjectDetail project={draft} isAuthed={authed} />
+}
+
+async function ProjectDetail({
+  project,
+  isAuthed: authed
+}: {
+  project: ProjectClient
+  isAuthed: boolean
+}) {
+  const [releases, events] = await Promise.all([
+    fetchCachedReleasesFirstPage(authed, project.id),
+    fetchCachedEventsFirstPage(authed, project.id)
+  ])
+
   return (
     <ItemLayout item={project}>
-      <Suspense fallback={<Loading />}>
-        <ItemsTable
-          path={PagePaths.releases}
-          initialItems={releases}
-        />
-        <ItemsTable path={PagePaths.events} initialItems={events} />
-      </Suspense>
+      <ItemsTable
+        path={PagePaths.releases}
+        initialItems={releases}
+        projectId={project.id}
+      />
+      <ItemsTable
+        path={PagePaths.events}
+        initialItems={events}
+        projectId={project.id}
+      />
     </ItemLayout>
   )
 }

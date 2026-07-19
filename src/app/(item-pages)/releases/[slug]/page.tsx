@@ -24,7 +24,7 @@ export async function generateStaticParams() {
 }
 
 export default async function ReleasePage({ params }: PageItemProps) {
-  const [{ slug }, authed] = await Promise.all([params, isAuthed()])
+  const { slug } = await params
   const resolved = await resolveSlug(PagePaths.releases, slug)
 
   if (!resolved) {
@@ -35,11 +35,20 @@ export default async function ReleasePage({ params }: PageItemProps) {
     redirect(`/${PagePaths.releases}/${resolved.slug}`)
   }
 
-  const release = await fetchCachedReleaseById(resolved.id, authed)
+  const release = await fetchCachedReleaseById(resolved.id, false)
 
-  if (!release) {
+  if (release) {
+    return <ItemLayout item={release} />
+  }
+
+  const draft = await fetchCachedReleaseById(
+    resolved.id,
+    await isAuthed()
+  )
+
+  if (!draft) {
     redirect(`/${PagePaths.releases}`)
   }
 
-  return <ItemLayout item={release} />
+  return <ItemLayout item={draft} />
 }

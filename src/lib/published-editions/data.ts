@@ -1,16 +1,15 @@
 'use server'
 
 import { sql } from '@/lib/db'
+import { runListFetch } from '@/lib/list-fetch'
 import { fetchCachedPublishedEditionsFirstPage } from '@/lib/published-editions/cached'
 import {
   type DashboardPublishedEdition,
   dashboardPublishedEditionSchema
 } from '@/lib/published-editions/schemas/client'
 import {
-  decodeCursor,
   DEFAULT_PAGE_SIZE,
   formatDbResponseForClient,
-  formatResponseWithCursor,
   type ResponseWithCursor
 } from '@/lib/util'
 
@@ -73,16 +72,24 @@ export async function fetchPublishedEditions(
 export async function fetchPublishedEditionsRaw(
   cursor?: string,
   query?: string
-) {
-  const totalCount = await getTotalCount(query)
-  const decodedCursor = cursor ? decodeCursor(cursor) : undefined
-
-  const like = query ? `%${query}%` : null
-  const cursorName = decodedCursor?.name ?? null
-  const cursorId = decodedCursor?.id ?? null
-
-  try {
-    const data = await sql`
+): Promise<ResponseWithCursor<DashboardPublishedEdition>> {
+  return runListFetch({
+    cursor,
+    query,
+    itemType: 'publishedEditions',
+    schema: dashboardPublishedEditionSchema,
+    cursorKey: 'publisher',
+    count: (like) => sql`
+      SELECT COUNT(*)::int AS count
+      FROM published_editions
+      JOIN releases r ON r.id = published_editions.release_id
+      WHERE (
+        ${like}::text IS NULL
+        OR published_editions.publisher ILIKE ${like}
+        OR r.title ILIKE ${like}
+      )
+    `,
+    list: ({ like, cursorName, cursorId }) => sql`
       SELECT
         published_editions.*,
         (
@@ -121,42 +128,5 @@ export async function fetchPublishedEditionsRaw(
         published_editions.id ASC
       LIMIT ${DEFAULT_PAGE_SIZE}
     `
-
-    const formatted = formatResponseWithCursor(
-      data,
-      'publisher',
-      dashboardPublishedEditionSchema
-    )
-
-    const res: ResponseWithCursor<DashboardPublishedEdition> = {
-      ...formatted,
-      totalCount
-    }
-    return res
-  } catch (cause) {
-    throw new Error('Failed to fetch published editions.', {
-      cause
-    })
-  }
-}
-
-async function getTotalCount(query?: string) {
-  try {
-    const like = query ? `%${query}%` : null
-    const result = await sql`
-      SELECT COUNT(*)::int AS count
-      FROM published_editions
-      JOIN releases r ON r.id = published_editions.release_id
-      WHERE (
-        ${like}::text IS NULL
-        OR published_editions.publisher ILIKE ${like}
-        OR r.title ILIKE ${like}
-      )
-    `
-    return result[0]?.count ?? 0
-  } catch (cause) {
-    throw new Error('Failed to fetch published edition count.', {
-      cause
-    })
-  }
+  })
 }

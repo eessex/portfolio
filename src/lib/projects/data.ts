@@ -1,4 +1,5 @@
 import { sql } from '@/lib/db'
+import { runListFetch } from '@/lib/list-fetch'
 import { fetchCachedProjectsFirstPage } from '@/lib/projects/cached'
 import { projectClientSchema } from '@/lib/projects/schemas'
 import type {
@@ -8,10 +9,8 @@ import type {
 import { PagePaths, pagePathSingulars } from '@/lib/schemas'
 import type { PageItemResponseWithCursor } from '@/lib/types'
 import {
-  decodeCursor,
   DEFAULT_PAGE_SIZE,
-  formatDbResponseForClient,
-  formatResponseWithCursor
+  formatDbResponseForClient
 } from '@/lib/util'
 
 const path = PagePaths.projects
@@ -33,65 +32,65 @@ export async function fetchProjectsRaw(
   isAuthed: boolean = false,
   cursor?: string,
   query?: string
-) {
-  const totalCount = await getTotalCount(isAuthed, query)
-  const decodedCursor = cursor ? decodeCursor(cursor) : null
-  const cursorHasEndDate = decodedCursor?.hasEndDate ?? null
-  const cursorStartDate = decodedCursor?.startDate ?? null
-  const cursorId = decodedCursor?.id ?? null
-  const like = query ? `%${query}%` : null
-
-  try {
-    const data = await sql`
-      SELECT
-        p.*,
-        ${path} AS path,
-        (
-          SELECT build_image_json(i)
-          FROM images i
-          WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
-        ) AS cover_image
+): Promise<
+  PageItemResponseWithCursor<ProjectClient, FetchProjectsResult>
+> {
+  return runListFetch({
+    cursor,
+    query,
+    itemType: path,
+    schema: projectClientSchema,
+    cursorKey: 'id',
+    transform: (projects) => ({ allProjects: projects }),
+    count: (like) => sql`
+      SELECT COUNT(*)::int AS count
       FROM projects AS p
-      WHERE
-        (${isAuthed} OR p.is_published = true)
-        AND (${like}::text IS NULL OR p.title ILIKE ${like} OR p.description ILIKE ${like})
-        AND (${cursorHasEndDate}::text IS NULL
-        OR (
-          (p.end_date IS NOT NULL)::text < ${cursorHasEndDate}::text
+      WHERE (${isAuthed} OR p.is_published = true)
+      AND (
+        ${like}::text IS NULL
+        OR p.title ILIKE ${like}
+        OR p.description ILIKE ${like}
+      );
+    `,
+    list: ({ like, cursor: decodedCursor, cursorId }) => {
+      const cursorHasEndDate = decodedCursor?.hasEndDate ?? null
+      const cursorStartDate = decodedCursor?.startDate ?? null
+
+      return sql`
+        SELECT
+          p.*,
+          ${path} AS path,
+          (
+            SELECT build_image_json(i)
+            FROM images i
+            WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
+          ) AS cover_image
+        FROM projects AS p
+        WHERE
+          (${isAuthed} OR p.is_published = true)
+          AND (${like}::text IS NULL OR p.title ILIKE ${like} OR p.description ILIKE ${like})
+          AND (${cursorHasEndDate}::text IS NULL
           OR (
-            (p.end_date IS NOT NULL)::text = ${cursorHasEndDate}::text
-            AND p.start_date < ${cursorStartDate}::timestamptz
-          )
-          OR (
-            (p.end_date IS NOT NULL)::text = ${cursorHasEndDate}::text
-            AND p.start_date = ${cursorStartDate}::timestamptz
-            AND p.id > ${cursorId}::uuid
+            (p.end_date IS NOT NULL)::text < ${cursorHasEndDate}::text
+            OR (
+              (p.end_date IS NOT NULL)::text = ${cursorHasEndDate}::text
+              AND p.start_date < ${cursorStartDate}::timestamptz
+            )
+            OR (
+              (p.end_date IS NOT NULL)::text = ${cursorHasEndDate}::text
+              AND p.start_date = ${cursorStartDate}::timestamptz
+              AND p.id > ${cursorId}::uuid
+            )
           )
         )
-      )
-      ORDER BY
-        (p.end_date IS NOT NULL),
-        p.start_date DESC,
-        p.id ASC
-      LIMIT ${DEFAULT_PAGE_SIZE}
-    ;`
-    const formatted = formatResponseWithCursor(
-      data,
-      'id',
-      projectClientSchema
-    )
-    const res: PageItemResponseWithCursor<
-      ProjectClient,
-      FetchProjectsResult
-    > = {
-      res: { allProjects: formatted.res },
-      nextCursor: formatted.nextCursor,
-      totalCount
+        ORDER BY
+          (p.end_date IS NOT NULL),
+          p.start_date DESC,
+          p.id ASC
+        LIMIT ${DEFAULT_PAGE_SIZE}
+      ;`
     }
-    return res
-  } catch (cause) {
-    throw new Error(`Failed to fetch ${path}.`, { cause })
-  }
+  })
 }
 
 export async function fetchProjectById(
@@ -147,30 +146,6 @@ export async function fetchProjectById(
     return project
   } catch (cause) {
     throw new Error(`Failed to fetch ${pathSingular}: ${id}.`, {
-      cause
-    })
-  }
-}
-
-export async function getTotalCount(
-  isAuthed: boolean = false,
-  query?: string
-) {
-  try {
-    const like = query ? `%${query}%` : null
-    const data = await sql`
-      SELECT COUNT(*)::int AS count
-      FROM projects AS p
-      WHERE (${isAuthed} OR p.is_published = true)
-      AND (
-        ${like}::text IS NULL
-        OR p.title ILIKE ${like}
-        OR p.description ILIKE ${like}
-      );
-    `
-    return data[0]?.count ?? 0
-  } catch (cause) {
-    throw new Error(`Failed to fetch ${pathSingular} count.`, {
       cause
     })
   }

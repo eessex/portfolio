@@ -6,8 +6,11 @@ import ItemLayout, {
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
 import { isAuthed } from '@/lib/auth/guard'
-import { fetchCachedEventById } from '@/lib/events/cached'
-import { fetchEvents, fetchEventsRaw } from '@/lib/events/data'
+import {
+  fetchCachedEventById,
+  fetchCachedUpcomingEvents
+} from '@/lib/events/cached'
+import { fetchEventsRaw } from '@/lib/events/data'
 import { PagePaths } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
@@ -39,14 +42,9 @@ export default async function EventPage({ params }: PageItemProps) {
     redirect(`/${PagePaths.events}/${resolved.slug}`)
   }
 
-  const [
-    event,
-    {
-      res: { upcomingEvents }
-    }
-  ] = await Promise.all([
+  const [event, upcomingEvents] = await Promise.all([
     fetchCachedEventById(resolved.id, authed),
-    fetchEvents(authed)
+    fetchCachedUpcomingEvents(authed)
   ])
 
   if (!event) {

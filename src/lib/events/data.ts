@@ -48,6 +48,7 @@ export async function fetchEventsRaw(
       SELECT
         e.*,
         ${path} AS path,
+        e.start_time > now() AS is_upcoming,
         (
           SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
           FROM embed_codes ec
@@ -106,6 +107,45 @@ export async function fetchEventsRaw(
   }
 }
 
+// upcoming events are a small, unpaginated set
+export async function fetchUpcomingEventsRaw(
+  isAuthed: boolean = false
+) {
+  try {
+    const data = await sql`
+      SELECT
+        e.*,
+        ${path} AS path,
+        e.start_time > now() AS is_upcoming,
+        (
+          SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
+          FROM embed_codes ec
+          WHERE ec.id = ANY(e.embed_code_ids)
+        ) AS embed_codes,
+        (
+          SELECT build_image_json(i)
+          FROM images i
+          WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
+        ) AS cover_image,
+        (
+          SELECT build_venue_json(v)
+          FROM venues v
+          WHERE v.id = e.venue_id
+        ) AS venue
+      FROM events AS e
+      WHERE
+        (${isAuthed} OR e.is_published = true)
+        AND e.start_time > now()
+      ORDER BY e.start_time ASC, e.id ASC;
+    `
+    return data.map((row) =>
+      formatDbResponseForClient(row, eventClientSchema)
+    )
+  } catch (cause) {
+    throw new Error(`Failed to fetch upcoming ${path}.`, { cause })
+  }
+}
+
 export async function fetchEventById(
   id: string,
   isAuthed: boolean = false
@@ -114,6 +154,7 @@ export async function fetchEventById(
     const data = await sql`
       SELECT
         e.*,
+        e.start_time > now() AS is_upcoming,
         (
           SELECT build_image_json(i)
           FROM images i

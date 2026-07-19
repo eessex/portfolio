@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 
 import ListLayout from '@/app/(item-pages)/list-layout'
-import { isAuthed } from '@/lib/auth/guard'
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import type {
   EventClient,
@@ -17,7 +16,7 @@ const title = formattedItemType(path, false, true)
 
 export const metadata: Metadata = { title, description }
 
-export default function EventsPage() {
+export default async function EventsPage() {
   return (
     <ListLayout title={title}>
       <EventsList />
@@ -26,16 +25,13 @@ export default function EventsPage() {
 }
 
 async function EventsList() {
-  const authed = await isAuthed()
-  const events = await fetchCachedEventsFirstPage(authed)
+  const events = await fetchCachedEventsFirstPage(false)
 
   return (
-    <>
-      <ItemsTable<EventClient, FetchEventsResult>
-        path={path}
-        initialItems={events}
-        featuredKey='upcomingEvents'
-      />
-    </>
+    <ItemsTable<EventClient, FetchEventsResult>
+      path={path}
+      initialItems={events}
+      featuredKey='upcomingEvents'
+    />
   )
 }

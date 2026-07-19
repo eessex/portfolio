@@ -14,7 +14,7 @@ export interface ResponseWithCursor<
   totalCount: number
 }
 
-type Cursor = {
+export type Cursor = {
   [key: string]: string
   id: string
 }

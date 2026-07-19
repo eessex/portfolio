@@ -11,11 +11,10 @@ import {
   type Image,
   imageSchema
 } from '@/lib/images/schemas/db'
+import { runListFetch } from '@/lib/list-fetch'
 import {
-  decodeCursor,
   DEFAULT_PAGE_SIZE,
   formatDbResponseForClient,
-  formatResponseWithCursor,
   type ResponseWithCursor
 } from '@/lib/util'
 
@@ -127,17 +126,25 @@ export async function fetchImages(cursor?: string, query?: string) {
 export async function fetchImagesRaw(
   cursor?: string,
   query?: string
-) {
-  const totalCount = await getTotalCount(query)
-  const decodedCursor = cursor ? decodeCursor(cursor) : undefined
-
-  const like = query ? `%${query}%` : null
-  const cursorName = decodedCursor?.name ?? null
-  const cursorId = decodedCursor?.id ?? null
-
-  try {
-    const data = await sql`
-      SELECT 
+): Promise<ResponseWithCursor<DashboardImage>> {
+  return runListFetch({
+    cursor,
+    query,
+    itemType: 'images',
+    schema: dashboardImageSchema,
+    cursorKey: 'id',
+    count: (like) => sql`
+      SELECT COUNT(*)::int AS count
+      FROM images
+      WHERE (
+        ${like}::text IS NULL
+        OR url ILIKE ${like}
+        OR title ILIKE ${like}
+        OR caption ILIKE ${like}
+      )
+    `,
+    list: ({ like, cursorName, cursorId }) => sql`
+      SELECT
         images.*,
         ARRAY(
           SELECT slug FROM events AS e 
@@ -168,36 +175,5 @@ export async function fetchImagesRaw(
         id DESC
       LIMIT ${DEFAULT_PAGE_SIZE}
     `
-    const formatted = formatResponseWithCursor(
-      data,
-      'id',
-      dashboardImageSchema
-    )
-    const res: ResponseWithCursor<DashboardImage> = {
-      ...formatted,
-      totalCount
-    }
-    return res
-  } catch (cause) {
-    throw new Error('Failed to fetch images.', { cause })
-  }
-}
-
-async function getTotalCount(query?: string) {
-  try {
-    const like = query ? `%${query}%` : null
-    const result = await sql`
-      SELECT COUNT(*)::int AS count
-      FROM images
-      WHERE (
-        ${like}::text IS NULL
-        OR url ILIKE ${like}
-        OR title ILIKE ${like}
-        OR caption ILIKE ${like}
-      )
-    `
-    return result[0]?.count ?? 0
-  } catch (cause) {
-    throw new Error('Failed to fetch image count.', { cause })
-  }
+  })
 }

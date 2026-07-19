@@ -3,7 +3,6 @@ import { Suspense } from 'react'
 import styles from '@/app/about/about.module.scss'
 import { fetchCachedAboutPage } from '@/lib/about/cached'
 import type { AboutContact } from '@/lib/about/types'
-import { isAuthed } from '@/lib/auth/guard'
 import { fetchPressImages } from '@/lib/images/cached'
 import { fetchPressLinks } from '@/lib/links/cached'
 import { fetchProjects } from '@/lib/projects/data'
@@ -11,8 +10,8 @@ import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { ImageFigure } from '@/ui/images/image-figure'
 import { ImageGrid } from '@/ui/images/image-grid'
-import { ItemsList } from '@/ui/items/items-list'
 import { LinksList } from '@/ui/links/link-list'
+import { MoreProjectsList } from '@/ui/projects/more-projects-list'
 
 const title = 'About'
 
@@ -117,18 +116,13 @@ async function AboutIntro() {
 async function MoreProjects() {
   const {
     res: { allProjects }
-  } = await fetchProjects(await isAuthed())
-
-  if (!allProjects.length) return null
+  } = await fetchProjects(false)
 
   return (
-    <AccordionDropdown title='More Projects' isFullWidth>
-      <ItemsList
-        className={styles['projects-list']}
-        items={allProjects}
-        isCategoryVisible
-      />
-    </AccordionDropdown>
+    <MoreProjectsList
+      initialProjects={allProjects}
+      className={styles['projects-list']}
+    />
   )
 }
 

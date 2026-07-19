@@ -2,14 +2,12 @@ import type { Metadata } from 'next'
 
 import ListLayout from '@/app/(item-pages)/list-layout'
 import { isAuthed } from '@/lib/auth/guard'
-import { fetchCachedUpcomingEvents } from '@/lib/events/cached'
-import { fetchEvents } from '@/lib/events/data'
+import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import type {
   EventClient,
   FetchEventsResult
 } from '@/lib/events/types'
 import { PagePaths } from '@/lib/schemas'
-import { ItemsList } from '@/ui/items/items-list'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { formattedItemType } from '@/ui/util'
 
@@ -29,22 +27,14 @@ export default function EventsPage() {
 
 async function EventsList() {
   const authed = await isAuthed()
-  const [upcomingEvents, events] = await Promise.all([
-    fetchCachedUpcomingEvents(authed),
-    fetchEvents(authed)
-  ])
+  const events = await fetchCachedEventsFirstPage(authed)
 
   return (
     <>
-      <ItemsList
-        items={upcomingEvents}
-        isFeatured
-        title={formattedItemType(path, true, true)}
-      />
       <ItemsTable<EventClient, FetchEventsResult>
         path={path}
         initialItems={events}
-        omitKeys={['upcomingEvents']}
+        featuredKey='upcomingEvents'
       />
     </>
   )

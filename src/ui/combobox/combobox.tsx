@@ -61,7 +61,7 @@ export function Combobox<
   } = useResultsList<TEmbeddedItem, TPage, S>(
     `/api/${itemType}`,
     initialResults,
-    defaultQuery
+    { defaultQuery }
   )
 
   const listId = useId()

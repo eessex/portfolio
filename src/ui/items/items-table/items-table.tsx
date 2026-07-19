@@ -14,6 +14,7 @@ import { capitalizeFirstLetter } from '@/lib/strings'
 import type { PageDataResponse, PageItemClient } from '@/lib/types'
 import { DEFAULT_PAGE_SIZE } from '@/lib/util'
 import { FiltersWrapper } from '@/ui/filters/filters'
+import { ItemsList } from '@/ui/items/items-list'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import { ItemsTableRow } from '@/ui/items/items-table/items-table-row'
 import { Loading } from '@/ui/loading'
@@ -32,16 +33,23 @@ export function ItemsTable<
   isCategoryVisible,
   isExpandedOnLoad,
   isPathTypeVisible,
-  omitKeys
+  featuredKey,
+  projectId
 }: {
   initialItems: ResultsResponse<never, T, S>
   path: PagePath
   isCategoryVisible?: boolean
   isExpandedOnLoad?: boolean
   isPathTypeVisible?: boolean
-  omitKeys?: Array<keyof S>
+  /**
+   * Rendered as a featured ItemsList above the table (e.g. upcomingEvents)
+   */
+  featuredKey?: Extract<keyof S, string>
+  /** Scope API fetches to a parent project (e.g. on project pages) */
+  projectId?: string
 }) {
   const {
+    count,
     isLoading,
     items,
     groupedItems,
@@ -49,7 +57,14 @@ export function ItemsTable<
     query,
     setQuery,
     nextCursor
-  } = useResultsList<never, T, S>(`/api/${path}`, initialItems)
+  } = useResultsList<never, T, S>(`/api/${path}`, initialItems, {
+    // Pages render published-only data statically; for signed-in
+    // admins the table refetches page 1 to reveal unpublished drafts
+    // (the API gates them on the session cookie). Anonymous visitors
+    // only pay a shared /api/session check, not the refetch.
+    augmentOnMount: true,
+    projectId
+  })
 
   function displayedItems() {
     if (groupedItems) return groupedItems
@@ -89,108 +104,118 @@ export function ItemsTable<
   const tableId = useId()
   const tbodyId = useId()
   const loadMoreId = useId()
-  if (initialItems.totalCount === 0) return null
+
+  if (initialItems.totalCount === 0 && count === 0) return null
 
   return (
-    <div className={styles['items-table']}>
-      {isFilterable && (
-        <FiltersWrapper itemType={path} controlsId={tableId}>
-          <SearchInput
-            ariaControls={tableId}
-            value={query}
-            onChange={setQuery}
-            label={`Search ${path}`}
-            isLabelHidden
-          />
-        </FiltersWrapper>
+    <>
+      {featuredKey && groupedItems?.[featuredKey] && (
+        <ItemsList
+          items={groupedItems[featuredKey]}
+          isFeatured
+          title={formattedItemType(path, true, true)}
+        />
       )}
+      <div className={styles['items-table']}>
+        {isFilterable && (
+          <FiltersWrapper itemType={path} controlsId={tableId}>
+            <SearchInput
+              ariaControls={tableId}
+              value={query}
+              onChange={setQuery}
+              label={`Search ${path}`}
+              isLabelHidden
+            />
+          </FiltersWrapper>
+        )}
 
-      <table id={tableId} role='region' aria-live='polite'>
-        <thead className='visually-hidden'>
-          <tr>
-            <th aria-hidden='true' scope='col'>
-              Image
-            </th>
-            {isPathTypeVisible && <th scope='col'>Type</th>}
-            <th scope='col'>Title</th>
-            <th scope='col'>Date</th>
-            {isDetailColumnVisible && <th scope='col'>Details</th>}
-            <th scope='col'>Media</th>
-          </tr>
-        </thead>
+        <table id={tableId} role='region' aria-live='polite'>
+          <thead className='visually-hidden'>
+            <tr>
+              <th aria-hidden='true' scope='col'>
+                Image
+              </th>
+              {isPathTypeVisible && <th scope='col'>Type</th>}
+              <th scope='col'>Title</th>
+              <th scope='col'>Date</th>
+              {isDetailColumnVisible && <th scope='col'>Details</th>}
+              <th scope='col'>Media</th>
+            </tr>
+          </thead>
 
-        {!Object.values(displayedItems()).flat().length && (
-          <tbody
-            className={clsx(
-              styles['table-body'],
-              isExpandedOnLoad && styles['table-body--expanded']
-            )}
-            aria-labelledby={`${tbodyId}-search`}
-          >
-            <tr
-              className={
-                styles['table-rowgroup-heading'] + ' heading'
-              }
+          {!Object.values(displayedItems()).flat().length && (
+            <tbody
+              className={clsx(
+                styles['table-body'],
+                isExpandedOnLoad && styles['table-body--expanded']
+              )}
+              aria-labelledby={`${tbodyId}-search`}
             >
-              <td id={`${tbodyId}-search`} colSpan={colSpan}>
-                Search results for “{query}”
-              </td>
-            </tr>
-            <tr className={styles['no-results']}>
-              <td colSpan={colSpan}>No results found.</td>
-            </tr>
-          </tbody>
-        )}
-
-        {Object.entries(displayedItems()).map(
-          ([key, value], index) =>
-            !omitKeys?.includes(key as keyof S) &&
-            value.length > 0 && (
-              <tbody
-                className={clsx(
-                  styles['table-body'],
-                  isExpandedOnLoad && styles['table-body--expanded']
-                )}
-                key={`${index}-${key}`}
+              <tr
+                className={
+                  styles['table-rowgroup-heading'] + ' heading'
+                }
               >
-                <tr
-                  className={
-                    styles['table-rowgroup-heading'] + ' heading'
-                  }
+                <td id={`${tbodyId}-search`} colSpan={colSpan}>
+                  Search results for “{query}”
+                </td>
+              </tr>
+              <tr className={styles['no-results']}>
+                <td colSpan={colSpan}>No results found.</td>
+              </tr>
+            </tbody>
+          )}
+
+          {Object.entries(displayedItems()).map(
+            ([key, value], index) =>
+              key !== featuredKey &&
+              value.length > 0 && (
+                <tbody
+                  className={clsx(
+                    styles['table-body'],
+                    isExpandedOnLoad && styles['table-body--expanded']
+                  )}
+                  key={`${index}-${key}`}
                 >
-                  <td id={`${tbodyId}-${key}`} colSpan={colSpan}>
-                    {tableSectionTitle(key, value.length)}
-                  </td>
-                </tr>
-                {value.map((item, idx) => (
-                  <ItemsTableItem
-                    key={`${item.id}-${idx}`}
-                    item={item}
-                    index={idx}
-                    isExpanded={!!isExpandedOnLoad}
-                    isCategoryVisible={
-                      !!(isCategoryVisible || query.length > 0)
+                  <tr
+                    className={
+                      styles['table-rowgroup-heading'] + ' heading'
                     }
-                    isPathTypeVisible={!!isPathTypeVisible}
-                  />
-                ))}
-              </tbody>
-            )
+                  >
+                    <td id={`${tbodyId}-${key}`} colSpan={colSpan}>
+                      {tableSectionTitle(key, value.length)}
+                    </td>
+                  </tr>
+                  {value.map((item, idx) => (
+                    <ItemsTableItem
+                      key={`${item.id}-${idx}`}
+                      item={item}
+                      index={idx}
+                      isExpanded={!!isExpandedOnLoad}
+                      isCategoryVisible={
+                        !!(isCategoryVisible || query.length > 0)
+                      }
+                      isPathTypeVisible={!!isPathTypeVisible}
+                    />
+                  ))}
+                </tbody>
+              )
+          )}
+        </table>
+        {nextCursor && (
+          <>
+            <li
+              id={loadMoreId}
+              style={{ height: 1 }}
+              tabIndex={-1}
+              aria-hidden='true'
+              ref={loadMoreRef}
+            />
+            {isLoading && <Loading />}
+          </>
         )}
-      </table>
-      {nextCursor && (
-        <>
-          <li
-            id={loadMoreId}
-            style={{ height: 1 }}
-            tabIndex={-1}
-            aria-hidden='true'
-            ref={loadMoreRef}
-          />
-          {isLoading && <Loading />}
-        </>
-      )}
-    </div>
+      </div>
+    </>
   )
 }
 

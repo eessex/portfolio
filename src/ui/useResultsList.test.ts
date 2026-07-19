@@ -55,7 +55,9 @@ function setup(
   })
 
   const hook = renderHook(() =>
-    useResultsList<Venue>(apiEndpoint, initialResponse, defaultQuery)
+    useResultsList<Venue>(apiEndpoint, initialResponse, {
+      defaultQuery
+    })
   )
 
   return {

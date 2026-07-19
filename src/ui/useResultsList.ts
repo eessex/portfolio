@@ -7,6 +7,7 @@ import type {
   PageItemResponseWithCursor
 } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
+import { useIsAdmin } from '@/ui/useIsAdmin'
 import { buildApiUrl } from '@/ui/util'
 
 type SortDirection = 'asc' | 'desc'
@@ -32,7 +33,16 @@ export function useResultsList<
 >(
   apiEndpoint: string,
   initial: ResultsResponse<TEmbeddedItem, TPage, S>,
-  defaultQuery?: string
+  {
+    defaultQuery,
+    augmentOnMount,
+    projectId
+  }: {
+    defaultQuery?: string
+    augmentOnMount?: boolean
+    /** Scope API fetches to a parent project */
+    projectId?: string
+  } = {}
 ) {
   /** User search query */
   const [query, setQuery] = useState<string>(defaultQuery || '')
@@ -85,10 +95,11 @@ export function useResultsList<
     (cursor?: string, searchQuery?: string) => {
       return buildApiUrl(apiEndpoint, {
         query: searchQuery,
-        cursor
+        cursor,
+        projectId
       })
     },
-    [apiEndpoint]
+    [apiEndpoint, projectId]
   )
 
   function normalizeItems<T>(res: T[] | Record<string, T[]>): T[] {
@@ -336,6 +347,19 @@ export function useResultsList<
       abortControllerRef.current?.abort()
     }
   }, [])
+
+  // Client-side draft augmentation. When the page rendered published-only
+  // data statically, refetch page 1 once the visitor's session resolves as
+  // admin — revealing unpublished drafts with no auth() in the static render
+  // path. Anonymous visitors skip the refetch (they'd get identical published
+  // data); the session check is UX only, the API gates drafts on the cookie.
+  const isAdmin = useIsAdmin(!!augmentOnMount)
+  const didAugmentRef = useRef(false)
+  useEffect(() => {
+    if (!augmentOnMount || !isAdmin || didAugmentRef.current) return
+    didAugmentRef.current = true
+    fetchPage({ replace: true })
+  }, [augmentOnMount, isAdmin, fetchPage])
 
   function onRemoveItem(itemId: string) {
     fullResultsCache.current = fullResultsCache.current.filter(

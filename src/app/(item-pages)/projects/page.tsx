@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import { Suspense } from 'react'
 
+import ListLayout from '@/app/(item-pages)/list-layout'
 import { isAuthed } from '@/lib/auth/guard'
 import { fetchProjects } from '@/lib/projects/data'
 import type {
@@ -9,7 +9,6 @@ import type {
 } from '@/lib/projects/types'
 import { PagePaths } from '@/lib/schemas'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
-import { Loading } from '@/ui/loading'
 import { formattedItemType } from '@/ui/util'
 
 const path = PagePaths.projects
@@ -20,13 +19,9 @@ export const metadata: Metadata = { title, description }
 
 export default function ProjectsPage() {
   return (
-    <div>
-      <h1 className='visually-hidden'>{title}</h1>
-
-      <Suspense fallback={<Loading />}>
-        <ProjectsList />
-      </Suspense>
-    </div>
+    <ListLayout title={title}>
+      <ProjectsList />
+    </ListLayout>
   )
 }
 

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import { Suspense } from 'react'
 
+import ListLayout from '@/app/(item-pages)/list-layout'
 import { isAuthed } from '@/lib/auth/guard'
 import { fetchEvents } from '@/lib/events/data'
 import type {
@@ -10,7 +10,6 @@ import type {
 import { PagePaths } from '@/lib/schemas'
 import { ItemsList } from '@/ui/items/items-list'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
-import { Loading } from '@/ui/loading'
 import { formattedItemType } from '@/ui/util'
 
 const path = PagePaths.events
@@ -21,13 +20,9 @@ export const metadata: Metadata = { title, description }
 
 export default function EventsPage() {
   return (
-    <div>
-      <h1 className='visually-hidden'>{title}</h1>
-
-      <Suspense fallback={<Loading />}>
-        <EventsList />
-      </Suspense>
-    </div>
+    <ListLayout title={title}>
+      <EventsList />
+    </ListLayout>
   )
 }
 

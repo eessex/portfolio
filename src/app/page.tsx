@@ -1,13 +1,10 @@
 import NextImage from 'next/image'
 import NextLink from 'next/link'
-import { Suspense } from 'react'
 
 import styles from '@/app/home.module.scss'
-import { isAuthed } from '@/lib/auth/guard'
 import { fetchCachedUpcomingEvents } from '@/lib/events/cached'
-import type { EventClient } from '@/lib/events/types'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
-import { ItemsList } from '@/ui/items/items-list'
+import { UpcomingEventsList } from '@/ui/events/upcoming-events-list'
 
 export default async function Home() {
   const [siteSettings, publicEvents] = await Promise.all([
@@ -54,25 +51,11 @@ export default async function Home() {
         )}
       </section>
 
-      <Suspense fallback={<UpcomingEvents events={publicEvents} />}>
-        <AuthedUpcomingEvents />
-      </Suspense>
+      <UpcomingEventsList
+        initialEvents={publicEvents}
+        isTextOnly
+        title='Upcoming Events'
+      />
     </div>
-  )
-}
-
-async function AuthedUpcomingEvents() {
-  const upcomingEvents = await fetchCachedUpcomingEvents(
-    await isAuthed()
-  )
-
-  return <UpcomingEvents events={upcomingEvents} />
-}
-
-function UpcomingEvents({ events }: { events: EventClient[] }) {
-  if (events.length === 0) return null
-
-  return (
-    <ItemsList items={events} isTextOnly title='Upcoming Events' />
   )
 }

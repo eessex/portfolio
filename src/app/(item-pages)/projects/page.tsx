@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 
 import ListLayout from '@/app/(item-pages)/list-layout'
-import { isAuthed } from '@/lib/auth/guard'
-import { fetchProjects } from '@/lib/projects/data'
+import { fetchCachedProjectsFirstPage } from '@/lib/projects/cached'
 import type {
   FetchProjectsResult,
   ProjectClient
@@ -17,7 +16,7 @@ const title = formattedItemType(path, false, true)
 
 export const metadata: Metadata = { title, description }
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
   return (
     <ListLayout title={title}>
       <ProjectsList />
@@ -26,7 +25,7 @@ export default function ProjectsPage() {
 }
 
 async function ProjectsList() {
-  const projects = await fetchProjects(await isAuthed())
+  const projects = await fetchCachedProjectsFirstPage(false)
 
   return (
     <ItemsTable<ProjectClient, FetchProjectsResult>

@@ -52,6 +52,8 @@ export function FormattedItemDate({
 }) {
   const date = new Date(itemSortDate(item))
   const isProject = item.path === PagePaths.projects
+  const rawEndDate = (item as ProjectClient).endDate
+  const endDate = rawEndDate ? new Date(rawEndDate) : undefined
   const isUpcomingEvent =
     item.path === PagePaths.events &&
     !!(item as EventClient).isUpcoming
@@ -65,17 +67,11 @@ export function FormattedItemDate({
         {formattedDateTime(date, dateFormat, timezone)}
       </time>
 
-      {isProject && (item as ProjectClient).endDate ? (
+      {isProject && endDate ? (
         <>
           –
-          <time
-            dateTime={(item as ProjectClient).endDate?.toISOString()}
-          >
-            {formattedDateTime(
-              (item as ProjectClient).endDate!,
-              dateFormat,
-              timezone
-            )}
+          <time dateTime={endDate.toISOString()}>
+            {formattedDateTime(endDate, dateFormat, timezone)}
           </time>
         </>
       ) : (

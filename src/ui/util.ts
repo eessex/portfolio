@@ -133,10 +133,6 @@ export function formattedDateTime(
   return formattedDate
 }
 
-export function isUpcomingDate(date: string | Date) {
-  return new Date(date) > new Date()
-}
-
 export function eventUrl(slug: string) {
   return `/${PagePaths.events}/${slug}`
 }

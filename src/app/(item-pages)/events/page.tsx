@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
 import { isAuthed } from '@/lib/auth/guard'
+import { fetchCachedUpcomingEvents } from '@/lib/events/cached'
 import { fetchEvents } from '@/lib/events/data'
 import type {
   EventClient,
@@ -32,12 +33,16 @@ export default function EventsPage() {
 }
 
 async function EventsList() {
-  const events = await fetchEvents(await isAuthed())
+  const authed = await isAuthed()
+  const [upcomingEvents, events] = await Promise.all([
+    fetchCachedUpcomingEvents(authed),
+    fetchEvents(authed)
+  ])
 
   return (
     <>
       <ItemsList
-        items={events.res.upcomingEvents}
+        items={upcomingEvents}
         isFeatured
         title={formattedItemType(path, true, true)}
       />

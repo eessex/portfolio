@@ -4,8 +4,7 @@ import { Suspense } from 'react'
 
 import styles from '@/app/home.module.scss'
 import { isAuthed } from '@/lib/auth/guard'
-import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
-import { fetchEvents } from '@/lib/events/data'
+import { fetchCachedUpcomingEvents } from '@/lib/events/cached'
 import type { EventClient } from '@/lib/events/types'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { ItemsList } from '@/ui/items/items-list'
@@ -13,7 +12,7 @@ import { ItemsList } from '@/ui/items/items-list'
 export default async function Home() {
   const [siteSettings, publicEvents] = await Promise.all([
     fetchCachedSiteSettings(),
-    fetchCachedEventsFirstPage(false)
+    fetchCachedUpcomingEvents(false)
   ])
 
   return (
@@ -55,11 +54,7 @@ export default async function Home() {
         )}
       </section>
 
-      <Suspense
-        fallback={
-          <UpcomingEvents events={publicEvents.res.upcomingEvents} />
-        }
-      >
+      <Suspense fallback={<UpcomingEvents events={publicEvents} />}>
         <AuthedUpcomingEvents />
       </Suspense>
     </div>
@@ -67,9 +62,9 @@ export default async function Home() {
 }
 
 async function AuthedUpcomingEvents() {
-  const {
-    res: { upcomingEvents }
-  } = await fetchEvents(await isAuthed())
+  const upcomingEvents = await fetchCachedUpcomingEvents(
+    await isAuthed()
+  )
 
   return <UpcomingEvents events={upcomingEvents} />
 }

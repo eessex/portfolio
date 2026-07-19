@@ -30,8 +30,7 @@ import {
   formattedDateTime,
   formattedItemTitle,
   formattedItemType,
-  formatVenueInline,
-  isUpcomingDate
+  formatVenueInline
 } from '@/ui/util'
 
 export default async function ItemLayout({
@@ -42,9 +41,8 @@ export default async function ItemLayout({
   children?: React.ReactNode
 }) {
   const { publishedEditions } = item as ReleaseClient
-  const { startTime, ticketLink, venue, project } =
+  const { ticketLink, venue, project, isUpcoming } =
     item as EventClient
-  const isUpcoming = startTime ? isUpcomingDate(startTime) : false
 
   function category() {
     switch (item.path) {

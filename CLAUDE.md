@@ -28,7 +28,7 @@ This is a Next.js 16 (App Router, `cacheComponents` enabled) CMS for a personal 
 
 ### Domain module layout
 
-Each content type (`releases`, `events`, `projects`, `venues`, `links`, `images`, `embed-codes`, `about`, `site-settings`, `users`, `email-subscriptions`) lives under `src/lib/<domain>/` with a consistent file split:
+Each content type (`releases`, `events`, `projects`, `venues`, `links`, `images`, `embed-codes`, `published-editions`, `about`, `site-settings`, `users`, `email-subscriptions`) lives under `src/lib/<domain>/` with a consistent file split:
 
 - `data.ts` — raw read queries (`fetch*`), exported for direct use and wrapped by `cached.ts`
 - `cached.ts` — `'use cache'` wrappers around `data.ts` reads, applying `cacheTag(...)` (e.g. `releases`, `releases:authed`/`releases:public`, `project:<id>:releases`) so `updateTag` in `actions.ts` can invalidate precisely
@@ -48,6 +48,13 @@ Each content type (`releases`, `events`, `projects`, `venues`, `links`, `images`
 - Auth-aware reads take an `isAuthed` boolean to decide whether unpublished (`is_published = false`) rows are included; API routes and pages pass this from `isAuthed()` in `src/lib/auth/guard.ts`.
 - Auth guarding (`src/lib/auth/guard.ts`): every `'use server'` mutation is session-checked before any work — form mutations get this from `runFormAction()`/`runDeleteAction()` (which call `requireAuth()` first); bespoke actions call `requireAuth()` (returns a `FormResponse` error to return early with) or `assertAuthed()` (throws, for exposed functions that don't return `FormResponse`, e.g. `uploadFile`/`deleteFromS3`) directly. This is required because middleware only protects page navigation — server actions are invoked by action id and can be POSTed to any public route. Reads are deliberately public: `data.ts` fetchers keep `'use server'` and the embedded-item `/api/*` routes take no session, since embedded items have no publish state. The only deliberately public actions are `authenticate` and `createEmailSubscription`. Tests get an authed session by default from the `@/auth` mock in `src/test/jest.setup.ts`.
 - Postgres schema (tables, constraints, indexes) is defined only in `src/seed/createTables.ts` — there are no migration files, so check that file when the on-disk schema for a table needs to be understood or changed.
+
+### In-progress scaffolding
+
+Two areas intentionally don't yet follow the full domain-module pattern — treat as known TODOs, not bugs, unless asked to build them out:
+
+- `releases`, `events`, and `projects` have no `actions.ts` — only reads (`data.ts`/`cached.ts`) exist, so these domains have no admin create/update/delete path yet (unlike `about`, which does).
+- `tags` is scaffolded in the DB (table + `tag_ids` columns) and in Zod schemas, but has no `src/lib/tags/data.ts` or `actions.ts` — no read/write implementation exists yet.
 
 ### Auth
 

@@ -40,7 +40,10 @@ export async function fetchProjectsRaw(
     query,
     itemType: path,
     schema: projectClientSchema,
-    cursorKey: 'id',
+    cursorKey: 'startDate',
+    cursorExtra: (project) => ({
+      hasEndDate: String(project.endDate != null)
+    }),
     transform: (projects) => ({ allProjects: projects }),
     count: (like) => sql`
       SELECT COUNT(*)::int AS count
@@ -52,9 +55,13 @@ export async function fetchProjectsRaw(
         OR p.description ILIKE ${like}
       );
     `,
-    list: ({ like, cursor: decodedCursor, cursorId }) => {
+    list: ({
+      like,
+      cursorName: cursorStartDate,
+      cursorId,
+      cursor: decodedCursor
+    }) => {
       const cursorHasEndDate = decodedCursor?.hasEndDate ?? null
-      const cursorStartDate = decodedCursor?.startDate ?? null
 
       return sql`
         SELECT

@@ -110,7 +110,7 @@ export async function fetchReleasesRaw(
     query,
     itemType: path,
     schema: releaseClientSchema,
-    cursorKey: 'id',
+    cursorKey: 'releaseDate',
     transform: (releases) =>
       sortReleasesByCategory(releases, !!projectId),
     count: (like) => sql`
@@ -125,9 +125,7 @@ export async function fetchReleasesRaw(
           OR r.description ILIKE ${like}
         );
     `,
-    list: ({ like, cursor: decodedCursor, cursorId }) => {
-      const cursorReleaseDate = decodedCursor?.releaseDate ?? null
-
+    list: ({ like, cursorName: cursorReleaseDate, cursorId }) => {
       return sql`
         SELECT
           r.*,

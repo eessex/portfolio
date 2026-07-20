@@ -34,6 +34,8 @@ interface RunListFetchOptions<S extends z.ZodTypeAny, R> {
   schema: S
   /** row field encoded into the next-page cursor */
   cursorKey: keyof z.infer<S>
+  /** extra fields for composite sorts, e.g. a secondary group key */
+  cursorExtra?: (lastItem: z.infer<S>) => Record<string, string>
   /** COUNT query over the same WHERE as `list` */
   count: (like: string | null) => Promise<Row[]>
   /** the page query, LIMIT `DEFAULT_PAGE_SIZE` */
@@ -51,6 +53,7 @@ export async function runListFetch<
   itemType,
   schema,
   cursorKey,
+  cursorExtra,
   count,
   list,
   transform
@@ -84,7 +87,8 @@ export async function runListFetch<
     const formatted = formatResponseWithCursor(
       data,
       cursorKey,
-      schema
+      schema,
+      cursorExtra
     )
     return {
       res: transform

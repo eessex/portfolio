@@ -13,12 +13,7 @@ export async function fetchCachedEventsFirstPage(
   projectId?: string
 ) {
   cacheTag('events')
-
-  if (isAuthed) {
-    cacheTag('events:authed')
-  } else {
-    cacheTag('events:public')
-  }
+  cacheTag(`events:${isAuthed ? 'authed' : 'public'}`)
 
   if (projectId) {
     cacheTag(`project:${projectId}:events`)

@@ -38,7 +38,9 @@ export function decodeCursor(cursor?: string | null): Cursor | null {
 export function formatResponseWithCursor<T extends z.ZodTypeAny>(
   result: unknown[],
   cursorKey: keyof z.infer<T>,
-  schema: T
+  schema: T,
+  /** extra fields for composite sorts, e.g. a secondary group key */
+  cursorExtra?: (lastItem: z.infer<T>) => Record<string, string>
 ) {
   const formatted: z.infer<T>[] = result.map((row) =>
     formatDbResponseForClient(row, schema)
@@ -51,7 +53,8 @@ export function formatResponseWithCursor<T extends z.ZodTypeAny>(
   const cursorObj = isLoadMoreAvailable
     ? {
         name: lastItem[cursorKey], // Always encoded as `name`
-        id: lastItem.id
+        id: lastItem.id,
+        ...cursorExtra?.(lastItem)
       }
     : null
 

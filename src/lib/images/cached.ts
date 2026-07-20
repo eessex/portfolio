@@ -2,10 +2,10 @@
 
 import { cacheTag } from 'next/cache'
 
-import { sql } from '@/lib/db'
-import { fetchImagesRaw } from '@/lib/images/data'
-import { imageSchema } from '@/lib/images/schemas/db'
-import { formatDbResponseForClient } from '@/lib/util'
+import {
+  fetchImagesRaw,
+  fetchPressImagesRaw
+} from '@/lib/images/data'
 
 export async function fetchCachedImagesFirstPage() {
   cacheTag('images')
@@ -14,19 +14,9 @@ export async function fetchCachedImagesFirstPage() {
 }
 
 /** Only the press photos */
-export async function fetchPressImages() {
+export async function fetchCachedPressImages() {
   cacheTag('images')
   cacheTag('images:press')
 
-  try {
-    const data = await sql`
-      SELECT * FROM images
-      WHERE is_press = true
-    `
-    return data.map((row) =>
-      formatDbResponseForClient(row, imageSchema)
-    )
-  } catch (cause) {
-    throw new Error('Failed to fetch press images.', { cause })
-  }
+  return await fetchPressImagesRaw()
 }

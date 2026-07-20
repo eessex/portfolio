@@ -112,6 +112,21 @@ export const fetchImagesByIds = async (ids: string[]) => {
   }
 }
 
+/** Only the press photos */
+export async function fetchPressImagesRaw() {
+  try {
+    const data = await sql`
+      SELECT * FROM images
+      WHERE is_press = true
+    `
+    return data.map((row) =>
+      formatDbResponseForClient(row, imageSchema)
+    )
+  } catch (cause) {
+    throw new Error('Failed to fetch press images.', { cause })
+  }
+}
+
 export async function fetchImages(cursor?: string, query?: string) {
   if (!cursor && !query) {
     return fetchCachedImagesFirstPage()

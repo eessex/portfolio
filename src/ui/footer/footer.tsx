@@ -1,9 +1,9 @@
-import { fetchSocialLinks } from '@/lib/links/cached'
+import { fetchCachedSocialLinks } from '@/lib/links/cached'
 import { EmailSubscribe } from '@/ui/email-subscribe/email-subscribe'
 import styles from '@/ui/footer/footer.module.scss'
 
 export async function Footer() {
-  const socialLinks = await fetchSocialLinks()
+  const socialLinks = await fetchCachedSocialLinks()
 
   return (
     <footer className={styles.footer}>

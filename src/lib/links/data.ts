@@ -67,6 +67,39 @@ export async function fetchLinks(cursor?: string, query?: string) {
   return fetchLinksRaw(cursor, query)
 }
 
+/** Only the press links */
+export async function fetchPressLinksRaw() {
+  try {
+    const data = await sql`
+      SELECT * FROM links
+      WHERE type = 'press'
+      ORDER BY publish_date DESC, created_at DESC
+    `
+    return data.map((row) =>
+      formatDbResponseForClient(row, linkSchema)
+    )
+  } catch (cause) {
+    throw new Error('Failed to fetch press links.', { cause })
+  }
+}
+
+/** links to social media profiles */
+export async function fetchSocialLinksRaw() {
+  try {
+    const data = await sql`
+      SELECT * FROM links
+      WHERE type = 'social'
+      AND title IS NOT NULL
+      ORDER BY title ASC
+    `
+    return data.map((row) =>
+      formatDbResponseForClient(row, linkSchema)
+    )
+  } catch (cause) {
+    throw new Error('Failed to fetch social links.', { cause })
+  }
+}
+
 /**
  * dashboard: fetch all the links
  */

@@ -3,8 +3,8 @@ import { Suspense } from 'react'
 import styles from '@/app/about/about.module.scss'
 import { fetchCachedAboutPage } from '@/lib/about/cached'
 import type { AboutContact } from '@/lib/about/types'
-import { fetchPressImages } from '@/lib/images/cached'
-import { fetchPressLinks } from '@/lib/links/cached'
+import { fetchCachedPressImages } from '@/lib/images/cached'
+import { fetchCachedPressLinks } from '@/lib/links/cached'
 import { fetchProjects } from '@/lib/projects/data'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
@@ -72,7 +72,7 @@ export default function AboutPage() {
 async function AboutIntro() {
   const [about, links] = await Promise.all([
     fetchCachedAboutPage(),
-    fetchPressLinks()
+    fetchCachedPressLinks()
   ])
 
   const pressLinksWithQuotes = links.filter((link) => link.quotation)
@@ -130,7 +130,7 @@ async function MoreProjects() {
 async function MoreImages() {
   const [about, pressImages] = await Promise.all([
     fetchCachedAboutPage(),
-    fetchPressImages()
+    fetchCachedPressImages()
   ])
 
   const filteredPressImages = pressImages.filter(
@@ -153,7 +153,7 @@ async function MoreImages() {
 
 /** Collapsible list of press links without pull-quotes. */
 async function MorePress() {
-  const links = await fetchPressLinks()
+  const links = await fetchCachedPressLinks()
 
   const pressLinksWithoutQuotes = links.filter(
     (link) => !link.quotation

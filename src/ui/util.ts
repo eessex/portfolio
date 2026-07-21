@@ -320,12 +320,22 @@ export function formatVenueInline({
   return parts.join(', ').replace(':,', ':').trim()
 }
 
-type BaseParams = {
+/**
+ * Params a caller may forward to a client API.
+ */
+export type SearchParams = {
+  /** Scope fetches to a parent project (e.g. on project pages) */
+  projectId?: string
+  /** Restrict images/links to press items */
+  isPress?: boolean
+}
+
+type UrlParams = {
   query?: string
   cursor?: string
-} & Record<string, string | number | boolean | undefined | null>
+} & SearchParams
 
-export function buildApiUrl(endpoint: string, params?: BaseParams) {
+export function buildApiUrl(endpoint: string, params?: UrlParams) {
   const searchParams = new URLSearchParams()
 
   if (params) {

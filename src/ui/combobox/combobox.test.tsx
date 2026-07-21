@@ -254,6 +254,42 @@ describe('Combobox', () => {
       expect(screen.getByText('Loading...')).toBeInTheDocument()
     })
 
+    it('renders a loading indicator on the initial fetch before results arrive', () => {
+      ;(useResultsList as jest.Mock).mockReturnValue({
+        query: '',
+        setQuery: jest.fn(),
+        items: [],
+        isLoading: true,
+        nextCursor: null,
+        loadMoreRef: { current: null }
+      })
+
+      renderCombobox()
+      fireEvent.focus(screen.getByRole('combobox'))
+
+      expect(screen.getByText('Loading...')).toBeInTheDocument()
+      // it's the initial-load loader, not the pagination one
+      expect(
+        screen.queryByTestId('load-more-sentinel')
+      ).not.toBeInTheDocument()
+    })
+
+    it('hides the initial loading indicator once results are present', () => {
+      ;(useResultsList as jest.Mock).mockReturnValue({
+        query: '',
+        setQuery: jest.fn(),
+        items: defaultVenues,
+        isLoading: true,
+        nextCursor: null,
+        loadMoreRef: { current: null }
+      })
+
+      renderCombobox({ initialResults })
+      fireEvent.focus(screen.getByRole('combobox'))
+
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
+    })
+
     it('does not render pagination elements when nextCursor is null', () => {
       ;(useResultsList as jest.Mock).mockReturnValue({
         query: '',

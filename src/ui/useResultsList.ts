@@ -8,7 +8,7 @@ import type {
 } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
 import { useIsAdmin } from '@/ui/useIsAdmin'
-import { buildApiUrl } from '@/ui/util'
+import { buildApiUrl, type SearchParams } from '@/ui/util'
 
 type SortDirection = 'asc' | 'desc'
 
@@ -32,16 +32,25 @@ export function useResultsList<
   S extends PageDataResponse | undefined = undefined
 >(
   apiEndpoint: string,
-  initial: ResultsResponse<TEmbeddedItem, TPage, S>,
+  /**
+   * Server-seeded first page. Omit to fetch the first page client-side
+   * on mount instead (e.g. the about cover-image picker); pass an empty
+   * response to seed an empty, search-only list with no mount fetch.
+   */
+  initial?: ResultsResponse<TEmbeddedItem, TPage, S>,
   {
     defaultQuery,
     augmentOnMount,
-    projectId
+    searchParams
   }: {
     defaultQuery?: string
     augmentOnMount?: boolean
-    /** Scope API fetches to a parent project */
-    projectId?: string
+    /**
+     * Extra query-string params forwarded to every API fetch, e.g.
+     * `{ projectId }` to scope to a parent, or `{ isPress: true }` to
+     * restrict images/links to press items.
+     */
+    searchParams?: SearchParams
   } = {}
 ) {
   /** User search query */
@@ -55,24 +64,24 @@ export function useResultsList<
   const [isLoading, setIsLoading] = useState(false)
   /** Current list of items (filtered and sorted) */
   const [items, setItems] = useState<(TEmbeddedItem | TPage)[]>(
-    normalizeItems<TEmbeddedItem | TPage>(initial.res)
+    normalizeItems<TEmbeddedItem | TPage>(initial?.res ?? [])
   )
   /** Cursor for next page */
   const [nextCursor, setNextCursor] = useState<string | null>(
-    initial.nextCursor
+    initial?.nextCursor ?? null
   )
   /** Count of filtered results */
-  const [count, setCount] = useState(initial.totalCount)
+  const [count, setCount] = useState(initial?.totalCount ?? 0)
 
   /** Total count from the server (unfiltered) */
-  const totalCount = initial.totalCount
+  const totalCount = initial?.totalCount ?? 0
   /** Prevent refetch on rehydration */
   const isMounted = useRef(true)
   /** Abort controller for fetch requests */
   const abortControllerRef = useRef<AbortController | null>(null)
   /** Cache: full unfiltered results */
   const fullResultsCache = useRef<(TEmbeddedItem | TPage)[]>(
-    normalizeItems<TEmbeddedItem | TPage>(initial.res)
+    normalizeItems<TEmbeddedItem | TPage>(initial?.res ?? [])
   )
   /** Fetching state ref to prevent duplicate requests */
   const isFetchingRef = useRef(false)
@@ -81,25 +90,31 @@ export function useResultsList<
   const [groupedItems, setGroupedItems] = useState<Record<
     string,
     (TEmbeddedItem | TPage)[]
-  > | null>(Array.isArray(initial.res) ? null : initial.res)
+  > | null>(
+    initial && !Array.isArray(initial.res) ? initial.res : null
+  )
   const groupedCache = useRef<
     Record<string, (TEmbeddedItem | TPage)[]>
-  >(Array.isArray(initial.res) ? {} : initial.res)
+  >(initial && !Array.isArray(initial.res) ? initial.res : {})
 
   useEffect(() => {
     queryRef.current = query
     sortDirectionRef.current = sortDirection
   }, [query, sortDirection])
 
+  // Compared by value so callers can pass an inline `searchParams`
+  // object without destabilizing the memoized `buildUrl`/`fetchPage`.
+  const searchParamsKey = JSON.stringify(searchParams ?? {})
   const buildUrl = useCallback(
     (cursor?: string, searchQuery?: string) => {
       return buildApiUrl(apiEndpoint, {
         query: searchQuery,
         cursor,
-        projectId
+        ...searchParams
       })
     },
-    [apiEndpoint, projectId]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [apiEndpoint, searchParamsKey]
   )
 
   function normalizeItems<T>(res: T[] | Record<string, T[]>): T[] {
@@ -360,6 +375,17 @@ export function useResultsList<
     didAugmentRef.current = true
     fetchPage({ replace: true })
   }, [augmentOnMount, isAdmin, fetchPage])
+
+  // Client-side seeding. When no `initial` results are passed, fetch the
+  // first page once on mount so the list populates without the caller
+  // threading server data down (e.g. the about cover-image picker). An
+  // explicit empty response seeds an empty list without a mount fetch.
+  const didFetchOnMountRef = useRef(false)
+  useEffect(() => {
+    if (initial !== undefined || didFetchOnMountRef.current) return
+    didFetchOnMountRef.current = true
+    fetchPage({ replace: true })
+  }, [initial, fetchPage])
 
   function onRemoveItem(itemId: string) {
     fullResultsCache.current = fullResultsCache.current.filter(

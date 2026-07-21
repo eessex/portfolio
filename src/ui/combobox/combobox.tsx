@@ -20,7 +20,7 @@ import {
   type ResultsResponse,
   useResultsList
 } from '@/ui/useResultsList'
-import { isEmbeddedItemType } from '@/ui/util'
+import { isEmbeddedItemType, type SearchParams } from '@/ui/util'
 
 export interface ComboboxProps<
   TEmbeddedItem extends EmbeddedItem,
@@ -28,7 +28,10 @@ export interface ComboboxProps<
   S extends PageDataResponse | undefined = undefined
 > {
   defaultQuery?: string
-  initialResults: ResultsResponse<TEmbeddedItem, TPage, S>
+  /** Server-seeded first page; omit to fetch on mount */
+  initialResults?: ResultsResponse<TEmbeddedItem, TPage, S>
+  /** Params forwarded to every API fetch */
+  searchParams?: SearchParams
   itemType: EmbeddedItemType | PagePath
   label?: string
   placeholder?: string
@@ -44,6 +47,7 @@ export function Combobox<
 >({
   defaultQuery,
   initialResults,
+  searchParams,
   itemType,
   label,
   placeholder,
@@ -61,7 +65,7 @@ export function Combobox<
   } = useResultsList<TEmbeddedItem, TPage, S>(
     `/api/${itemType}`,
     initialResults,
-    { defaultQuery }
+    { defaultQuery, searchParams }
   )
 
   const listId = useId()
@@ -194,6 +198,7 @@ export function Combobox<
       />
       {isOpen && (
         <ul id={listId} role='listbox'>
+          {isLoading && items.length === 0 && <Loading />}
           {items.map((item, index) => (
             <li
               key={item.id}

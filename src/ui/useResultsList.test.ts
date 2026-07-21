@@ -388,6 +388,36 @@ describe('useResultsList', () => {
     })
   })
 
+  describe('mount fetch when no server data', () => {
+    it('fetches the first page on mount when initial is omitted', async () => {
+      mockFetchOnce(makeResponse(defaultVenues))
+
+      const { result } = renderHook(() =>
+        useResultsList<Venue>('/api/venues')
+      )
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual(defaultVenues)
+      })
+
+      expect(global.fetch).toHaveBeenCalledTimes(1)
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/venues'),
+        expect.anything()
+      )
+    })
+
+    it('does not fetch on mount when server data is provided', () => {
+      global.fetch = jest.fn()
+
+      renderHook(() =>
+        useResultsList<Venue>('/api/venues', makeResponse([]))
+      )
+
+      expect(global.fetch).not.toHaveBeenCalled()
+    })
+  })
+
   describe('performance and cleanup', () => {
     it('aborts in-flight requests on unmount', () => {
       global.fetch = jest.fn(() => new Promise(() => {}))

@@ -33,8 +33,7 @@ describe('editSiteSettings', () => {
   })
 
   it('can handle validation errors without throwing', async () => {
-    const invalid = { ...validFields }
-    delete (invalid as Partial<typeof validFields>).id
+    const invalid = { ...validFields, coverImageId: 'not-a-uuid' }
 
     const res = await editSiteSettings(
       formDataFromObject(invalid),
@@ -43,7 +42,7 @@ describe('editSiteSettings', () => {
 
     expect(res).toEqual({
       ok: false,
-      errors: { id: ['Required'] },
+      errors: { coverImageId: ['Invalid uuid'] },
       message: 'Failed to validate site settings.'
     })
   })

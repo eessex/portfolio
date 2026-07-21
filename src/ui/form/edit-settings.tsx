@@ -1,13 +1,13 @@
 'use client'
 
-import { XMarkIcon } from '@heroicons/react/24/outline'
-import NextImage from 'next/image'
-import { useState } from 'react'
-
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
+import { AttachEmbeddedItem } from '@/ui/attach-embedded-item/attach-embedded-item'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
+
+// Only press photos may be attached as the site cover image
+const pressSearchParams = { isPress: true }
 
 function SettingsFormFields({
   settings
@@ -15,9 +15,6 @@ function SettingsFormFields({
   settings: SiteSettingsClient
 }) {
   const errors = useFormErrors()
-  const [coverImageId, setCoverImageId] = useState<
-    string | undefined
-  >(settings?.coverImage?.id)
 
   return (
     <>
@@ -46,71 +43,16 @@ function SettingsFormFields({
         }}
       />
 
-      <div>
-        <h2>Cover Image</h2>
-
-        <Input
-          label='Cover image'
-          description='Shown on homepage and as meta image for search engines.'
-          value={coverImageId}
-          onChange={() => setCoverImageId(undefined)}
-          attributes={{
-            name: 'coverImageId',
-            type: 'hidden',
-            readOnly: true
-          }}
-        />
-
-        {coverImageId && settings?.coverImage && (
-          <figure
-            style={{ aspectRatio: settings?.coverImage?.aspect }}
-          >
-            <NextImage
-              src={settings?.coverImage?.url}
-              alt={
-                settings?.coverImage?.alt ||
-                settings?.coverImage?.caption ||
-                ''
-              }
-              title={
-                settings?.coverImage?.caption ||
-                settings?.coverImage?.alt ||
-                undefined
-              }
-              width={Math.round(500 * settings?.coverImage?.aspect)}
-              height={500}
-              sizes='(max-width: 768px) 100vw, 680px'
-            />
-            <button
-              type='button'
-              onClick={() => setCoverImageId(undefined)}
-              className='button'
-              aria-label='Remove cover image'
-            >
-              <XMarkIcon />
-            </button>
-          </figure>
-        )}
-      </div>
-
-      <Input
-        label='Id'
-        value={settings.id}
-        attributes={{
-          name: 'id',
-          type: 'hidden',
-          readOnly: true
-        }}
-      />
-
-      <Input
-        label='Created At'
-        value={settings.createdAt.toISOString()}
-        attributes={{
-          name: 'createdAt',
-          type: 'hidden',
-          readOnly: true
-        }}
+      <AttachEmbeddedItem
+        name='coverImageId'
+        itemType='images'
+        searchParams={pressSearchParams}
+        hideCreateNew
+        existingItem={settings?.coverImage}
+        formatResult={(image) =>
+          image.title || image.caption || image.url
+        }
+        renderEditItemForm={() => null}
       />
     </>
   )
@@ -126,6 +68,7 @@ export function EditSettings({
       action={(formData: FormData) =>
         editSiteSettings(formData, settings.id)
       }
+      submitButtonClassName='button-primary button-lg'
     >
       <SettingsFormFields settings={settings} />
     </Form>

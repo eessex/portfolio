@@ -4,7 +4,8 @@ import {
 } from '@/lib/images/fixtures'
 
 jest.mock('@/lib/images/cached', () => ({
-  fetchCachedImagesFirstPage: jest.fn()
+  fetchCachedImagesFirstPage: jest.fn(),
+  fetchCachedPressImagesFirstPage: jest.fn()
 }))
 
 jest.mock('@/lib/db', () => ({
@@ -12,11 +13,15 @@ jest.mock('@/lib/db', () => ({
 }))
 
 import { sql } from '@/lib/db'
-import { fetchCachedImagesFirstPage } from '@/lib/images/cached'
+import {
+  fetchCachedImagesFirstPage,
+  fetchCachedPressImagesFirstPage
+} from '@/lib/images/cached'
 import * as Images from '@/lib/images/data'
 
 const mockSql = jest.mocked(sql)
 const mockCached = jest.mocked(fetchCachedImagesFirstPage)
+const mockCachedPress = jest.mocked(fetchCachedPressImagesFirstPage)
 
 const dashboardImageRow = {
   ...imageFixture,
@@ -54,6 +59,28 @@ describe('fetchImages', () => {
 
     expect(result).toBeDefined()
   })
+
+  it('returns cached press first page when isPress and no cursor/query', async () => {
+    mockCachedPress.mockResolvedValue({
+      res: [dashboardImageRow],
+      nextCursor: null,
+      totalCount: 1
+    })
+
+    const result = await Images.fetchImages(
+      undefined,
+      undefined,
+      true
+    )
+
+    expect(mockCachedPress).toHaveBeenCalled()
+    expect(mockCached).not.toHaveBeenCalled()
+    expect(result).toEqual({
+      res: [dashboardImageRow],
+      nextCursor: null,
+      totalCount: 1
+    })
+  })
 })
 
 describe('fetchImagesRaw', () => {
@@ -82,6 +109,29 @@ describe('fetchImagesRaw', () => {
     await expect(Images.fetchImagesRaw()).rejects.toThrow(
       'Failed to fetch images.'
     )
+  })
+
+  it('restricts to press photos when isPress is set', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([dashboardImageRow])
+
+    await Images.fetchImagesRaw(undefined, undefined, true)
+
+    // the `is_press` guard is bound `true` on both count and page queries
+    expect(mockSql.mock.calls[0]).toContain(true)
+    expect(mockSql.mock.calls[1]).toContain(true)
+  })
+
+  it('does not restrict to press photos by default', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([dashboardImageRow])
+
+    await Images.fetchImagesRaw()
+
+    expect(mockSql.mock.calls[0]).toContain(false)
+    expect(mockSql.mock.calls[1]).toContain(false)
   })
 })
 

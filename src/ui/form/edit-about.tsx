@@ -3,8 +3,12 @@
 import { editAbout } from '@/lib/about/actions'
 import type { About } from '@/lib/about/types'
 import type { Image } from '@/lib/images/schemas/db'
+import { AttachEmbeddedItem } from '@/ui/attach-embedded-item/attach-embedded-item'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
+
+// Only press photos may be attached as the about cover image
+const pressSearchParams = { isPress: true }
 
 function AboutFormFields({
   about
@@ -36,14 +40,16 @@ function AboutFormFields({
         }}
       /> */}
 
-      <Input
-        label='Cover image id'
-        defaultValue={about?.coverImageId}
-        attributes={{
-          name: 'coverImageId',
-          type: 'hidden',
-          readOnly: true
-        }}
+      <AttachEmbeddedItem<Image>
+        name='coverImageId'
+        itemType='images'
+        searchParams={pressSearchParams}
+        hideCreateNew
+        existingItem={about?.coverImage}
+        formatResult={(image) =>
+          image.title || image.caption || image.url
+        }
+        renderEditItemForm={() => null}
       />
 
       <Input

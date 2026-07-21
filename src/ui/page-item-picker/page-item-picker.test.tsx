@@ -1,4 +1,9 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor
+} from '@testing-library/react'
 
 import type {
   FetchReleasesResult,
@@ -32,16 +37,23 @@ describe('PageItemPicker', () => {
     ;(useResultsList as jest.Mock).mockImplementation(
       actual.useResultsList
     )
+    // With no seeded `initialResults`, the combobox fetches its first
+    // (grouped) page on mount; resolve it so the update lands in act().
+    global.fetch = jest.fn().mockResolvedValue({
+      json: async () => ({ res: {}, nextCursor: null, totalCount: 0 })
+    })
   })
 
   describe('initial render', () => {
-    it('shows the combobox search input when no item is selected', () => {
+    it('shows the combobox search input when no item is selected', async () => {
       renderReleasePicker()
 
       expect(screen.getByRole('combobox')).toBeInTheDocument()
       expect(
         screen.queryByText(/remove release/i)
       ).not.toBeInTheDocument()
+
+      await waitFor(() => expect(global.fetch).toHaveBeenCalled())
     })
 
     it('shows the currently selected item when initialItem is provided', () => {
@@ -83,7 +95,7 @@ describe('PageItemPicker', () => {
   })
 
   describe('selected item state', () => {
-    it('allows clearing the selected item, returning to search', () => {
+    it('allows clearing the selected item, returning to search', async () => {
       renderReleasePicker({
         initialItem: { id: 'release-1', title: 'Test Release' }
       })
@@ -96,6 +108,8 @@ describe('PageItemPicker', () => {
         screen.queryByText('Test Release')
       ).not.toBeInTheDocument()
       expect(screen.getByRole('combobox')).toBeInTheDocument()
+
+      await waitFor(() => expect(global.fetch).toHaveBeenCalled())
     })
   })
 })

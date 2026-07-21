@@ -1,7 +1,10 @@
 'use server'
 
 import { sql } from '@/lib/db'
-import { fetchCachedImagesFirstPage } from '@/lib/images/cached'
+import {
+  fetchCachedImagesFirstPage,
+  fetchCachedPressImagesFirstPage
+} from '@/lib/images/cached'
 import {
   type DashboardImage,
   dashboardImageSchema
@@ -112,36 +115,31 @@ export const fetchImagesByIds = async (ids: string[]) => {
   }
 }
 
-/** Only the press photos */
-export async function fetchPressImagesRaw() {
-  try {
-    const data = await sql`
-      SELECT * FROM images
-      WHERE is_press = true
-    `
-    return data.map((row) =>
-      formatDbResponseForClient(row, imageSchema)
-    )
-  } catch (cause) {
-    throw new Error('Failed to fetch press images.', { cause })
-  }
-}
-
-export async function fetchImages(cursor?: string, query?: string) {
+export async function fetchImages(
+  cursor?: string,
+  query?: string,
+  isPress?: boolean
+) {
   if (!cursor && !query) {
-    return fetchCachedImagesFirstPage()
+    return isPress
+      ? fetchCachedPressImagesFirstPage()
+      : fetchCachedImagesFirstPage()
   }
 
-  return fetchImagesRaw(cursor, query)
+  return fetchImagesRaw(cursor, query, isPress)
 }
 
 /**
- * dashboard: fetch all the images
+ * dashboard: fetch all the images, or only press photos when
+ * `isPress` is set (e.g. the about page cover-image picker).
  */
 export async function fetchImagesRaw(
   cursor?: string,
-  query?: string
+  query?: string,
+  isPress?: boolean
 ): Promise<ResponseWithCursor<DashboardImage>> {
+  const pressOnly = isPress === true
+
   return runListFetch({
     cursor,
     query,
@@ -157,19 +155,20 @@ export async function fetchImagesRaw(
         OR title ILIKE ${like}
         OR caption ILIKE ${like}
       )
+      AND (${pressOnly} IS NOT TRUE OR is_press = true)
     `,
     list: ({ like, cursorName, cursorId }) => sql`
       SELECT
         images.*,
         ARRAY(
-          SELECT slug FROM events AS e 
+          SELECT slug FROM events AS e
           WHERE (e.image_ids @> ARRAY[images.id] OR e.cover_image_id = images.id)
         ) AS event_slugs,
         ARRAY(
           SELECT slug FROM projects AS p WHERE p.image_ids @> ARRAY[images.id]
         ) AS project_slugs,
         ARRAY(
-          SELECT slug FROM releases AS r 
+          SELECT slug FROM releases AS r
           WHERE (r.image_ids @> ARRAY[images.id] OR r.cover_image_id = images.id)
         ) AS release_slugs
       FROM images
@@ -179,6 +178,7 @@ export async function fetchImagesRaw(
         OR title ILIKE ${like}
         OR caption ILIKE ${like}
       )
+      AND (${pressOnly} IS NOT TRUE OR images.is_press = true)
       AND (
         ${cursorName}::text IS NULL
         OR (images.updated_at, images.id) < (

@@ -63,7 +63,7 @@ export function ItemsTable<
     // (the API gates them on the session cookie). Anonymous visitors
     // only pay a shared /api/session check, not the refetch.
     augmentOnMount: true,
-    projectId
+    searchParams: { projectId }
   })
 
   function displayedItems() {

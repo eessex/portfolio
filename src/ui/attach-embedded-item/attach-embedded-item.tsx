@@ -2,20 +2,25 @@
 
 import { useState } from 'react'
 
-import {
-  type EmbeddedItemType,
-  itemTypeToLabel
-} from '@/lib/schemas'
+import { type EmbeddedItemType, itemTypeToLabel } from '@/lib/schemas'
 import type { EmbeddedItem } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
 import { Combobox } from '@/ui/combobox/combobox'
 import styles from '@/ui/form/form.module.scss'
 import { SelectedResult } from '@/ui/selected-results/selected-result'
+import type { SearchParams } from '@/ui/util'
 
 export interface AttachEmbeddedItemProps<T extends EmbeddedItem> {
   existingItem?: T
   hideCreateNew?: boolean
-  initialResults: ResponseWithCursor<T>
+  /**
+   * Server-seeded first page. Omit to fetch on mount.
+   */
+  initialResults?: ResponseWithCursor<T>
+  /**
+   *  Params forwarded to every API fetch, e.g. `{ isPress: true }`
+   */
+  searchParams?: SearchParams
   isRequired?: boolean
   itemType: EmbeddedItemType
   /**
@@ -38,6 +43,7 @@ export function AttachEmbeddedItem<T extends EmbeddedItem>({
   existingItem,
   hideCreateNew,
   initialResults,
+  searchParams,
   isRequired,
   itemType,
   name,
@@ -75,6 +81,7 @@ export function AttachEmbeddedItem<T extends EmbeddedItem>({
       ) : mode === 'search' ? (
         <Combobox<T, never, undefined>
           initialResults={initialResults}
+          searchParams={searchParams}
           itemType={itemType}
           formatResult={formatResult}
           onCreateNew={

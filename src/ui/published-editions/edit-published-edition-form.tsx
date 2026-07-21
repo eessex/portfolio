@@ -14,8 +14,6 @@ import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
 import { PageItemPicker } from '@/ui/page-item-picker/page-item-picker'
 
-const emptyResults = { res: [], nextCursor: null, totalCount: 0 }
-
 interface EditPublishedEditionProps {
   errors?: z.inferFlattenedErrors<
     typeof createPublishedEditionSchema
@@ -107,7 +105,6 @@ export const EditPublishedEdition = ({
         name='coverImageId'
         itemType='images'
         hideCreateNew
-        initialResults={emptyResults}
         existingItem={publishedEdition?.coverImage}
         formatResult={(image) =>
           image.title || image.caption || image.url
@@ -119,7 +116,6 @@ export const EditPublishedEdition = ({
         name='buyLinkId'
         itemType='links'
         hideCreateNew
-        initialResults={emptyResults}
         existingItem={publishedEdition?.buyLink}
         formatResult={(link) => link.title || link.url}
         renderEditItemForm={() => null}

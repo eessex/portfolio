@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import styles from '@/app/about/about.module.scss'
 import { fetchCachedAboutPage } from '@/lib/about/cached'
 import type { AboutContact } from '@/lib/about/types'
-import { fetchCachedPressImages } from '@/lib/images/cached'
+import { fetchCachedPressImagesFirstPage } from '@/lib/images/cached'
 import { fetchCachedPressLinks } from '@/lib/links/cached'
 import { fetchProjects } from '@/lib/projects/data'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
@@ -130,15 +130,14 @@ async function MoreProjects() {
 async function MoreImages() {
   const [about, pressImages] = await Promise.all([
     fetchCachedAboutPage(),
-    fetchCachedPressImages()
+    fetchCachedPressImagesFirstPage()
   ])
 
-  const filteredPressImages = pressImages.filter(
+  // Not paginated: the first page of press photos is enough here.
+  const filteredPressImages = pressImages.res.filter(
     (image) =>
       !!(
-        image.isPress &&
-        !image.isHiddenOnAboutPage &&
-        image.id !== about?.coverImageId
+        !image.isHiddenOnAboutPage && image.id !== about?.coverImageId
       )
   )
 

@@ -7,14 +7,9 @@ import {
   type PagePath,
   pagePathSingulars
 } from '@/lib/schemas'
-import type {
-  PageDataResponse,
-  PageItemClient,
-  PageItemResponseWithCursor
-} from '@/lib/types'
+import type { PageDataResponse, PageItemClient } from '@/lib/types'
 import { Combobox } from '@/ui/combobox/combobox'
 import { SelectedResult } from '@/ui/selected-results/selected-result'
-import type { ResultsResponse } from '@/ui/useResultsList'
 import { formattedItemTitle } from '@/ui/util'
 
 export type SelectedPageItem = Pick<
@@ -53,14 +48,6 @@ export function PageItemPicker<
     initialItem ?? null
   )
 
-  // Safe to start with an empty (rather than fully-keyed) grouped object:
-  // useResultsList only reads real category keys from a fetched response,
-  // never from this initial value, before the first search resolves.
-  const emptyResults: PageItemResponseWithCursor<TPage, S> = {
-    res: {} as Record<keyof S, TPage[]>,
-    nextCursor: null,
-    totalCount: 0
-  }
   const pagePathSingular = pagePathSingulars[pagePath]
   const fieldName = name ?? `${pagePathSingular}Id`
 
@@ -79,9 +66,6 @@ export function PageItemPicker<
     </div>
   ) : (
     <Combobox<never, TPage, S>
-      initialResults={
-        emptyResults as ResultsResponse<never, TPage, S>
-      }
       itemType={pagePath}
       formatResult={formattedItemTitle}
       onSelect={(item) =>

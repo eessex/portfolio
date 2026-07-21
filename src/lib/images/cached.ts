@@ -2,10 +2,7 @@
 
 import { cacheTag } from 'next/cache'
 
-import {
-  fetchImagesRaw,
-  fetchPressImagesRaw
-} from '@/lib/images/data'
+import { fetchImagesRaw } from '@/lib/images/data'
 
 export async function fetchCachedImagesFirstPage() {
   cacheTag('images')
@@ -14,9 +11,9 @@ export async function fetchCachedImagesFirstPage() {
 }
 
 /** Only the press photos */
-export async function fetchCachedPressImages() {
+export async function fetchCachedPressImagesFirstPage() {
   cacheTag('images')
   cacheTag('images:press')
 
-  return await fetchPressImagesRaw()
+  return await fetchImagesRaw(undefined, undefined, true)
 }

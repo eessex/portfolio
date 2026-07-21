@@ -4,7 +4,7 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import { runFormAction } from '@/lib/form-action'
-import { siteSettingsSchema } from '@/lib/site-settings/schemas'
+import { createSiteSettingsSchema } from '@/lib/site-settings/schemas'
 
 export async function editSiteSettings(
   formData: FormData,
@@ -12,7 +12,7 @@ export async function editSiteSettings(
 ) {
   return runFormAction({
     formData,
-    schema: siteSettingsSchema,
+    schema: createSiteSettingsSchema,
     itemType: 'siteSettings',
     invalidate: () => updateTag('settings'),
     save: async ({ coverImageId, description, title }) => {

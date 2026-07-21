@@ -13,7 +13,8 @@ const validFields = {
   id: 'a3b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a',
   createdAt: new Date('2024-01-01T12:00:00Z'),
   slug: 'about',
-  description: 'Some description'
+  description: 'Some description',
+  coverImageId: 'a3b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8b'
 }
 
 describe('editAbout', () => {
@@ -31,8 +32,7 @@ describe('editAbout', () => {
   })
 
   it('can handle validation errors without throwing', async () => {
-    const invalid = { ...validFields }
-    delete (invalid as Partial<typeof validFields>).slug
+    const invalid = { ...validFields, coverImageId: 'not-a-uuid' }
 
     const res = await editAbout(
       formDataFromObject(invalid),
@@ -41,7 +41,7 @@ describe('editAbout', () => {
 
     expect(res).toEqual({
       ok: false,
-      errors: { slug: ['Required'] },
+      errors: { coverImageId: ['Invalid uuid'] },
       message: 'Failed to validate about.'
     })
   })

@@ -1,4 +1,5 @@
 import { sql } from '@/lib/db'
+import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import { eventClientSchema } from '@/lib/events/schemas'
 import type {
@@ -67,11 +68,14 @@ export async function fetchEventsRaw(
         e.*,
         ${path} AS path,
         e.start_time > now() AS is_upcoming,
-        (
-          SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
-          FROM embed_codes ec
-          WHERE ec.id = ANY(e.embed_code_ids)
-        ) AS embed_codes,
+        EXISTS (
+          SELECT 1 FROM embed_codes ec
+          WHERE ec.id = ANY(e.embed_code_ids) AND ec.type = ${EmbedCodeTypes.video}
+        ) AS has_video,
+        EXISTS (
+          SELECT 1 FROM embed_codes ec
+          WHERE ec.id = ANY(e.embed_code_ids) AND ec.type = ${EmbedCodeTypes.audio}
+        ) AS has_audio,
         (
           CASE
             WHEN COALESCE(e.cover_image_id, e.image_ids[1]) IS NOT NULL
@@ -124,11 +128,14 @@ export async function fetchUpcomingEventsRaw(
         e.*,
         ${path} AS path,
         e.start_time > now() AS is_upcoming,
-        (
-          SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
-          FROM embed_codes ec
-          WHERE ec.id = ANY(e.embed_code_ids)
-        ) AS embed_codes,
+        EXISTS (
+          SELECT 1 FROM embed_codes ec
+          WHERE ec.id = ANY(e.embed_code_ids) AND ec.type = ${EmbedCodeTypes.video}
+        ) AS has_video,
+        EXISTS (
+          SELECT 1 FROM embed_codes ec
+          WHERE ec.id = ANY(e.embed_code_ids) AND ec.type = ${EmbedCodeTypes.audio}
+        ) AS has_audio,
         (
           CASE
             WHEN COALESCE(e.cover_image_id, e.image_ids[1]) IS NOT NULL

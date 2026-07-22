@@ -1,4 +1,5 @@
 import { sql } from '@/lib/db'
+import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import { runListFetch } from '@/lib/list-fetch'
 import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import { releaseClientSchema } from '@/lib/releases/schemas'
@@ -150,11 +151,14 @@ export async function fetchReleasesRaw(
               )
             END
           ) AS cover_image,
-          (
-            SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
-            FROM embed_codes ec
-            WHERE ec.id = ANY(r.embed_code_ids)
-          ) AS embed_codes,
+          EXISTS (
+            SELECT 1 FROM embed_codes ec
+            WHERE ec.id = ANY(r.embed_code_ids) AND ec.type = ${EmbedCodeTypes.video}
+          ) AS has_video,
+          EXISTS (
+            SELECT 1 FROM embed_codes ec
+            WHERE ec.id = ANY(r.embed_code_ids) AND ec.type = ${EmbedCodeTypes.audio}
+          ) AS has_audio,
           (
             SELECT COALESCE(jsonb_agg(build_published_edition_json(pe)), '[]'::jsonb)
             FROM published_editions pe

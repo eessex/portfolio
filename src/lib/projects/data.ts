@@ -1,4 +1,5 @@
 import { sql } from '@/lib/db'
+import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import { runListFetch } from '@/lib/list-fetch'
 import { fetchCachedProjectsFirstPage } from '@/lib/projects/cached'
 import { projectClientSchema } from '@/lib/projects/schemas'
@@ -76,7 +77,15 @@ export async function fetchProjectsRaw(
                 WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
               )
             END
-          ) AS cover_image
+          ) AS cover_image,
+          EXISTS (
+            SELECT 1 FROM embed_codes ec
+            WHERE ec.id = ANY(p.embed_code_ids) AND ec.type = ${EmbedCodeTypes.video}
+          ) AS has_video,
+          EXISTS (
+            SELECT 1 FROM embed_codes ec
+            WHERE ec.id = ANY(p.embed_code_ids) AND ec.type = ${EmbedCodeTypes.audio}
+          ) AS has_audio
         FROM projects AS p
         WHERE
           (${isAuthed} OR p.is_published = true)

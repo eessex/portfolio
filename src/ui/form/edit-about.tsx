@@ -6,6 +6,7 @@ import type { Image } from '@/lib/images/schemas/db'
 import { AttachEmbeddedItem } from '@/ui/attach-embedded-item/attach-embedded-item'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
+import { formatImageResult } from '@/ui/images/format-image-result'
 
 // Only press photos may be attached as the about cover image
 const pressSearchParams = { isPress: true }
@@ -32,9 +33,8 @@ function AboutFormFields({ about }: { about: AboutClient }) {
         searchParams={pressSearchParams}
         hideCreateNew
         existingItem={about?.coverImage}
-        formatResult={(image) =>
-          image.title || image.caption || image.url
-        }
+        getCoverImage={(image) => image}
+        formatResult={formatImageResult}
         renderEditItemForm={() => null}
       />
     </>

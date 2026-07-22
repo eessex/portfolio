@@ -1,23 +1,18 @@
 import { XMarkIcon } from '@heroicons/react/16/solid'
-import NextImage from 'next/image'
 
-import type { Image } from '@/lib/images/schemas/db'
 import type { EmbeddedItemType, PagePath } from '@/lib/schemas'
-import {
-  itemTypeSingulars,
-  itemTypeToLabel
-} from '@/lib/schemas'
+import { itemTypeSingulars, itemTypeToLabel } from '@/lib/schemas'
+import type { CoverImage } from '@/ui/cover-image-thumbnail'
+import { CoverImageThumbnail } from '@/ui/cover-image-thumbnail'
 import { Input } from '@/ui/form/input'
 import styles from '@/ui/selected-results/selected-results.module.scss'
-
-const COVER_IMAGE_HEIGHT = 24
 
 export type SelectedResultProps = {
   as?: 'div' | 'li'
   isRequired?: boolean
   item: {
     id: string
-    coverImage?: Pick<Image, 'alt' | 'aspect' | 'caption' | 'url'>
+    coverImage?: CoverImage
   }
   itemType: EmbeddedItemType | PagePath
   /**
@@ -48,15 +43,7 @@ export const SelectedResult = ({
     <Component className={styles['selected-result']}>
       <span className={styles['title']}>
         {item.coverImage && (
-          <NextImage
-            src={item.coverImage.url}
-            alt={item.coverImage.alt || item.coverImage.caption || ''}
-            width={Math.round(
-              COVER_IMAGE_HEIGHT * item.coverImage.aspect
-            )}
-            height={COVER_IMAGE_HEIGHT}
-            className={styles['cover-image']}
-          />
+          <CoverImageThumbnail image={item.coverImage} />
         )}
         {children}
       </span>

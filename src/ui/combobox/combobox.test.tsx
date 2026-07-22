@@ -97,6 +97,31 @@ describe('Combobox', () => {
       })
     })
 
+    describe('getCoverImage', () => {
+      it('renders a cover image thumbnail for each result when provided', () => {
+        renderCombobox({
+          initialResults,
+          getCoverImage: () => ({
+            url: 'https://example.com/cover.jpg',
+            aspect: 1.5,
+            alt: 'Cover alt text'
+          })
+        })
+        fireEvent.focus(screen.getByRole('combobox'))
+
+        expect(
+          screen.getAllByRole('img', { name: 'Cover alt text' })
+        ).toHaveLength(defaultVenues.length)
+      })
+
+      it('does not render a thumbnail when getCoverImage is not provided', () => {
+        renderCombobox({ initialResults })
+        fireEvent.focus(screen.getByRole('combobox'))
+
+        expect(screen.queryByRole('img')).not.toBeInTheDocument()
+      })
+    })
+
     describe('opening and closing behavior', () => {
       it('opens and closes the listbox on focus/focus', () => {
         renderCombobox({ initialResults })

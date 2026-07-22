@@ -6,6 +6,7 @@ import { type EmbeddedItemType, itemTypeToLabel } from '@/lib/schemas'
 import type { EmbeddedItem } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
 import { Combobox } from '@/ui/combobox/combobox'
+import type { CoverImage } from '@/ui/cover-image-thumbnail'
 import styles from '@/ui/form/form.module.scss'
 import { SelectedResult } from '@/ui/selected-results/selected-result'
 import type { SearchParams } from '@/ui/util'
@@ -29,6 +30,8 @@ export interface AttachEmbeddedItemProps<T extends EmbeddedItem> {
    * relations (e.g. `coverImageId` for an `images` item).
    */
   name?: string
+  /** Cover image thumbnail shown before `formatResult`, if applicable */
+  getCoverImage?: (item: T) => CoverImage | undefined
   formatResult: (item: T) => React.ReactNode
   renderEditItemForm: (query?: string) => React.ReactNode
 }
@@ -47,6 +50,7 @@ export function AttachEmbeddedItem<T extends EmbeddedItem>({
   isRequired,
   itemType,
   name,
+  getCoverImage,
   formatResult,
   renderEditItemForm
 }: AttachEmbeddedItemProps<T>) {
@@ -72,7 +76,10 @@ export function AttachEmbeddedItem<T extends EmbeddedItem>({
             itemType={itemType}
             name={name}
             onClick={() => setExisting(null)}
-            item={existing}
+            item={{
+              id: existing.id,
+              coverImage: getCoverImage?.(existing)
+            }}
             isRequired={isRequired}
           >
             {formatResult(existing)}
@@ -83,6 +90,7 @@ export function AttachEmbeddedItem<T extends EmbeddedItem>({
           initialResults={initialResults}
           searchParams={searchParams}
           itemType={itemType}
+          getCoverImage={getCoverImage}
           formatResult={formatResult}
           onCreateNew={
             hideCreateNew

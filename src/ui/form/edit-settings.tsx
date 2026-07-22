@@ -5,6 +5,7 @@ import type { SiteSettingsClient } from '@/lib/site-settings/types'
 import { AttachEmbeddedItem } from '@/ui/attach-embedded-item/attach-embedded-item'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
+import { formatImageResult } from '@/ui/images/format-image-result'
 
 // Only press photos may be attached as the site cover image
 const pressSearchParams = { isPress: true }
@@ -49,9 +50,8 @@ function SettingsFormFields({
         searchParams={pressSearchParams}
         hideCreateNew
         existingItem={settings?.coverImage}
-        formatResult={(image) =>
-          image.title || image.caption || image.url
-        }
+        getCoverImage={(image) => image}
+        formatResult={formatImageResult}
         renderEditItemForm={() => null}
       />
     </>

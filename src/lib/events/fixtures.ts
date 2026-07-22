@@ -20,5 +20,6 @@ export const eventFixturePast: EventClient = {
   updatedAt: new Date('2019-01-01'),
   slug: 'event-1',
   venueId: '550e8400-e29b-41d4-a716-446655440000',
-  title: 'Tina Turner, ABBA, Madonna'
+  title: 'Tina Turner, ABBA, Madonna',
+  shortDescription: 'A test event for SEO metadata.'
 }

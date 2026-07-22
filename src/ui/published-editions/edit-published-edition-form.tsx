@@ -12,6 +12,7 @@ import type {
 import { AttachEmbeddedItem } from '@/ui/attach-embedded-item/attach-embedded-item'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
+import { formatImageResult } from '@/ui/images/format-image-result'
 import { PageItemPicker } from '@/ui/page-item-picker/page-item-picker'
 
 interface EditPublishedEditionProps {
@@ -106,9 +107,8 @@ export const EditPublishedEdition = ({
         itemType='images'
         hideCreateNew
         existingItem={publishedEdition?.coverImage}
-        formatResult={(image) =>
-          image.title || image.caption || image.url
-        }
+        getCoverImage={(image) => image}
+        formatResult={formatImageResult}
         renderEditItemForm={() => null}
       />
 

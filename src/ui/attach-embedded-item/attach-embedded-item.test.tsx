@@ -172,5 +172,26 @@ describe('AttachEmbeddedItem', () => {
       ).not.toBeInTheDocument()
       expect(screen.getByRole('combobox')).toBeInTheDocument()
     })
+
+    it('renders a cover image thumbnail when getCoverImage is provided', () => {
+      renderComponent({
+        existingItem: venueFixtureAlpha,
+        getCoverImage: () => ({
+          url: 'https://example.com/cover.jpg',
+          aspect: 1.5,
+          alt: 'Cover alt text'
+        })
+      })
+
+      expect(
+        screen.getByRole('img', { name: 'Cover alt text' })
+      ).toBeInTheDocument()
+    })
+
+    it('does not render a thumbnail when getCoverImage is not provided', () => {
+      renderComponent({ existingItem: venueFixtureAlpha })
+
+      expect(screen.queryByRole('img')).not.toBeInTheDocument()
+    })
   })
 })

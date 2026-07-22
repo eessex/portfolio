@@ -33,8 +33,13 @@ export async function fetchPublishedEditionById(id: string) {
           WHERE i.id = ANY(published_editions.image_ids)
         ) AS images,
         (
-          SELECT build_link_json(l) FROM links l
-          WHERE l.id = published_editions.buy_link_id
+          CASE
+            WHEN published_editions.buy_link_id IS NOT NULL
+            THEN (
+              SELECT build_link_json(l) FROM links l
+              WHERE l.id = published_editions.buy_link_id
+            )
+          END
         ) AS buy_link,
         jsonb_build_object(
           'id', r.id,
@@ -112,8 +117,13 @@ export async function fetchPublishedEditionsRaw(
           WHERE i.id = ANY(published_editions.image_ids)
         ) AS images,
         (
-          SELECT build_link_json(l) FROM links l
-          WHERE l.id = published_editions.buy_link_id
+          CASE
+            WHEN published_editions.buy_link_id IS NOT NULL
+            THEN (
+              SELECT build_link_json(l) FROM links l
+              WHERE l.id = published_editions.buy_link_id
+            )
+          END
         ) AS buy_link,
         jsonb_build_object(
           'id', r.id,

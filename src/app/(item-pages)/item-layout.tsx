@@ -207,6 +207,10 @@ function generateEventDescription(item: PageItemClient) {
 }
 
 function generateItemDescription(item: PageItemClient) {
+  if (item.shortDescription) {
+    return item.shortDescription
+  }
+
   switch (item.path) {
     case PagePaths.events:
       return generateEventDescription(item)

@@ -30,6 +30,7 @@ export const taxonomyFields = {
 export const contentFields = {
   title: shortText,
   description: longText.optional(),
+  shortDescription: shortText.optional(),
   slug,
   isPublished: bool.optional()
 }

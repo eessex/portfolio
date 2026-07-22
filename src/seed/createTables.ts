@@ -584,9 +584,14 @@ async function setupJsonbFunctions() {
           'format', pe.format,
           'publishDate', pe.publish_date,
           'coverImage', (
-            SELECT build_image_json(i)
-            FROM images i
-            WHERE i.id = COALESCE(pe.cover_image_id, pe.image_ids[1])
+            CASE
+              WHEN COALESCE(pe.cover_image_id, pe.image_ids[1]) IS NOT NULL
+              THEN (
+                SELECT build_image_json(i)
+                FROM images i
+                WHERE i.id = COALESCE(pe.cover_image_id, pe.image_ids[1])
+              )
+            END
           ),
           'images', (
             SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
@@ -596,9 +601,14 @@ async function setupJsonbFunctions() {
           ),
           'editionSize', pe.edition_size,
           'buyLink', (
-            SELECT build_link_json(l)
-            FROM links l
-            WHERE l.id = pe.buy_link_id
+            CASE
+              WHEN pe.buy_link_id IS NOT NULL
+              THEN (
+                SELECT build_link_json(l)
+                FROM links l
+                WHERE l.id = pe.buy_link_id
+              )
+            END
           ),
           'catalogNumber', pe.catalog_number
         )

@@ -73,9 +73,14 @@ export async function fetchEventsRaw(
           WHERE ec.id = ANY(e.embed_code_ids)
         ) AS embed_codes,
         (
-          SELECT build_image_json(i)
-          FROM images i
-          WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
+          CASE
+            WHEN COALESCE(e.cover_image_id, e.image_ids[1]) IS NOT NULL
+            THEN (
+              SELECT build_image_json(i)
+              FROM images i
+              WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
+            )
+          END
         ) AS cover_image,
         (
           SELECT build_venue_json(v)
@@ -125,9 +130,14 @@ export async function fetchUpcomingEventsRaw(
           WHERE ec.id = ANY(e.embed_code_ids)
         ) AS embed_codes,
         (
-          SELECT build_image_json(i)
-          FROM images i
-          WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
+          CASE
+            WHEN COALESCE(e.cover_image_id, e.image_ids[1]) IS NOT NULL
+            THEN (
+              SELECT build_image_json(i)
+              FROM images i
+              WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
+            )
+          END
         ) AS cover_image,
         (
           SELECT build_venue_json(v)
@@ -158,9 +168,14 @@ export async function fetchEventById(
         e.*,
         e.start_time > now() AS is_upcoming,
         (
-          SELECT build_image_json(i)
-          FROM images i
-          WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
+          CASE
+            WHEN COALESCE(e.cover_image_id, e.image_ids[1]) IS NOT NULL
+            THEN (
+              SELECT build_image_json(i)
+              FROM images i
+              WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
+            )
+          END
         ) AS cover_image,
         (
           SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
@@ -169,9 +184,14 @@ export async function fetchEventById(
             AND ec.id != e.embed_code_ids[1]
         ) AS embed_codes,
         (
-          SELECT build_embed_code_json(ec)
-          FROM embed_codes ec
-          WHERE ec.id = e.embed_code_ids[1]
+          CASE
+            WHEN e.embed_code_ids[1] IS NOT NULL
+            THEN (
+              SELECT build_embed_code_json(ec)
+              FROM embed_codes ec
+              WHERE ec.id = e.embed_code_ids[1]
+            )
+          END
         ) AS featured_embed_code,
         (
           SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)

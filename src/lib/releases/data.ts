@@ -26,9 +26,14 @@ export async function fetchReleaseById(
       SELECT
         r.*,
         (
-          SELECT build_image_json(i)
-          FROM images i
-          WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
+          CASE
+            WHEN COALESCE(r.cover_image_id, r.image_ids[1]) IS NOT NULL
+            THEN (
+              SELECT build_image_json(i)
+              FROM images i
+              WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
+            )
+          END
         ) AS cover_image,
         (
           SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
@@ -37,9 +42,14 @@ export async function fetchReleaseById(
             AND ec.id != r.embed_code_ids[1]
         ) AS embed_codes,
         (
-          SELECT build_embed_code_json(ec)
-          FROM embed_codes ec
-          WHERE ec.id = r.embed_code_ids[1]
+          CASE
+            WHEN r.embed_code_ids[1] IS NOT NULL
+            THEN (
+              SELECT build_embed_code_json(ec)
+              FROM embed_codes ec
+              WHERE ec.id = r.embed_code_ids[1]
+            )
+          END
         ) AS featured_embed_code,
         (
           SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
@@ -131,9 +141,14 @@ export async function fetchReleasesRaw(
           r.*,
           ${path} AS path,
           (
-            SELECT build_image_json(i)
-            FROM images i
-            WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
+            CASE
+              WHEN COALESCE(r.cover_image_id, r.image_ids[1]) IS NOT NULL
+              THEN (
+                SELECT build_image_json(i)
+                FROM images i
+                WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
+              )
+            END
           ) AS cover_image,
           (
             SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)

@@ -68,9 +68,14 @@ export async function fetchProjectsRaw(
           p.*,
           ${path} AS path,
           (
-            SELECT build_image_json(i)
-            FROM images i
-            WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
+            CASE
+              WHEN COALESCE(p.cover_image_id, p.image_ids[1]) IS NOT NULL
+              THEN (
+                SELECT build_image_json(i)
+                FROM images i
+                WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
+              )
+            END
           ) AS cover_image
         FROM projects AS p
         WHERE
@@ -109,9 +114,14 @@ export async function fetchProjectById(
       SELECT
         p.*,
         (
-          SELECT build_image_json(i)
-          FROM images i
-          WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
+          CASE
+            WHEN COALESCE(p.cover_image_id, p.image_ids[1]) IS NOT NULL
+            THEN (
+              SELECT build_image_json(i)
+              FROM images i
+              WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
+            )
+          END
         ) AS cover_image,
         (
           SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
@@ -120,9 +130,14 @@ export async function fetchProjectById(
             AND ec.id != p.embed_code_ids[1]
         ) AS embed_codes,
         (
-          SELECT build_embed_code_json(ec)
-          FROM embed_codes ec
-          WHERE ec.id = p.embed_code_ids[1]
+          CASE
+            WHEN p.embed_code_ids[1] IS NOT NULL
+            THEN (
+              SELECT build_embed_code_json(ec)
+              FROM embed_codes ec
+              WHERE ec.id = p.embed_code_ids[1]
+            )
+          END
         ) AS featured_embed_code,
         (
           SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)

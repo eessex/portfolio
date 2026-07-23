@@ -416,6 +416,57 @@ describe('useResultsList', () => {
 
       expect(global.fetch).not.toHaveBeenCalled()
     })
+
+    it('retries via ensureFirstPage when the mount fetch was aborted', async () => {
+      const abortError = new DOMException('Aborted', 'AbortError')
+      global.fetch = jest
+        .fn()
+        .mockRejectedValueOnce(abortError)
+        .mockResolvedValueOnce({
+          json: async () => makeResponse(defaultVenues)
+        } as Response)
+
+      const { result } = renderHook(() =>
+        useResultsList<Venue>('/api/venues')
+      )
+
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledTimes(1)
+      })
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.items).toEqual([])
+
+      act(() => {
+        result.current.ensureFirstPage()
+      })
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual(defaultVenues)
+      })
+
+      expect(global.fetch).toHaveBeenCalledTimes(2)
+    })
+
+    it('does not refetch via ensureFirstPage once the first page has loaded', async () => {
+      mockFetchOnce(makeResponse(defaultVenues))
+
+      const { result } = renderHook(() =>
+        useResultsList<Venue>('/api/venues')
+      )
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual(defaultVenues)
+      })
+
+      act(() => {
+        result.current.ensureFirstPage()
+      })
+
+      expect(global.fetch).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('performance and cleanup', () => {

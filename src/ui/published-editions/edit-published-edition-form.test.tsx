@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { imageFixture } from '@/lib/images/fixtures'
 import { linkFixture } from '@/lib/links/fixtures'
 import { publishedEditionFixtureAlpha } from '@/lib/published-editions/fixtures'
+import { ReleaseTypes } from '@/lib/releases/schemas'
 import { EditPublishedEdition } from '@/ui/published-editions/edit-published-edition-form'
 
 function renderComponent(props = {}) {
@@ -68,7 +69,8 @@ describe('EditPublishedEdition', () => {
           ...publishedEditionFixtureAlpha,
           release: {
             id: publishedEditionFixtureAlpha.releaseId,
-            title: 'Test Release'
+            title: 'Test Release',
+            type: ReleaseTypes.album
           }
         }
       })

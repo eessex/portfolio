@@ -267,7 +267,8 @@ describe('Combobox', () => {
         items: defaultVenues,
         isLoading: true,
         nextCursor: 'cursor-1',
-        loadMoreRef: { current: null }
+        loadMoreRef: { current: null },
+        ensureFirstPage: jest.fn()
       })
 
       renderCombobox({ initialResults })
@@ -286,7 +287,8 @@ describe('Combobox', () => {
         items: [],
         isLoading: true,
         nextCursor: null,
-        loadMoreRef: { current: null }
+        loadMoreRef: { current: null },
+        ensureFirstPage: jest.fn()
       })
 
       renderCombobox()
@@ -306,7 +308,8 @@ describe('Combobox', () => {
         items: defaultVenues,
         isLoading: true,
         nextCursor: null,
-        loadMoreRef: { current: null }
+        loadMoreRef: { current: null },
+        ensureFirstPage: jest.fn()
       })
 
       renderCombobox({ initialResults })
@@ -322,7 +325,8 @@ describe('Combobox', () => {
         items: defaultVenues,
         isLoading: false,
         nextCursor: null,
-        loadMoreRef: { current: null }
+        loadMoreRef: { current: null },
+        ensureFirstPage: jest.fn()
       })
 
       renderCombobox({ initialResults })

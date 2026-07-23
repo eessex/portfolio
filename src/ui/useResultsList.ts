@@ -85,6 +85,8 @@ export function useResultsList<
   )
   /** Fetching state ref to prevent duplicate requests */
   const isFetchingRef = useRef(false)
+  /** Set once an initial (replace) fetch completes without aborting */
+  const hasLoadedInitialRef = useRef(false)
   /** Cache: one item's normalized search text */
   const searchIndexRef = useRef<Map<string, string>>(new Map())
   const [groupedItems, setGroupedItems] = useState<Record<
@@ -262,6 +264,9 @@ export function useResultsList<
         }
         setNextCursor(data.nextCursor)
         setCount(data.totalCount)
+        if (options.replace) {
+          hasLoadedInitialRef.current = true
+        }
       } catch (err: Error | unknown) {
         if (err instanceof Error && err.name !== 'AbortError') {
           console.error('Fetch page error:', err)
@@ -377,15 +382,22 @@ export function useResultsList<
   }, [augmentOnMount, isAdmin, fetchPage])
 
   // Client-side seeding. When no `initial` results are passed, fetch the
-  // first page once on mount so the list populates without the caller
-  // threading server data down (e.g. the about cover-image picker). An
-  // explicit empty response seeds an empty list without a mount fetch.
-  const didFetchOnMountRef = useRef(false)
-  useEffect(() => {
-    if (initial !== undefined || didFetchOnMountRef.current) return
-    didFetchOnMountRef.current = true
+  // first page so the list populates without the caller threading server
+  // data down (e.g. the about cover-image picker). An explicit empty
+  // response seeds an empty list without a fetch. Exposed as
+  // `ensureFirstPage`, safe to call repeatedly (e.g. on mount and again
+  // on focus): it no-ops while a fetch is in flight or once one has
+  // completed, but retries if the prior attempt was aborted before
+  // finishing, so a caller doesn't get stuck with an empty list.
+  const ensureFirstPage = useCallback(() => {
+    if (initial !== undefined) return
+    if (hasLoadedInitialRef.current || isFetchingRef.current) return
     fetchPage({ replace: true })
   }, [initial, fetchPage])
+
+  useEffect(() => {
+    ensureFirstPage()
+  }, [ensureFirstPage])
 
   function onRemoveItem(itemId: string) {
     fullResultsCache.current = fullResultsCache.current.filter(
@@ -403,6 +415,7 @@ export function useResultsList<
 
   return {
     count,
+    ensureFirstPage,
     isLoading,
     items, // flat
     groupedItems: getFilteredGroupedItems(), // grouped

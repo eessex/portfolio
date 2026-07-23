@@ -9,12 +9,12 @@ import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import { AttachEmbeddedItem } from '@/ui/attach-embedded-item/attach-embedded-item'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
 import { formatImageResult } from '@/ui/images/format-image-result'
+import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { formatLinkResult } from '@/ui/links/format-link-result'
-import { PageItemPicker } from '@/ui/page-item-picker/page-item-picker'
+import { formatReleaseResult } from '@/ui/releases/format-release-result'
 
 interface EditPublishedEditionProps {
   errors?: z.inferFlattenedErrors<
@@ -72,7 +72,8 @@ export const EditPublishedEdition = ({
         attributes={{
           min: 1,
           name: 'editionSize',
-          type: 'number'
+          type: 'number',
+          placeholder: '1000'
         }}
         defaultValue={publishedEdition?.editionSize}
         errors={errors?.editionSize}
@@ -90,38 +91,35 @@ export const EditPublishedEdition = ({
         label='Catalog number'
       />
 
-      <PageItemPicker<ReleaseClient, FetchReleasesResult>
-        pagePath='releases'
-        initialItem={
+      <ItemPicker<never, ReleaseClient, FetchReleasesResult>
+        itemType='releases'
+        isRequired
+        existingItem={
           publishedEdition?.release?.id &&
           publishedEdition?.release?.title
-            ? {
-                id: publishedEdition.release.id,
-                title: publishedEdition.release.title,
-                type: publishedEdition.release.type,
-                coverImage: publishedEdition.release.coverImage
-              }
+            ? // Only id/title/artist/type/coverImage are hydrated for
+              // this field (see dashboardPublishedEditionSchema.release)
+              // — all the picker chip and formatReleaseResult read.
+              (publishedEdition.release as ReleaseClient)
             : undefined
         }
+        getCoverImage={(release) => release.coverImage}
+        formatResult={formatReleaseResult}
       />
 
-      <AttachEmbeddedItem<Image>
+      <ItemPicker<Image>
         name='coverImageId'
         itemType='images'
-        hideCreateNew
         existingItem={publishedEdition?.coverImage}
         getCoverImage={(image) => image}
         formatResult={formatImageResult}
-        renderEditItemForm={() => null}
       />
 
-      <AttachEmbeddedItem<Link>
+      <ItemPicker<Link>
         name='buyLinkId'
         itemType='links'
-        hideCreateNew
         existingItem={publishedEdition?.buyLink}
         formatResult={formatLinkResult}
-        renderEditItemForm={() => null}
       />
     </>
   )

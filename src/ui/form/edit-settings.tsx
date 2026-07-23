@@ -1,11 +1,12 @@
 'use client'
 
+import type { Image } from '@/lib/images/schemas/db'
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
-import { AttachEmbeddedItem } from '@/ui/attach-embedded-item/attach-embedded-item'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 import { formatImageResult } from '@/ui/images/format-image-result'
+import { ItemPicker } from '@/ui/item-picker/item-picker'
 
 // Only press photos may be attached as the site cover image
 const pressSearchParams = { isPress: true }
@@ -44,15 +45,14 @@ function SettingsFormFields({
         }}
       />
 
-      <AttachEmbeddedItem
+      <ItemPicker<Image>
         name='coverImageId'
         itemType='images'
+        label='Cover image'
         searchParams={pressSearchParams}
-        hideCreateNew
         existingItem={settings?.coverImage}
         getCoverImage={(image) => image}
         formatResult={formatImageResult}
-        renderEditItemForm={() => null}
       />
     </>
   )

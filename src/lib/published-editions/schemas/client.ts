@@ -22,7 +22,7 @@ export type PublishedEditionClient = z.infer<
 
 /**
  * Extends `publishedEditionClientSchema` with the parent release's
- * id/title/type/coverImageId/coverImage (`release`) and slug
+ * id/title/artist/type/coverImageId/coverImage (`release`) and slug
  * (`releaseSlugs`). Unlike other embedded items (many:many with pages
  * via join tables), a published edition belongs to exactly one
  * release, so `releaseSlugs` is always a single-element array — this
@@ -35,8 +35,8 @@ export const dashboardPublishedEditionSchema =
       releaseClientSchema.pick({
         id: true,
         title: true,
+        artist: true,
         type: true,
-        coverImageId: true,
         coverImage: true
       })
     ),

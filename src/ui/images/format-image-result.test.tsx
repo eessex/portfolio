@@ -4,11 +4,14 @@ import { imageFixture } from '@/lib/images/fixtures'
 import { formatImageResult } from '@/ui/images/format-image-result'
 
 describe('formatImageResult', () => {
-  it('renders the title and url', () => {
+  it('renders the title and filename', () => {
     render(formatImageResult(imageFixture))
 
     expect(screen.getByText(imageFixture.title!)).toBeInTheDocument()
-    expect(screen.getByText(imageFixture.url)).toBeInTheDocument()
+    expect(screen.getByText('image.jpg')).toBeInTheDocument()
+    expect(
+      screen.queryByText(imageFixture.url)
+    ).not.toBeInTheDocument()
   })
 
   it('falls back to the caption when there is no title', () => {

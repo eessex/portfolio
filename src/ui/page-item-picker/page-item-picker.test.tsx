@@ -5,6 +5,7 @@ import {
   waitFor
 } from '@testing-library/react'
 
+import { ReleaseTypes } from '@/lib/releases/schemas'
 import type {
   FetchReleasesResult,
   ReleaseClient
@@ -18,7 +19,8 @@ const releaseFixture = {
   id: 'release-2',
   title: 'Searched Release',
   path: 'releases',
-  slug: 'searched-release'
+  slug: 'searched-release',
+  type: ReleaseTypes.ep
 }
 
 function renderReleasePicker(props = {}) {

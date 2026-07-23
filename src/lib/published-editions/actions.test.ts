@@ -10,6 +10,7 @@ import {
   publishedEditionFixtureAlpha
 } from '@/lib/published-editions/fixtures'
 import type { CreatePublishedEdition } from '@/lib/published-editions/schemas/db'
+import { ReleaseTypes } from '@/lib/releases/schemas'
 import { formDataFromObject } from '@/test/helpers'
 
 jest.mock('@/lib/db', () => ({
@@ -21,7 +22,8 @@ const existingPublishedEditionRow = {
   ...publishedEditionFixtureAlpha,
   release: {
     id: publishedEditionFixtureAlpha.releaseId,
-    title: 'Existing Release'
+    title: 'Existing Release',
+    type: ReleaseTypes.album
   },
   releaseSlugs: []
 }

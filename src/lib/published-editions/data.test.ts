@@ -1,4 +1,5 @@
 import { publishedEditionFixtureAlpha } from '@/lib/published-editions/fixtures'
+import { ReleaseTypes } from '@/lib/releases/schemas'
 
 jest.mock('@/lib/published-editions/cached', () => ({
   fetchCachedPublishedEditionsFirstPage: jest.fn()
@@ -19,7 +20,8 @@ const dashboardPublishedEditionRow = {
   ...publishedEditionFixtureAlpha,
   release: {
     id: publishedEditionFixtureAlpha.releaseId,
-    title: 'Existing Release'
+    title: 'Existing Release',
+    type: ReleaseTypes.album
   },
   releaseSlugs: []
 }

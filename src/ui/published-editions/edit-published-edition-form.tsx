@@ -13,6 +13,7 @@ import { AttachEmbeddedItem } from '@/ui/attach-embedded-item/attach-embedded-it
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
 import { formatImageResult } from '@/ui/images/format-image-result'
+import { formatLinkResult } from '@/ui/links/format-link-result'
 import { PageItemPicker } from '@/ui/page-item-picker/page-item-picker'
 
 interface EditPublishedEditionProps {
@@ -96,7 +97,9 @@ export const EditPublishedEdition = ({
           publishedEdition?.release?.title
             ? {
                 id: publishedEdition.release.id,
-                title: publishedEdition.release.title
+                title: publishedEdition.release.title,
+                type: publishedEdition.release.type,
+                coverImage: publishedEdition.release.coverImage
               }
             : undefined
         }
@@ -117,7 +120,7 @@ export const EditPublishedEdition = ({
         itemType='links'
         hideCreateNew
         existingItem={publishedEdition?.buyLink}
-        formatResult={(link) => link.title || link.url}
+        formatResult={formatLinkResult}
         renderEditItemForm={() => null}
       />
     </>

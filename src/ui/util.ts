@@ -145,6 +145,27 @@ export function projectUrl(slug: string) {
   return `/${PagePaths.projects}/${slug}`
 }
 
+/** Just the filename, e.g. an S3 url's key basename. */
+export function formattedFilename(url: string) {
+  try {
+    return decodeURIComponent(
+      new URL(url).pathname.split('/').pop() || url
+    )
+  } catch {
+    return url
+  }
+}
+
+/** Hostname + path, omitting the protocol and any query/hash. */
+export function formattedLinkUrl(url: string) {
+  try {
+    const { hostname, pathname } = new URL(url)
+    return `${hostname}${pathname === '/' ? '' : pathname}`
+  } catch {
+    return url
+  }
+}
+
 export function filteredLinksByPress(links: Array<Link>) {
   const sortByDate = (a: Link, b: Link) => {
     const aDate = new Date(a.publishDate ?? a.createdAt)

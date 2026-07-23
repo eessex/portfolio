@@ -1,4 +1,5 @@
 @use '@/ui/styles/grids';
+@use '@/ui/styles/type';
 
 .combobox-container {
   --input-width: 100%;
@@ -22,6 +23,11 @@
 }
 
 .option {
+  @include type.line-height('sm');
+
+  display: flex;
+  align-items: center;
+  gap: grids.space-em(2);
   margin: 0;
   padding: grids.space-em(2) grids.space-em(8);
   max-width: unset;
@@ -36,5 +42,19 @@
 
   &[aria-selected='true'] {
     border-color: var(--accent-secondary);
+  }
+}
+
+.option-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+  line-height: initial;
+
+  small {
+    color: var(--transparency-dark);
   }
 }

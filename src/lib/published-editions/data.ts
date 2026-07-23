@@ -44,7 +44,18 @@ export async function fetchPublishedEditionById(id: string) {
         jsonb_build_object(
           'id', r.id,
           'title', r.title,
-          'coverImageId', r.cover_image_id
+          'type', r.type,
+          'coverImageId', r.cover_image_id,
+          'coverImage', (
+            CASE
+              WHEN COALESCE(r.cover_image_id, r.image_ids[1]) IS NOT NULL
+              THEN (
+                SELECT build_image_json(i)
+                FROM images i
+                WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
+              )
+            END
+          )
         ) AS release,
         ARRAY[r.slug] AS release_slugs
       FROM published_editions
@@ -128,7 +139,18 @@ export async function fetchPublishedEditionsRaw(
         jsonb_build_object(
           'id', r.id,
           'title', r.title,
-          'coverImageId', r.cover_image_id
+          'type', r.type,
+          'coverImageId', r.cover_image_id,
+          'coverImage', (
+            CASE
+              WHEN COALESCE(r.cover_image_id, r.image_ids[1]) IS NOT NULL
+              THEN (
+                SELECT build_image_json(i)
+                FROM images i
+                WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
+              )
+            END
+          )
         ) AS release,
         ARRAY[r.slug] AS release_slugs
       FROM published_editions

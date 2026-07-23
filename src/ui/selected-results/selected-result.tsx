@@ -1,8 +1,8 @@
 import { XMarkIcon } from '@heroicons/react/16/solid'
 
+import type { Image } from '@/lib/images/schemas/db'
 import type { EmbeddedItemType, PagePath } from '@/lib/schemas'
 import { itemTypeSingulars, itemTypeToLabel } from '@/lib/schemas'
-import type { CoverImage } from '@/ui/cover-image-thumbnail'
 import { CoverImageThumbnail } from '@/ui/cover-image-thumbnail'
 import { Input } from '@/ui/form/input'
 import styles from '@/ui/selected-results/selected-results.module.scss'
@@ -12,7 +12,7 @@ export type SelectedResultProps = {
   isRequired?: boolean
   item: {
     id: string
-    coverImage?: CoverImage
+    coverImage?: Image
   }
   itemType: EmbeddedItemType | PagePath
   /**
@@ -41,12 +41,10 @@ export const SelectedResult = ({
 
   return (
     <Component className={styles['selected-result']}>
-      <span className={styles['title']}>
-        {item.coverImage && (
-          <CoverImageThumbnail image={item.coverImage} />
-        )}
-        {children}
-      </span>
+      {item.coverImage && (
+        <CoverImageThumbnail image={item.coverImage} />
+      )}
+      <span className={styles['title']}>{children}</span>
 
       <button
         aria-label={`Remove ${formattedItemType}`}

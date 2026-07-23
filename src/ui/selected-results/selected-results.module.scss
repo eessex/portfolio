@@ -9,19 +9,26 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  height: grids.space-em(11);
   padding: grids.space-em(2, 3);
   background: var(--input-background-color);
+  gap: grids.space-em(2);
 
   button {
     position: absolute;
-    right: grids.space-em(1);
+    right: grids.space-em(2);
     border-radius: 50%;
   }
 }
 
 .title {
   display: flex;
-  align-items: center;
-  gap: grids.space-em(2);
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  flex: 1;
+  line-height: initial;
+
+  small {
+    color: var(--transparency-dark);
+  }
 }

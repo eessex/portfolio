@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react'
 
+import type { Image } from '@/lib/images/schemas/db'
 import {
   type EmbeddedItemType,
   itemTypeToLabel,
@@ -14,7 +15,6 @@ import type {
 } from '@/lib/types'
 import { CreateItemButton } from '@/ui/buttons/create-item-button'
 import styles from '@/ui/combobox/combobox.module.scss'
-import type { CoverImage } from '@/ui/cover-image-thumbnail'
 import { CoverImageThumbnail } from '@/ui/cover-image-thumbnail'
 import { Loading } from '@/ui/loading'
 import { SearchInput } from '@/ui/search-input/search-input'
@@ -38,9 +38,7 @@ export interface ComboboxProps<
   label?: string
   placeholder?: string
   /** Cover image thumbnail shown before `formatResult`, if applicable */
-  getCoverImage?: (
-    item: TEmbeddedItem | TPage
-  ) => CoverImage | undefined
+  getCoverImage?: (item: TEmbeddedItem | TPage) => Image | undefined
   formatResult: (item: TEmbeddedItem | TPage) => React.ReactNode
   onCreateNew?: (query?: string) => void
   onSelect: (item: TEmbeddedItem | TPage) => void
@@ -223,7 +221,9 @@ export function Combobox<
                 {coverImage && (
                   <CoverImageThumbnail image={coverImage} />
                 )}
-                {formatResult(item)}
+                <span className={styles['option-content']}>
+                  {formatResult(item)}
+                </span>
               </li>
             )
           })}

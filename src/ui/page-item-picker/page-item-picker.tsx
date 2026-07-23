@@ -2,20 +2,35 @@
 
 import { useState } from 'react'
 
+import type { ProjectClient } from '@/lib/projects/types'
+import type { ReleaseClient } from '@/lib/releases/types'
 import {
   itemTypeToLabel,
   type PagePath,
   pagePathSingulars
 } from '@/lib/schemas'
 import type { PageDataResponse, PageItemClient } from '@/lib/types'
+import { Badges } from '@/ui/badges'
 import { Combobox } from '@/ui/combobox/combobox'
 import { SelectedResult } from '@/ui/selected-results/selected-result'
-import { formattedItemTitle } from '@/ui/util'
+import { formattedItemTitle, formattedItemType } from '@/ui/util'
 
 export type SelectedPageItem = Pick<
   PageItemClient,
   'id' | 'title' | 'coverImage'
->
+> & {
+  /** Only present for releases/projects; shown as a badge when set. */
+  type?: (ReleaseClient | ProjectClient)['type']
+}
+
+/**
+ * `type` (e.g. album/ep/single) only exists on releases/projects, not
+ * events — mirrors the `as ReleaseClient | ProjectClient` cast used
+ * for the same field in item-card.tsx/items-table-row.tsx.
+ */
+function typeBadges(type?: string) {
+  return type ? [{ text: formattedItemType(type) }] : []
+}
 
 /**
  * Search for and select an existing page item (an event, project, or
@@ -61,18 +76,32 @@ export function PageItemPicker<
         item={existing}
         isRequired
       >
-        {existing.title}
+        <span>
+          {existing.title}
+          <Badges badges={typeBadges(existing.type)} />
+        </span>
       </SelectedResult>
     </div>
   ) : (
     <Combobox<never, TPage, S>
       itemType={pagePath}
-      formatResult={formattedItemTitle}
+      getCoverImage={(item) => item.coverImage}
+      formatResult={(item) => (
+        <span>
+          {formattedItemTitle(item)}
+          <Badges
+            badges={typeBadges(
+              (item as ReleaseClient | ProjectClient).type
+            )}
+          />
+        </span>
+      )}
       onSelect={(item) =>
         setExisting({
           id: item.id,
           title: formattedItemTitle(item),
-          coverImage: item.coverImage
+          coverImage: item.coverImage,
+          type: (item as ReleaseClient | ProjectClient).type
         })
       }
     />

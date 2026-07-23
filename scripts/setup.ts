@@ -8,7 +8,9 @@
  *   5. Creates the database schema (idempotent)
  *   6. Creates the first admin user (only if none exists)
  *
- * Run with: pnpm setup
+ * Run with: pnpm run setup
+ * (`run` is required — bare `pnpm setup` invokes pnpm's own builtin
+ * setup command instead of this script.)
  *
  * Safe to re-run: every step checks current state before acting, and a
  * DATABASE_URL is only persisted once it has connected successfully, so
@@ -80,13 +82,13 @@ function ask(
 ): Promise<string> {
   return new Promise((resolve) => {
     const readline = getReadline()
-    stdout.write(query)
-    muted = hidden
-    readline.question('', (answer) => {
+    muted = false
+    readline.question(query, (answer) => {
       muted = false
       if (hidden) stdout.write('\n')
       resolve(answer.trim())
     })
+    muted = hidden
   })
 }
 
@@ -247,7 +249,7 @@ async function setupDatabase(): Promise<void> {
 
   console.log('\nCreate a user account.')
   const admin = await promptAdmin()
-  const { createUser } = await import('@/lib/users/actions')
+  const { createUser } = await import('@/lib/users/create')
   await createUser(admin)
   console.log(`✅ Created admin ${admin.email}`)
 }

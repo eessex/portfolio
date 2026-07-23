@@ -12,7 +12,7 @@ pnpm typecheck       # tsc --noEmit
 pnpm prettier        # prettier --write .
 pnpm test            # jest
 pnpm test:watch      # jest --watch
-pnpm setup           # interactive first-run setup: .env, DB schema, first admin user (writes to the real DB)
+pnpm run setup       # interactive first-run setup: .env, DB schema, first admin user (writes to the real DB)
 ```
 
 Run a single test file: `NODE_OPTIONS=--no-deprecation jest src/lib/releases/data.test.ts`

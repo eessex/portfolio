@@ -295,6 +295,26 @@ async function createEmailSubscriptionsTable() {
 }
 
 /**
+ * Creates the publishers table.
+ * Does not depend on other tables.
+ */
+async function createPublishersTable() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS publishers (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+      name VARCHAR(255) NOT NULL,
+      url VARCHAR(255),
+      type VARCHAR(30) NOT NULL,
+      created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      CONSTRAINT chk_publishers_type
+        CHECK (type IN ('recordLabel', 'publishingHouse', 'museum'))
+    );
+  `
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_publishers_name ON publishers(name);`
+}
+
+/**
  * Creates the venues table.
  * Does not depend on other tables.
  */
@@ -374,7 +394,7 @@ async function createReleasesTable() {
 
 /**
  * Creates the published_editions table.
- * Must be created after releases and projects.
+ * Must be created after releases, projects, and publishers.
  */
 async function createPublishedEditionTable() {
   await sql`
@@ -383,7 +403,10 @@ async function createPublishedEditionTable() {
       release_id UUID NOT NULL,
       project_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
-      publisher VARCHAR(255) NOT NULL,
+      -- Deprecated in favor of publisher_id. Existing rows have been
+      -- backfilled; the app no longer writes to this column.
+      publisher VARCHAR(255),
+      publisher_id UUID,
       format VARCHAR(30) NOT NULL,
       publish_date DATE NOT NULL,
       cover_image_id UUID,
@@ -398,6 +421,29 @@ async function createPublishedEditionTable() {
       CHECK (format IN ('LP','2xLP','Cassette','2xCassette','Digital','iOSApp','CD'))
     );
   `
+
+  // Reconcile tables created before publisher_id existed: add the column,
+  // drop the old NOT NULL now that existing rows are backfilled, and add
+  // the FK separately since it can't be inlined into an ALTER ADD COLUMN.
+  await sql`ALTER TABLE published_editions ADD COLUMN IF NOT EXISTS publisher_id UUID;`
+  await sql`ALTER TABLE published_editions ALTER COLUMN publisher DROP NOT NULL;`
+  await sql`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_name='published_editions'
+          AND constraint_name='fk_published_edition_publisher'
+      ) THEN
+        ALTER TABLE published_editions
+        ADD CONSTRAINT fk_published_edition_publisher FOREIGN KEY (publisher_id)
+        REFERENCES publishers(id)
+        ON DELETE SET NULL;
+      END IF;
+    END
+    $$;
+  `
+  await sql`CREATE INDEX IF NOT EXISTS idx_published_editions_publisher ON published_editions(publisher_id);`
 }
 
 /**
@@ -574,6 +620,18 @@ async function setupJsonbFunctions() {
   `
 
   await sql`
+    CREATE OR REPLACE FUNCTION build_publisher_json(p publishers)
+    RETURNS jsonb AS $$
+      SELECT jsonb_build_object(
+        'id', p.id,
+        'name', p.name,
+        'url', p.url,
+        'type', p.type
+      ) || build_write_dates_json(p.created_at, p.updated_at);
+    $$ LANGUAGE sql IMMUTABLE;
+  `
+
+  await sql`
     CREATE OR REPLACE FUNCTION build_published_edition_json(pe published_editions)
     RETURNS jsonb AS $$
     BEGIN
@@ -583,7 +641,16 @@ async function setupJsonbFunctions() {
           'releaseId', pe.release_id,
           'projectId', pe.project_id,
           'tagIds', pe.tag_ids,
-          'publisher', pe.publisher,
+          'publisherId', pe.publisher_id,
+          'publisherName', (
+            SELECT p.name FROM publishers p
+            WHERE p.id = pe.publisher_id
+          ),
+          'publisherEntity', (
+            SELECT build_publisher_json(p)
+            FROM publishers p
+            WHERE p.id = pe.publisher_id
+          ),
           'format', pe.format,
           'publishDate', pe.publish_date,
           'coverImage', (
@@ -666,6 +733,7 @@ export async function createTables() {
   await createEmailSubscriptionsTable()
   await createVenuesTable()
   await createReleasesTable()
+  await createPublishersTable()
   await createPublishedEditionTable()
   await createEventsTable()
   console.log('All tables created successfully.')

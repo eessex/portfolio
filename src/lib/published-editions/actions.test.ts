@@ -10,6 +10,7 @@ import {
   publishedEditionFixtureAlpha
 } from '@/lib/published-editions/fixtures'
 import type { CreatePublishedEdition } from '@/lib/published-editions/schemas/db'
+import { publisherFixtureBeta } from '@/lib/publishers/fixtures'
 import { formDataFromObject } from '@/test/helpers'
 
 jest.mock('@/lib/db', () => ({
@@ -80,11 +81,9 @@ describe('Published Edition Actions', () => {
         .mockResolvedValueOnce([existingPublishedEditionRow])
         .mockResolvedValueOnce([publishedEditionFixtureAlpha])
 
-      // only publisher (required) is submitted; format/publishDate/
-      // releaseId should fall back to the existing edition's values
       await editPublishedEdition(
         formDataFromObject({
-          publisher: 'Updated Publisher',
+          publisherId: publisherFixtureBeta.id,
           format: publishedEditionFixtureAlpha.format,
           publishDate: publishedEditionFixtureAlpha.publishDate,
           releaseId: publishedEditionFixtureAlpha.releaseId

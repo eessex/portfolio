@@ -66,7 +66,8 @@ export function Combobox<
     items,
     isLoading,
     nextCursor,
-    loadMoreRef
+    loadMoreRef,
+    ensureFirstPage
   } = useResultsList<TEmbeddedItem, TPage, S>(
     `/api/${itemType}`,
     initialResults,
@@ -159,6 +160,7 @@ export function Combobox<
   function handleFocus(e: React.FocusEvent) {
     if (!isTargetInsideComponent(e.target)) return
     setIsOpen(true)
+    ensureFirstPage()
   }
 
   function handleBlur(e: React.FocusEvent) {
@@ -203,7 +205,11 @@ export function Combobox<
       />
       {isOpen && (
         <ul id={listId} role='listbox'>
-          {isLoading && items.length === 0 && <Loading />}
+          {isLoading && items.length === 0 && (
+            <li className={styles['loading']}>
+              <Loading />
+            </li>
+          )}
           {items.map((item, index) => {
             const coverImage = getCoverImage?.(item)
             return (
@@ -237,7 +243,11 @@ export function Combobox<
                 aria-hidden='true'
                 ref={loadMoreRef}
               />
-              {isLoading && <Loading />}
+              {isLoading && (
+                <li className={styles['loading']}>
+                  <Loading />
+                </li>
+              )}
             </>
           )}
         </ul>

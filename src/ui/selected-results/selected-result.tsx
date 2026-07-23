@@ -47,6 +47,7 @@ export const SelectedResult = ({
       <span className={styles['title']}>{children}</span>
 
       <button
+        type='button'
         aria-label={`Remove ${formattedItemType}`}
         className='button-icon'
         onClick={onClick}

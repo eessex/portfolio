@@ -114,6 +114,24 @@ describe('fetchPublishedEditionById', () => {
     expect(result).toBeNull()
   })
 
+  it("includes the release's artist", async () => {
+    mockSql.mockResolvedValue([
+      {
+        ...dashboardPublishedEditionRow,
+        release: {
+          ...dashboardPublishedEditionRow.release,
+          artist: 'Existing Artist'
+        }
+      }
+    ])
+
+    const result = await PublishedEditions.fetchPublishedEditionById(
+      publishedEditionFixtureAlpha.id
+    )
+
+    expect(result?.release.artist).toBe('Existing Artist')
+  })
+
   it('throws on DB error', async () => {
     mockSql.mockRejectedValue(new Error('db exploded'))
 

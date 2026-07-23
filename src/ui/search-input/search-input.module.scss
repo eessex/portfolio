@@ -17,6 +17,7 @@
   }
 
   .search-input-container {
+    margin-top: grids.space-em(2);
     position: relative;
 
     input[type='search'] {

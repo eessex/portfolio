@@ -530,7 +530,9 @@ async function setupJsonbFunctions() {
         'caption', i.caption,
         'aspect', i.aspect,
         'alt', i.alt,
-        'title', i.title
+        'title', i.title,
+        'isPress', i.is_press,
+        'isHiddenOnAboutPage', i.is_hidden_on_about_page
       ) || build_write_dates_json(i.created_at, i.updated_at);
     $$ LANGUAGE sql IMMUTABLE;
   `

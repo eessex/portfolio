@@ -31,4 +31,9 @@
   small {
     color: var(--transparency-dark);
   }
+
+  span {
+    display: flex;
+    align-items: center;
+  }
 }

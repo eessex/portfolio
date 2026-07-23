@@ -44,8 +44,8 @@ export async function fetchPublishedEditionById(id: string) {
         jsonb_build_object(
           'id', r.id,
           'title', r.title,
+          'artist', r.artist,
           'type', r.type,
-          'coverImageId', r.cover_image_id,
           'coverImage', (
             CASE
               WHEN COALESCE(r.cover_image_id, r.image_ids[1]) IS NOT NULL
@@ -139,6 +139,7 @@ export async function fetchPublishedEditionsRaw(
         jsonb_build_object(
           'id', r.id,
           'title', r.title,
+          'artist', r.artist,
           'type', r.type,
           'coverImageId', r.cover_image_id,
           'coverImage', (

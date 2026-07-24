@@ -33,7 +33,6 @@ function AboutFormFields({ about }: { about: AboutClient }) {
         itemType='images'
         searchParams={pressSearchParams}
         existingItem={about?.coverImage}
-        getCoverImage={(image) => image}
         formatResult={formatImageResult}
       />
     </>

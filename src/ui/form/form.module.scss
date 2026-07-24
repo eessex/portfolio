@@ -148,14 +148,13 @@
     position: absolute;
     z-index: -1;
     top: 50%;
-    right: grids.space-rem(2);
+    right: grids.space-rem(4);
     width: var(--select-icon-size);
     height: var(--select-icon-size);
     background-image: url('/chevron-down.svg');
     background-repeat: no-repeat;
     background-size: var(--select-icon-size);
     background-size: contain;
-    opacity: 0.65;
     transform: translateY(-50%);
 
     @media (prefers-color-scheme: dark) {

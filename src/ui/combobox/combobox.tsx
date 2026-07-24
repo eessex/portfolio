@@ -2,7 +2,6 @@
 
 import { useEffect, useId, useRef, useState } from 'react'
 
-import type { Image } from '@/lib/images/schemas/db'
 import {
   type EmbeddedItemType,
   itemTypeToLabel,
@@ -15,7 +14,6 @@ import type {
 } from '@/lib/types'
 import { CreateItemButton } from '@/ui/buttons/create-item-button'
 import styles from '@/ui/combobox/combobox.module.scss'
-import { CoverImageThumbnail } from '@/ui/cover-image-thumbnail'
 import { Loading } from '@/ui/loading'
 import { SearchInput } from '@/ui/search-input/search-input'
 import {
@@ -37,8 +35,6 @@ export interface ComboboxProps<
   itemType: EmbeddedItemType | PagePath
   label?: string
   placeholder?: string
-  /** Cover image thumbnail shown before `formatResult`, if applicable */
-  getCoverImage?: (item: TEmbeddedItem | TPage) => Image | undefined
   formatResult: (item: TEmbeddedItem | TPage) => React.ReactNode
   onCreateNew?: (query?: string) => void
   onSelect: (item: TEmbeddedItem | TPage) => void
@@ -55,7 +51,6 @@ export function Combobox<
   itemType,
   label,
   placeholder,
-  getCoverImage,
   formatResult,
   onCreateNew,
   onSelect
@@ -210,27 +205,21 @@ export function Combobox<
               <Loading />
             </li>
           )}
-          {items.map((item, index) => {
-            const coverImage = getCoverImage?.(item)
-            return (
-              <li
-                key={item.id}
-                id={optionId(item)}
-                onMouseDown={(e) => {
-                  e.preventDefault()
-                  onSelect(item)
-                }}
-                className={styles['option']}
-                role='option'
-                aria-selected={index === highlightedIndex}
-              >
-                {coverImage && (
-                  <CoverImageThumbnail image={coverImage} />
-                )}
-                {formatResult(item)}
-              </li>
-            )
-          })}
+          {items.map((item, index) => (
+            <li
+              key={item.id}
+              id={optionId(item)}
+              onMouseDown={(e) => {
+                e.preventDefault()
+                onSelect(item)
+              }}
+              className={styles['option']}
+              role='option'
+              aria-selected={index === highlightedIndex}
+            >
+              {formatResult(item)}
+            </li>
+          ))}
           {nextCursor && (
             <>
               <li

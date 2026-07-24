@@ -9,6 +9,7 @@ export function formatImageResult(image: Image) {
       title={image.title || image.caption}
       subtitle={formattedFilename(image.url)}
       badges={itemBadges(image)}
+      coverImage={image}
     />
   )
 }

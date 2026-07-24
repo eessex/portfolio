@@ -646,7 +646,7 @@ async function setupJsonbFunctions() {
             SELECT p.name FROM publishers p
             WHERE p.id = pe.publisher_id
           ),
-          'publisherEntity', (
+          'publisher', (
             SELECT build_publisher_json(p)
             FROM publishers p
             WHERE p.id = pe.publisher_id

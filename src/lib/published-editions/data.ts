@@ -17,6 +17,9 @@ export async function fetchPublishedEditionById(id: string) {
   try {
     const data = await sql`
       SELECT
+        -- published_editions.* includes the deprecated raw publisher
+        -- string column; the computed "publisher" object below must be
+        -- listed after it so it wins the column-name collision.
         published_editions.*,
         (
           CASE
@@ -53,7 +56,7 @@ export async function fetchPublishedEditionById(id: string) {
             WHEN published_editions.publisher_id IS NOT NULL
             THEN build_publisher_json(p)
           END
-        ) AS publisher_entity
+        ) AS publisher
       FROM published_editions
       JOIN releases r ON r.id = published_editions.release_id
       LEFT JOIN publishers p ON p.id = published_editions.publisher_id
@@ -111,6 +114,9 @@ export async function fetchPublishedEditionsRaw(
     `,
     list: ({ like, cursorName, cursorId }) => sql`
       SELECT
+        -- published_editions.* includes the deprecated raw publisher
+        -- string column; the computed "publisher" object below must be
+        -- listed after it so it wins the column-name collision.
         published_editions.*,
         (
           CASE
@@ -147,7 +153,7 @@ export async function fetchPublishedEditionsRaw(
             WHEN published_editions.publisher_id IS NOT NULL
             THEN build_publisher_json(p)
           END
-        ) AS publisher_entity
+        ) AS publisher
       FROM published_editions
       JOIN releases r ON r.id = published_editions.release_id
       LEFT JOIN publishers p ON p.id = published_editions.publisher_id

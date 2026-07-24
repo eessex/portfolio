@@ -31,7 +31,7 @@ export const EditPublishedEdition = ({
       <AttachEmbeddedItem<Publisher>
         itemType='publishers'
         hideCreateNew
-        existingItem={publishedEdition?.publisherEntity}
+        existingItem={publishedEdition?.publisher}
         isRequired
         formatResult={(publisher) => publisher.name}
         renderEditItemForm={() => null}

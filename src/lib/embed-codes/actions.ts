@@ -3,11 +3,15 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
+import { fetchEmbedCodeMetadata } from '@/lib/embed-codes/cover-image'
+import { withCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import { fetchEmbedCodesByIds } from '@/lib/embed-codes/data'
+import { resolveOEmbed } from '@/lib/embed-codes/oembed'
 import {
   type CreateEmbedCode,
   createEmbedCodeSchema,
   type EmbedCode,
+  type EmbedCodeHost,
   embedCodeSchema
 } from '@/lib/embed-codes/schemas/db'
 import { runDeleteAction, runFormAction } from '@/lib/form-action'
@@ -18,10 +22,48 @@ export async function editEmbedCode(formData: FormData, id?: string) {
     formData,
     schema: createEmbedCodeSchema,
     itemType: 'embedCodes',
+    prepare: (data) => attachEmbedCodeMetadata(data, id),
     invalidate: invalidateEmbedCodeTags,
     save: (embedCode) =>
       id ? updateEmbedCode(embedCode, id) : createEmbedCode(embedCode)
   })
+}
+
+/**
+ * Title is always system-derived, never user-editable, so this always
+ * (re)fetches it from the current `host`/`src` — on create AND edit — so
+ * it can't go stale if `src` changes later. The cover image is different:
+ * it's only fetched (and uploaded to S3) on create, since re-uploading a
+ * new one on every edit would be wasteful. On edit, a failed title
+ * resolution leaves `data.title` untouched rather than clearing it —
+ * `toDbRow`'s merge with the existing row then keeps the prior title.
+ */
+async function attachEmbedCodeMetadata(
+  data: Record<string, unknown>,
+  id?: string
+) {
+  const host = data.host as EmbedCodeHost | undefined
+  const src = data.src as string | undefined
+  if (!host || !src) return data
+
+  if (id) {
+    try {
+      const resolved = await resolveOEmbed(host, src)
+      if (resolved?.title) data.title = resolved.title
+    } catch (cause) {
+      console.error('Failed to refresh embed code title:', cause)
+    }
+    return data
+  }
+
+  const { coverImageId, title } = await fetchEmbedCodeMetadata(
+    host,
+    src
+  )
+  if (coverImageId) data.coverImageId = coverImageId
+  if (title) data.title = title
+
+  return data
 }
 
 /**
@@ -53,12 +95,21 @@ export async function deleteEmbedCode(embedCode: EmbedCode) {
 
 async function createEmbedCode(embedCode: CreateEmbedCode) {
   try {
-    const { caption, contentType, host, iframe, src, title, type } =
-      toDbRow(embedCode)
+    const {
+      caption,
+      contentType,
+      coverImageId,
+      host,
+      iframe,
+      src,
+      title,
+      type
+    } = toDbRow(embedCode)
     return await sql`
       INSERT INTO embed_codes (
         caption,
         content_type,
+        cover_image_id,
         host,
         iframe,
         src,
@@ -68,6 +119,7 @@ async function createEmbedCode(embedCode: CreateEmbedCode) {
       ) VALUES (
         ${caption},
         ${contentType},
+        ${coverImageId},
         ${host},
         ${iframe},
         ${src},
@@ -77,7 +129,9 @@ async function createEmbedCode(embedCode: CreateEmbedCode) {
       )
       RETURNING *
     `.then((rows) =>
-      formatDbResponseForClient(rows[0], embedCodeSchema)
+      withCoverImageUrls(
+        formatDbResponseForClient(rows[0], embedCodeSchema)
+      )
     )
   } catch (cause) {
     throw new Error('Failed to create embed code.', { cause })
@@ -90,13 +144,22 @@ async function updateEmbedCode(
 ) {
   const [existingEmbedCode] = await fetchEmbedCodesByIds([id])
   try {
-    const { caption, contentType, host, iframe, src, title, type } =
-      toDbRow(embedCode, existingEmbedCode)
+    const {
+      caption,
+      contentType,
+      coverImageId,
+      host,
+      iframe,
+      src,
+      title,
+      type
+    } = toDbRow(embedCode, existingEmbedCode)
     return await sql`
       UPDATE embed_codes
       SET
         caption = ${caption},
         content_type = ${contentType},
+        cover_image_id = ${coverImageId},
         host = ${host},
         iframe = ${iframe},
         src = ${src},
@@ -106,7 +169,9 @@ async function updateEmbedCode(
       WHERE id = ${id}
       RETURNING *
     `.then((rows) =>
-      formatDbResponseForClient(rows[0], embedCodeSchema)
+      withCoverImageUrls(
+        formatDbResponseForClient(rows[0], embedCodeSchema)
+      )
     )
   } catch (cause) {
     throw new Error('Failed to update embed code.', { cause })
@@ -122,6 +187,7 @@ function toDbRow(embedCode: CreateEmbedCode, existing?: EmbedCode) {
   return {
     caption: embedCodeToSave.caption,
     contentType: embedCodeToSave.contentType,
+    coverImageId: embedCodeToSave.coverImageId ?? null,
     host: embedCodeToSave.host,
     iframe: embedCodeToSave.iframe,
     src: embedCodeToSave.src,

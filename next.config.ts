@@ -22,6 +22,11 @@ if (s3Hostname) {
     hostname: s3Hostname,
     pathname: '/images/**'
   })
+  remotePatterns.push({
+    protocol: 'https',
+    hostname: s3Hostname,
+    pathname: '/embedCodeCoverImages/**'
+  })
 }
 
 // FIXME: keep serving images from a previous bucket during a

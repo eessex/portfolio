@@ -18,6 +18,7 @@ export async function fetchPublishedEditionById(id: string) {
     const data = await sql`
       SELECT
         published_editions.*,
+        published_editions.publisher AS "publisherName",
         (
           CASE
             WHEN published_editions.cover_image_id IS NOT NULL
@@ -88,7 +89,7 @@ export async function fetchPublishedEditionsRaw(
     query,
     itemType: 'publishedEditions',
     schema: dashboardPublishedEditionSchema,
-    cursorKey: 'publisher',
+    cursorKey: 'publisherName',
     count: (like) => sql`
       SELECT COUNT(*)::int AS count
       FROM published_editions
@@ -102,6 +103,7 @@ export async function fetchPublishedEditionsRaw(
     list: ({ like, cursorName, cursorId }) => sql`
       SELECT
         published_editions.*,
+        published_editions.publisher AS "publisherName",
         (
           CASE
             WHEN published_editions.cover_image_id IS NOT NULL

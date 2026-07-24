@@ -37,7 +37,7 @@ const publishedEditionFields = {
   format: publishedEditionTypeSchema,
   imageIds: relationFields.imageIds,
   publishDate: date,
-  publisher: shortText,
+  publisherName: shortText,
   releaseId: uuid
 }
 

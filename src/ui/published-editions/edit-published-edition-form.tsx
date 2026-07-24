@@ -30,12 +30,12 @@ export const EditPublishedEdition = ({
       <Input
         attributes={{
           maxLength: 255,
-          name: 'publisher',
+          name: 'publisherName',
           placeholder: 'Soap Library',
           required: true
         }}
-        defaultValue={publishedEdition?.publisher}
-        errors={errors?.publisher}
+        defaultValue={publishedEdition?.publisherName}
+        errors={errors?.publisherName}
         label='Publisher'
       />
 

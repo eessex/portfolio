@@ -21,6 +21,7 @@ export async function editPublishedEdition(
     formData,
     schema: createPublishedEditionSchema,
     itemType: 'publishedEditions',
+    prepare: coerceEditionSize,
     invalidate: (saved?: PublishedEdition) => {
       if (saved) invalidatePublishedEditionTags(saved.releaseId)
     },
@@ -29,6 +30,13 @@ export async function editPublishedEdition(
         ? updatePublishedEdition(edition, id)
         : createPublishedEdition(edition)
   })
+}
+
+async function coerceEditionSize(data: Record<string, unknown>) {
+  if (typeof data.editionSize === 'string' && data.editionSize) {
+    data.editionSize = Number(data.editionSize)
+  }
+  return data
 }
 
 export async function deletePublishedEdition(

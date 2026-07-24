@@ -41,6 +41,19 @@ export async function fetchPublishedEditionById(id: string) {
             )
           END
         ) AS buy_link,
+        (
+          CASE
+            WHEN published_editions.publisher_id IS NOT NULL
+            THEN (
+              SELECT build_publisher_json(p) FROM publishers p
+              WHERE p.id = published_editions.publisher_id
+            )
+          END
+        ) AS publisher,
+        (
+          SELECT p.name FROM publishers p
+          WHERE p.id = published_editions.publisher_id
+        ) AS publisher_name,
         jsonb_build_object(
           'id', r.id,
           'title', r.title,
@@ -145,6 +158,13 @@ export async function fetchPublishedEditionsRaw(
             )
           END
         ) AS buy_link,
+        (
+          CASE
+            WHEN p.id IS NOT NULL
+            THEN build_publisher_json(p)
+          END
+        ) AS publisher,
+        p.name AS publisher_name,
         jsonb_build_object(
           'id', r.id,
           'title', r.title,

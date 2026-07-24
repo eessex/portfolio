@@ -403,7 +403,7 @@ async function createPublishedEditionTable() {
       release_id UUID NOT NULL,
       project_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
-      publisher_id UUID,
+      publisher_id UUID NOT NULL,
       format VARCHAR(30) NOT NULL,
       publish_date DATE NOT NULL,
       cover_image_id UUID,
@@ -429,8 +429,7 @@ async function createPublishedEditionTable() {
       ) THEN
         ALTER TABLE published_editions
         ADD CONSTRAINT fk_published_edition_publisher FOREIGN KEY (publisher_id)
-        REFERENCES publishers(id)
-        ON DELETE SET NULL;
+        REFERENCES publishers(id);
       END IF;
     END
     $$;

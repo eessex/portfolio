@@ -160,7 +160,7 @@ a[href] {
 }
 
 :where(input, textarea) {
-  line-height: grids.space-rem(5);
+  line-height: initial;
 }
 
 :where(textarea) {
@@ -172,7 +172,7 @@ a[href] {
   min-width: 200px;
   border-radius: 0;
   font: inherit;
-  line-height: 1.15em;
+  line-height: initial;
 }
 
 :where(

@@ -79,10 +79,6 @@
     margin-bottom: grids.space-rem(2);
   }
 
-  select {
-    --input-height: #{grids.space-em(11)};
-  }
-
   fieldset:has(button.cancel) {
     position: relative;
 

@@ -199,6 +199,8 @@ footer {
   padding: 0 grids.space-em(2);
   margin: grids.space-em(0, 2);
   vertical-align: text-top;
+  white-space: nowrap;
+  flex-shrink: 0;
 
   &.badge-green {
     background-color: var(--green);

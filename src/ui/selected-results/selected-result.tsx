@@ -44,7 +44,7 @@ export const SelectedResult = ({
       {item.coverImage && (
         <CoverImageThumbnail image={item.coverImage} />
       )}
-      <span className={styles['title']}>{children}</span>
+      {children}
 
       <button
         type='button'

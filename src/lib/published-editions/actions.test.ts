@@ -106,6 +106,21 @@ describe('Published Edition Actions', () => {
       expect(format).toBe(publishedEditionFixtureAlpha.format)
     })
 
+    it('coerces editionSize from a form string to a number', async () => {
+      mockSql.mockResolvedValueOnce([publishedEditionFixtureAlpha])
+      const res = await editPublishedEdition(
+        formDataFromObject({
+          ...newPublishedEditionFixtureAlpha,
+          editionSize: '150'
+        })
+      )
+
+      expect(res?.ok).toBe(true)
+      const [, , , , editionSize] = mockSql.mock
+        .calls[0] as unknown as string[]
+      expect(editionSize).toBe(150)
+    })
+
     it('can create a new published edition', async () => {
       mockSql.mockResolvedValueOnce([publishedEditionFixtureAlpha])
       const res = await editPublishedEdition(

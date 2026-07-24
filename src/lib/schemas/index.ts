@@ -46,6 +46,7 @@ export const embeddedItemTypes = [
   'images',
   'links',
   'publishedEditions',
+  'publishers',
   'venues'
 ] as const
 export const EmbeddedItemTypes = Object.fromEntries(
@@ -71,6 +72,7 @@ export const embeddedItemTypeSingulars = {
   images: 'image',
   links: 'link',
   publishedEditions: 'publishedEdition',
+  publishers: 'publisher',
   venues: 'venue'
 } as const satisfies Record<EmbeddedItemType, string>
 

@@ -57,9 +57,17 @@ export async function fetchPublishedEditionById(id: string) {
             END
           )
         ) AS release,
-        ARRAY[r.slug] AS release_slugs
+        ARRAY[r.slug] AS release_slugs,
+        p.name AS publisher_name,
+        (
+          CASE
+            WHEN published_editions.publisher_id IS NOT NULL
+            THEN build_publisher_json(p)
+          END
+        ) AS publisher
       FROM published_editions
       JOIN releases r ON r.id = published_editions.release_id
+      LEFT JOIN publishers p ON p.id = published_editions.publisher_id
       WHERE published_editions.id = ${id}
       LIMIT 1
     `
@@ -99,14 +107,15 @@ export async function fetchPublishedEditionsRaw(
     query,
     itemType: 'publishedEditions',
     schema: dashboardPublishedEditionSchema,
-    cursorKey: 'publisher',
+    cursorKey: 'publisherName',
     count: (like) => sql`
       SELECT COUNT(*)::int AS count
       FROM published_editions
       JOIN releases r ON r.id = published_editions.release_id
+      LEFT JOIN publishers p ON p.id = published_editions.publisher_id
       WHERE (
         ${like}::text IS NULL
-        OR published_editions.publisher ILIKE ${like}
+        OR p.name ILIKE ${like}
         OR r.title ILIKE ${like}
       )
     `,
@@ -153,21 +162,29 @@ export async function fetchPublishedEditionsRaw(
             END
           )
         ) AS release,
-        ARRAY[r.slug] AS release_slugs
+        ARRAY[r.slug] AS release_slugs,
+        p.name AS publisher_name,
+        (
+          CASE
+            WHEN published_editions.publisher_id IS NOT NULL
+            THEN build_publisher_json(p)
+          END
+        ) AS publisher
       FROM published_editions
       JOIN releases r ON r.id = published_editions.release_id
+      LEFT JOIN publishers p ON p.id = published_editions.publisher_id
       WHERE (
         ${like}::text IS NULL
-        OR published_editions.publisher ILIKE ${like}
+        OR p.name ILIKE ${like}
         OR r.title ILIKE ${like}
       )
       AND (
         ${cursorName}::text IS NULL
-        OR LOWER(published_editions.publisher) > LOWER(${cursorName})
-        OR (LOWER(published_editions.publisher) = LOWER(${cursorName}) AND published_editions.id > ${cursorId})
+        OR LOWER(p.name) > LOWER(${cursorName})
+        OR (LOWER(p.name) = LOWER(${cursorName}) AND published_editions.id > ${cursorId})
       )
       ORDER BY
-        LOWER(published_editions.publisher) ASC,
+        LOWER(p.name) ASC,
         published_editions.id ASC
       LIMIT ${DEFAULT_PAGE_SIZE}
     `

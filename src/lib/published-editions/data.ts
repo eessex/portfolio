@@ -59,9 +59,17 @@ export async function fetchPublishedEditionById(id: string) {
           'title', r.title,
           'coverImageId', r.cover_image_id
         ) AS release,
-        ARRAY[r.slug] AS release_slugs
+        ARRAY[r.slug] AS release_slugs,
+        p.name AS publisher_name,
+        (
+          CASE
+            WHEN published_editions.publisher_id IS NOT NULL
+            THEN build_publisher_json(p)
+          END
+        ) AS publisher
       FROM published_editions
       JOIN releases r ON r.id = published_editions.release_id
+      LEFT JOIN publishers p ON p.id = published_editions.publisher_id
       WHERE published_editions.id = ${id}
       LIMIT 1
     `
@@ -151,7 +159,14 @@ export async function fetchPublishedEditionsRaw(
           'title', r.title,
           'coverImageId', r.cover_image_id
         ) AS release,
-        ARRAY[r.slug] AS release_slugs
+        ARRAY[r.slug] AS release_slugs,
+        p.name AS publisher_name,
+        (
+          CASE
+            WHEN published_editions.publisher_id IS NOT NULL
+            THEN build_publisher_json(p)
+          END
+        ) AS publisher
       FROM published_editions
       JOIN releases r ON r.id = published_editions.release_id
       LEFT JOIN publishers p ON p.id = published_editions.publisher_id

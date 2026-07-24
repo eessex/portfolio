@@ -17,7 +17,6 @@ export const publishedEditionClientSchema =
     buyLink: linkSchema.optional(),
     coverImage: imageSchema.optional(),
     images: imageSchema.array().optional(),
-    // The hydrated `publishers` relation.
     publisher: publisherSchema.optional(),
     // Flat sort/cursor key — `runListFetch`'s cursor value must be a
     // top-level field, so it can't point at the nested `publisher` object.

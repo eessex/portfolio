@@ -25,3 +25,14 @@ export const publisherFixtureBeta: Publisher = {
   id: '22222222-2222-4222-8222-222222222222',
   createdAt: new Date()
 }
+
+export const newPublisherFixtureGamma: CreatePublisher = {
+  name: 'PAN',
+  type: 'recordLabel'
+}
+
+export const publisherFixtureGamma: Publisher = {
+  ...newPublisherFixtureGamma,
+  id: '33333333-3333-4333-8333-333333333333',
+  createdAt: new Date()
+}

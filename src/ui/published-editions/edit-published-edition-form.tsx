@@ -38,6 +38,7 @@ export const EditPublishedEdition = ({
       <Select
         options={[...publishedEditionTypes]}
         onChange={() => {}}
+        formatOptionLabel={(option) => option}
         label='Format'
         placeholder='Select a format'
         value={publishedEdition?.format}

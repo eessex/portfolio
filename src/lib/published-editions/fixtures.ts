@@ -4,7 +4,8 @@ import type {
 } from '@/lib/published-editions/schemas/db'
 import {
   publisherFixtureAlpha,
-  publisherFixtureBeta
+  publisherFixtureBeta,
+  publisherFixtureGamma
 } from '@/lib/publishers/fixtures'
 
 export const newPublishedEditionFixtureAlpha: CreatePublishedEdition =
@@ -38,7 +39,7 @@ export const publishedEditionFixtureBeta: PublishedEdition = {
 
 export const newPublishedEditionFixtureGamma: CreatePublishedEdition =
   {
-    publisherId: publisherFixtureAlpha.id,
+    publisherId: publisherFixtureGamma.id,
     format: 'Digital',
     publishDate: new Date('2022-03-20'),
     releaseId: 'e6e1f1h5-7i1d-7f5d-2h5d-5i1e1f1h5i1dc'

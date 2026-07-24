@@ -584,6 +584,7 @@ async function setupJsonbFunctions() {
           'projectId', pe.project_id,
           'tagIds', pe.tag_ids,
           'publisher', pe.publisher,
+          'publisherName', pe.publisher,
           'format', pe.format,
           'publishDate', pe.publish_date,
           'coverImage', (

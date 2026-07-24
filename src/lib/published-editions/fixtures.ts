@@ -5,7 +5,7 @@ import type {
 
 export const newPublishedEditionFixtureAlpha: CreatePublishedEdition =
   {
-    publisher: 'Soap Library',
+    publisherName: 'Soap Library',
     catalogNumber: 'SL021',
     format: 'LP',
     publishDate: new Date('2020-01-01'),
@@ -20,7 +20,7 @@ export const publishedEditionFixtureAlpha: PublishedEdition = {
 
 export const newPublishedEditionFixtureBeta: CreatePublishedEdition =
   {
-    publisher: 'RVNG Intl.',
+    publisherName: 'RVNG',
     format: 'Cassette',
     publishDate: new Date('2021-06-15'),
     releaseId: 'c4c9d9f3-5g9b-5d3b-0f3b-3g9c9d9f3g9ba'
@@ -34,7 +34,7 @@ export const publishedEditionFixtureBeta: PublishedEdition = {
 
 export const newPublishedEditionFixtureGamma: CreatePublishedEdition =
   {
-    publisher: 'Ghostly International',
+    publisherName: 'PAN',
     format: 'Digital',
     publishDate: new Date('2022-03-20'),
     releaseId: 'e6e1f1h5-7i1d-7f5d-2h5d-5i1e1f1h5i1dc'

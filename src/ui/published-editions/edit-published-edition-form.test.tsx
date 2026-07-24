@@ -51,7 +51,7 @@ describe('EditPublishedEdition', () => {
       renderComponent()
 
       expect(screen.getByLabelText(/publisher/i)).toHaveValue(
-        publishedEditionFixtureAlpha.publisher
+        publishedEditionFixtureAlpha.publisherName
       )
       expect(
         (screen.getByLabelText(/publish date/i) as HTMLInputElement)
@@ -94,7 +94,7 @@ describe('EditPublishedEdition', () => {
 
   describe('error display', () => {
     it('handles errors passed via the errors prop', () => {
-      const errors = { publisher: ['Publisher is required'] }
+      const errors = { publisherName: ['Publisher is required'] }
       renderComponent({ errors })
 
       expect(

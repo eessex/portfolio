@@ -70,7 +70,7 @@ async function createPublishedEdition(
       editionSize,
       format,
       publishDate,
-      publisher,
+      publisherName,
       releaseId
     } = toDbRow(edition)
     const rows = await sql`
@@ -92,7 +92,7 @@ async function createPublishedEdition(
         ${editionSize},
         ${format},
         ${publishDate},
-        ${publisher},
+        ${publisherName},
         ${releaseId},
         current_timestamp
       )
@@ -123,7 +123,7 @@ async function updatePublishedEdition(
       editionSize,
       format,
       publishDate,
-      publisher,
+      publisherName,
       releaseId
     } = toDbRow(edition, existingEdition ?? undefined)
     const rows = await sql`
@@ -135,7 +135,7 @@ async function updatePublishedEdition(
         edition_size = ${editionSize},
         format = ${format},
         publish_date = ${publishDate},
-        publisher = ${publisher},
+        publisher = ${publisherName},
         release_id = ${releaseId},
         updated_at = current_timestamp
       WHERE id = ${id}
@@ -170,7 +170,7 @@ function toDbRow(
     editionSize: editionToSave.editionSize ?? null,
     format: editionToSave.format,
     publishDate: editionToSave.publishDate,
-    publisher: editionToSave.publisher,
+    publisherName: editionToSave.publisherName,
     releaseId: editionToSave.releaseId
   }
 }

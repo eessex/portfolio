@@ -37,7 +37,15 @@ export interface ItemPickerProps<
    * relations (e.g. `coverImageId` for an `images` item).
    */
   name?: string
-  formatResult: (item: TEmbeddedItem | TPage) => React.ReactNode
+  /**
+   * Renders item content for both the `Combobox` dropdown row and
+   * the `SelectedResult` chip.
+   */
+  formatResult: (
+    item: TEmbeddedItem | TPage,
+    onRemove?: () => void,
+    removeLabel?: string
+  ) => React.ReactNode
   /**
    * Renders the inline "create new" form. Omit for item types with no
    * such flow (page items like events/projects/releases are created on
@@ -91,15 +99,19 @@ export function ItemPicker<
           <SelectedResult
             itemType={itemType}
             name={name}
-            onClick={() => setExisting(null)}
             id={existing.id}
             isRequired={isRequired}
           >
-            {formatResult(existing)}
+            {formatResult(
+              existing,
+              () => setExisting(null),
+              `Remove ${itemTypeToLabel(itemType, true, true)}`
+            )}
           </SelectedResult>
         </div>
       ) : mode === 'search' ? (
         <Combobox<TEmbeddedItem, TPage, S>
+          label={label}
           initialResults={initialResults}
           searchParams={searchParams}
           itemType={itemType}

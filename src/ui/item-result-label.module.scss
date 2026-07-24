@@ -1,4 +1,14 @@
+@use '@/ui/styles/grids';
 @use '@/ui/styles/type';
+
+.row {
+  @include type.line-height('sm');
+
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: grids.space-em(2);
+}
 
 .container {
   display: flex;
@@ -26,4 +36,9 @@
   color: var(--transparency-dark);
 
   @include type.line-clamp(1);
+}
+
+.remove {
+  flex-shrink: 0;
+  border-radius: 50%;
 }

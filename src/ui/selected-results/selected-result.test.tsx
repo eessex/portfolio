@@ -6,12 +6,9 @@ import {
   type SelectedResultProps
 } from '@/ui/selected-results/selected-result'
 
-const onClick = jest.fn()
-
 const defaultProps: SelectedResultProps = {
   id: venueFixtureAlpha.id,
   itemType: 'venues',
-  onClick,
   children: 'Child content'
 }
 
@@ -20,10 +17,6 @@ const renderSelectedResult = (props = {}) => {
 }
 
 describe('SelectedResult', () => {
-  beforeEach(() => {
-    onClick.mockClear()
-  })
-
   it('renders the component with default "div" element', () => {
     const { container } = renderSelectedResult()
     const wrapper = container.firstChild
@@ -41,22 +34,6 @@ describe('SelectedResult', () => {
   it('renders the default children content', () => {
     const { container } = renderSelectedResult()
     expect(container).toHaveTextContent('Child content')
-  })
-
-  it('displays a button with correct aria-label based on itemType', () => {
-    renderSelectedResult()
-    const expectedLabel = 'Remove venue'
-    const button = screen.getByRole('button', { name: expectedLabel })
-    expect(button).toBeInTheDocument()
-  })
-
-  it('calls the onClick handler when remove button is clicked', () => {
-    renderSelectedResult()
-    const button = screen.getByRole('button', {
-      name: 'Remove venue'
-    })
-    button.click()
-    expect(onClick).toHaveBeenCalledTimes(1)
   })
 
   it('renders a hidden input with the correct value', () => {

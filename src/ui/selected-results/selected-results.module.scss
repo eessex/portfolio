@@ -1,24 +1,8 @@
 @use '@/ui/styles/grids';
-@use '@/ui/styles/type';
 
 .selected-result {
-  @include type.line-height('sm');
-
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   width: 100%;
   min-height: var(--input-height);
-  // reserve room for the absolutely-positioned remove button, so
-  // flowed content never renders underneath it
-  padding: grids.space-em(1, 11, 1, 3);
+  padding: grids.space-em(1, 3);
   background: var(--input-background-color);
-  gap: grids.space-em(2);
-
-  button {
-    position: absolute;
-    right: grids.space-em(2);
-    border-radius: 50%;
-  }
 }

@@ -3,9 +3,9 @@
 import { editAbout } from '@/lib/about/actions'
 import type { AboutClient } from '@/lib/about/types'
 import type { Image } from '@/lib/images/schemas/db'
-import { AttachEmbeddedItem } from '@/ui/attach-embedded-item/attach-embedded-item'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
+import { ItemPicker } from '@/ui/item-picker/item-picker'
 
 // Only press photos may be attached as the about cover image
 const pressSearchParams = { isPress: true }
@@ -26,7 +26,7 @@ function AboutFormFields({ about }: { about: AboutClient }) {
         }}
       />
 
-      <AttachEmbeddedItem<Image>
+      <ItemPicker<Image>
         name='coverImageId'
         itemType='images'
         searchParams={pressSearchParams}

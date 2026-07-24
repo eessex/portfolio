@@ -3,8 +3,10 @@ import { z } from 'zod'
 import { imageSchema } from '@/lib/images/schemas/db'
 import { linkSchema } from '@/lib/links/schemas/db'
 import { publishedEditionSchema } from '@/lib/published-editions/schemas/db'
+import { publisherSchema } from '@/lib/publishers/schemas/db'
 import { releaseSchema } from '@/lib/releases/schemas'
 import { relationSlugArrays } from '@/lib/schemas/fields'
+import { shortText } from '@/lib/schemas/primitives'
 
 /**
  * Extends `publishedEditionSchema` with the related items hydrated
@@ -14,7 +16,12 @@ export const publishedEditionClientSchema =
   publishedEditionSchema.extend({
     buyLink: linkSchema.optional(),
     coverImage: imageSchema.optional(),
-    images: imageSchema.array().optional()
+    images: imageSchema.array().optional(),
+    // The hydrated `publishers` relation.
+    publisher: publisherSchema.optional(),
+    // Flat sort/cursor key — `runListFetch`'s cursor value must be a
+    // top-level field, so it can't point at the nested `publisher` object.
+    publisherName: shortText.optional()
   })
 export type PublishedEditionClient = z.infer<
   typeof publishedEditionClientSchema

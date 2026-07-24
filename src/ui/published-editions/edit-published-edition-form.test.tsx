@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { imageFixture } from '@/lib/images/fixtures'
 import { linkFixture } from '@/lib/links/fixtures'
 import { publishedEditionFixtureAlpha } from '@/lib/published-editions/fixtures'
+import { publisherFixtureAlpha } from '@/lib/publishers/fixtures'
 import { EditPublishedEdition } from '@/ui/published-editions/edit-published-edition-form'
 
 function renderComponent(props = {}) {
@@ -50,9 +51,6 @@ describe('EditPublishedEdition', () => {
     it('sets defaultValue for each input from the edition prop', () => {
       renderComponent()
 
-      expect(screen.getByLabelText(/publisher/i)).toHaveValue(
-        publishedEditionFixtureAlpha.publisher
-      )
       expect(
         (screen.getByLabelText(/publish date/i) as HTMLInputElement)
           .value
@@ -76,6 +74,19 @@ describe('EditPublishedEdition', () => {
       expect(screen.getByText('Test Release')).toBeInTheDocument()
     })
 
+    it('shows the currently attached publisher when publisher is provided', () => {
+      renderComponent({
+        publishedEdition: {
+          ...publishedEditionFixtureAlpha,
+          publisher: publisherFixtureAlpha
+        }
+      })
+
+      expect(
+        screen.getByText(publisherFixtureAlpha.name)
+      ).toBeInTheDocument()
+    })
+
     it('shows the currently attached cover image and buy link', () => {
       renderComponent({
         publishedEdition: {
@@ -94,11 +105,13 @@ describe('EditPublishedEdition', () => {
 
   describe('error display', () => {
     it('handles errors passed via the errors prop', () => {
-      const errors = { publisher: ['Publisher is required'] }
+      const errors = {
+        catalogNumber: ['Catalog number is invalid']
+      }
       renderComponent({ errors })
 
       expect(
-        screen.getByText(/publisher is required/i)
+        screen.getByText(/catalog number is invalid/i)
       ).toBeInTheDocument()
     })
   })

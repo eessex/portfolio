@@ -227,9 +227,7 @@ export function Combobox<
                 {coverImage && (
                   <CoverImageThumbnail image={coverImage} />
                 )}
-                <span className={styles['option-content']}>
-                  {formatResult(item)}
-                </span>
+                {formatResult(item)}
               </li>
             )
           })}

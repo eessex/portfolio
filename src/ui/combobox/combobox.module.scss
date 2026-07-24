@@ -49,22 +49,3 @@
   margin: 0;
   padding: grids.space-em(2) grids.space-em(8);
 }
-
-.option-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  flex: 1;
-  min-width: 0;
-  line-height: initial;
-
-  small {
-    color: var(--transparency-dark);
-  }
-
-  span {
-    display: flex;
-    align-items: center;
-  }
-}

@@ -15,6 +15,7 @@ import { Select } from '@/ui/form/select'
 import { formatImageResult } from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { formatLinkResult } from '@/ui/links/format-link-result'
+import { formatPublisherResult } from '@/ui/publishers/format-publisher-result'
 import { formatReleaseResult } from '@/ui/releases/format-release-result'
 
 interface EditPublishedEditionProps {
@@ -34,7 +35,7 @@ export const EditPublishedEdition = ({
         itemType='publishers'
         isRequired
         existingItem={publishedEdition?.publisher}
-        formatResult={(publisher) => publisher.name}
+        formatResult={formatPublisherResult}
       />
 
       <Select

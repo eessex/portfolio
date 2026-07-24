@@ -99,6 +99,7 @@ async function createEmbedCodesTable() {
       type VARCHAR(30) NOT NULL,
       src VARCHAR(1000) NOT NULL,
       content_type VARCHAR(40),
+      cover_image_id UUID,
       created_at TIMESTAMP WITHOUT TIME ZONE
         DEFAULT CURRENT_TIMESTAMP
         NOT NULL,
@@ -111,6 +112,11 @@ async function createEmbedCodesTable() {
   await sql`
     CREATE UNIQUE INDEX IF NOT EXISTS embed_codes_src_type_unique
     ON embed_codes (src, type);
+  `
+
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS embed_codes_cover_image_id_unique
+    ON embed_codes (cover_image_id);
   `
 
   await sql`

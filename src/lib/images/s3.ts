@@ -60,6 +60,32 @@ async function getPresignedUploadUrl(
   return await getSignedUrl(s3, command, { expiresIn: 60 * 5 }) // 5 minutes
 }
 
+/**
+ * Direct server-side upload for bytes already in hand (e.g. a fetched
+ * remote thumbnail), skipping the presigned-URL round trip `uploadFile`
+ * needs for client-supplied files.
+ */
+export async function uploadBufferToS3({
+  buffer,
+  key,
+  contentType
+}: {
+  buffer: Buffer
+  key: string
+  contentType: string
+}): Promise<string> {
+  const bucketName = process.env.AWS_S3_BUCKET_NAME!
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+      Body: buffer,
+      ContentType: contentType
+    })
+  )
+  return `https://${bucketName}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${key}`
+}
+
 export async function uploadFile(file: File) {
   await assertAuthed()
 

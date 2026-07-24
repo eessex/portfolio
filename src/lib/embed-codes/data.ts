@@ -2,6 +2,10 @@
 
 import { sql } from '@/lib/db'
 import { fetchCachedEmbedCodesFirstPage } from '@/lib/embed-codes/cached'
+import {
+  type WithCoverImageUrls,
+  withCoverImageUrls
+} from '@/lib/embed-codes/cover-image-url'
 import type { DashboardEmbedCode } from '@/lib/embed-codes/schemas/client'
 import { dashboardEmbedCodeSchema } from '@/lib/embed-codes/schemas/client'
 import { embedCodeSchema } from '@/lib/embed-codes/schemas/db'
@@ -33,7 +37,9 @@ export const fetchEmbedCodesByIds = async (ids: string[]) => {
       WHERE id = ANY(${ids})
     `
     return data.map((row) =>
-      formatDbResponseForClient(row, embedCodeSchema)
+      withCoverImageUrls(
+        formatDbResponseForClient(row, embedCodeSchema)
+      )
     )
   } catch (cause) {
     throw new Error('Failed to fetch embed codes.', { cause })
@@ -57,13 +63,16 @@ export async function fetchEmbedCodes(
 export async function fetchEmbedCodesRaw(
   cursor?: string,
   query?: string
-): Promise<ResponseWithCursor<DashboardEmbedCode>> {
+): Promise<
+  ResponseWithCursor<DashboardEmbedCode & WithCoverImageUrls>
+> {
   return runListFetch({
     cursor,
     query,
     itemType: 'embedCodes',
     schema: dashboardEmbedCodeSchema,
     cursorKey: 'id',
+    transform: (items) => items.map(withCoverImageUrls),
     count: (like) => sql`
       SELECT COUNT(*)::int AS count
       FROM embed_codes

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { systemFields } from '@/lib/schemas/fields'
-import { shortText } from '@/lib/schemas/primitives'
+import { shortText, uuid } from '@/lib/schemas/primitives'
 
 /**
  * The variety of media displayed in an iframe embed.
@@ -16,20 +16,26 @@ export const EmbedCodeTypes = Object.fromEntries(
 export type EmbedCodeType = z.infer<typeof embedCodeTypesSchema>
 
 /**
- * The type of content depicted in the embed.
+ * The type of content depicted in the embed. Split by whether it's
+ * video-only (hidden from the picker when the embed's `type` is
+ * `audio`) or applicable regardless of `type`.
  */
+export const EmbedCodeContentTypesByType = {
+  video: ['film', 'official_music_video', 'trailer'],
+  shared: [
+    'dj_set',
+    'documentation',
+    'interview',
+    'live_performance',
+    'official_audio',
+    'other',
+    'podcast',
+    'radio_show'
+  ]
+} as const
 export const embedCodeContentTypes = [
-  'dj_set',
-  'documentation',
-  'interview',
-  'film',
-  'live_performance',
-  'official_audio',
-  'official_music_video',
-  'other',
-  'podcast',
-  'radio_show',
-  'trailer'
+  ...EmbedCodeContentTypesByType.video,
+  ...EmbedCodeContentTypesByType.shared
 ] as const
 export const embedCodeContentTypeSchema = z.enum(
   embedCodeContentTypes
@@ -63,6 +69,7 @@ export type EmbedCodeHost = z.infer<typeof embedCodeHostSchema>
 const embedCodeFields = {
   caption: shortText.optional(),
   contentType: embedCodeContentTypeSchema.optional(),
+  coverImageId: uuid.optional(),
   host: embedCodeHostSchema,
   /** @deprecated use src */
   iframe: z.string().optional(),

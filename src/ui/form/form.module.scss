@@ -44,6 +44,11 @@
     grid-template-columns: 1fr 1fr;
     gap: grids.space-rem(4);
 
+    // When a sibling is hidden, span the full width
+    &:has(> [hidden]) > :not([hidden]) {
+      grid-column: 1 / -1;
+    }
+
     @include breakpoints.mobile {
       grid-template-columns: 1fr;
     }

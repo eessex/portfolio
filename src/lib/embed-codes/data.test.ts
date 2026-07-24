@@ -10,17 +10,18 @@ jest.mock('@/lib/db', () => ({
 
 import { sql } from '@/lib/db'
 import { fetchCachedEmbedCodesFirstPage } from '@/lib/embed-codes/cached'
+import { withCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import * as EmbedCodes from '@/lib/embed-codes/data'
 
 const mockSql = jest.mocked(sql)
 const mockCached = jest.mocked(fetchCachedEmbedCodesFirstPage)
 
-const dashboardEmbedCodeRow = {
+const dashboardEmbedCodeRow = withCoverImageUrls({
   ...embedCodeFixture,
   eventSlugs: [],
   projectSlugs: [],
   releaseSlugs: []
-}
+})
 
 describe('fetchEmbedCodes', () => {
   beforeEach(() => {
@@ -97,7 +98,7 @@ describe('fetchEmbedCodesByIds', () => {
       embedCodeFixture.id
     ])
 
-    expect(result).toEqual([embedCodeFixture])
+    expect(result).toEqual([withCoverImageUrls(embedCodeFixture)])
   })
 
   it('throws on DB error', async () => {

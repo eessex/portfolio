@@ -98,7 +98,6 @@ export const EditPublishedEdition = ({
             ? (publishedEdition.release as ReleaseClient)
             : undefined
         }
-        getCoverImage={(release) => release.coverImage}
         formatResult={formatReleaseResult}
       />
 
@@ -106,7 +105,6 @@ export const EditPublishedEdition = ({
         name='coverImageId'
         itemType='images'
         existingItem={publishedEdition?.coverImage}
-        getCoverImage={(image) => image}
         formatResult={formatImageResult}
       />
 

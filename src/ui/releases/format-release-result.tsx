@@ -7,6 +7,7 @@ export function formatReleaseResult(release: ReleaseClient) {
     <ItemResultLabel
       title={formattedItemTitle(release)}
       badges={[{ text: formattedItemType(release.type) }]}
+      coverImage={release.coverImage}
     />
   )
 }

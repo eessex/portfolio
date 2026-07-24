@@ -22,6 +22,12 @@ describe('formatImageResult', () => {
     ).toBeInTheDocument()
   })
 
+  it('renders a cover image thumbnail', () => {
+    render(formatImageResult(imageFixture))
+
+    expect(screen.getByRole('img')).toBeInTheDocument()
+  })
+
   it('renders a Press badge when isPress is true', () => {
     render(formatImageResult({ ...imageFixture, isPress: true }))
 

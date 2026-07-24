@@ -51,7 +51,6 @@ function SettingsFormFields({
         label='Cover image'
         searchParams={pressSearchParams}
         existingItem={settings?.coverImage}
-        getCoverImage={(image) => image}
         formatResult={formatImageResult}
       />
     </>

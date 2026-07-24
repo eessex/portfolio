@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 
-import type { Image } from '@/lib/images/schemas/db'
 import {
   type EmbeddedItemType,
   itemTypeToLabel,
@@ -38,8 +37,6 @@ export interface ItemPickerProps<
    * relations (e.g. `coverImageId` for an `images` item).
    */
   name?: string
-  /** Cover image thumbnail shown before `formatResult`, if applicable */
-  getCoverImage?: (item: TEmbeddedItem | TPage) => Image | undefined
   formatResult: (item: TEmbeddedItem | TPage) => React.ReactNode
   /**
    * Renders the inline "create new" form. Omit for item types with no
@@ -74,7 +71,6 @@ export function ItemPicker<
   itemType,
   label,
   name,
-  getCoverImage,
   formatResult,
   renderEditItemForm
 }: ItemPickerProps<TEmbeddedItem, TPage, S>) {
@@ -96,10 +92,7 @@ export function ItemPicker<
             itemType={itemType}
             name={name}
             onClick={() => setExisting(null)}
-            item={{
-              id: existing.id,
-              coverImage: getCoverImage?.(existing)
-            }}
+            id={existing.id}
             isRequired={isRequired}
           >
             {formatResult(existing)}
@@ -110,7 +103,6 @@ export function ItemPicker<
           initialResults={initialResults}
           searchParams={searchParams}
           itemType={itemType}
-          getCoverImage={getCoverImage}
           formatResult={formatResult}
           onCreateNew={
             renderEditItemForm && !hideCreateNew

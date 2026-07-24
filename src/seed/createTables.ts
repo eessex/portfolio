@@ -403,9 +403,6 @@ async function createPublishedEditionTable() {
       release_id UUID NOT NULL,
       project_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
-      -- Deprecated in favor of publisher_id. Existing rows have been
-      -- backfilled; the app no longer writes to this column.
-      publisher VARCHAR(255),
       publisher_id UUID,
       format VARCHAR(30) NOT NULL,
       publish_date DATE NOT NULL,
@@ -422,11 +419,6 @@ async function createPublishedEditionTable() {
     );
   `
 
-  // Reconcile tables created before publisher_id existed: add the column,
-  // drop the old NOT NULL now that existing rows are backfilled, and add
-  // the FK separately since it can't be inlined into an ALTER ADD COLUMN.
-  await sql`ALTER TABLE published_editions ADD COLUMN IF NOT EXISTS publisher_id UUID;`
-  await sql`ALTER TABLE published_editions ALTER COLUMN publisher DROP NOT NULL;`
   await sql`
     DO $$
     BEGIN

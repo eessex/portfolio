@@ -5,6 +5,7 @@ import type { Link } from '@/lib/links/schemas/db'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { createPublishedEditionSchema } from '@/lib/published-editions/schemas/db'
 import { publishedEditionTypes } from '@/lib/published-editions/schemas/db'
+import type { Publisher } from '@/lib/publishers/schemas/db'
 import type {
   FetchReleasesResult,
   ReleaseClient
@@ -29,21 +30,19 @@ export const EditPublishedEdition = ({
 }: EditPublishedEditionProps) => {
   return (
     <>
-      <Input
-        attributes={{
-          maxLength: 255,
-          name: 'publisher',
-          placeholder: 'Soap Library',
-          required: true
-        }}
-        defaultValue={publishedEdition?.publisher}
-        errors={errors?.publisher}
-        label='Publisher'
+      <AttachEmbeddedItem<Publisher>
+        itemType='publishers'
+        hideCreateNew
+        existingItem={publishedEdition?.publisher}
+        isRequired
+        formatResult={(publisher) => publisher.name}
+        renderEditItemForm={() => null}
       />
 
       <Select
         options={[...publishedEditionTypes]}
         onChange={() => {}}
+        formatOptionLabel={(option) => option}
         label='Format'
         placeholder='Select a format'
         value={publishedEdition?.format}

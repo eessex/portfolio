@@ -23,9 +23,9 @@ export function PublishedEditionsCombined({
         {combinePublishedEditions(publishedEditions).map(
           (edition, id) => (
             <li
-              key={`${edition.publisher}-${edition.publishDate}-${id}`}
+              key={`${edition.publisherName}-${edition.publishDate}-${id}`}
             >
-              {edition.format}, {edition.publisher}
+              {edition.format}, {edition.publisherName}
               {format === 'lg' &&
                 ', ' + formattedDateTime(edition.publishDate, 'xxs')}
             </li>

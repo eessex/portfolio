@@ -60,6 +60,19 @@ describe('EditPublishedEdition', () => {
       )
     })
 
+    it('shows the currently attached publisher when provided', () => {
+      renderComponent({
+        publishedEdition: {
+          ...publishedEditionFixtureAlpha,
+          publisher: publisherFixtureAlpha
+        }
+      })
+
+      expect(
+        screen.getByText(publisherFixtureAlpha.name)
+      ).toBeInTheDocument()
+    })
+
     it('shows the currently attached release when release is provided', () => {
       renderComponent({
         publishedEdition: {

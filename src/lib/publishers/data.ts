@@ -2,6 +2,7 @@
 
 import { sql } from '@/lib/db'
 import { runListFetch } from '@/lib/list-fetch'
+import { fetchCachedPublishersFirstPage } from '@/lib/publishers/cached'
 import {
   type Publisher,
   publisherSchema
@@ -34,6 +35,20 @@ export async function fetchPublisherById(id: string) {
  * dashboard: fetch all the publishers
  */
 export async function fetchPublishers(
+  cursor?: string,
+  query?: string
+) {
+  if (!cursor && !query) {
+    return fetchCachedPublishersFirstPage()
+  }
+
+  return fetchPublishersRaw(cursor, query)
+}
+
+/**
+ * dashboard: fetch all the publishers
+ */
+export async function fetchPublishersRaw(
   cursor?: string,
   query?: string
 ): Promise<ResponseWithCursor<Publisher>> {

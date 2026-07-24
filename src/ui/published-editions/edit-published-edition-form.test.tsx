@@ -64,7 +64,7 @@ describe('EditPublishedEdition', () => {
       renderComponent({
         publishedEdition: {
           ...publishedEditionFixtureAlpha,
-          publisherEntity: publisherFixtureAlpha
+          publisher: publisherFixtureAlpha
         }
       })
 

@@ -81,6 +81,8 @@ describe('Published Edition Actions', () => {
         .mockResolvedValueOnce([existingPublishedEditionRow])
         .mockResolvedValueOnce([publishedEditionFixtureAlpha])
 
+      // only publisherId (required) is submitted; format/publishDate/
+      // releaseId should fall back to the existing edition's values
       await editPublishedEdition(
         formDataFromObject({
           publisherId: publisherFixtureBeta.id,

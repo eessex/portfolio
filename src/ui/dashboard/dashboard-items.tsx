@@ -330,7 +330,7 @@ function DashboardListItem<T extends DashboardItem>({
         const releasePrefix = editionItem.release?.title
           ? `${editionItem.release.title}: `
           : ''
-        return `${releasePrefix}${editionItem.format} — ${editionItem.publisher}`
+        return `${releasePrefix}${editionItem.format} — ${editionItem.publisherName}`
       }
     }
   }

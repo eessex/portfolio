@@ -17,9 +17,6 @@ export async function fetchPublishedEditionById(id: string) {
   try {
     const data = await sql`
       SELECT
-        -- published_editions.* includes the deprecated raw publisher
-        -- string column; the computed "publisher" object below must be
-        -- listed after it so it wins the column-name collision.
         published_editions.*,
         (
           CASE
@@ -107,16 +104,12 @@ export async function fetchPublishedEditionsRaw(
       LEFT JOIN publishers p ON p.id = published_editions.publisher_id
       WHERE (
         ${like}::text IS NULL
-        OR published_editions.publisher ILIKE ${like}
         OR p.name ILIKE ${like}
         OR r.title ILIKE ${like}
       )
     `,
     list: ({ like, cursorName, cursorId }) => sql`
       SELECT
-        -- published_editions.* includes the deprecated raw publisher
-        -- string column; the computed "publisher" object below must be
-        -- listed after it so it wins the column-name collision.
         published_editions.*,
         (
           CASE
@@ -159,7 +152,6 @@ export async function fetchPublishedEditionsRaw(
       LEFT JOIN publishers p ON p.id = published_editions.publisher_id
       WHERE (
         ${like}::text IS NULL
-        OR published_editions.publisher ILIKE ${like}
         OR p.name ILIKE ${like}
         OR r.title ILIKE ${like}
       )

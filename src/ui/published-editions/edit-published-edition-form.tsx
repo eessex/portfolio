@@ -5,14 +5,15 @@ import type { Link } from '@/lib/links/schemas/db'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { createPublishedEditionSchema } from '@/lib/published-editions/schemas/db'
 import { publishedEditionTypes } from '@/lib/published-editions/schemas/db'
+import type { Publisher } from '@/lib/publishers/schemas/db'
 import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import { AttachEmbeddedItem } from '@/ui/attach-embedded-item/attach-embedded-item'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
-import { PageItemPicker } from '@/ui/page-item-picker/page-item-picker'
+import { ItemPicker } from '@/ui/item-picker/item-picker'
+import { formattedItemTitle } from '@/ui/util'
 
 interface EditPublishedEditionProps {
   errors?: z.inferFlattenedErrors<
@@ -27,16 +28,11 @@ export const EditPublishedEdition = ({
 }: EditPublishedEditionProps) => {
   return (
     <>
-      <Input
-        attributes={{
-          maxLength: 255,
-          name: 'publisher',
-          placeholder: 'Soap Library',
-          required: true
-        }}
-        defaultValue={publishedEdition?.publisher}
-        errors={errors?.publisher}
-        label='Publisher'
+      <ItemPicker<Publisher>
+        itemType='publishers'
+        isRequired
+        existingItem={publishedEdition?.publisher}
+        formatResult={(publisher) => publisher.name}
       />
 
       <Select
@@ -88,20 +84,19 @@ export const EditPublishedEdition = ({
         label='Catalog number'
       />
 
-      <PageItemPicker<ReleaseClient, FetchReleasesResult>
-        pagePath='releases'
-        initialItem={
+      <ItemPicker<never, ReleaseClient, FetchReleasesResult>
+        itemType='releases'
+        isRequired
+        existingItem={
           publishedEdition?.release?.id &&
           publishedEdition?.release?.title
-            ? {
-                id: publishedEdition.release.id,
-                title: publishedEdition.release.title
-              }
+            ? (publishedEdition.release as ReleaseClient)
             : undefined
         }
+        formatResult={formattedItemTitle}
       />
 
-      <AttachEmbeddedItem<Image>
+      <ItemPicker<Image>
         name='coverImageId'
         itemType='images'
         hideCreateNew
@@ -112,7 +107,7 @@ export const EditPublishedEdition = ({
         renderEditItemForm={() => null}
       />
 
-      <AttachEmbeddedItem<Link>
+      <ItemPicker<Link>
         name='buyLinkId'
         itemType='links'
         hideCreateNew

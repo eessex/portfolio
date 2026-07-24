@@ -1,5 +1,3 @@
-import { XMarkIcon } from '@heroicons/react/16/solid'
-
 import type { EmbeddedItemType, PagePath } from '@/lib/schemas'
 import { itemTypeSingulars, itemTypeToLabel } from '@/lib/schemas'
 import { Input } from '@/ui/form/input'
@@ -18,7 +16,6 @@ export type SelectedResultProps = {
    */
   name?: string
   children: React.ReactNode
-  onClick: () => void
 }
 
 export const SelectedResult = ({
@@ -27,25 +24,14 @@ export const SelectedResult = ({
   id,
   itemType,
   name,
-  children,
-  onClick
+  children
 }: SelectedResultProps) => {
-  const formattedItemType = itemTypeToLabel(itemType, true, true)
   const formattedIdLabel = `${itemTypeToLabel(itemType, true)} ID`
   const fieldName = name ?? `${itemTypeSingulars[itemType]}Id`
 
   return (
     <Component className={styles['selected-result']}>
       {children}
-
-      <button
-        type='button'
-        aria-label={`Remove ${formattedItemType}`}
-        className='button-icon'
-        onClick={onClick}
-      >
-        <XMarkIcon />
-      </button>
 
       <Input
         label={formattedIdLabel}

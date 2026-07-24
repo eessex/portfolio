@@ -59,4 +59,28 @@ describe('ItemResultLabel', () => {
       expect.stringContaining(encodeURIComponent(imageFixture.url))
     )
   })
+
+  it('does not render a remove button when onRemove is not provided', () => {
+    render(<ItemResultLabel title='Test Title' />)
+
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
+
+  it('renders a remove button with the given label when onRemove is provided', () => {
+    const onRemove = jest.fn()
+    render(
+      <ItemResultLabel
+        title='Test Title'
+        onRemove={onRemove}
+        removeLabel='Remove venue'
+      />
+    )
+
+    const button = screen.getByRole('button', {
+      name: 'Remove venue'
+    })
+    button.click()
+
+    expect(onRemove).toHaveBeenCalledTimes(1)
+  })
 })

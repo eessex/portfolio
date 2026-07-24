@@ -1,5 +1,4 @@
 @use '@/ui/styles/grids';
-@use '@/ui/styles/type';
 
 .combobox-container {
   --input-width: 100%;
@@ -23,11 +22,6 @@
 }
 
 .option {
-  @include type.line-height('sm');
-
-  display: flex;
-  align-items: center;
-  gap: grids.space-em(2);
   margin: 0;
   padding: grids.space-em(2) grids.space-em(8);
   max-width: unset;

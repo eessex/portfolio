@@ -31,11 +31,16 @@ export const EditPublishedEdition = ({
 }: EditPublishedEditionProps) => {
   return (
     <>
-      <ItemPicker<Publisher>
-        itemType='publishers'
+      <ItemPicker<never, ReleaseClient, FetchReleasesResult>
+        itemType='releases'
         isRequired
-        existingItem={publishedEdition?.publisher}
-        formatResult={formatPublisherResult}
+        existingItem={
+          publishedEdition?.release?.id &&
+          publishedEdition?.release?.title
+            ? (publishedEdition.release as ReleaseClient)
+            : undefined
+        }
+        formatResult={formatReleaseResult}
       />
 
       <Select
@@ -46,6 +51,36 @@ export const EditPublishedEdition = ({
         placeholder='Select a format'
         value={publishedEdition?.format}
         attributes={{ name: 'format', required: true }}
+      />
+
+      <Input
+        attributes={{
+          min: 1,
+          name: 'editionSize',
+          type: 'number',
+          placeholder: '1000'
+        }}
+        defaultValue={publishedEdition?.editionSize}
+        errors={errors?.editionSize}
+        label='Edition size'
+      />
+
+      <ItemPicker<Publisher>
+        itemType='publishers'
+        isRequired
+        existingItem={publishedEdition?.publisher}
+        formatResult={formatPublisherResult}
+      />
+
+      <Input
+        attributes={{
+          maxLength: 255,
+          name: 'catalogNumber',
+          placeholder: 'SL021'
+        }}
+        defaultValue={publishedEdition?.catalogNumber}
+        errors={errors?.catalogNumber}
+        label='Catalog number'
       />
 
       <Input
@@ -66,44 +101,10 @@ export const EditPublishedEdition = ({
         label='Publish date'
       />
 
-      <Input
-        attributes={{
-          min: 1,
-          name: 'editionSize',
-          type: 'number',
-          placeholder: '1000'
-        }}
-        defaultValue={publishedEdition?.editionSize}
-        errors={errors?.editionSize}
-        label='Edition size'
-      />
-
-      <Input
-        attributes={{
-          maxLength: 255,
-          name: 'catalogNumber',
-          placeholder: 'SL021'
-        }}
-        defaultValue={publishedEdition?.catalogNumber}
-        errors={errors?.catalogNumber}
-        label='Catalog number'
-      />
-
-      <ItemPicker<never, ReleaseClient, FetchReleasesResult>
-        itemType='releases'
-        isRequired
-        existingItem={
-          publishedEdition?.release?.id &&
-          publishedEdition?.release?.title
-            ? (publishedEdition.release as ReleaseClient)
-            : undefined
-        }
-        formatResult={formatReleaseResult}
-      />
-
       <ItemPicker<Image>
         name='coverImageId'
         itemType='images'
+        label='Product image'
         existingItem={publishedEdition?.coverImage}
         formatResult={formatImageResult}
       />
@@ -111,6 +112,7 @@ export const EditPublishedEdition = ({
       <ItemPicker<Link>
         name='buyLinkId'
         itemType='links'
+        label='Purchase link'
         existingItem={publishedEdition?.buyLink}
         formatResult={formatLinkResult}
       />

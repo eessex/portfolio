@@ -5,7 +5,16 @@ import styles from '@/ui/cover-image-thumbnail.module.scss'
 
 const COVER_IMAGE_HEIGHT = 32
 
-export const CoverImageThumbnail = ({ image }: { image: Image }) => (
+export type ThumbnailImage = Pick<
+  Image,
+  'url' | 'aspect' | 'alt' | 'caption'
+>
+
+export const CoverImageThumbnail = ({
+  image
+}: {
+  image: ThumbnailImage
+}) => (
   <NextImage
     src={image.url}
     alt={image.alt || image.caption || ''}

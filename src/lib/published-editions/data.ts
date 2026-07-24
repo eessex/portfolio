@@ -170,6 +170,7 @@ export async function fetchPublishedEditionsRaw(
           'title', r.title,
           'artist', r.artist,
           'type', r.type,
+          'slug', r.slug,
           'coverImageId', r.cover_image_id,
           'coverImage', (
             CASE

@@ -85,7 +85,7 @@ export function useResultsList<
   )
   /** Fetching state ref to prevent duplicate requests */
   const isFetchingRef = useRef(false)
-  /** Set once an initial (replace) fetch completes without aborting */
+  /** Set once first page fetch completes without aborting */
   const hasLoadedInitialRef = useRef(false)
   /** Cache: one item's normalized search text */
   const searchIndexRef = useRef<Map<string, string>>(new Map())
@@ -368,11 +368,7 @@ export function useResultsList<
     }
   }, [])
 
-  // Client-side draft augmentation. When the page rendered published-only
-  // data statically, refetch page 1 once the visitor's session resolves as
-  // admin — revealing unpublished drafts with no auth() in the static render
-  // path. Anonymous visitors skip the refetch (they'd get identical published
-  // data); the session check is UX only, the API gates drafts on the cookie.
+  // For admins, fetch unpublished content on mount
   const isAdmin = useIsAdmin(!!augmentOnMount)
   const didAugmentRef = useRef(false)
   useEffect(() => {
@@ -381,14 +377,7 @@ export function useResultsList<
     fetchPage({ replace: true })
   }, [augmentOnMount, isAdmin, fetchPage])
 
-  // Client-side seeding. When no `initial` results are passed, fetch the
-  // first page so the list populates without the caller threading server
-  // data down (e.g. the about cover-image picker). An explicit empty
-  // response seeds an empty list without a fetch. Exposed as
-  // `ensureFirstPage`, safe to call repeatedly (e.g. on mount and again
-  // on focus): it no-ops while a fetch is in flight or once one has
-  // completed, but retries if the prior attempt was aborted before
-  // finishing, so a caller doesn't get stuck with an empty list.
+  // If no initial results are passed from the server, fetch the first page on mount
   const ensureFirstPage = useCallback(() => {
     if (initial !== undefined) return
     if (hasLoadedInitialRef.current || isFetchingRef.current) return
@@ -417,8 +406,8 @@ export function useResultsList<
     count,
     ensureFirstPage,
     isLoading,
-    items, // flat
-    groupedItems: getFilteredGroupedItems(), // grouped
+    items,
+    groupedItems: getFilteredGroupedItems(),
     loadMoreRef,
     query,
     setQuery,

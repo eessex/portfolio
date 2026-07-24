@@ -10,8 +10,6 @@
   --header-height: var(--menubar-height);
   --icon-optical-offset: -0.125em;
   --items-list-padding: #{grids.space-rem(3, 4)};
-  // shared control height: inputs (via _interactions.scss),
-  // selects, and the SelectedResult chip all match this
   --input-height: #{grids.space-em(11)};
 
   @include breakpoints.mobile {

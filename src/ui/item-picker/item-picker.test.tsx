@@ -17,6 +17,7 @@ import {
   ItemPicker,
   type ItemPickerProps
 } from '@/ui/item-picker/item-picker'
+import { ItemResultLabel } from '@/ui/item-result-label'
 import { useResultsList } from '@/ui/useResultsList'
 
 jest.mock('@/ui/useResultsList')
@@ -31,7 +32,13 @@ describe('ItemPicker', () => {
       },
       itemType: 'venues',
       name: 'venueId',
-      formatResult: (item) => item.name,
+      formatResult: (item, onRemove, removeLabel) => (
+        <ItemResultLabel
+          title={item.name}
+          onRemove={onRemove}
+          removeLabel={removeLabel}
+        />
+      ),
       renderEditItemForm: () => <div>New Venue Form</div>
     }
 
@@ -225,7 +232,13 @@ describe('ItemPicker', () => {
         <ItemPicker<never, ReleaseClient, FetchReleasesResult>
           itemType='releases'
           isRequired
-          formatResult={({ title }) => title}
+          formatResult={({ title }, onRemove, removeLabel) => (
+            <ItemResultLabel
+              title={title}
+              onRemove={onRemove}
+              removeLabel={removeLabel}
+            />
+          )}
           {...props}
         />
       )

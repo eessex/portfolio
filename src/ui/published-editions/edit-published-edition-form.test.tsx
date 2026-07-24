@@ -89,6 +89,19 @@ describe('EditPublishedEdition', () => {
       expect(screen.getByText('Test Release')).toBeInTheDocument()
     })
 
+    it('shows the currently attached publisher when publisher is provided', () => {
+      renderComponent({
+        publishedEdition: {
+          ...publishedEditionFixtureAlpha,
+          publisher: publisherFixtureAlpha
+        }
+      })
+
+      expect(
+        screen.getByText(publisherFixtureAlpha.name)
+      ).toBeInTheDocument()
+    })
+
     it('shows the currently attached cover image and buy link', () => {
       renderComponent({
         publishedEdition: {
@@ -107,7 +120,9 @@ describe('EditPublishedEdition', () => {
 
   describe('error display', () => {
     it('handles errors passed via the errors prop', () => {
-      const errors = { catalogNumber: ['Catalog number is invalid'] }
+      const errors = {
+        catalogNumber: ['Catalog number is invalid']
+      }
       renderComponent({ errors })
 
       expect(

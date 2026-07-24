@@ -32,11 +32,9 @@ export const EditPublishedEdition = ({
     <>
       <ItemPicker<Publisher>
         itemType='publishers'
-        hideCreateNew
-        existingItem={publishedEdition?.publisher}
         isRequired
+        existingItem={publishedEdition?.publisher}
         formatResult={(publisher) => publisher.name}
-        renderEditItemForm={() => null}
       />
 
       <Select

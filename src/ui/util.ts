@@ -201,7 +201,7 @@ export function combinePublishedEditions(
   publishedEditions.forEach((edition) => {
     const existing = combined.find(
       (item) =>
-        item.publisherName === edition.publisherName &&
+        item.publisher?.id === edition.publisher?.id &&
         new Date(item.publishDate).toISOString().substring(0, 10) ===
           new Date(edition.publishDate).toISOString().substring(0, 10)
     )

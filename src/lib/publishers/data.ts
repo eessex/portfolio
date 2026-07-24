@@ -31,6 +31,9 @@ export async function fetchPublisherById(id: string) {
   }
 }
 
+/**
+ * dashboard: fetch all the publishers
+ */
 export async function fetchPublishers(
   cursor?: string,
   query?: string

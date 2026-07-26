@@ -5,8 +5,14 @@ import {
   COVER_IMAGE_PATH_PREFIX,
   COVER_IMAGE_THUMBNAIL_SIZE
 } from '@/lib/embed-codes/cover-image-url'
-import { resolveOEmbed } from '@/lib/embed-codes/oembed'
-import type { EmbedCodeHost } from '@/lib/embed-codes/schemas/db'
+import {
+  extractYoutubeVideoId,
+  resolveOEmbed
+} from '@/lib/embed-codes/oembed'
+import {
+  type EmbedCodeHost,
+  EmbedCodeHosts
+} from '@/lib/embed-codes/schemas/db'
 import { uploadBufferToS3 } from '@/lib/images/s3'
 
 function warnNonOkResponse(
@@ -42,6 +48,29 @@ export interface EmbedCodeMetadata {
   title?: string
 }
 
+async function fetchThumbnailImage(
+  host: EmbedCodeHost,
+  src: string,
+  fallbackUrl: string
+): Promise<Response | undefined> {
+  const videoId =
+    host === EmbedCodeHosts.youtube
+      ? extractYoutubeVideoId(src)
+      : undefined
+  if (videoId) {
+    const maxresUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+    const maxresRes = await fetch(maxresUrl)
+    if (maxresRes.ok) return maxresRes
+  }
+
+  const res = await fetch(fallbackUrl)
+  if (!res.ok) {
+    warnNonOkResponse('resolved thumbnail', fallbackUrl, res)
+    return undefined
+  }
+  return res
+}
+
 /**
  * Fetches metadata for a newly created embed code from its source — every
  * host except `unknown` is supported (youtube, soundcloud, bandcamp,
@@ -57,15 +86,12 @@ export async function fetchEmbedCodeMetadata(
     const resolved = await resolveOEmbed(host, src)
     if (!resolved?.thumbnailUrl) return { title: resolved?.title }
 
-    const imageRes = await fetch(resolved.thumbnailUrl)
-    if (!imageRes.ok) {
-      warnNonOkResponse(
-        'resolved thumbnail',
-        resolved.thumbnailUrl,
-        imageRes
-      )
-      return { title: resolved.title }
-    }
+    const imageRes = await fetchThumbnailImage(
+      host,
+      src,
+      resolved.thumbnailUrl
+    )
+    if (!imageRes) return { title: resolved.title }
 
     const buffer = Buffer.from(await imageRes.arrayBuffer())
     const id = crypto.randomUUID()

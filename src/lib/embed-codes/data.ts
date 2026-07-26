@@ -10,6 +10,7 @@ import type { DashboardEmbedCode } from '@/lib/embed-codes/schemas/client'
 import { dashboardEmbedCodeSchema } from '@/lib/embed-codes/schemas/client'
 import { embedCodeSchema } from '@/lib/embed-codes/schemas/db'
 import { runListFetch } from '@/lib/list-fetch'
+import { EmbeddedItemTypes } from '@/lib/schemas'
 import {
   DEFAULT_PAGE_SIZE,
   formatDbResponseForClient,
@@ -69,7 +70,7 @@ export async function fetchEmbedCodesRaw(
   return runListFetch({
     cursor,
     query,
-    itemType: 'embedCodes',
+    itemType: EmbeddedItemTypes.embedCodes,
     schema: dashboardEmbedCodeSchema,
     cursorKey: 'id',
     transform: (items) => items.map(withCoverImageUrls),

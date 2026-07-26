@@ -29,7 +29,7 @@ async function EventsList() {
 
   return (
     <ItemsTable<EventClient, FetchEventsResult>
-      path={path}
+      itemType={path}
       initialItems={events}
       featuredKey='upcomingEvents'
     />

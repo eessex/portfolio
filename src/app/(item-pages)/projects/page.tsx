@@ -29,7 +29,7 @@ async function ProjectsList() {
 
   return (
     <ItemsTable<ProjectClient, FetchProjectsResult>
-      path={path}
+      itemType={path}
       initialItems={projects}
       isExpandedOnLoad
       isCategoryVisible

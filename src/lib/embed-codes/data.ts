@@ -79,10 +79,10 @@ export async function fetchEmbedCodesRaw(
       WHERE (
         ${like}::text IS NULL
         OR title ILIKE ${like}
-        OR iframe ILIKE ${like}
         OR src ILIKE ${like}
         OR host ILIKE ${like}
         OR type ILIKE ${like}
+        OR content_type ILIKE ${like}
         OR caption ILIKE ${like}
       )
     `,
@@ -105,10 +105,10 @@ export async function fetchEmbedCodesRaw(
       WHERE (
         ${like}::text IS NULL
         OR title ILIKE ${like}
-        OR iframe ILIKE ${like}
         OR src ILIKE ${like}
         OR host ILIKE ${like}
         OR type ILIKE ${like}
+        OR content_type ILIKE ${like}
         OR caption ILIKE ${like}
       )
       AND (

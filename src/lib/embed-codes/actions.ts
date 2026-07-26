@@ -100,7 +100,6 @@ async function createEmbedCode(embedCode: CreateEmbedCode) {
       contentType,
       coverImageId,
       host,
-      iframe,
       src,
       title,
       type
@@ -111,7 +110,6 @@ async function createEmbedCode(embedCode: CreateEmbedCode) {
         content_type,
         cover_image_id,
         host,
-        iframe,
         src,
         title,
         type,
@@ -121,7 +119,6 @@ async function createEmbedCode(embedCode: CreateEmbedCode) {
         ${contentType},
         ${coverImageId},
         ${host},
-        ${iframe},
         ${src},
         ${title},
         ${type},
@@ -149,7 +146,6 @@ async function updateEmbedCode(
       contentType,
       coverImageId,
       host,
-      iframe,
       src,
       title,
       type
@@ -161,7 +157,6 @@ async function updateEmbedCode(
         content_type = ${contentType},
         cover_image_id = ${coverImageId},
         host = ${host},
-        iframe = ${iframe},
         src = ${src},
         title = ${title},
         type = ${type},
@@ -189,7 +184,6 @@ function toDbRow(embedCode: CreateEmbedCode, existing?: EmbedCode) {
     contentType: embedCodeToSave.contentType,
     coverImageId: embedCodeToSave.coverImageId ?? null,
     host: embedCodeToSave.host,
-    iframe: embedCodeToSave.iframe,
     src: embedCodeToSave.src,
     title: embedCodeToSave.title,
     type: embedCodeToSave.type ?? null

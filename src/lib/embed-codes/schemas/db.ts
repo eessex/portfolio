@@ -71,8 +71,6 @@ const embedCodeFields = {
   contentType: embedCodeContentTypeSchema.optional(),
   coverImageId: uuid.optional(),
   host: embedCodeHostSchema,
-  /** @deprecated use src */
-  iframe: z.string().optional(),
   src: z.string().url().min(5).max(1000),
   title: shortText.optional(),
   type: embedCodeTypesSchema

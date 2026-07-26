@@ -30,7 +30,7 @@
 }
 
 .filters-container {
-  --input-height: #{grids.space-em(7)};
+  --input-height: #{grids.space-em(11)};
 
   display: flex;
   align-items: center;
@@ -43,7 +43,7 @@
   select {
     @include type.size('sm', 'normal', 'sm');
 
-    height: grids.space-em(7);
+    height: grids.space-em(11);
   }
 
   select {

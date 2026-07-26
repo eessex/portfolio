@@ -70,12 +70,12 @@ async function ProjectDetail({
   return (
     <ItemLayout item={project}>
       <ItemsTable
-        path={PagePaths.releases}
+        itemType={PagePaths.releases}
         initialItems={releases}
         projectId={project.id}
       />
       <ItemsTable
-        path={PagePaths.events}
+        itemType={PagePaths.events}
         initialItems={events}
         projectId={project.id}
       />

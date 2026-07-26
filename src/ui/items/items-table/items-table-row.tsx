@@ -1,4 +1,5 @@
 import {
+  PencilIcon,
   SpeakerWaveIcon,
   VideoCameraIcon
 } from '@heroicons/react/24/outline'
@@ -6,45 +7,98 @@ import { clsx } from 'clsx'
 import NextImage from 'next/image'
 import NextLink from 'next/link'
 
+import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
+import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import type { EventClient } from '@/lib/events/types'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
-import { PagePaths } from '@/lib/schemas'
-import type { PageItemClient } from '@/lib/types'
+import {
+  type EmbeddedItemType,
+  type PagePath,
+  PagePaths
+} from '@/lib/schemas'
+import { camelToSnake } from '@/lib/strings'
+import type { EmbeddedItem, PageItemClient } from '@/lib/types'
 import { DraftBadge } from '@/ui/draft-badge'
+import { formattedEmbedCodeTitle } from '@/ui/embed-codes/embed-code-details'
 import { FormattedItemDate } from '@/ui/items/item-date'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import {
   formattedItemTitle,
   formattedItemType,
-  itemUrl
+  itemUrl,
+  usedOnPages
 } from '@/ui/util'
+
+/**
+ * Embedded items have no public-facing page, unlike `PageItemClient`
+ * `path` is the field that distinguishes the two.
+ */
+function hasOwnPage(
+  item: PageItemClient | EmbeddedItem
+): item is PageItemClient {
+  return 'path' in item
+}
+
+function UsedOnPagesLabel({ item }: { item: EmbeddedItem }) {
+  const usedOn = usedOnPages(item)
+
+  if (usedOn.length === 0) {
+    return <span className={styles['unused']}>unused</span>
+  }
+
+  return (
+    <span>
+      used on {usedOn.length} page{usedOn.length === 1 ? '' : 's'}
+    </span>
+  )
+}
 
 export function ItemsTableRow({
   children,
   index,
+  isAdmin = false,
   isCategoryVisible = false,
   isExpanded = false,
   isFeatured = false,
   isPathTypeVisible = false,
-  item
+  item,
+  itemType
 }: {
   children?: React.ReactNode
   index?: number
+  /**
+   * Is the current visitor signed-in? Gates the edit link.
+   */
+  isAdmin?: boolean
   isCategoryVisible?: boolean
   isExpanded?: boolean
   isFeatured?: boolean
   isPathTypeVisible?: boolean
-  item: PageItemClient
+  item: PageItemClient | EmbeddedItem
+  /**
+   * The table's item type
+   */
+  itemType: PagePath | EmbeddedItemType
 }) {
   if (!item) return null
 
   const { artist, coverImage } = item as ReleaseClient
-  const linkTarget = itemUrl(item)
-  const rowLabel = `${item.title}${artist ? ', by ' + artist : ''}`
+  const linkTarget = hasOwnPage(item) ? itemUrl(item) : undefined
+  const rowLabel = hasOwnPage(item)
+    ? `${item.title}${artist ? ', by ' + artist : ''}`
+    : undefined
+  const isEditLinkVisible = isAdmin && !hasOwnPage(item)
   const isPriorityImage = !!(isFeatured || (index || 0) < 12)
   const imageWidth = 350
-  const hasAudio = item.path !== PagePaths.releases && !!item.hasAudio
+  const hasAudio =
+    (hasOwnPage(item) &&
+      item.path !== PagePaths.releases &&
+      !!item.hasAudio) ||
+    (item as EmbedCode).type === EmbedCodeTypes.audio
+  const hasVideo =
+    (hasOwnPage(item) && !!item.hasVideo) ||
+    (item as EmbedCode).type === EmbedCodeTypes.video
 
   return (
     <tr
@@ -52,17 +106,24 @@ export function ItemsTableRow({
       className={clsx(
         styles['table-row-link'],
         isExpanded && styles['table-row-link--expanded'],
-        isPathTypeVisible && styles['item-type-visible']
+        isPathTypeVisible && styles['item-type-visible'],
+        !hasOwnPage(item) && styles['embedded-row']
       )}
-      onClick={() => location.assign(linkTarget)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          location.assign(linkTarget)
-        }
-      }}
-      tabIndex={0}
-      role='link'
+      onClick={
+        linkTarget ? () => location.assign(linkTarget) : undefined
+      }
+      onKeyDown={
+        linkTarget
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                location.assign(linkTarget)
+              }
+            }
+          : undefined
+      }
+      tabIndex={linkTarget ? 0 : undefined}
+      role={linkTarget ? 'link' : undefined}
       aria-label={rowLabel}
     >
       <td className={styles['table-row-img']} aria-hidden='true'>
@@ -88,7 +149,7 @@ export function ItemsTableRow({
 
       {isPathTypeVisible && (
         <td className='category path-type'>
-          {formattedItemType(item.path)}
+          {formattedItemType((item as PageItemClient).path)}
         </td>
       )}
 
@@ -98,25 +159,40 @@ export function ItemsTableRow({
           isExpanded && styles['table-row-title--expanded']
         )}
       >
-        <NextLink href={linkTarget}>
-          {isCategoryVisible &&
-            (item as ReleaseClient | ProjectClient).type && (
-              <span className={styles['item-type'] + ' category'}>
-                {formattedItemType(
-                  (item as ReleaseClient | ProjectClient).type!
-                )}
+        {hasOwnPage(item) ? (
+          <NextLink href={linkTarget!}>
+            {isCategoryVisible &&
+              (item as ReleaseClient | ProjectClient).type && (
+                <span className={styles['item-type'] + ' category'}>
+                  {formattedItemType(
+                    (item as ReleaseClient | ProjectClient).type!
+                  )}
+                </span>
+              )}
+            {formattedItemTitle(item)}
+            {!item.isPublished && <DraftBadge />}
+          </NextLink>
+        ) : (
+          <div className={styles['item-title-stack']}>
+            <span>{formattedEmbedCodeTitle(item as EmbedCode)}</span>
+            {(item as EmbedCode).caption && (
+              <span className={styles['item-title-stack-subtitle']}>
+                {(item as EmbedCode).caption}
               </span>
             )}
-          {formattedItemTitle(item)}
-          {!item.isPublished && <DraftBadge />}
-        </NextLink>
+          </div>
+        )}
       </td>
 
       <td>
-        <FormattedItemDate
-          item={item}
-          timezone={(item as EventClient).venue?.timezone}
-        />
+        {hasOwnPage(item) ? (
+          <FormattedItemDate
+            item={item}
+            timezone={(item as EventClient).venue?.timezone}
+          />
+        ) : (
+          <UsedOnPagesLabel item={item} />
+        )}
       </td>
 
       {children && <td>{children}</td>}
@@ -127,11 +203,20 @@ export function ItemsTableRow({
             aria-label='Contains audio'
           />
         )}
-        {!!item.hasVideo && (
+        {hasVideo && (
           <VideoCameraIcon
             className={styles['media-icon']}
             aria-label='Contains video'
           />
+        )}
+        {isEditLinkVisible && (
+          <a
+            href={`/dashboard/${camelToSnake(itemType)}/${item.id}/edit`}
+            className='button-icon button-primary'
+            aria-label='Edit'
+          >
+            <PencilIcon />
+          </a>
         )}
       </td>
     </tr>

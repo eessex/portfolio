@@ -150,7 +150,7 @@ describe('Embed Code Actions', () => {
       mockSql.mockResolvedValueOnce([embedCodeFixture])
       await editEmbedCode(formDataFromObject(createEmbedCodeFixture))
 
-      const [, , , , , , , title] = mockSql.mock
+      const [, , , , , , title] = mockSql.mock
         .calls[0] as unknown as unknown[]
       expect(title).toEqual('Fetched From oEmbed')
     })
@@ -182,7 +182,7 @@ describe('Embed Code Actions', () => {
         embedCodeFixture.src
       )
       expect(fetchEmbedCodeMetadataMock).not.toHaveBeenCalled()
-      const [, , , , , , , title] = mockSql.mock
+      const [, , , , , , title] = mockSql.mock
         .calls[1] as unknown as unknown[]
       expect(title).toEqual('Refreshed Title')
     })
@@ -201,7 +201,7 @@ describe('Embed Code Actions', () => {
         embedCodeFixture.id
       )
 
-      const [, , , , , , , title] = mockSql.mock
+      const [, , , , , , title] = mockSql.mock
         .calls[1] as unknown as unknown[]
       expect(title).toEqual('Original Title')
     })
@@ -219,7 +219,7 @@ describe('Embed Code Actions', () => {
         embedCodeFixture.id
       )
 
-      const [, , , , , , , title] = mockSql.mock
+      const [, , , , , , title] = mockSql.mock
         .calls[1] as unknown as unknown[]
       expect(title).toEqual('Original Title')
     })

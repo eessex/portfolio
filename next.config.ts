@@ -50,6 +50,7 @@ const nextConfig: NextConfig = {
     ]
   },
   cacheComponents: true,
+  serverExternalPackages: ['sharp'],
   images: {
     minimumCacheTTL: 2678400, // 31 days
     formats: ['image/avif', 'image/webp'],

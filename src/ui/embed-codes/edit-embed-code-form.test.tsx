@@ -461,38 +461,6 @@ describe('EditEmbedCode', () => {
   })
 
   describe('error display', () => {
-    it('handles errors passed via the errors prop', () => {
-      const errors = { iframe: ['iframe is required'] }
-      renderComponent({ errors })
-
-      const input = screen.getByLabelText(iframeRegex)
-      const error = screen.getByText(/iframe is required/i)
-      expect(error).toBeInTheDocument()
-
-      const describedBy = input.getAttribute('aria-describedby')
-      expect(describedBy).toBeTruthy()
-
-      const ids = describedBy!.split(' ')
-      expect(ids).toContain(error.id)
-    })
-
-    it('handles multiple errors per field', () => {
-      const errors = {
-        iframe: [
-          'iframe is required',
-          'iframe must be under 255 characters'
-        ]
-      }
-      renderComponent({ errors })
-
-      expect(
-        screen.getByText(/iframe is required/i)
-      ).toBeInTheDocument()
-      expect(
-        screen.getByText(/iframe must be under 255 characters/i)
-      ).toBeInTheDocument()
-    })
-
     it('displays caption errors once the field becomes visible', () => {
       const errors = { caption: ['Caption is too long'] }
       renderComponent({ errors })

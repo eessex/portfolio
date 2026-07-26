@@ -15,13 +15,14 @@ import {
   embedCodeSchema
 } from '@/lib/embed-codes/schemas/db'
 import { runDeleteAction, runFormAction } from '@/lib/form-action'
+import { EmbeddedItemTypes } from '@/lib/schemas'
 import { formatDbResponseForClient } from '@/lib/util'
 
 export async function editEmbedCode(formData: FormData, id?: string) {
   return runFormAction({
     formData,
     schema: createEmbedCodeSchema,
-    itemType: 'embedCodes',
+    itemType: EmbeddedItemTypes.embedCodes,
     prepare: (data) => attachEmbedCodeMetadata(data, id),
     invalidate: invalidateEmbedCodeTags,
     save: (embedCode) =>
@@ -80,7 +81,7 @@ function invalidateEmbedCodeTags() {
 
 export async function deleteEmbedCode(embedCode: EmbedCode) {
   return runDeleteAction<EmbedCode>({
-    itemType: 'embedCodes',
+    itemType: EmbeddedItemTypes.embedCodes,
     invalidate: invalidateEmbedCodeTags,
     del: async () => {
       await sql`

@@ -6,6 +6,12 @@ import {
 const YOUTUBE_ID_PATTERN =
   /(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|watch\?v=|shorts\/|live\/))([\w-]{11})/
 
+export function extractYoutubeVideoId(
+  src: string
+): string | undefined {
+  return src.match(YOUTUBE_ID_PATTERN)?.[1]
+}
+
 /**
  * `URLSearchParams` only decodes one layer of percent-encoding, but some
  * widget markup (observed: SoundCloud's `url` param) double-encodes it —
@@ -77,7 +83,7 @@ export interface ResolvedOEmbed {
 async function youtubeOEmbedMeta(
   src: string
 ): Promise<ResolvedOEmbed | undefined> {
-  const videoId = src.match(YOUTUBE_ID_PATTERN)?.[1]
+  const videoId = extractYoutubeVideoId(src)
   if (!videoId) return undefined
 
   // oEmbed requires the canonical watch URL — verified it 404s on the
@@ -179,22 +185,89 @@ async function vimeoOEmbedMeta(
 const BANDCAMP_ARTWORK_PATTERN =
   /https:\/\/f4\.bcbits\.com\/img\/a\d+_\d+\.jpg/
 
-async function bandcampThumbnailUrl(
+/**
+ * Bandcamp's EmbeddedPlayer page has no `<title>`/meta title — the page
+ * is a near-empty shell that renders client-side from a `data-player-data`
+ * JSON blob (HTML-entity-encoded) on the player `<script>` tag, which has
+ * the album title/artist and every track's own title. `src` carries which
+ * track is showing as a `track=<id>` path segment (absent for a
+ * whole-album embed, in which case the album title is what we've got).
+ */
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+}
+
+interface BandcampPlayerTrack {
+  id: number
+  title: string
+  artist?: string
+}
+
+interface BandcampPlayerData {
+  album_title?: string
+  artist?: string
+  tracks?: BandcampPlayerTrack[]
+}
+
+function parseBandcampPlayerData(
+  html: string
+): BandcampPlayerData | undefined {
+  const match = html.match(/\sdata-player-data="([^"]*)"/)
+  if (!match) return undefined
+  try {
+    return JSON.parse(decodeHtmlEntities(match[1]))
+  } catch (cause) {
+    console.warn(
+      '[oembed] bandcamp embed page had unparseable data-player-data',
+      cause
+    )
+    return undefined
+  }
+}
+
+function bandcampTrackTitle(
+  data: BandcampPlayerData,
   src: string
-): Promise<string | undefined> {
+): string | undefined {
+  const trackId = Number(src.match(/track=(\d+)/)?.[1])
+  const track = Number.isNaN(trackId)
+    ? undefined
+    : data.tracks?.find((t) => t.id === trackId)
+
+  const title = track?.title || data.album_title
+  const artist = track?.artist || data.artist
+  if (!title) return undefined
+
+  return artist ? `${title} by ${artist}` : title
+}
+
+async function bandcampMeta(
+  src: string
+): Promise<ResolvedOEmbed | undefined> {
   const res = await fetch(src)
   if (!res.ok) {
     warnNonOkResponse('bandcamp embed page', src, res)
     return undefined
   }
   const html = await res.text()
-  const artworkUrl = html.match(BANDCAMP_ARTWORK_PATTERN)?.[0]
-  if (!artworkUrl) {
+  const thumbnailUrl = html.match(BANDCAMP_ARTWORK_PATTERN)?.[0]
+  if (!thumbnailUrl) {
     console.warn(
       `[oembed] bandcamp embed page had no matching artwork url: ${src}`
     )
   }
-  return artworkUrl
+
+  const playerData = parseBandcampPlayerData(html)
+  const title = playerData
+    ? bandcampTrackTitle(playerData, src)
+    : undefined
+
+  return { thumbnailUrl, title }
 }
 
 /**
@@ -214,7 +287,7 @@ export async function resolveOEmbed(
     case EmbedCodeHosts.soundcloud:
       return soundcloudOEmbedMeta(src)
     case EmbedCodeHosts.bandcamp:
-      return { thumbnailUrl: await bandcampThumbnailUrl(src) }
+      return bandcampMeta(src)
     case EmbedCodeHosts.mixcloud:
       return mixcloudOEmbedMeta(src)
     case EmbedCodeHosts.spotify:

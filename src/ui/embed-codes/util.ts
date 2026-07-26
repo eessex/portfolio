@@ -26,13 +26,13 @@ export function defaultEmbedSizeByHost(
 }
 
 /**
- * Aspect ratio of the fetched cover image for a given host, used to size
- * `CoverImageThumbnail` since these thumbnails aren't stored in the images
- * table (no measured `aspect`). YouTube's `hqdefault.jpg` is always
- * 480x360; SoundCloud/Bandcamp artwork is always square.
+ * Aspect ratio of fetched cover image for a given host, used to size
+ * `CoverImageThumbnail`. YouTube covers are saved from `maxresdefault.jpg`
+ * (true 16:9) when available, falling back to the letterboxed 480x360 `hqdefault.jpg`.
+ * SoundCloud/Mixcloud/Bandcamp are always square.
  */
 export function coverImageAspectByHost(host?: EmbedCodeHost): number {
-  return host === EmbedCodeHosts.youtube ? 480 / 360 : 1
+  return host === EmbedCodeHosts.youtube ? 16 / 9 : 1
 }
 
 export function extractHostnameType(hostname: EmbedCodeHost) {

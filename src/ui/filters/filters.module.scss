@@ -30,7 +30,7 @@
 }
 
 .filters-container {
-  --input-height: #{grids.space-em(11)};
+  --input-height: #{grids.space-em(9)};
 
   display: flex;
   align-items: center;
@@ -41,9 +41,9 @@
 
   input,
   select {
-    @include type.size('sm', 'normal', 'sm');
+    @include type.size('base', 'normal', 'sm');
 
-    height: grids.space-em(11);
+    height: grids.space-em(9);
   }
 
   select {

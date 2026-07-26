@@ -24,7 +24,7 @@ describe('fetchEmbedCodeMetadata', () => {
     fetchMock.resetMocks()
   })
 
-  it('resolves a youtube thumbnail and title via oEmbed, using the canonical watch url', async () => {
+  it('resolves a youtube thumbnail via maxresdefault (true aspect, no letterboxing) when available', async () => {
     fetchMock.mockResponseOnce(
       JSON.stringify({
         thumbnail_url:
@@ -47,8 +47,9 @@ describe('fetchEmbedCodeMetadata', () => {
     )
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
-      'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
+      'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg'
     )
+    expect(fetchMock).toHaveBeenCalledTimes(2)
     expect(res.coverImageId).toMatch(/^[\w-]+$/)
     expect(res.title).toBe('The Real Video Title')
     expect(uploadBufferToS3Mock).toHaveBeenCalledWith(
@@ -63,6 +64,36 @@ describe('fetchEmbedCodeMetadata', () => {
         key: `embedCodeCoverImages/${res.coverImageId}_96.jpg`
       })
     )
+  })
+
+  it('falls back to the letterboxed hqdefault when youtube has no maxresdefault', async () => {
+    fetchMock.mockResponseOnce(
+      JSON.stringify({
+        thumbnail_url:
+          'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+        title: 'The Real Video Title'
+      })
+    )
+    fetchMock.mockResponseOnce('', { status: 404 })
+    fetchMock.mockResponseOnce('binary-image-data', {
+      headers: { 'content-type': 'image/jpeg' }
+    })
+
+    const res = await fetchEmbedCodeMetadata(
+      EmbedCodeHosts.youtube,
+      'https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0'
+    )
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg'
+    )
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      3,
+      'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
+    )
+    expect(res.coverImageId).toMatch(/^[\w-]+$/)
+    expect(res.title).toBe('The Real Video Title')
   })
 
   it('resolves a soundcloud thumbnail and title via oEmbed', async () => {
@@ -234,7 +265,7 @@ describe('fetchEmbedCodeMetadata', () => {
     expect(res.title).toBe('Some Video')
   })
 
-  it('resolves a bandcamp thumbnail by scraping the embed html, with no title', async () => {
+  it('resolves a bandcamp thumbnail by scraping the embed html, with no title when there is no player data', async () => {
     fetchMock.mockResponseOnce(
       '<html>...https://f4.bcbits.com/img/a123456789_7.jpg...</html>'
     )
@@ -252,9 +283,34 @@ describe('fetchEmbedCodeMetadata', () => {
       'https://f4.bcbits.com/img/a123456789_7.jpg'
     )
     expect(res.coverImageId).toMatch(/^[\w-]+$/)
-    // Bandcamp has no oEmbed endpoint, so there's nothing to enrich the
-    // title with — only the thumbnail comes from scraping its embed page.
+    // Bandcamp has no oEmbed endpoint — title comes from scraping its
+    // embed page's data-player-data blob instead (see oembed.test.ts),
+    // which this bare-html fixture doesn't have.
     expect(res.title).toBeUndefined()
+  })
+
+  it('resolves a bandcamp track title from the embed page player data', async () => {
+    const playerData = JSON.stringify({
+      album_title: 'Das Audit',
+      artist: 'Das Audit',
+      tracks: [
+        { id: 30637727, title: 'Arpeggio', artist: 'Das Audit' }
+      ]
+    }).replace(/"/g, '&quot;')
+    fetchMock.mockResponseOnce(
+      `<html>...https://f4.bcbits.com/img/a123456789_7.jpg...<script data-player-data="${playerData}"></script></html>`
+    )
+    fetchMock.mockResponseOnce('binary-image-data', {
+      headers: { 'content-type': 'image/jpeg' }
+    })
+
+    const res = await fetchEmbedCodeMetadata(
+      EmbedCodeHosts.bandcamp,
+      'https://bandcamp.com/EmbeddedPlayer/album=1806446448/size=large/track=30637727/'
+    )
+
+    expect(res.coverImageId).toMatch(/^[\w-]+$/)
+    expect(res.title).toBe('Arpeggio by Das Audit')
   })
 
   it('resolves an empty result for unsupported hosts', async () => {

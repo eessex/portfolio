@@ -7,8 +7,8 @@ import { clsx } from 'clsx'
 import NextImage from 'next/image'
 import NextLink from 'next/link'
 
+import type { WithCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
-import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import type { EventClient } from '@/lib/events/types'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
@@ -19,8 +19,10 @@ import {
 } from '@/lib/schemas'
 import { camelToSnake } from '@/lib/strings'
 import type { EmbeddedItem, PageItemClient } from '@/lib/types'
+import type { ThumbnailImage } from '@/ui/cover-image-thumbnail'
 import { DraftBadge } from '@/ui/draft-badge'
 import { formattedEmbedCodeTitle } from '@/ui/embed-codes/embed-code-details'
+import { coverImageAspectByHost } from '@/ui/embed-codes/util'
 import { FormattedItemDate } from '@/ui/items/item-date'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import {
@@ -84,6 +86,17 @@ export function ItemsTableRow({
   if (!item) return null
 
   const { artist, coverImage } = item as ReleaseClient
+  const embedCode = item as EmbedCode & WithCoverImageUrls
+  const embedCodeImageUrl =
+    embedCode.coverImageThumbnailUrl || embedCode.coverImageUrl
+  const rowCoverImage: ThumbnailImage | undefined =
+    coverImage ||
+    (embedCodeImageUrl
+      ? {
+          url: embedCodeImageUrl,
+          aspect: coverImageAspectByHost(embedCode.host)
+        }
+      : undefined)
   const linkTarget = hasOwnPage(item) ? itemUrl(item) : undefined
   const rowLabel = hasOwnPage(item)
     ? `${item.title}${artist ? ', by ' + artist : ''}`
@@ -92,13 +105,10 @@ export function ItemsTableRow({
   const isPriorityImage = !!(isFeatured || (index || 0) < 12)
   const imageWidth = 350
   const hasAudio =
-    (hasOwnPage(item) &&
-      item.path !== PagePaths.releases &&
-      !!item.hasAudio) ||
-    (item as EmbedCode).type === EmbedCodeTypes.audio
-  const hasVideo =
-    (hasOwnPage(item) && !!item.hasVideo) ||
-    (item as EmbedCode).type === EmbedCodeTypes.video
+    hasOwnPage(item) &&
+    item.path !== PagePaths.releases &&
+    !!item.hasAudio
+  const hasVideo = hasOwnPage(item) && !!item.hasVideo
 
   return (
     <tr
@@ -127,13 +137,13 @@ export function ItemsTableRow({
       aria-label={rowLabel}
     >
       <td className={styles['table-row-img']} aria-hidden='true'>
-        {coverImage && (
+        {rowCoverImage && (
           <NextImage
-            src={coverImage.url}
-            alt={coverImage.alt || coverImage.caption || ''}
-            title={coverImage.caption || coverImage.alt || undefined}
+            src={rowCoverImage.url}
+            alt={rowCoverImage.alt || ''}
+            title={rowCoverImage.caption || undefined}
             width={imageWidth}
-            height={Math.round(imageWidth / coverImage.aspect)}
+            height={Math.round(imageWidth / rowCoverImage.aspect)}
             sizes={
               isExpanded
                 ? '(max-width: 768px) 50vw, 350px'

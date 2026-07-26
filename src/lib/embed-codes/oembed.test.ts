@@ -266,7 +266,24 @@ describe('resolveOEmbed', () => {
   })
 
   describe('bandcamp', () => {
-    it('scrapes the artwork url from the embed page html, with no title', async () => {
+    /**
+     * Bandcamp's EmbeddedPlayer page has no `<title>`/meta title — real
+     * pages render client-side from a `data-player-data` JSON blob
+     * (HTML-entity-encoded) on the player `<script>` tag. This builds a
+     * minimal fixture of that shape.
+     */
+    function bandcampEmbedHtml(
+      playerData: Record<string, unknown>,
+      artworkUrl = 'https://f4.bcbits.com/img/a123456789_7.jpg'
+    ) {
+      const encoded = JSON.stringify(playerData).replace(
+        /"/g,
+        '&quot;'
+      )
+      return `<html><body>...${artworkUrl}...<script data-player-data="${encoded}"></script></body></html>`
+    }
+
+    it('scrapes the artwork url from the embed page html, with no title when there is no player data', async () => {
       fetchMock.mockResponseOnce(
         '<html>...https://f4.bcbits.com/img/a123456789_7.jpg...</html>'
       )
@@ -279,11 +296,68 @@ describe('resolveOEmbed', () => {
       expect(fetchMock).toHaveBeenCalledWith(
         'https://bandcamp.com/EmbeddedPlayer/album=123/size=large/'
       )
-      // Bandcamp has no oEmbed endpoint, so there's never a title.
       expect(res).toEqual({
         thumbnailUrl: 'https://f4.bcbits.com/img/a123456789_7.jpg',
         title: undefined
       })
+    })
+
+    it('resolves the specific track title (not just the album title) when src points at one track', async () => {
+      fetchMock.mockResponseOnce(
+        bandcampEmbedHtml({
+          album_title: 'Das Audit',
+          artist: 'Das Audit',
+          tracks: [
+            { id: 2988183239, title: 'Picture', artist: 'Das Audit' },
+            { id: 30637727, title: 'Arpeggio', artist: 'Das Audit' }
+          ]
+        })
+      )
+
+      const res = await resolveOEmbed(
+        EmbedCodeHosts.bandcamp,
+        'https://bandcamp.com/EmbeddedPlayer/album=1806446448/size=large/track=30637727/'
+      )
+
+      expect(res).toEqual({
+        thumbnailUrl: 'https://f4.bcbits.com/img/a123456789_7.jpg',
+        title: 'Arpeggio by Das Audit'
+      })
+    })
+
+    it('falls back to the album title when src has no track segment (whole-album embed)', async () => {
+      fetchMock.mockResponseOnce(
+        bandcampEmbedHtml({
+          album_title:
+            'ELEKTRA (Scream Through the Eyes of a Statue)',
+          artist: 'JAMES K',
+          tracks: [{ id: 1, title: 'Some Track', artist: 'JAMES K' }]
+        })
+      )
+
+      const res = await resolveOEmbed(
+        EmbedCodeHosts.bandcamp,
+        'https://bandcamp.com/EmbeddedPlayer/album=935044822/size=large/'
+      )
+
+      expect(res).toEqual({
+        thumbnailUrl: 'https://f4.bcbits.com/img/a123456789_7.jpg',
+        title:
+          'ELEKTRA (Scream Through the Eyes of a Statue) by JAMES K'
+      })
+    })
+
+    it('resolves an undefined title when the player data is unparseable', async () => {
+      fetchMock.mockResponseOnce(
+        '<html>...https://f4.bcbits.com/img/a123456789_7.jpg...<script data-player-data="not json"></script></html>'
+      )
+
+      const res = await resolveOEmbed(
+        EmbedCodeHosts.bandcamp,
+        'https://bandcamp.com/EmbeddedPlayer/album=123/size=large/'
+      )
+
+      expect(res?.title).toBeUndefined()
     })
 
     it('resolves an undefined thumbnail and warns when no artwork url is found', async () => {
@@ -306,7 +380,7 @@ describe('resolveOEmbed', () => {
       warnSpy.mockRestore()
     })
 
-    it('resolves an undefined thumbnail when the embed page fetch responds non-ok', async () => {
+    it('resolves undefined when the embed page fetch responds non-ok', async () => {
       fetchMock.mockResponseOnce('', { status: 404 })
 
       const res = await resolveOEmbed(
@@ -314,7 +388,7 @@ describe('resolveOEmbed', () => {
         'https://bandcamp.com/EmbeddedPlayer/album=123/size=large/'
       )
 
-      expect(res).toEqual({ thumbnailUrl: undefined })
+      expect(res).toBeUndefined()
     })
   })
 

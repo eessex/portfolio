@@ -1,5 +1,17 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within
+} from '@testing-library/react'
 
+import { embedCodeFixture } from '@/lib/embed-codes/fixtures'
+import type { DashboardEmbedCode } from '@/lib/embed-codes/schemas/client'
+import {
+  EmbedCodeContentTypes,
+  EmbedCodeTypes
+} from '@/lib/embed-codes/schemas/db'
 import {
   eventFixturePast,
   eventFixtureUpcoming
@@ -8,7 +20,9 @@ import type {
   EventClient,
   FetchEventsResult
 } from '@/lib/events/types'
-import { PagePaths } from '@/lib/schemas'
+import { EmbeddedItemTypes, PagePaths } from '@/lib/schemas'
+import type { ResponseWithCursor } from '@/lib/util'
+import { formattedEmbedCodeTitle } from '@/ui/embed-codes/embed-code-details'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { resetIsAdminCache } from '@/ui/useIsAdmin'
 
@@ -79,7 +93,7 @@ function renderEventsTable(
 
   return render(
     <ItemsTable<EventClient, FetchEventsResult>
-      path={PagePaths.events}
+      itemType={PagePaths.events}
       initialItems={initialItems}
       {...rest}
     />
@@ -204,6 +218,182 @@ describe('ItemsTable', () => {
       expect(
         screen.getAllByText(draftUpcomingEvent.title)
       ).toHaveLength(1)
+    })
+  })
+})
+
+describe('ItemsTable — embedded items (embed codes)', () => {
+  const usedEmbedCode: DashboardEmbedCode = {
+    ...embedCodeFixture,
+    contentType: EmbedCodeContentTypes.official_music_video,
+    eventSlugs: [],
+    projectSlugs: [],
+    releaseSlugs: ['some-release']
+  }
+
+  const unusedEmbedCode: DashboardEmbedCode = {
+    ...embedCodeFixture,
+    id: '123e4567-e89b-12d3-a456-426614174001',
+    title: 'Unused embed',
+    type: EmbedCodeTypes.audio,
+    eventSlugs: [],
+    projectSlugs: [],
+    releaseSlugs: []
+  }
+
+  function makeEmbedCodeResponse(
+    res: DashboardEmbedCode[],
+    totalCount: number,
+    nextCursor: string | null = null
+  ): ResponseWithCursor<DashboardEmbedCode> {
+    return { res, nextCursor, totalCount }
+  }
+
+  function rowFor(embedCode: DashboardEmbedCode) {
+    return screen
+      .getByText(formattedEmbedCodeTitle(embedCode))
+      .closest('tr')!
+  }
+
+  function renderEmbedCodesTable(
+    initialItems = makeEmbedCodeResponse(
+      [usedEmbedCode, unusedEmbedCode],
+      2
+    )
+  ) {
+    return render(
+      <ItemsTable
+        itemType={EmbeddedItemTypes.embedCodes}
+        initialItems={initialItems}
+      />
+    )
+  }
+
+  beforeEach(() => {
+    global.fetch = jest.fn()
+    jest.clearAllMocks()
+    resetIsAdminCache()
+    mockFetch(makeEmbedCodeResponse([], 0), false)
+  })
+
+  it('renders the host inline with the title, and caption below, without a row link', () => {
+    renderEmbedCodesTable()
+
+    // host special-cased to "YouTube" for video/youtube embeds
+    expect(
+      screen.getByText('YouTube: Test Embed Code')
+    ).toBeInTheDocument()
+    expect(
+      within(rowFor(usedEmbedCode)).getByText(usedEmbedCode.caption!)
+    ).toBeInTheDocument()
+  })
+
+  it('does not render a draft badge', () => {
+    renderEmbedCodesTable()
+
+    expect(screen.queryByText(/unpublished/i)).not.toBeInTheDocument()
+  })
+
+  it('renders type/contentType details', () => {
+    renderEmbedCodesTable()
+
+    const row = rowFor(usedEmbedCode)
+    expect(within(row).getByText('Video')).toBeInTheDocument()
+    expect(
+      within(row).getByText('Official Music Video')
+    ).toBeInTheDocument()
+  })
+
+  it('renders "used on" / "unused" based on relation slugs', () => {
+    renderEmbedCodesTable()
+
+    expect(
+      within(rowFor(usedEmbedCode)).getByText(/used on 1 page/i)
+    ).toBeInTheDocument()
+    expect(
+      within(rowFor(unusedEmbedCode)).getByText('unused')
+    ).toBeInTheDocument()
+  })
+
+  it('does not render an iframe preview', () => {
+    const { container } = renderEmbedCodesTable()
+
+    expect(container.querySelector('iframe')).not.toBeInTheDocument()
+  })
+
+  it('shows the audio icon only for audio embed codes', () => {
+    const { container } = renderEmbedCodesTable()
+
+    expect(
+      within(rowFor(unusedEmbedCode)).getByLabelText('Contains audio')
+    ).toBeInTheDocument()
+    expect(
+      container.querySelectorAll('svg[aria-label="Contains audio"]')
+    ).toHaveLength(1)
+  })
+
+  it('derives /api/embed_codes from the itemType when apiEndpoint is not passed', async () => {
+    renderEmbedCodesTable(
+      makeEmbedCodeResponse(
+        [usedEmbedCode, unusedEmbedCode],
+        30,
+        'cursor-1'
+      )
+    )
+
+    fireEvent.change(
+      screen.getByRole('searchbox', { name: /search/i }),
+      { target: { value: 'sound' } }
+    )
+
+    await waitFor(() => {
+      expect(
+        fetchedUrls().some((url) => url.includes('/api/embed_codes'))
+      ).toBe(true)
+    })
+  })
+
+  describe('edit link (admin-only, no own page/slug)', () => {
+    it('does not render for anonymous visitors', async () => {
+      renderEmbedCodesTable()
+
+      // let the (mocked, anonymous) session check resolve
+      await waitFor(() => expect(global.fetch).toHaveBeenCalled())
+      expect(
+        screen.queryByRole('link', { name: /edit/i })
+      ).not.toBeInTheDocument()
+    })
+
+    it('renders one edit link per row for admins, pointing at the dashboard edit page', async () => {
+      mockFetch(
+        makeEmbedCodeResponse([usedEmbedCode, unusedEmbedCode], 2),
+        true
+      )
+
+      renderEmbedCodesTable()
+
+      const editLinks = await screen.findAllByRole('link', {
+        name: /edit/i
+      })
+      expect(editLinks).toHaveLength(2)
+      expect(
+        within(rowFor(usedEmbedCode)).getByRole('link', {
+          name: /edit/i
+        })
+      ).toHaveAttribute(
+        'href',
+        `/dashboard/embed_codes/${usedEmbedCode.id}/edit`
+      )
+    })
+
+    it('does not render for page items (events/releases/projects), even for admins', () => {
+      mockFetch(authedResponse)
+
+      renderEventsTable()
+
+      expect(
+        screen.queryByRole('link', { name: /edit/i })
+      ).not.toBeInTheDocument()
     })
   })
 })

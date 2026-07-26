@@ -1,25 +1,20 @@
 @use '@/ui/styles/breakpoints';
 @use '@/ui/styles/grids';
-@use '@/ui/styles/type';
 
 .email-subscribe {
+  --input-height: #{grids.space-em(6)};
+
   display: flex;
   flex-direction: row;
   gap: grids.space-rem(2);
   align-items: center;
   justify-content: center;
 
-  input,
-  button[type='submit'] {
-    @include type.size('sm', 'normal', 'sm');
-
-    height: grids.space-em(9);
-  }
-
   button[type='submit'] {
     color: currentColor;
     background-color: unset;
     padding: grids.space-rem(0, 3);
+    height: grids.space-em(11);
 
     @media (hover: hover) {
       &:hover {
@@ -33,11 +28,6 @@
 
     input {
       width: -webkit-fill-available;
-    }
-
-    input,
-    button[type='submit'] {
-      @include type.size('base', 'normal', 'sm');
     }
   }
 }

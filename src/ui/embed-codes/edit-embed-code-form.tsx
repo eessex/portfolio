@@ -32,9 +32,7 @@ export const EditEmbedCode = ({
       if (!embedCode?.src) return null
       return embedCode
     })
-  const [iframeInputValue, setIframeInputValue] = useState(
-    embedCode?.iframe || ''
-  )
+  const [iframeInputValue, setIframeInputValue] = useState('')
   const namePrefix =
     typeof index === 'number' ? `embedCodes[${index}].` : ''
 
@@ -129,7 +127,6 @@ export const EditEmbedCode = ({
             description='Paste a full iframe embed code. Supported services: Bandcamp, Mixcloud, Soundcloud, Spotify, YouTube.'
             value={iframeInputValue}
             label='Embed iframe code'
-            errors={errors?.iframe}
             onKeyDown={onKeyDown}
             onDrop={(e) => e.preventDefault()}
             onPaste={onPaste}

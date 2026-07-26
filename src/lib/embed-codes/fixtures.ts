@@ -4,11 +4,9 @@ import {
   EmbedCodeHosts,
   EmbedCodeTypes
 } from '@/lib/embed-codes/schemas/db'
-import { embedCodeYoutubeFixture } from '@/ui/embed-codes/fixtures'
 
 export const createEmbedCodeFixture: CreateEmbedCode = {
   title: 'Test Embed Code',
-  iframe: embedCodeYoutubeFixture,
   caption: 'This is an embed code for testing purposes.',
   type: EmbedCodeTypes.video,
   host: EmbedCodeHosts.youtube,

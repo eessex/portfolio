@@ -53,14 +53,13 @@ export async function deleteEmbedCode(embedCode: EmbedCode) {
 
 async function createEmbedCode(embedCode: CreateEmbedCode) {
   try {
-    const { caption, contentType, host, iframe, src, title, type } =
+    const { caption, contentType, host, src, title, type } =
       toDbRow(embedCode)
     return await sql`
       INSERT INTO embed_codes (
         caption,
         content_type,
         host,
-        iframe,
         src,
         title,
         type,
@@ -69,7 +68,6 @@ async function createEmbedCode(embedCode: CreateEmbedCode) {
         ${caption},
         ${contentType},
         ${host},
-        ${iframe},
         ${src},
         ${title},
         ${type},
@@ -90,15 +88,16 @@ async function updateEmbedCode(
 ) {
   const [existingEmbedCode] = await fetchEmbedCodesByIds([id])
   try {
-    const { caption, contentType, host, iframe, src, title, type } =
-      toDbRow(embedCode, existingEmbedCode)
+    const { caption, contentType, host, src, title, type } = toDbRow(
+      embedCode,
+      existingEmbedCode
+    )
     return await sql`
       UPDATE embed_codes
       SET
         caption = ${caption},
         content_type = ${contentType},
         host = ${host},
-        iframe = ${iframe},
         src = ${src},
         title = ${title},
         type = ${type},
@@ -123,7 +122,6 @@ function toDbRow(embedCode: CreateEmbedCode, existing?: EmbedCode) {
     caption: embedCodeToSave.caption,
     contentType: embedCodeToSave.contentType,
     host: embedCodeToSave.host,
-    iframe: embedCodeToSave.iframe,
     src: embedCodeToSave.src,
     title: embedCodeToSave.title,
     type: embedCodeToSave.type ?? null

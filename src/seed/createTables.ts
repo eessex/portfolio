@@ -93,7 +93,6 @@ async function createEmbedCodesTable() {
       project_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
       caption VARCHAR(255),
-      iframe VARCHAR(1000),
       title VARCHAR(255),
       host VARCHAR(30) NOT NULL,
       type VARCHAR(30) NOT NULL,
@@ -552,8 +551,7 @@ async function setupJsonbFunctions() {
         'host', e.host,
         'contentType', e.content_type,
         'title', e.title,
-        'caption', e.caption,
-        'iframe', e.iframe
+        'caption', e.caption
       ) || build_write_dates_json(e.created_at, e.updated_at);
     $$ LANGUAGE sql IMMUTABLE;
   `

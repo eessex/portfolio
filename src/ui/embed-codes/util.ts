@@ -120,7 +120,6 @@ export function extractIframeParams(
       host,
       type,
       title: embedCode.caption,
-      iframe: embedCode.iframe,
       ...defaultEmbedSizeByHost(host)
     }
     return params
@@ -145,7 +144,6 @@ export function extractIframeParams(
       src,
       title,
       type,
-      iframe: embedCode.iframe,
       ...defaultEmbedSizeByHost(host)
     }
   }

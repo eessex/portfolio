@@ -1,0 +1,16 @@
+@use '@/ui/styles/grids';
+
+.badges {
+  display: flex;
+  align-items: center;
+  gap: grids.space-rem(1);
+  min-width: 0;
+
+  mark {
+    overflow: hidden;
+    min-width: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0;
+  }
+}

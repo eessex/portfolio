@@ -3,16 +3,24 @@
 import { clsx } from 'clsx'
 import { useId } from 'react'
 
+import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import type { EventClient } from '@/lib/events/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
+  type EmbeddedItemType,
+  EmbeddedItemTypes,
   itemTypeToLabel,
   type PagePath,
   PagePaths
 } from '@/lib/schemas'
-import { capitalizeFirstLetter } from '@/lib/strings'
-import type { PageDataResponse, PageItemClient } from '@/lib/types'
+import { camelToSnake, capitalizeFirstLetter } from '@/lib/strings'
+import type {
+  EmbeddedItem,
+  PageDataResponse,
+  PageItemClient
+} from '@/lib/types'
 import { DEFAULT_PAGE_SIZE } from '@/lib/util'
+import { EmbedCodeDetails } from '@/ui/embed-codes/embed-code-details'
 import { FiltersWrapper } from '@/ui/filters/filters'
 import { ItemsList } from '@/ui/items/items-list'
 import styles from '@/ui/items/items-table/items-table.module.scss'
@@ -20,24 +28,36 @@ import { ItemsTableRow } from '@/ui/items/items-table/items-table-row'
 import { Loading } from '@/ui/loading'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import { SearchInput } from '@/ui/search-input/search-input'
+import { useIsAdmin } from '@/ui/useIsAdmin'
 import type { ResultsResponse } from '@/ui/useResultsList'
 import { useResultsList } from '@/ui/useResultsList'
-import { formattedItemType, formatVenueInline } from '@/ui/util'
+import {
+  formattedItemType,
+  formatVenueInline,
+  isEmbeddedItemType
+} from '@/ui/util'
 
 export function ItemsTable<
-  T extends PageItemClient,
-  S extends PageDataResponse
+  T extends PageItemClient = never,
+  S extends PageDataResponse | undefined = undefined,
+  TEmbeddedItem extends EmbeddedItem = never
 >({
   initialItems,
-  path,
+  itemType,
+  apiEndpoint,
   isCategoryVisible,
   isExpandedOnLoad,
   isPathTypeVisible,
   featuredKey,
   projectId
 }: {
-  initialItems: ResultsResponse<never, T, S>
-  path: PagePath
+  initialItems: ResultsResponse<TEmbeddedItem, T, S>
+  itemType: PagePath | EmbeddedItemType
+  /**
+   * Override the default `/api/${snake_case(itemType)}` endpoint for
+   * routes that don't follow convention.
+   */
+  apiEndpoint?: string
   isCategoryVisible?: boolean
   isExpandedOnLoad?: boolean
   isPathTypeVisible?: boolean
@@ -57,26 +77,36 @@ export function ItemsTable<
     query,
     setQuery,
     nextCursor
-  } = useResultsList<never, T, S>(`/api/${path}`, initialItems, {
-    // Pages render published-only data statically; for signed-in
-    // admins the table refetches page 1 to reveal unpublished drafts
-    // (the API gates them on the session cookie). Anonymous visitors
-    // only pay a shared /api/session check, not the refetch.
-    augmentOnMount: true,
-    searchParams: { projectId }
-  })
+  } = useResultsList<TEmbeddedItem, T, S>(
+    apiEndpoint ?? `/api/${camelToSnake(itemType)}`,
+    initialItems,
+    {
+      // Pages render published-only data statically; for signed-in
+      // admins the table refetches page 1 to reveal unpublished drafts
+      // (the API gates them on the session cookie). Anonymous visitors
+      // only pay a shared /api/session check, not the refetch.
+      // Embedded items have no publish state, so there's nothing to
+      // reveal and the refetch is skipped entirely.
+      augmentOnMount: !isEmbeddedItemType(itemType),
+      searchParams: { projectId }
+    }
+  )
+
+  // lighter session check (no data refetch) than augmentOnMount,
+  // only runs for embedded-item tables to reveal edit buttons.
+  const isAdmin = useIsAdmin(isEmbeddedItemType(itemType))
 
   function displayedItems() {
     if (groupedItems) return groupedItems
 
-    return { [`all${capitalizeFirstLetter(path)}`]: items }
+    return { [`all${capitalizeFirstLetter(itemType)}`]: items }
   }
 
   function tableSectionTitle(category?: string, itemCount?: number) {
     if (category) {
       const typeLabel = formattedItemType(category, false, true)
       if (query.length > 0) {
-        return `${itemTypeToLabel(path)} matching "${query}" (${itemCount})`
+        return `${itemTypeToLabel(itemType)} matching "${query}" (${itemCount})`
       } else {
         return typeLabel
       }
@@ -88,14 +118,15 @@ export function ItemsTable<
   const isDetailColumnVisible = [
     PagePaths.events,
     PagePaths.releases,
+    EmbeddedItemTypes.embedCodes,
     'items'
-  ].includes(path)
+  ].includes(itemType)
 
   function tableColspan() {
     let cols = 2
     /** item has type-specific children, venue, publishedEditions */
     if (isDetailColumnVisible) cols += 1
-    /** multiple item types present: path/type column visible (i.e. events, releases) */
+    /** multiple item types present: itemType/type column visible (i.e. events, releases) */
     if (isPathTypeVisible) cols += 1
     return cols
   }
@@ -111,19 +142,19 @@ export function ItemsTable<
     <>
       {featuredKey && groupedItems?.[featuredKey] && (
         <ItemsList
-          items={groupedItems[featuredKey]}
+          items={groupedItems[featuredKey] as T[]}
           isFeatured
-          title={formattedItemType(path, true, true)}
+          title={formattedItemType(itemType, true, true)}
         />
       )}
       <div className={styles['items-table']}>
         {isFilterable && (
-          <FiltersWrapper itemType={path} controlsId={tableId}>
+          <FiltersWrapper itemType={itemType} controlsId={tableId}>
             <SearchInput
               ariaControls={tableId}
               value={query}
               onChange={setQuery}
-              label={`Search ${path}`}
+              label={`Search ${itemTypeToLabel(itemType, false, true)}`}
               isLabelHidden
             />
           </FiltersWrapper>
@@ -196,6 +227,8 @@ export function ItemsTable<
                         !!(isCategoryVisible || query.length > 0)
                       }
                       isPathTypeVisible={!!isPathTypeVisible}
+                      itemType={itemType}
+                      isAdmin={isAdmin}
                     />
                   ))}
                 </tbody>
@@ -224,13 +257,17 @@ function ItemsTableItem({
   index,
   isExpanded,
   isCategoryVisible,
-  isPathTypeVisible
+  isPathTypeVisible,
+  itemType,
+  isAdmin
 }: {
-  item: PageItemClient
+  item: PageItemClient | EmbeddedItem
   index: number
   isExpanded: boolean
   isCategoryVisible?: boolean
   isPathTypeVisible?: boolean
+  itemType: PagePath | EmbeddedItemType
+  isAdmin: boolean
 }) {
   return (
     <ItemsTableRow
@@ -239,6 +276,8 @@ function ItemsTableItem({
       isExpanded={isExpanded}
       isCategoryVisible={isCategoryVisible}
       isPathTypeVisible={isPathTypeVisible}
+      itemType={itemType}
+      isAdmin={isAdmin}
     >
       {(item as EventClient).venue &&
         formatVenueInline({
@@ -252,6 +291,9 @@ function ItemsTableItem({
           }
           format='sm'
         />
+      )}
+      {(item as EmbedCode).host && (
+        <EmbedCodeDetails embedCode={item as EmbedCode} />
       )}
     </ItemsTableRow>
   )

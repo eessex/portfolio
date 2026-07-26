@@ -29,7 +29,7 @@ async function ReleasesList() {
 
   return (
     <ItemsTable<ReleaseClient, FetchReleasesResult>
-      path={path}
+      itemType={path}
       initialItems={releases}
     />
   )

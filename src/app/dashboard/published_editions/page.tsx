@@ -20,7 +20,7 @@ export default async function PublishedEditionsPage() {
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading />}>
         <DashboardItems
-          apiEndpoint='/api/published-editions'
+          apiEndpoint='/api/published_editions'
           res={res}
           itemType={itemType}
           deleteItem={deletePublishedEdition}

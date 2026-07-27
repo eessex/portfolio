@@ -1,0 +1,23 @@
+@use '@/ui/styles/grids';
+@use '@/ui/styles/breakpoints';
+
+.badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: grids.space-rem(1);
+  min-width: 0;
+
+  @include breakpoints.mobile {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  mark {
+    overflow: hidden;
+    min-width: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0;
+  }
+}

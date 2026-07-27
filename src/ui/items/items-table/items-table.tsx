@@ -21,6 +21,7 @@ import type {
   PageItemClient
 } from '@/lib/types'
 import { DEFAULT_PAGE_SIZE } from '@/lib/util'
+import type { Venue } from '@/lib/venues/schemas/db'
 import { EmbedCodeDetails } from '@/ui/embed-codes/embed-code-details'
 import { FiltersWrapper } from '@/ui/filters/filters'
 import { ItemsList } from '@/ui/items/items-list'
@@ -36,8 +37,10 @@ import { useResultsList } from '@/ui/useResultsList'
 import {
   formattedItemType,
   formatVenueInline,
-  isEmbeddedItemType
+  isEmbeddedItemType,
+  isImageColumnVisible
 } from '@/ui/util'
+import { VenueDetails } from '@/ui/venues/venue-details'
 
 export function ItemsTable<
   T extends PageItemClient = never,
@@ -122,6 +125,7 @@ export function ItemsTable<
     PagePaths.releases,
     EmbeddedItemTypes.embedCodes,
     EmbeddedItemTypes.publishedEditions,
+    EmbeddedItemTypes.venues,
     'items'
   ].includes(itemType)
 
@@ -166,9 +170,11 @@ export function ItemsTable<
         <table id={tableId} role='region' aria-live='polite'>
           <thead className='visually-hidden'>
             <tr>
-              <th aria-hidden='true' scope='col'>
-                Image
-              </th>
+              {isImageColumnVisible(itemType) && (
+                <th aria-hidden='true' scope='col'>
+                  Image
+                </th>
+              )}
               {isPathTypeVisible && <th scope='col'>Type</th>}
               <th scope='col'>Title</th>
               <th scope='col'>Date</th>
@@ -302,6 +308,9 @@ function ItemsTableItem({
         <PublishedEditionDetails
           edition={item as DashboardPublishedEdition}
         />
+      )}
+      {itemType === EmbeddedItemTypes.venues && (
+        <VenueDetails venue={item as Venue} />
       )}
     </ItemsTableRow>
   )

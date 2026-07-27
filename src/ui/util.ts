@@ -236,6 +236,20 @@ export function isEmbeddedItemType(
   return itemType in EmbeddedItemTypes
 }
 
+/**
+ * Item types with no cover image/thumbnail of their own; their
+ * table's image column is hidden rather than left blank.
+ */
+export function isImageColumnVisible(
+  itemType: EmbeddedItemType | PagePath
+) {
+  return (
+    itemType !== EmbeddedItemTypes.venues &&
+    itemType !== EmbeddedItemTypes.links &&
+    itemType !== EmbeddedItemTypes.publishedEditions
+  )
+}
+
 export const formattedItemType = (
   type: string,
   isUpcoming = false,

@@ -8,8 +8,12 @@ import NextImage from 'next/image'
 import NextLink from 'next/link'
 
 import type { WithCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
-import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
+import {
+  type EmbedCode,
+  EmbedCodeTypes
+} from '@/lib/embed-codes/schemas/db'
 import type { EventClient } from '@/lib/events/types'
+import type { Image } from '@/lib/images/schemas/db'
 import type { Link } from '@/lib/links/schemas/db'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
@@ -31,6 +35,7 @@ import { FormattedItemDate } from '@/ui/items/item-date'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import {
   formattedDateTime,
+  formattedFilename,
   formattedItemTitle,
   formattedItemType,
   formattedLinkUrl,
@@ -63,7 +68,58 @@ function embeddedItemTitle(
       : title
   }
 
+  if (itemType === EmbeddedItemTypes.images) {
+    const image = item as Image
+    return image.title || formattedFilename(image.url)
+  }
+
   return formattedEmbedCodeTitle(item as EmbedCode)
+}
+
+function embeddedItemSubtitle(
+  item: EmbeddedItem,
+  itemType: PagePath | EmbeddedItemType
+) {
+  if (itemType === EmbeddedItemTypes.venues) {
+    return formatVenueInline({
+      venue: item as Venue,
+      isNameHidden: true
+    })
+  }
+
+  if (itemType === EmbeddedItemTypes.links) {
+    const link = item as Link
+    return link.title ? formattedLinkUrl(link.url) : undefined
+  }
+
+  return (item as EmbedCode).caption
+}
+
+function embeddedItemCoverImage(
+  item: EmbeddedItem,
+  itemType: PagePath | EmbeddedItemType
+): ThumbnailImage | undefined {
+  if (itemType === EmbeddedItemTypes.publishedEditions) {
+    return (item as DashboardPublishedEdition).release?.coverImage
+  }
+
+  if (itemType === EmbeddedItemTypes.embedCodes) {
+    const embedCode = item as EmbedCode & WithCoverImageUrls
+    const embedCodeImageUrl =
+      embedCode.coverImageThumbnailUrl || embedCode.coverImageUrl
+    return embedCodeImageUrl
+      ? {
+          url: embedCodeImageUrl,
+          aspect: coverImageAspectByHost(embedCode.host)
+        }
+      : undefined
+  }
+
+  if (itemType === EmbeddedItemTypes.images) {
+    return item as Image
+  }
+
+  return undefined
 }
 
 /**
@@ -120,20 +176,14 @@ export function ItemsTableRow({
   if (!item) return null
 
   const { artist, coverImage } = item as ReleaseClient
-  const link = item as Link
+  const itemSubtitle = embeddedItemSubtitle(
+    item as EmbeddedItem,
+    itemType
+  )
   const embedCode = item as EmbedCode & WithCoverImageUrls
-  const embedCodeImageUrl =
-    embedCode.coverImageThumbnailUrl || embedCode.coverImageUrl
-  const publishedEdition = item as DashboardPublishedEdition
   const rowCoverImage: ThumbnailImage | undefined =
-    coverImage ||
-    publishedEdition.release?.coverImage ||
-    (embedCodeImageUrl
-      ? {
-          url: embedCodeImageUrl,
-          aspect: coverImageAspectByHost(embedCode.host)
-        }
-      : undefined)
+    (hasOwnPage(item) && coverImage) ||
+    embeddedItemCoverImage(item as EmbeddedItem, itemType)
   const linkTarget = hasOwnPage(item) ? itemUrl(item) : undefined
   const rowLabel = hasOwnPage(item)
     ? `${item.title}${artist ? ', by ' + artist : ''}`
@@ -141,11 +191,19 @@ export function ItemsTableRow({
   const isEditLinkVisible = isAdmin && !hasOwnPage(item)
   const isPriorityImage = !!(isFeatured || (index || 0) < 12)
   const imageWidth = 350
+  const isAudioEmbedCode =
+    itemType === EmbeddedItemTypes.embedCodes &&
+    embedCode.type === EmbedCodeTypes.audio
+  const isVideoEmbedCode =
+    itemType === EmbeddedItemTypes.embedCodes &&
+    embedCode.type === EmbedCodeTypes.video
   const hasAudio =
-    hasOwnPage(item) &&
-    item.path !== PagePaths.releases &&
-    !!item.hasAudio
-  const hasVideo = hasOwnPage(item) && !!item.hasVideo
+    (hasOwnPage(item) &&
+      item.path !== PagePaths.releases &&
+      !!item.hasAudio) ||
+    isAudioEmbedCode
+  const hasVideo =
+    (hasOwnPage(item) && !!item.hasVideo) || isVideoEmbedCode
   const isImageVisible = isImageColumnVisible(itemType)
 
   return (
@@ -226,26 +284,9 @@ export function ItemsTableRow({
         ) : (
           <div className={styles['item-title-stack']}>
             <span>{embeddedItemTitle(item, itemType)}</span>
-            {(item as EmbedCode).caption && (
+            {itemSubtitle && (
               <span className={styles['item-title-stack-subtitle']}>
-                {(item as EmbedCode).caption}
-              </span>
-            )}
-            {itemType === EmbeddedItemTypes.venues &&
-              formatVenueInline({
-                venue: item as Venue,
-                isNameHidden: true
-              }) && (
-                <span className={styles['item-title-stack-subtitle']}>
-                  {formatVenueInline({
-                    venue: item as Venue,
-                    isNameHidden: true
-                  })}
-                </span>
-              )}
-            {itemType === EmbeddedItemTypes.links && link.title && (
-              <span className={styles['item-title-stack-subtitle']}>
-                {formattedLinkUrl(link.url)}
+                {itemSubtitle}
               </span>
             )}
           </div>
@@ -288,16 +329,20 @@ export function ItemsTableRow({
             aria-label='Contains video'
           />
         )}
-        {isEditLinkVisible && (
-          <a
-            href={`/dashboard/${camelToSnake(itemType)}/${item.id}/edit`}
-            className='button-icon button-primary'
-            aria-label='Edit'
-          >
-            <PencilIcon />
-          </a>
-        )}
       </td>
+      {!hasOwnPage(item) && (
+        <td className={styles['table-row-edit']}>
+          {isEditLinkVisible && (
+            <a
+              href={`/dashboard/${camelToSnake(itemType)}/${item.id}/edit`}
+              className='button-icon button-primary'
+              aria-label='Edit'
+            >
+              <PencilIcon />
+            </a>
+          )}
+        </td>
+      )}
     </tr>
   )
 }

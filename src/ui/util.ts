@@ -1,5 +1,9 @@
+import type { DashboardEmbedCode } from '@/lib/embed-codes/schemas/client'
+import type { DashboardImage } from '@/lib/images/schemas/client'
 import type { Image } from '@/lib/images/schemas/db'
+import type { DashboardLink } from '@/lib/links/schemas/client'
 import type { Link } from '@/lib/links/schemas/db'
+import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { PublishedEditionClient } from '@/lib/published-editions/schemas/client'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
@@ -12,8 +16,19 @@ import {
 import type { DashboardUsedOnPagesKeys } from '@/lib/schemas/fields'
 import { camelToSentence, snakeToCamel } from '@/lib/strings'
 import type { PageItemClient } from '@/lib/types'
+import type { DashboardVenue } from '@/lib/venues/schemas/client'
 import type { Venue } from '@/lib/venues/schemas/db'
-import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
+
+/**
+ * A fetched embedded item extended with the pages that embed it,
+ * used by dashboard listings (e.g. `usedOnPages()`).
+ */
+export type DashboardItem =
+  | DashboardEmbedCode
+  | DashboardImage
+  | DashboardLink
+  | DashboardPublishedEdition
+  | DashboardVenue
 
 const dateFormatLg: Intl.DateTimeFormatOptions = {
   weekday: 'short',
@@ -237,16 +252,37 @@ export function isEmbeddedItemType(
 }
 
 /**
- * Item types with no cover image/thumbnail of their own; their
- * table's image column is hidden rather than left blank.
+ * Per-embedded-item-type table column visibility, so items-table
+ * can hide a column rather than leave it blank for types with no
+ * cover image or Details-column content of their own.
  */
+const embeddedItemColumns: Record<
+  EmbeddedItemType,
+  { hasImage: boolean; hasDetail: boolean }
+> = {
+  embedCodes: { hasImage: true, hasDetail: true },
+  images: { hasImage: true, hasDetail: false },
+  links: { hasImage: false, hasDetail: true },
+  publishedEditions: { hasImage: true, hasDetail: true },
+  publishers: { hasImage: true, hasDetail: false },
+  venues: { hasImage: false, hasDetail: true }
+}
+
 export function isImageColumnVisible(
   itemType: EmbeddedItemType | PagePath
 ) {
   return (
-    itemType !== EmbeddedItemTypes.venues &&
-    itemType !== EmbeddedItemTypes.links &&
-    itemType !== EmbeddedItemTypes.publishedEditions
+    !isEmbeddedItemType(itemType) ||
+    embeddedItemColumns[itemType].hasImage
+  )
+}
+
+export function isEmbeddedDetailColumnVisible(
+  itemType: EmbeddedItemType | PagePath
+) {
+  return (
+    isEmbeddedItemType(itemType) &&
+    embeddedItemColumns[itemType].hasDetail
   )
 }
 
@@ -325,6 +361,7 @@ export function formatVenueInline({
   format?: 'sm' | 'lg'
   isNameHidden?: boolean
 }): string {
+  if (!venue) return ''
   const parts: string[] = []
 
   if (isNameHidden) {

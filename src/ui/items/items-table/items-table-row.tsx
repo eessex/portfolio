@@ -21,6 +21,7 @@ import {
 } from '@/lib/schemas'
 import { camelToSnake } from '@/lib/strings'
 import type { EmbeddedItem, PageItemClient } from '@/lib/types'
+import type { Venue } from '@/lib/venues/schemas/db'
 import type { ThumbnailImage } from '@/ui/cover-image-thumbnail'
 import { DraftBadge } from '@/ui/draft-badge'
 import { formattedEmbedCodeTitle } from '@/ui/embed-codes/embed-code-details'
@@ -31,6 +32,8 @@ import {
   formattedDateTime,
   formattedItemTitle,
   formattedItemType,
+  formatVenueInline,
+  isImageColumnVisible,
   itemUrl,
   usedOnPages
 } from '@/ui/util'
@@ -44,6 +47,10 @@ function embeddedItemTitle(
     return release?.artist
       ? `${release.artist}: ${release.title}`
       : release?.title
+  }
+
+  if (itemType === EmbeddedItemTypes.venues) {
+    return (item as Venue).name || 'Untitled venue'
   }
 
   return formattedEmbedCodeTitle(item as EmbedCode)
@@ -128,6 +135,7 @@ export function ItemsTableRow({
     item.path !== PagePaths.releases &&
     !!item.hasAudio
   const hasVideo = hasOwnPage(item) && !!item.hasVideo
+  const isImageVisible = isImageColumnVisible(itemType)
 
   return (
     <tr
@@ -136,7 +144,8 @@ export function ItemsTableRow({
         styles['table-row-link'],
         isExpanded && styles['table-row-link--expanded'],
         isPathTypeVisible && styles['item-type-visible'],
-        !hasOwnPage(item) && styles['embedded-row']
+        !hasOwnPage(item) && styles['embedded-row'],
+        !isImageVisible && styles['no-image']
       )}
       onClick={
         linkTarget ? () => location.assign(linkTarget) : undefined
@@ -155,26 +164,28 @@ export function ItemsTableRow({
       role={linkTarget ? 'link' : undefined}
       aria-label={rowLabel}
     >
-      <td className={styles['table-row-img']} aria-hidden='true'>
-        {rowCoverImage && (
-          <NextImage
-            src={rowCoverImage.url}
-            alt={rowCoverImage.alt || ''}
-            title={rowCoverImage.caption || undefined}
-            width={imageWidth}
-            height={Math.round(imageWidth / rowCoverImage.aspect)}
-            sizes={
-              isExpanded
-                ? '(max-width: 768px) 50vw, 350px'
-                : '(max-width: 768px) 92px, 52px'
-            }
-            loading={(index || 0) > 12 ? 'lazy' : undefined}
-            priority={isPriorityImage}
-            fetchPriority={isPriorityImage ? 'high' : 'auto'}
-            aria-hidden='true'
-          />
-        )}
-      </td>
+      {isImageVisible && (
+        <td className={styles['table-row-img']} aria-hidden='true'>
+          {rowCoverImage && (
+            <NextImage
+              src={rowCoverImage.url}
+              alt={rowCoverImage.alt || ''}
+              title={rowCoverImage.caption || undefined}
+              width={imageWidth}
+              height={Math.round(imageWidth / rowCoverImage.aspect)}
+              sizes={
+                isExpanded
+                  ? '(max-width: 768px) 50vw, 350px'
+                  : '(max-width: 768px) 92px, 52px'
+              }
+              loading={(index || 0) > 12 ? 'lazy' : undefined}
+              priority={isPriorityImage}
+              fetchPriority={isPriorityImage ? 'high' : 'auto'}
+              aria-hidden='true'
+            />
+          )}
+        </td>
+      )}
 
       {isPathTypeVisible && (
         <td className='category path-type'>
@@ -209,6 +220,18 @@ export function ItemsTableRow({
                 {(item as EmbedCode).caption}
               </span>
             )}
+            {itemType === EmbeddedItemTypes.venues &&
+              formatVenueInline({
+                venue: item as Venue,
+                isNameHidden: true
+              }) && (
+                <span className={styles['item-title-stack-subtitle']}>
+                  {formatVenueInline({
+                    venue: item as Venue,
+                    isNameHidden: true
+                  })}
+                </span>
+              )}
           </div>
         )}
       </td>

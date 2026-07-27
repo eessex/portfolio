@@ -88,6 +88,28 @@
     }
   }
 
+  // Item types with no image column (e.g. venues, links)
+  &.no-image {
+    grid-template-columns: 9fr 3fr 3fr calc(52px + 1em);
+    grid-template-areas: 'title date meta media';
+
+    @include breakpoints.sm-width {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        'title'
+        'date'
+        'meta'
+        'media';
+    }
+
+    > *:first-child {
+      display: block;
+      height: unset;
+      padding-left: unset;
+      grid-area: unset;
+    }
+  }
+
   .table-row-title {
     font-weight: 600;
 

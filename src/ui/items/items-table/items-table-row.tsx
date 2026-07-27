@@ -10,6 +10,7 @@ import NextLink from 'next/link'
 import type { WithCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import type { EventClient } from '@/lib/events/types'
+import type { Link } from '@/lib/links/schemas/db'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { ReleaseClient } from '@/lib/releases/types'
@@ -32,6 +33,7 @@ import {
   formattedDateTime,
   formattedItemTitle,
   formattedItemType,
+  formattedLinkUrl,
   formatVenueInline,
   isImageColumnVisible,
   itemUrl,
@@ -51,6 +53,14 @@ function embeddedItemTitle(
 
   if (itemType === EmbeddedItemTypes.venues) {
     return (item as Venue).name || 'Untitled venue'
+  }
+
+  if (itemType === EmbeddedItemTypes.links) {
+    const link = item as Link
+    const title = link.title || formattedLinkUrl(link.url)
+    return link.attribution
+      ? `${title} in ${link.attribution}`
+      : title
   }
 
   return formattedEmbedCodeTitle(item as EmbedCode)
@@ -110,6 +120,7 @@ export function ItemsTableRow({
   if (!item) return null
 
   const { artist, coverImage } = item as ReleaseClient
+  const link = item as Link
   const embedCode = item as EmbedCode & WithCoverImageUrls
   const embedCodeImageUrl =
     embedCode.coverImageThumbnailUrl || embedCode.coverImageUrl
@@ -232,6 +243,11 @@ export function ItemsTableRow({
                   })}
                 </span>
               )}
+            {itemType === EmbeddedItemTypes.links && link.title && (
+              <span className={styles['item-title-stack-subtitle']}>
+                {formattedLinkUrl(link.url)}
+              </span>
+            )}
           </div>
         )}
       </td>

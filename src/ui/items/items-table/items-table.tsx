@@ -5,6 +5,7 @@ import { useId } from 'react'
 
 import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import type { EventClient } from '@/lib/events/types'
+import type { Link } from '@/lib/links/schemas/db'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
@@ -27,6 +28,7 @@ import { FiltersWrapper } from '@/ui/filters/filters'
 import { ItemsList } from '@/ui/items/items-list'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import { ItemsTableRow } from '@/ui/items/items-table/items-table-row'
+import { LinkDetails } from '@/ui/links/link-details'
 import { Loading } from '@/ui/loading'
 import { PublishedEditionDetails } from '@/ui/published-editions/published-edition-details'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
@@ -126,6 +128,7 @@ export function ItemsTable<
     EmbeddedItemTypes.embedCodes,
     EmbeddedItemTypes.publishedEditions,
     EmbeddedItemTypes.venues,
+    EmbeddedItemTypes.links,
     'items'
   ].includes(itemType)
 
@@ -311,6 +314,9 @@ function ItemsTableItem({
       )}
       {itemType === EmbeddedItemTypes.venues && (
         <VenueDetails venue={item as Venue} />
+      )}
+      {itemType === EmbeddedItemTypes.links && (
+        <LinkDetails link={item as Link} />
       )}
     </ItemsTableRow>
   )

@@ -5,6 +5,7 @@ import { useId } from 'react'
 
 import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import type { EventClient } from '@/lib/events/types'
+import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
   type EmbeddedItemType,
@@ -26,6 +27,7 @@ import { ItemsList } from '@/ui/items/items-list'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import { ItemsTableRow } from '@/ui/items/items-table/items-table-row'
 import { Loading } from '@/ui/loading'
+import { PublishedEditionDetails } from '@/ui/published-editions/published-edition-details'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import { SearchInput } from '@/ui/search-input/search-input'
 import { useIsAdmin } from '@/ui/useIsAdmin'
@@ -119,6 +121,7 @@ export function ItemsTable<
     PagePaths.events,
     PagePaths.releases,
     EmbeddedItemTypes.embedCodes,
+    EmbeddedItemTypes.publishedEditions,
     'items'
   ].includes(itemType)
 
@@ -294,6 +297,11 @@ function ItemsTableItem({
       )}
       {(item as EmbedCode).host && (
         <EmbedCodeDetails embedCode={item as EmbedCode} />
+      )}
+      {itemType === EmbeddedItemTypes.publishedEditions && (
+        <PublishedEditionDetails
+          edition={item as DashboardPublishedEdition}
+        />
       )}
     </ItemsTableRow>
   )

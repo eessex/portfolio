@@ -11,9 +11,11 @@ import type { WithCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import type { EventClient } from '@/lib/events/types'
 import type { ProjectClient } from '@/lib/projects/types'
+import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
   type EmbeddedItemType,
+  EmbeddedItemTypes,
   type PagePath,
   PagePaths
 } from '@/lib/schemas'
@@ -26,11 +28,26 @@ import { coverImageAspectByHost } from '@/ui/embed-codes/util'
 import { FormattedItemDate } from '@/ui/items/item-date'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import {
+  formattedDateTime,
   formattedItemTitle,
   formattedItemType,
   itemUrl,
   usedOnPages
 } from '@/ui/util'
+
+function embeddedItemTitle(
+  item: EmbeddedItem,
+  itemType: PagePath | EmbeddedItemType
+) {
+  if (itemType === EmbeddedItemTypes.publishedEditions) {
+    const { release } = item as DashboardPublishedEdition
+    return release?.artist
+      ? `${release.artist}: ${release.title}`
+      : release?.title
+  }
+
+  return formattedEmbedCodeTitle(item as EmbedCode)
+}
 
 /**
  * Embedded items have no public-facing page, unlike `PageItemClient`
@@ -89,8 +106,10 @@ export function ItemsTableRow({
   const embedCode = item as EmbedCode & WithCoverImageUrls
   const embedCodeImageUrl =
     embedCode.coverImageThumbnailUrl || embedCode.coverImageUrl
+  const publishedEdition = item as DashboardPublishedEdition
   const rowCoverImage: ThumbnailImage | undefined =
     coverImage ||
+    publishedEdition.release?.coverImage ||
     (embedCodeImageUrl
       ? {
           url: embedCodeImageUrl,
@@ -184,7 +203,7 @@ export function ItemsTableRow({
           </NextLink>
         ) : (
           <div className={styles['item-title-stack']}>
-            <span>{formattedEmbedCodeTitle(item as EmbedCode)}</span>
+            <span>{embeddedItemTitle(item, itemType)}</span>
             {(item as EmbedCode).caption && (
               <span className={styles['item-title-stack-subtitle']}>
                 {(item as EmbedCode).caption}
@@ -200,6 +219,17 @@ export function ItemsTableRow({
             item={item}
             timezone={(item as EventClient).venue?.timezone}
           />
+        ) : itemType === EmbeddedItemTypes.publishedEditions ? (
+          <time
+            dateTime={new Date(
+              (item as DashboardPublishedEdition).publishDate
+            ).toISOString()}
+          >
+            {formattedDateTime(
+              (item as DashboardPublishedEdition).publishDate,
+              'xxs'
+            )}
+          </time>
         ) : (
           <UsedOnPagesLabel item={item} />
         )}

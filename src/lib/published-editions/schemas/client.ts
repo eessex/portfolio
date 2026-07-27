@@ -6,7 +6,7 @@ import { publishedEditionSchema } from '@/lib/published-editions/schemas/db'
 import { publisherSchema } from '@/lib/publishers/schemas/db'
 import { releaseClientSchema } from '@/lib/releases/schemas'
 import { relationSlugArrays } from '@/lib/schemas/fields'
-import { shortText } from '@/lib/schemas/primitives'
+import { date, shortText } from '@/lib/schemas/primitives'
 
 /**
  * Extends `publishedEditionSchema` with the related items hydrated
@@ -46,7 +46,13 @@ export const dashboardPublishedEditionSchema =
         coverImage: true
       })
     ),
-    releaseSlugs: relationSlugArrays.releaseSlugs
+    releaseSlugs: relationSlugArrays.releaseSlugs,
+    // Flat sort/cursor key (the parent release's release date, distinct
+    // from this edition's own `publishDate`) — `runListFetch`'s cursor
+    // value must be a top-level field, so it can't point at the nested
+    // `release` object. Editions of the same release share this value,
+    // which keeps them adjacent when the list is sorted by it.
+    releaseDate: date.optional()
   })
 export type DashboardPublishedEdition = z.infer<
   typeof dashboardPublishedEditionSchema

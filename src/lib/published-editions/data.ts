@@ -120,7 +120,7 @@ export async function fetchPublishedEditionsRaw(
     query,
     itemType: 'publishedEditions',
     schema: dashboardPublishedEditionSchema,
-    cursorKey: 'publisherName',
+    cursorKey: 'releaseDate',
     count: (like) => sql`
       SELECT COUNT(*)::int AS count
       FROM published_editions
@@ -184,6 +184,7 @@ export async function fetchPublishedEditionsRaw(
           )
         ) AS release,
         ARRAY[r.slug] AS release_slugs,
+        r.release_date AS release_date,
         p.name AS publisher_name,
         (
           CASE
@@ -201,11 +202,14 @@ export async function fetchPublishedEditionsRaw(
       )
       AND (
         ${cursorName}::text IS NULL
-        OR LOWER(p.name) > LOWER(${cursorName})
-        OR (LOWER(p.name) = LOWER(${cursorName}) AND published_editions.id > ${cursorId})
+        OR r.release_date < ${cursorName}::timestamptz
+        OR (
+          r.release_date = ${cursorName}::timestamptz
+          AND published_editions.id > ${cursorId}
+        )
       )
       ORDER BY
-        LOWER(p.name) ASC,
+        r.release_date DESC,
         published_editions.id ASC
       LIMIT ${DEFAULT_PAGE_SIZE}
     `

@@ -59,6 +59,7 @@
   cursor: pointer;
   padding-inline: var(--row-padding-inline-compact);
   padding-block: var(--row-padding-block-compact);
+  position: relative;
   box-shadow: inset 0 -1px 0 var(--transparency-primary);
   min-height: calc(
     var(--img-height-compact) + (var(--row-padding-block-compact) * 2)
@@ -79,9 +80,10 @@
 
   // Embedded items override
   &.embedded-row {
-    grid-template-columns: var(--img-width-compact) 9fr 3fr 3fr calc(
-        52px + 1em
-      );
+    grid-template-columns:
+      var(--img-width-compact) 9fr 3fr 3fr calc(52px + 1em)
+      calc(52px + 1em);
+    grid-template-areas: 'img title date meta media edit';
 
     @include breakpoints.sm-width {
       grid-template-columns: var(--img-width-compact) 1fr;
@@ -90,8 +92,10 @@
 
   // Item types with no image column (e.g. venues, links)
   &.no-image {
-    grid-template-columns: 9fr 3fr 3fr calc(52px + 1em);
-    grid-template-areas: 'title date meta media';
+    grid-template-columns: 9fr 3fr 3fr calc(52px + 1em) calc(
+        52px + 1em
+      );
+    grid-template-areas: 'title date meta media edit';
 
     @include breakpoints.sm-width {
       grid-template-columns: 1fr;
@@ -99,7 +103,8 @@
         'title'
         'date'
         'meta'
-        'media';
+        'media'
+        'edit';
     }
 
     > *:first-child {
@@ -344,6 +349,17 @@
     width: 18px;
     height: 18px;
   }
+
+  @include breakpoints.sm-width {
+    justify-content: flex-start;
+  }
+}
+
+.table-row-edit {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 5px;
 
   @include breakpoints.sm-width {
     justify-content: flex-start;

@@ -39,6 +39,7 @@ import { useResultsList } from '@/ui/useResultsList'
 import {
   formattedItemType,
   formatVenueInline,
+  isEmbeddedDetailColumnVisible,
   isEmbeddedItemType,
   isImageColumnVisible
 } from '@/ui/util'
@@ -122,15 +123,12 @@ export function ItemsTable<
 
   const isFilterable = initialItems.totalCount >= DEFAULT_PAGE_SIZE
 
-  const isDetailColumnVisible = [
-    PagePaths.events,
-    PagePaths.releases,
-    EmbeddedItemTypes.embedCodes,
-    EmbeddedItemTypes.publishedEditions,
-    EmbeddedItemTypes.venues,
-    EmbeddedItemTypes.links,
-    'items'
-  ].includes(itemType)
+  const isDetailColumnVisible =
+    itemType === PagePaths.events ||
+    itemType === PagePaths.releases ||
+    isEmbeddedDetailColumnVisible(itemType)
+  /** embedded items get a standalone edit column; page items are edited on their own page */
+  const isEditColumnVisible = isEmbeddedItemType(itemType)
 
   function tableColspan() {
     let cols = 2
@@ -138,6 +136,7 @@ export function ItemsTable<
     if (isDetailColumnVisible) cols += 1
     /** multiple item types present: itemType/type column visible (i.e. events, releases) */
     if (isPathTypeVisible) cols += 1
+    if (isEditColumnVisible) cols += 1
     return cols
   }
 
@@ -183,6 +182,7 @@ export function ItemsTable<
               <th scope='col'>Date</th>
               {isDetailColumnVisible && <th scope='col'>Details</th>}
               <th scope='col'>Media</th>
+              {isEditColumnVisible && <th scope='col'>Edit</th>}
             </tr>
           </thead>
 
@@ -291,12 +291,12 @@ function ItemsTableItem({
       itemType={itemType}
       isAdmin={isAdmin}
     >
-      {(item as EventClient).venue &&
+      {itemType === PagePaths.events &&
         formatVenueInline({
           venue: (item as EventClient).venue!,
           format: 'sm'
         })}
-      {(item as ReleaseClient).publishedEditions && (
+      {itemType === PagePaths.releases && (
         <PublishedEditionsCombined
           publishedEditions={
             (item as ReleaseClient).publishedEditions
@@ -304,7 +304,7 @@ function ItemsTableItem({
           format='sm'
         />
       )}
-      {(item as EmbedCode).host && (
+      {itemType === EmbeddedItemTypes.embedCodes && (
         <EmbedCodeDetails embedCode={item as EmbedCode} />
       )}
       {itemType === EmbeddedItemTypes.publishedEditions && (

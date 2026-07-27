@@ -100,21 +100,6 @@
   }
 }
 
-.edit-item-nav {
-  position: absolute;
-  right: grids.space-rem(4);
-  top: -1px;
-  display: flex;
-  border: 1px solid var(--page-background-color);
-  background-color: var(--page-background-color);
-  z-index: 10;
-
-  li {
-    margin: 0;
-    width: auto;
-  }
-}
-
 .checkbox {
   display: flex;
   align-items: flex-start;

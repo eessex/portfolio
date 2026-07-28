@@ -1,9 +1,8 @@
-import { auth } from '@/auth'
+import { isAuthed } from '@/lib/auth/guard'
 import { fetchEvents } from '@/lib/events/data'
 import { formatAuthedApiResponseJSON } from '@/lib/util'
 
 export async function GET(req: Request) {
-  const session = await auth()
   const { searchParams } = new URL(req.url)
   const cursor = searchParams.get('cursor') || undefined
   const query = searchParams.get('query') || undefined
@@ -11,7 +10,7 @@ export async function GET(req: Request) {
 
   try {
     const result = await fetchEvents(
-      !!session?.user,
+      await isAuthed(),
       projectId,
       cursor,
       query

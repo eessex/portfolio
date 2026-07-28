@@ -1,4 +1,5 @@
 import { sql } from '@/lib/db'
+import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import { eventClientSchema } from '@/lib/events/schemas'
 import type {
@@ -6,13 +7,12 @@ import type {
   FetchEventsResult
 } from '@/lib/events/types'
 import { sortEventsByCategory } from '@/lib/events/util'
+import { runListFetch } from '@/lib/list-fetch'
 import { PagePaths, pagePathSingulars } from '@/lib/schemas'
 import type { PageItemResponseWithCursor } from '@/lib/types'
 import {
-  decodeCursor,
   DEFAULT_PAGE_SIZE,
-  formatDbResponseForClient,
-  formatResponseWithCursor
+  formatDbResponseForClient
 } from '@/lib/util'
 
 const path = PagePaths.events
@@ -36,27 +36,55 @@ export async function fetchEventsRaw(
   projectId?: string,
   cursor?: string,
   query?: string
-) {
-  const totalCount = await getTotalCount(isAuthed, projectId, query)
-  const decodedCursor = cursor ? decodeCursor(cursor) : undefined
-  const like = query ? `%${query}%` : null
-  const cursorStartTime = decodedCursor?.name ?? null
-  const cursorId = decodedCursor?.id ?? null
-
-  try {
-    const data = await sql`
+): Promise<
+  PageItemResponseWithCursor<EventClient, FetchEventsResult>
+> {
+  return runListFetch({
+    cursor,
+    query,
+    itemType: path,
+    schema: eventClientSchema,
+    cursorKey: 'startTime',
+    transform: (events) => sortEventsByCategory(events),
+    count: (like) => sql`
+      SELECT COUNT(*)::int AS count
+      FROM events AS e
+      LEFT JOIN projects AS p ON e.project_id = p.id
+      LEFT JOIN venues AS v ON e.venue_id = v.id
+      WHERE
+        (${projectId}::uuid IS NULL OR e.project_id = ${projectId}::uuid)
+        AND (${isAuthed} OR e.is_published = true)
+        AND (
+          ${like}::text IS NULL
+          OR e.title ILIKE ${like}
+          OR e.description ILIKE ${like}
+          OR COALESCE(v.name, '') ILIKE ${like}
+          OR COALESCE(v.city, '') ILIKE ${like}
+          OR COALESCE(v.state, '') ILIKE ${like}
+        );
+    `,
+    list: ({ like, cursorName: cursorStartTime, cursorId }) => sql`
       SELECT
         e.*,
         ${path} AS path,
+        e.start_time > now() AS is_upcoming,
+        EXISTS (
+          SELECT 1 FROM embed_codes ec
+          WHERE ec.id = ANY(e.embed_code_ids) AND ec.type = ${EmbedCodeTypes.video}
+        ) AS has_video,
+        EXISTS (
+          SELECT 1 FROM embed_codes ec
+          WHERE ec.id = ANY(e.embed_code_ids) AND ec.type = ${EmbedCodeTypes.audio}
+        ) AS has_audio,
         (
-          SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
-          FROM embed_codes ec
-          WHERE ec.id = ANY(e.embed_code_ids)
-        ) AS embed_codes,
-        (
-          SELECT build_image_json(i)
-          FROM images i
-          WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
+          CASE
+            WHEN COALESCE(e.cover_image_id, e.image_ids[1]) IS NOT NULL
+            THEN (
+              SELECT build_image_json(i)
+              FROM images i
+              WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
+            )
+          END
         ) AS cover_image,
         (
           SELECT build_venue_json(v)
@@ -87,22 +115,53 @@ export async function fetchEventsRaw(
       ORDER BY e.start_time DESC, e.id ASC
       LIMIT ${DEFAULT_PAGE_SIZE};
     `
-    const formatted = formatResponseWithCursor(
-      data,
-      'startTime',
-      eventClientSchema
+  })
+}
+
+// upcoming events are a small, unpaginated set
+export async function fetchUpcomingEventsRaw(
+  isAuthed: boolean = false
+) {
+  try {
+    const data = await sql`
+      SELECT
+        e.*,
+        ${path} AS path,
+        e.start_time > now() AS is_upcoming,
+        EXISTS (
+          SELECT 1 FROM embed_codes ec
+          WHERE ec.id = ANY(e.embed_code_ids) AND ec.type = ${EmbedCodeTypes.video}
+        ) AS has_video,
+        EXISTS (
+          SELECT 1 FROM embed_codes ec
+          WHERE ec.id = ANY(e.embed_code_ids) AND ec.type = ${EmbedCodeTypes.audio}
+        ) AS has_audio,
+        (
+          CASE
+            WHEN COALESCE(e.cover_image_id, e.image_ids[1]) IS NOT NULL
+            THEN (
+              SELECT build_image_json(i)
+              FROM images i
+              WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
+            )
+          END
+        ) AS cover_image,
+        (
+          SELECT build_venue_json(v)
+          FROM venues v
+          WHERE v.id = e.venue_id
+        ) AS venue
+      FROM events AS e
+      WHERE
+        (${isAuthed} OR e.is_published = true)
+        AND e.start_time > now()
+      ORDER BY e.start_time ASC, e.id ASC;
+    `
+    return data.map((row) =>
+      formatDbResponseForClient(row, eventClientSchema)
     )
-    const res: PageItemResponseWithCursor<
-      EventClient,
-      FetchEventsResult
-    > = {
-      res: sortEventsByCategory(formatted.res),
-      nextCursor: formatted.nextCursor,
-      totalCount
-    }
-    return res
   } catch (cause) {
-    throw new Error(`Failed to fetch ${path}.`, { cause })
+    throw new Error(`Failed to fetch upcoming ${path}.`, { cause })
   }
 }
 
@@ -114,10 +173,16 @@ export async function fetchEventById(
     const data = await sql`
       SELECT
         e.*,
+        e.start_time > now() AS is_upcoming,
         (
-          SELECT build_image_json(i)
-          FROM images i
-          WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
+          CASE
+            WHEN COALESCE(e.cover_image_id, e.image_ids[1]) IS NOT NULL
+            THEN (
+              SELECT build_image_json(i)
+              FROM images i
+              WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
+            )
+          END
         ) AS cover_image,
         (
           SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
@@ -126,9 +191,14 @@ export async function fetchEventById(
             AND ec.id != e.embed_code_ids[1]
         ) AS embed_codes,
         (
-          SELECT build_embed_code_json(ec)
-          FROM embed_codes ec
-          WHERE ec.id = e.embed_code_ids[1]
+          CASE
+            WHEN e.embed_code_ids[1] IS NOT NULL
+            THEN (
+              SELECT build_embed_code_json(ec)
+              FROM embed_codes ec
+              WHERE ec.id = e.embed_code_ids[1]
+            )
+          END
         ) AS featured_embed_code,
         (
           SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
@@ -169,39 +239,6 @@ export async function fetchEventById(
     )
   } catch (cause) {
     throw new Error(`Failed to fetch ${pathSingular}: ${id}.`, {
-      cause
-    })
-  }
-}
-
-// exported so it can be mocked in tests
-export async function getTotalCount(
-  isAuthed: boolean = false,
-  projectId?: string,
-  query?: string
-) {
-  try {
-    const like = query ? `%${query}%` : null
-    const data = await sql`
-      SELECT COUNT(*)::int AS count
-      FROM events AS e
-      LEFT JOIN projects AS p ON e.project_id = p.id
-      LEFT JOIN venues AS v ON e.venue_id = v.id
-      WHERE 
-        (${projectId}::uuid IS NULL OR e.project_id = ${projectId}::uuid)
-        AND (${isAuthed} OR e.is_published = true)
-        AND (
-          ${like}::text IS NULL
-          OR e.title ILIKE ${like}
-          OR e.description ILIKE ${like}
-          OR COALESCE(v.name, '') ILIKE ${like}
-          OR COALESCE(v.city, '') ILIKE ${like}
-          OR COALESCE(v.state, '') ILIKE ${like}
-        );
-    `
-    return data[0]?.count ?? 0
-  } catch (cause) {
-    throw new Error(`Failed to fetch ${pathSingular} count.`, {
       cause
     })
   }

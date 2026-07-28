@@ -16,6 +16,7 @@ const authedPathPatterns = [
 const unauthedPathPatterns = [/^\/login$/]
 
 export const authConfig = {
+  trustHost: true,
   pages: { signIn: '/' },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {

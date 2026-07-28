@@ -1,5 +1,5 @@
-'use server'
-
+// Deliberately NOT a server action ('use server' would expose schema
+// creation as a public endpoint). Only run from scripts/setup.ts.
 import { sql } from '@/lib/db'
 import { pagePaths } from '@/lib/schemas'
 
@@ -23,6 +23,7 @@ async function createProjectsTable() {
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
       title VARCHAR(255) NOT NULL,
       description VARCHAR(5000),
+      short_description VARCHAR(255),
       embed_code_ids UUID[],
       image_ids UUID[],
       link_ids UUID[],
@@ -92,12 +93,12 @@ async function createEmbedCodesTable() {
       project_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
       caption VARCHAR(255),
-      iframe VARCHAR(1000),
       title VARCHAR(255),
       host VARCHAR(30) NOT NULL,
       type VARCHAR(30) NOT NULL,
       src VARCHAR(1000) NOT NULL,
       content_type VARCHAR(40),
+      cover_image_id UUID,
       created_at TIMESTAMP WITHOUT TIME ZONE
         DEFAULT CURRENT_TIMESTAMP
         NOT NULL,
@@ -110,6 +111,11 @@ async function createEmbedCodesTable() {
   await sql`
     CREATE UNIQUE INDEX IF NOT EXISTS embed_codes_src_type_unique
     ON embed_codes (src, type);
+  `
+
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS embed_codes_cover_image_id_unique
+    ON embed_codes (cover_image_id);
   `
 
   await sql`
@@ -233,6 +239,37 @@ async function createUsersTable() {
 }
 
 /**
+ * Creates the login_attempts table, which backs the exponential
+ * backoff in src/lib/auth/rate-limit.ts.
+ * Does not depend on other tables.
+ */
+async function createLoginAttemptsTable() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS login_attempts (
+      email TEXT PRIMARY KEY,
+      failed_count INTEGER DEFAULT 1 NOT NULL,
+      last_failed_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+    );
+  `
+}
+
+/**
+ * Creates the rate_limit_events table, which backs the sliding-window
+ * limiter in src/lib/auth/rate-limit.ts.
+ * Does not depend on other tables.
+ */
+async function createRateLimitEventsTable() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS rate_limit_events (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+      bucket TEXT NOT NULL,
+      created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+    );
+  `
+  await sql`CREATE INDEX IF NOT EXISTS idx_rate_limit_events_bucket ON rate_limit_events(bucket, created_at);`
+}
+
+/**
  * Creates the site_settings table.
  * Must be created after images.
  */
@@ -293,6 +330,26 @@ async function createEmailSubscriptionsTable() {
 }
 
 /**
+ * Creates the publishers table.
+ * Does not depend on other tables.
+ */
+async function createPublishersTable() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS publishers (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+      name VARCHAR(255) NOT NULL,
+      url VARCHAR(255),
+      type VARCHAR(30) NOT NULL,
+      created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      CONSTRAINT chk_publishers_type
+        CHECK (type IN ('recordLabel', 'publishingHouse', 'museum'))
+    );
+  `
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_publishers_name ON publishers(name);`
+}
+
+/**
  * Creates the venues table.
  * Does not depend on other tables.
  */
@@ -350,6 +407,7 @@ async function createReleasesTable() {
       title VARCHAR(255) NOT NULL,
       slug VARCHAR(255) NOT NULL,
       description VARCHAR(5000),
+      short_description VARCHAR(255),
       release_date DATE NOT NULL,
       artist VARCHAR(255),
       type VARCHAR(30) NOT NULL,
@@ -371,7 +429,7 @@ async function createReleasesTable() {
 
 /**
  * Creates the published_editions table.
- * Must be created after releases and projects.
+ * Must be created after releases, projects, and publishers.
  */
 async function createPublishedEditionTable() {
   await sql`
@@ -380,7 +438,7 @@ async function createPublishedEditionTable() {
       release_id UUID NOT NULL,
       project_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
-      publisher VARCHAR(255) NOT NULL,
+      publisher_id UUID NOT NULL,
       format VARCHAR(30) NOT NULL,
       publish_date DATE NOT NULL,
       cover_image_id UUID,
@@ -395,6 +453,23 @@ async function createPublishedEditionTable() {
       CHECK (format IN ('LP','2xLP','Cassette','2xCassette','Digital','iOSApp','CD'))
     );
   `
+
+  await sql`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_name='published_editions'
+          AND constraint_name='fk_published_edition_publisher'
+      ) THEN
+        ALTER TABLE published_editions
+        ADD CONSTRAINT fk_published_edition_publisher FOREIGN KEY (publisher_id)
+        REFERENCES publishers(id);
+      END IF;
+    END
+    $$;
+  `
+  await sql`CREATE INDEX IF NOT EXISTS idx_published_editions_publisher ON published_editions(publisher_id);`
 }
 
 /**
@@ -415,6 +490,7 @@ async function createEventsTable() {
       title VARCHAR(255) NOT NULL,
       slug VARCHAR(255) NOT NULL,
       description VARCHAR(5000),
+      short_description VARCHAR(255),
       start_time TIMESTAMP WITH TIME ZONE NOT NULL,
       end_time TIMESTAMP WITH TIME ZONE,
       is_published BOOLEAN,
@@ -511,8 +587,7 @@ async function setupJsonbFunctions() {
         'host', e.host,
         'contentType', e.content_type,
         'title', e.title,
-        'caption', e.caption,
-        'iframe', e.iframe
+        'caption', e.caption
       ) || build_write_dates_json(e.created_at, e.updated_at);
     $$ LANGUAGE sql IMMUTABLE;
   `
@@ -526,7 +601,9 @@ async function setupJsonbFunctions() {
         'caption', i.caption,
         'aspect', i.aspect,
         'alt', i.alt,
-        'title', i.title
+        'title', i.title,
+        'isPress', i.is_press,
+        'isHiddenOnAboutPage', i.is_hidden_on_about_page
       ) || build_write_dates_json(i.created_at, i.updated_at);
     $$ LANGUAGE sql IMMUTABLE;
   `
@@ -570,6 +647,18 @@ async function setupJsonbFunctions() {
   `
 
   await sql`
+    CREATE OR REPLACE FUNCTION build_publisher_json(p publishers)
+    RETURNS jsonb AS $$
+      SELECT jsonb_build_object(
+        'id', p.id,
+        'name', p.name,
+        'url', p.url,
+        'type', p.type
+      ) || build_write_dates_json(p.created_at, p.updated_at);
+    $$ LANGUAGE sql IMMUTABLE;
+  `
+
+  await sql`
     CREATE OR REPLACE FUNCTION build_published_edition_json(pe published_editions)
     RETURNS jsonb AS $$
     BEGIN
@@ -579,13 +668,27 @@ async function setupJsonbFunctions() {
           'releaseId', pe.release_id,
           'projectId', pe.project_id,
           'tagIds', pe.tag_ids,
-          'publisher', pe.publisher,
+          'publisherId', pe.publisher_id,
+          'publisherName', (
+            SELECT p.name FROM publishers p
+            WHERE p.id = pe.publisher_id
+          ),
+          'publisher', (
+            SELECT build_publisher_json(p)
+            FROM publishers p
+            WHERE p.id = pe.publisher_id
+          ),
           'format', pe.format,
           'publishDate', pe.publish_date,
           'coverImage', (
-            SELECT build_image_json(i)
-            FROM images i
-            WHERE i.id = COALESCE(pe.cover_image_id, pe.image_ids[1])
+            CASE
+              WHEN COALESCE(pe.cover_image_id, pe.image_ids[1]) IS NOT NULL
+              THEN (
+                SELECT build_image_json(i)
+                FROM images i
+                WHERE i.id = COALESCE(pe.cover_image_id, pe.image_ids[1])
+              )
+            END
           ),
           'images', (
             SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
@@ -595,9 +698,14 @@ async function setupJsonbFunctions() {
           ),
           'editionSize', pe.edition_size,
           'buyLink', (
-            SELECT build_link_json(l)
-            FROM links l
-            WHERE l.id = pe.buy_link_id
+            CASE
+              WHEN pe.buy_link_id IS NOT NULL
+              THEN (
+                SELECT build_link_json(l)
+                FROM links l
+                WHERE l.id = pe.buy_link_id
+              )
+            END
           ),
           'catalogNumber', pe.catalog_number
         )
@@ -642,6 +750,8 @@ export async function createTables() {
   await createTagsTable()
   await setupSlugHistory()
   await createUsersTable()
+  await createLoginAttemptsTable()
+  await createRateLimitEventsTable()
   await createImagesTable()
   await createEmbedCodesTable()
   await createLinksTable()
@@ -650,6 +760,7 @@ export async function createTables() {
   await createEmailSubscriptionsTable()
   await createVenuesTable()
   await createReleasesTable()
+  await createPublishersTable()
   await createPublishedEditionTable()
   await createEventsTable()
   console.log('✅ All tables created successfully.')

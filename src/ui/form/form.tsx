@@ -10,13 +10,15 @@ import {
 } from 'react'
 
 import type { FormResponse } from '@/lib/types'
-import { DashboardErrrorMessages } from '@/ui/dashboard/dashboard-items'
 import styles from '@/ui/form/form.module.scss'
 import { useToast } from '@/ui/toast/toast-context'
 
 type FormFieldErrors =
   | Record<string, string[] | undefined>
   | undefined
+
+const OPERATION_CANCELLED_MESSAGE =
+  'Operation was cancelled by the user.'
 
 const FormErrorsContext = createContext<FormFieldErrors>(undefined)
 
@@ -78,15 +80,13 @@ export function Form<T>({
     try {
       const res = await action(formData)
       if (!res || !res.ok) {
-        if (
-          res?.message === DashboardErrrorMessages.OperationCancelled
-        ) {
-          console.info(DashboardErrrorMessages.OperationCancelled)
+        if (res?.message === OPERATION_CANCELLED_MESSAGE) {
+          console.info(OPERATION_CANCELLED_MESSAGE)
           return prevState
         }
         if (!hasFieldErrors(res?.errors)) {
           const message =
-            res?.message || DashboardErrrorMessages.FailedToSave
+            res?.message || 'Failed to save changes, try again.'
           addErrorMessage(message)
         }
         return res ?? null

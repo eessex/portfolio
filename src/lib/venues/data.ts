@@ -1,11 +1,10 @@
 'use server'
 
 import { sql } from '@/lib/db'
+import { runListFetch } from '@/lib/list-fetch'
 import {
-  decodeCursor,
   DEFAULT_PAGE_SIZE,
   formatDbResponseForClient,
-  formatResponseWithCursor,
   type ResponseWithCursor
 } from '@/lib/util'
 import { fetchCachedVenuesFirstPage } from '@/lib/venues/cached'
@@ -52,16 +51,26 @@ export async function fetchVenues(cursor?: string, query?: string) {
 export async function fetchVenuesRaw(
   cursor?: string,
   query?: string
-) {
-  const totalCount = await getTotalCount(query)
-  const decodedCursor = cursor ? decodeCursor(cursor) : undefined
-
-  const like = query ? `%${query}%` : null
-  const cursorName = decodedCursor?.name ?? null
-  const cursorId = decodedCursor?.id ?? null
-
-  try {
-    const data = await sql`
+): Promise<ResponseWithCursor<DashboardVenue>> {
+  return runListFetch({
+    cursor,
+    query,
+    itemType: 'venues',
+    schema: dashboardVenueSchema,
+    cursorKey: 'name',
+    count: (like) => sql`
+      SELECT COUNT(*)::int AS count
+      FROM venues
+      WHERE (
+        ${like}::text IS NULL
+        OR venues.name ILIKE ${like}
+        OR venues.address ILIKE ${like}
+        OR venues.city ILIKE ${like}
+        OR venues.state ILIKE ${like}
+        OR venues.country ILIKE ${like}
+      )
+    `,
+    list: ({ like, cursorName, cursorId }) => sql`
       SELECT
         venues.*,
         ARRAY(
@@ -87,21 +96,7 @@ export async function fetchVenuesRaw(
         venues.id ASC
       LIMIT ${DEFAULT_PAGE_SIZE}
     `
-
-    const formatted = formatResponseWithCursor(
-      data,
-      'name',
-      dashboardVenueSchema
-    )
-
-    const res: ResponseWithCursor<DashboardVenue> = {
-      ...formatted,
-      totalCount
-    }
-    return res
-  } catch (cause) {
-    throw new Error('Failed to fetch venues.', { cause })
-  }
+  })
 }
 
 export async function fetchSimilarVenue(venue: CreateVenue) {
@@ -135,26 +130,5 @@ export async function fetchSimilarVenue(venue: CreateVenue) {
     }
   } catch (cause) {
     throw new Error('Failed to fetch similar venues.', { cause })
-  }
-}
-
-async function getTotalCount(query?: string) {
-  try {
-    const like = query ? `%${query}%` : null
-    const result = await sql`
-      SELECT COUNT(*)::int AS count
-      FROM venues
-      WHERE (
-        ${like}::text IS NULL
-        OR venues.name ILIKE ${like}
-        OR venues.address ILIKE ${like}
-        OR venues.city ILIKE ${like}
-        OR venues.state ILIKE ${like}
-        OR venues.country ILIKE ${like}
-      )
-    `
-    return result[0]?.count ?? 0
-  } catch (cause) {
-    throw new Error('Failed to fetch venue count.', { cause })
   }
 }

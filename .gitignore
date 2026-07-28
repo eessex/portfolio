@@ -43,4 +43,5 @@ next-env.d.ts
 
 placeholder-data.ts
 
-.claude
+# agents
+.claude/settings.local.json

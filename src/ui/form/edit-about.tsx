@@ -1,16 +1,17 @@
 'use client'
 
 import { editAbout } from '@/lib/about/actions'
-import type { About } from '@/lib/about/types'
+import type { AboutClient } from '@/lib/about/types'
 import type { Image } from '@/lib/images/schemas/db'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
+import { formatImageResult } from '@/ui/images/format-image-result'
+import { ItemPicker } from '@/ui/item-picker/item-picker'
 
-function AboutFormFields({
-  about
-}: {
-  about: About & { coverImage?: Image }
-}) {
+// Only press photos may be attached as the about cover image
+const pressSearchParams = { isPress: true }
+
+function AboutFormFields({ about }: { about: AboutClient }) {
   const errors = useFormErrors()
 
   return (
@@ -26,64 +27,19 @@ function AboutFormFields({
         }}
       />
 
-      {/* FIXME: rename/add title column
-      <Input
-        label='Byline'
-        defaultValue={about?.title}
-        attributes={{
-          name: 'title',
-          maxLength: 255,
-        }}
-      /> */}
-
-      <Input
-        label='Cover image id'
-        defaultValue={about?.coverImageId}
-        attributes={{
-          name: 'coverImageId',
-          type: 'hidden',
-          readOnly: true
-        }}
-      />
-
-      <Input
-        label='Id'
-        defaultValue={about?.id}
-        attributes={{
-          name: 'id',
-          type: 'hidden',
-          readOnly: true
-        }}
-      />
-
-      <Input
-        label='Created At'
-        defaultValue={about?.createdAt.toISOString()}
-        attributes={{
-          name: 'createdAt',
-          type: 'hidden',
-          readOnly: true
-        }}
-      />
-
-      <Input
-        label='Slug'
-        defaultValue={about?.slug}
-        attributes={{
-          name: 'slug',
-          type: 'hidden',
-          readOnly: true
-        }}
+      <ItemPicker<Image>
+        name='coverImageId'
+        label='Cover image'
+        itemType='images'
+        searchParams={pressSearchParams}
+        existingItem={about?.coverImage}
+        formatResult={formatImageResult}
       />
     </>
   )
 }
 
-export function EditAboutForm({
-  about
-}: {
-  about: About & { coverImage?: Image }
-}) {
+export function EditAboutForm({ about }: { about: AboutClient }) {
   return (
     <Form
       action={(formData: FormData) => editAbout(formData, about.id)}

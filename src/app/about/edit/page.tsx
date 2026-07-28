@@ -1,13 +1,13 @@
 import styles from '@/app/about/about.module.scss'
-import { fetchAboutPage } from '@/lib/about/data'
-import { fetchSiteSettings } from '@/lib/site-settings/data'
+import { fetchCachedAboutPage } from '@/lib/about/cached'
+import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { EditAboutForm } from '@/ui/form/edit-about'
 
 const title = 'Edit: About'
 
 export async function generateMetadata() {
-  const about = await fetchAboutPage()
-  const settings = await fetchSiteSettings()
+  const about = await fetchCachedAboutPage()
+  const settings = await fetchCachedSiteSettings()
   const image = (about || settings)?.coverImage
   const images = image
     ? [
@@ -28,12 +28,12 @@ export async function generateMetadata() {
 }
 
 export default async function AboutPage() {
-  const about = await fetchAboutPage()
+  const about = await fetchCachedAboutPage()
 
   return (
-    <article className={`${styles.about} px-4 pt-4 pb-8`}>
+    <article className={styles.about}>
       <header>
-        <h1 className='py-2'>{title}</h1>
+        <h1>{title}</h1>
       </header>
 
       {about && (

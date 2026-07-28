@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { camelToSentence } from '@/lib/strings'
+
 /**
  * Types of pages that can have paths
  * (i.e. that can be accessed on the public site)
@@ -44,6 +46,7 @@ export const embeddedItemTypes = [
   'images',
   'links',
   'publishedEditions',
+  'publishers',
   'venues'
 ] as const
 export const EmbeddedItemTypes = Object.fromEntries(
@@ -52,6 +55,13 @@ export const EmbeddedItemTypes = Object.fromEntries(
   [K in (typeof embeddedItemTypes)[number]]: K
 }
 export type EmbeddedItemType = (typeof embeddedItemTypes)[number]
+
+export const itemType = [
+  ...pagePaths,
+  ...embeddedItemTypes,
+  'siteSettings'
+] as const
+export type ItemType = (typeof itemType)[number]
 
 /**
  * Singular form of each `EmbeddedItemType`, e.g. for deriving a form field
@@ -62,6 +72,7 @@ export const embeddedItemTypeSingulars = {
   images: 'image',
   links: 'link',
   publishedEditions: 'publishedEdition',
+  publishers: 'publisher',
   venues: 'venue'
 } as const satisfies Record<EmbeddedItemType, string>
 
@@ -71,5 +82,53 @@ export const embeddedItemTypeSingulars = {
  */
 export const itemTypeSingulars = {
   ...pagePathSingulars,
-  ...embeddedItemTypeSingulars
-} as const satisfies Record<PagePath | EmbeddedItemType, string>
+  ...embeddedItemTypeSingulars,
+  siteSettings: 'siteSettings'
+} as const satisfies Record<
+  PagePath | EmbeddedItemType | 'siteSettings',
+  string
+>
+export type ItemTypeSingular =
+  (typeof itemTypeSingulars)[keyof typeof itemTypeSingulars]
+
+/**
+ * Singular name for an item type, preferring the
+ * `itemTypeSingulars` mapping and falling back to trimming a
+ * trailing 's' for names outside the taxonomies.
+ */
+export function singularizePath(path: ItemType | ItemTypeSingular) {
+  const mapped =
+    itemTypeSingulars[path as keyof typeof itemTypeSingulars]
+  if (mapped) return mapped
+
+  if (
+    (Object.values(itemTypeSingulars) as readonly string[]).includes(
+      path as string
+    )
+  ) {
+    return path
+  }
+
+  return path.endsWith('s') ? path.slice(0, -1) : path
+}
+
+/**
+ * Human-readable label for an item type, e.g. `publishedEditions` →
+ * 'Published Editions', or 'published edition' with `isSingular` and
+ * `isDownCased`. Used for UI headings/placeholders and server-action
+ * response messages. Singularizes before formatting so the
+ * `itemTypeSingulars` mapping (keyed by camelCase name) applies.
+ */
+export function itemTypeToLabel(
+  itemType: ItemType | ItemTypeSingular,
+  isSingular = false,
+  isDownCased = false
+) {
+  let formatted = camelToSentence(
+    isSingular ? singularizePath(itemType) : itemType
+  )
+  if (isDownCased) {
+    formatted = formatted.toLowerCase()
+  }
+  return formatted
+}

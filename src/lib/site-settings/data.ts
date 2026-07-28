@@ -1,21 +1,24 @@
-import { cacheTag } from 'next/cache'
-
 import { sql } from '@/lib/db'
 import { siteSettingsClientSchema } from '@/lib/site-settings/schemas'
 import { formatDbResponseForClient } from '@/lib/util'
 
 /** site title & image, SEO meta */
 export async function fetchSiteSettings() {
-  'use cache'
-  cacheTag('settings')
-
   try {
     const data = await sql`
       SELECT
         s.*,
-        build_image_json(i) AS cover_image
+        (
+          CASE
+            WHEN s.cover_image_id IS NOT NULL
+            THEN (
+              SELECT build_image_json(i)
+              FROM images i
+              WHERE i.id = s.cover_image_id
+            )
+          END
+        ) AS cover_image
       FROM site_settings s
-      LEFT JOIN images i ON s.cover_image_id = i.id
     `
     if (data.length === 0) {
       return

@@ -25,6 +25,16 @@ export function defaultEmbedSizeByHost(
   }
 }
 
+/**
+ * Aspect ratio of fetched cover image for a given host, used to size
+ * `CoverImageThumbnail`. YouTube covers are saved from `maxresdefault.jpg`
+ * (true 16:9) when available, falling back to the letterboxed 480x360 `hqdefault.jpg`.
+ * SoundCloud/Mixcloud/Bandcamp are always square.
+ */
+export function coverImageAspectByHost(host?: EmbedCodeHost): number {
+  return host === EmbedCodeHosts.youtube ? 16 / 9 : 1
+}
+
 export function extractHostnameType(hostname: EmbedCodeHost) {
   const videoType = EmbedCodeHostsByType.video.find((host) =>
     hostname.includes(host)
@@ -120,7 +130,6 @@ export function extractIframeParams(
       host,
       type,
       title: embedCode.caption,
-      iframe: embedCode.iframe,
       ...defaultEmbedSizeByHost(host)
     }
     return params
@@ -145,7 +154,6 @@ export function extractIframeParams(
       src,
       title,
       type,
-      iframe: embedCode.iframe,
       ...defaultEmbedSizeByHost(host)
     }
   }

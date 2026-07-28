@@ -1,16 +1,13 @@
 import type { Metadata } from 'next'
-import { Suspense } from 'react'
 
-import { auth } from '@/auth'
-import { fetchEvents } from '@/lib/events/data'
+import ListLayout from '@/app/(item-pages)/list-layout'
+import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import type {
   EventClient,
   FetchEventsResult
 } from '@/lib/events/types'
 import { PagePaths } from '@/lib/schemas'
-import { ItemsList } from '@/ui/items/items-list'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
-import { Loading } from '@/ui/loading'
 import { formattedItemType } from '@/ui/util'
 
 const path = PagePaths.events
@@ -19,34 +16,22 @@ const title = formattedItemType(path, false, true)
 
 export const metadata: Metadata = { title, description }
 
-export default function EventsPage() {
+export default async function EventsPage() {
   return (
-    <div>
-      <h1 className='visually-hidden'>{title}</h1>
-
-      <Suspense fallback={<Loading />}>
-        <EventsList />
-      </Suspense>
-    </div>
+    <ListLayout title={title}>
+      <EventsList />
+    </ListLayout>
   )
 }
 
 async function EventsList() {
-  const session = await auth()
-  const events = await fetchEvents(!!session?.user)
+  const events = await fetchCachedEventsFirstPage(false)
 
   return (
-    <>
-      <ItemsList
-        items={events.res.upcomingEvents}
-        isFeatured
-        title={formattedItemType(path, true, true)}
-      />
-      <ItemsTable<EventClient, FetchEventsResult>
-        path={path}
-        initialItems={events}
-        omitKeys={['upcomingEvents']}
-      />
-    </>
+    <ItemsTable<EventClient, FetchEventsResult>
+      itemType={path}
+      initialItems={events}
+      featuredKey='upcomingEvents'
+    />
   )
 }

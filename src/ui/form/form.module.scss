@@ -44,6 +44,11 @@
     grid-template-columns: 1fr 1fr;
     gap: grids.space-rem(4);
 
+    // When a sibling is hidden, span the full width
+    &:has(> [hidden]) > :not([hidden]) {
+      grid-column: 1 / -1;
+    }
+
     @include breakpoints.mobile {
       grid-template-columns: 1fr;
     }
@@ -79,10 +84,6 @@
     margin-bottom: grids.space-rem(2);
   }
 
-  select {
-    --input-height: #{grids.space-em(11)};
-  }
-
   fieldset:has(button.cancel) {
     position: relative;
 
@@ -96,21 +97,6 @@
 
   button[type='submit'] {
     margin-top: grids.space-rem(2);
-  }
-}
-
-.edit-item-nav {
-  position: absolute;
-  right: grids.space-rem(4);
-  top: -1px;
-  display: flex;
-  border: 1px solid var(--page-background-color);
-  background-color: var(--page-background-color);
-  z-index: 10;
-
-  li {
-    margin: 0;
-    width: auto;
   }
 }
 
@@ -152,14 +138,13 @@
     position: absolute;
     z-index: -1;
     top: 50%;
-    right: grids.space-rem(2);
+    right: grids.space-rem(4);
     width: var(--select-icon-size);
     height: var(--select-icon-size);
     background-image: url('/chevron-down.svg');
     background-repeat: no-repeat;
     background-size: var(--select-icon-size);
     background-size: contain;
-    opacity: 0.65;
     transform: translateY(-50%);
 
     @media (prefers-color-scheme: dark) {

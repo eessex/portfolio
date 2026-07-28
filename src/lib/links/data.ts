@@ -5,11 +5,10 @@ import { fetchCachedLinksFirstPage } from '@/lib/links/cached'
 import type { DashboardLink } from '@/lib/links/schemas/client'
 import { dashboardLinkSchema } from '@/lib/links/schemas/client'
 import { type CreateLink, linkSchema } from '@/lib/links/schemas/db'
+import { runListFetch } from '@/lib/list-fetch'
 import {
-  decodeCursor,
   DEFAULT_PAGE_SIZE,
   formatDbResponseForClient,
-  formatResponseWithCursor,
   type ResponseWithCursor
 } from '@/lib/util'
 
@@ -68,19 +67,63 @@ export async function fetchLinks(cursor?: string, query?: string) {
   return fetchLinksRaw(cursor, query)
 }
 
+/** Only the press links */
+export async function fetchPressLinksRaw() {
+  try {
+    const data = await sql`
+      SELECT * FROM links
+      WHERE type = 'press'
+      ORDER BY publish_date DESC, created_at DESC
+    `
+    return data.map((row) =>
+      formatDbResponseForClient(row, linkSchema)
+    )
+  } catch (cause) {
+    throw new Error('Failed to fetch press links.', { cause })
+  }
+}
+
+/** links to social media profiles */
+export async function fetchSocialLinksRaw() {
+  try {
+    const data = await sql`
+      SELECT * FROM links
+      WHERE type = 'social'
+      AND title IS NOT NULL
+      ORDER BY title ASC
+    `
+    return data.map((row) =>
+      formatDbResponseForClient(row, linkSchema)
+    )
+  } catch (cause) {
+    throw new Error('Failed to fetch social links.', { cause })
+  }
+}
+
 /**
  * dashboard: fetch all the links
  */
-export async function fetchLinksRaw(cursor?: string, query?: string) {
-  const totalCount = await getTotalCount(query)
-  const decodedCursor = cursor ? decodeCursor(cursor) : undefined
-
-  const like = query ? `%${query}%` : null
-  const cursorName = decodedCursor?.name ?? null
-  const cursorId = decodedCursor?.id ?? null
-
-  try {
-    const data = await sql`
+export async function fetchLinksRaw(
+  cursor?: string,
+  query?: string
+): Promise<ResponseWithCursor<DashboardLink>> {
+  return runListFetch({
+    cursor,
+    query,
+    itemType: 'links',
+    schema: dashboardLinkSchema,
+    cursorKey: 'id',
+    count: (like) => sql`
+      SELECT COUNT(*)::int AS count
+      FROM links
+      WHERE (
+        ${like}::text IS NULL
+        OR url ILIKE ${like}
+        OR title ILIKE ${like}
+        OR quotation ILIKE ${like}
+      )
+    `,
+    list: ({ like, cursorName, cursorId }) => sql`
       SELECT
         links.*,
         ARRAY(
@@ -110,36 +153,5 @@ export async function fetchLinksRaw(cursor?: string, query?: string) {
         id DESC
       LIMIT ${DEFAULT_PAGE_SIZE}
     `
-    const formatted = formatResponseWithCursor(
-      data,
-      'id',
-      dashboardLinkSchema
-    )
-    const res: ResponseWithCursor<DashboardLink> = {
-      ...formatted,
-      totalCount
-    }
-    return res
-  } catch (cause) {
-    throw new Error('Failed to fetch links.', { cause })
-  }
-}
-
-async function getTotalCount(query?: string) {
-  try {
-    const like = query ? `%${query}%` : null
-    const result = await sql`
-      SELECT COUNT(*)::int AS count
-      FROM links
-      WHERE (
-        ${like}::text IS NULL
-        OR url ILIKE ${like}
-        OR title ILIKE ${like}
-        OR quotation ILIKE ${like}
-      )
-    `
-    return result[0].count ?? 0
-  } catch (cause) {
-    throw new Error('Failed to fetch link count.', { cause })
-  }
+  })
 }

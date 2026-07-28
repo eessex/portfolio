@@ -3,11 +3,7 @@ import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import { PagePaths } from '@/lib/schemas'
 import type { PageItemClient } from '@/lib/types'
-import {
-  type DateFormatSize,
-  formattedDateTime,
-  isUpcomingDate
-} from '@/ui/util'
+import { type DateFormatSize, formattedDateTime } from '@/ui/util'
 
 export function itemSortDate(
   item: PageItemClient,
@@ -56,9 +52,11 @@ export function FormattedItemDate({
 }) {
   const date = new Date(itemSortDate(item))
   const isProject = item.path === PagePaths.projects
+  const rawEndDate = (item as ProjectClient).endDate
+  const endDate = rawEndDate ? new Date(rawEndDate) : undefined
   const isUpcomingEvent =
     item.path === PagePaths.events &&
-    isUpcomingDate((item as EventClient).startTime)
+    !!(item as EventClient).isUpcoming
   const dateFormat = isUpcomingEvent
     ? undefined
     : format || itemDisplayDateFormat(item)
@@ -69,17 +67,11 @@ export function FormattedItemDate({
         {formattedDateTime(date, dateFormat, timezone)}
       </time>
 
-      {isProject && (item as ProjectClient).endDate ? (
+      {isProject && endDate ? (
         <>
           –
-          <time
-            dateTime={(item as ProjectClient).endDate?.toISOString()}
-          >
-            {formattedDateTime(
-              (item as ProjectClient).endDate!,
-              dateFormat,
-              timezone
-            )}
+          <time dateTime={endDate.toISOString()}>
+            {formattedDateTime(endDate, dateFormat, timezone)}
           </time>
         </>
       ) : (

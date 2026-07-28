@@ -75,3 +75,11 @@ $font-weight: (
   text-transform: uppercase;
   letter-spacing: 0.07em;
 }
+
+@mixin line-clamp($lines) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: $lines;
+  line-clamp: $lines;
+}

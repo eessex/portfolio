@@ -3,13 +3,8 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
-import type { FormResponse } from '@/lib/types'
-import {
-  formatDbResponseForClient,
-  formatErrorResponse,
-  formatValidationResponse,
-  normalizeFormData
-} from '@/lib/util'
+import { runDeleteAction, runFormAction } from '@/lib/form-action'
+import { formatDbResponseForClient } from '@/lib/util'
 import { fetchVenueById } from '@/lib/venues/data'
 import {
   type CreateVenue,
@@ -18,38 +13,15 @@ import {
   venueSchema
 } from '@/lib/venues/schemas/db'
 
-export async function editVenue(
-  formData: FormData,
-  id?: string
-): Promise<FormResponse<Venue>> {
-  const data = normalizeFormData(formData)
-
-  const validatedVenue = createVenueSchema.safeParse(data)
-
-  if (!validatedVenue.success) {
-    return formatValidationResponse(
-      validatedVenue.error,
-      'Failed to validate venue.'
-    )
-  }
-
-  try {
-    let savedVenue: Venue | undefined
-    if (id) {
-      savedVenue = await updateVenue(validatedVenue.data, id)
-    } else {
-      savedVenue = await createVenue(validatedVenue.data)
-    }
-    if (savedVenue) {
-      invalidateVenueTags()
-      return {
-        ok: true,
-        res: savedVenue
-      }
-    }
-  } catch (err) {
-    return formatErrorResponse('Failed to edit venue', err)
-  }
+export async function editVenue(formData: FormData, id?: string) {
+  return runFormAction({
+    formData,
+    schema: createVenueSchema,
+    itemType: 'venues',
+    invalidate: invalidateVenueTags,
+    save: (venue) =>
+      id ? updateVenue(venue, id) : createVenue(venue)
+  })
 }
 
 /**
@@ -62,19 +34,17 @@ function invalidateVenueTags() {
   updateTag('events')
 }
 
-export async function deleteVenue(
-  venue: Venue
-): Promise<FormResponse<Venue>> {
-  try {
-    await sql`
-      DELETE FROM venues
-      WHERE id = ${venue.id}
-    `
-    invalidateVenueTags()
-    return { ok: true }
-  } catch (err) {
-    return formatErrorResponse('Failed to delete venue', err)
-  }
+export async function deleteVenue(venue: Venue) {
+  return runDeleteAction<Venue>({
+    itemType: 'venues',
+    invalidate: invalidateVenueTags,
+    del: async () => {
+      await sql`
+        DELETE FROM venues
+        WHERE id = ${venue.id}
+      `
+    }
+  })
 }
 
 async function createVenue(venue: CreateVenue) {

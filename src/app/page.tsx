@@ -1,19 +1,15 @@
 import NextImage from 'next/image'
 import NextLink from 'next/link'
-import { Suspense } from 'react'
 
 import styles from '@/app/home.module.scss'
-import { auth } from '@/auth'
-import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
-import { fetchEvents } from '@/lib/events/data'
-import type { EventClient } from '@/lib/events/types'
-import { fetchSiteSettings } from '@/lib/site-settings/data'
-import { ItemsList } from '@/ui/items/items-list'
+import { fetchCachedUpcomingEvents } from '@/lib/events/cached'
+import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
+import { UpcomingEventsList } from '@/ui/events/upcoming-events-list'
 
 export default async function Home() {
   const [siteSettings, publicEvents] = await Promise.all([
-    fetchSiteSettings(),
-    fetchCachedEventsFirstPage(false)
+    fetchCachedSiteSettings(),
+    fetchCachedUpcomingEvents(false)
   ])
 
   return (
@@ -55,30 +51,11 @@ export default async function Home() {
         )}
       </section>
 
-      <Suspense
-        fallback={
-          <UpcomingEvents events={publicEvents.res.upcomingEvents} />
-        }
-      >
-        <AuthedUpcomingEvents />
-      </Suspense>
+      <UpcomingEventsList
+        initialEvents={publicEvents}
+        isTextOnly
+        title='Upcoming Events'
+      />
     </div>
-  )
-}
-
-async function AuthedUpcomingEvents() {
-  const session = await auth()
-  const {
-    res: { upcomingEvents }
-  } = await fetchEvents(!!session?.user)
-
-  return <UpcomingEvents events={upcomingEvents} />
-}
-
-function UpcomingEvents({ events }: { events: EventClient[] }) {
-  if (events.length === 0) return null
-
-  return (
-    <ItemsList items={events} isTextOnly title='Upcoming Events' />
   )
 }

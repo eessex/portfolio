@@ -7,6 +7,8 @@ import {
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
+import { assertAuthed } from '@/lib/auth/guard'
+
 export async function getKeyFromS3Url(url: string): Promise<string> {
   try {
     const parsed = new URL(url)
@@ -25,6 +27,8 @@ const s3 = new S3Client({
 })
 
 export async function deleteFromS3(url: string) {
+  await assertAuthed()
+
   const key = await getKeyFromS3Url(url)
   try {
     const res = await s3.send(
@@ -56,7 +60,35 @@ async function getPresignedUploadUrl(
   return await getSignedUrl(s3, command, { expiresIn: 60 * 5 }) // 5 minutes
 }
 
+/**
+ * Direct server-side upload for bytes already in hand (e.g. a fetched
+ * remote thumbnail), skipping the presigned-URL round trip `uploadFile`
+ * needs for client-supplied files.
+ */
+export async function uploadBufferToS3({
+  buffer,
+  key,
+  contentType
+}: {
+  buffer: Buffer
+  key: string
+  contentType: string
+}): Promise<string> {
+  const bucketName = process.env.AWS_S3_BUCKET_NAME!
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+      Body: buffer,
+      ContentType: contentType
+    })
+  )
+  return `https://${bucketName}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${key}`
+}
+
 export async function uploadFile(file: File) {
+  await assertAuthed()
+
   const res = await getPresignedUploadUrl(file.name, file.type)
   const uploadRes = await fetch(res, {
     method: 'PUT',

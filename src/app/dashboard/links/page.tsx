@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { deleteLink } from '@/lib/links/actions'
 import { fetchLinks } from '@/lib/links/data'
 import { EmbeddedItemTypes } from '@/lib/schemas'
 import { camelToSentence } from '@/lib/strings'
-import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
+import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
 
 const itemType = EmbeddedItemTypes.links
@@ -19,12 +18,7 @@ export default async function LinksPage() {
   return (
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading />}>
-        <DashboardItems
-          apiEndpoint='/api/links'
-          res={res}
-          itemType={itemType}
-          deleteItem={deleteLink}
-        />
+        <ItemsTable itemType={itemType} initialItems={res} />
       </Suspense>
     </DashboardLayout>
   )

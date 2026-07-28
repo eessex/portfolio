@@ -1,4 +1,6 @@
 import { sql } from '@/lib/db'
+import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
+import { runListFetch } from '@/lib/list-fetch'
 import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import { releaseClientSchema } from '@/lib/releases/schemas'
 import type {
@@ -9,10 +11,8 @@ import { sortReleasesByCategory } from '@/lib/releases/util'
 import { PagePaths, pagePathSingulars } from '@/lib/schemas'
 import type { PageItemResponseWithCursor } from '@/lib/types'
 import {
-  decodeCursor,
   DEFAULT_PAGE_SIZE,
-  formatDbResponseForClient,
-  formatResponseWithCursor
+  formatDbResponseForClient
 } from '@/lib/util'
 
 const path = PagePaths.releases
@@ -27,9 +27,14 @@ export async function fetchReleaseById(
       SELECT
         r.*,
         (
-          SELECT build_image_json(i)
-          FROM images i
-          WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
+          CASE
+            WHEN COALESCE(r.cover_image_id, r.image_ids[1]) IS NOT NULL
+            THEN (
+              SELECT build_image_json(i)
+              FROM images i
+              WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
+            )
+          END
         ) AS cover_image,
         (
           SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
@@ -38,9 +43,14 @@ export async function fetchReleaseById(
             AND ec.id != r.embed_code_ids[1]
         ) AS embed_codes,
         (
-          SELECT build_embed_code_json(ec)
-          FROM embed_codes ec
-          WHERE ec.id = r.embed_code_ids[1]
+          CASE
+            WHEN r.embed_code_ids[1] IS NOT NULL
+            THEN (
+              SELECT build_embed_code_json(ec)
+              FROM embed_codes ec
+              WHERE ec.id = r.embed_code_ids[1]
+            )
+          END
         ) AS featured_embed_code,
         (
           SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
@@ -103,80 +113,18 @@ export async function fetchReleasesRaw(
   projectId?: string,
   cursor?: string,
   query?: string
-) {
-  const totalCount = await getTotalCount(isAuthed, projectId, query)
-  const decodedCursor = cursor ? decodeCursor(cursor) : null
-  const cursorReleaseDate = decodedCursor?.releaseDate ?? null
-  const cursorId = decodedCursor?.id ?? null
-  const like = query ? `%${query}%` : null
-
-  try {
-    const data = await sql`
-      SELECT
-        r.*,
-        ${path} AS path,
-        (
-          SELECT build_image_json(i)
-          FROM images i
-          WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
-        ) AS cover_image,
-        (
-          SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
-          FROM embed_codes ec
-          WHERE ec.id = ANY(r.embed_code_ids)
-        ) AS embed_codes,
-        (
-          SELECT COALESCE(jsonb_agg(build_published_edition_json(pe)), '[]'::jsonb)
-          FROM published_editions pe
-          WHERE pe.release_id = r.id
-        ) AS published_editions
-      FROM releases AS r
-      LEFT JOIN projects p ON r.project_id = p.id
-      WHERE
-        (${projectId}::uuid IS NULL OR r.project_id = ${projectId}::uuid)
-        AND (${isAuthed}::boolean OR r.is_published = true)
-        AND (${like}::text IS NULL OR r.title ILIKE ${like} OR r.description ILIKE ${like})
-        AND (
-          ${cursorReleaseDate}::timestamptz IS NULL
-          OR (
-            r.release_date < ${cursorReleaseDate}::timestamptz
-            OR (r.release_date = ${cursorReleaseDate}::timestamptz AND r.id > ${cursorId}::uuid)
-          )
-        )
-      ORDER BY r.release_date DESC, r.id ASC
-      LIMIT ${DEFAULT_PAGE_SIZE};
-    `
-    const formatted = formatResponseWithCursor(
-      data,
-      'id',
-      releaseClientSchema
-    )
-    const res: PageItemResponseWithCursor<
-      ReleaseClient,
-      FetchReleasesResult
-    > = {
-      res: sortReleasesByCategory(formatted.res, !!projectId),
-      nextCursor: formatted.nextCursor,
-      totalCount
-    }
-
-    return res
-  } catch (cause) {
-    throw new Error(`Failed to fetch ${path}.`, {
-      cause
-    })
-  }
-}
-
-async function getTotalCount(
-  isAuthed: boolean,
-  projectId?: string,
-  query?: string
-) {
-  try {
-    const like = query ? `%${query}%` : null
-
-    const data = await sql`
+): Promise<
+  PageItemResponseWithCursor<ReleaseClient, FetchReleasesResult>
+> {
+  return runListFetch({
+    cursor,
+    query,
+    itemType: path,
+    schema: releaseClientSchema,
+    cursorKey: 'releaseDate',
+    transform: (releases) =>
+      sortReleasesByCategory(releases, !!projectId),
+    count: (like) => sql`
       SELECT COUNT(*)::int AS count
       FROM releases AS r
       WHERE
@@ -187,12 +135,51 @@ async function getTotalCount(
           OR r.title ILIKE ${like}
           OR r.description ILIKE ${like}
         );
-    `
-
-    return data[0]?.count ?? 0
-  } catch (cause) {
-    throw new Error(`Failed to fetch ${pathSingular} count.`, {
-      cause
-    })
-  }
+    `,
+    list: ({ like, cursorName: cursorReleaseDate, cursorId }) => {
+      return sql`
+        SELECT
+          r.*,
+          ${path} AS path,
+          (
+            CASE
+              WHEN COALESCE(r.cover_image_id, r.image_ids[1]) IS NOT NULL
+              THEN (
+                SELECT build_image_json(i)
+                FROM images i
+                WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
+              )
+            END
+          ) AS cover_image,
+          EXISTS (
+            SELECT 1 FROM embed_codes ec
+            WHERE ec.id = ANY(r.embed_code_ids) AND ec.type = ${EmbedCodeTypes.video}
+          ) AS has_video,
+          EXISTS (
+            SELECT 1 FROM embed_codes ec
+            WHERE ec.id = ANY(r.embed_code_ids) AND ec.type = ${EmbedCodeTypes.audio}
+          ) AS has_audio,
+          (
+            SELECT COALESCE(jsonb_agg(build_published_edition_json(pe)), '[]'::jsonb)
+            FROM published_editions pe
+            WHERE pe.release_id = r.id
+          ) AS published_editions
+        FROM releases AS r
+        LEFT JOIN projects p ON r.project_id = p.id
+        WHERE
+          (${projectId}::uuid IS NULL OR r.project_id = ${projectId}::uuid)
+          AND (${isAuthed}::boolean OR r.is_published = true)
+          AND (${like}::text IS NULL OR r.title ILIKE ${like} OR r.description ILIKE ${like})
+          AND (
+            ${cursorReleaseDate}::timestamptz IS NULL
+            OR (
+              r.release_date < ${cursorReleaseDate}::timestamptz
+              OR (r.release_date = ${cursorReleaseDate}::timestamptz AND r.id > ${cursorId}::uuid)
+            )
+          )
+        ORDER BY r.release_date DESC, r.id ASC
+        LIMIT ${DEFAULT_PAGE_SIZE};
+      `
+    }
+  })
 }

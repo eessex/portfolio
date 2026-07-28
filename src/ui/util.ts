@@ -1,5 +1,9 @@
+import type { DashboardEmbedCode } from '@/lib/embed-codes/schemas/client'
+import type { DashboardImage } from '@/lib/images/schemas/client'
 import type { Image } from '@/lib/images/schemas/db'
+import type { DashboardLink } from '@/lib/links/schemas/client'
 import type { Link } from '@/lib/links/schemas/db'
+import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { PublishedEditionClient } from '@/lib/published-editions/schemas/client'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
@@ -7,13 +11,24 @@ import {
   EmbeddedItemTypes,
   type PagePath,
   PagePaths,
-  pagePathSingulars
+  singularizePath
 } from '@/lib/schemas'
 import type { DashboardUsedOnPagesKeys } from '@/lib/schemas/fields'
 import { camelToSentence, snakeToCamel } from '@/lib/strings'
 import type { PageItemClient } from '@/lib/types'
+import type { DashboardVenue } from '@/lib/venues/schemas/client'
 import type { Venue } from '@/lib/venues/schemas/db'
-import type { DashboardItem } from '@/ui/dashboard/dashboard-items'
+
+/**
+ * A fetched embedded item extended with the pages that embed it,
+ * used by dashboard listings (e.g. `usedOnPages()`).
+ */
+export type DashboardItem =
+  | DashboardEmbedCode
+  | DashboardImage
+  | DashboardLink
+  | DashboardPublishedEdition
+  | DashboardVenue
 
 const dateFormatLg: Intl.DateTimeFormatOptions = {
   weekday: 'short',
@@ -133,10 +148,6 @@ export function formattedDateTime(
   return formattedDate
 }
 
-export function isUpcomingDate(date: string | Date) {
-  return new Date(date) > new Date()
-}
-
 export function eventUrl(slug: string) {
   return `/${PagePaths.events}/${slug}`
 }
@@ -147,6 +158,27 @@ export function releaseUrl(slug: string) {
 
 export function projectUrl(slug: string) {
   return `/${PagePaths.projects}/${slug}`
+}
+
+/** Just the filename, e.g. an S3 url's key basename. */
+export function formattedFilename(url: string) {
+  try {
+    return decodeURIComponent(
+      new URL(url).pathname.split('/').pop() || url
+    )
+  } catch {
+    return url
+  }
+}
+
+/** Hostname + path, omitting the protocol and any query/hash. */
+export function formattedLinkUrl(url: string) {
+  try {
+    const { hostname, pathname } = new URL(url)
+    return `${hostname}${pathname === '/' ? '' : pathname}`
+  } catch {
+    return url
+  }
 }
 
 export function filteredLinksByPress(links: Array<Link>) {
@@ -184,7 +216,7 @@ export function combinePublishedEditions(
   publishedEditions.forEach((edition) => {
     const existing = combined.find(
       (item) =>
-        item.publisher === edition.publisher &&
+        item.publisher?.id === edition.publisher?.id &&
         new Date(item.publishDate).toISOString().substring(0, 10) ===
           new Date(edition.publishDate).toISOString().substring(0, 10)
     )
@@ -219,23 +251,39 @@ export function isEmbeddedItemType(
   return itemType in EmbeddedItemTypes
 }
 
-export function singularizePath(path: string) {
-  if (pagePathSingulars[path as keyof typeof pagePathSingulars]) {
-    return pagePathSingulars[path as keyof typeof pagePathSingulars]
-  }
-  return path.endsWith('s') ? path.slice(0, -1) : path
+/**
+ * Per-embedded-item-type table column visibility, so items-table
+ * can hide a column rather than leave it blank for types with no
+ * cover image or Details-column content of their own.
+ */
+const embeddedItemColumns: Record<
+  EmbeddedItemType,
+  { hasImage: boolean; hasDetail: boolean }
+> = {
+  embedCodes: { hasImage: true, hasDetail: true },
+  images: { hasImage: true, hasDetail: false },
+  links: { hasImage: false, hasDetail: true },
+  publishedEditions: { hasImage: true, hasDetail: true },
+  publishers: { hasImage: true, hasDetail: false },
+  venues: { hasImage: false, hasDetail: true }
 }
 
-export function itemTypeToLabel(
-  itemType: string,
-  isSingular = false,
-  isDownCased = false
+export function isImageColumnVisible(
+  itemType: EmbeddedItemType | PagePath
 ) {
-  let formatted = camelToSentence(itemType)
-  if (isDownCased) {
-    formatted = formatted.toLowerCase()
-  }
-  return isSingular ? singularizePath(formatted) : formatted
+  return (
+    !isEmbeddedItemType(itemType) ||
+    embeddedItemColumns[itemType].hasImage
+  )
+}
+
+export function isEmbeddedDetailColumnVisible(
+  itemType: EmbeddedItemType | PagePath
+) {
+  return (
+    isEmbeddedItemType(itemType) &&
+    embeddedItemColumns[itemType].hasDetail
+  )
 }
 
 export const formattedItemType = (
@@ -250,7 +298,8 @@ export const formattedItemType = (
       unformatted = 'featuredOn'
       break
   }
-  return `${isUpcoming ? ' Upcoming ' : ''} ${camelToSentence(isPlural ? unformatted : singularizePath(unformatted))}`
+  // fixme
+  return `${isUpcoming ? ' Upcoming ' : ''} ${camelToSentence(isPlural ? unformatted : singularizePath(unformatted as EmbeddedItemType))}`
 }
 
 export function formattedItemTitle(item: PageItemClient) {
@@ -312,6 +361,7 @@ export function formatVenueInline({
   format?: 'sm' | 'lg'
   isNameHidden?: boolean
 }): string {
+  if (!venue) return ''
   const parts: string[] = []
 
   if (isNameHidden) {
@@ -342,12 +392,22 @@ export function formatVenueInline({
   return parts.join(', ').replace(':,', ':').trim()
 }
 
-type BaseParams = {
+/**
+ * Params a caller may forward to a client API.
+ */
+export type SearchParams = {
+  /** Scope fetches to a parent project (e.g. on project pages) */
+  projectId?: string
+  /** Restrict images/links to press items */
+  isPress?: boolean
+}
+
+type UrlParams = {
   query?: string
   cursor?: string
-} & Record<string, string | number | boolean | undefined | null>
+} & SearchParams
 
-export function buildApiUrl(endpoint: string, params?: BaseParams) {
+export function buildApiUrl(endpoint: string, params?: UrlParams) {
   const searchParams = new URLSearchParams()
 
   if (params) {

@@ -3,6 +3,7 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
+import { runDeleteAction, runFormAction } from '@/lib/form-action'
 import { fetchPublishedEditionById } from '@/lib/published-editions/data'
 import {
   type CreatePublishedEdition,
@@ -10,73 +11,48 @@ import {
   type PublishedEdition,
   publishedEditionSchema
 } from '@/lib/published-editions/schemas/db'
-import type { FormResponse } from '@/lib/types'
-import {
-  formatDbResponseForClient,
-  formatErrorResponse,
-  formatValidationResponse,
-  normalizeFormData
-} from '@/lib/util'
+import { formatDbResponseForClient } from '@/lib/util'
 
 export async function editPublishedEdition(
   formData: FormData,
   id?: string
-): Promise<FormResponse<PublishedEdition>> {
-  const data = normalizeFormData(formData)
+) {
+  return runFormAction({
+    formData,
+    schema: createPublishedEditionSchema,
+    itemType: 'publishedEditions',
+    prepare: coerceEditionSize,
+    invalidate: (saved?: PublishedEdition) => {
+      if (saved) invalidatePublishedEditionTags(saved.releaseId)
+    },
+    save: (edition) =>
+      id
+        ? updatePublishedEdition(edition, id)
+        : createPublishedEdition(edition)
+  })
+}
 
-  const validatedEdition =
-    createPublishedEditionSchema.safeParse(data)
-
-  if (!validatedEdition.success) {
-    return formatValidationResponse(
-      validatedEdition.error,
-      'Failed to validate published edition.'
-    )
+async function coerceEditionSize(data: Record<string, unknown>) {
+  if (typeof data.editionSize === 'string' && data.editionSize) {
+    data.editionSize = Number(data.editionSize)
   }
-
-  try {
-    let savedEdition: PublishedEdition | undefined
-    if (id) {
-      savedEdition = await updatePublishedEdition(
-        validatedEdition.data,
-        id
-      )
-    } else {
-      savedEdition = await createPublishedEdition(
-        validatedEdition.data
-      )
-    }
-    if (savedEdition) {
-      invalidatePublishedEditionTags(savedEdition.releaseId)
-      return {
-        ok: true,
-        res: savedEdition
-      }
-    }
-  } catch (err) {
-    return formatErrorResponse(
-      'Failed to edit published edition',
-      err
-    )
-  }
+  return data
 }
 
 export async function deletePublishedEdition(
   edition: PublishedEdition
-): Promise<FormResponse<PublishedEdition>> {
-  try {
-    await sql`
-      DELETE FROM published_editions
-      WHERE id = ${edition.id}
-    `
-    invalidatePublishedEditionTags(edition.releaseId)
-    return { ok: true }
-  } catch (err) {
-    return formatErrorResponse(
-      'Failed to delete published edition',
-      err
-    )
-  }
+) {
+  return runDeleteAction<PublishedEdition>({
+    itemType: 'publishedEditions',
+    invalidate: () =>
+      invalidatePublishedEditionTags(edition.releaseId),
+    del: async () => {
+      await sql`
+        DELETE FROM published_editions
+        WHERE id = ${edition.id}
+      `
+    }
+  })
 }
 
 /**
@@ -102,7 +78,7 @@ async function createPublishedEdition(
       editionSize,
       format,
       publishDate,
-      publisher,
+      publisherId,
       releaseId
     } = toDbRow(edition)
     const rows = await sql`
@@ -113,7 +89,7 @@ async function createPublishedEdition(
         edition_size,
         format,
         publish_date,
-        publisher,
+        publisher_id,
         release_id,
         created_at
       )
@@ -124,7 +100,7 @@ async function createPublishedEdition(
         ${editionSize},
         ${format},
         ${publishDate},
-        ${publisher},
+        ${publisherId},
         ${releaseId},
         current_timestamp
       )
@@ -155,7 +131,7 @@ async function updatePublishedEdition(
       editionSize,
       format,
       publishDate,
-      publisher,
+      publisherId,
       releaseId
     } = toDbRow(edition, existingEdition ?? undefined)
     const rows = await sql`
@@ -167,7 +143,7 @@ async function updatePublishedEdition(
         edition_size = ${editionSize},
         format = ${format},
         publish_date = ${publishDate},
-        publisher = ${publisher},
+        publisher_id = ${publisherId},
         release_id = ${releaseId},
         updated_at = current_timestamp
       WHERE id = ${id}
@@ -202,7 +178,7 @@ function toDbRow(
     editionSize: editionToSave.editionSize ?? null,
     format: editionToSave.format,
     publishDate: editionToSave.publishDate,
-    publisher: editionToSave.publisher,
+    publisherId: editionToSave.publisherId,
     releaseId: editionToSave.releaseId
   }
 }

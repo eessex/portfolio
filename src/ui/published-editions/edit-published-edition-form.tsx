@@ -5,16 +5,18 @@ import type { Link } from '@/lib/links/schemas/db'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { createPublishedEditionSchema } from '@/lib/published-editions/schemas/db'
 import { publishedEditionTypes } from '@/lib/published-editions/schemas/db'
+import type { Publisher } from '@/lib/publishers/schemas/db'
 import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import { AttachEmbeddedItem } from '@/ui/attach-embedded-item/attach-embedded-item'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
-import { PageItemPicker } from '@/ui/page-item-picker/page-item-picker'
-
-const emptyResults = { res: [], nextCursor: null, totalCount: 0 }
+import { formatImageResult } from '@/ui/images/format-image-result'
+import { ItemPicker } from '@/ui/item-picker/item-picker'
+import { formatLinkResult } from '@/ui/links/format-link-result'
+import { formatPublisherResult } from '@/ui/publishers/format-publisher-result'
+import { formatReleaseResult } from '@/ui/releases/format-release-result'
 
 interface EditPublishedEditionProps {
   errors?: z.inferFlattenedErrors<
@@ -29,25 +31,56 @@ export const EditPublishedEdition = ({
 }: EditPublishedEditionProps) => {
   return (
     <>
-      <Input
-        attributes={{
-          maxLength: 255,
-          name: 'publisher',
-          placeholder: 'Soap Library',
-          required: true
-        }}
-        defaultValue={publishedEdition?.publisher}
-        errors={errors?.publisher}
-        label='Publisher'
+      <ItemPicker<never, ReleaseClient, FetchReleasesResult>
+        itemType='releases'
+        isRequired
+        existingItem={
+          publishedEdition?.release?.id &&
+          publishedEdition?.release?.title
+            ? (publishedEdition.release as ReleaseClient)
+            : undefined
+        }
+        formatResult={formatReleaseResult}
       />
 
       <Select
         options={[...publishedEditionTypes]}
         onChange={() => {}}
+        formatOptionLabel={(option) => option}
         label='Format'
         placeholder='Select a format'
         value={publishedEdition?.format}
         attributes={{ name: 'format', required: true }}
+      />
+
+      <Input
+        attributes={{
+          min: 1,
+          name: 'editionSize',
+          type: 'number',
+          placeholder: '1000'
+        }}
+        defaultValue={publishedEdition?.editionSize}
+        errors={errors?.editionSize}
+        label='Edition size'
+      />
+
+      <ItemPicker<Publisher>
+        itemType='publishers'
+        isRequired
+        existingItem={publishedEdition?.publisher}
+        formatResult={formatPublisherResult}
+      />
+
+      <Input
+        attributes={{
+          maxLength: 255,
+          name: 'catalogNumber',
+          placeholder: 'SL021'
+        }}
+        defaultValue={publishedEdition?.catalogNumber}
+        errors={errors?.catalogNumber}
+        label='Catalog number'
       />
 
       <Input
@@ -68,61 +101,20 @@ export const EditPublishedEdition = ({
         label='Publish date'
       />
 
-      <Input
-        attributes={{
-          min: 1,
-          name: 'editionSize',
-          type: 'number'
-        }}
-        defaultValue={publishedEdition?.editionSize}
-        errors={errors?.editionSize}
-        label='Edition size'
-      />
-
-      <Input
-        attributes={{
-          maxLength: 255,
-          name: 'catalogNumber',
-          placeholder: 'SL021'
-        }}
-        defaultValue={publishedEdition?.catalogNumber}
-        errors={errors?.catalogNumber}
-        label='Catalog number'
-      />
-
-      <PageItemPicker<ReleaseClient, FetchReleasesResult>
-        pagePath='releases'
-        initialItem={
-          publishedEdition?.release?.id &&
-          publishedEdition?.release?.title
-            ? {
-                id: publishedEdition.release.id,
-                title: publishedEdition.release.title
-              }
-            : undefined
-        }
-      />
-
-      <AttachEmbeddedItem<Image>
+      <ItemPicker<Image>
         name='coverImageId'
         itemType='images'
-        hideCreateNew
-        initialResults={emptyResults}
+        label='Product image'
         existingItem={publishedEdition?.coverImage}
-        formatResult={(image) =>
-          image.title || image.caption || image.url
-        }
-        renderEditItemForm={() => null}
+        formatResult={formatImageResult}
       />
 
-      <AttachEmbeddedItem<Link>
+      <ItemPicker<Link>
         name='buyLinkId'
         itemType='links'
-        hideCreateNew
-        initialResults={emptyResults}
+        label='Purchase link'
         existingItem={publishedEdition?.buyLink}
-        formatResult={(link) => link.title || link.url}
-        renderEditItemForm={() => null}
+        formatResult={formatLinkResult}
       />
     </>
   )

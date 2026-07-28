@@ -18,7 +18,7 @@ jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))
 
-jest.mock('@/lib/images/actions', () => ({
+jest.mock('@/lib/images/data', () => ({
   checkIfImageExists: jest.fn()
 }))
 
@@ -73,7 +73,7 @@ describe('EditEmbeddedItemForm', () => {
   it('shows a toast when a failure has no field errors', async () => {
     const editItem = jest.fn().mockResolvedValue({
       ok: false,
-      message: 'Failed to edit venue: connection refused.'
+      message: 'Failed to save venue: connection refused.'
     })
     renderComponent(editItem)
 
@@ -83,7 +83,7 @@ describe('EditEmbeddedItemForm', () => {
     fireEvent.click(screen.getByRole('button', { name: /save/i }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Failed to edit venue: connection refused.'
+      'Failed to save venue: connection refused.'
     )
   })
 

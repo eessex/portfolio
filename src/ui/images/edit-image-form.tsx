@@ -1,7 +1,7 @@
 import { useId, useState } from 'react'
 import type { z } from 'zod'
 
-import { checkIfImageExists } from '@/lib/images/actions'
+import { checkIfImageExists } from '@/lib/images/data'
 import type {
   createImageSchema,
   Image

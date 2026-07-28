@@ -7,7 +7,8 @@ import type {
   PageItemResponseWithCursor
 } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
-import { buildApiUrl } from '@/ui/util'
+import { useIsAdmin } from '@/ui/useIsAdmin'
+import { buildApiUrl, type SearchParams } from '@/ui/util'
 
 type SortDirection = 'asc' | 'desc'
 
@@ -31,8 +32,26 @@ export function useResultsList<
   S extends PageDataResponse | undefined = undefined
 >(
   apiEndpoint: string,
-  initial: ResultsResponse<TEmbeddedItem, TPage, S>,
-  defaultQuery?: string
+  /**
+   * Server-seeded first page. Omit to fetch the first page client-side
+   * on mount instead (e.g. the about cover-image picker); pass an empty
+   * response to seed an empty, search-only list with no mount fetch.
+   */
+  initial?: ResultsResponse<TEmbeddedItem, TPage, S>,
+  {
+    defaultQuery,
+    augmentOnMount,
+    searchParams
+  }: {
+    defaultQuery?: string
+    augmentOnMount?: boolean
+    /**
+     * Extra query-string params forwarded to every API fetch, e.g.
+     * `{ projectId }` to scope to a parent, or `{ isPress: true }` to
+     * restrict images/links to press items.
+     */
+    searchParams?: SearchParams
+  } = {}
 ) {
   /** User search query */
   const [query, setQuery] = useState<string>(defaultQuery || '')
@@ -45,50 +64,59 @@ export function useResultsList<
   const [isLoading, setIsLoading] = useState(false)
   /** Current list of items (filtered and sorted) */
   const [items, setItems] = useState<(TEmbeddedItem | TPage)[]>(
-    normalizeItems<TEmbeddedItem | TPage>(initial.res)
+    normalizeItems<TEmbeddedItem | TPage>(initial?.res ?? [])
   )
   /** Cursor for next page */
   const [nextCursor, setNextCursor] = useState<string | null>(
-    initial.nextCursor
+    initial?.nextCursor ?? null
   )
   /** Count of filtered results */
-  const [count, setCount] = useState(initial.totalCount)
+  const [count, setCount] = useState(initial?.totalCount ?? 0)
 
   /** Total count from the server (unfiltered) */
-  const totalCount = initial.totalCount
+  const totalCount = initial?.totalCount ?? 0
   /** Prevent refetch on rehydration */
   const isMounted = useRef(true)
   /** Abort controller for fetch requests */
   const abortControllerRef = useRef<AbortController | null>(null)
   /** Cache: full unfiltered results */
   const fullResultsCache = useRef<(TEmbeddedItem | TPage)[]>(
-    normalizeItems<TEmbeddedItem | TPage>(initial.res)
+    normalizeItems<TEmbeddedItem | TPage>(initial?.res ?? [])
   )
   /** Fetching state ref to prevent duplicate requests */
   const isFetchingRef = useRef(false)
+  /** Set once first page fetch completes without aborting */
+  const hasLoadedInitialRef = useRef(false)
   /** Cache: one item's normalized search text */
   const searchIndexRef = useRef<Map<string, string>>(new Map())
   const [groupedItems, setGroupedItems] = useState<Record<
     string,
     (TEmbeddedItem | TPage)[]
-  > | null>(Array.isArray(initial.res) ? null : initial.res)
+  > | null>(
+    initial && !Array.isArray(initial.res) ? initial.res : null
+  )
   const groupedCache = useRef<
     Record<string, (TEmbeddedItem | TPage)[]>
-  >(Array.isArray(initial.res) ? {} : initial.res)
+  >(initial && !Array.isArray(initial.res) ? initial.res : {})
 
   useEffect(() => {
     queryRef.current = query
     sortDirectionRef.current = sortDirection
   }, [query, sortDirection])
 
+  // Compared by value so callers can pass an inline `searchParams`
+  // object without destabilizing the memoized `buildUrl`/`fetchPage`.
+  const searchParamsKey = JSON.stringify(searchParams ?? {})
   const buildUrl = useCallback(
     (cursor?: string, searchQuery?: string) => {
       return buildApiUrl(apiEndpoint, {
         query: searchQuery,
-        cursor
+        cursor,
+        ...searchParams
       })
     },
-    [apiEndpoint]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [apiEndpoint, searchParamsKey]
   )
 
   function normalizeItems<T>(res: T[] | Record<string, T[]>): T[] {
@@ -236,6 +264,9 @@ export function useResultsList<
         }
         setNextCursor(data.nextCursor)
         setCount(data.totalCount)
+        if (options.replace) {
+          hasLoadedInitialRef.current = true
+        }
       } catch (err: Error | unknown) {
         if (err instanceof Error && err.name !== 'AbortError') {
           console.error('Fetch page error:', err)
@@ -337,6 +368,26 @@ export function useResultsList<
     }
   }, [])
 
+  // For admins, fetch unpublished content on mount
+  const isAdmin = useIsAdmin(!!augmentOnMount)
+  const didAugmentRef = useRef(false)
+  useEffect(() => {
+    if (!augmentOnMount || !isAdmin || didAugmentRef.current) return
+    didAugmentRef.current = true
+    fetchPage({ replace: true })
+  }, [augmentOnMount, isAdmin, fetchPage])
+
+  // If no initial results are passed from the server, fetch the first page on mount
+  const ensureFirstPage = useCallback(() => {
+    if (initial !== undefined) return
+    if (hasLoadedInitialRef.current || isFetchingRef.current) return
+    fetchPage({ replace: true })
+  }, [initial, fetchPage])
+
+  useEffect(() => {
+    ensureFirstPage()
+  }, [ensureFirstPage])
+
   function onRemoveItem(itemId: string) {
     fullResultsCache.current = fullResultsCache.current.filter(
       (i) => i.id !== itemId
@@ -353,9 +404,10 @@ export function useResultsList<
 
   return {
     count,
+    ensureFirstPage,
     isLoading,
-    items, // flat
-    groupedItems: getFilteredGroupedItems(), // grouped
+    items,
+    groupedItems: getFilteredGroupedItems(),
     loadMoreRef,
     query,
     setQuery,

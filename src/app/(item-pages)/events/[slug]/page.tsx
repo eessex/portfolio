@@ -1,18 +1,20 @@
 import { redirect } from 'next/navigation'
-import { Suspense } from 'react'
 
 import ItemLayout, {
   generateItemMetadata,
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
-import { auth } from '@/auth'
-import { fetchCachedEventById } from '@/lib/events/cached'
-import { fetchEvents, fetchEventsRaw } from '@/lib/events/data'
+import { isAuthed } from '@/lib/auth/guard'
+import {
+  fetchCachedEventById,
+  fetchCachedUpcomingEvents
+} from '@/lib/events/cached'
+import { fetchEventsRaw } from '@/lib/events/data'
+import type { EventClient } from '@/lib/events/types'
 import { PagePaths } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
-import { ItemsList } from '@/ui/items/items-list'
-import { Loading } from '@/ui/loading'
+import { UpcomingEventsList } from '@/ui/events/upcoming-events-list'
 import { formattedItemType } from '@/ui/util'
 
 export async function generateMetadata({ params }: PageItemProps) {
@@ -28,7 +30,7 @@ export async function generateStaticParams() {
 }
 
 export default async function EventPage({ params }: PageItemProps) {
-  const [{ slug }, session] = await Promise.all([params, auth()])
+  const { slug } = await params
   const resolved = await resolveSlug(PagePaths.events, slug)
 
   if (!resolved) {
@@ -39,33 +41,39 @@ export default async function EventPage({ params }: PageItemProps) {
     redirect(`/${PagePaths.events}/${resolved.slug}`)
   }
 
-  const [
-    event,
-    {
-      res: { upcomingEvents }
-    }
-  ] = await Promise.all([
-    fetchCachedEventById(resolved.id, !!session?.user),
-    fetchEvents(!!session?.user)
-  ])
+  const event = await fetchCachedEventById(resolved.id, false)
 
-  if (!event) {
+  if (event) {
+    return <EventDetail event={event} isAuthed={false} />
+  }
+
+  const authed = await isAuthed()
+  const draft = await fetchCachedEventById(resolved.id, authed)
+
+  if (!draft) {
     redirect(`/${PagePaths.events}`)
   }
 
-  const moreEvents = upcomingEvents.filter((e) => e.id !== event.id)
+  return <EventDetail event={draft} isAuthed={authed} />
+}
+
+async function EventDetail({
+  event,
+  isAuthed: authed
+}: {
+  event: EventClient
+  isAuthed: boolean
+}) {
+  const upcomingEvents = await fetchCachedUpcomingEvents(authed)
 
   return (
     <ItemLayout item={event}>
-      <Suspense fallback={<Loading />}>
-        {moreEvents.length > 0 && (
-          <ItemsList
-            items={moreEvents}
-            isTextOnly
-            title={formattedItemType(event.path, true, true)}
-          />
-        )}
-      </Suspense>
+      <UpcomingEventsList
+        initialEvents={upcomingEvents}
+        excludeId={event.id}
+        isTextOnly
+        title={formattedItemType(event.path, true, true)}
+      />
     </ItemLayout>
   )
 }

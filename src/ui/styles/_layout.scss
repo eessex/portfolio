@@ -10,6 +10,7 @@
   --header-height: var(--menubar-height);
   --icon-optical-offset: -0.125em;
   --items-list-padding: #{grids.space-rem(3, 4)};
+  --input-height: #{grids.space-em(11)};
 
   @include breakpoints.mobile {
     --items-list-padding: #{grids.space-rem(3)};

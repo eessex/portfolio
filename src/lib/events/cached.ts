@@ -2,19 +2,18 @@
 
 import { cacheTag } from 'next/cache'
 
-import { fetchEventById, fetchEventsRaw } from '@/lib/events/data'
+import {
+  fetchEventById,
+  fetchEventsRaw,
+  fetchUpcomingEventsRaw
+} from '@/lib/events/data'
 
 export async function fetchCachedEventsFirstPage(
   isAuthed: boolean,
   projectId?: string
 ) {
   cacheTag('events')
-
-  if (isAuthed) {
-    cacheTag('events:authed')
-  } else {
-    cacheTag('events:public')
-  }
+  cacheTag(`events:${isAuthed ? 'authed' : 'public'}`)
 
   if (projectId) {
     cacheTag(`project:${projectId}:events`)
@@ -26,6 +25,14 @@ export async function fetchCachedEventsFirstPage(
     undefined,
     undefined
   )
+}
+
+export async function fetchCachedUpcomingEvents(
+  isAuthed: boolean = false
+) {
+  cacheTag('events')
+  cacheTag(`events:${isAuthed ? 'authed' : 'public'}`)
+  return fetchUpcomingEventsRaw(isAuthed)
 }
 
 export async function fetchCachedEventById(

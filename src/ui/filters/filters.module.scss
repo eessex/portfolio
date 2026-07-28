@@ -4,19 +4,20 @@
 
 .filters-section {
   position: sticky;
-  top: calc(var(--header-height) + 5px);
+  top: calc(var(--header-height) - 1px);
+  height: grids.space-rem(12);
   transition: all 0.25s ease-in-out;
   z-index: 101;
   display: flex;
+  align-items: center;
   justify-content: flex-end;
-  margin-top: grids.space-em(3);
 
   @include breakpoints.sm-width {
-    margin-top: 0;
+    height: auto;
   }
 
   + table {
-    margin-top: -#{grids.space-rem(9)};
+    margin-top: -#{grids.space-rem(12)};
 
     @include breakpoints.sm-width {
       margin-top: 0;
@@ -29,7 +30,10 @@
 }
 
 .filters-container {
+  --input-height: #{grids.space-em(9)};
+
   display: flex;
+  align-items: center;
   gap: grids.space-rem(2);
   width: 100%;
   justify-content: flex-end;
@@ -37,7 +41,13 @@
 
   input,
   select {
+    @include type.size('base', 'normal', 'sm');
+
     height: grids.space-em(9);
+  }
+
+  select {
+    min-width: 140px;
   }
 
   @include breakpoints.sm-width {

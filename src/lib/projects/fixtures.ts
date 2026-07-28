@@ -9,5 +9,6 @@ export const projectFixtureBand: ProjectClient = {
   updatedAt: new Date('2025-01-01'),
   slug: 'band-1',
   type: 'band',
-  isPublished: true
+  isPublished: true,
+  shortDescription: 'A test band for SEO metadata.'
 }

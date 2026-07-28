@@ -2,7 +2,11 @@
 
 import { useEffect, useId, useRef, useState } from 'react'
 
-import type { EmbeddedItemType, PagePath } from '@/lib/schemas'
+import {
+  type EmbeddedItemType,
+  itemTypeToLabel,
+  type PagePath
+} from '@/lib/schemas'
 import type {
   EmbeddedItem,
   PageDataResponse,
@@ -16,7 +20,7 @@ import {
   type ResultsResponse,
   useResultsList
 } from '@/ui/useResultsList'
-import { isEmbeddedItemType, itemTypeToLabel } from '@/ui/util'
+import { isEmbeddedItemType, type SearchParams } from '@/ui/util'
 
 export interface ComboboxProps<
   TEmbeddedItem extends EmbeddedItem,
@@ -24,7 +28,10 @@ export interface ComboboxProps<
   S extends PageDataResponse | undefined = undefined
 > {
   defaultQuery?: string
-  initialResults: ResultsResponse<TEmbeddedItem, TPage, S>
+  /** Server-seeded first page; omit to fetch on mount */
+  initialResults?: ResultsResponse<TEmbeddedItem, TPage, S>
+  /** Params forwarded to every API fetch */
+  searchParams?: SearchParams
   itemType: EmbeddedItemType | PagePath
   label?: string
   placeholder?: string
@@ -40,6 +47,7 @@ export function Combobox<
 >({
   defaultQuery,
   initialResults,
+  searchParams,
   itemType,
   label,
   placeholder,
@@ -53,11 +61,12 @@ export function Combobox<
     items,
     isLoading,
     nextCursor,
-    loadMoreRef
+    loadMoreRef,
+    ensureFirstPage
   } = useResultsList<TEmbeddedItem, TPage, S>(
     `/api/${itemType}`,
     initialResults,
-    defaultQuery
+    { defaultQuery, searchParams }
   )
 
   const listId = useId()
@@ -146,6 +155,7 @@ export function Combobox<
   function handleFocus(e: React.FocusEvent) {
     if (!isTargetInsideComponent(e.target)) return
     setIsOpen(true)
+    ensureFirstPage()
   }
 
   function handleBlur(e: React.FocusEvent) {
@@ -190,6 +200,11 @@ export function Combobox<
       />
       {isOpen && (
         <ul id={listId} role='listbox'>
+          {isLoading && items.length === 0 && (
+            <li className={styles['loading']}>
+              <Loading />
+            </li>
+          )}
           {items.map((item, index) => (
             <li
               key={item.id}
@@ -215,7 +230,11 @@ export function Combobox<
                 aria-hidden='true'
                 ref={loadMoreRef}
               />
-              {isLoading && <Loading />}
+              {isLoading && (
+                <li className={styles['loading']}>
+                  <Loading />
+                </li>
+              )}
             </>
           )}
         </ul>

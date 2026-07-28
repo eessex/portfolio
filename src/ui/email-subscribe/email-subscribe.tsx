@@ -38,6 +38,15 @@ export function EmailSubscribe() {
           <label htmlFor='email' className='visually-hidden'>
             Email address
           </label>
+          {/* bot field with nonsense name - browser autofill ignores */}
+          <input
+            type='text'
+            name='contact_preference'
+            className='visually-hidden'
+            tabIndex={-1}
+            autoComplete='off'
+            aria-hidden='true'
+          />
           <input
             id='email'
             type='email'

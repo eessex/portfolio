@@ -53,6 +53,8 @@ export const releaseClientSchema = releaseSchema.extend({
   coverImage: z.lazy(() => imageSchema).optional(),
   embedCodes: z.lazy(() => embedCodeSchema.array()).optional(),
   featuredEmbedCode: z.lazy(() => embedCodeSchema).optional(),
+  hasAudio: z.boolean().optional(),
+  hasVideo: z.boolean().optional(),
   images: z.lazy(() => imageSchema.array()).optional(),
   links: z.lazy(() => linkSchema.array()).optional(),
   project: z.lazy(() => projectSchema).optional(),

@@ -33,6 +33,7 @@ export function AccordionDropdown({
   const [isOpen, setIsOpen] = useState(isExpanded || false)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(isExpanded || false)
   }, [isExpanded])
 

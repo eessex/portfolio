@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { deleteImage } from '@/lib/images/actions'
 import { fetchImages } from '@/lib/images/data'
 import { EmbeddedItemTypes } from '@/lib/schemas'
 import { camelToSentence } from '@/lib/strings'
-import { DashboardItems } from '@/ui/dashboard/dashboard-items'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
+import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'
 
 const itemType = EmbeddedItemTypes.images
@@ -19,11 +18,10 @@ export default async function ImagesPage() {
   return (
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading />}>
-        <DashboardItems
-          apiEndpoint='/api/images'
-          res={res}
+        <ItemsTable
           itemType={itemType}
-          deleteItem={deleteImage}
+          initialItems={res}
+          isExpandedOnLoad
         />
       </Suspense>
     </DashboardLayout>

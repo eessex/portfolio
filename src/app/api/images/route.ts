@@ -6,9 +6,10 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const cursor = searchParams.get('cursor') || undefined
   const query = searchParams.get('query') || undefined
+  const isPress = searchParams.get('isPress') === 'true'
 
   try {
-    const result = await fetchImages(cursor, query)
+    const result = await fetchImages(cursor, query, isPress)
     return NextResponse.json(result)
   } catch (cause) {
     throw new Error('Failed to fetch images.', { cause })

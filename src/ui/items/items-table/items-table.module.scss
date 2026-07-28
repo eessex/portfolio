@@ -59,6 +59,7 @@
   cursor: pointer;
   padding-inline: var(--row-padding-inline-compact);
   padding-block: var(--row-padding-block-compact);
+  position: relative;
   box-shadow: inset 0 -1px 0 var(--transparency-primary);
   min-height: calc(
     var(--img-height-compact) + (var(--row-padding-block-compact) * 2)
@@ -77,11 +78,74 @@
     }
   }
 
+  // Embedded items override
+  &.embedded-row {
+    grid-template-columns:
+      var(--img-width-compact) 9fr 3fr 3fr calc(52px + 1em)
+      calc(52px + 1em);
+    grid-template-areas: 'img title date meta media edit';
+
+    @include breakpoints.sm-width {
+      grid-template-columns: var(--img-width-compact) 1fr;
+    }
+  }
+
+  // Item types with no image column (e.g. venues, links)
+  &.no-image {
+    grid-template-columns: 9fr 3fr 3fr calc(52px + 1em) calc(
+        52px + 1em
+      );
+    grid-template-areas: 'title date meta media edit';
+
+    @include breakpoints.sm-width {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        'title'
+        'date'
+        'meta'
+        'media'
+        'edit';
+    }
+
+    > *:first-child {
+      display: block;
+      height: unset;
+      padding-left: unset;
+      grid-area: unset;
+    }
+  }
+
   .table-row-title {
     font-weight: 600;
 
     mark {
       vertical-align: text-bottom;
+    }
+
+    .item-title-stack {
+      display: flex;
+      flex-direction: column;
+      gap: grids.space-rem(1);
+      min-width: 0;
+
+      > span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @include breakpoints.sm-width {
+          overflow: unset;
+          text-overflow: unset;
+          white-space: unset;
+        }
+      }
+    }
+
+    .item-title-stack-subtitle {
+      font-weight: 400;
+      color: var(--transparency-dark);
+
+      @include type.size('xs', 'normal', 'sm');
     }
 
     &.table-row-title--expanded {
@@ -148,10 +212,11 @@
       grid-area: img;
 
       img {
-        object-fit: cover;
+        object-fit: contain;
         height: 100%;
-        width: auto;
+        width: 100%;
         margin: auto;
+        background: transparent;
       }
     }
 
@@ -288,4 +353,19 @@
   @include breakpoints.sm-width {
     justify-content: flex-start;
   }
+}
+
+.table-row-edit {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 5px;
+
+  @include breakpoints.sm-width {
+    justify-content: flex-start;
+  }
+}
+
+.unused {
+  color: var(--error-color);
 }

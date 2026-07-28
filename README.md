@@ -54,14 +54,16 @@ pnpm dev           # start dev server (Turbopack)
 pnpm build         # production build
 pnpm start         # run a production build
 pnpm lint          # eslint .
+pnpm typecheck     # tsc --noEmit
 pnpm prettier      # prettier --write .
 pnpm test          # run the jest suite
 pnpm test:watch    # jest --watch
+pnpm test:quiet    # jest --silent --noStackTrace
 ```
 
 ## Architecture
 
-**Data layer.** No ORM — all queries are hand-written tagged-template SQL via the `sql` client in `src/lib/db.ts`. Each content type (releases, events, projects, venues, links, images, embed codes, about, site settings, users, email subscriptions) lives under `src/lib/<domain>/` with a consistent split:
+**Data layer.** No ORM — all queries are hand-written tagged-template SQL via the `sql` client in `src/lib/db.ts`. Each content type (releases, events, projects, venues, links, images, embed codes, published editions, about, site settings, users, email subscriptions) lives under `src/lib/<domain>/` with a consistent split:
 
 - `data.ts` — raw read queries
 - `cached.ts` — `'use cache'` wrappers with `cacheTag`s for targeted invalidation

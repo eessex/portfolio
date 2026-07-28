@@ -55,7 +55,9 @@ function setup(
   })
 
   const hook = renderHook(() =>
-    useResultsList<Venue>(apiEndpoint, initialResponse, defaultQuery)
+    useResultsList<Venue>(apiEndpoint, initialResponse, {
+      defaultQuery
+    })
   )
 
   return {
@@ -383,6 +385,87 @@ describe('useResultsList', () => {
       })
 
       expect(global.fetch).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('mount fetch when no server data', () => {
+    it('fetches the first page on mount when initial is omitted', async () => {
+      mockFetchOnce(makeResponse(defaultVenues))
+
+      const { result } = renderHook(() =>
+        useResultsList<Venue>('/api/venues')
+      )
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual(defaultVenues)
+      })
+
+      expect(global.fetch).toHaveBeenCalledTimes(1)
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/venues'),
+        expect.anything()
+      )
+    })
+
+    it('does not fetch on mount when server data is provided', () => {
+      global.fetch = jest.fn()
+
+      renderHook(() =>
+        useResultsList<Venue>('/api/venues', makeResponse([]))
+      )
+
+      expect(global.fetch).not.toHaveBeenCalled()
+    })
+
+    it('retries via ensureFirstPage when the mount fetch was aborted', async () => {
+      const abortError = new DOMException('Aborted', 'AbortError')
+      global.fetch = jest
+        .fn()
+        .mockRejectedValueOnce(abortError)
+        .mockResolvedValueOnce({
+          json: async () => makeResponse(defaultVenues)
+        } as Response)
+
+      const { result } = renderHook(() =>
+        useResultsList<Venue>('/api/venues')
+      )
+
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledTimes(1)
+      })
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.items).toEqual([])
+
+      act(() => {
+        result.current.ensureFirstPage()
+      })
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual(defaultVenues)
+      })
+
+      expect(global.fetch).toHaveBeenCalledTimes(2)
+    })
+
+    it('does not refetch via ensureFirstPage once the first page has loaded', async () => {
+      mockFetchOnce(makeResponse(defaultVenues))
+
+      const { result } = renderHook(() =>
+        useResultsList<Venue>('/api/venues')
+      )
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual(defaultVenues)
+      })
+
+      act(() => {
+        result.current.ensureFirstPage()
+      })
+
+      expect(global.fetch).toHaveBeenCalledTimes(1)
     })
   })
 

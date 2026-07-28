@@ -2,14 +2,18 @@
 
 import { sql } from '@/lib/db'
 import { fetchCachedEmbedCodesFirstPage } from '@/lib/embed-codes/cached'
+import {
+  type WithCoverImageUrls,
+  withCoverImageUrls
+} from '@/lib/embed-codes/cover-image-url'
 import type { DashboardEmbedCode } from '@/lib/embed-codes/schemas/client'
 import { dashboardEmbedCodeSchema } from '@/lib/embed-codes/schemas/client'
 import { embedCodeSchema } from '@/lib/embed-codes/schemas/db'
+import { runListFetch } from '@/lib/list-fetch'
+import { EmbeddedItemTypes } from '@/lib/schemas'
 import {
-  decodeCursor,
   DEFAULT_PAGE_SIZE,
   formatDbResponseForClient,
-  formatResponseWithCursor,
   type ResponseWithCursor
 } from '@/lib/util'
 
@@ -34,7 +38,9 @@ export const fetchEmbedCodesByIds = async (ids: string[]) => {
       WHERE id = ANY(${ids})
     `
     return data.map((row) =>
-      formatDbResponseForClient(row, embedCodeSchema)
+      withCoverImageUrls(
+        formatDbResponseForClient(row, embedCodeSchema)
+      )
     )
   } catch (cause) {
     throw new Error('Failed to fetch embed codes.', { cause })
@@ -58,16 +64,30 @@ export async function fetchEmbedCodes(
 export async function fetchEmbedCodesRaw(
   cursor?: string,
   query?: string
-) {
-  const totalCount = await getTotalCount(query)
-  const decodedCursor = cursor ? decodeCursor(cursor) : undefined
-
-  const like = query ? `%${query}%` : null
-  const cursorName = decodedCursor?.name ?? null
-  const cursorId = decodedCursor?.id ?? null
-
-  try {
-    const data = await sql`
+): Promise<
+  ResponseWithCursor<DashboardEmbedCode & WithCoverImageUrls>
+> {
+  return runListFetch({
+    cursor,
+    query,
+    itemType: EmbeddedItemTypes.embedCodes,
+    schema: dashboardEmbedCodeSchema,
+    cursorKey: 'id',
+    transform: (items) => items.map(withCoverImageUrls),
+    count: (like) => sql`
+      SELECT COUNT(*)::int AS count
+      FROM embed_codes
+      WHERE (
+        ${like}::text IS NULL
+        OR title ILIKE ${like}
+        OR src ILIKE ${like}
+        OR host ILIKE ${like}
+        OR type ILIKE ${like}
+        OR content_type ILIKE ${like}
+        OR caption ILIKE ${like}
+      )
+    `,
+    list: ({ like, cursorName, cursorId }) => sql`
       SELECT
         embed_codes.*,
         ARRAY(
@@ -86,10 +106,10 @@ export async function fetchEmbedCodesRaw(
       WHERE (
         ${like}::text IS NULL
         OR title ILIKE ${like}
-        OR iframe ILIKE ${like}
         OR src ILIKE ${like}
         OR host ILIKE ${like}
         OR type ILIKE ${like}
+        OR content_type ILIKE ${like}
         OR caption ILIKE ${like}
       )
       AND (
@@ -103,39 +123,5 @@ export async function fetchEmbedCodesRaw(
         id DESC
       LIMIT ${DEFAULT_PAGE_SIZE}
     `
-    const formatted = formatResponseWithCursor(
-      data,
-      'id',
-      dashboardEmbedCodeSchema
-    )
-    const res: ResponseWithCursor<DashboardEmbedCode> = {
-      ...formatted,
-      totalCount
-    }
-    return res
-  } catch (cause) {
-    throw new Error('Failed to fetch embed codes.', { cause })
-  }
-}
-
-async function getTotalCount(query?: string) {
-  try {
-    const like = query ? `%${query}%` : null
-    const result = await sql`
-      SELECT COUNT(*)::int AS count
-      FROM embed_codes
-      WHERE (
-        ${like}::text IS NULL
-        OR title ILIKE ${like}
-        OR iframe ILIKE ${like}
-        OR src ILIKE ${like}
-        OR host ILIKE ${like}
-        OR type ILIKE ${like}
-        OR caption ILIKE ${like}
-      )
-    `
-    return result[0]?.count ?? 0
-  } catch (cause) {
-    throw new Error('Failed to fetch embed codes count.', { cause })
-  }
+  })
 }

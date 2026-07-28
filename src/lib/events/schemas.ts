@@ -35,8 +35,13 @@ export const eventSchema = z.object({
 
 export const eventClientSchema = eventSchema.extend({
   coverImage: z.lazy(() => imageSchema).optional(),
+  // computed by SQL (start_time > now()) at query time, so all
+  // consumers of one response agree on the upcoming/past boundary
+  isUpcoming: z.boolean().optional(),
   embedCodes: z.lazy(() => embedCodeSchema.array()).optional(),
   featuredEmbedCode: z.lazy(() => embedCodeSchema).optional(),
+  hasAudio: z.boolean().optional(),
+  hasVideo: z.boolean().optional(),
   images: z.lazy(() => imageSchema.array()).optional(),
   links: z.lazy(() => linkSchema.array()).optional(),
   project: z.lazy(() => projectSchema).optional(),

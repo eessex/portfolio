@@ -10,6 +10,7 @@ import type {
   ProjectClient
 } from '@/lib/projects/types'
 import type { PublishedEdition } from '@/lib/published-editions/schemas/db'
+import type { Publisher } from '@/lib/publishers/schemas/db'
 import type {
   FetchReleasesResult,
   ReleaseClient
@@ -52,6 +53,7 @@ export type EmbeddedItem =
   | Image
   | Link
   | PublishedEdition
+  | Publisher
   | Venue
 
 // FIXME: multiple not yet used, but some endpoints might need it

@@ -1,25 +1,24 @@
 import { Suspense } from 'react'
 
 import styles from '@/app/about/about.module.scss'
-import { auth } from '@/auth'
-import { fetchAboutPage } from '@/lib/about/data'
+import { fetchCachedAboutPage } from '@/lib/about/cached'
 import type { AboutContact } from '@/lib/about/types'
-import { fetchPressImages } from '@/lib/images/cached'
-import { fetchPressLinks } from '@/lib/links/cached'
+import { fetchCachedPressImagesFirstPage } from '@/lib/images/cached'
+import { fetchCachedPressLinks } from '@/lib/links/cached'
 import { fetchProjects } from '@/lib/projects/data'
-import { fetchSiteSettings } from '@/lib/site-settings/data'
+import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import { ImageFigure } from '@/ui/images/image-figure'
 import { ImageGrid } from '@/ui/images/image-grid'
-import { ItemsList } from '@/ui/items/items-list'
 import { LinksList } from '@/ui/links/link-list'
+import { MoreProjectsList } from '@/ui/projects/more-projects-list'
 
 const title = 'About'
 
 export async function generateMetadata() {
   const [settings, about] = await Promise.all([
-    fetchSiteSettings(),
-    fetchAboutPage()
+    fetchCachedSiteSettings(),
+    fetchCachedAboutPage()
   ])
 
   const image = (about || settings)?.coverImage
@@ -72,8 +71,8 @@ export default function AboutPage() {
 /** Cover image, bio, contact details, and press quotes. */
 async function AboutIntro() {
   const [about, links] = await Promise.all([
-    fetchAboutPage(),
-    fetchPressLinks()
+    fetchCachedAboutPage(),
+    fetchCachedPressLinks()
   ])
 
   const pressLinksWithQuotes = links.filter((link) => link.quotation)
@@ -115,37 +114,30 @@ async function AboutIntro() {
 
 /** Collapsible list of related projects. */
 async function MoreProjects() {
-  const session = await auth()
   const {
     res: { allProjects }
-  } = await fetchProjects(!!session?.user)
-
-  if (!allProjects.length) return null
+  } = await fetchProjects(false)
 
   return (
-    <AccordionDropdown title='More Projects' isFullWidth>
-      <ItemsList
-        className={styles['projects-list']}
-        items={allProjects}
-        isCategoryVisible
-      />
-    </AccordionDropdown>
+    <MoreProjectsList
+      initialProjects={allProjects}
+      className={styles['projects-list']}
+    />
   )
 }
 
 /** Collapsible grid of press images, excluding the cover image. */
 async function MoreImages() {
   const [about, pressImages] = await Promise.all([
-    fetchAboutPage(),
-    fetchPressImages()
+    fetchCachedAboutPage(),
+    fetchCachedPressImagesFirstPage()
   ])
 
-  const filteredPressImages = pressImages.filter(
+  // Not paginated: the first page of press photos is enough here.
+  const filteredPressImages = pressImages.res.filter(
     (image) =>
       !!(
-        image.isPress &&
-        !image.isHiddenOnAboutPage &&
-        image.id !== about?.coverImageId
+        !image.isHiddenOnAboutPage && image.id !== about?.coverImageId
       )
   )
 
@@ -160,7 +152,7 @@ async function MoreImages() {
 
 /** Collapsible list of press links without pull-quotes. */
 async function MorePress() {
-  const links = await fetchPressLinks()
+  const links = await fetchCachedPressLinks()
 
   const pressLinksWithoutQuotes = links.filter(
     (link) => !link.quotation

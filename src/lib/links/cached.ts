@@ -2,10 +2,11 @@
 
 import { cacheTag } from 'next/cache'
 
-import { sql } from '@/lib/db'
-import { fetchLinksRaw } from '@/lib/links/data'
-import { linkSchema } from '@/lib/links/schemas/db'
-import { formatDbResponseForClient } from '@/lib/util'
+import {
+  fetchLinksRaw,
+  fetchPressLinksRaw,
+  fetchSocialLinksRaw
+} from '@/lib/links/data'
 
 export async function fetchCachedLinksFirstPage() {
   cacheTag('links')
@@ -14,40 +15,17 @@ export async function fetchCachedLinksFirstPage() {
 }
 
 /** Only the press links */
-export async function fetchPressLinks() {
+export async function fetchCachedPressLinks() {
   cacheTag('links')
   cacheTag('links:press')
 
-  try {
-    const data = await sql`
-      SELECT * FROM links
-      WHERE type = 'press'
-      ORDER BY publish_date DESC, created_at DESC
-    `
-    return data.map((row) =>
-      formatDbResponseForClient(row, linkSchema)
-    )
-  } catch (cause) {
-    throw new Error('Failed to fetch press links.', { cause })
-  }
+  return await fetchPressLinksRaw()
 }
 
 /** links to social media profiles */
-export async function fetchSocialLinks() {
+export async function fetchCachedSocialLinks() {
   cacheTag('links')
   cacheTag('links:social')
 
-  try {
-    const data = await sql`
-      SELECT * FROM links
-      WHERE type = 'social'
-      AND title IS NOT NULL
-      ORDER BY title ASC
-    `
-    return data.map((row) =>
-      formatDbResponseForClient(row, linkSchema)
-    )
-  } catch (cause) {
-    throw new Error('Failed to fetch social links.', { cause })
-  }
+  return await fetchSocialLinksRaw()
 }

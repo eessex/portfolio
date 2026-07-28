@@ -3,6 +3,7 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
+import { runDeleteAction, runFormAction } from '@/lib/form-action'
 import { fetchLinksByIds } from '@/lib/links/data'
 import {
   type CreateLink,
@@ -11,46 +12,16 @@ import {
   linkSchema,
   LinkTypes
 } from '@/lib/links/schemas/db'
-import type { FormResponse } from '@/lib/types'
-import {
-  formatDbResponseForClient,
-  formatErrorResponse,
-  formatValidationResponse,
-  normalizeFormData
-} from '@/lib/util'
+import { formatDbResponseForClient } from '@/lib/util'
 
-export async function editLink(
-  formData: FormData,
-  id?: string
-): Promise<FormResponse<Link>> {
-  const data = normalizeFormData(formData)
-
-  const validatedLink = createLinkSchema.safeParse(data)
-
-  if (!validatedLink.success) {
-    return formatValidationResponse(
-      validatedLink.error,
-      'Failed to validate link.'
-    )
-  }
-
-  try {
-    let savedLink: Link | undefined
-    if (id) {
-      savedLink = await updateLink(validatedLink.data, id)
-    } else {
-      savedLink = await createLink(validatedLink.data)
-    }
-    if (savedLink) {
-      invalidateLinkTags()
-      return {
-        ok: true,
-        res: savedLink
-      }
-    }
-  } catch (err) {
-    return formatErrorResponse('Failed to edit link', err)
-  }
+export async function editLink(formData: FormData, id?: string) {
+  return runFormAction({
+    formData,
+    schema: createLinkSchema,
+    itemType: 'links',
+    invalidate: invalidateLinkTags,
+    save: (link) => (id ? updateLink(link, id) : createLink(link))
+  })
 }
 
 /**
@@ -66,20 +37,18 @@ function invalidateLinkTags() {
   updateTag('published-editions')
 }
 
-export async function deleteLink(
-  link: Link
-): Promise<FormResponse<Link>> {
-  try {
-    await sql`
-      DELETE FROM links
-      WHERE id = ${link.id}
-        OR url = ${link.url}
-    `
-    invalidateLinkTags()
-    return { ok: true }
-  } catch (err) {
-    return formatErrorResponse('Failed to delete link', err)
-  }
+export async function deleteLink(link: Link) {
+  return runDeleteAction<Link>({
+    itemType: 'links',
+    invalidate: invalidateLinkTags,
+    del: async () => {
+      await sql`
+        DELETE FROM links
+        WHERE id = ${link.id}
+          OR url = ${link.url}
+      `
+    }
+  })
 }
 
 async function createLink(link: CreateLink) {

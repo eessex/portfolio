@@ -2,27 +2,28 @@ import type {
   EventClient,
   FetchEventsResult
 } from '@/lib/events/types'
-import { isUpcomingDate } from '@/ui/util'
 
 export function sortEventsByCategory(
   events: EventClient[]
 ): FetchEventsResult {
-  const upcomingEvents = events
-    .filter((event) => isUpcomingDate(event.startTime))
-    .sort((a, b) => {
-      return (
-        new Date(a.startTime).getTime() -
-        new Date(b.startTime).getTime()
-      )
-    })
-  const pastEvents = events
-    .filter((event) => !isUpcomingDate(event.startTime))
-    .sort((a, b) => {
-      return (
-        new Date(b.startTime).getTime() -
-        new Date(a.startTime).getTime()
-      )
-    })
+  const upcomingEvents: EventClient[] = []
+  const pastEvents: EventClient[] = []
+
+  events.forEach((event) => {
+    ;(event.isUpcoming ? upcomingEvents : pastEvents).push(event)
+  })
+
+  upcomingEvents.sort(
+    (a, b) =>
+      new Date(a.startTime).getTime() -
+      new Date(b.startTime).getTime()
+  )
+  pastEvents.sort(
+    (a, b) =>
+      new Date(b.startTime).getTime() -
+      new Date(a.startTime).getTime()
+  )
+
   return {
     upcomingEvents,
     pastEvents

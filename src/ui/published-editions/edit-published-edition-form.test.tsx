@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react'
 import { imageFixture } from '@/lib/images/fixtures'
 import { linkFixture } from '@/lib/links/fixtures'
 import { publishedEditionFixtureAlpha } from '@/lib/published-editions/fixtures'
+import { publisherFixtureAlpha } from '@/lib/publishers/fixtures'
+import { ReleaseTypes } from '@/lib/releases/schemas'
 import { EditPublishedEdition } from '@/ui/published-editions/edit-published-edition-form'
 
 function renderComponent(props = {}) {
@@ -41,8 +43,12 @@ describe('EditPublishedEdition', () => {
     it('renders search inputs for cover image and buy link when none is attached', () => {
       renderComponent({ publishedEdition: {} })
 
-      expect(screen.getByLabelText(/image/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/^link$/i)).toBeInTheDocument()
+      expect(
+        screen.getByLabelText(/product image/i)
+      ).toBeInTheDocument()
+      expect(
+        screen.getByLabelText(/purchase link/i)
+      ).toBeInTheDocument()
     })
   })
 
@@ -50,9 +56,6 @@ describe('EditPublishedEdition', () => {
     it('sets defaultValue for each input from the edition prop', () => {
       renderComponent()
 
-      expect(screen.getByLabelText(/publisher/i)).toHaveValue(
-        publishedEditionFixtureAlpha.publisher
-      )
       expect(
         (screen.getByLabelText(/publish date/i) as HTMLInputElement)
           .value
@@ -62,18 +65,45 @@ describe('EditPublishedEdition', () => {
       )
     })
 
+    it('shows the currently attached publisher when provided', () => {
+      renderComponent({
+        publishedEdition: {
+          ...publishedEditionFixtureAlpha,
+          publisher: publisherFixtureAlpha
+        }
+      })
+
+      expect(
+        screen.getByText(publisherFixtureAlpha.name)
+      ).toBeInTheDocument()
+    })
+
     it('shows the currently attached release when release is provided', () => {
       renderComponent({
         publishedEdition: {
           ...publishedEditionFixtureAlpha,
           release: {
             id: publishedEditionFixtureAlpha.releaseId,
-            title: 'Test Release'
+            title: 'Test Release',
+            type: ReleaseTypes.album
           }
         }
       })
 
       expect(screen.getByText('Test Release')).toBeInTheDocument()
+    })
+
+    it('shows the currently attached publisher when publisher is provided', () => {
+      renderComponent({
+        publishedEdition: {
+          ...publishedEditionFixtureAlpha,
+          publisher: publisherFixtureAlpha
+        }
+      })
+
+      expect(
+        screen.getByText(publisherFixtureAlpha.name)
+      ).toBeInTheDocument()
     })
 
     it('shows the currently attached cover image and buy link', () => {
@@ -94,11 +124,13 @@ describe('EditPublishedEdition', () => {
 
   describe('error display', () => {
     it('handles errors passed via the errors prop', () => {
-      const errors = { publisher: ['Publisher is required'] }
+      const errors = {
+        catalogNumber: ['Catalog number is invalid']
+      }
       renderComponent({ errors })
 
       expect(
-        screen.getByText(/publisher is required/i)
+        screen.getByText(/catalog number is invalid/i)
       ).toBeInTheDocument()
     })
   })

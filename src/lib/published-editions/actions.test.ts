@@ -10,6 +10,8 @@ import {
   publishedEditionFixtureAlpha
 } from '@/lib/published-editions/fixtures'
 import type { CreatePublishedEdition } from '@/lib/published-editions/schemas/db'
+import { publisherFixtureBeta } from '@/lib/publishers/fixtures'
+import { ReleaseTypes } from '@/lib/releases/schemas'
 import { formDataFromObject } from '@/test/helpers'
 
 jest.mock('@/lib/db', () => ({
@@ -21,7 +23,8 @@ const existingPublishedEditionRow = {
   ...publishedEditionFixtureAlpha,
   release: {
     id: publishedEditionFixtureAlpha.releaseId,
-    title: 'Existing Release'
+    title: 'Existing Release',
+    type: ReleaseTypes.album
   },
   releaseSlugs: []
 }
@@ -80,11 +83,11 @@ describe('Published Edition Actions', () => {
         .mockResolvedValueOnce([existingPublishedEditionRow])
         .mockResolvedValueOnce([publishedEditionFixtureAlpha])
 
-      // only publisher (required) is submitted; format/publishDate/
+      // only publisherId (required) is submitted; format/publishDate/
       // releaseId should fall back to the existing edition's values
       await editPublishedEdition(
         formDataFromObject({
-          publisher: 'Updated Publisher',
+          publisherId: publisherFixtureBeta.id,
           format: publishedEditionFixtureAlpha.format,
           publishDate: publishedEditionFixtureAlpha.publishDate,
           releaseId: publishedEditionFixtureAlpha.releaseId
@@ -101,6 +104,21 @@ describe('Published Edition Actions', () => {
       )
       expect(coverImageId).toBe(null)
       expect(format).toBe(publishedEditionFixtureAlpha.format)
+    })
+
+    it('coerces editionSize from a form string to a number', async () => {
+      mockSql.mockResolvedValueOnce([publishedEditionFixtureAlpha])
+      const res = await editPublishedEdition(
+        formDataFromObject({
+          ...newPublishedEditionFixtureAlpha,
+          editionSize: '150'
+        })
+      )
+
+      expect(res?.ok).toBe(true)
+      const [, , , , editionSize] = mockSql.mock
+        .calls[0] as unknown as string[]
+      expect(editionSize).toBe(150)
     })
 
     it('can create a new published edition', async () => {
@@ -146,7 +164,7 @@ describe('Published Edition Actions', () => {
       )
 
       expect(res!.message).toBe(
-        'Failed to edit published edition: DB error.'
+        'Failed to save published edition: DB error.'
       )
     })
 
@@ -158,7 +176,7 @@ describe('Published Edition Actions', () => {
       )
 
       expect(res!.message).toBe(
-        'Failed to edit published edition: DB error.'
+        'Failed to save published edition: DB error.'
       )
     })
 

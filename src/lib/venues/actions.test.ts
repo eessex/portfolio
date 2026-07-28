@@ -1,5 +1,6 @@
 import { updateTag } from 'next/cache'
 
+import { auth } from '@/auth'
 import { sql } from '@/lib/db'
 import { deleteVenue, editVenue } from '@/lib/venues/actions'
 import {
@@ -23,6 +24,18 @@ const existingVenueRow = {
 
 describe('Venue Actions', () => {
   beforeEach(() => jest.clearAllMocks())
+
+  it('rejects unauthenticated callers', async () => {
+    const mockAuth = auth as unknown as jest.Mock
+    mockAuth.mockResolvedValueOnce(null)
+    const res = await deleteVenue(venueFixtureAlpha)
+
+    expect(res).toEqual({
+      ok: false,
+      message: 'You must be signed in to perform this action.'
+    })
+    expect(mockSql).not.toHaveBeenCalled()
+  })
 
   describe('#deleteVenue', () => {
     it('can delete a venue', async () => {
@@ -107,7 +120,7 @@ describe('Venue Actions', () => {
         formDataFromObject(venueFixtureAlpha)
       )
 
-      expect(res!.message).toBe('Failed to edit venue: DB error.')
+      expect(res!.message).toBe('Failed to save venue: DB error.')
     })
 
     it('can handle errors fetching the existing venue on update', async () => {
@@ -117,7 +130,7 @@ describe('Venue Actions', () => {
         venueFixtureAlpha.id
       )
 
-      expect(res!.message).toBe('Failed to edit venue: DB error.')
+      expect(res!.message).toBe('Failed to save venue: DB error.')
     })
 
     it('can handle validation errors', async () => {

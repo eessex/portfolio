@@ -7,6 +7,19 @@ import { installIntersectionObserverMock } from '@/test/__mocks__/browser/inters
 
 fetchMock.enableMocks()
 
+// Server actions verify the session via @/auth (see
+// src/lib/auth/guard.ts); mock it as authed by default so action
+// tests exercise the underlying logic. Tests simulating an
+// unauthenticated caller can override auth's resolved value.
+jest.mock('@/auth', () => ({
+  auth: jest.fn(async () => ({
+    user: { name: 'Test User', email: 'test@example.com' }
+  })),
+  handlers: {},
+  signIn: jest.fn(),
+  signOut: jest.fn()
+}))
+
 installAbortControllerMock()
 installIntersectionObserverMock()
 

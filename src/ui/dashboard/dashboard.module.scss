@@ -1,43 +1,9 @@
 @use '@/ui/styles/grids';
-@use '@/ui/styles/type';
 
 .dashboard-layout {
   padding-block: grids.space-rem(4, 8);
 
   > header {
     padding: grids.space-rem(2, 4, 6, 4);
-  }
-}
-
-.dashboard-list-item {
-  margin: 0 auto;
-  max-width: 100%;
-}
-
-.accordion-button {
-  @include type.font-weight('normal');
-
-  justify-content: space-between;
-}
-
-.accordion-panel:not([hidden]) {
-  display: flex;
-  flex-direction: column;
-  padding: grids.space-rem(0, 4);
-
-  figure {
-    margin-bottom: grids.space-rem(4);
-    width: 100%;
-    max-width: var(--body-width);
-    margin-left: 0;
-
-    &:has(img) {
-      max-width: 450px;
-    }
-  }
-
-  a:has(blockquote, div) {
-    max-width: 75%;
-    margin-bottom: grids.space-rem(4);
   }
 }

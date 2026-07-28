@@ -1,0 +1,44 @@
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
+
+.row {
+  @include type.line-height('sm');
+
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: grids.space-em(2);
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+  line-height: initial;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.title-text {
+  min-width: 0;
+
+  @include type.line-clamp(1);
+}
+
+.subtitle {
+  color: var(--transparency-dark);
+
+  @include type.line-clamp(1);
+}
+
+.remove {
+  flex-shrink: 0;
+  border-radius: 50%;
+}

@@ -160,15 +160,12 @@ describe('LoginForm', () => {
   })
 
   describe('authentication errors', () => {
-    class MockAuthError extends Error {
-      name = 'CredentialsSignin'
-    }
-
-    const credentialsError = new MockAuthError('Invalid credentials')
-
-    it('displays "Invalid credentials." when AuthError name is CredentialsSignin', async () => {
+    it('displays the message from a failed authenticate response', async () => {
       const user = userEvent.setup()
-      mockAuthenticate.mockRejectedValue(credentialsError)
+      mockAuthenticate.mockResolvedValue({
+        ok: false,
+        message: 'Invalid credentials.'
+      })
       renderComponent()
 
       await user.type(
@@ -190,9 +187,13 @@ describe('LoginForm', () => {
       expect(mockAddSuccess).not.toHaveBeenCalled()
     })
 
-    it('returns ok: false when authenticate throws CredentialsSignin', async () => {
+    it('displays the throttle message when login is rate limited', async () => {
       const user = userEvent.setup()
-      mockAuthenticate.mockRejectedValue(credentialsError)
+      mockAuthenticate.mockResolvedValue({
+        ok: false,
+        message:
+          'Too many attempts — please wait a moment and try again.'
+      })
       renderComponent()
 
       await user.type(
@@ -207,14 +208,10 @@ describe('LoginForm', () => {
         screen.getByRole('button', { name: /log in/i })
       )
 
-      expect(mockAuthenticate).toHaveBeenCalledTimes(1)
-      const callArg = mockAuthenticate.mock.calls[0][0] as FormData
-
-      expect(callArg.get('email')).toBe('wrong@example.com')
-      expect(callArg.get('password')).toBe('badpassword')
       expect(mockAddError).toHaveBeenCalledWith(
-        'Invalid credentials.'
+        'Too many attempts — please wait a moment and try again.'
       )
+      expect(mockAddSuccess).not.toHaveBeenCalled()
     })
   })
 

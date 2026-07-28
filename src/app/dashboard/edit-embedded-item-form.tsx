@@ -5,7 +5,8 @@ import React from 'react'
 
 import {
   type EmbeddedItemType,
-  EmbeddedItemTypes
+  EmbeddedItemTypes,
+  singularizePath
 } from '@/lib/schemas'
 import { camelToSnake } from '@/lib/strings'
 import type { EmbeddedItem, FormResponse } from '@/lib/types'
@@ -14,7 +15,6 @@ import { Form, useFormErrors } from '@/ui/form/form'
 import { EditImage } from '@/ui/images/edit-image-form'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { EditPublishedEdition } from '@/ui/published-editions/edit-published-edition-form'
-import { singularizePath } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 
 function getEditFormComponent(itemType: EmbeddedItemType) {

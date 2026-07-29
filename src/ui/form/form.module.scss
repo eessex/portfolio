@@ -163,3 +163,16 @@
   color: var(--error-color);
   margin-block: grids.space-em(2) 0;
 }
+
+.optional-label {
+  color: var(--secondary-text-color);
+  margin-left: grids.space-rem(2);
+
+  @include type.size('sm', 'normal', 'xs');
+}
+
+.delete-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: grids.space-rem(3);
+}

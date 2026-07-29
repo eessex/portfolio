@@ -1,4 +1,8 @@
-import type { ProjectClient } from '@/lib/projects/types'
+import type {
+  CreateProject,
+  Project,
+  ProjectClient
+} from '@/lib/projects/types'
 
 export const projectFixtureBand: ProjectClient = {
   path: 'projects',
@@ -11,4 +15,19 @@ export const projectFixtureBand: ProjectClient = {
   type: 'band',
   isPublished: true,
   shortDescription: 'A test band for SEO metadata.'
+}
+
+export const newProjectFixtureAlpha: CreateProject = {
+  path: 'projects',
+  title: 'Test Project',
+  slug: 'test-project',
+  type: 'band',
+  isPublished: true,
+  shortDescription: 'A test project.'
+}
+
+export const projectFixtureAlpha: Project = {
+  ...newProjectFixtureAlpha,
+  id: 'e6e1f1a5-7b1c-4d5e-8f6a-5b1e1f1a5c1d',
+  createdAt: new Date('2025-01-01')
 }

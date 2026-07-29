@@ -1,12 +1,23 @@
 @use '@/ui/styles/grids';
 
-.dialog {
+.dialog-container {
   position: fixed;
-  inset: 60px;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: grids.space-em(4);
+  background: var(--transparency-dark-inverted);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 420px;
+  max-height: calc(100vh - #{grids.space-em(8)});
   background: var(--page-background-color);
-  z-index: 200;
-  padding: grids.space-em(8);
   outline: 1px solid var(--transparency-extra-light);
+  padding: grids.space-em(6, 6, 5);
   display: flex;
   flex-direction: column;
 
@@ -14,7 +25,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: grids.space-em(4);
+    margin-bottom: grids.space-em(3);
 
     h2 {
       margin: 0;
@@ -23,6 +34,18 @@
 }
 
 .dialog-content {
-  height: 100%;
-  overflow: scroll;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: grids.space-em(2);
+}
+
+.dialog-confirm-button {
+  width: 100%;
 }

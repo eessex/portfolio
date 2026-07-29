@@ -58,11 +58,11 @@ describe('EditVenue', () => {
         'name',
         'venue.city'
       )
-      expect(screen.getByLabelText(/^state$/i)).toHaveAttribute(
+      expect(screen.getByLabelText(/^state\b/i)).toHaveAttribute(
         'name',
         'venue.state'
       )
-      expect(screen.getByLabelText(/^country$/i)).toHaveAttribute(
+      expect(screen.getByLabelText(/^country\b/i)).toHaveAttribute(
         'name',
         'venue.country'
       )
@@ -87,9 +87,9 @@ describe('EditVenue', () => {
 
       expect(screen.getByLabelText(/^city$/i)).toHaveValue('Austin')
 
-      expect(screen.getByLabelText(/^state$/i)).toHaveValue('TX')
+      expect(screen.getByLabelText(/^state\b/i)).toHaveValue('TX')
 
-      expect(screen.getByLabelText(/^country$/i)).toHaveValue('USA')
+      expect(screen.getByLabelText(/^country\b/i)).toHaveValue('USA')
 
       expect(screen.getByLabelText(/venue website/i)).toHaveValue(
         'https://testvenue-texas.com'
@@ -102,8 +102,8 @@ describe('EditVenue', () => {
       expect(screen.getByLabelText(/^city$/i)).toHaveValue('Austin')
       expect(screen.getByLabelText(/name/i)).toHaveValue('')
       expect(screen.getByLabelText(/street address/i)).toHaveValue('')
-      expect(screen.getByLabelText(/^state$/i)).toHaveValue('')
-      expect(screen.getByLabelText(/^country$/i)).toHaveValue('')
+      expect(screen.getByLabelText(/^state\b/i)).toHaveValue('')
+      expect(screen.getByLabelText(/^country\b/i)).toHaveValue('')
       expect(screen.getByLabelText(/venue website/i)).toHaveValue('')
     })
   })
@@ -163,11 +163,11 @@ describe('EditVenue', () => {
       expect(cityInput).toHaveAttribute('placeholder', 'Brooklyn')
       expect(cityInput).toBeRequired()
 
-      const stateInput = screen.getByLabelText(/^state$/i)
+      const stateInput = screen.getByLabelText(/^state\b/i)
       expect(stateInput).toHaveAttribute('maxlength', '2')
       expect(stateInput).toHaveAttribute('placeholder', 'NY')
 
-      const countryInput = screen.getByLabelText(/^country$/i)
+      const countryInput = screen.getByLabelText(/^country\b/i)
       expect(countryInput).toHaveAttribute('maxlength', '255')
       expect(countryInput).toHaveAttribute('placeholder', 'USA')
 

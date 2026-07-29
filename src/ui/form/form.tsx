@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import {
   createContext,
   useActionState,
@@ -10,6 +11,7 @@ import {
 } from 'react'
 
 import type { FormResponse } from '@/lib/types'
+import { Dialog } from '@/ui/dialog/dialog'
 import styles from '@/ui/form/form.module.scss'
 import { useToast } from '@/ui/toast/toast-context'
 
@@ -30,6 +32,7 @@ export function Form<T>({
   action,
   children,
   className,
+  confirmUnsavedChanges = true,
   onSuccess,
   submitButtonText,
   submitButtonClassName
@@ -37,6 +40,13 @@ export function Form<T>({
   action: (formData: FormData) => Promise<FormResponse<T>>
   children: React.ReactNode
   className?: string
+  /**
+   * Warn before in-app navigation when the form has unsaved changes.
+   * Disable for forms where losing in-progress input isn't costly
+   * enough to be worth interrupting navigation (e.g. login, email
+   * subscribe).
+   */
+  confirmUnsavedChanges?: boolean
   onSuccess?: () => void
   submitButtonText?: string
   submitButtonClassName?: string
@@ -53,6 +63,67 @@ export function Form<T>({
       setInitialState(formData)
     }
   }, [formRef, initialState])
+
+  const [pendingHref, setPendingHref] = useState<string | null>(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!confirmUnsavedChanges) return
+
+    function handleClick(event: MouseEvent) {
+      if (
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return
+      }
+
+      const anchor = (event.target as HTMLElement)?.closest?.(
+        'a[href]'
+      ) as HTMLAnchorElement | null
+      if (!anchor || anchor.target === '_blank') return
+
+      const url = new URL(anchor.href, window.location.href)
+      if (
+        url.origin !== window.location.origin ||
+        url.pathname === window.location.pathname
+      ) {
+        return
+      }
+
+      if (!formRef.current || !initialState) return
+      const current = new FormData(formRef.current)
+      if (!isFormDirty(current, initialState)) return
+
+      event.preventDefault()
+      event.stopPropagation()
+      setPendingHref(anchor.href)
+    }
+
+    document.addEventListener('click', handleClick, true)
+    return () =>
+      document.removeEventListener('click', handleClick, true)
+  }, [confirmUnsavedChanges, initialState])
+
+  useEffect(() => {
+    if (!confirmUnsavedChanges) return
+
+    function handleBeforeUnload(event: BeforeUnloadEvent) {
+      if (!formRef.current || !initialState) return
+      const current = new FormData(formRef.current)
+      if (!isFormDirty(current, initialState)) return
+
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () =>
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [confirmUnsavedChanges, initialState])
 
   const [state, formAction, isPending] = useActionState<
     FormResponse<T> | null,
@@ -113,25 +184,43 @@ export function Form<T>({
   }
 
   return (
-    <form
-      className={className || styles.form}
-      action={formAction}
-      ref={formRef}
-    >
-      <FormErrorsContext.Provider
-        value={state?.errors as FormFieldErrors}
+    <>
+      <form
+        className={className || styles.form}
+        action={formAction}
+        ref={formRef}
       >
-        {children}
-      </FormErrorsContext.Provider>
+        <FormErrorsContext.Provider
+          value={state?.errors as FormFieldErrors}
+        >
+          {children}
+        </FormErrorsContext.Provider>
 
-      <button
-        className={submitButtonClassName || ''}
-        type='submit'
-        disabled={isPending}
-      >
-        {isPending ? 'Loading...' : submitButtonText || 'Save'}
-      </button>
-    </form>
+        <button
+          className={submitButtonClassName || ''}
+          type='submit'
+          disabled={isPending}
+        >
+          {isPending ? 'Loading...' : submitButtonText || 'Save'}
+        </button>
+      </form>
+
+      {pendingHref && (
+        <Dialog
+          title='Discard unsaved changes?'
+          cancelButtonText='Stay on this page'
+          confirmButtonText='Leave without saving'
+          onConfirm={() => {
+            const href = pendingHref
+            setPendingHref(null)
+            router.push(href)
+          }}
+          onClose={() => setPendingHref(null)}
+        >
+          <p>You have unsaved changes, leaving will discard them.</p>
+        </Dialog>
+      )}
+    </>
   )
 }
 

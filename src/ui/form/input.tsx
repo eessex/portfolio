@@ -5,6 +5,7 @@ import { type JSX, useId, useState } from 'react'
 import React from 'react'
 
 import styles from '@/ui/form/form.module.scss'
+import { InputLabel } from '@/ui/form/input-label'
 
 export type InputType = HTMLInputElement | HTMLTextAreaElement
 
@@ -82,6 +83,9 @@ export function Input<T extends InputElement = HTMLInputElement>({
   const isHidden =
     (attributes as React.InputHTMLAttributes<HTMLInputElement>)
       ?.type === 'hidden'
+  const isRequired = !!(
+    attributes as React.InputHTMLAttributes<HTMLInputElement>
+  )?.required
 
   const describedby =
     [description && descriptionId, errors?.length && errorId]
@@ -118,13 +122,13 @@ export function Input<T extends InputElement = HTMLInputElement>({
     <div className={className} hidden={isHidden}>
       {!isHidden && (
         <>
-          <label
-            className={clsx(isLabelHidden && 'visually-hidden')}
+          <InputLabel
+            isHidden={isHidden}
             htmlFor={id}
-            hidden={isHidden}
-          >
-            {label}
-          </label>
+            isVisuallyHidden={isLabelHidden}
+            isRequired={isRequired}
+            label={label}
+          />
 
           {description && <p id={descriptionId}>{description}</p>}
         </>

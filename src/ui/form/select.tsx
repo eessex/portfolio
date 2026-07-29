@@ -1,5 +1,6 @@
 import { camelToSentence, snakeToCamel } from '@/lib/strings'
 import styles from '@/ui/form/form.module.scss'
+import { InputLabel } from '@/ui/form/input-label'
 
 export function Select({
   ariaControls,
@@ -30,12 +31,12 @@ export function Select({
       className={styles['select-container']}
       hidden={attributes?.hidden}
     >
-      <label
-        className={isLabelHidden ? 'visually-hidden' : ''}
+      <InputLabel
         htmlFor={label}
-      >
-        {label}
-      </label>
+        isVisuallyHidden={isLabelHidden}
+        isRequired={attributes?.required}
+        label={label}
+      />
 
       <div className={styles['select']}>
         <select

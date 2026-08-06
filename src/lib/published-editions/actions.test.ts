@@ -1,6 +1,7 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
+import { resolveOrderedImageIds } from '@/lib/images/actions'
 import {
   deletePublishedEdition,
   editPublishedEdition
@@ -19,6 +20,14 @@ jest.mock('@/lib/db', () => ({
 }))
 const mockSql = jest.mocked(sql)
 
+jest.mock('@/lib/images/actions', () => ({
+  resolveOrderedImageIds: jest.fn()
+}))
+const mockResolveOrderedImageIds = jest.mocked(resolveOrderedImageIds)
+
+const EXISTING_IMAGE_ID_1 = '11111111-1111-4111-8111-111111111111'
+const NEW_IMAGE_ID = '33333333-3333-4333-8333-333333333333'
+
 const existingPublishedEditionRow = {
   ...publishedEditionFixtureAlpha,
   release: {
@@ -30,7 +39,13 @@ const existingPublishedEditionRow = {
 }
 
 describe('Published Edition Actions', () => {
-  beforeEach(() => jest.clearAllMocks())
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockResolveOrderedImageIds.mockResolvedValue({
+      coverImageId: undefined,
+      imageIds: []
+    })
+  })
 
   describe('#deletePublishedEdition', () => {
     it('can delete a published edition', async () => {
@@ -193,6 +208,59 @@ describe('Published Edition Actions', () => {
         'Failed to validate published edition.'
       )
       expect(res!.errors).toEqual({ releaseId: ['Required'] })
+    })
+
+    describe('images picker (coverImageId + imageIds from order)', () => {
+      it('passes the raw submitted data to resolveOrderedImageIds', async () => {
+        mockSql.mockResolvedValueOnce([publishedEditionFixtureAlpha])
+
+        await editPublishedEdition(
+          formDataFromObject({
+            ...newPublishedEditionFixtureAlpha,
+            'images[0].id': EXISTING_IMAGE_ID_1
+          })
+        )
+
+        expect(mockResolveOrderedImageIds).toHaveBeenCalledWith(
+          expect.objectContaining({
+            'images[0].id': EXISTING_IMAGE_ID_1
+          })
+        )
+      })
+
+      it('writes the resolved coverImageId and imageIds to the saved row', async () => {
+        mockSql
+          .mockResolvedValueOnce([existingPublishedEditionRow])
+          .mockResolvedValueOnce([publishedEditionFixtureAlpha])
+        mockResolveOrderedImageIds.mockResolvedValueOnce({
+          coverImageId: NEW_IMAGE_ID,
+          imageIds: [EXISTING_IMAGE_ID_1]
+        })
+
+        await editPublishedEdition(
+          formDataFromObject(publishedEditionFixtureAlpha),
+          publishedEditionFixtureAlpha.id
+        )
+
+        expect(mockSql.mock.calls[1]?.[3]).toEqual(NEW_IMAGE_ID)
+        expect(mockSql.mock.calls[1]?.[6]).toEqual([
+          EXISTING_IMAGE_ID_1
+        ])
+      })
+
+      it('clears both coverImageId and imageIds when nothing is selected', async () => {
+        mockSql
+          .mockResolvedValueOnce([existingPublishedEditionRow])
+          .mockResolvedValueOnce([publishedEditionFixtureAlpha])
+
+        await editPublishedEdition(
+          formDataFromObject(publishedEditionFixtureAlpha),
+          publishedEditionFixtureAlpha.id
+        )
+
+        expect(mockSql.mock.calls[1]?.[3]).toBeNull()
+        expect(mockSql.mock.calls[1]?.[6]).toEqual([])
+      })
     })
   })
 })

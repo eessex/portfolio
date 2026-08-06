@@ -4,7 +4,9 @@ import {
   screen,
   waitFor
 } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
+import { imageFixture } from '@/lib/images/fixtures'
 import { editProject } from '@/lib/projects/actions'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
 import { EditProjectForm } from '@/ui/projects/edit-project-form'
@@ -22,6 +24,8 @@ jest.mock('@/lib/projects/actions', () => ({
 }))
 const mockEditProject = jest.mocked(editProject)
 
+jest.mock('@/lib/db', () => ({ sql: jest.fn() }))
+
 function renderComponent(props = {}) {
   return render(
     <ToastProvider>
@@ -34,7 +38,7 @@ describe('EditProjectForm', () => {
   beforeEach(() => jest.clearAllMocks())
 
   describe('initial render', () => {
-    it('renders title, description, short description, type, dates, published, and cover image fields', () => {
+    it('renders title, description, short description, type, dates, published, and images fields', () => {
       renderComponent()
 
       expect(screen.getByLabelText(/title/i)).toBeInTheDocument()
@@ -48,9 +52,57 @@ describe('EditProjectForm', () => {
       expect(screen.getByLabelText(/start date/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/end date/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/published/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/^images$/i)).toBeInTheDocument()
+    })
+  })
+
+  describe('images field', () => {
+    it('seeds with the cover image first, then the gallery images in order', () => {
+      renderComponent({
+        project: {
+          ...projectFixtureBand,
+          coverImage: {
+            ...imageFixture,
+            id: 'cover-image',
+            title: 'Cover'
+          },
+          images: [
+            { ...imageFixture, id: 'image-1', title: 'First image' },
+            { ...imageFixture, id: 'image-2', title: 'Second image' }
+          ]
+        }
+      })
+
+      expect(screen.getByText('Cover')).toBeInTheDocument()
+      expect(screen.getByText('First image')).toBeInTheDocument()
+      expect(screen.getByText('Second image')).toBeInTheDocument()
+      expect(screen.getByDisplayValue('cover-image')).toHaveAttribute(
+        'name',
+        'images[0].id'
+      )
+      expect(screen.getByDisplayValue('image-1')).toHaveAttribute(
+        'name',
+        'images[1].id'
+      )
+      expect(screen.getByDisplayValue('image-2')).toHaveAttribute(
+        'name',
+        'images[2].id'
+      )
+    })
+
+    it('renders the create-new image fields inline without submitting', async () => {
+      const user = userEvent.setup()
+      renderComponent()
+
+      const inputs = screen.getAllByRole('combobox')
+      const imagesInput = inputs[inputs.length - 1]
+      await user.type(imagesInput, 'New Image')
+      await user.click(screen.getByText(/create/i))
+
       expect(
-        screen.getByLabelText(/cover image/i)
+        screen.getByLabelText(/upload new image/i)
       ).toBeInTheDocument()
+      expect(mockEditProject).not.toHaveBeenCalled()
     })
   })
 

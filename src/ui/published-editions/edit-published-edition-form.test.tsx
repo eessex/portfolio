@@ -7,9 +7,6 @@ import { publisherFixtureAlpha } from '@/lib/publishers/fixtures'
 import { ReleaseTypes } from '@/lib/releases/schemas'
 import { EditPublishedEdition } from '@/ui/published-editions/edit-published-edition-form'
 
-// EditImage (rendered inline by the images picker's create-new flow)
-// transitively imports the real db client via @/lib/images/data;
-// mock it so importing this form doesn't hit a live db connection.
 jest.mock('@/lib/db', () => ({ sql: jest.fn() }))
 
 function renderComponent(props = {}) {

@@ -2,6 +2,7 @@ import { updateTag } from 'next/cache'
 
 import { auth } from '@/auth'
 import { sql } from '@/lib/db'
+import { resolveOrderedImageIds } from '@/lib/images/actions'
 import { deleteProject, editProject } from '@/lib/projects/actions'
 import {
   newProjectFixtureAlpha,
@@ -21,10 +22,22 @@ jest.mock('@/lib/db', () => ({
 }))
 const mockSql = jest.mocked(sql)
 
+jest.mock('@/lib/images/actions', () => ({
+  resolveOrderedImageIds: jest.fn()
+}))
+const mockResolveOrderedImageIds = jest.mocked(resolveOrderedImageIds)
+
+const EXISTING_IMAGE_ID_1 = '11111111-1111-4111-8111-111111111111'
+const NEW_IMAGE_ID = '33333333-3333-4333-8333-333333333333'
+
 describe('Project Actions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockGenerateUniqueSlug.mockResolvedValue(projectFixtureAlpha.slug)
+    mockResolveOrderedImageIds.mockResolvedValue({
+      coverImageId: undefined,
+      imageIds: []
+    })
   })
 
   it('rejects unauthenticated callers', async () => {
@@ -171,6 +184,74 @@ describe('Project Actions', () => {
 
       expect(res!.message).toBe('Failed to validate project.')
       expect(res!.errors).toEqual({ title: ['Required'] })
+    })
+
+    describe('images picker (coverImageId + imageIds from order)', () => {
+      it('passes the raw submitted data to resolveOrderedImageIds', async () => {
+        mockSql
+          .mockResolvedValueOnce([projectFixtureAlpha]) // fetchProjectById
+          .mockResolvedValueOnce([projectFixtureAlpha]) // UPDATE
+
+        await editProject(
+          formDataFromObject({
+            ...projectFixtureAlpha,
+            isPublished: 'on',
+            'images[]': '',
+            'images[0].id': EXISTING_IMAGE_ID_1
+          }),
+          projectFixtureAlpha.id
+        )
+
+        expect(mockResolveOrderedImageIds).toHaveBeenCalledWith(
+          expect.objectContaining({
+            'images[0].id': EXISTING_IMAGE_ID_1
+          })
+        )
+      })
+
+      it('writes the resolved coverImageId and imageIds to the saved row', async () => {
+        mockSql
+          .mockResolvedValueOnce([projectFixtureAlpha])
+          .mockResolvedValueOnce([projectFixtureAlpha])
+        mockResolveOrderedImageIds.mockResolvedValueOnce({
+          coverImageId: NEW_IMAGE_ID,
+          imageIds: [EXISTING_IMAGE_ID_1]
+        })
+
+        await editProject(
+          formDataFromObject({
+            ...projectFixtureAlpha,
+            isPublished: 'on'
+          }),
+          projectFixtureAlpha.id
+        )
+
+        expect(mockSql.mock.calls[1]?.[1]).toEqual(NEW_IMAGE_ID)
+        expect(mockSql.mock.calls[1]?.[5]).toEqual([
+          EXISTING_IMAGE_ID_1
+        ])
+      })
+
+      it('clears both coverImageId and imageIds when nothing is selected', async () => {
+        mockSql
+          .mockResolvedValueOnce([projectFixtureAlpha])
+          .mockResolvedValueOnce([projectFixtureAlpha])
+        mockResolveOrderedImageIds.mockResolvedValueOnce({
+          coverImageId: undefined,
+          imageIds: []
+        })
+
+        await editProject(
+          formDataFromObject({
+            ...projectFixtureAlpha,
+            isPublished: 'on'
+          }),
+          projectFixtureAlpha.id
+        )
+
+        expect(mockSql.mock.calls[1]?.[1]).toBeNull()
+        expect(mockSql.mock.calls[1]?.[5]).toEqual([])
+      })
     })
   })
 })

@@ -15,6 +15,12 @@ export type SelectedResultProps = {
    * itself (e.g. `coverImageId` for an `images` item).
    */
   name?: string
+  /**
+   * A drag handle (e.g. from `SortableList`), rendered inside this
+   * component's own background/border alongside `children` rather
+   * than outside it.
+   */
+  dragHandle?: React.ReactNode
   children: React.ReactNode
 }
 
@@ -24,6 +30,7 @@ export const SelectedResult = ({
   id,
   itemType,
   name,
+  dragHandle,
   children
 }: SelectedResultProps) => {
   const formattedIdLabel = `${itemTypeToLabel(itemType, true)} ID`
@@ -31,7 +38,8 @@ export const SelectedResult = ({
 
   return (
     <Component className={styles['selected-result']}>
-      {children}
+      {dragHandle}
+      <div className={styles['content']}>{children}</div>
 
       <Input
         label={formattedIdLabel}

@@ -1,0 +1,33 @@
+@use '@/ui/styles/grids';
+
+.drag-handle,
+.move-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: grids.space-rem(6);
+  height: grids.space-rem(6);
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  svg {
+    width: grids.space-rem(4);
+    height: grids.space-rem(4);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.drag-handle {
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}

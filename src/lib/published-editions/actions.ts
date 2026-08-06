@@ -4,6 +4,7 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import { runDeleteAction, runFormAction } from '@/lib/form-action'
+import { resolveOrderedImageIds } from '@/lib/images/actions'
 import { fetchPublishedEditionById } from '@/lib/published-editions/data'
 import {
   type CreatePublishedEdition,
@@ -21,7 +22,12 @@ export async function editPublishedEdition(
     formData,
     schema: createPublishedEditionSchema,
     itemType: 'publishedEditions',
-    prepare: coerceEditionSize,
+    prepare: async (data) => {
+      const sized = await coerceEditionSize(data)
+      const { coverImageId, imageIds } =
+        await resolveOrderedImageIds(sized)
+      return { ...sized, coverImageId, imageIds }
+    },
     invalidate: (saved?: PublishedEdition) => {
       if (saved) invalidatePublishedEditionTags(saved.releaseId)
     },
@@ -59,12 +65,15 @@ export async function deletePublishedEdition(
  * An edition's data is embedded directly into its parent release's
  * cached fetch (`build_published_edition_json`), so saving/deleting one
  * must also invalidate that release's own cache, not just the
- * published-editions list.
+ * published-editions list. Saving can also create new images inline
+ * (via the `images` picker's create-new flow), bypassing `editImage`'s
+ * own cache invalidation, so the images tag is invalidated here too.
  */
 function invalidatePublishedEditionTags(releaseId: string) {
   updateTag('published-editions')
   updateTag('releases')
   updateTag(`release:${releaseId}`)
+  updateTag('images')
 }
 
 async function createPublishedEdition(
@@ -77,6 +86,7 @@ async function createPublishedEdition(
       coverImageId,
       editionSize,
       format,
+      imageIds,
       publishDate,
       publisherId,
       releaseId
@@ -88,6 +98,7 @@ async function createPublishedEdition(
         cover_image_id,
         edition_size,
         format,
+        image_ids,
         publish_date,
         publisher_id,
         release_id,
@@ -99,6 +110,7 @@ async function createPublishedEdition(
         ${coverImageId},
         ${editionSize},
         ${format},
+        ${imageIds},
         ${publishDate},
         ${publisherId},
         ${releaseId},
@@ -130,6 +142,7 @@ async function updatePublishedEdition(
       coverImageId,
       editionSize,
       format,
+      imageIds,
       publishDate,
       publisherId,
       releaseId
@@ -142,6 +155,7 @@ async function updatePublishedEdition(
         cover_image_id = ${coverImageId},
         edition_size = ${editionSize},
         format = ${format},
+        image_ids = ${imageIds},
         publish_date = ${publishDate},
         publisher_id = ${publisherId},
         release_id = ${releaseId},
@@ -177,6 +191,7 @@ function toDbRow(
     coverImageId: editionToSave.coverImageId ?? null,
     editionSize: editionToSave.editionSize ?? null,
     format: editionToSave.format,
+    imageIds: editionToSave.imageIds ?? null,
     publishDate: editionToSave.publishDate,
     publisherId: editionToSave.publisherId,
     releaseId: editionToSave.releaseId

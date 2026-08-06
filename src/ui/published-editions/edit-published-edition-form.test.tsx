@@ -7,6 +7,11 @@ import { publisherFixtureAlpha } from '@/lib/publishers/fixtures'
 import { ReleaseTypes } from '@/lib/releases/schemas'
 import { EditPublishedEdition } from '@/ui/published-editions/edit-published-edition-form'
 
+// EditImage (rendered inline by the images picker's create-new flow)
+// transitively imports the real db client via @/lib/images/data;
+// mock it so importing this form doesn't hit a live db connection.
+jest.mock('@/lib/db', () => ({ sql: jest.fn() }))
+
 function renderComponent(props = {}) {
   return render(
     <EditPublishedEdition
@@ -40,12 +45,10 @@ describe('EditPublishedEdition', () => {
       expect(screen.getByLabelText('Release')).toBeInTheDocument()
     })
 
-    it('renders search inputs for cover image and buy link when none is attached', () => {
+    it('renders search inputs for images and buy link when none is attached', () => {
       renderComponent({ publishedEdition: {} })
 
-      expect(
-        screen.getByLabelText(/product image/i)
-      ).toBeInTheDocument()
+      expect(screen.getByLabelText(/^images$/i)).toBeInTheDocument()
       expect(
         screen.getByLabelText(/purchase link/i)
       ).toBeInTheDocument()
@@ -119,6 +122,25 @@ describe('EditPublishedEdition', () => {
         screen.getByText(imageFixture.title!)
       ).toBeInTheDocument()
       expect(screen.getByText(linkFixture.title!)).toBeInTheDocument()
+    })
+
+    it('seeds the images field with the cover image first, then the gallery images', () => {
+      renderComponent({
+        publishedEdition: {
+          ...publishedEditionFixtureAlpha,
+          coverImage: { ...imageFixture, id: 'cover-image' },
+          images: [{ ...imageFixture, id: 'image-1' }]
+        }
+      })
+
+      expect(screen.getByDisplayValue('cover-image')).toHaveAttribute(
+        'name',
+        'images[0].id'
+      )
+      expect(screen.getByDisplayValue('image-1')).toHaveAttribute(
+        'name',
+        'images[1].id'
+      )
     })
   })
 

@@ -200,14 +200,27 @@ describe('Combobox', () => {
       it('selects an item on mouse down without blurring the input', () => {
         renderCombobox({ initialResults })
 
-        const combobox = screen.getByRole('combobox')
+        const combobox = screen.getByRole('combobox') as HTMLElement
+        combobox.focus()
         fireEvent.focus(combobox)
 
         const firstOption = screen.getAllByRole('option')[0]
         fireEvent.mouseDown(firstOption)
 
         expect(onSelectMock).toHaveBeenCalledWith(defaultVenues[0])
-        expect(screen.getByRole('listbox')).toBeInTheDocument()
+        expect(document.activeElement).toBe(combobox)
+      })
+
+      it('closes the dropdown after selecting an item', () => {
+        renderCombobox({ initialResults })
+
+        const combobox = screen.getByRole('combobox')
+        fireEvent.focus(combobox)
+
+        const firstOption = screen.getAllByRole('option')[0]
+        fireEvent.mouseDown(firstOption)
+
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
       })
     })
 

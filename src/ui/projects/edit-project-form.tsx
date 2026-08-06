@@ -11,6 +11,7 @@ import { Form, useFormErrors } from '@/ui/form/form'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
+import { EditImage } from '@/ui/images/edit-image-form'
 import { formatImageResult } from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { DeleteItemButton } from '@/ui/items/delete-item-button'
@@ -21,6 +22,10 @@ function formattedDateInputValue(date?: Date) {
 
 function ProjectFormFields({ project }: { project?: ProjectClient }) {
   const errors = useFormErrors()
+  const images = [
+    project?.coverImage,
+    ...(project?.images ?? [])
+  ].filter((image): image is Image => !!image)
 
   return (
     <>
@@ -61,11 +66,15 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         />
       </div>
       <ItemPicker<Image>
-        name='coverImageId'
-        label='Cover image'
+        isMulti
+        name='images'
+        label='Images'
         itemType='images'
-        existingItem={project?.coverImage}
+        existingItems={images}
         formatResult={formatImageResult}
+        renderEditItemForm={(_query, index) => (
+          <EditImage index={index} />
+        )}
       />
       <Input
         as='textarea'

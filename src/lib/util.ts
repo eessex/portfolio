@@ -173,3 +173,55 @@ export function normalizeFormData(
 
   return normalized
 }
+
+export type IndexedGroupEntry =
+  | { kind: 'existing'; id: string }
+  | { kind: 'new'; fields: Record<string, unknown> }
+
+/**
+ * Pulls indexed field groups (`${prefix}[0].field`, `${prefix}[1].field`,
+ * ...) out of a flat form-data object, e.g. for a reorderable picker that
+ * lets a user select existing items by id alongside creating new ones
+ * inline. Mutates `data`, deleting every matched key (including the bare
+ * `${prefix}[]` marker some callers render to keep the field present when
+ * the list is empty) so none of it reaches schema validation.
+ *
+ * Returns entries in ascending index order — i.e. the order the caller
+ * last arranged them in — since callers may derive meaning from position
+ * (e.g. "the first entry is the cover image"), not just membership. A
+ * group with an `id` field is an existing selection; a group without one
+ * is a pending creation (its fields are returned, with the `${prefix}[i].`
+ * prefix stripped from keys).
+ */
+export function extractIndexedGroups(
+  data: Record<string, unknown>,
+  prefix: string
+): IndexedGroupEntry[] {
+  const groupPattern = new RegExp(
+    `^${prefix}\\[(\\d*)\\](?:\\.(\\w+))?$`
+  )
+  const groups: Record<number, Record<string, unknown>> = {}
+
+  Object.keys(data).forEach((key) => {
+    const match = key.match(groupPattern)
+    if (!match) return
+
+    const [, indexStr, field] = match
+    if (indexStr !== '' && field) {
+      const index = Number(indexStr)
+      groups[index] ??= {}
+      groups[index][field] = data[key]
+    }
+    delete data[key]
+  })
+
+  return Object.keys(groups)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .map((index): IndexedGroupEntry => {
+      const group = groups[index]
+      return typeof group.id === 'string'
+        ? { kind: 'existing', id: group.id }
+        : { kind: 'new', fields: group }
+    })
+}

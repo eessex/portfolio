@@ -12,7 +12,11 @@ import {
   linkSchema,
   LinkTypes
 } from '@/lib/links/schemas/db'
-import { formatDbResponseForClient } from '@/lib/util'
+import {
+  extractIndexedGroups,
+  formatDbResponseForClient,
+  normalizeFormData
+} from '@/lib/util'
 
 export async function editLink(formData: FormData, id?: string) {
   return runFormAction({
@@ -49,6 +53,47 @@ export async function deleteLink(link: Link) {
       `
     }
   })
+}
+
+/**
+ * Creates a new link from raw (unnormalized) field data, e.g. an
+ * indexed group pulled out of another domain's form submission by a
+ * multi-item picker. Mirrors `editLink`'s own normalize -> validate ->
+ * save pipeline, since it runs outside `runFormAction`.
+ */
+export async function createLinkFromFields(
+  fields: Record<string, unknown>
+): Promise<Link> {
+  const parsed = createLinkSchema.safeParse(normalizeFormData(fields))
+  if (!parsed.success) {
+    throw new Error(
+      `Invalid link data: ${parsed.error.issues
+        .map((issue) => issue.message)
+        .join(', ')}`
+    )
+  }
+  return createLink(parsed.data)
+}
+
+/**
+ * Resolves a reorderable multi-link picker's submitted entries (mix of
+ * existing selections and pending inline creations, in the user's
+ * chosen order — see `extractIndexedGroups`) into an ordered list of
+ * link ids.
+ */
+export async function resolveOrderedLinkIds(
+  data: Record<string, unknown>,
+  prefix = 'links'
+): Promise<{ linkIds: string[] }> {
+  const entries = extractIndexedGroups(data, prefix)
+  const linkIds = await Promise.all(
+    entries.map((entry) =>
+      entry.kind === 'existing'
+        ? entry.id
+        : createLinkFromFields(entry.fields).then((link) => link.id)
+    )
+  )
+  return { linkIds }
 }
 
 async function createLink(link: CreateLink) {

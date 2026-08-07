@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 
 import type { Image } from '@/lib/images/schemas/db'
+import type { Link } from '@/lib/links/schemas/db'
 import { deleteProject, editProject } from '@/lib/projects/actions'
 import { projectTypes } from '@/lib/projects/schemas'
 import type { ProjectClient } from '@/lib/projects/types'
@@ -15,6 +16,8 @@ import { EditImage } from '@/ui/images/edit-image-form'
 import { formatImageResult } from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { DeleteItemButton } from '@/ui/items/delete-item-button'
+import { EditLink } from '@/ui/links/edit-link-form'
+import { formatLinkResult } from '@/ui/links/format-link-result'
 
 function formattedDateInputValue(date?: Date) {
   return date ? new Date(date).toISOString().split('T')[0] : ''
@@ -94,6 +97,17 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         description='Used for SEO/social previews. First 255 characters of the description will be used if this is left blank.'
         errors={errors?.shortDescription}
         label='Short description'
+      />
+      <ItemPicker<Link>
+        isMulti
+        name='links'
+        label='Links'
+        itemType='links'
+        existingItems={project?.links ?? []}
+        formatResult={formatLinkResult}
+        renderEditItemForm={(_query, index) => (
+          <EditLink index={index} />
+        )}
       />
       <Checkbox
         attributes={{ name: 'isPublished' }}

@@ -5,6 +5,7 @@ import { updateTag } from 'next/cache'
 import { sql } from '@/lib/db'
 import { runDeleteAction, runFormAction } from '@/lib/form-action'
 import { resolveOrderedImageIds } from '@/lib/images/actions'
+import { resolveOrderedLinkIds } from '@/lib/links/actions'
 import { fetchProjectById } from '@/lib/projects/data'
 import {
   createProjectSchema,
@@ -22,11 +23,13 @@ export async function editProject(formData: FormData, id?: string) {
     prepare: async (data) => {
       const { coverImageId, imageIds } =
         await resolveOrderedImageIds(data)
+      const { linkIds } = await resolveOrderedLinkIds(data)
 
       return {
         ...data,
         coverImageId,
         imageIds,
+        linkIds,
         path: 'projects',
         slug: await generateUniqueSlug(
           String(data.title || ''),
@@ -46,9 +49,10 @@ export async function editProject(formData: FormData, id?: string) {
  * Projects are embedded directly into their releases'/events' cached
  * fetches via build_project_json, so saving/deleting one must
  * invalidate those caches too, not just the projects list. Saving can
- * also create new images inline (via the `images` picker's create-new
- * flow), bypassing `editImage`'s own cache invalidation, so the images
- * tag is invalidated here too rather than only on direct image edits.
+ * also create new images/links inline (via the `images`/`links`
+ * pickers' create-new flows), bypassing `editImage`'s/`editLink`'s own
+ * cache invalidation, so those tags are invalidated here too rather
+ * than only on direct image/link edits.
  */
 function invalidateProjectTags(id?: string) {
   updateTag('projects')
@@ -58,6 +62,7 @@ function invalidateProjectTags(id?: string) {
   updateTag('releases')
   updateTag('events')
   updateTag('images')
+  updateTag('links')
 }
 
 export async function deleteProject(project: Project) {

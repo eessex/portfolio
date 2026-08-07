@@ -6,6 +6,10 @@ import type { FormResponse } from '@/lib/types'
 import { authenticate } from '@/lib/users/actions'
 import { useToast } from '@/ui/toast/toast-context'
 
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: jest.fn() })
+}))
+
 jest.mock('@/lib/users/actions', () => ({ authenticate: jest.fn() }))
 const mockAuthenticate = authenticate as jest.MockedFunction<
   typeof authenticate

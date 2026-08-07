@@ -11,7 +11,11 @@ import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
-import { venueFixtureAlpha } from '@/lib/venues/fixtures'
+import {
+  venueFixtureAlpha,
+  venueFixtureBeta,
+  venueFixtureGamma
+} from '@/lib/venues/fixtures'
 import type { Venue } from '@/lib/venues/schemas/db'
 import {
   ItemPicker,
@@ -32,11 +36,12 @@ describe('ItemPicker', () => {
       },
       itemType: 'venues',
       name: 'venueId',
-      formatResult: (item, onRemove, removeLabel) => (
+      formatResult: (item, onRemove, removeLabel, extraActions) => (
         <ItemResultLabel
           title={item.name}
           onRemove={onRemove}
           removeLabel={removeLabel}
+          extraActions={extraActions}
         />
       ),
       renderEditItemForm: () => <div>New Venue Form</div>
@@ -214,6 +219,266 @@ describe('ItemPicker', () => {
           screen.queryByText('Test Venue Texas')
         ).not.toBeInTheDocument()
         expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+    })
+
+    describe('isMulti', () => {
+      it('renders existing items as indexed chips and keeps the combobox visible', () => {
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha, venueFixtureBeta]
+        })
+
+        expect(
+          screen.getByText('Test Venue Texas')
+        ).toBeInTheDocument()
+        expect(
+          screen.getByText('Test Venue New York')
+        ).toBeInTheDocument()
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+
+        const inputs = screen.getAllByDisplayValue(
+          /b3b8c8e2|c4c9d9f3/
+        ) as HTMLInputElement[]
+        expect(inputs[0]).toHaveAttribute('name', 'venueIds[0].id')
+        expect(inputs[1]).toHaveAttribute('name', 'venueIds[1].id')
+      })
+
+      it('renders an always-present empty marker input', () => {
+        renderComponent({ isMulti: true, name: 'venueIds' })
+
+        const marker = document.querySelector(
+          'input[name="venueIds[]"]'
+        )
+        expect(marker).toHaveAttribute('type', 'hidden')
+        expect(marker).toHaveValue('')
+      })
+
+      it('prepends a search selection instead of replacing or appending', async () => {
+        const user = userEvent.setup()
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha],
+          initialResults: {
+            res: [venueFixtureBeta],
+            nextCursor: null,
+            totalCount: 1
+          }
+        })
+
+        const input = screen.getByRole('combobox')
+        await user.type(input, 'New York')
+        await user.click(screen.getByText('Test Venue New York'))
+
+        expect(
+          screen.getByText('Test Venue Texas')
+        ).toBeInTheDocument()
+        expect(
+          screen.getByDisplayValue(venueFixtureBeta.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[1].id')
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+
+      it('removes only the targeted item, keeping the rest and their indices', async () => {
+        const user = userEvent.setup()
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha, venueFixtureBeta]
+        })
+
+        await user.click(
+          screen.getAllByRole('button', { name: /remove venue/i })[0]
+        )
+
+        expect(
+          screen.queryByText('Test Venue Texas')
+        ).not.toBeInTheDocument()
+        expect(
+          screen.getByText('Test Venue New York')
+        ).toBeInTheDocument()
+        const input = screen.getByDisplayValue(
+          venueFixtureBeta.id
+        ) as HTMLInputElement
+        expect(input).toHaveAttribute('name', 'venueIds[0].id')
+      })
+
+      it('renders the create-new form inline at the front without submitting', async () => {
+        const user = userEvent.setup()
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha],
+          renderEditItemForm: (
+            query: string | undefined,
+            index: number | undefined
+          ) => (
+            <div>
+              New form at index {index}, query: {query}
+            </div>
+          )
+        })
+
+        const input = screen.getByRole('combobox')
+        await user.type(input, 'New Venue')
+        await user.click(screen.getByText(/create/i))
+
+        expect(
+          screen.getByText('New form at index 0, query: New Venue')
+        ).toBeInTheDocument()
+        // the existing item and the combobox both remain, unaffected
+        expect(
+          screen.getByText('Test Venue Texas')
+        ).toBeInTheDocument()
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+
+      it('does not render drag/move controls with 0 or 1 items', () => {
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha]
+        })
+
+        expect(
+          screen.queryByRole('button', { name: 'Drag to reorder' })
+        ).not.toBeInTheDocument()
+      })
+
+      it('is reorderable once there are 2+ items, updating indexed names', async () => {
+        const user = userEvent.setup()
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha, venueFixtureBeta]
+        })
+
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+        expect(
+          screen.getByDisplayValue(venueFixtureBeta.id)
+        ).toHaveAttribute('name', 'venueIds[1].id')
+
+        const moveDownButtons = screen.getAllByRole('button', {
+          name: 'Move down'
+        })
+        await user.click(moveDownButtons[0])
+
+        expect(
+          screen.getByDisplayValue(venueFixtureBeta.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[1].id')
+      })
+    })
+
+    describe('featured toggle', () => {
+      it('renders no featured flag and a "Set as Featured" button on every item when nothing is featured initially', () => {
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha, venueFixtureBeta],
+          featured: { isInitiallyFeatured: false, label: 'Featured' }
+        })
+
+        expect(
+          document.querySelector('input[name="venueIdsFeatured"]')
+        ).not.toBeInTheDocument()
+        expect(
+          screen.getAllByRole('button', { name: 'Set as Featured' })
+        ).toHaveLength(2)
+      })
+
+      it('pins the initially-featured item first, excludes it from drag, and submits the flag', () => {
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [
+            venueFixtureAlpha,
+            venueFixtureBeta,
+            venueFixtureGamma
+          ],
+          featured: { isInitiallyFeatured: true, label: 'Featured' }
+        })
+
+        const flag = document.querySelector(
+          'input[name="venueIdsFeatured"]'
+        )
+        expect(flag).toHaveAttribute('type', 'hidden')
+        expect(flag).toHaveValue('true')
+
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+        expect(
+          screen.getByRole('button', { name: 'Unset Featured' })
+        ).toBeInTheDocument()
+        // only the two non-featured items are drag-reorderable
+        expect(
+          screen.getAllByRole('button', { name: 'Move down' })
+        ).toHaveLength(2)
+        expect(
+          screen.getAllByRole('button', { name: 'Set as Featured' })
+        ).toHaveLength(2)
+      })
+
+      it('promotes a non-featured item to the pinned front slot', async () => {
+        const user = userEvent.setup()
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha, venueFixtureBeta],
+          featured: { isInitiallyFeatured: false, label: 'Featured' }
+        })
+
+        const setFeaturedButtons = screen.getAllByRole('button', {
+          name: 'Set as Featured'
+        })
+        await user.click(setFeaturedButtons[1])
+
+        expect(
+          document.querySelector('input[name="venueIdsFeatured"]')
+        ).toHaveValue('true')
+        expect(
+          screen.getByDisplayValue(venueFixtureBeta.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[1].id')
+      })
+
+      it('unsets the featured item without removing it from the list', async () => {
+        const user = userEvent.setup()
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha, venueFixtureBeta],
+          featured: { isInitiallyFeatured: true, label: 'Featured' }
+        })
+
+        await user.click(
+          screen.getByRole('button', { name: 'Unset Featured' })
+        )
+
+        expect(
+          document.querySelector('input[name="venueIdsFeatured"]')
+        ).not.toBeInTheDocument()
+        expect(
+          screen.getByText('Test Venue Texas')
+        ).toBeInTheDocument()
+        expect(
+          screen.getByText('Test Venue New York')
+        ).toBeInTheDocument()
+        expect(
+          screen.getAllByRole('button', { name: 'Set as Featured' })
+        ).toHaveLength(2)
       })
     })
   })

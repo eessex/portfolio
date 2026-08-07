@@ -13,13 +13,29 @@ A Next.js CMS for managing and serving a personal portfolio site (releases, even
 
 ```bash
 pnpm install
-cp .env.example .env   # then fill in DATABASE_URL, AUTH_SECRET, S3 vars
+pnpm run setup   # interactive: .env, DB schema, first admin user
 pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000). The dev server runs with Turbopack.
 
-On first run against a fresh database, the tables need to be created — see `src/seed/createTables.ts`, which defines every table, constraint, and index (there is no migration tool; this file is the schema source of truth).
+### `pnpm run setup`
+
+`scripts/setup.ts` walks through everything needed to go from a fresh clone to a running instance:
+
+1. Copies `.env.example` → `.env` (if `.env` doesn't exist yet)
+2. Generates `AUTH_SECRET` and writes it to `.env` (if unset)
+3. Prompts for your Postgres `DATABASE_URL` (with links to where to find it), testing the connection and re-prompting until it succeeds
+4. Creates the database schema — see `src/seed/createTables.ts`, which defines every table, constraint, and index (there is no migration tool; this file is the schema source of truth)
+5. Creates the first admin user, if none exists yet
+
+Every step checks current state before acting (existing `.env`/`AUTH_SECRET`/`DATABASE_URL` values are reused and re-validated rather than overwritten, table/constraint creation is guarded so re-running it against an already-provisioned database is a no-op, and admin creation is skipped once any user exists), so **it's safe to run again** — e.g. after pulling schema changes, or to re-check your env.
+
+Note: `run` is required — bare `pnpm setup` invokes pnpm's own built-in setup command instead of this script.
+
+For non-interactive/scripted runs (e.g. CI or a fresh deploy), supply the admin account via env vars instead of prompts: `SETUP_ADMIN_NAME`, `SETUP_ADMIN_EMAIL`, `SETUP_ADMIN_PASSWORD`.
+
+If you'd rather configure things by hand, `cp .env.example .env` and fill in `DATABASE_URL`, `AUTH_SECRET`, and the S3 vars directly, then run the schema creation separately.
 
 ## Environment variables
 
@@ -59,6 +75,7 @@ pnpm prettier      # prettier --write .
 pnpm test          # run the jest suite
 pnpm test:watch    # jest --watch
 pnpm test:quiet    # jest --silent --noStackTrace
+pnpm run setup     # interactive first-run setup (see above); safe to re-run
 ```
 
 ## Architecture

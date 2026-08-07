@@ -26,10 +26,12 @@ $green-dark: #1f9673;
   --transparency-extra-light: rgba(var(--foreground), 0.1);
   --transparency-light: rgba(var(--foreground), 0.25);
   --transparency-dark: rgba(var(--foreground), 0.65);
+  --transparency-dark-inverted: rgba(var(--background), 0.65);
 
   --input-background-color: rgba(var(--foreground), 0.075);
   --disabled-color: var(--transparency-dark);
   --placeholder-color: var(--transparency-dark);
+  --secondary-text-color: var(--transparency-dark);
 
   @media (prefers-color-scheme: dark) {
     --background: #{$almost-black-rgb};

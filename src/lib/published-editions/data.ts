@@ -20,10 +20,10 @@ export async function fetchPublishedEditionById(id: string) {
         published_editions.*,
         (
           CASE
-            WHEN published_editions.cover_image_id IS NOT NULL
+            WHEN COALESCE(published_editions.cover_image_id, published_editions.image_ids[1]) IS NOT NULL
             THEN (
               SELECT build_image_json(i) FROM images i
-              WHERE i.id = published_editions.cover_image_id
+              WHERE i.id = COALESCE(published_editions.cover_image_id, published_editions.image_ids[1])
             )
           END
         ) AS cover_image,
@@ -31,6 +31,7 @@ export async function fetchPublishedEditionById(id: string) {
           SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
           FROM images i
           WHERE i.id = ANY(published_editions.image_ids)
+            AND i.id != COALESCE(published_editions.cover_image_id, published_editions.image_ids[1])
         ) AS images,
         (
           CASE
@@ -137,10 +138,10 @@ export async function fetchPublishedEditionsRaw(
         published_editions.*,
         (
           CASE
-            WHEN published_editions.cover_image_id IS NOT NULL
+            WHEN COALESCE(published_editions.cover_image_id, published_editions.image_ids[1]) IS NOT NULL
             THEN (
               SELECT build_image_json(i) FROM images i
-              WHERE i.id = published_editions.cover_image_id
+              WHERE i.id = COALESCE(published_editions.cover_image_id, published_editions.image_ids[1])
             )
           END
         ) AS cover_image,
@@ -148,6 +149,7 @@ export async function fetchPublishedEditionsRaw(
           SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
           FROM images i
           WHERE i.id = ANY(published_editions.image_ids)
+            AND i.id != COALESCE(published_editions.cover_image_id, published_editions.image_ids[1])
         ) AS images,
         (
           CASE

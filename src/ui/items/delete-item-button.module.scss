@@ -1,0 +1,23 @@
+@use '@/ui/styles/grids';
+
+.delete-button {
+  color: var(--error-color);
+
+  @media (hover: hover) {
+    &:hover {
+      background: color-mix(
+        in srgb,
+        var(--error-color) 15%,
+        transparent
+      );
+    }
+  }
+
+  &:active {
+    background: color-mix(
+      in srgb,
+      var(--error-color) 25%,
+      transparent
+    );
+  }
+}

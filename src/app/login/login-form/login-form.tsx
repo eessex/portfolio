@@ -8,6 +8,7 @@ export function LoginForm() {
   return (
     <Form
       action={authenticate}
+      confirmUnsavedChanges={false}
       submitButtonText='Log in'
       submitButtonClassName='button-primary button-lg'
     >

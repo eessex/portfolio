@@ -12,7 +12,11 @@ import {
   type Image,
   imageSchema
 } from '@/lib/images/schemas/db'
-import { formatDbResponseForClient } from '@/lib/util'
+import {
+  extractIndexedGroups,
+  formatDbResponseForClient,
+  normalizeFormData
+} from '@/lib/util'
 
 /**
  * Images are embedded directly into these parents' cached fetches via
@@ -63,6 +67,56 @@ async function uploadNewFile(data: Record<string, unknown>) {
   }
 
   return data
+}
+
+/**
+ * Creates a new image from raw (unnormalized) field data, e.g. an
+ * indexed group pulled out of another domain's form submission by a
+ * multi-item picker. Mirrors `editImage`'s own
+ * `prepare` -> `normalizeFormData` -> validate -> save pipeline, since
+ * it runs outside `runFormAction`.
+ */
+export async function createImageFromFields(
+  fields: Record<string, unknown>
+): Promise<Image> {
+  const uploaded = await uploadNewFile(fields)
+  const parsed = createImageSchema.safeParse(
+    normalizeFormData(uploaded)
+  )
+  if (!parsed.success) {
+    throw new Error(
+      `Invalid image data: ${parsed.error.issues
+        .map((issue) => issue.message)
+        .join(', ')}`
+    )
+  }
+  return createImage(parsed.data)
+}
+
+/**
+ * Resolves a reorderable multi-image picker's submitted entries (mix of
+ * existing selections and pending inline creations, in the user's chosen
+ * order — see `extractIndexedGroups`) into a cover id + the rest, for
+ * domains that treat the first image in the list as the cover. Position,
+ * not kind, determines the cover: a newly-created image placed first
+ * becomes the cover just as an existing selection would.
+ */
+export async function resolveOrderedImageIds(
+  data: Record<string, unknown>,
+  prefix = 'images'
+): Promise<{ coverImageId: string | undefined; imageIds: string[] }> {
+  const entries = extractIndexedGroups(data, prefix)
+  const resolvedIds = await Promise.all(
+    entries.map((entry) =>
+      entry.kind === 'existing'
+        ? entry.id
+        : createImageFromFields(entry.fields).then(
+            (image) => image.id
+          )
+    )
+  )
+  const [coverImageId, ...imageIds] = resolvedIds
+  return { coverImageId, imageIds }
 }
 
 export async function deleteImage(image: Image) {

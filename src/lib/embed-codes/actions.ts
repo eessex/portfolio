@@ -16,7 +16,11 @@ import {
 } from '@/lib/embed-codes/schemas/db'
 import { runDeleteAction, runFormAction } from '@/lib/form-action'
 import { EmbeddedItemTypes } from '@/lib/schemas'
-import { formatDbResponseForClient } from '@/lib/util'
+import {
+  extractIndexedGroups,
+  formatDbResponseForClient,
+  normalizeFormData
+} from '@/lib/util'
 
 export async function editEmbedCode(formData: FormData, id?: string) {
   return runFormAction({
@@ -65,6 +69,74 @@ async function attachEmbedCodeMetadata(
   if (title) data.title = title
 
   return data
+}
+
+/**
+ * Creates a new embed code from raw (unnormalized) field data, e.g. an
+ * indexed group pulled out of another domain's form submission by a
+ * multi-item picker. Mirrors `editEmbedCode`'s own
+ * `attachEmbedCodeMetadata` -> normalize -> validate -> save pipeline,
+ * since it runs outside `runFormAction`.
+ */
+export async function createEmbedCodeFromFields(
+  fields: Record<string, unknown>
+): Promise<EmbedCode> {
+  const withMetadata = await attachEmbedCodeMetadata(fields)
+  const parsed = createEmbedCodeSchema.safeParse(
+    normalizeFormData(withMetadata)
+  )
+  if (!parsed.success) {
+    throw new Error(
+      `Invalid embed code data: ${parsed.error.issues
+        .map((issue) => issue.message)
+        .join(', ')}`
+    )
+  }
+  return createEmbedCode(parsed.data)
+}
+
+/**
+ * Resolves a reorderable multi-embed-code picker's submitted entries
+ * (mix of existing selections and pending inline creations, in the
+ * user's chosen order — see `extractIndexedGroups`) into an ordered
+ * list of embed code ids, plus a featured id split off the front.
+ *
+ * Unlike a cover image, a featured embed code is never inferred from
+ * position alone: the picker only submits a `${prefix}Featured` flag
+ * while a slot is explicitly pinned as featured, so a project with no
+ * featured embed code chosen gets `featuredEmbedCodeId: undefined`
+ * even though it has embed codes.
+ */
+export async function resolveOrderedEmbedCodeIds(
+  data: Record<string, unknown>,
+  prefix = 'embedCodes'
+): Promise<{
+  embedCodeIds: string[]
+  featuredEmbedCodeId: string | undefined
+}> {
+  const isFeatured = Boolean(data[`${prefix}Featured`])
+  delete data[`${prefix}Featured`]
+
+  const entries = extractIndexedGroups(data, prefix)
+  const resolvedIds = await Promise.all(
+    entries.map((entry) =>
+      entry.kind === 'existing'
+        ? entry.id
+        : createEmbedCodeFromFields(entry.fields).then(
+            (embedCode) => embedCode.id
+          )
+    )
+  )
+
+  if (!isFeatured) {
+    return {
+      embedCodeIds: resolvedIds,
+      featuredEmbedCodeId: undefined
+    }
+  }
+
+  const [featuredEmbedCodeId, ...embedCodeIds] = resolvedIds
+  return { embedCodeIds, featuredEmbedCodeId }
 }
 
 /**

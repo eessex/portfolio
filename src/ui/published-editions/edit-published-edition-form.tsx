@@ -12,6 +12,7 @@ import type {
 } from '@/lib/releases/types'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
+import { EditImage } from '@/ui/images/edit-image-form'
 import { formatImageResult } from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { formatLinkResult } from '@/ui/links/format-link-result'
@@ -29,6 +30,11 @@ export const EditPublishedEdition = ({
   errors,
   publishedEdition
 }: EditPublishedEditionProps) => {
+  const images = [
+    publishedEdition?.coverImage,
+    ...(publishedEdition?.images ?? [])
+  ].filter((image): image is Image => !!image)
+
   return (
     <>
       <ItemPicker<never, ReleaseClient, FetchReleasesResult>
@@ -102,11 +108,15 @@ export const EditPublishedEdition = ({
       />
 
       <ItemPicker<Image>
-        name='coverImageId'
+        isMulti
+        name='images'
         itemType='images'
-        label='Product image'
-        existingItem={publishedEdition?.coverImage}
+        label='Images'
+        existingItems={images}
         formatResult={formatImageResult}
+        renderEditItemForm={(_query, index) => (
+          <EditImage index={index} />
+        )}
       />
 
       <ItemPicker<Link>

@@ -1,8 +1,16 @@
 @use '@/ui/styles/grids';
 
 .selected-result {
+  display: flex;
+  align-items: center;
   width: 100%;
   min-height: var(--input-height);
-  padding: grids.space-em(1, 3);
+  padding: grids.space-rem(1, 1, 1, 3);
   background: var(--input-background-color);
+  gap: grids.space-em(2);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
 }

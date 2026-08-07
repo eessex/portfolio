@@ -50,7 +50,7 @@ const adminSchema = z.object({
 
 type AdminInput = z.infer<typeof adminSchema>
 
-// ── prompts ──────────────────────────────────────────────
+// Prompts
 
 // A single, shared readline interface is reused for every prompt.
 // Creating and closing one per prompt leaves the TTY stdin paused, so
@@ -92,7 +92,7 @@ function ask(
   })
 }
 
-// ── .env file helpers ────────────────────────────────────
+// .env file helpers
 
 function readEnv(): string {
   return existsSync(ENV_PATH) ? readFileSync(ENV_PATH, 'utf8') : ''
@@ -131,7 +131,7 @@ function loadEnvIntoProcess(): void {
   }
 }
 
-// ── steps ────────────────────────────────────────────────
+// Steps
 
 function ensureEnvFile(): void {
   if (existsSync(ENV_PATH)) {

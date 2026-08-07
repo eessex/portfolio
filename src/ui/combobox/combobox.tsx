@@ -7,6 +7,7 @@ import {
   itemTypeToLabel,
   type PagePath
 } from '@/lib/schemas'
+import { camelToSnake } from '@/lib/strings'
 import type {
   EmbeddedItem,
   PageDataResponse,
@@ -64,7 +65,7 @@ export function Combobox<
     loadMoreRef,
     ensureFirstPage
   } = useResultsList<TEmbeddedItem, TPage, S>(
-    `/api/${itemType}`,
+    `/api/${camelToSnake(itemType)}`,
     initialResults,
     { defaultQuery, searchParams }
   )
@@ -121,6 +122,12 @@ export function Combobox<
       ?.scrollIntoView({ block: 'nearest' })
   }
 
+  function handleSelect(item: TEmbeddedItem | TPage) {
+    onSelect(item)
+    setIsOpen(false)
+    setHighlightedIndex(-1)
+  }
+
   function handleKeyDown(e: React.KeyboardEvent) {
     if (!items.length) return
 
@@ -142,7 +149,7 @@ export function Combobox<
 
       case 'Enter':
         if (highlightedIndex >= 0) {
-          onSelect(items[highlightedIndex])
+          handleSelect(items[highlightedIndex])
         }
         break
 
@@ -211,7 +218,7 @@ export function Combobox<
               id={optionId(item)}
               onMouseDown={(e) => {
                 e.preventDefault()
-                onSelect(item)
+                handleSelect(item)
               }}
               className={styles['option']}
               role='option'

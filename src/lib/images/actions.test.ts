@@ -1,7 +1,12 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
-import { deleteImage, editImage } from '@/lib/images/actions'
+import {
+  createImageFromFields,
+  deleteImage,
+  editImage,
+  resolveOrderedImageIds
+} from '@/lib/images/actions'
 import {
   createImageFixture,
   imageFixture
@@ -162,6 +167,111 @@ describe('Image Actions', () => {
 
       expect(res!.message).toBe('Failed to validate image.')
       expect(res!.errors).toEqual({ url: ['Required'] })
+    })
+  })
+
+  describe('#createImageFromFields', () => {
+    it('uploads the file and creates an image from raw fields', async () => {
+      uploadFileMock.mockResolvedValueOnce(
+        'https://example.com/uploaded-image.jpg'
+      )
+      mockSql.mockResolvedValueOnce([imageFixture])
+
+      const res = await createImageFromFields({
+        ...createImageFixture,
+        file: mockFile('uploaded-image.jpg', 2048, 'image/jpeg')
+      })
+
+      expect(uploadFileMock).toHaveBeenCalled()
+      expect(res.caption).toEqual(
+        'This is a new image for testing purposes.'
+      )
+      expect(mockSql).toHaveBeenCalledTimes(1)
+    })
+
+    it('normalizes raw checkbox/empty-string fields before validating', async () => {
+      mockSql.mockResolvedValueOnce([imageFixture])
+
+      await createImageFromFields({
+        ...createImageFixture,
+        isPress: 'on',
+        alt: ''
+      })
+
+      const rows = mockSql.mock.calls[0] as unknown as string[]
+      const [, , , , isHiddenOnAboutPage, isPress] = rows
+      expect(isPress).toBe(true)
+      expect(isHiddenOnAboutPage).toBe(null)
+    })
+
+    it('throws a descriptive error on invalid fields', async () => {
+      const invalid: Partial<CreateImage> = { ...createImageFixture }
+      delete invalid.url
+
+      await expect(createImageFromFields(invalid)).rejects.toThrow(
+        'Invalid image data: Required'
+      )
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('#resolveOrderedImageIds', () => {
+    it('returns the first entry as coverImageId and the rest as imageIds', async () => {
+      const result = await resolveOrderedImageIds({
+        'images[0].id': 'image-1',
+        'images[1].id': 'image-2',
+        'images[2].id': 'image-3'
+      })
+
+      expect(result).toEqual({
+        coverImageId: 'image-1',
+        imageIds: ['image-2', 'image-3']
+      })
+    })
+
+    it('creates pending new images in place and preserves position for the cover', async () => {
+      uploadFileMock.mockResolvedValueOnce(
+        'https://example.com/uploaded-image.jpg'
+      )
+      mockSql.mockResolvedValueOnce([
+        {
+          ...imageFixture,
+          id: '44444444-4444-4444-8444-444444444444'
+        }
+      ])
+
+      const result = await resolveOrderedImageIds({
+        'images[0].aspect': 1.5,
+        'images[0].caption': 'A brand new cover',
+        'images[0].url': 'https://example.com/image.jpg',
+        'images[1].id': 'image-2'
+      })
+
+      expect(result).toEqual({
+        coverImageId: '44444444-4444-4444-8444-444444444444',
+        imageIds: ['image-2']
+      })
+    })
+
+    it('returns an undefined coverImageId and empty imageIds when nothing is selected', async () => {
+      const result = await resolveOrderedImageIds({ 'images[]': '' })
+
+      expect(result).toEqual({
+        coverImageId: undefined,
+        imageIds: []
+      })
+    })
+
+    it('supports a custom field prefix', async () => {
+      const result = await resolveOrderedImageIds(
+        { 'gallery[0].id': 'image-1' },
+        'gallery'
+      )
+
+      expect(result).toEqual({
+        coverImageId: 'image-1',
+        imageIds: []
+      })
     })
   })
 })

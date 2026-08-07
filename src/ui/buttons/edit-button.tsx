@@ -8,16 +8,19 @@ import { type PagePath, pagePaths } from '@/lib/schemas'
 
 export function EditButton() {
   const pathname = usePathname()
+  if (!pathname) return null
+
   const pathnameParts = pathname.split('/')
+  const lastPart = pathnameParts[pathnameParts.length - 1]
+  if (lastPart === 'edit' || lastPart === 'new') return null
+
   const firstPart = pathnameParts[1]
   const isEditablePath = pagePaths.includes(firstPart as PagePath)
-
   if (
     !isEditablePath ||
     (pathnameParts.length === 2 && firstPart !== 'about')
   )
     return null
-  if (!pathname) return null
 
   return (
     <NextLink href={`${pathname}/edit`} className='button-primary'>

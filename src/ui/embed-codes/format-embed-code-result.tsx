@@ -7,7 +7,8 @@ import { ItemResultLabel } from '@/ui/item-result-label'
 export function formatEmbedCodeResult(
   embedCode: EmbedCode & WithCoverImageUrls,
   onRemove?: () => void,
-  removeLabel?: string
+  removeLabel?: string,
+  extraActions?: React.ReactNode
 ) {
   // Prefer the resized thumbnail for this small (32px) row render; fall
   // back to the full-size cover image for any pre-thumbnail records.
@@ -28,6 +29,7 @@ export function formatEmbedCodeResult(
             }
           : undefined
       }
+      extraActions={extraActions}
       onRemove={onRemove}
       removeLabel={removeLabel}
     />

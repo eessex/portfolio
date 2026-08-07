@@ -13,6 +13,7 @@ export function ItemResultLabel({
   subtitle,
   badges = [],
   coverImage,
+  extraActions,
   onRemove,
   removeLabel
 }: {
@@ -20,6 +21,8 @@ export function ItemResultLabel({
   subtitle?: React.ReactNode
   badges?: Badge[]
   coverImage?: ThumbnailImage
+  /** Rendered after the title/subtitle, before the remove button. */
+  extraActions?: React.ReactNode
   onRemove?: () => void
   removeLabel?: string
 }) {
@@ -35,6 +38,7 @@ export function ItemResultLabel({
           <small className={styles['subtitle']}>{subtitle}</small>
         )}
       </div>
+      {extraActions}
       {onRemove && (
         <button
           type='button'

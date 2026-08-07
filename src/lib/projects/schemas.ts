@@ -9,7 +9,7 @@ import {
   systemFields,
   taxonomyFields
 } from '@/lib/schemas/fields'
-import { date } from '@/lib/schemas/primitives'
+import { date, uuid } from '@/lib/schemas/primitives'
 import { venueSchema } from '@/lib/venues/schemas/db'
 
 export const projectTypes = [
@@ -41,6 +41,7 @@ export const projectSchema = z.object({
   coverImageId: relationFields.coverImageId,
   embedCodeIds: relationFields.embedCodeIds,
   endDate: date.optional(),
+  featuredEmbedCodeId: uuid.optional(),
   imageIds: relationFields.imageIds,
   linkIds: relationFields.linkIds,
   path: z.literal('projects'),

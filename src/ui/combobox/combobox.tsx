@@ -7,6 +7,7 @@ import {
   itemTypeToLabel,
   type PagePath
 } from '@/lib/schemas'
+import { camelToSnake } from '@/lib/strings'
 import type {
   EmbeddedItem,
   PageDataResponse,
@@ -64,7 +65,7 @@ export function Combobox<
     loadMoreRef,
     ensureFirstPage
   } = useResultsList<TEmbeddedItem, TPage, S>(
-    `/api/${itemType}`,
+    `/api/${camelToSnake(itemType)}`,
     initialResults,
     { defaultQuery, searchParams }
   )

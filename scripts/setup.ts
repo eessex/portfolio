@@ -235,7 +235,7 @@ async function setupDatabase(): Promise<void> {
   // Imported dynamically: these modules read DATABASE_URL at import
   // time, so they must load only after ensureDatabaseUrl() has set it.
   const { createTables } = await import('@/seed/createTables')
-  console.log('• Creating tables (idempotent)…')
+  console.log('• Creating (or migrating) tables…')
   await createTables()
 
   const { countUsers } = await import('@/lib/users/data')

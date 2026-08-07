@@ -2,11 +2,14 @@
 
 import { useRouter } from 'next/navigation'
 
+import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import type { Image } from '@/lib/images/schemas/db'
 import type { Link } from '@/lib/links/schemas/db'
 import { deleteProject, editProject } from '@/lib/projects/actions'
 import { projectTypes } from '@/lib/projects/schemas'
 import type { ProjectClient } from '@/lib/projects/types'
+import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
+import { formatEmbedCodeResult } from '@/ui/embed-codes/format-embed-code-result'
 import { Checkbox } from '@/ui/form/checkbox'
 import { Form, useFormErrors } from '@/ui/form/form'
 import styles from '@/ui/form/form.module.scss'
@@ -29,6 +32,10 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
     project?.coverImage,
     ...(project?.images ?? [])
   ].filter((image): image is Image => !!image)
+  const embedCodes = [
+    project?.featuredEmbedCode,
+    ...(project?.embedCodes ?? [])
+  ].filter((embedCode): embedCode is EmbedCode => !!embedCode)
 
   return (
     <>
@@ -97,6 +104,21 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         description='Used for SEO/social previews. First 255 characters of the description will be used if this is left blank.'
         errors={errors?.shortDescription}
         label='Short description'
+      />
+      <ItemPicker<EmbedCode>
+        isMulti
+        name='embedCodes'
+        label='Embed codes'
+        itemType='embedCodes'
+        existingItems={embedCodes}
+        formatResult={formatEmbedCodeResult}
+        renderEditItemForm={(_query, index) => (
+          <EditEmbedCode index={index} />
+        )}
+        featured={{
+          isInitiallyFeatured: !!project?.featuredEmbedCode,
+          label: 'Featured'
+        }}
       />
       <ItemPicker<Link>
         isMulti

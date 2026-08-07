@@ -1,5 +1,7 @@
 'use client'
 
+import { StarIcon } from '@heroicons/react/24/outline'
+import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid'
 import { useRef, useState } from 'react'
 
 import {
@@ -42,12 +44,15 @@ type ItemPickerSharedProps<
   name?: string
   /**
    * Renders item content for both the `Combobox` dropdown row and
-   * the `SelectedResult` chip.
+   * `SelectedResult` chip. `extraActions` (e.g. the `featured` toggle)
+   * is passed through only for the latter,  rendered next to `onRemove`
+   * button when the formatter supports it.
    */
   formatResult: (
     item: TEmbeddedItem | TPage,
     onRemove?: () => void,
-    removeLabel?: string
+    removeLabel?: string,
+    extraActions?: React.ReactNode
   ) => React.ReactNode
   /**
    * Renders the inline "create new" form. Omit for item types with no
@@ -61,6 +66,21 @@ type ItemPickerSharedProps<
     query: string | undefined,
     index?: number
   ) => React.ReactNode
+  /**
+   * Enables an explicit "featured" toggle on an `isMulti` list: any
+   * slot can be pinned to the front (excluded from drag reordering)
+   * via a button, and un-pinned again, rather than position alone
+   * carrying that meaning (contrast `images`, where the first slot is
+   * always the cover). Submits a `${name}Featured` hidden flag only
+   * while a slot is pinned, so a list with no explicit featured choice
+   * round-trips with none — pair with a resolver that checks for that
+   * flag (e.g. `resolveOrderedEmbedCodeIds`) rather than assuming
+   * position 0.
+   */
+  featured?: {
+    isInitiallyFeatured: boolean
+    label?: string
+  }
 }
 
 export type ItemPickerProps<
@@ -120,7 +140,8 @@ export function ItemPicker<
     name,
     formatResult,
     renderEditItemForm,
-    isMulti
+    isMulti,
+    featured
   } = props
 
   const [slots, setSlots] = useState<Slot<TEmbeddedItem, TPage>[]>(
@@ -134,13 +155,34 @@ export function ItemPicker<
           ? [{ kind: 'existing' as const, item: props.existingItem }]
           : []
   )
+  const [isFeatured, setIsFeatured] = useState(
+    featured?.isInitiallyFeatured ?? false
+  )
   const nextTempId = useRef(0)
 
   const itemLabel = label || itemTypeToLabel(itemType, true)
   const newLabel = `Add New ${itemTypeToLabel(itemType, true, true)}`
   const removeLabel = `Remove ${itemTypeToLabel(itemType, true, true)}`
+  const featuredLabel = featured?.label || 'Featured'
+
+  const featuredSlot = featured && isFeatured ? slots[0] : undefined
+  const restSlots = featuredSlot ? slots.slice(1) : slots
+
+  function insertSlot(
+    current: Slot<TEmbeddedItem, TPage>[],
+    slot: Slot<TEmbeddedItem, TPage>
+  ) {
+    if (!isMulti) return [slot]
+    // Keep a pinned featured slot at the front; new picks join the
+    // (reorderable) rest right after it instead of displacing it.
+    if (featured && isFeatured && current.length > 0) {
+      return [current[0], slot, ...current.slice(1)]
+    }
+    return [slot, ...current]
+  }
 
   function removeSlot(index: number) {
+    if (featuredSlot && index === 0) setIsFeatured(false)
     setSlots((current) => current.filter((_, i) => i !== index))
   }
 
@@ -153,27 +195,60 @@ export function ItemPicker<
       ) {
         return current
       }
-      const slot: Slot<TEmbeddedItem, TPage> = {
-        kind: 'existing',
-        item
-      }
-      return isMulti ? [slot, ...current] : [slot]
+      return insertSlot(current, { kind: 'existing', item })
     })
   }
 
   function addNew(query?: string) {
-    const slot: Slot<TEmbeddedItem, TPage> = {
-      kind: 'new',
-      query,
-      tempId: `new-${nextTempId.current++}`
-    }
-    setSlots((current) => (isMulti ? [slot, ...current] : [slot]))
+    setSlots((current) =>
+      insertSlot(current, {
+        kind: 'new',
+        query,
+        tempId: `new-${nextTempId.current++}`
+      })
+    )
+  }
+
+  function setFeatured(index: number) {
+    setSlots((current) => {
+      const target = current[index]
+      if (!target) return current
+      return [target, ...current.filter((_, i) => i !== index)]
+    })
+    setIsFeatured(true)
+  }
+
+  function featuredControl(
+    index: number,
+    isCurrentlyFeatured: boolean
+  ) {
+    if (!featured) return undefined
+    return isCurrentlyFeatured ? (
+      <button
+        type='button'
+        aria-label={`Unset ${featuredLabel}`}
+        className={`${itemPickerStyles['featured-button']} button-icon`}
+        onClick={() => setIsFeatured(false)}
+      >
+        <StarIconSolid />
+      </button>
+    ) : (
+      <button
+        type='button'
+        aria-label={`Set as ${featuredLabel}`}
+        className={`${itemPickerStyles['featured-button']} button-icon`}
+        onClick={() => setFeatured(index)}
+      >
+        <StarIcon />
+      </button>
+    )
   }
 
   function renderSlot(
     slot: Slot<TEmbeddedItem, TPage>,
     index: number,
-    dragHandle?: React.ReactNode
+    dragHandle?: React.ReactNode,
+    featuredButton?: React.ReactNode
   ) {
     return slot.kind === 'existing' ? (
       <div>
@@ -188,7 +263,8 @@ export function ItemPicker<
           {formatResult(
             slot.item,
             () => removeSlot(index),
-            removeLabel
+            removeLabel,
+            featuredButton
           )}
         </SelectedResult>
       </div>
@@ -202,6 +278,7 @@ export function ItemPicker<
           slot.query,
           isMulti ? index : undefined
         )}
+        {featuredButton}
         <button
           type='button'
           className={`${styles['cancel']} button-sm`}
@@ -217,8 +294,17 @@ export function ItemPicker<
 
   return (
     <>
-      {isMulti && (
+      {isMulti && name && (
         <input name={`${name}[]`} type='hidden' value='' readOnly />
+      )}
+
+      {featuredSlot && name && (
+        <input
+          name={`${name}Featured`}
+          type='hidden'
+          value='true'
+          readOnly
+        />
       )}
 
       {showCombobox && (
@@ -237,22 +323,59 @@ export function ItemPicker<
         />
       )}
 
-      {isMulti && slots.length > 1 ? (
+      {featuredSlot && (
+        <div>
+          {renderSlot(
+            featuredSlot,
+            0,
+            undefined,
+            featuredControl(0, true)
+          )}
+        </div>
+      )}
+
+      {isMulti && restSlots.length > 1 ? (
         <SortableList
           className={itemPickerStyles['item-list']}
-          items={slots.map((slot) => ({ id: slotId(slot), slot }))}
+          items={restSlots.map((slot) => ({
+            id: slotId(slot),
+            slot
+          }))}
           onReorder={(reordered) =>
-            setSlots(reordered.map((entry) => entry.slot))
+            setSlots(
+              featuredSlot
+                ? [
+                    featuredSlot,
+                    ...reordered.map((entry) => entry.slot)
+                  ]
+                : reordered.map((entry) => entry.slot)
+            )
           }
-          renderItem={(entry, index, dragHandle) =>
-            renderSlot(entry.slot, index, dragHandle)
-          }
+          renderItem={(entry, index, dragHandle) => {
+            const slotIndex = index + (featuredSlot ? 1 : 0)
+            return renderSlot(
+              entry.slot,
+              slotIndex,
+              dragHandle,
+              featuredControl(slotIndex, false)
+            )
+          }}
         />
       ) : (
         <div className={itemPickerStyles['item-list']}>
-          {slots.map((slot, index) => (
-            <div key={slotId(slot)}>{renderSlot(slot, index)}</div>
-          ))}
+          {restSlots.map((slot, index) => {
+            const slotIndex = index + (featuredSlot ? 1 : 0)
+            return (
+              <div key={slotId(slot)}>
+                {renderSlot(
+                  slot,
+                  slotIndex,
+                  undefined,
+                  featuredControl(slotIndex, false)
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
     </>

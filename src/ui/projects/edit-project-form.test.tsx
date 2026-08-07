@@ -94,10 +94,9 @@ describe('EditProjectForm', () => {
       const user = userEvent.setup()
       renderComponent()
 
-      const inputs = screen.getAllByRole('combobox')
-      const imagesInput = inputs[inputs.length - 1]
+      const imagesInput = screen.getByLabelText(/^images$/i)
       await user.type(imagesInput, 'New Image')
-      await user.click(screen.getByText(/create/i))
+      await user.click(screen.getByText(/create image/i))
 
       expect(
         screen.getByLabelText(/upload new image/i)

@@ -13,7 +13,8 @@ import type {
 } from '@/lib/releases/types'
 import {
   venueFixtureAlpha,
-  venueFixtureBeta
+  venueFixtureBeta,
+  venueFixtureGamma
 } from '@/lib/venues/fixtures'
 import type { Venue } from '@/lib/venues/schemas/db'
 import {
@@ -35,11 +36,12 @@ describe('ItemPicker', () => {
       },
       itemType: 'venues',
       name: 'venueId',
-      formatResult: (item, onRemove, removeLabel) => (
+      formatResult: (item, onRemove, removeLabel, extraActions) => (
         <ItemResultLabel
           title={item.name}
           onRemove={onRemove}
           removeLabel={removeLabel}
+          extraActions={extraActions}
         />
       ),
       renderEditItemForm: () => <div>New Venue Form</div>
@@ -374,6 +376,109 @@ describe('ItemPicker', () => {
         expect(
           screen.getByDisplayValue(venueFixtureAlpha.id)
         ).toHaveAttribute('name', 'venueIds[1].id')
+      })
+    })
+
+    describe('featured toggle', () => {
+      it('renders no featured flag and a "Set as Featured" button on every item when nothing is featured initially', () => {
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha, venueFixtureBeta],
+          featured: { isInitiallyFeatured: false, label: 'Featured' }
+        })
+
+        expect(
+          document.querySelector('input[name="venueIdsFeatured"]')
+        ).not.toBeInTheDocument()
+        expect(
+          screen.getAllByRole('button', { name: 'Set as Featured' })
+        ).toHaveLength(2)
+      })
+
+      it('pins the initially-featured item first, excludes it from drag, and submits the flag', () => {
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [
+            venueFixtureAlpha,
+            venueFixtureBeta,
+            venueFixtureGamma
+          ],
+          featured: { isInitiallyFeatured: true, label: 'Featured' }
+        })
+
+        const flag = document.querySelector(
+          'input[name="venueIdsFeatured"]'
+        )
+        expect(flag).toHaveAttribute('type', 'hidden')
+        expect(flag).toHaveValue('true')
+
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+        expect(
+          screen.getByRole('button', { name: 'Unset Featured' })
+        ).toBeInTheDocument()
+        // only the two non-featured items are drag-reorderable
+        expect(
+          screen.getAllByRole('button', { name: 'Move down' })
+        ).toHaveLength(2)
+        expect(
+          screen.getAllByRole('button', { name: 'Set as Featured' })
+        ).toHaveLength(2)
+      })
+
+      it('promotes a non-featured item to the pinned front slot', async () => {
+        const user = userEvent.setup()
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha, venueFixtureBeta],
+          featured: { isInitiallyFeatured: false, label: 'Featured' }
+        })
+
+        const setFeaturedButtons = screen.getAllByRole('button', {
+          name: 'Set as Featured'
+        })
+        await user.click(setFeaturedButtons[1])
+
+        expect(
+          document.querySelector('input[name="venueIdsFeatured"]')
+        ).toHaveValue('true')
+        expect(
+          screen.getByDisplayValue(venueFixtureBeta.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[1].id')
+      })
+
+      it('unsets the featured item without removing it from the list', async () => {
+        const user = userEvent.setup()
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha, venueFixtureBeta],
+          featured: { isInitiallyFeatured: true, label: 'Featured' }
+        })
+
+        await user.click(
+          screen.getByRole('button', { name: 'Unset Featured' })
+        )
+
+        expect(
+          document.querySelector('input[name="venueIdsFeatured"]')
+        ).not.toBeInTheDocument()
+        expect(
+          screen.getByText('Test Venue Texas')
+        ).toBeInTheDocument()
+        expect(
+          screen.getByText('Test Venue New York')
+        ).toBeInTheDocument()
+        expect(
+          screen.getAllByRole('button', { name: 'Set as Featured' })
+        ).toHaveLength(2)
       })
     })
   })

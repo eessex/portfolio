@@ -20,6 +20,7 @@ async function createProjectsTable() {
     CREATE TABLE IF NOT EXISTS projects (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
       cover_image_id UUID,
+      featured_embed_code_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
       title VARCHAR(255) NOT NULL,
       description VARCHAR(5000),

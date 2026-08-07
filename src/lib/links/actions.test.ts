@@ -1,7 +1,12 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
-import { deleteLink, editLink } from '@/lib/links/actions'
+import {
+  createLinkFromFields,
+  deleteLink,
+  editLink,
+  resolveOrderedLinkIds
+} from '@/lib/links/actions'
 import {
   linkFixture,
   newLinkFixture,
@@ -141,6 +146,100 @@ describe('Link Actions', () => {
 
       expect(res!.message).toBe('Failed to validate link.')
       expect(res!.errors).toEqual({ url: ['Required'] })
+    })
+  })
+
+  describe('#createLinkFromFields', () => {
+    it('creates a link from raw fields', async () => {
+      mockSql.mockResolvedValueOnce([linkFixture])
+
+      const res = await createLinkFromFields({ ...newLinkFixture })
+
+      expect(res.title).toEqual('Test Link')
+      expect(mockSql).toHaveBeenCalledTimes(1)
+    })
+
+    it('normalizes raw checkbox/empty-string fields before validating', async () => {
+      mockSql.mockResolvedValueOnce([linkFixture])
+
+      await createLinkFromFields({ ...newLinkFixture, title: '' })
+
+      const [, , , , , title] = mockSql.mock
+        .calls[0] as unknown as unknown[]
+      expect(title).toBeNull()
+    })
+
+    it('throws a descriptive error on invalid fields', async () => {
+      const invalid: Partial<CreateLink> = { ...newLinkFixture }
+      delete invalid.url
+
+      await expect(createLinkFromFields(invalid)).rejects.toThrow(
+        'Invalid link data: Required'
+      )
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('#resolveOrderedLinkIds', () => {
+    it('returns existing entries as linkIds, preserving submitted order', async () => {
+      const result = await resolveOrderedLinkIds({
+        'links[0].id': 'link-1',
+        'links[1].id': 'link-2',
+        'links[2].id': 'link-3'
+      })
+
+      expect(result).toEqual({
+        linkIds: ['link-1', 'link-2', 'link-3']
+      })
+    })
+
+    it('creates pending new links in place, preserving position', async () => {
+      mockSql.mockResolvedValueOnce([linkFixture])
+
+      const result = await resolveOrderedLinkIds({
+        'links[0].id': 'link-1',
+        'links[1].url': newLinkFixture.url,
+        'links[1].title': newLinkFixture.title
+      })
+
+      expect(result).toEqual({
+        linkIds: ['link-1', linkFixture.id]
+      })
+    })
+
+    it('removes consumed indexed keys from the input data object', async () => {
+      const data: Record<string, unknown> = {
+        'links[0].id': 'link-1',
+        other: 'untouched'
+      }
+
+      await resolveOrderedLinkIds(data)
+
+      expect(data).toEqual({ other: 'untouched' })
+    })
+
+    it('propagates validation errors from an inline-created entry', async () => {
+      await expect(
+        resolveOrderedLinkIds({
+          'links[0].title': 'Missing URL'
+        })
+      ).rejects.toThrow('Invalid link data: Required')
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('returns empty linkIds when nothing is selected', async () => {
+      const result = await resolveOrderedLinkIds({ 'links[]': '' })
+
+      expect(result).toEqual({ linkIds: [] })
+    })
+
+    it('supports a custom field prefix', async () => {
+      const result = await resolveOrderedLinkIds(
+        { 'related[0].id': 'link-1' },
+        'related'
+      )
+
+      expect(result).toEqual({ linkIds: ['link-1'] })
     })
   })
 })

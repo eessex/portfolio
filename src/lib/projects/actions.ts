@@ -3,8 +3,10 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
+import { resolveOrderedEmbedCodeIds } from '@/lib/embed-codes/actions'
 import { runDeleteAction, runFormAction } from '@/lib/form-action'
 import { resolveOrderedImageIds } from '@/lib/images/actions'
+import { resolveOrderedLinkIds } from '@/lib/links/actions'
 import { fetchProjectById } from '@/lib/projects/data'
 import {
   createProjectSchema,
@@ -22,11 +24,17 @@ export async function editProject(formData: FormData, id?: string) {
     prepare: async (data) => {
       const { coverImageId, imageIds } =
         await resolveOrderedImageIds(data)
+      const { linkIds } = await resolveOrderedLinkIds(data)
+      const { embedCodeIds, featuredEmbedCodeId } =
+        await resolveOrderedEmbedCodeIds(data)
 
       return {
         ...data,
         coverImageId,
+        embedCodeIds,
+        featuredEmbedCodeId,
         imageIds,
+        linkIds,
         path: 'projects',
         slug: await generateUniqueSlug(
           String(data.title || ''),
@@ -46,9 +54,11 @@ export async function editProject(formData: FormData, id?: string) {
  * Projects are embedded directly into their releases'/events' cached
  * fetches via build_project_json, so saving/deleting one must
  * invalidate those caches too, not just the projects list. Saving can
- * also create new images inline (via the `images` picker's create-new
- * flow), bypassing `editImage`'s own cache invalidation, so the images
- * tag is invalidated here too rather than only on direct image edits.
+ * also create new images/links/embed codes inline (via the
+ * `images`/`links`/`embedCodes` pickers' create-new flows), bypassing
+ * `editImage`'s/`editLink`'s/`editEmbedCode`'s own cache invalidation,
+ * so those tags are invalidated here too rather than only on direct
+ * image/link/embed code edits.
  */
 function invalidateProjectTags(id?: string) {
   updateTag('projects')
@@ -58,6 +68,8 @@ function invalidateProjectTags(id?: string) {
   updateTag('releases')
   updateTag('events')
   updateTag('images')
+  updateTag('links')
+  updateTag('embed-codes')
 }
 
 export async function deleteProject(project: Project) {
@@ -80,6 +92,7 @@ async function createProject(project: CreateProject) {
       description,
       embedCodeIds,
       endDate,
+      featuredEmbedCodeId,
       imageIds,
       isPublished,
       linkIds,
@@ -96,6 +109,7 @@ async function createProject(project: CreateProject) {
         description,
         embed_code_ids,
         end_date,
+        featured_embed_code_id,
         image_ids,
         is_published,
         link_ids,
@@ -111,6 +125,7 @@ async function createProject(project: CreateProject) {
         ${description},
         ${embedCodeIds},
         ${endDate},
+        ${featuredEmbedCodeId},
         ${imageIds},
         ${isPublished},
         ${linkIds},
@@ -143,6 +158,7 @@ async function updateProject(project: CreateProject, id: string) {
       description,
       embedCodeIds,
       endDate,
+      featuredEmbedCodeId,
       imageIds,
       isPublished,
       linkIds,
@@ -160,6 +176,7 @@ async function updateProject(project: CreateProject, id: string) {
         description = ${description},
         embed_code_ids = ${embedCodeIds},
         end_date = ${endDate},
+        featured_embed_code_id = ${featuredEmbedCodeId},
         image_ids = ${imageIds},
         is_published = ${isPublished},
         link_ids = ${linkIds},
@@ -198,6 +215,7 @@ function toDbRow(
     description: projectToSave.description ?? null,
     embedCodeIds: projectToSave.embedCodeIds ?? null,
     endDate: projectToSave.endDate ?? null,
+    featuredEmbedCodeId: projectToSave.featuredEmbedCodeId ?? null,
     imageIds: projectToSave.imageIds ?? null,
     isPublished: projectToSave.isPublished ?? null,
     linkIds: projectToSave.linkIds ?? null,

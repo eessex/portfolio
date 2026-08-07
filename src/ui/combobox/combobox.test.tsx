@@ -247,6 +247,28 @@ describe('Combobox', () => {
     })
   })
 
+  describe('API endpoint construction', () => {
+    it('converts a multi-word itemType to snake_case for the API endpoint', () => {
+      ;(useResultsList as jest.Mock).mockReturnValue({
+        query: '',
+        setQuery: jest.fn(),
+        items: [],
+        isLoading: false,
+        nextCursor: null,
+        loadMoreRef: { current: null },
+        ensureFirstPage: jest.fn()
+      })
+
+      renderCombobox({ itemType: 'embedCodes' })
+
+      expect(useResultsList).toHaveBeenCalledWith(
+        '/api/embed_codes',
+        expect.anything(),
+        expect.anything()
+      )
+    })
+  })
+
   describe('loading and pagination', () => {
     it('renders the load-more sentinel and loading indicator when nextCursor is present', () => {
       ;(useResultsList as jest.Mock).mockReturnValue({

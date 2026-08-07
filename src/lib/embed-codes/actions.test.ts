@@ -2,8 +2,10 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import {
+  createEmbedCodeFromFields,
   deleteEmbedCode,
-  editEmbedCode
+  editEmbedCode,
+  resolveOrderedEmbedCodeIds
 } from '@/lib/embed-codes/actions'
 import { fetchEmbedCodeMetadata } from '@/lib/embed-codes/cover-image'
 import {
@@ -222,6 +224,155 @@ describe('Embed Code Actions', () => {
       const [, , , , , , title] = mockSql.mock
         .calls[1] as unknown as unknown[]
       expect(title).toEqual('Original Title')
+    })
+  })
+
+  describe('#createEmbedCodeFromFields', () => {
+    it('creates an embed code from raw fields, resolving metadata first', async () => {
+      fetchEmbedCodeMetadataMock.mockResolvedValueOnce({
+        coverImageId: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+        title: 'Fetched From oEmbed'
+      })
+      mockSql.mockResolvedValueOnce([embedCodeFixture])
+
+      const res = await createEmbedCodeFromFields({
+        ...createEmbedCodeFixture
+      })
+
+      expect(fetchEmbedCodeMetadataMock).toHaveBeenCalledWith(
+        createEmbedCodeFixture.host,
+        createEmbedCodeFixture.src
+      )
+      expect(res.caption).toEqual(
+        'This is an embed code for testing purposes.'
+      )
+      expect(mockSql).toHaveBeenCalledTimes(1)
+    })
+
+    it('normalizes raw checkbox/empty-string fields before validating', async () => {
+      mockSql.mockResolvedValueOnce([embedCodeFixture])
+
+      await createEmbedCodeFromFields({
+        ...createEmbedCodeFixture,
+        caption: ''
+      })
+
+      const [, caption] = mockSql.mock
+        .calls[0] as unknown as unknown[]
+      expect(caption).toBeUndefined()
+    })
+
+    it('throws a descriptive error on invalid fields', async () => {
+      const invalid: Partial<CreateEmbedCode> = {
+        ...createEmbedCodeFixture
+      }
+      delete invalid.src
+
+      await expect(
+        createEmbedCodeFromFields(invalid)
+      ).rejects.toThrow('Invalid embed code data: Required')
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('#resolveOrderedEmbedCodeIds', () => {
+    it('returns all entries as embedCodeIds and featuredEmbedCodeId as undefined when the featured flag is absent', async () => {
+      const result = await resolveOrderedEmbedCodeIds({
+        'embedCodes[0].id': 'embed-1',
+        'embedCodes[1].id': 'embed-2',
+        'embedCodes[2].id': 'embed-3'
+      })
+
+      expect(result).toEqual({
+        embedCodeIds: ['embed-1', 'embed-2', 'embed-3'],
+        featuredEmbedCodeId: undefined
+      })
+    })
+
+    it('splits the first entry into featuredEmbedCodeId when the featured flag is set', async () => {
+      const result = await resolveOrderedEmbedCodeIds({
+        embedCodesFeatured: 'true',
+        'embedCodes[0].id': 'embed-1',
+        'embedCodes[1].id': 'embed-2',
+        'embedCodes[2].id': 'embed-3'
+      })
+
+      expect(result).toEqual({
+        embedCodeIds: ['embed-2', 'embed-3'],
+        featuredEmbedCodeId: 'embed-1'
+      })
+    })
+
+    it('removes the featured flag and all indexed keys from the input data object', async () => {
+      const data: Record<string, unknown> = {
+        embedCodesFeatured: 'true',
+        'embedCodes[0].id': 'embed-1'
+      }
+
+      await resolveOrderedEmbedCodeIds(data)
+
+      expect(data).toEqual({})
+    })
+
+    it('creates pending new embed codes in place, preserving position', async () => {
+      fetchEmbedCodeMetadataMock.mockResolvedValueOnce({})
+      mockSql.mockResolvedValueOnce([
+        {
+          ...embedCodeFixture,
+          id: '44444444-4444-4444-8444-444444444444'
+        }
+      ])
+
+      const result = await resolveOrderedEmbedCodeIds({
+        'embedCodes[0].id': 'embed-1',
+        'embedCodes[1].host': createEmbedCodeFixture.host,
+        'embedCodes[1].type': createEmbedCodeFixture.type,
+        'embedCodes[1].src': createEmbedCodeFixture.src
+      })
+
+      expect(result).toEqual({
+        embedCodeIds: [
+          'embed-1',
+          '44444444-4444-4444-8444-444444444444'
+        ],
+        featuredEmbedCodeId: undefined
+      })
+    })
+
+    it('propagates validation errors from an inline-created entry', async () => {
+      await expect(
+        resolveOrderedEmbedCodeIds({
+          'embedCodes[0].host': createEmbedCodeFixture.host
+        })
+      ).rejects.toThrow(/Invalid embed code data/)
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('returns an undefined featuredEmbedCodeId and empty embedCodeIds when nothing is selected', async () => {
+      const result = await resolveOrderedEmbedCodeIds({
+        'embedCodes[]': ''
+      })
+
+      expect(result).toEqual({
+        embedCodeIds: [],
+        featuredEmbedCodeId: undefined
+      })
+    })
+
+    it('supports a custom field prefix, including its own featured flag', async () => {
+      const result = await resolveOrderedEmbedCodeIds(
+        {
+          galleryFeatured: 'true',
+          'gallery[0].id': 'embed-1',
+          'gallery[1].id': 'embed-2'
+        },
+        'gallery'
+      )
+
+      expect(result).toEqual({
+        embedCodeIds: ['embed-2'],
+        featuredEmbedCodeId: 'embed-1'
+      })
     })
   })
 })

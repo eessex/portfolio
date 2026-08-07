@@ -207,15 +207,18 @@ async function promptAdmin(): Promise<AdminInput> {
   }
   const nonInteractive = !!(env.email && env.name && env.password)
 
+  // SETUP_ADMIN_* seed only the first attempt.
+  let seed: Partial<typeof env> = env
   for (;;) {
     const email =
-      env.email ?? (await ask('Enter your email address: '))
-    const name = env.name ?? (await ask('Enter your name: '))
+      seed.email ?? (await ask('Enter your email address: '))
+    const name = seed.name ?? (await ask('Enter your name: '))
     const password =
-      env.password ??
+      seed.password ??
       (await ask('Enter a password (min 8 characters): ', {
         hidden: true
       }))
+    seed = {}
 
     const parsed = adminSchema.safeParse({ name, email, password })
     if (parsed.success) return parsed.data

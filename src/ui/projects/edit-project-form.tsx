@@ -2,9 +2,12 @@
 
 import { useRouter } from 'next/navigation'
 
-import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
+import {
+  createEmbedCodeSchema,
+  type EmbedCode
+} from '@/lib/embed-codes/schemas/db'
 import type { Image } from '@/lib/images/schemas/db'
-import type { Link } from '@/lib/links/schemas/db'
+import { createLinkSchema, type Link } from '@/lib/links/schemas/db'
 import { deleteProject, editProject } from '@/lib/projects/actions'
 import { projectTypes } from '@/lib/projects/schemas'
 import type { ProjectClient } from '@/lib/projects/types'
@@ -112,8 +115,9 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         itemType='embedCodes'
         existingItems={embedCodes}
         formatResult={formatEmbedCodeResult}
-        renderEditItemForm={(_query, index) => (
-          <EditEmbedCode index={index} />
+        schema={createEmbedCodeSchema}
+        renderEditItemForm={(_query, index, errors) => (
+          <EditEmbedCode index={index} errors={errors} />
         )}
         featured={{
           isInitiallyFeatured: !!project?.featuredEmbedCode,
@@ -127,8 +131,9 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         itemType='links'
         existingItems={project?.links ?? []}
         formatResult={formatLinkResult}
-        renderEditItemForm={(_query, index) => (
-          <EditLink index={index} />
+        schema={createLinkSchema}
+        renderEditItemForm={(_query, index, errors) => (
+          <EditLink index={index} errors={errors} />
         )}
       />
       <Checkbox

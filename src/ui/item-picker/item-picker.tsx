@@ -397,7 +397,19 @@ export function ItemPicker<
   ) {
     return slot.kind === 'existing' ? (
       <div>
-        {!isMulti && <h2>{itemLabel}</h2>}
+        {!isMulti && (
+          <h2>
+            {itemLabel}
+            {!isRequired && (
+              <>
+                {' '}
+                <span className={styles['optional-label']}>
+                  optional
+                </span>
+              </>
+            )}
+          </h2>
+        )}
         <SelectedResult
           itemType={itemType}
           name={isMulti ? `${name}[${index}].id` : name}
@@ -477,6 +489,7 @@ export function ItemPicker<
       {showCombobox && (
         <Combobox<TEmbeddedItem, TPage, S>
           label={label}
+          isRequired={isRequired}
           initialResults={initialResults}
           searchParams={searchParams}
           itemType={itemType}

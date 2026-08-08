@@ -13,6 +13,7 @@ import type {
   FetchReleasesResult,
   ReleaseClient
 } from '@/lib/releases/types'
+import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
 import { EditImage } from '@/ui/images/edit-image-form'
@@ -63,18 +64,6 @@ export const EditPublishedEdition = ({
         attributes={{ name: 'format', required: true }}
       />
 
-      <Input
-        attributes={{
-          min: 1,
-          name: 'editionSize',
-          type: 'number',
-          placeholder: '1000'
-        }}
-        defaultValue={publishedEdition?.editionSize}
-        errors={errors?.editionSize}
-        label='Edition size'
-      />
-
       <ItemPicker<Publisher>
         itemType='publishers'
         isRequired
@@ -84,17 +73,6 @@ export const EditPublishedEdition = ({
         renderEditItemForm={(_query, _index, errors) => (
           <EditPublisher errors={errors} />
         )}
-      />
-
-      <Input
-        attributes={{
-          maxLength: 255,
-          name: 'catalogNumber',
-          placeholder: 'SL021'
-        }}
-        defaultValue={publishedEdition?.catalogNumber}
-        errors={errors?.catalogNumber}
-        label='Catalog number'
       />
 
       <Input
@@ -115,6 +93,31 @@ export const EditPublishedEdition = ({
         label='Publish date'
       />
 
+      <div className={styles['input-group']}>
+        <Input
+          attributes={{
+            min: 1,
+            name: 'editionSize',
+            type: 'number',
+            placeholder: '1000'
+          }}
+          defaultValue={publishedEdition?.editionSize}
+          errors={errors?.editionSize}
+          label='Edition size'
+        />
+
+        <Input
+          attributes={{
+            maxLength: 255,
+            name: 'catalogNumber',
+            placeholder: 'SL021'
+          }}
+          defaultValue={publishedEdition?.catalogNumber}
+          errors={errors?.catalogNumber}
+          label='Catalog number'
+        />
+      </div>
+
       <ItemPicker<Image>
         isMulti
         name='images'
@@ -123,7 +126,7 @@ export const EditPublishedEdition = ({
         existingItems={images}
         formatResult={formatImageResult}
         renderEditItemForm={(_query, index) => (
-          <EditImage index={index} />
+          <EditImage index={index} isPressFieldsetHidden />
         )}
       />
 

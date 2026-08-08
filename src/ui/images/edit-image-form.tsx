@@ -17,12 +17,19 @@ interface EditImageProps {
   >['fieldErrors']
   image?: Partial<Image>
   index?: number
+  /**
+   * Hides the "Press Image Details" fieldset (isPress/
+   * isHiddenOnAboutPage) for contexts where press-image semantics
+   * don't apply, e.g. images attached to a published edition.
+   */
+  isPressFieldsetHidden?: boolean
 }
 
 export const EditImage = ({
   errors,
   image,
-  index
+  index,
+  isPressFieldsetHidden
 }: EditImageProps) => {
   const [isPress, setIsPress] = useState(!!image?.isPress)
   const [aspectRatio, setAspectRatio] = useState<number | undefined>(
@@ -141,34 +148,36 @@ export const EditImage = ({
         errors={errors?.alt}
         label='Alt text'
       />
-      <fieldset>
-        <legend>Press Image Details</legend>
-        <p>
-          Press images are displayed on the about page by default.
-        </p>
-        <Checkbox
-          attributes={{
-            'aria-controls': controlledCheckboxId,
-            'aria-expanded': isPress,
-            name: `${namePrefix}isPress`
-          }}
-          isChecked={isPress}
-          label='This is a press image.'
-          onChange={() => setIsPress(!isPress)}
-        />
-        <Checkbox
-          attributes={{
-            hidden: !isPress,
-            name: `${namePrefix}isHiddenOnAboutPage`
-          }}
-          controlledId={controlledCheckboxId}
-          isChecked={isHiddenOnAboutPage}
-          label='Hide this image on the About page.'
-          onChange={() =>
-            setIsHiddenOnAboutPage(!isHiddenOnAboutPage)
-          }
-        />
-      </fieldset>
+      {!isPressFieldsetHidden && (
+        <fieldset>
+          <legend>Press Image Details</legend>
+          <p>
+            Press images are displayed on the about page by default.
+          </p>
+          <Checkbox
+            attributes={{
+              'aria-controls': controlledCheckboxId,
+              'aria-expanded': isPress,
+              name: `${namePrefix}isPress`
+            }}
+            isChecked={isPress}
+            label='This is a press image.'
+            onChange={() => setIsPress(!isPress)}
+          />
+          <Checkbox
+            attributes={{
+              hidden: !isPress,
+              name: `${namePrefix}isHiddenOnAboutPage`
+            }}
+            controlledId={controlledCheckboxId}
+            isChecked={isHiddenOnAboutPage}
+            label='Hide this image on the About page.'
+            onChange={() =>
+              setIsHiddenOnAboutPage(!isHiddenOnAboutPage)
+            }
+          />
+        </fieldset>
+      )}
       <Input
         attributes={{
           maxLength: MAX_STRING_LENGTH_SHORT,

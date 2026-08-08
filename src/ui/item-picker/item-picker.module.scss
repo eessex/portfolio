@@ -1,5 +1,11 @@
 @use '@/ui/styles/grids';
 
+.item-picker {
+  display: flex;
+  flex-direction: column;
+  gap: grids.space-rem(2);
+}
+
 .item-list {
   display: flex;
   flex-direction: column;
@@ -8,4 +14,20 @@
 
 .featured-button {
   border-radius: 50%;
+}
+
+.new-item-legend {
+  display: flex;
+  align-items: center;
+  gap: grids.space-em(1);
+
+  .featured-button {
+    // Hidden until the new item's required fields are satisfied
+    display: none;
+    margin-left: auto;
+  }
+}
+
+fieldset:not(:has(:invalid)) .new-item-legend .featured-button {
+  display: inline-flex;
 }

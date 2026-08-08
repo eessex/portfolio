@@ -128,7 +128,20 @@ export function Combobox<
     setHighlightedIndex(-1)
   }
 
+  function handleQueryChange(newQuery: string) {
+    setQuery(newQuery)
+    setIsOpen(true)
+    ensureFirstPage()
+  }
+
   function handleKeyDown(e: React.KeyboardEvent) {
+    if (!isOpen && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      e.preventDefault()
+      setIsOpen(true)
+      ensureFirstPage()
+      return
+    }
+
     if (!items.length) return
 
     const nextIndex =
@@ -182,7 +195,7 @@ export function Combobox<
     >
       <SearchInput
         value={query}
-        onChange={setQuery}
+        onChange={handleQueryChange}
         label={labelText()}
         placeholder={placeholderText()}
         role='combobox'

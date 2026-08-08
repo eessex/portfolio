@@ -1,0 +1,150 @@
+import { updateTag } from 'next/cache'
+
+import { auth } from '@/auth'
+import { sql } from '@/lib/db'
+import {
+  deletePublisher,
+  editPublisher
+} from '@/lib/publishers/actions'
+import {
+  newPublisherFixtureAlpha,
+  publisherFixtureAlpha
+} from '@/lib/publishers/fixtures'
+import type {
+  CreatePublisher,
+  Publisher
+} from '@/lib/publishers/schemas/db'
+import { formDataFromObject } from '@/test/helpers'
+
+jest.mock('next/cache')
+
+jest.mock('@/lib/db', () => ({
+  sql: jest.fn()
+}))
+const mockSql = jest.mocked(sql)
+
+const existingPublisherRow = {
+  ...publisherFixtureAlpha,
+  releaseSlugs: []
+}
+
+describe('Publisher Actions', () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  it('rejects unauthenticated callers', async () => {
+    const mockAuth = auth as unknown as jest.Mock
+    mockAuth.mockResolvedValueOnce(null)
+    const res = await deletePublisher(publisherFixtureAlpha)
+
+    expect(res).toEqual({
+      ok: false,
+      message: 'You must be signed in to perform this action.'
+    })
+    expect(mockSql).not.toHaveBeenCalled()
+  })
+
+  describe('#deletePublisher', () => {
+    it('can delete a publisher', async () => {
+      mockSql.mockResolvedValueOnce([publisherFixtureAlpha])
+      const res = await deletePublisher(publisherFixtureAlpha)
+
+      expect(res).toEqual({ ok: true })
+      expect(updateTag).toHaveBeenCalledWith('publishers')
+      // publishers are embedded into cached published edition fetches
+      expect(updateTag).toHaveBeenCalledWith('published-editions')
+    })
+
+    it('can handle errors', async () => {
+      mockSql.mockRejectedValueOnce(new Error('DB error'))
+      const res = await deletePublisher(publisherFixtureAlpha)
+
+      expect(res!.message).toBe(
+        'Failed to delete publisher: DB error.'
+      )
+    })
+  })
+
+  describe('#editPublisher', () => {
+    it('can edit an existing publisher', async () => {
+      mockSql
+        .mockResolvedValueOnce([existingPublisherRow]) // fetchPublisherById
+        .mockResolvedValueOnce([publisherFixtureAlpha]) // UPDATE ... RETURNING *
+      const res = await editPublisher(
+        formDataFromObject(publisherFixtureAlpha),
+        publisherFixtureAlpha.id
+      )
+      expect(res?.ok).toBe(true)
+      expect((res?.res as Publisher)?.name).toEqual('Soap Library')
+      expect(updateTag).toHaveBeenCalledWith('publishers')
+
+      // second sql call is the UPDATE, scoped to the given id
+      expect(mockSql).toHaveBeenCalledTimes(2)
+    })
+
+    it('merges submitted fields with the existing publisher on update', async () => {
+      mockSql
+        .mockResolvedValueOnce([existingPublisherRow])
+        .mockResolvedValueOnce([publisherFixtureAlpha])
+
+      // only name and type (required) are submitted; url should fall
+      // back to the existing publisher's value rather than being
+      // nulled out
+      await editPublisher(
+        formDataFromObject({
+          name: 'Soap Library',
+          type: publisherFixtureAlpha.type
+        }),
+        publisherFixtureAlpha.id
+      )
+
+      const [, name, type, url] = mockSql.mock
+        .calls[1] as unknown as string[]
+      expect(name).toBe('Soap Library')
+      expect(type).toBe(publisherFixtureAlpha.type)
+      expect(url).toBe(publisherFixtureAlpha.url)
+    })
+
+    it('can create a new publisher', async () => {
+      mockSql.mockResolvedValueOnce([publisherFixtureAlpha])
+      const res = await editPublisher(
+        formDataFromObject(newPublisherFixtureAlpha)
+      )
+
+      expect(res?.ok).toBe(true)
+      expect((res?.res as Publisher)?.name).toEqual('Soap Library')
+      expect(updateTag).toHaveBeenCalledWith('publishers')
+      expect(updateTag).toHaveBeenCalledWith('published-editions')
+      expect(mockSql).toHaveBeenCalledTimes(1)
+    })
+
+    it('can handle generic errors', async () => {
+      mockSql.mockRejectedValueOnce(new Error('DB error'))
+      const res = await editPublisher(
+        formDataFromObject(publisherFixtureAlpha)
+      )
+
+      expect(res!.message).toBe('Failed to save publisher: DB error.')
+    })
+
+    it('can handle errors fetching the existing publisher on update', async () => {
+      mockSql.mockRejectedValueOnce(new Error('DB error'))
+      const res = await editPublisher(
+        formDataFromObject(publisherFixtureAlpha),
+        publisherFixtureAlpha.id
+      )
+
+      expect(res!.message).toBe('Failed to save publisher: DB error.')
+    })
+
+    it('can handle validation errors', async () => {
+      const invalid: Partial<CreatePublisher> = {
+        ...newPublisherFixtureAlpha
+      }
+      delete invalid.name
+      const res = await editPublisher(formDataFromObject(invalid))
+
+      expect(res!.message).toBe('Failed to validate publisher.')
+      expect(res!.errors).toEqual({ name: ['Required'] })
+    })
+  })
+})

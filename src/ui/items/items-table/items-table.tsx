@@ -7,6 +7,7 @@ import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import type { EventClient } from '@/lib/events/types'
 import type { Link } from '@/lib/links/schemas/db'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
+import type { Publisher } from '@/lib/publishers/schemas/db'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
   type EmbeddedItemType,
@@ -32,6 +33,7 @@ import { LinkDetails } from '@/ui/links/link-details'
 import { Loading } from '@/ui/loading'
 import { PublishedEditionDetails } from '@/ui/published-editions/published-edition-details'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
+import { PublisherDetails } from '@/ui/publishers/publisher-details'
 import { SearchInput } from '@/ui/search-input/search-input'
 import { useIsAdmin } from '@/ui/useIsAdmin'
 import type { ResultsResponse } from '@/ui/useResultsList'
@@ -317,6 +319,9 @@ function ItemsTableItem({
       )}
       {itemType === EmbeddedItemTypes.links && (
         <LinkDetails link={item as Link} />
+      )}
+      {itemType === EmbeddedItemTypes.publishers && (
+        <PublisherDetails publisher={item as Publisher} />
       )}
     </ItemsTableRow>
   )

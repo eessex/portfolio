@@ -6,7 +6,6 @@ import {
 import { capitalizeFirstLetter } from '@/lib/strings'
 import type { Badge } from '@/lib/types'
 import { Badges } from '@/ui/badges'
-import styles from '@/ui/embed-codes/embed-code-details.module.scss'
 import { formattedItemType } from '@/ui/util'
 
 /**
@@ -47,9 +46,5 @@ export function EmbedCodeDetails({
     })
   }
 
-  return (
-    <div className={styles['badges']}>
-      <Badges badges={badges} />
-    </div>
-  )
+  return <Badges badges={badges} />
 }

@@ -15,6 +15,7 @@ import { Form, useFormErrors } from '@/ui/form/form'
 import { EditImage } from '@/ui/images/edit-image-form'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { EditPublishedEdition } from '@/ui/published-editions/edit-published-edition-form'
+import { EditPublisher } from '@/ui/publishers/edit-publisher-form'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 
 function getEditFormComponent(itemType: EmbeddedItemType) {
@@ -27,6 +28,8 @@ function getEditFormComponent(itemType: EmbeddedItemType) {
       return EditLink
     case EmbeddedItemTypes.publishedEditions:
       return EditPublishedEdition
+    case EmbeddedItemTypes.publishers:
+      return EditPublisher
     case EmbeddedItemTypes.venues:
       return EditVenue
     default:

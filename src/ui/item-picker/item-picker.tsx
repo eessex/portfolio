@@ -3,6 +3,7 @@
 import { StarIcon } from '@heroicons/react/24/outline'
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid'
 import { useRef, useState } from 'react'
+import type { z } from 'zod'
 
 import {
   type EmbeddedItemType,
@@ -14,6 +15,7 @@ import type {
   PageDataResponse,
   PageItemClient
 } from '@/lib/types'
+import { normalizeFormData } from '@/lib/util'
 import { Combobox } from '@/ui/combobox/combobox'
 import { SortableList } from '@/ui/drag-and-drop/sortable-list'
 import styles from '@/ui/form/form.module.scss'
@@ -21,6 +23,8 @@ import itemPickerStyles from '@/ui/item-picker/item-picker.module.scss'
 import { SelectedResult } from '@/ui/selected-results/selected-result'
 import type { ResultsResponse } from '@/ui/useResultsList'
 import type { SearchParams } from '@/ui/util'
+
+type FieldErrors = Record<string, string[] | undefined>
 
 type ItemPickerSharedProps<
   TEmbeddedItem extends EmbeddedItem,
@@ -64,8 +68,14 @@ type ItemPickerSharedProps<
    */
   renderEditItemForm?: (
     query: string | undefined,
-    index?: number
+    index?: number,
+    errors?: FieldErrors
   ) => React.ReactNode
+  /**
+   * omit for item types whose schema needs data unavailable client-side
+   * (e.g. `images`, where `url` is generated from server-side S3 upload).
+   */
+  schema?: z.ZodTypeAny
   /**
    * Enables an explicit "featured" toggle on an `isMulti` list: any
    * slot can be pinned to the front (excluded from drag reordering)
@@ -141,7 +151,8 @@ export function ItemPicker<
     formatResult,
     renderEditItemForm,
     isMulti,
-    featured
+    featured,
+    schema
   } = props
 
   const [slots, setSlots] = useState<Slot<TEmbeddedItem, TPage>[]>(
@@ -158,10 +169,16 @@ export function ItemPicker<
   const [isFeatured, setIsFeatured] = useState(
     featured?.isInitiallyFeatured ?? false
   )
+  const [newSlotErrors, setNewSlotErrors] = useState<
+    Record<string, FieldErrors>
+  >({})
   const nextTempId = useRef(0)
+  const newSlotFieldsets = useRef(
+    new Map<string, HTMLFieldSetElement>()
+  )
 
   const itemLabel = label || itemTypeToLabel(itemType, true)
-  const newLabel = `Add New ${itemTypeToLabel(itemType, true, true)}`
+  const newLabel = `New ${itemTypeToLabel(itemType, true, true)}`
   const removeLabel = `Remove ${itemTypeToLabel(itemType, true, true)}`
   const featuredLabel = featured?.label || 'Featured'
 
@@ -183,7 +200,13 @@ export function ItemPicker<
 
   function removeSlot(index: number) {
     if (featuredSlot && index === 0) setIsFeatured(false)
-    setSlots((current) => current.filter((_, i) => i !== index))
+    setSlots((current) => {
+      const removed = current[index]
+      if (removed?.kind === 'new') {
+        setNewSlotErrors(({ [removed.tempId]: _, ...rest }) => rest)
+      }
+      return current.filter((_, i) => i !== index)
+    })
   }
 
   function addExisting(item: TEmbeddedItem | TPage) {
@@ -207,6 +230,107 @@ export function ItemPicker<
         tempId: `new-${nextTempId.current++}`
       })
     )
+  }
+
+  function setNewSlotFieldsetRef(
+    tempId: string,
+    el: HTMLFieldSetElement | null
+  ) {
+    if (el) newSlotFieldsets.current.set(tempId, el)
+    else newSlotFieldsets.current.delete(tempId)
+  }
+
+  function isValidatable(
+    el: Element
+  ): el is
+    | HTMLInputElement
+    | HTMLSelectElement
+    | HTMLTextAreaElement {
+    return 'willValidate' in el && 'checkValidity' in el
+  }
+
+  /**
+   * Reads a "new" slot's fieldset back into the flat shape its create
+   * schema expects, stripping the `${name}[${index}].` bracket prefix
+   * those fields are rendered with (mirrors `extractIndexedGroups`,
+   * which strips the same prefix server-side from the real submission).
+   */
+  function collectSlotData(
+    fieldset: HTMLFieldSetElement,
+    prefix: string
+  ): Record<string, unknown> {
+    const data: Record<string, unknown> = {}
+    Array.from(fieldset.elements)
+      .filter(isValidatable)
+      .forEach((el) => {
+        if (!el.name.startsWith(prefix)) return
+        const field = el.name.slice(prefix.length)
+        data[field] =
+          el instanceof HTMLInputElement && el.type === 'checkbox'
+            ? el.checked
+            : el instanceof HTMLInputElement && el.type === 'file'
+              ? el.files?.[0]
+              : el.value
+      })
+    return data
+  }
+
+  /**
+   * Blocks adding another "new" slot while an existing one is still
+   * incomplete or invalid, surfacing why instead of letting bad data
+   * reach the server. Two layers: native `required`/`type` constraints
+   * (already set on each domain's edit-item form, e.g. `EditLink`'s url
+   * `required`) run first, since they're the only signal for fields a
+   * schema can't see yet (e.g. embed codes' `iframe` textarea, which
+   * isn't itself a schema field — only the `host`/`src`/`type` parsed
+   * from it are). Once those pass, `schema` — the same create schema
+   * the server validates against (see `createLinkFromFields` etc.) — is
+   * re-run for real Zod error messages instead of only native ones;
+   * omitted for item types (e.g. `images`) whose schema needs data not
+   * yet available client-side.
+   */
+  function focusInvalidNewSlot(): boolean {
+    for (const [index, slot] of slots.entries()) {
+      if (slot.kind !== 'new') continue
+      const fieldset = newSlotFieldsets.current.get(slot.tempId)
+      if (!fieldset) continue
+
+      const invalid = Array.from(fieldset.elements)
+        .filter(isValidatable)
+        .find((el) => el.willValidate && !el.checkValidity())
+
+      if (invalid) {
+        invalid.reportValidity()
+        return true
+      }
+
+      if (!schema) continue
+
+      const prefix = isMulti ? `${name}[${index}].` : ''
+      const parsed = schema.safeParse(
+        normalizeFormData(collectSlotData(fieldset, prefix))
+      )
+
+      if (!parsed.success) {
+        const fieldErrors = parsed.error.flatten()
+          .fieldErrors as FieldErrors
+        setNewSlotErrors((current) => ({
+          ...current,
+          [slot.tempId]: fieldErrors
+        }))
+        const firstField = Object.keys(fieldErrors)[0]
+        const invalidEl = firstField
+          ? fieldset.elements.namedItem(`${prefix}${firstField}`)
+          : null
+        if (invalidEl instanceof HTMLElement) invalidEl.focus()
+        return true
+      }
+
+      if (slot.tempId in newSlotErrors) {
+        setNewSlotErrors(({ [slot.tempId]: _, ...rest }) => rest)
+      }
+    }
+    return false
   }
 
   function setFeatured(index: number) {
@@ -269,16 +393,17 @@ export function ItemPicker<
         </SelectedResult>
       </div>
     ) : (
-      <fieldset>
-        <legend>
+      <fieldset ref={(el) => setNewSlotFieldsetRef(slot.tempId, el)}>
+        <legend className={itemPickerStyles['new-item-legend']}>
           {dragHandle}
           {newLabel}
+          {featuredButton}
         </legend>
         {renderEditItemForm?.(
           slot.query,
-          isMulti ? index : undefined
+          isMulti ? index : undefined,
+          newSlotErrors[slot.tempId]
         )}
-        {featuredButton}
         <button
           type='button'
           className={`${styles['cancel']} button-sm`}
@@ -293,7 +418,7 @@ export function ItemPicker<
   const showCombobox = isMulti || slots.length === 0
 
   return (
-    <>
+    <div className={itemPickerStyles['item-picker']}>
       {isMulti && name && (
         <input name={`${name}[]`} type='hidden' value='' readOnly />
       )}
@@ -316,7 +441,10 @@ export function ItemPicker<
           formatResult={formatResult}
           onCreateNew={
             renderEditItemForm && !hideCreateNew
-              ? (q) => addNew(q || undefined)
+              ? (q) => {
+                  if (focusInvalidNewSlot()) return
+                  addNew(q || undefined)
+                }
               : undefined
           }
           onSelect={addExisting}
@@ -362,22 +490,24 @@ export function ItemPicker<
           }}
         />
       ) : (
-        <div className={itemPickerStyles['item-list']}>
-          {restSlots.map((slot, index) => {
-            const slotIndex = index + (featuredSlot ? 1 : 0)
-            return (
-              <div key={slotId(slot)}>
-                {renderSlot(
-                  slot,
-                  slotIndex,
-                  undefined,
-                  featuredControl(slotIndex, false)
-                )}
-              </div>
-            )
-          })}
-        </div>
+        restSlots.length > 0 && (
+          <div className={itemPickerStyles['item-list']}>
+            {restSlots.map((slot, index) => {
+              const slotIndex = index + (featuredSlot ? 1 : 0)
+              return (
+                <div key={slotId(slot)}>
+                  {renderSlot(
+                    slot,
+                    slotIndex,
+                    undefined,
+                    featuredControl(slotIndex, false)
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )
       )}
-    </>
+    </div>
   )
 }

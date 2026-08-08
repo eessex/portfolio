@@ -6,6 +6,7 @@ import {
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { createLinkSchema } from '@/lib/links/schemas/db'
 import { ReleaseTypes } from '@/lib/releases/schemas'
 import type {
   FetchReleasesResult,
@@ -376,6 +377,78 @@ describe('ItemPicker', () => {
         expect(
           screen.getByDisplayValue(venueFixtureAlpha.id)
         ).toHaveAttribute('name', 'venueIds[1].id')
+      })
+    })
+
+    describe('schema validation', () => {
+      function renderLinkPicker(props = {}) {
+        return renderComponent({
+          isMulti: true,
+          name: 'links',
+          schema: createLinkSchema,
+          renderEditItemForm: (
+            _query: string | undefined,
+            index: number | undefined,
+            errors?: Record<string, string[] | undefined>
+          ) => (
+            <div>
+              <input
+                name={`links[${index}].url`}
+                defaultValue=''
+                onChange={() => {}}
+              />
+              {errors?.url && <p>{errors.url.join(', ')}</p>}
+            </div>
+          ),
+          ...props
+        })
+      }
+
+      it('blocks a second slot and shows the Zod error when the current slot fails schema validation the browser would not catch', async () => {
+        const user = userEvent.setup()
+        renderLinkPicker()
+
+        const input = screen.getByRole('combobox')
+        await user.type(input, 'New Link')
+        await user.click(screen.getByText(/create/i))
+
+        const urlInput = document.querySelector(
+          'input[name="links[0].url"]'
+        ) as HTMLInputElement
+        fireEvent.change(urlInput, {
+          target: { value: 'not-a-valid-url' }
+        })
+
+        await user.type(input, 'Another Link')
+        await user.click(screen.getByText(/create/i))
+
+        expect(
+          document.querySelectorAll('input[name$=".url"]')
+        ).toHaveLength(1)
+        expect(screen.getByText('Invalid url')).toBeInTheDocument()
+      })
+
+      it('allows a second slot once the current slot passes schema validation', async () => {
+        const user = userEvent.setup()
+        renderLinkPicker()
+
+        const input = screen.getByRole('combobox')
+        await user.type(input, 'New Link')
+        await user.click(screen.getByText(/create/i))
+
+        const urlInput = document.querySelector(
+          'input[name="links[0].url"]'
+        ) as HTMLInputElement
+        fireEvent.change(urlInput, {
+          target: { value: 'https://example.com' }
+        })
+
+        await user.type(input, 'Another Link')
+        await user.click(screen.getByText(/create/i))
+
+        expect(
+          document.querySelectorAll('input[name$=".url"]')
+        ).toHaveLength(2)
       })
     })
 

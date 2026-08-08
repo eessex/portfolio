@@ -5,11 +5,12 @@ import {
 import type { Image } from '@/lib/images/schemas/db'
 import type { Link } from '@/lib/links/schemas/db'
 import type { Badge, EmbeddedItem } from '@/lib/types'
+import styles from '@/ui/badges.module.scss'
 import { usedOnPages } from '@/ui/util'
 
 export function Badges({ badges }: { badges: Badge[] }) {
   return (
-    <>
+    <div className={styles['badges']}>
       {badges.map((badge, index) => (
         <mark
           key={index}
@@ -18,7 +19,7 @@ export function Badges({ badges }: { badges: Badge[] }) {
           {badge.text}
         </mark>
       ))}
-    </>
+    </div>
   )
 }
 

@@ -17,6 +17,7 @@ import type { Image } from '@/lib/images/schemas/db'
 import type { Link } from '@/lib/links/schemas/db'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
+import type { Publisher } from '@/lib/publishers/schemas/db'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
   type EmbeddedItemType,
@@ -60,6 +61,10 @@ function embeddedItemTitle(
     return (item as Venue).name || 'Untitled venue'
   }
 
+  if (itemType === EmbeddedItemTypes.publishers) {
+    return (item as Publisher).name
+  }
+
   if (itemType === EmbeddedItemTypes.links) {
     const link = item as Link
     const title = link.title || formattedLinkUrl(link.url)
@@ -90,6 +95,11 @@ function embeddedItemSubtitle(
   if (itemType === EmbeddedItemTypes.links) {
     const link = item as Link
     return link.title ? formattedLinkUrl(link.url) : undefined
+  }
+
+  if (itemType === EmbeddedItemTypes.publishers) {
+    const publisher = item as Publisher
+    return publisher.url ? formattedLinkUrl(publisher.url) : undefined
   }
 
   return (item as EmbedCode).caption

@@ -20,6 +20,12 @@ import type {
   EventClient,
   FetchEventsResult
 } from '@/lib/events/types'
+import {
+  publisherFixtureAlpha,
+  publisherFixtureBeta,
+  publisherFixtureGamma
+} from '@/lib/publishers/fixtures'
+import type { DashboardPublisher } from '@/lib/publishers/schemas/client'
 import { EmbeddedItemTypes, PagePaths } from '@/lib/schemas'
 import type { ResponseWithCursor } from '@/lib/util'
 import { formattedEmbedCodeTitle } from '@/ui/embed-codes/embed-code-details'
@@ -395,5 +401,105 @@ describe('ItemsTable — embedded items (embed codes)', () => {
         screen.queryByRole('link', { name: /edit/i })
       ).not.toBeInTheDocument()
     })
+  })
+})
+
+describe('ItemsTable — embedded items (publishers)', () => {
+  const usedPublisher: DashboardPublisher = {
+    ...publisherFixtureAlpha,
+    eventSlugs: [],
+    projectSlugs: [],
+    releaseSlugs: ['some-release']
+  }
+
+  const unusedPublisher: DashboardPublisher = {
+    ...publisherFixtureBeta,
+    eventSlugs: [],
+    projectSlugs: [],
+    releaseSlugs: []
+  }
+
+  const museumPublisher: DashboardPublisher = {
+    ...publisherFixtureGamma,
+    type: 'museum',
+    eventSlugs: [],
+    projectSlugs: [],
+    releaseSlugs: []
+  }
+
+  function makePublisherResponse(
+    res: DashboardPublisher[],
+    totalCount: number,
+    nextCursor: string | null = null
+  ): ResponseWithCursor<DashboardPublisher> {
+    return { res, nextCursor, totalCount }
+  }
+
+  function rowFor(publisher: DashboardPublisher) {
+    return screen.getByText(publisher.name).closest('tr')!
+  }
+
+  function renderPublishersTable(
+    initialItems = makePublisherResponse(
+      [usedPublisher, unusedPublisher],
+      2
+    )
+  ) {
+    return render(
+      <ItemsTable
+        itemType={EmbeddedItemTypes.publishers}
+        initialItems={initialItems}
+      />
+    )
+  }
+
+  beforeEach(() => {
+    global.fetch = jest.fn()
+    jest.clearAllMocks()
+    resetIsAdminCache()
+    mockFetch(makePublisherResponse([], 0), false)
+  })
+
+  it('renders the name as the title and the website below it', () => {
+    renderPublishersTable()
+
+    const row = rowFor(usedPublisher)
+    expect(screen.getByText(usedPublisher.name)).toBeInTheDocument()
+    expect(
+      within(row).getByText('soaplibrary.example.com')
+    ).toBeInTheDocument()
+  })
+
+  it('renders the type as a Details-column badge', () => {
+    renderPublishersTable()
+
+    expect(
+      within(rowFor(usedPublisher)).getByText('Record Label')
+    ).toBeInTheDocument()
+  })
+
+  it('gives each publisher type a distinct badge color', () => {
+    renderPublishersTable(
+      makePublisherResponse([usedPublisher, museumPublisher], 2)
+    )
+
+    const recordLabelBadge = within(rowFor(usedPublisher)).getByText(
+      'Record Label'
+    )
+    const museumBadge = within(rowFor(museumPublisher)).getByText(
+      'Museum'
+    )
+    expect(recordLabelBadge.className).not.toBe(museumBadge.className)
+  })
+
+  it('renders "used on" / "unused" based on relation slugs', () => {
+    renderPublishersTable()
+
+    expect(
+      within(rowFor(usedPublisher)).getByText(/used on 1 page/i)
+    ).toBeInTheDocument()
+    expect(
+      within(rowFor(unusedPublisher)).getByText('unused')
+    ).toBeInTheDocument()
   })
 })

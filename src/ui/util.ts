@@ -5,6 +5,7 @@ import type { DashboardLink } from '@/lib/links/schemas/client'
 import type { Link } from '@/lib/links/schemas/db'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { PublishedEditionClient } from '@/lib/published-editions/schemas/client'
+import type { DashboardPublisher } from '@/lib/publishers/schemas/client'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
   type EmbeddedItemType,
@@ -28,6 +29,7 @@ export type DashboardItem =
   | DashboardImage
   | DashboardLink
   | DashboardPublishedEdition
+  | DashboardPublisher
   | DashboardVenue
 
 const dateFormatLg: Intl.DateTimeFormatOptions = {
@@ -264,7 +266,7 @@ const embeddedItemColumns: Record<
   images: { hasImage: true, hasDetail: false },
   links: { hasImage: false, hasDetail: true },
   publishedEditions: { hasImage: true, hasDetail: true },
-  publishers: { hasImage: true, hasDetail: false },
+  publishers: { hasImage: false, hasDetail: true },
   venues: { hasImage: false, hasDetail: true }
 }
 

@@ -4,9 +4,9 @@ import { sql } from '@/lib/db'
 import { runListFetch } from '@/lib/list-fetch'
 import { fetchCachedPublishersFirstPage } from '@/lib/publishers/cached'
 import {
-  type Publisher,
-  publisherSchema
-} from '@/lib/publishers/schemas/db'
+  type DashboardPublisher,
+  dashboardPublisherSchema
+} from '@/lib/publishers/schemas/client'
 import {
   DEFAULT_PAGE_SIZE,
   formatDbResponseForClient,
@@ -16,7 +16,13 @@ import {
 export async function fetchPublisherById(id: string) {
   try {
     const data = await sql`
-      SELECT publishers.*
+      SELECT
+        publishers.*,
+        ARRAY(
+          SELECT r.slug FROM published_editions pe
+          JOIN releases r ON r.id = pe.release_id
+          WHERE pe.publisher_id = publishers.id
+        ) AS release_slugs
       FROM publishers
       WHERE publishers.id = ${id}
       LIMIT 1
@@ -24,7 +30,10 @@ export async function fetchPublisherById(id: string) {
     if (data.length === 0) {
       return null
     } else {
-      return formatDbResponseForClient(data[0], publisherSchema)
+      return formatDbResponseForClient(
+        data[0],
+        dashboardPublisherSchema
+      )
     }
   } catch (cause) {
     throw new Error('Failed to fetch publisher.', { cause })
@@ -51,12 +60,12 @@ export async function fetchPublishers(
 export async function fetchPublishersRaw(
   cursor?: string,
   query?: string
-): Promise<ResponseWithCursor<Publisher>> {
+): Promise<ResponseWithCursor<DashboardPublisher>> {
   return runListFetch({
     cursor,
     query,
     itemType: 'publishers',
-    schema: publisherSchema,
+    schema: dashboardPublisherSchema,
     cursorKey: 'name',
     count: (like) => sql`
       SELECT COUNT(*)::int AS count
@@ -67,7 +76,13 @@ export async function fetchPublishersRaw(
       )
     `,
     list: ({ like, cursorName, cursorId }) => sql`
-      SELECT publishers.*
+      SELECT
+        publishers.*,
+        ARRAY(
+          SELECT r.slug FROM published_editions pe
+          JOIN releases r ON r.id = pe.release_id
+          WHERE pe.publisher_id = publishers.id
+        ) AS release_slugs
       FROM publishers
       WHERE (
         ${like}::text IS NULL

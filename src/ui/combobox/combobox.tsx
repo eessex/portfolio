@@ -34,6 +34,7 @@ export interface ComboboxProps<
   /** Params forwarded to every API fetch */
   searchParams?: SearchParams
   itemType: EmbeddedItemType | PagePath
+  isRequired?: boolean
   label?: string
   placeholder?: string
   formatResult: (item: TEmbeddedItem | TPage) => React.ReactNode
@@ -50,6 +51,7 @@ export function Combobox<
   initialResults,
   searchParams,
   itemType,
+  isRequired,
   label,
   placeholder,
   formatResult,
@@ -196,6 +198,7 @@ export function Combobox<
       <SearchInput
         value={query}
         onChange={handleQueryChange}
+        isRequired={isRequired}
         label={labelText()}
         placeholder={placeholderText()}
         role='combobox'

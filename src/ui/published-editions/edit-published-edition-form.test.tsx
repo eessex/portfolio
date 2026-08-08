@@ -45,7 +45,7 @@ describe('EditPublishedEdition', () => {
     it('renders search inputs for images and buy link when none is attached', () => {
       renderComponent({ publishedEdition: {} })
 
-      expect(screen.getByLabelText(/^images$/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/^images/i)).toBeInTheDocument()
       expect(
         screen.getByLabelText(/purchase link/i)
       ).toBeInTheDocument()

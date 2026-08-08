@@ -1,6 +1,7 @@
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useId, useState } from 'react'
 
+import { InputLabel } from '@/ui/form/input-label'
 import styles from '@/ui/search-input/search-input.module.scss'
 
 export interface SearchInputProps {
@@ -8,6 +9,7 @@ export interface SearchInputProps {
   ariaActivedescendant?: string
   beforeInputChildren?: React.ReactNode
   isLabelHidden?: boolean
+  isRequired?: boolean
   label?: string
   onChange: (newValue: string) => void
   onClear?: () => void
@@ -22,6 +24,7 @@ export function SearchInput({
   ariaActivedescendant,
   beforeInputChildren,
   isLabelHidden,
+  isRequired,
   label = 'Search',
   onChange,
   onClear,
@@ -45,12 +48,12 @@ export function SearchInput({
   return (
     <div className={styles['search-input']}>
       <div className={styles['before-input']}>
-        <label
-          className={isLabelHidden ? 'visually-hidden' : undefined}
+        <InputLabel
           htmlFor={inputId}
-        >
-          {label}
-        </label>
+          isVisuallyHidden={isLabelHidden}
+          isRequired={isRequired}
+          label={label}
+        />
         {beforeInputChildren}
       </div>
 

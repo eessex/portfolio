@@ -14,11 +14,6 @@
     display: none;
   }
 
-  input[type='checkbox'] {
-    width: auto;
-    margin-right: grids.space-rem(2);
-  }
-
   textarea {
     min-height: calc(#{grids.space-em(12)} * 2);
   }
@@ -109,11 +104,6 @@
   > p:last-child {
     margin-bottom: 0;
   }
-
-  input {
-    width: auto;
-    margin: 0.35rem #{grids.space-rem(4)} 0.35rem 0;
-  }
 }
 
 .select-container {
@@ -167,7 +157,7 @@
 
 .optional-label {
   color: var(--secondary-text-color);
-  margin-left: grids.space-rem(2);
+  margin-left: grids.space-rem(1);
 
   @include type.size('sm', 'normal', 'xs');
 }

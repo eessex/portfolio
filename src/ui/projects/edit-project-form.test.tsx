@@ -52,7 +52,7 @@ describe('EditProjectForm', () => {
       expect(screen.getByLabelText(/start date/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/end date/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/published/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/^images$/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/^images/i)).toBeInTheDocument()
     })
   })
 
@@ -94,7 +94,7 @@ describe('EditProjectForm', () => {
       const user = userEvent.setup()
       renderComponent()
 
-      const imagesInput = screen.getByLabelText(/^images$/i)
+      const imagesInput = screen.getByLabelText(/^images/i)
       await user.type(imagesInput, 'New Image')
       await user.click(screen.getByText(/create image/i))
 
@@ -123,6 +123,22 @@ describe('EditProjectForm', () => {
 
       expect(screen.getByLabelText(/title/i)).toHaveValue('')
       expect(screen.getByLabelText(/published/i)).not.toBeChecked()
+    })
+  })
+
+  describe('published field', () => {
+    it('toggles when clicked', async () => {
+      const user = userEvent.setup()
+      renderComponent()
+
+      const publishedCheckbox = screen.getByLabelText(/published/i)
+      expect(publishedCheckbox).not.toBeChecked()
+
+      await user.click(publishedCheckbox)
+      expect(publishedCheckbox).toBeChecked()
+
+      await user.click(publishedCheckbox)
+      expect(publishedCheckbox).not.toBeChecked()
     })
   })
 

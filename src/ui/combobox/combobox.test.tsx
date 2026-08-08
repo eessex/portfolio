@@ -62,7 +62,9 @@ describe('Combobox', () => {
         renderCombobox()
 
         expect(screen.getByRole('combobox')).toBeInTheDocument()
-        expect(screen.getByLabelText('Venue')).toBeInTheDocument()
+        expect(
+          screen.getByLabelText('Venue', { exact: false })
+        ).toBeInTheDocument()
         expect(
           screen.getByPlaceholderText('Search venues')
         ).toBeInTheDocument()
@@ -89,7 +91,9 @@ describe('Combobox', () => {
         })
 
         expect(
-          screen.getByLabelText('Custom Venue Label')
+          screen.getByLabelText('Custom Venue Label', {
+            exact: false
+          })
         ).toBeInTheDocument()
         expect(
           screen.getByPlaceholderText('Custom Venue Placeholder')

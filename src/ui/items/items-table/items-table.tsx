@@ -167,6 +167,10 @@ export function ItemsTable<
               onChange={setQuery}
               label={`Search ${itemTypeToLabel(itemType, false, true)}`}
               isLabelHidden
+              // filter search, not a required/optional form field —
+              // suppresses the (visually hidden but still
+              // screen-reader-announced) "optional" label text
+              isRequired
             />
           </FiltersWrapper>
         )}

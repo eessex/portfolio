@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 import {
   createEmbedCodeSchema,
@@ -39,6 +40,9 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
     project?.featuredEmbedCode,
     ...(project?.embedCodes ?? [])
   ].filter((embedCode): embedCode is EmbedCode => !!embedCode)
+  const [isPublished, setIsPublished] = useState(
+    !!project?.isPublished
+  )
 
   return (
     <>
@@ -138,8 +142,9 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
       />
       <Checkbox
         attributes={{ name: 'isPublished' }}
-        isChecked={!!project?.isPublished}
+        isChecked={isPublished}
         label='Published'
+        onChange={() => setIsPublished(!isPublished)}
       />
     </>
   )

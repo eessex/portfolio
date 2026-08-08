@@ -137,6 +137,11 @@ a[href] {
     color: var(--placeholder-color);
   }
 
+  &[type='checkbox'] {
+    min-height: unset;
+    width: auto;
+  }
+
   &[type='date'],
   &[type='datetime-local'] {
     height: grids.space-em(11);
@@ -195,9 +200,15 @@ a[href] {
 
   &:has(input[type='checkbox']) {
     font-weight: normal;
+    display: flex;
+    align-items: flex-start;
 
     &:has(input[type='checkbox']:disabled) {
       color: var(--disabled-color);
+    }
+
+    input {
+      margin: grids.space-rem(1, 2, 0, 1);
     }
   }
 }
@@ -221,5 +232,9 @@ a[href] {
   @include breakpoints.mobile {
     padding-inline: grids.space-em(3);
     margin-inline: -#{grids.space-em(2)};
+  }
+
+  > fieldset {
+    margin-inline: 0;
   }
 }

@@ -3,8 +3,10 @@ import { updateTag } from 'next/cache'
 import { auth } from '@/auth'
 import { sql } from '@/lib/db'
 import {
+  createPublisherFromFields,
   deletePublisher,
-  editPublisher
+  editPublisher,
+  resolvePublisherId
 } from '@/lib/publishers/actions'
 import {
   newPublisherFixtureAlpha,
@@ -145,6 +147,77 @@ describe('Publisher Actions', () => {
 
       expect(res!.message).toBe('Failed to validate publisher.')
       expect(res!.errors).toEqual({ name: ['Required'] })
+    })
+  })
+
+  describe('#createPublisherFromFields', () => {
+    it('creates a publisher from raw field data', async () => {
+      mockSql.mockResolvedValueOnce([publisherFixtureAlpha])
+
+      const publisher = await createPublisherFromFields({
+        name: newPublisherFixtureAlpha.name,
+        type: newPublisherFixtureAlpha.type,
+        url: newPublisherFixtureAlpha.url
+      })
+
+      expect(publisher.name).toBe('Soap Library')
+      expect(mockSql).toHaveBeenCalledTimes(1)
+    })
+
+    it('throws for invalid field data', async () => {
+      await expect(
+        createPublisherFromFields({ type: 'recordLabel' })
+      ).rejects.toThrow(/invalid publisher data/i)
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('#resolvePublisherId', () => {
+    it('passes an existing publisherId straight through', async () => {
+      const data: Record<string, unknown> = {
+        publisherId: publisherFixtureAlpha.id
+      }
+
+      const id = await resolvePublisherId(data)
+
+      expect(id).toBe(publisherFixtureAlpha.id)
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('creates a new publisher from inline fields when no publisherId is submitted', async () => {
+      mockSql.mockResolvedValueOnce([publisherFixtureAlpha])
+      const data: Record<string, unknown> = {
+        name: newPublisherFixtureAlpha.name,
+        type: newPublisherFixtureAlpha.type,
+        url: newPublisherFixtureAlpha.url
+      }
+
+      const id = await resolvePublisherId(data)
+
+      expect(id).toBe(publisherFixtureAlpha.id)
+      expect(mockSql).toHaveBeenCalledTimes(1)
+    })
+
+    it('strips the inline-creation fields from data so they do not leak into the parent schema', async () => {
+      mockSql.mockResolvedValueOnce([publisherFixtureAlpha])
+      const data: Record<string, unknown> = {
+        name: newPublisherFixtureAlpha.name,
+        type: newPublisherFixtureAlpha.type,
+        url: newPublisherFixtureAlpha.url
+      }
+
+      await resolvePublisherId(data)
+
+      expect(data).not.toHaveProperty('name')
+      expect(data).not.toHaveProperty('type')
+      expect(data).not.toHaveProperty('url')
+    })
+
+    it('returns undefined when neither an id nor inline fields are submitted', async () => {
+      const id = await resolvePublisherId({})
+
+      expect(id).toBeUndefined()
+      expect(mockSql).not.toHaveBeenCalled()
     })
   })
 })

@@ -452,6 +452,93 @@ describe('ItemPicker', () => {
       })
     })
 
+    describe('schema validation (single item, blur-triggered)', () => {
+      function renderLinkPicker(props = {}) {
+        return renderComponent({
+          schema: createLinkSchema,
+          renderEditItemForm: (
+            _query: string | undefined,
+            _index: number | undefined,
+            errors?: Record<string, string[] | undefined>
+          ) => (
+            <div>
+              <input name='url' defaultValue='' onChange={() => {}} />
+              {errors?.url && <p>{errors.url.join(', ')}</p>}
+            </div>
+          ),
+          ...props
+        })
+      }
+
+      it('shows the Zod error once focus leaves the fieldset with invalid data', async () => {
+        const user = userEvent.setup()
+        renderLinkPicker()
+
+        const input = screen.getByRole('combobox')
+        await user.type(input, 'New Link')
+        await user.click(screen.getByText(/create/i))
+
+        const urlInput = document.querySelector(
+          'input[name="url"]'
+        ) as HTMLInputElement
+        fireEvent.change(urlInput, {
+          target: { value: 'not-a-valid-url' }
+        })
+        fireEvent.blur(urlInput)
+
+        expect(screen.getByText('Invalid url')).toBeInTheDocument()
+      })
+
+      it('does not validate while focus moves to another element within the fieldset', async () => {
+        const user = userEvent.setup()
+        renderLinkPicker()
+
+        const input = screen.getByRole('combobox')
+        await user.type(input, 'New Link')
+        await user.click(screen.getByText(/create/i))
+
+        const urlInput = document.querySelector(
+          'input[name="url"]'
+        ) as HTMLInputElement
+        const cancelButton = screen.getByText('Cancel')
+        fireEvent.change(urlInput, {
+          target: { value: 'not-a-valid-url' }
+        })
+        fireEvent.blur(urlInput, { relatedTarget: cancelButton })
+
+        expect(
+          screen.queryByText('Invalid url')
+        ).not.toBeInTheDocument()
+      })
+
+      it('clears the error once the field becomes valid and loses focus again', async () => {
+        const user = userEvent.setup()
+        renderLinkPicker()
+
+        const input = screen.getByRole('combobox')
+        await user.type(input, 'New Link')
+        await user.click(screen.getByText(/create/i))
+
+        const urlInput = document.querySelector(
+          'input[name="url"]'
+        ) as HTMLInputElement
+        fireEvent.change(urlInput, {
+          target: { value: 'not-a-valid-url' }
+        })
+        fireEvent.blur(urlInput)
+        expect(screen.getByText('Invalid url')).toBeInTheDocument()
+
+        fireEvent.change(urlInput, {
+          target: { value: 'https://example.com' }
+        })
+        fireEvent.blur(urlInput)
+
+        expect(
+          screen.queryByText('Invalid url')
+        ).not.toBeInTheDocument()
+      })
+    })
+
     describe('featured toggle', () => {
       it('renders no featured flag and a "Set as Featured" button on every item when nothing is featured initially', () => {
         renderComponent({

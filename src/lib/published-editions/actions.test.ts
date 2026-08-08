@@ -11,7 +11,11 @@ import {
   publishedEditionFixtureAlpha
 } from '@/lib/published-editions/fixtures'
 import type { CreatePublishedEdition } from '@/lib/published-editions/schemas/db'
-import { publisherFixtureBeta } from '@/lib/publishers/fixtures'
+import {
+  newPublisherFixtureAlpha,
+  publisherFixtureAlpha,
+  publisherFixtureBeta
+} from '@/lib/publishers/fixtures'
 import { ReleaseTypes } from '@/lib/releases/schemas'
 import { formDataFromObject } from '@/test/helpers'
 
@@ -260,6 +264,43 @@ describe('Published Edition Actions', () => {
 
         expect(mockSql.mock.calls[1]?.[3]).toBeNull()
         expect(mockSql.mock.calls[1]?.[6]).toEqual([])
+      })
+    })
+
+    describe('publisher picker', () => {
+      it('creates a new publisher inline when name/type fields are submitted instead of a publisherId', async () => {
+        const { publisherId: _publisherId, ...withoutPublisherId } =
+          newPublishedEditionFixtureAlpha
+        mockSql
+          .mockResolvedValueOnce([publisherFixtureAlpha]) // publisher INSERT
+          .mockResolvedValueOnce([publishedEditionFixtureAlpha]) // edition INSERT
+
+        const res = await editPublishedEdition(
+          formDataFromObject({
+            ...withoutPublisherId,
+            name: newPublisherFixtureAlpha.name,
+            type: newPublisherFixtureAlpha.type,
+            url: newPublisherFixtureAlpha.url
+          })
+        )
+
+        expect(res?.ok).toBe(true)
+        expect(mockSql).toHaveBeenCalledTimes(2)
+        expect(mockSql.mock.calls[1]?.[8]).toEqual(
+          publisherFixtureAlpha.id
+        )
+        expect(updateTag).toHaveBeenCalledWith('publishers')
+      })
+
+      it('does not create a publisher when an existing publisherId is submitted', async () => {
+        mockSql.mockResolvedValueOnce([publishedEditionFixtureAlpha])
+
+        await editPublishedEdition(
+          formDataFromObject(newPublishedEditionFixtureAlpha)
+        )
+
+        // only the edition INSERT — no publisher created
+        expect(mockSql).toHaveBeenCalledTimes(1)
       })
     })
   })

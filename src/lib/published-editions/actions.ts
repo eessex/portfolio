@@ -12,6 +12,7 @@ import {
   type PublishedEdition,
   publishedEditionSchema
 } from '@/lib/published-editions/schemas/db'
+import { resolvePublisherId } from '@/lib/publishers/actions'
 import { formatDbResponseForClient } from '@/lib/util'
 
 export async function editPublishedEdition(
@@ -26,7 +27,8 @@ export async function editPublishedEdition(
       const sized = await coerceEditionSize(data)
       const { coverImageId, imageIds } =
         await resolveOrderedImageIds(sized)
-      return { ...sized, coverImageId, imageIds }
+      const publisherId = await resolvePublisherId(sized)
+      return { ...sized, coverImageId, imageIds, publisherId }
     },
     invalidate: (saved?: PublishedEdition) => {
       if (saved) invalidatePublishedEditionTags(saved.releaseId)
@@ -65,15 +67,17 @@ export async function deletePublishedEdition(
  * An edition's data is embedded directly into its parent release's
  * cached fetch (`build_published_edition_json`), so saving/deleting one
  * must also invalidate that release's own cache, not just the
- * published-editions list. Saving can also create new images inline
- * (via the `images` picker's create-new flow), bypassing `editImage`'s
- * own cache invalidation, so the images tag is invalidated here too.
+ * published-editions list. Saving can also create new images or a new
+ * publisher inline (via the `images`/`publishers` pickers' create-new
+ * flows), bypassing `editImage`/`editPublisher`'s own cache
+ * invalidation, so those tags are invalidated here too.
  */
 function invalidatePublishedEditionTags(releaseId: string) {
   updateTag('published-editions')
   updateTag('releases')
   updateTag(`release:${releaseId}`)
   updateTag('images')
+  updateTag('publishers')
 }
 
 async function createPublishedEdition(

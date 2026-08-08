@@ -5,7 +5,10 @@ import type { Link } from '@/lib/links/schemas/db'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { createPublishedEditionSchema } from '@/lib/published-editions/schemas/db'
 import { publishedEditionTypes } from '@/lib/published-editions/schemas/db'
-import type { Publisher } from '@/lib/publishers/schemas/db'
+import {
+  createPublisherSchema,
+  type Publisher
+} from '@/lib/publishers/schemas/db'
 import type {
   FetchReleasesResult,
   ReleaseClient
@@ -16,6 +19,7 @@ import { EditImage } from '@/ui/images/edit-image-form'
 import { formatImageResult } from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { formatLinkResult } from '@/ui/links/format-link-result'
+import { EditPublisher } from '@/ui/publishers/edit-publisher-form'
 import { formatPublisherResult } from '@/ui/publishers/format-publisher-result'
 import { formatReleaseResult } from '@/ui/releases/format-release-result'
 
@@ -76,6 +80,10 @@ export const EditPublishedEdition = ({
         isRequired
         existingItem={publishedEdition?.publisher}
         formatResult={formatPublisherResult}
+        schema={createPublisherSchema}
+        renderEditItemForm={(_query, _index, errors) => (
+          <EditPublisher errors={errors} />
+        )}
       />
 
       <Input

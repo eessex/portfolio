@@ -276,18 +276,63 @@ export function ItemPicker<
   }
 
   /**
+   * Runs `schema` (the same create schema the server validates
+   * against, see `createLinkFromFields` etc.) against a "new" slot's
+   * current fieldset values, updating `newSlotErrors` with real Zod
+   * messages. Always valid (a no-op) for item types (e.g. `images`)
+   * whose schema needs data not yet available client-side, since
+   * `schema` is omitted for those. `focus` additionally moves focus to
+   * the first invalid field — used when blocking progress (adding
+   * another slot); omitted for the quieter blur-triggered check below,
+   * which shouldn't fight the user's own tab navigation.
+   */
+  function validateNewSlot(
+    index: number,
+    slot: Slot<TEmbeddedItem, TPage>,
+    options: { focus?: boolean } = {}
+  ): boolean {
+    if (slot.kind !== 'new' || !schema) return true
+    const fieldset = newSlotFieldsets.current.get(slot.tempId)
+    if (!fieldset) return true
+
+    const prefix = isMulti ? `${name}[${index}].` : ''
+    const parsed = schema.safeParse(
+      normalizeFormData(collectSlotData(fieldset, prefix))
+    )
+
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten()
+        .fieldErrors as FieldErrors
+      setNewSlotErrors((current) => ({
+        ...current,
+        [slot.tempId]: fieldErrors
+      }))
+      if (options.focus) {
+        const firstField = Object.keys(fieldErrors)[0]
+        const invalidEl = firstField
+          ? fieldset.elements.namedItem(`${prefix}${firstField}`)
+          : null
+        if (invalidEl instanceof HTMLElement) invalidEl.focus()
+      }
+      return false
+    }
+
+    if (slot.tempId in newSlotErrors) {
+      setNewSlotErrors(({ [slot.tempId]: _, ...rest }) => rest)
+    }
+    return true
+  }
+
+  /**
    * Blocks adding another "new" slot while an existing one is still
    * incomplete or invalid, surfacing why instead of letting bad data
-   * reach the server. Two layers: native `required`/`type` constraints
-   * (already set on each domain's edit-item form, e.g. `EditLink`'s url
+   * reach the server. Native `required`/`type` constraints (already
+   * set on each domain's edit-item form, e.g. `EditLink`'s url
    * `required`) run first, since they're the only signal for fields a
    * schema can't see yet (e.g. embed codes' `iframe` textarea, which
    * isn't itself a schema field — only the `host`/`src`/`type` parsed
-   * from it are). Once those pass, `schema` — the same create schema
-   * the server validates against (see `createLinkFromFields` etc.) — is
-   * re-run for real Zod error messages instead of only native ones;
-   * omitted for item types (e.g. `images`) whose schema needs data not
-   * yet available client-side.
+   * from it are); `validateNewSlot` then re-checks with `schema` for
+   * real Zod error messages.
    */
   function focusInvalidNewSlot(): boolean {
     for (const [index, slot] of slots.entries()) {
@@ -304,31 +349,7 @@ export function ItemPicker<
         return true
       }
 
-      if (!schema) continue
-
-      const prefix = isMulti ? `${name}[${index}].` : ''
-      const parsed = schema.safeParse(
-        normalizeFormData(collectSlotData(fieldset, prefix))
-      )
-
-      if (!parsed.success) {
-        const fieldErrors = parsed.error.flatten()
-          .fieldErrors as FieldErrors
-        setNewSlotErrors((current) => ({
-          ...current,
-          [slot.tempId]: fieldErrors
-        }))
-        const firstField = Object.keys(fieldErrors)[0]
-        const invalidEl = firstField
-          ? fieldset.elements.namedItem(`${prefix}${firstField}`)
-          : null
-        if (invalidEl instanceof HTMLElement) invalidEl.focus()
-        return true
-      }
-
-      if (slot.tempId in newSlotErrors) {
-        setNewSlotErrors(({ [slot.tempId]: _, ...rest }) => rest)
-      }
+      if (!validateNewSlot(index, slot, { focus: true })) return true
     }
     return false
   }
@@ -393,7 +414,28 @@ export function ItemPicker<
         </SelectedResult>
       </div>
     ) : (
-      <fieldset ref={(el) => setNewSlotFieldsetRef(slot.tempId, el)}>
+      <fieldset
+        ref={(el) => setNewSlotFieldsetRef(slot.tempId, el)}
+        // Multi-item slots are already validated when the user tries
+        // to add another one (`focusInvalidNewSlot`); single-item
+        // pickers never get that second chance (the Combobox that
+        // triggers it disappears once a slot exists), so validate
+        // quietly on blur instead, once focus actually leaves the
+        // fieldset rather than just moving between its own fields.
+        onBlur={
+          isMulti
+            ? undefined
+            : (e) => {
+                if (
+                  e.relatedTarget instanceof Node &&
+                  e.currentTarget.contains(e.relatedTarget)
+                ) {
+                  return
+                }
+                validateNewSlot(index, slot)
+              }
+        }
+      >
         <legend className={itemPickerStyles['new-item-legend']}>
           {dragHandle}
           {newLabel}

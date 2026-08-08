@@ -89,8 +89,9 @@
 
     button.cancel {
       position: absolute;
-      top: -#{grids.space-rem(6)};
+      top: 0;
       right: grids.space-em(4);
+      transform: translateY(-90%);
       background: var(--page-background-color);
     }
   }

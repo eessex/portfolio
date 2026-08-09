@@ -11,6 +11,7 @@
     right: 0;
     max-height: 14rem; // FIXME: fit in the viewport
     margin: 0;
+    overflow-x: hidden;
     overflow-y: auto;
     z-index: 200;
 
@@ -23,8 +24,8 @@
 
 .option {
   margin: 0;
-  padding: grids.space-em(2) grids.space-em(8);
-  max-width: unset;
+  padding: grids.space-em(2) grids.space-em(2);
+  max-width: 100%;
   border: 1px solid transparent;
 
   &:hover,
@@ -41,5 +42,5 @@
 
 .loading {
   margin: 0;
-  padding: grids.space-em(2) grids.space-em(8);
+  padding: grids.space-em(2) grids.space-em(2);
 }

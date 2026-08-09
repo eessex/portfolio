@@ -148,7 +148,7 @@ async function createImage(image: CreateImage) {
       aspect,
       caption,
       isHiddenOnAboutPage,
-      isPress,
+      type,
       title,
       url
     } = toDbRow(image)
@@ -158,7 +158,7 @@ async function createImage(image: CreateImage) {
         aspect,
         caption,
         is_hidden_on_about_page,
-        is_press,
+        type,
         title,
         url,
         created_at
@@ -167,7 +167,7 @@ async function createImage(image: CreateImage) {
         ${aspect},
         ${caption},
         ${isHiddenOnAboutPage},
-        ${isPress},
+        ${type},
         ${title},
         ${url},
         current_timestamp
@@ -190,7 +190,7 @@ async function updateImage(image: CreateImage, id: string) {
       aspect,
       caption,
       isHiddenOnAboutPage,
-      isPress,
+      type,
       title,
       url
     } = toDbRow(image, existingImage)
@@ -201,7 +201,7 @@ async function updateImage(image: CreateImage, id: string) {
         aspect = ${aspect},
         caption = ${caption},
         is_hidden_on_about_page = ${isHiddenOnAboutPage},
-        is_press = ${isPress},
+        type = ${type},
         title = ${title},
         updated_at = current_timestamp,
         url = ${url}
@@ -227,7 +227,7 @@ function toDbRow(image: CreateImage, existing?: Image) {
     aspect: imageToSave.aspect,
     caption: imageToSave.caption ?? null,
     isHiddenOnAboutPage: imageToSave.isHiddenOnAboutPage ?? null,
-    isPress: imageToSave.isPress ?? null,
+    type: imageToSave.type ?? null,
     title: imageToSave.title ?? null,
     url: imageToSave.url
   }

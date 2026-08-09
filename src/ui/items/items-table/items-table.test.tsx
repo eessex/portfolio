@@ -20,6 +20,8 @@ import type {
   EventClient,
   FetchEventsResult
 } from '@/lib/events/types'
+import { imageFixture } from '@/lib/images/fixtures'
+import type { DashboardImage } from '@/lib/images/schemas/client'
 import {
   publisherFixtureAlpha,
   publisherFixtureBeta,
@@ -300,13 +302,21 @@ describe('ItemsTable — embedded items (embed codes)', () => {
     expect(screen.queryByText(/unpublished/i)).not.toBeInTheDocument()
   })
 
-  it('renders type/contentType details', () => {
+  it('renders the contentType badge when set, in place of type', () => {
     renderEmbedCodesTable()
 
     const row = rowFor(usedEmbedCode)
-    expect(within(row).getByText('Video')).toBeInTheDocument()
     expect(
-      within(row).getByText('Official Music Video')
+      within(row).getByText('Official music video')
+    ).toBeInTheDocument()
+    expect(within(row).queryByText('Video')).not.toBeInTheDocument()
+  })
+
+  it('renders the type badge when there is no contentType', () => {
+    renderEmbedCodesTable()
+
+    expect(
+      within(rowFor(unusedEmbedCode)).getByText('Audio')
     ).toBeInTheDocument()
   })
 
@@ -500,6 +510,67 @@ describe('ItemsTable — embedded items (publishers)', () => {
     ).toBeInTheDocument()
     expect(
       within(rowFor(unusedPublisher)).getByText('unused')
+    ).toBeInTheDocument()
+  })
+})
+
+describe('ItemsTable — embedded items (images)', () => {
+  const pressImage: DashboardImage = {
+    ...imageFixture,
+    type: 'press',
+    eventSlugs: [],
+    projectSlugs: [],
+    releaseSlugs: ['some-release']
+  }
+
+  const artworkImage: DashboardImage = {
+    ...imageFixture,
+    id: '123e4567-e89b-12d3-a456-426614174002',
+    title: 'Artwork image',
+    type: 'artwork',
+    eventSlugs: [],
+    projectSlugs: [],
+    releaseSlugs: []
+  }
+
+  function makeImageResponse(
+    res: DashboardImage[],
+    totalCount: number,
+    nextCursor: string | null = null
+  ): ResponseWithCursor<DashboardImage> {
+    return { res, nextCursor, totalCount }
+  }
+
+  function rowFor(image: DashboardImage) {
+    return screen.getByText(image.title!).closest('tr')!
+  }
+
+  function renderImagesTable(
+    initialItems = makeImageResponse([pressImage, artworkImage], 2)
+  ) {
+    return render(
+      <ItemsTable
+        itemType={EmbeddedItemTypes.images}
+        initialItems={initialItems}
+      />
+    )
+  }
+
+  beforeEach(() => {
+    global.fetch = jest.fn()
+    jest.clearAllMocks()
+    resetIsAdminCache()
+    mockFetch(makeImageResponse([], 0), false)
+  })
+
+  it('renders the type as a Details-column badge', () => {
+    renderImagesTable()
+
+    expect(
+      within(rowFor(pressImage)).getByText('Press')
+    ).toBeInTheDocument()
+    expect(
+      within(rowFor(artworkImage)).getByText('Artwork')
     ).toBeInTheDocument()
   })
 })

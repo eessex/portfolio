@@ -3,7 +3,6 @@
 import { clsx } from 'clsx'
 import { useId } from 'react'
 
-import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import type { EventClient } from '@/lib/events/types'
 import type { Link } from '@/lib/links/schemas/db'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
@@ -24,7 +23,7 @@ import type {
 } from '@/lib/types'
 import { DEFAULT_PAGE_SIZE } from '@/lib/util'
 import type { Venue } from '@/lib/venues/schemas/db'
-import { EmbedCodeDetails } from '@/ui/embed-codes/embed-code-details'
+import { Badges, itemBadges } from '@/ui/badges'
 import { FiltersWrapper } from '@/ui/filters/filters'
 import { ItemsList } from '@/ui/items/items-list'
 import styles from '@/ui/items/items-table/items-table.module.scss'
@@ -310,8 +309,9 @@ function ItemsTableItem({
           format='sm'
         />
       )}
-      {itemType === EmbeddedItemTypes.embedCodes && (
-        <EmbedCodeDetails embedCode={item as EmbedCode} />
+      {(itemType === EmbeddedItemTypes.embedCodes ||
+        itemType === EmbeddedItemTypes.images) && (
+        <Badges badges={itemBadges(item)} />
       )}
       {itemType === EmbeddedItemTypes.publishedEditions && (
         <PublishedEditionDetails

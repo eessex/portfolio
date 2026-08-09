@@ -263,7 +263,7 @@ const embeddedItemColumns: Record<
   { hasImage: boolean; hasDetail: boolean }
 > = {
   embedCodes: { hasImage: true, hasDetail: true },
-  images: { hasImage: true, hasDetail: false },
+  images: { hasImage: true, hasDetail: true },
   links: { hasImage: false, hasDetail: true },
   publishedEditions: { hasImage: true, hasDetail: true },
   publishers: { hasImage: false, hasDetail: true },
@@ -345,7 +345,7 @@ export function usedOnPages(item: Partial<DashboardItem>) {
       ? item.releaseSlugs.map((i) => releaseUrl(i))
       : []
   const about = []
-  if ((item as Link).type === 'press' || (item as Image).isPress) {
+  if ((item as Link | Image).type === 'press') {
     if (!(item as Link | Image).isHiddenOnAboutPage) {
       about.push('/about')
     }
@@ -400,8 +400,8 @@ export function formatVenueInline({
 export type SearchParams = {
   /** Scope fetches to a parent project (e.g. on project pages) */
   projectId?: string
-  /** Restrict images/links to press items */
-  isPress?: boolean
+  /** Restrict images to a type, e.g. 'press' for the press-photo pickers */
+  type?: string
 }
 
 type UrlParams = {

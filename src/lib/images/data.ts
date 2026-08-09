@@ -118,27 +118,26 @@ export const fetchImagesByIds = async (ids: string[]) => {
 export async function fetchImages(
   cursor?: string,
   query?: string,
-  isPress?: boolean
+  type?: string
 ) {
   if (!cursor && !query) {
-    return isPress
-      ? fetchCachedPressImagesFirstPage()
-      : fetchCachedImagesFirstPage()
+    if (type === 'press') return fetchCachedPressImagesFirstPage()
+    if (!type) return fetchCachedImagesFirstPage()
   }
 
-  return fetchImagesRaw(cursor, query, isPress)
+  return fetchImagesRaw(cursor, query, type)
 }
 
 /**
- * dashboard: fetch all the images, or only press photos when
- * `isPress` is set (e.g. the about page cover-image picker).
+ * dashboard: fetch all the images, or only images of a given `type`
+ * (e.g. the about page press-photo cover-image picker).
  */
 export async function fetchImagesRaw(
   cursor?: string,
   query?: string,
-  isPress?: boolean
+  type?: string
 ): Promise<ResponseWithCursor<DashboardImage>> {
-  const pressOnly = isPress === true
+  const typeFilter = type ?? null
 
   return runListFetch({
     cursor,
@@ -155,7 +154,7 @@ export async function fetchImagesRaw(
         OR title ILIKE ${like}
         OR caption ILIKE ${like}
       )
-      AND (${pressOnly} IS NOT TRUE OR is_press = true)
+      AND (${typeFilter}::text IS NULL OR type = ${typeFilter})
     `,
     list: ({ like, cursorName, cursorId }) => sql`
       SELECT
@@ -178,7 +177,7 @@ export async function fetchImagesRaw(
         OR title ILIKE ${like}
         OR caption ILIKE ${like}
       )
-      AND (${pressOnly} IS NOT TRUE OR images.is_press = true)
+      AND (${typeFilter}::text IS NULL OR images.type = ${typeFilter})
       AND (
         ${cursorName}::text IS NULL
         OR (images.updated_at, images.id) < (

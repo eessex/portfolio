@@ -3,6 +3,23 @@ import { z } from 'zod'
 import { systemFields } from '@/lib/schemas/fields'
 import { bool, shortText, url } from '@/lib/schemas/primitives'
 
+/**
+ * The category of an image.
+ */
+export const imageTypes = [
+  'press',
+  'documentation',
+  'flyer',
+  'artwork'
+] as const
+export const imageTypeSchema = z.enum(imageTypes)
+export const ImageTypes = Object.fromEntries(
+  imageTypes.map((v) => [v, v])
+) as {
+  [K in (typeof imageTypes)[number]]: K
+}
+export type ImageType = z.infer<typeof imageTypeSchema>
+
 const imageFields = {
   alt: shortText.optional(),
   aspect: z.preprocess((val) => {
@@ -17,7 +34,7 @@ const imageFields = {
   }, z.number().min(0.1).max(10)),
   caption: shortText.optional(),
   isHiddenOnAboutPage: bool.optional(),
-  isPress: bool.optional(),
+  type: imageTypeSchema.optional(),
   title: shortText.optional(),
   url
 }

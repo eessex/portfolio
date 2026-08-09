@@ -194,13 +194,13 @@ describe('Image Actions', () => {
 
       await createImageFromFields({
         ...createImageFixture,
-        isPress: 'on',
+        type: 'press',
         alt: ''
       })
 
       const rows = mockSql.mock.calls[0] as unknown as string[]
-      const [, , , , isHiddenOnAboutPage, isPress] = rows
-      expect(isPress).toBe(true)
+      const [, , , , isHiddenOnAboutPage, type] = rows
+      expect(type).toBe('press')
       expect(isHiddenOnAboutPage).toBe(null)
     })
 

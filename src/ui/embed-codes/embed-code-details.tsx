@@ -4,9 +4,6 @@ import {
   EmbedCodeTypes
 } from '@/lib/embed-codes/schemas/db'
 import { capitalizeFirstLetter } from '@/lib/strings'
-import type { Badge } from '@/lib/types'
-import { Badges } from '@/ui/badges'
-import { formattedItemType } from '@/ui/util'
 
 /**
  * `Host: Title`, e.g. `Mixcloud: My excellent Mix #21`
@@ -25,26 +22,4 @@ export function formattedEmbedCodeTitle(embedCode: EmbedCode) {
 
   const title = embedCode.title || 'Untitled'
   return hostLabel ? `${hostLabel}: ${title}` : title
-}
-
-export function EmbedCodeDetails({
-  embedCode
-}: {
-  embedCode: EmbedCode
-}) {
-  const badges: Badge[] = [
-    {
-      text: formattedItemType(embedCode.type).trim(),
-      color:
-        embedCode.type === EmbedCodeTypes.video ? 'blue' : 'green'
-    }
-  ]
-  if (embedCode.contentType) {
-    badges.push({
-      text: formattedItemType(embedCode.contentType).trim(),
-      color: 'purple'
-    })
-  }
-
-  return <Badges badges={badges} />
 }

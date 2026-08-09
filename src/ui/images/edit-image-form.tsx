@@ -6,10 +6,14 @@ import type {
   createImageSchema,
   Image
 } from '@/lib/images/schemas/db'
+import { imageTypes } from '@/lib/images/schemas/db'
 import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import { Checkbox } from '@/ui/form/checkbox'
 import { FileInputImage } from '@/ui/form/file-input-image'
 import { Input } from '@/ui/form/input'
+import { Select } from '@/ui/form/select'
+
+const imageTypeOptions = [...imageTypes]
 
 interface EditImageProps {
   errors?: z.inferFlattenedErrors<
@@ -18,9 +22,10 @@ interface EditImageProps {
   image?: Partial<Image>
   index?: number
   /**
-   * Hides the "Press Image Details" fieldset (isPress/
-   * isHiddenOnAboutPage) for contexts where press-image semantics
-   * don't apply, e.g. images attached to a published edition.
+   * Hides the "Press Image Details" fieldset (the About-page
+   * visibility checkbox, shown only when type is 'press') for
+   * contexts where press-image semantics don't apply, e.g. images
+   * attached to a published edition.
    */
   isPressFieldsetHidden?: boolean
 }
@@ -31,7 +36,9 @@ export const EditImage = ({
   index,
   isPressFieldsetHidden
 }: EditImageProps) => {
-  const [isPress, setIsPress] = useState(!!image?.isPress)
+  const [type, setType] = useState<string | undefined>(
+    image?.type || undefined
+  )
   const [aspectRatio, setAspectRatio] = useState<number | undefined>(
     image?.aspect || undefined
   )
@@ -148,25 +155,37 @@ export const EditImage = ({
         errors={errors?.alt}
         label='Alt text'
       />
+      <Input
+        attributes={{
+          maxLength: MAX_STRING_LENGTH_SHORT,
+          name: `${namePrefix}title`,
+          placeholder: 'Title'
+        }}
+        defaultValue={formImage?.title}
+        description='Used for internal search only, never displayed publicly.'
+        label='Title'
+      />
+      <Select
+        attributes={{
+          name: `${namePrefix}type`,
+          'aria-controls': controlledCheckboxId,
+          'aria-expanded': type === 'press'
+        }}
+        label='Type'
+        onChange={setType}
+        options={imageTypeOptions}
+        placeholder='Select image type'
+        value={type}
+      />
       {!isPressFieldsetHidden && (
-        <fieldset>
+        <fieldset hidden={type !== 'press'}>
           <legend>Press Image Details</legend>
           <p>
             Press images are displayed on the about page by default.
           </p>
           <Checkbox
             attributes={{
-              'aria-controls': controlledCheckboxId,
-              'aria-expanded': isPress,
-              name: `${namePrefix}isPress`
-            }}
-            isChecked={isPress}
-            label='This is a press image.'
-            onChange={() => setIsPress(!isPress)}
-          />
-          <Checkbox
-            attributes={{
-              hidden: !isPress,
+              hidden: type !== 'press',
               name: `${namePrefix}isHiddenOnAboutPage`
             }}
             controlledId={controlledCheckboxId}
@@ -178,16 +197,6 @@ export const EditImage = ({
           />
         </fieldset>
       )}
-      <Input
-        attributes={{
-          maxLength: MAX_STRING_LENGTH_SHORT,
-          name: `${namePrefix}title`,
-          placeholder: 'Title'
-        }}
-        defaultValue={formImage?.title}
-        description='Used for internal search only, never displayed publicly.'
-        label='Title'
-      />
     </>
   )
 }

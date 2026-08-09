@@ -28,15 +28,40 @@ describe('formatImageResult', () => {
     expect(screen.getByRole('img')).toBeInTheDocument()
   })
 
-  it('renders a Press badge when isPress is true', () => {
-    render(formatImageResult({ ...imageFixture, isPress: true }))
+  it('renders a Press badge when type is press', () => {
+    render(formatImageResult({ ...imageFixture, type: 'press' }))
 
     expect(screen.getByText('Press')).toBeInTheDocument()
   })
 
-  it('does not render a Press badge when isPress is false', () => {
-    render(formatImageResult({ ...imageFixture, isPress: false }))
+  it('renders a Documentation badge when type is documentation', () => {
+    render(
+      formatImageResult({ ...imageFixture, type: 'documentation' })
+    )
+
+    expect(screen.getByText('Documentation')).toBeInTheDocument()
+  })
+
+  it('renders a Flyer badge when type is flyer', () => {
+    render(formatImageResult({ ...imageFixture, type: 'flyer' }))
+
+    expect(screen.getByText('Flyer')).toBeInTheDocument()
+  })
+
+  it('renders an Artwork badge when type is artwork', () => {
+    render(formatImageResult({ ...imageFixture, type: 'artwork' }))
+
+    expect(screen.getByText('Artwork')).toBeInTheDocument()
+  })
+
+  it('does not render a type badge when type is undefined', () => {
+    render(formatImageResult({ ...imageFixture, type: undefined }))
 
     expect(screen.queryByText('Press')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('Documentation')
+    ).not.toBeInTheDocument()
+    expect(screen.queryByText('Flyer')).not.toBeInTheDocument()
+    expect(screen.queryByText('Artwork')).not.toBeInTheDocument()
   })
 })

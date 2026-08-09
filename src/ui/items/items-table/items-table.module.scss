@@ -80,10 +80,10 @@
 
   // Embedded items override
   &.embedded-row {
-    grid-template-columns:
-      var(--img-width-compact) 9fr 3fr 3fr calc(52px + 1em)
-      calc(52px + 1em);
-    grid-template-areas: 'img title date meta media edit';
+    grid-template-columns: var(--img-width-compact) 9fr 3fr 3fr calc(
+        52px + 1em
+      );
+    grid-template-areas: 'img title date meta media';
 
     @include breakpoints.sm-width {
       grid-template-columns: var(--img-width-compact) 1fr;

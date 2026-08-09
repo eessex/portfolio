@@ -18,11 +18,7 @@ export default async function ImagesPage() {
   return (
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading />}>
-        <ItemsTable
-          itemType={itemType}
-          initialItems={res}
-          isExpandedOnLoad
-        />
+        <ItemsTable itemType={itemType} initialItems={res} />
       </Suspense>
     </DashboardLayout>
   )

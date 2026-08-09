@@ -82,7 +82,9 @@ export function Input<T extends InputElement = HTMLInputElement>({
   const errorId = useId()
   const isHidden =
     (attributes as React.InputHTMLAttributes<HTMLInputElement>)
-      ?.type === 'hidden'
+      ?.type === 'hidden' ||
+    !!(attributes as React.InputHTMLAttributes<HTMLInputElement>)
+      ?.hidden
   const isRequired = !!(
     attributes as React.InputHTMLAttributes<HTMLInputElement>
   )?.required

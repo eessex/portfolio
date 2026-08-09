@@ -369,18 +369,17 @@ describe('ItemsTable — embedded items (embed codes)', () => {
     })
   })
 
-  describe('edit link (admin-only, no own page/slug)', () => {
-    it('does not render for anonymous visitors', async () => {
+  describe('row-as-edit-link (admin-only, no own page/slug)', () => {
+    it('is not clickable/focusable for anonymous visitors', async () => {
       renderEmbedCodesTable()
 
       // let the (mocked, anonymous) session check resolve
       await waitFor(() => expect(global.fetch).toHaveBeenCalled())
-      expect(
-        screen.queryByRole('link', { name: /edit/i })
-      ).not.toBeInTheDocument()
+      expect(rowFor(usedEmbedCode)).not.toHaveAttribute('role')
+      expect(rowFor(usedEmbedCode)).not.toHaveAttribute('tabindex')
     })
 
-    it('renders one edit link per row for admins, pointing at the dashboard edit page', async () => {
+    it('makes each row a clickable, keyboard-focusable link to the dashboard edit page for admins', async () => {
       mockFetch(
         makeEmbedCodeResponse([usedEmbedCode, unusedEmbedCode], 2),
         true
@@ -388,18 +387,15 @@ describe('ItemsTable — embedded items (embed codes)', () => {
 
       renderEmbedCodesTable()
 
-      const editLinks = await screen.findAllByRole('link', {
-        name: /edit/i
+      await waitFor(() => {
+        expect(rowFor(usedEmbedCode)).toHaveAttribute('role', 'link')
       })
-      expect(editLinks).toHaveLength(2)
-      expect(
-        within(rowFor(usedEmbedCode)).getByRole('link', {
-          name: /edit/i
-        })
-      ).toHaveAttribute(
-        'href',
-        `/dashboard/embed_codes/${usedEmbedCode.id}/edit`
-      )
+
+      for (const embedCode of [usedEmbedCode, unusedEmbedCode]) {
+        const row = rowFor(embedCode)
+        expect(row).toHaveAttribute('role', 'link')
+        expect(row).toHaveAttribute('tabindex', '0')
+      }
     })
 
     it('does not render for page items (events/releases/projects), even for admins', () => {

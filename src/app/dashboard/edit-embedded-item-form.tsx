@@ -6,13 +6,16 @@ import React from 'react'
 import {
   type EmbeddedItemType,
   EmbeddedItemTypes,
+  itemTypeToLabel,
   singularizePath
 } from '@/lib/schemas'
 import { camelToSnake } from '@/lib/strings'
 import type { EmbeddedItem, FormResponse } from '@/lib/types'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
 import { Form, useFormErrors } from '@/ui/form/form'
+import styles from '@/ui/form/form.module.scss'
 import { EditImage } from '@/ui/images/edit-image-form'
+import { DeleteItemButton } from '@/ui/items/delete-item-button'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { EditPublishedEdition } from '@/ui/published-editions/edit-published-edition-form'
 import { EditPublisher } from '@/ui/publishers/edit-publisher-form'
@@ -57,7 +60,8 @@ export function EditEmbeddedItemForm<
 >({
   item,
   itemType,
-  editItem
+  editItem,
+  deleteItem
 }: {
   item?: T
   itemType: EmbeddedItemType
@@ -65,23 +69,37 @@ export function EditEmbeddedItemForm<
     formData: FormData,
     id?: string
   ) => Promise<FormResponse<T>>
+  deleteItem?: (item: T) => Promise<FormResponse<T>>
 }) {
   const router = useRouter()
+  const redirectTo = `/dashboard/${camelToSnake(itemType)}`
 
   async function handleSubmit(formData: FormData) {
     const res = await editItem(formData, item?.id)
     if (res?.ok && res.res) {
-      router.push(`/dashboard/${camelToSnake(itemType)}`)
+      router.push(redirectTo)
     }
     return res
   }
 
   return (
-    <Form
-      action={handleSubmit}
-      submitButtonClassName='button-lg button-primary'
-    >
-      <EmbeddedItemFormFields item={item} itemType={itemType} />
-    </Form>
+    <>
+      <Form
+        action={handleSubmit}
+        submitButtonClassName='button-lg button-primary'
+      >
+        <EmbeddedItemFormFields item={item} itemType={itemType} />
+      </Form>
+
+      {item && deleteItem && (
+        <div className={styles['delete-button-container']}>
+          <DeleteItemButton
+            deleteItem={() => deleteItem(item)}
+            itemLabel={itemTypeToLabel(itemType, true, true)}
+            redirectTo={redirectTo}
+          />
+        </div>
+      )}
+    </>
   )
 }

@@ -3,7 +3,10 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
-import { editPublishedEdition } from '@/lib/published-editions/actions'
+import {
+  deletePublishedEdition,
+  editPublishedEdition
+} from '@/lib/published-editions/actions'
 import { fetchPublishedEditionById } from '@/lib/published-editions/data'
 import type { PublishedEdition } from '@/lib/published-editions/schemas/db'
 import type { PageEmbeddedItemProps } from '@/lib/types'
@@ -32,6 +35,7 @@ export default async function EditPublishedEditionPage({
           item={edition}
           itemType='publishedEditions'
           editItem={editPublishedEdition}
+          deleteItem={deletePublishedEdition}
         />
       </Suspense>
     </article>

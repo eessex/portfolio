@@ -72,14 +72,29 @@ async function createImagesTable() {
       alt VARCHAR(255),
       aspect DOUBLE PRECISION NOT NULL,
       caption VARCHAR(255),
-      is_press BOOLEAN,
+      type VARCHAR(30),
       is_hidden_on_about_page BOOLEAN,
       title VARCHAR(255),
       url VARCHAR(255) NOT NULL UNIQUE,
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CONSTRAINT fk_image_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+      CONSTRAINT fk_image_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
+      CHECK (type IN ('press', 'documentation', 'flyer', 'artwork') OR type IS NULL)
     );
+  `
+
+  await sql`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_name = 'images' AND constraint_name = 'chk_images_type'
+      ) THEN
+        ALTER TABLE images ADD CONSTRAINT chk_images_type
+        CHECK (type IN ('press', 'documentation', 'flyer', 'artwork') OR type IS NULL);
+      END IF;
+    END
+    $$;
   `
 }
 
@@ -573,7 +588,7 @@ async function setupJsonbFunctions() {
         'aspect', i.aspect,
         'alt', i.alt,
         'title', i.title,
-        'isPress', i.is_press,
+        'type', i.type,
         'isHiddenOnAboutPage', i.is_hidden_on_about_page
       ) || build_write_dates_json(i.created_at, i.updated_at);
     $$ LANGUAGE sql IMMUTABLE;

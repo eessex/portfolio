@@ -47,7 +47,7 @@ export function useResultsList<
     augmentOnMount?: boolean
     /**
      * Extra query-string params forwarded to every API fetch, e.g.
-     * `{ projectId }` to scope to a parent, or `{ isPress: true }` to
+     * `{ projectId }` to scope to a parent, or `{ type: 'press' }` to
      * restrict images/links to press items.
      */
     searchParams?: SearchParams

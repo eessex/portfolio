@@ -70,5 +70,12 @@ export type FormResponse<T, Multiple extends boolean = false> =
 
 export interface Badge {
   text: string
-  color?: 'green' | 'blue' | 'purple' | 'orange' | 'red'
+  color?:
+    | 'green'
+    | 'blue'
+    | 'purple'
+    | 'orange'
+    | 'rose'
+    | 'indigo'
+    | 'red'
 }

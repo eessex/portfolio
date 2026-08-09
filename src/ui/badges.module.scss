@@ -4,9 +4,9 @@
 .badges {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   align-items: flex-start;
   gap: grids.space-rem(1);
-  min-width: 0;
 
   @include breakpoints.mobile {
     flex-direction: row;

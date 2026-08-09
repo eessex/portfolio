@@ -9,7 +9,7 @@ import { formatImageResult } from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 
 // Only press photos may be attached as the site cover image
-const pressSearchParams = { isPress: true }
+const pressSearchParams = { type: 'press' }
 
 function SettingsFormFields({
   settings

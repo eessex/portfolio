@@ -1,5 +1,4 @@
 import {
-  PencilIcon,
   SpeakerWaveIcon,
   VideoCameraIcon
 } from '@heroicons/react/24/outline'
@@ -194,11 +193,14 @@ export function ItemsTableRow({
   const rowCoverImage: ThumbnailImage | undefined =
     (hasOwnPage(item) && coverImage) ||
     embeddedItemCoverImage(item as EmbeddedItem, itemType)
-  const linkTarget = hasOwnPage(item) ? itemUrl(item) : undefined
+  const linkTarget = hasOwnPage(item)
+    ? itemUrl(item)
+    : isAdmin
+      ? `/dashboard/${camelToSnake(itemType)}/${item.id}/edit`
+      : undefined
   const rowLabel = hasOwnPage(item)
     ? `${item.title}${artist ? ', by ' + artist : ''}`
     : undefined
-  const isEditLinkVisible = isAdmin && !hasOwnPage(item)
   const isPriorityImage = !!(isFeatured || (index || 0) < 12)
   const imageWidth = 350
   const isAudioEmbedCode =
@@ -340,19 +342,6 @@ export function ItemsTableRow({
           />
         )}
       </td>
-      {!hasOwnPage(item) && (
-        <td className={styles['table-row-edit']}>
-          {isEditLinkVisible && (
-            <a
-              href={`/dashboard/${camelToSnake(itemType)}/${item.id}/edit`}
-              className='button-icon button-primary'
-              aria-label='Edit'
-            >
-              <PencilIcon />
-            </a>
-          )}
-        </td>
-      )}
     </tr>
   )
 }

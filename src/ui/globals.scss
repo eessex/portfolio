@@ -218,6 +218,14 @@ footer {
     background-color: var(--orange);
   }
 
+  &.badge-rose {
+    background-color: var(--rose);
+  }
+
+  &.badge-indigo {
+    background-color: var(--indigo);
+  }
+
   &.badge-red {
     background-color: var(--error-color);
   }

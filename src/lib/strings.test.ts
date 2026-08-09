@@ -4,7 +4,8 @@ import {
   camelToSnake,
   capitalizeFirstLetter,
   escapeHtml,
-  snakeToCamel
+  snakeToCamel,
+  snakeToSentence
 } from '@/lib/strings'
 
 describe('#camelToSentence', () => {
@@ -22,6 +23,16 @@ describe('#snakeToCamel', () => {
 describe('#camelToSnake', () => {
   it('converts camelCase to snake_case', () => {
     expect(camelToSnake('helloWorld')).toBe('hello_world')
+  })
+})
+
+describe('#snakeToSentence', () => {
+  it('converts snake_case to a sentence, capitalizing only the first letter', () => {
+    expect(snakeToSentence('buy_link')).toBe('Buy link')
+  })
+
+  it('leaves single-word values capitalized', () => {
+    expect(snakeToSentence('documentation')).toBe('Documentation')
   })
 })
 

@@ -60,7 +60,7 @@ describe('fetchImages', () => {
     expect(result).toBeDefined()
   })
 
-  it('returns cached press first page when isPress and no cursor/query', async () => {
+  it('returns cached press first page when type is press and no cursor/query', async () => {
     mockCachedPress.mockResolvedValue({
       res: [dashboardImageRow],
       nextCursor: null,
@@ -70,7 +70,7 @@ describe('fetchImages', () => {
     const result = await Images.fetchImages(
       undefined,
       undefined,
-      true
+      'press'
     )
 
     expect(mockCachedPress).toHaveBeenCalled()
@@ -80,6 +80,18 @@ describe('fetchImages', () => {
       nextCursor: null,
       totalCount: 1
     })
+  })
+
+  it('falls back to raw fetch for a non-press type with no cursor/query', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([dashboardImageRow])
+
+    await Images.fetchImages(undefined, undefined, 'documentation')
+
+    expect(mockCached).not.toHaveBeenCalled()
+    expect(mockCachedPress).not.toHaveBeenCalled()
+    expect(mockSql).toHaveBeenCalled()
   })
 })
 
@@ -111,27 +123,27 @@ describe('fetchImagesRaw', () => {
     )
   })
 
-  it('restricts to press photos when isPress is set', async () => {
+  it('restricts to a type when one is set', async () => {
     mockSql
       .mockResolvedValueOnce([{ count: 1 }])
       .mockResolvedValueOnce([dashboardImageRow])
 
-    await Images.fetchImagesRaw(undefined, undefined, true)
+    await Images.fetchImagesRaw(undefined, undefined, 'press')
 
-    // the `is_press` guard is bound `true` on both count and page queries
-    expect(mockSql.mock.calls[0]).toContain(true)
-    expect(mockSql.mock.calls[1]).toContain(true)
+    // the `type` filter is bound 'press' on both count and page queries
+    expect(mockSql.mock.calls[0]).toContain('press')
+    expect(mockSql.mock.calls[1]).toContain('press')
   })
 
-  it('does not restrict to press photos by default', async () => {
+  it('does not restrict by type by default', async () => {
     mockSql
       .mockResolvedValueOnce([{ count: 1 }])
       .mockResolvedValueOnce([dashboardImageRow])
 
     await Images.fetchImagesRaw()
 
-    expect(mockSql.mock.calls[0]).toContain(false)
-    expect(mockSql.mock.calls[1]).toContain(false)
+    expect(mockSql.mock.calls[0]).toContain(null)
+    expect(mockSql.mock.calls[1]).toContain(null)
   })
 })
 

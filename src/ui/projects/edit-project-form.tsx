@@ -90,7 +90,7 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         existingItems={images}
         formatResult={formatImageResult}
         renderEditItemForm={(_query, index) => (
-          <EditImage index={index} />
+          <EditImage index={index} isPressFieldsetHidden />
         )}
       />
       <Input

@@ -3,13 +3,13 @@
 .item-picker {
   display: flex;
   flex-direction: column;
-  gap: grids.space-rem(2);
+  gap: grids.space-rem(3);
 }
 
 .item-list {
   display: flex;
   flex-direction: column;
-  gap: grids.space-rem(2);
+  gap: grids.space-rem(3);
 }
 
 .featured-button {

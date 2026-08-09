@@ -15,5 +15,5 @@ export async function fetchCachedPressImagesFirstPage() {
   cacheTag('images')
   cacheTag('images:press')
 
-  return await fetchImagesRaw(undefined, undefined, true)
+  return await fetchImagesRaw(undefined, undefined, 'press')
 }

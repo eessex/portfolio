@@ -3,7 +3,10 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
-import { editEmbedCode } from '@/lib/embed-codes/actions'
+import {
+  deleteEmbedCode,
+  editEmbedCode
+} from '@/lib/embed-codes/actions'
 import { fetchEmbedCodesByIds } from '@/lib/embed-codes/data'
 import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import { EmbeddedItemTypes } from '@/lib/schemas'
@@ -32,6 +35,7 @@ export default async function EditEmbedCodePage({
           itemType={EmbeddedItemTypes.embedCodes}
           item={embedCode}
           editItem={editEmbedCode}
+          deleteItem={deleteEmbedCode}
         />
       </Suspense>
     </article>

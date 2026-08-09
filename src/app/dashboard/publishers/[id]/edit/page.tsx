@@ -3,7 +3,10 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
-import { editPublisher } from '@/lib/publishers/actions'
+import {
+  deletePublisher,
+  editPublisher
+} from '@/lib/publishers/actions'
 import { fetchPublisherById } from '@/lib/publishers/data'
 import type { Publisher } from '@/lib/publishers/schemas/db'
 import { EmbeddedItemTypes } from '@/lib/schemas'
@@ -32,6 +35,7 @@ export default async function EditPublisherPage({
           item={publisher}
           itemType={EmbeddedItemTypes.publishers}
           editItem={editPublisher}
+          deleteItem={deletePublisher}
         />
       </Suspense>
     </article>

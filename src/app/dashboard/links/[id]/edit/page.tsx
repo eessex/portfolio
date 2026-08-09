@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
-import { editLink } from '@/lib/links/actions'
+import { deleteLink, editLink } from '@/lib/links/actions'
 import { fetchLinksByIds } from '@/lib/links/data'
 import type { Link } from '@/lib/links/schemas/db'
 import { EmbeddedItemTypes } from '@/lib/schemas'
@@ -32,6 +32,7 @@ export default async function EditLinkPage({
           item={link}
           itemType={EmbeddedItemTypes.links}
           editItem={editLink}
+          deleteItem={deleteLink}
         />
       </Suspense>
     </article>

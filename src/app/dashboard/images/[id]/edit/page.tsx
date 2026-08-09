@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { EditEmbeddedItemForm } from '@/app/dashboard/edit-embedded-item-form'
-import { editImage } from '@/lib/images/actions'
+import { deleteImage, editImage } from '@/lib/images/actions'
 import { fetchImageById } from '@/lib/images/data'
 import type { Image } from '@/lib/images/schemas/db'
 import { EmbeddedItemTypes } from '@/lib/schemas'
@@ -32,6 +32,7 @@ export default async function EditImagePage({
           item={image}
           itemType={EmbeddedItemTypes.images}
           editItem={editImage}
+          deleteItem={deleteImage}
         />
       </Suspense>
     </article>

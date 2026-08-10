@@ -17,7 +17,15 @@ import {
   fetchCachedImagesFirstPage,
   fetchCachedPressImagesFirstPage
 } from '@/lib/images/cached'
-import * as Images from '@/lib/images/data'
+import {
+  checkIfImageExists,
+  fetchImageById,
+  fetchImageByUrl,
+  fetchImages,
+  fetchImagesByIds,
+  fetchImagesRaw,
+  fetchProjectPressImages
+} from '@/lib/images/data'
 
 const mockSql = jest.mocked(sql)
 const mockCached = jest.mocked(fetchCachedImagesFirstPage)
@@ -42,7 +50,7 @@ describe('fetchImages', () => {
       totalCount: 1
     })
 
-    const result = await Images.fetchImages()
+    const result = await fetchImages()
 
     expect(mockCached).toHaveBeenCalled()
     expect(result).toEqual({
@@ -55,7 +63,7 @@ describe('fetchImages', () => {
   it('falls back to raw fetch when cursor is provided', async () => {
     mockSql.mockResolvedValue([])
 
-    const result = await Images.fetchImages('cursor')
+    const result = await fetchImages('cursor')
 
     expect(result).toBeDefined()
   })
@@ -67,11 +75,7 @@ describe('fetchImages', () => {
       totalCount: 1
     })
 
-    const result = await Images.fetchImages(
-      undefined,
-      undefined,
-      'press'
-    )
+    const result = await fetchImages(undefined, undefined, 'press')
 
     expect(mockCachedPress).toHaveBeenCalled()
     expect(mockCached).not.toHaveBeenCalled()
@@ -87,7 +91,7 @@ describe('fetchImages', () => {
       .mockResolvedValueOnce([{ count: 1 }])
       .mockResolvedValueOnce([dashboardImageRow])
 
-    await Images.fetchImages(undefined, undefined, 'documentation')
+    await fetchImages(undefined, undefined, 'documentation')
 
     expect(mockCached).not.toHaveBeenCalled()
     expect(mockCachedPress).not.toHaveBeenCalled()
@@ -105,7 +109,7 @@ describe('fetchImagesRaw', () => {
       .mockResolvedValueOnce([{ count: 1 }])
       .mockResolvedValueOnce([dashboardImageRow])
 
-    const result = await Images.fetchImagesRaw(undefined, 'test')
+    const result = await fetchImagesRaw(undefined, 'test')
 
     expect(result).toEqual({
       res: [dashboardImageRow],
@@ -118,7 +122,7 @@ describe('fetchImagesRaw', () => {
     mockSql.mockResolvedValueOnce([{ count: 1 }])
     mockSql.mockRejectedValue(new Error('db failed'))
 
-    await expect(Images.fetchImagesRaw()).rejects.toThrow(
+    await expect(fetchImagesRaw()).rejects.toThrow(
       'Failed to fetch images.'
     )
   })
@@ -128,7 +132,7 @@ describe('fetchImagesRaw', () => {
       .mockResolvedValueOnce([{ count: 1 }])
       .mockResolvedValueOnce([dashboardImageRow])
 
-    await Images.fetchImagesRaw(undefined, undefined, 'press')
+    await fetchImagesRaw(undefined, undefined, 'press')
 
     // the `type` filter is bound 'press' on both count and page queries
     expect(mockSql.mock.calls[0]).toContain('press')
@@ -140,14 +144,14 @@ describe('fetchImagesRaw', () => {
       .mockResolvedValueOnce([{ count: 1 }])
       .mockResolvedValueOnce([dashboardImageRow])
 
-    await Images.fetchImagesRaw()
+    await fetchImagesRaw()
 
     expect(mockSql.mock.calls[0]).toContain(null)
     expect(mockSql.mock.calls[1]).toContain(null)
   })
 })
 
-describe('fetchImageById', () => {
+describe('#fetchImageById', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -155,7 +159,7 @@ describe('fetchImageById', () => {
   it('returns formatted image when found', async () => {
     mockSql.mockResolvedValue([imageFixture])
 
-    const result = await Images.fetchImageById(imageFixture.id)
+    const result = await fetchImageById(imageFixture.id)
 
     expect(result).toEqual(imageFixture)
   })
@@ -163,7 +167,7 @@ describe('fetchImageById', () => {
   it('returns undefined when not found', async () => {
     mockSql.mockResolvedValue([])
 
-    const result = await Images.fetchImageById('missing')
+    const result = await fetchImageById('missing')
 
     expect(result).toBeUndefined()
   })
@@ -171,13 +175,13 @@ describe('fetchImageById', () => {
   it('throws on DB error', async () => {
     mockSql.mockRejectedValue(new Error('db exploded'))
 
-    await expect(
-      Images.fetchImageById(imageFixture.id)
-    ).rejects.toThrow(`Failed to fetch image ${imageFixture.id}.`)
+    await expect(fetchImageById(imageFixture.id)).rejects.toThrow(
+      `Failed to fetch image ${imageFixture.id}.`
+    )
   })
 })
 
-describe('fetchImagesByIds', () => {
+describe('#fetchImagesByIds', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -185,7 +189,7 @@ describe('fetchImagesByIds', () => {
   it('returns formatted images', async () => {
     mockSql.mockResolvedValue([imageFixture])
 
-    const result = await Images.fetchImagesByIds([imageFixture.id])
+    const result = await fetchImagesByIds([imageFixture.id])
 
     expect(result).toEqual([imageFixture])
   })
@@ -193,9 +197,9 @@ describe('fetchImagesByIds', () => {
   it('throws on DB error', async () => {
     mockSql.mockRejectedValue(new Error('db exploded'))
 
-    await expect(
-      Images.fetchImagesByIds([imageFixture.id])
-    ).rejects.toThrow('Failed to fetch images.')
+    await expect(fetchImagesByIds([imageFixture.id])).rejects.toThrow(
+      'Failed to fetch images.'
+    )
   })
 })
 
@@ -207,7 +211,7 @@ describe('fetchImageByUrl', () => {
   it('returns formatted image when found', async () => {
     mockSql.mockResolvedValue([imageFixture])
 
-    const result = await Images.fetchImageByUrl(createImageFixture)
+    const result = await fetchImageByUrl(createImageFixture)
 
     expect(result).toEqual({
       res: imageFixture,
@@ -218,7 +222,7 @@ describe('fetchImageByUrl', () => {
   it('returns null when not found', async () => {
     mockSql.mockResolvedValue([])
 
-    const result = await Images.fetchImageByUrl(createImageFixture)
+    const result = await fetchImageByUrl(createImageFixture)
 
     expect(result).toBeNull()
   })
@@ -226,9 +230,40 @@ describe('fetchImageByUrl', () => {
   it('throws on DB error', async () => {
     mockSql.mockRejectedValue(new Error('db exploded'))
 
+    await expect(fetchImageByUrl(createImageFixture)).rejects.toThrow(
+      'Failed to fetch image by URL.'
+    )
+  })
+})
+
+describe('#fetchProjectPressImages', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('returns formatted images', async () => {
+    mockSql.mockResolvedValue([imageFixture])
+
+    const result = await fetchProjectPressImages('project-id')
+
+    expect(result).toEqual([imageFixture])
+    expect(mockSql.mock.calls[0]).toContain('project-id')
+  })
+
+  it('passes isDefault through to the query so unowned images are included', async () => {
+    mockSql.mockResolvedValue([imageFixture])
+
+    await fetchProjectPressImages('project-id', true)
+
+    expect(mockSql.mock.calls[0]).toContain(true)
+  })
+
+  it('throws on DB error', async () => {
+    mockSql.mockRejectedValue(new Error('db exploded'))
+
     await expect(
-      Images.fetchImageByUrl(createImageFixture)
-    ).rejects.toThrow('Failed to fetch image by URL.')
+      fetchProjectPressImages('project-id')
+    ).rejects.toThrow('Failed to fetch project press images.')
   })
 })
 
@@ -240,9 +275,7 @@ describe('checkIfImageExists', () => {
   it('returns the image when a match is found', async () => {
     mockSql.mockResolvedValue([imageFixture])
 
-    const result = await Images.checkIfImageExists(
-      'some-filename.jpg'
-    )
+    const result = await checkIfImageExists('some-filename.jpg')
 
     expect(result).toEqual(imageFixture)
   })
@@ -250,7 +283,7 @@ describe('checkIfImageExists', () => {
   it('returns false when the match has the same id', async () => {
     mockSql.mockResolvedValue([imageFixture])
 
-    const result = await Images.checkIfImageExists(
+    const result = await checkIfImageExists(
       'some-filename.jpg',
       imageFixture.id
     )
@@ -261,9 +294,7 @@ describe('checkIfImageExists', () => {
   it('returns false when no match is found', async () => {
     mockSql.mockResolvedValue([])
 
-    const result = await Images.checkIfImageExists(
-      'missing-filename.jpg'
-    )
+    const result = await checkIfImageExists('missing-filename.jpg')
 
     expect(result).toBe(false)
   })
@@ -272,7 +303,7 @@ describe('checkIfImageExists', () => {
     mockSql.mockRejectedValue(new Error('db exploded'))
 
     await expect(
-      Images.checkIfImageExists('some-filename.jpg')
+      checkIfImageExists('some-filename.jpg')
     ).rejects.toThrow('Failed to check if image exists.')
   })
 })

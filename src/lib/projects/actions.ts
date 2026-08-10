@@ -13,8 +13,12 @@ import {
   projectSchema
 } from '@/lib/projects/schemas'
 import type { CreateProject, Project } from '@/lib/projects/types'
+import type { Contact } from '@/lib/schemas/fields'
 import { generateUniqueSlug } from '@/lib/slug/data'
-import { formatDbResponseForClient } from '@/lib/util'
+import {
+  extractIndexedGroups,
+  formatDbResponseForClient
+} from '@/lib/util'
 
 export async function editProject(formData: FormData, id?: string) {
   return runFormAction({
@@ -30,6 +34,7 @@ export async function editProject(formData: FormData, id?: string) {
 
       return {
         ...data,
+        contactInfo: resolveContactInfo(data),
         coverImageId,
         embedCodeIds,
         featuredEmbedCodeId,
@@ -88,6 +93,7 @@ export async function deleteProject(project: Project) {
 async function createProject(project: CreateProject) {
   try {
     const {
+      contactInfo,
       coverImageId,
       description,
       embedCodeIds,
@@ -119,6 +125,7 @@ async function createProject(project: CreateProject) {
         tag_ids,
         title,
         type,
+        contact_info,
         created_at
       ) VALUES (
         ${coverImageId},
@@ -135,6 +142,7 @@ async function createProject(project: CreateProject) {
         ${tagIds},
         ${title},
         ${type},
+        ${contactInfo}::jsonb[],
         current_timestamp
       )
       RETURNING *
@@ -168,7 +176,8 @@ async function updateProject(project: CreateProject, id: string) {
       startDate,
       tagIds,
       title,
-      type
+      type,
+      contactInfo
     } = toDbRow(project, existingProject)
     const rows = await sql`
       UPDATE projects
@@ -187,6 +196,7 @@ async function updateProject(project: CreateProject, id: string) {
         tag_ids = ${tagIds},
         title = ${title},
         type = ${type},
+        contact_info = ${contactInfo}::jsonb[],
         updated_at = current_timestamp
       WHERE id = ${id}
       RETURNING *
@@ -311,6 +321,44 @@ function diffIds(next: string[], previous: string[]) {
   return next.filter((id) => !previousSet.has(id))
 }
 
+/**
+ * Pulls the repeatable `contactInfo[i].title` / `contactInfo[i].contact`
+ * form fields out of the raw submission (mirroring the id resolvers,
+ * which strip their own bracketed keys before validation) into a plain
+ * `Contact[]`. Contacts carry no id, so every extracted group is a `new`
+ * entry. Blank values are dropped to `undefined` and rows with no
+ * `contact` are discarded, so empty editor rows never persist.
+ */
+function resolveContactInfo(
+  data: Record<string, unknown>
+): Contact[] {
+  const contacts: Contact[] = []
+  for (const entry of extractIndexedGroups(data, 'contactInfo')) {
+    const fields = entry.kind === 'new' ? entry.fields : {}
+    const contact = cleanContactField(fields.contact)
+    if (!contact) continue
+    contacts.push({ title: cleanContactField(fields.title), contact })
+  }
+  return contacts
+}
+
+function cleanContactField(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() !== ''
+    ? value
+    : undefined
+}
+
+/**
+ * Serializes a `Contact[]` for a Postgres `jsonb[]` column: each entry is
+ * JSON-stringified so the `${...}::jsonb[]` cast parses it back to jsonb.
+ * An empty/absent list is stored as NULL (reads back as `undefined`).
+ */
+function toContactInfoColumn(contactInfo?: Contact[]) {
+  return contactInfo?.length
+    ? contactInfo.map((contact) => JSON.stringify(contact))
+    : null
+}
+
 function toDbRow(
   project: CreateProject,
   existing?: Partial<Project>
@@ -321,6 +369,7 @@ function toDbRow(
   }
 
   return {
+    contactInfo: toContactInfoColumn(projectToSave.contactInfo),
     coverImageId: projectToSave.coverImageId ?? null,
     description: projectToSave.description ?? null,
     embedCodeIds: projectToSave.embedCodeIds ?? null,

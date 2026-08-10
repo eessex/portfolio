@@ -444,5 +444,65 @@ describe('Project Actions', () => {
         expect(mockSql).toHaveBeenCalledTimes(2)
       })
     })
+
+    describe('contact info (CONTACT‑1)', () => {
+      it('serializes submitted contact rows to a jsonb[] param on create', async () => {
+        mockSql.mockResolvedValueOnce([projectFixtureAlpha])
+
+        await editProject(
+          formDataFromObject({
+            ...newProjectFixtureAlpha,
+            isPublished: 'on',
+            'contactInfo[]': '',
+            'contactInfo[0].title': 'Bookings',
+            'contactInfo[0].contact': 'bookings@example.com',
+            'contactInfo[1].contact': 'press@example.com'
+          })
+        )
+
+        // last INSERT param (before current_timestamp) is contact_info
+        expect(mockSql.mock.calls[0]?.[15]).toEqual([
+          '{"title":"Bookings","contact":"bookings@example.com"}',
+          '{"contact":"press@example.com"}'
+        ])
+      })
+
+      it('drops blank contact rows so empty editor rows never persist', async () => {
+        mockSql.mockResolvedValueOnce([projectFixtureAlpha])
+
+        await editProject(
+          formDataFromObject({
+            ...newProjectFixtureAlpha,
+            isPublished: 'on',
+            'contactInfo[]': '',
+            'contactInfo[0].title': 'Bookings',
+            'contactInfo[0].contact': 'bookings@example.com',
+            'contactInfo[1].title': 'Press',
+            'contactInfo[1].contact': '   '
+          })
+        )
+
+        expect(mockSql.mock.calls[0]?.[15]).toEqual([
+          '{"title":"Bookings","contact":"bookings@example.com"}'
+        ])
+      })
+
+      it('stores NULL when no contacts are submitted', async () => {
+        mockSql
+          .mockResolvedValueOnce([projectFixtureAlpha]) // fetchProjectById
+          .mockResolvedValueOnce([projectFixtureAlpha]) // UPDATE
+
+        await editProject(
+          formDataFromObject({
+            ...projectFixtureAlpha,
+            isPublished: 'on'
+          }),
+          projectFixtureAlpha.id
+        )
+
+        // last UPDATE SET param (before the WHERE id) is contact_info
+        expect(mockSql.mock.calls[1]?.[15]).toBeNull()
+      })
+    })
   })
 })

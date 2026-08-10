@@ -13,6 +13,7 @@ pnpm prettier        # prettier --write .
 pnpm test            # jest
 pnpm test:watch      # jest --watch
 pnpm test:quiet      # jest --silent --noStackTrace (summary output only)
+pnpm run setup       # interactive first-run setup: .env, DB schema, first admin user (writes to the real DB)
 ```
 
 Run a single test file: `NODE_OPTIONS=--no-deprecation jest src/lib/releases/data.test.ts`
@@ -47,7 +48,8 @@ Each content type (`releases`, `events`, `projects`, `venues`, `links`, `images`
 - Server actions (`actions.ts`) receive `FormData`, run it through `normalizeFormData()` (checkbox `'on'` → `true`, empty strings → `undefined`, blank `*Date` fields → `undefined`), then `schema.safeParse()`. Failures return `formatValidationResponse()`; thrown DB errors are caught and returned via `formatErrorResponse()` — actions return a `FormResponse<T>` (`{ ok: true, res }` or `{ ok: false, message, errors? }`) rather than throwing, so UI forms can render field errors inline. This frame (auth check → normalize → validate → save → invalidate tags → format errors) is implemented once by `runFormAction()`/`runDeleteAction()` in `src/lib/form-action.ts`; a domain's `actions.ts` supplies only its schema, message label, SQL `save`/`del` callbacks, and cache invalidation (plus optional `prepare` for pre-validation work like S3 uploads, and `isNormalized: false` for schemas validating raw entries).
 - Auth-aware reads take an `isAuthed` boolean to decide whether unpublished (`is_published = false`) rows are included; API routes and pages pass this from `isAuthed()` in `src/lib/auth/guard.ts`.
 - Auth guarding (`src/lib/auth/guard.ts`): every `'use server'` mutation is session-checked before any work — form mutations get this from `runFormAction()`/`runDeleteAction()` (which call `requireAuth()` first); bespoke actions call `requireAuth()` (returns a `FormResponse` error to return early with) or `assertAuthed()` (throws, for exposed functions that don't return `FormResponse`, e.g. `uploadFile`/`deleteFromS3`) directly. This is required because middleware only protects page navigation — server actions are invoked by action id and can be POSTed to any public route. Reads are deliberately public: `data.ts` fetchers keep `'use server'` and the embedded-item `/api/*` routes take no session, since embedded items have no publish state. The only deliberately public actions are `authenticate` and `createEmailSubscription`. Tests get an authed session by default from the `@/auth` mock in `src/test/jest.setup.ts`.
-- Postgres schema (tables, constraints, indexes) is defined only in `src/seed/createTables.ts` — there are no migration files, so check that file when the on-disk schema for a table needs to be understood or changed.
+- Postgres schema (tables, constraints, indexes) is defined only in `src/seed/createTables.ts` — idempotent and safe to re-run (`IF NOT EXISTS`-guarded, including constraints added via `ALTER TABLE`, which are wrapped in an `information_schema` existence check since Postgres has no `ADD CONSTRAINT IF NOT EXISTS`). There are no migration files, so check that file when the on-disk schema for a table needs to be understood or changed.
+- First-run/local setup (`.env` creation, `AUTH_SECRET` generation, `DATABASE_URL` prompt + connection test, schema creation, first admin user) is handled by `scripts/setup.ts` (`pnpm run setup`); every step checks current state before acting, so it's safe to re-run against an already-provisioned instance.
 
 ### In-progress scaffolding
 

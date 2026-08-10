@@ -37,7 +37,7 @@ export async function fetchLinkByUrl(link: CreateLink) {
           SELECT slug FROM events AS e WHERE e.link_ids @> ARRAY[links.id]
         ) AS event_slugs,
         ARRAY(
-          SELECT slug FROM projects AS p WHERE p.link_ids @> ARRAY[links.id]
+          SELECT slug FROM projects AS p WHERE p.id = links.project_id
         ) AS project_slugs,
         ARRAY(
           SELECT slug FROM releases AS r WHERE r.link_ids @> ARRAY[links.id]
@@ -80,6 +80,36 @@ export async function fetchPressLinksRaw() {
     )
   } catch (cause) {
     throw new Error('Failed to fetch press links.', { cause })
+  }
+}
+
+/**
+ * Press links owned by a single project, index-backed on `project_id`.
+ * `isDefault` also includes unowned links (`project_id IS NULL`), per
+ * the ownership rule that a NULL `project_id` belongs to the default
+ * project.
+ */
+export async function fetchProjectPressLinks(
+  projectId: string,
+  isDefault: boolean = false
+) {
+  try {
+    const data = await sql`
+      SELECT * FROM links
+      WHERE type = 'press'
+        AND (
+          project_id = ${projectId}
+          OR (${isDefault} AND project_id IS NULL)
+        )
+      ORDER BY publish_date DESC, created_at DESC
+    `
+    return data.map((row) =>
+      formatDbResponseForClient(row, linkSchema)
+    )
+  } catch (cause) {
+    throw new Error('Failed to fetch project press links.', {
+      cause
+    })
   }
 }
 
@@ -130,7 +160,7 @@ export async function fetchLinksRaw(
           SELECT slug FROM events AS e WHERE e.link_ids @> ARRAY[links.id]
         ) AS event_slugs,
         ARRAY(
-          SELECT slug FROM projects AS p WHERE p.link_ids @> ARRAY[links.id]
+          SELECT slug FROM projects AS p WHERE p.id = links.project_id
         ) AS project_slugs,
         ARRAY(
           SELECT slug FROM releases AS r WHERE r.link_ids @> ARRAY[links.id]

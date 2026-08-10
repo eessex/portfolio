@@ -96,6 +96,8 @@ async function createImagesTable() {
     END
     $$;
   `
+
+  await sql`CREATE INDEX IF NOT EXISTS idx_images_project_id ON images(project_id);`
 }
 
 /**
@@ -128,7 +130,23 @@ async function createEmbedCodesTable() {
     CREATE UNIQUE INDEX IF NOT EXISTS embed_codes_src_type_unique
     ON embed_codes (src, type);
   `
+  await sql`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_name = 'embed_codes'
+          AND constraint_name = 'fk_embed_code_project'
+      ) THEN
+        ALTER TABLE embed_codes
+        ADD CONSTRAINT fk_embed_code_project
+        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
+      END IF;
+    END
+    $$;
+  `
 
+  await sql`CREATE INDEX IF NOT EXISTS idx_embed_codes_project_id ON embed_codes(project_id);`
   await sql`
     CREATE UNIQUE INDEX IF NOT EXISTS embed_codes_cover_image_id_unique
     ON embed_codes (cover_image_id);
@@ -232,6 +250,7 @@ async function createLinksTable() {
     );
   `
   await sql`CREATE INDEX IF NOT EXISTS idx_links_url ON links(url);`
+  await sql`CREATE INDEX IF NOT EXISTS idx_links_project_id ON links(project_id);`
 }
 
 /**
@@ -441,6 +460,7 @@ async function createReleasesTable() {
   `
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_releases_slug_current ON releases(slug);`
   await sql`CREATE INDEX IF NOT EXISTS idx_releases_release_date ON releases(release_date);`
+  await sql`CREATE INDEX IF NOT EXISTS idx_releases_project_id ON releases(project_id);`
 }
 
 /**
@@ -486,6 +506,7 @@ async function createPublishedEditionTable() {
     $$;
   `
   await sql`CREATE INDEX IF NOT EXISTS idx_published_editions_publisher ON published_editions(publisher_id);`
+  await sql`CREATE INDEX IF NOT EXISTS idx_published_editions_project_id ON published_editions(project_id);`
 }
 
 /**
@@ -525,6 +546,7 @@ async function createEventsTable() {
   // Indexes
   await sql`CREATE INDEX IF NOT EXISTS idx_events_slug ON events(slug);`
   await sql`CREATE INDEX IF NOT EXISTS idx_events_venue ON events(venue_id);`
+  await sql`CREATE INDEX IF NOT EXISTS idx_events_project_id ON events(project_id);`
 }
 
 /**

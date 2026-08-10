@@ -10,7 +10,13 @@ jest.mock('@/lib/db', () => ({
 
 import { sql } from '@/lib/db'
 import { fetchCachedLinksFirstPage } from '@/lib/links/cached'
-import * as Links from '@/lib/links/data'
+import {
+  fetchLinkByUrl,
+  fetchLinks,
+  fetchLinksByIds,
+  fetchLinksRaw,
+  fetchProjectPressLinks
+} from '@/lib/links/data'
 
 const mockSql = jest.mocked(sql)
 const mockCached = jest.mocked(fetchCachedLinksFirstPage)
@@ -34,7 +40,7 @@ describe('fetchLinks', () => {
       totalCount: 1
     })
 
-    const result = await Links.fetchLinks()
+    const result = await fetchLinks()
 
     expect(mockCached).toHaveBeenCalled()
     expect(result).toEqual({
@@ -47,7 +53,7 @@ describe('fetchLinks', () => {
   it('falls back to raw fetch when cursor is provided', async () => {
     mockSql.mockResolvedValue([])
 
-    const result = await Links.fetchLinks('cursor')
+    const result = await fetchLinks('cursor')
 
     expect(result).toBeDefined()
   })
@@ -63,7 +69,7 @@ describe('fetchLinksRaw', () => {
       .mockResolvedValueOnce([{ count: 1 }])
       .mockResolvedValueOnce([dashboardLinkRow])
 
-    const result = await Links.fetchLinksRaw(undefined, 'test')
+    const result = await fetchLinksRaw(undefined, 'test')
 
     expect(result).toEqual({
       res: [dashboardLinkRow],
@@ -76,7 +82,7 @@ describe('fetchLinksRaw', () => {
     mockSql.mockResolvedValueOnce([{ count: 1 }])
     mockSql.mockRejectedValue(new Error('db failed'))
 
-    await expect(Links.fetchLinksRaw()).rejects.toThrow(
+    await expect(fetchLinksRaw()).rejects.toThrow(
       'Failed to fetch links.'
     )
   })
@@ -90,7 +96,7 @@ describe('fetchLinksByIds', () => {
   it('returns formatted links', async () => {
     mockSql.mockResolvedValue([linkFixture])
 
-    const result = await Links.fetchLinksByIds([linkFixture.id])
+    const result = await fetchLinksByIds([linkFixture.id])
 
     expect(result).toEqual([linkFixture])
   })
@@ -98,9 +104,40 @@ describe('fetchLinksByIds', () => {
   it('throws on DB error', async () => {
     mockSql.mockRejectedValue(new Error('db exploded'))
 
+    await expect(fetchLinksByIds([linkFixture.id])).rejects.toThrow(
+      'Failed to fetch links.'
+    )
+  })
+})
+
+describe('fetchProjectPressLinks', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('returns formatted links', async () => {
+    mockSql.mockResolvedValue([linkFixture])
+
+    const result = await fetchProjectPressLinks('project-id')
+
+    expect(result).toEqual([linkFixture])
+    expect(mockSql.mock.calls[0]).toContain('project-id')
+  })
+
+  it('passes isDefault through to the query so unowned links are included', async () => {
+    mockSql.mockResolvedValue([linkFixture])
+
+    await fetchProjectPressLinks('project-id', true)
+
+    expect(mockSql.mock.calls[0]).toContain(true)
+  })
+
+  it('throws on DB error', async () => {
+    mockSql.mockRejectedValue(new Error('db exploded'))
+
     await expect(
-      Links.fetchLinksByIds([linkFixture.id])
-    ).rejects.toThrow('Failed to fetch links.')
+      fetchProjectPressLinks('project-id')
+    ).rejects.toThrow('Failed to fetch project press links.')
   })
 })
 
@@ -112,7 +149,7 @@ describe('fetchLinkByUrl', () => {
   it('returns formatted link when found', async () => {
     mockSql.mockResolvedValue([linkFixture])
 
-    const result = await Links.fetchLinkByUrl(linkFixture)
+    const result = await fetchLinkByUrl(linkFixture)
 
     expect(result).toEqual({
       res: linkFixture,
@@ -123,7 +160,7 @@ describe('fetchLinkByUrl', () => {
   it('returns null when not found', async () => {
     mockSql.mockResolvedValue([])
 
-    const result = await Links.fetchLinkByUrl(linkFixture)
+    const result = await fetchLinkByUrl(linkFixture)
 
     expect(result).toBeNull()
   })
@@ -131,7 +168,7 @@ describe('fetchLinkByUrl', () => {
   it('throws on DB error', async () => {
     mockSql.mockRejectedValue(new Error('db exploded'))
 
-    await expect(Links.fetchLinkByUrl(linkFixture)).rejects.toThrow(
+    await expect(fetchLinkByUrl(linkFixture)).rejects.toThrow(
       'Failed to fetch link.'
     )
   })

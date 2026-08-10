@@ -334,5 +334,115 @@ describe('Project Actions', () => {
         expect(mockSql.mock.calls[1]?.[5]).toBeNull()
       })
     })
+
+    describe('project_id sync (Plan B2 auto-populate)', () => {
+      it('stamps newly attached images/embed codes with the project id on create', async () => {
+        mockSql.mockResolvedValueOnce([projectFixtureAlpha]) // INSERT ... RETURNING
+        mockResolveOrderedImageIds.mockResolvedValueOnce({
+          coverImageId: NEW_IMAGE_ID,
+          imageIds: []
+        })
+        mockResolveOrderedEmbedCodeIds.mockResolvedValueOnce({
+          featuredEmbedCodeId: NEW_EMBED_CODE_ID,
+          embedCodeIds: []
+        })
+
+        await editProject(
+          formDataFromObject({
+            ...newProjectFixtureAlpha,
+            isPublished: 'on'
+          })
+        )
+
+        // call 0: INSERT ... RETURNING
+        // call 1: attach the cover image
+        // call 2: attach the featured embed code
+        expect(mockSql).toHaveBeenCalledTimes(3)
+        expect(mockSql.mock.calls[1]?.[1]).toEqual(
+          projectFixtureAlpha.id
+        )
+        expect(mockSql.mock.calls[1]?.[2]).toEqual([NEW_IMAGE_ID])
+        expect(mockSql.mock.calls[2]?.[1]).toEqual(
+          projectFixtureAlpha.id
+        )
+        expect(mockSql.mock.calls[2]?.[2]).toEqual([
+          NEW_EMBED_CODE_ID
+        ])
+      })
+
+      it('does not touch images/links/embed_codes when nothing is attached', async () => {
+        mockSql.mockResolvedValueOnce([projectFixtureAlpha]) // INSERT ... RETURNING
+
+        await editProject(
+          formDataFromObject({
+            ...newProjectFixtureAlpha,
+            isPublished: 'on'
+          })
+        )
+
+        expect(mockSql).toHaveBeenCalledTimes(1)
+      })
+
+      it('attaches newly added images and clears project_id from removed images on update', async () => {
+        const existingProjectWithImages = {
+          ...projectFixtureAlpha,
+          imageIds: [EXISTING_IMAGE_ID_1]
+        }
+        mockSql
+          .mockResolvedValueOnce([existingProjectWithImages]) // fetchProjectById
+          .mockResolvedValueOnce([projectFixtureAlpha]) // UPDATE ... RETURNING
+        mockResolveOrderedImageIds.mockResolvedValueOnce({
+          coverImageId: NEW_IMAGE_ID,
+          imageIds: []
+        })
+
+        await editProject(
+          formDataFromObject({
+            ...projectFixtureAlpha,
+            isPublished: 'on'
+          }),
+          projectFixtureAlpha.id
+        )
+
+        // call 2: attach NEW_IMAGE_ID
+        expect(mockSql.mock.calls[2]?.[1]).toEqual(
+          projectFixtureAlpha.id
+        )
+        expect(mockSql.mock.calls[2]?.[2]).toEqual([NEW_IMAGE_ID])
+
+        // call 3: clear project_id from the removed EXISTING_IMAGE_ID_1
+        expect(mockSql.mock.calls[3]?.[1]).toEqual([
+          EXISTING_IMAGE_ID_1
+        ])
+        expect(mockSql.mock.calls[3]?.[2]).toEqual(
+          projectFixtureAlpha.id
+        )
+      })
+
+      it('does not detach an image still present in the resolved list', async () => {
+        const existingProjectWithImages = {
+          ...projectFixtureAlpha,
+          imageIds: [EXISTING_IMAGE_ID_1]
+        }
+        mockSql
+          .mockResolvedValueOnce([existingProjectWithImages])
+          .mockResolvedValueOnce([projectFixtureAlpha])
+        mockResolveOrderedImageIds.mockResolvedValueOnce({
+          coverImageId: undefined,
+          imageIds: [EXISTING_IMAGE_ID_1]
+        })
+
+        await editProject(
+          formDataFromObject({
+            ...projectFixtureAlpha,
+            isPublished: 'on'
+          }),
+          projectFixtureAlpha.id
+        )
+
+        // no attach/detach calls needed: the set is unchanged
+        expect(mockSql).toHaveBeenCalledTimes(2)
+      })
+    })
   })
 })

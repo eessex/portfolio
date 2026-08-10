@@ -4,5 +4,6 @@ allowBuilds:
   '@parcel/watcher': true
   bcrypt: true
   bufferutil: true
+  esbuild: true
   sharp: true
   unrs-resolver: true

@@ -4,6 +4,7 @@ import { embedCodeSchema } from '@/lib/embed-codes/schemas/db'
 import { imageSchema } from '@/lib/images/schemas/db'
 import { linkSchema } from '@/lib/links/schemas/db'
 import {
+  contactFields,
   contentFields,
   relationFields,
   systemFields,
@@ -38,6 +39,7 @@ export const projectSchema = z.object({
   ...systemFields,
   ...taxonomyFields,
   ...contentFields,
+  ...contactFields,
   coverImageId: relationFields.coverImageId,
   embedCodeIds: relationFields.embedCodeIds,
   endDate: date.optional(),

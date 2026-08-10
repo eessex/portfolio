@@ -43,6 +43,7 @@ export default async function ItemLayout({
   const { publishedEditions } = item as ReleaseClient
   const { ticketLink, venue, project, isUpcoming } =
     item as EventClient
+  const { contactInfo } = item as ProjectClient
 
   function category() {
     switch (item.path) {
@@ -125,6 +126,18 @@ export default async function ItemLayout({
             </p>
           )}
         </section>
+
+        {!!contactInfo?.length && (
+          <section id='contact-info'>
+            <h2 className='visually-hidden'>Contact</h2>
+            {contactInfo.map(({ title, contact }, i) => (
+              <p key={i}>
+                {title && <b>{title}: </b>}
+                {contact}
+              </p>
+            ))}
+          </section>
+        )}
 
         {project && (
           <p>

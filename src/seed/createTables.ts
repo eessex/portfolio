@@ -19,6 +19,7 @@ async function createProjectsTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS projects (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+      contact_info JSONB[],
       cover_image_id UUID,
       featured_embed_code_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
@@ -40,6 +41,9 @@ async function createProjectsTable() {
     );
   `
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_projects_slug ON projects(slug);`
+  // Additive per-project contacts (CONTACT‑1). ADD COLUMN IF NOT EXISTS
+  // is idempotent, so this is safe to re-run against an existing table.
+  await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS contact_info JSONB[];`
 }
 
 /**

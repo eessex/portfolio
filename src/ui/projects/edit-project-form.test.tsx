@@ -34,6 +34,16 @@ function renderComponent(props = {}) {
   )
 }
 
+/**
+ * The form's own submit button — distinguished from the contact-info
+ * editor's per-row "Save" button, which also matches `/save/i`.
+ */
+function submitButton() {
+  return screen
+    .getAllByRole('button', { name: /save/i })
+    .find((button) => button.getAttribute('type') === 'submit')!
+}
+
 describe('EditProjectForm', () => {
   beforeEach(() => jest.clearAllMocks())
 
@@ -163,7 +173,7 @@ describe('EditProjectForm', () => {
       fireEvent.change(screen.getByLabelText(/^description\b/i), {
         target: { value: 'A test description.' }
       })
-      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+      fireEvent.click(submitButton())
 
       expect(
         await screen.findByText(/title is required/i)
@@ -185,7 +195,7 @@ describe('EditProjectForm', () => {
       fireEvent.change(screen.getByLabelText(/^description\b/i), {
         target: { value: 'A test description.' }
       })
-      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+      fireEvent.click(submitButton())
 
       await waitFor(() =>
         expect(pushMock).toHaveBeenCalledWith(
@@ -207,7 +217,7 @@ describe('EditProjectForm', () => {
       fireEvent.change(screen.getByLabelText(/^description\b/i), {
         target: { value: 'A test description.' }
       })
-      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+      fireEvent.click(submitButton())
 
       expect(await screen.findByRole('alert')).toHaveTextContent(
         'Failed to save project: connection refused.'

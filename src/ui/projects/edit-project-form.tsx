@@ -25,6 +25,7 @@ import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { DeleteItemButton } from '@/ui/items/delete-item-button'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { formatLinkResult } from '@/ui/links/format-link-result'
+import { ContactInfoFields } from '@/ui/projects/contact-info-fields'
 
 function formattedDateInputValue(date?: Date) {
   return date ? new Date(date).toISOString().split('T')[0] : ''
@@ -140,6 +141,7 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
           <EditLink index={index} errors={errors} />
         )}
       />
+      <ContactInfoFields contactInfo={project?.contactInfo} />
       <Checkbox
         attributes={{ name: 'isPublished' }}
         isChecked={isPublished}

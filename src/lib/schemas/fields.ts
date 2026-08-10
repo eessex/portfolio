@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import {
   bool,
   date,
@@ -42,6 +44,24 @@ export const relationFields = {
   linkIds: uuidArray.optional(),
   embedCodeIds: uuidArray.optional(),
   venueId: uuid.optional()
+}
+
+/**
+ * A single labelled contact entry (e.g. `{title: 'Bookings', contact:
+ * 'bookings@example.com'}`). `contact` is free-text (may be an email,
+ * phone, address, or handle) and required — a bare value is meaningful
+ * on its own; `title` is an optional label. Shared so every project
+ * (including the default/about project) renders contacts consistently.
+ */
+export const contactSchema = z.object({
+  title: shortText.optional(),
+  contact: shortText
+})
+export type Contact = z.infer<typeof contactSchema>
+
+/** repeatable per-entity contact list */
+export const contactFields = {
+  contactInfo: z.array(contactSchema).optional()
 }
 
 /** slug arrays for related entities */

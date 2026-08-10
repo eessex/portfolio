@@ -141,6 +141,7 @@ async function createProject(project: CreateProject) {
     `
     const row = rows[0]
     if (!row) throw new Error('Failed to create project.')
+    await syncChildProjectIds(row.id, childIdsOf(project))
     return formatDbResponseForClient(
       { ...row, path: 'projects' },
       projectSchema
@@ -192,6 +193,11 @@ async function updateProject(project: CreateProject, id: string) {
     `
     const row = rows[0]
     if (!row) throw new Error('Failed to update project.')
+    await syncChildProjectIds(
+      id,
+      childIdsOf(project),
+      existingProject && childIdsOf(existingProject)
+    )
     return formatDbResponseForClient(
       { ...row, path: 'projects' },
       projectSchema
@@ -199,6 +205,110 @@ async function updateProject(project: CreateProject, id: string) {
   } catch (cause) {
     throw new Error('Failed to update project.', { cause })
   }
+}
+
+/**
+ * The full set of image/link/embed-code ids a project owns, including
+ * the cover image / featured embed code (which are stored in their own
+ * columns rather than the `*Ids` arrays).
+ */
+function childIdsOf(project: {
+  coverImageId?: string
+  embedCodeIds?: string[]
+  featuredEmbedCodeId?: string
+  imageIds?: string[]
+  linkIds?: string[]
+}) {
+  return {
+    imageIds: project.coverImageId
+      ? [project.coverImageId, ...(project.imageIds ?? [])]
+      : (project.imageIds ?? []),
+    linkIds: project.linkIds ?? [],
+    embedCodeIds: project.featuredEmbedCodeId
+      ? [project.featuredEmbedCodeId, ...(project.embedCodeIds ?? [])]
+      : (project.embedCodeIds ?? [])
+  }
+}
+
+type ChildIds = ReturnType<typeof childIdsOf>
+
+/**
+ * Keeps the canonical, indexed `project_id` back-reference on
+ * images/links/embed_codes in sync with a project's `*Ids` arrays: every
+ * id newly present is stamped with this project's id, every id no
+ * longer present is cleared back to NULL (which reassigns it to the
+ * default project, per the NULL-means-default ownership rule).
+ */
+async function syncChildProjectIds(
+  projectId: string,
+  next: ChildIds,
+  previous?: ChildIds
+) {
+  const images = diffedIds(next.imageIds, previous?.imageIds)
+  const links = diffedIds(next.linkIds, previous?.linkIds)
+  const embedCodes = diffedIds(
+    next.embedCodeIds,
+    previous?.embedCodeIds
+  )
+
+  if (images.attached.length) {
+    await sql`
+      UPDATE images
+      SET project_id = ${projectId}
+      WHERE id = ANY(${images.attached})
+    `
+  }
+  if (images.detached.length) {
+    await sql`
+      UPDATE images
+      SET project_id = NULL
+      WHERE id = ANY(${images.detached}) AND project_id = ${projectId}
+    `
+  }
+
+  if (links.attached.length) {
+    await sql`
+      UPDATE links
+      SET project_id = ${projectId}
+      WHERE id = ANY(${links.attached})
+    `
+  }
+  if (links.detached.length) {
+    await sql`
+      UPDATE links
+      SET project_id = NULL
+      WHERE id = ANY(${links.detached}) AND project_id = ${projectId}
+    `
+  }
+
+  if (embedCodes.attached.length) {
+    await sql`
+      UPDATE embed_codes
+      SET project_id = ${projectId}
+      WHERE id = ANY(${embedCodes.attached})
+    `
+  }
+  if (embedCodes.detached.length) {
+    await sql`
+      UPDATE embed_codes
+      SET project_id = NULL
+      WHERE id = ANY(${embedCodes.detached})
+        AND project_id = ${projectId}
+    `
+  }
+}
+
+function diffedIds(next: string[], previous: string[] = []) {
+  return {
+    attached: diffIds(next, previous),
+    detached: diffIds(previous, next)
+  }
+}
+
+/** Ids present in `next` but not in `previous`. */
+function diffIds(next: string[], previous: string[]) {
+  const previousSet = new Set(previous)
+  return next.filter((id) => !previousSet.has(id))
 }
 
 function toDbRow(

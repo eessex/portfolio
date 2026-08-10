@@ -28,7 +28,7 @@ export const fetchEmbedCodesByIds = async (ids: string[]) => {
         ) AS event_slugs,
         ARRAY(
           SELECT slug FROM projects AS p
-          WHERE p.embed_code_ids @> ARRAY[embed_codes.id]
+          WHERE p.id = embed_codes.project_id
         ) AS project_slugs,
         ARRAY(
           SELECT slug FROM releases AS r
@@ -96,7 +96,7 @@ export async function fetchEmbedCodesRaw(
         ) AS event_slugs,
         ARRAY(
           SELECT slug FROM projects AS p
-          WHERE p.embed_code_ids @> ARRAY[embed_codes.id]
+          WHERE p.id = embed_codes.project_id
         ) AS project_slugs,
         ARRAY(
           SELECT slug FROM releases AS r

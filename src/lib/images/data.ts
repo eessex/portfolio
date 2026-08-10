@@ -62,7 +62,7 @@ export async function fetchImageByUrl(image: CreateImage) {
           WHERE (e.image_ids @> ARRAY[images.id] OR e.cover_image_id = images.id)
         ) AS event_slugs,
         ARRAY(
-          SELECT slug FROM projects AS p WHERE p.image_ids @> ARRAY[images.id]
+          SELECT slug FROM projects AS p WHERE p.id = images.project_id
         ) AS project_slugs,
         ARRAY(
           SELECT slug FROM releases AS r 
@@ -115,6 +115,36 @@ export const fetchImagesByIds = async (ids: string[]) => {
   }
 }
 
+/**
+ * Press images owned by a single project, index-backed on `project_id`.
+ * `isDefault` also includes unowned images (`project_id IS NULL`), per
+ * the ownership rule that a NULL `project_id` belongs to the default
+ * project.
+ */
+export async function fetchProjectPressImages(
+  projectId: string,
+  isDefault: boolean = false
+) {
+  try {
+    const data = await sql`
+      SELECT * FROM images
+      WHERE type = 'press'
+        AND (
+          project_id = ${projectId}
+          OR (${isDefault} AND project_id IS NULL)
+        )
+      ORDER BY updated_at DESC
+    `
+    return data.map((row) =>
+      formatDbResponseForClient(row, imageSchema)
+    )
+  } catch (cause) {
+    throw new Error('Failed to fetch project press images.', {
+      cause
+    })
+  }
+}
+
 export async function fetchImages(
   cursor?: string,
   query?: string,
@@ -164,7 +194,7 @@ export async function fetchImagesRaw(
           WHERE (e.image_ids @> ARRAY[images.id] OR e.cover_image_id = images.id)
         ) AS event_slugs,
         ARRAY(
-          SELECT slug FROM projects AS p WHERE p.image_ids @> ARRAY[images.id]
+          SELECT slug FROM projects AS p WHERE p.id = images.project_id
         ) AS project_slugs,
         ARRAY(
           SELECT slug FROM releases AS r

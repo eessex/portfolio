@@ -104,14 +104,6 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         errors={errors?.description}
         label='Description'
       />
-      <Input
-        as='textarea'
-        attributes={{ maxLength: 255, name: 'shortDescription' }}
-        defaultValue={project?.shortDescription}
-        description='Used for SEO/social previews. First 255 characters of the description will be used if this is left blank.'
-        errors={errors?.shortDescription}
-        label='Short description'
-      />
       <ItemPicker<EmbedCode>
         isMulti
         name='embedCodes'

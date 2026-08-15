@@ -40,6 +40,8 @@ export interface ComboboxProps<
   formatResult: (item: TEmbeddedItem | TPage) => React.ReactNode
   onCreateNew?: (query?: string) => void
   onSelect: (item: TEmbeddedItem | TPage) => void
+  /** Reports the server's unfiltered result count once known. */
+  onTotalCountChange?: (totalCount: number) => void
 }
 
 export function Combobox<
@@ -56,7 +58,8 @@ export function Combobox<
   placeholder,
   formatResult,
   onCreateNew,
-  onSelect
+  onSelect,
+  onTotalCountChange
 }: ComboboxProps<TEmbeddedItem, TPage, S>) {
   const {
     query,
@@ -65,12 +68,26 @@ export function Combobox<
     isLoading,
     nextCursor,
     loadMoreRef,
-    ensureFirstPage
+    ensureFirstPage,
+    count,
+    hasLoadedInitial
   } = useResultsList<TEmbeddedItem, TPage, S>(
     `/api/${camelToSnake(itemType)}`,
     initialResults,
     { defaultQuery, searchParams }
   )
+
+  // `count` tracks the *current query's* server-side total, so it's
+  // only meaningful as "the whole collection's size" for the initial,
+  // query-less fetch — report it once then stop, so a later search
+  // that happens to match nothing doesn't get misread as "empty".
+  const hasReportedTotalCountRef = useRef(false)
+  useEffect(() => {
+    if (!hasLoadedInitial || hasReportedTotalCountRef.current) return
+    hasReportedTotalCountRef.current = true
+    onTotalCountChange?.(count)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasLoadedInitial, count])
 
   const listId = useId()
   const loadMoreId = useId()

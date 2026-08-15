@@ -30,10 +30,13 @@ jest.mock('@/ui/useResultsList')
 describe('ItemPicker', () => {
   describe('embedded items', () => {
     const defaultProps: ItemPickerProps<Venue> = {
+      // A non-zero total keeps these general search/create tests
+      // decoupled from the "empty collection" behavior covered in its
+      // own describe block below.
       initialResults: {
         res: [],
         nextCursor: null,
-        totalCount: 0
+        totalCount: 1
       },
       itemType: 'venues',
       name: 'venueId',
@@ -639,6 +642,55 @@ describe('ItemPicker', () => {
         expect(
           screen.getAllByRole('button', { name: 'Set as Featured' })
         ).toHaveLength(2)
+      })
+    })
+
+    describe('empty result set', () => {
+      const emptyResults = {
+        res: [],
+        nextCursor: null,
+        totalCount: 0
+      }
+
+      it('shows the create-new form immediately instead of an empty search box', () => {
+        renderComponent({ initialResults: emptyResults })
+
+        expect(screen.getByText('New Venue Form')).toBeInTheDocument()
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+      })
+
+      it('still shows the combobox when hideCreateNew is set', () => {
+        renderComponent({
+          initialResults: emptyResults,
+          hideCreateNew: true
+        })
+
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+        expect(
+          screen.queryByText('New Venue Form')
+        ).not.toBeInTheDocument()
+      })
+
+      it('still shows the combobox when there is no inline create form', () => {
+        renderComponent({
+          initialResults: emptyResults,
+          renderEditItemForm: undefined
+        })
+
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+
+      it('still shows the combobox for multi-select pickers', () => {
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          initialResults: emptyResults
+        })
+
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+        expect(
+          screen.queryByText('New Venue Form')
+        ).not.toBeInTheDocument()
       })
     })
   })

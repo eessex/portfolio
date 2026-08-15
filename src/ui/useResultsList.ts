@@ -87,6 +87,15 @@ export function useResultsList<
   const isFetchingRef = useRef(false)
   /** Set once first page fetch completes without aborting */
   const hasLoadedInitialRef = useRef(false)
+  /**
+   * Reactive mirror of `hasLoadedInitialRef`, true immediately when
+   * seeded with `initial`: callers waiting to know the true
+   * (query-less) result count need to tell "not loaded yet" apart
+   * from "loaded and genuinely empty", both of which start as 0.
+   */
+  const [hasLoadedInitial, setHasLoadedInitial] = useState(
+    initial !== undefined
+  )
   /** Cache: one item's normalized search text */
   const searchIndexRef = useRef<Map<string, string>>(new Map())
   const [groupedItems, setGroupedItems] = useState<Record<
@@ -266,6 +275,7 @@ export function useResultsList<
         setCount(data.totalCount)
         if (options.replace) {
           hasLoadedInitialRef.current = true
+          setHasLoadedInitial(true)
         }
       } catch (err: Error | unknown) {
         if (err instanceof Error && err.name !== 'AbortError') {
@@ -405,6 +415,7 @@ export function useResultsList<
   return {
     count,
     ensureFirstPage,
+    hasLoadedInitial,
     isLoading,
     items,
     groupedItems: getFilteredGroupedItems(),

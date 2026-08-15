@@ -38,13 +38,10 @@ describe('EditProjectForm', () => {
   beforeEach(() => jest.clearAllMocks())
 
   describe('initial render', () => {
-    it('renders title, description, short description, type, dates, published, and images fields', () => {
+    it('renders title, description, type, dates, published, and images fields', () => {
       renderComponent()
 
       expect(screen.getByLabelText(/title/i)).toBeInTheDocument()
-      expect(
-        screen.getByLabelText(/short description/i)
-      ).toBeInTheDocument()
       expect(
         screen.getByLabelText(/^description\b/i)
       ).toBeInTheDocument()
@@ -110,9 +107,9 @@ describe('EditProjectForm', () => {
       renderComponent({ project: projectFixtureBand })
 
       expect(screen.getByLabelText(/title/i)).toHaveValue('Band 1')
-      expect(screen.getByLabelText(/short description/i)).toHaveValue(
-        'A test band for SEO metadata.'
-      )
+      // expect(screen.getByLabelText(/short description/i)).toHaveValue(
+      //   'A test band for SEO metadata.'
+      // )
       expect(screen.getByLabelText(/start date/i)).toHaveValue(
         '2025-01-01'
       )

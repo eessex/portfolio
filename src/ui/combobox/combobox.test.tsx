@@ -99,6 +99,20 @@ describe('Combobox', () => {
           screen.getByPlaceholderText('Custom Venue Placeholder')
         ).toBeInTheDocument()
       })
+
+      it('renders the description when provided', () => {
+        renderCombobox({ description: 'Search existing venues' })
+
+        expect(
+          screen.getByText('Search existing venues')
+        ).toBeInTheDocument()
+      })
+
+      it('does not render a description when not provided', () => {
+        const { container } = renderCombobox()
+
+        expect(container.querySelector('p')).not.toBeInTheDocument()
+      })
     })
 
     describe('opening and closing behavior', () => {

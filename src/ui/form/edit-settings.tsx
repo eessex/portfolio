@@ -52,6 +52,7 @@ function SettingsFormFields({
         name='coverImageId'
         itemType='images'
         label='Cover image'
+        description='Shown on homepage and as default meta image for search engines and link unfurling.'
         searchParams={pressSearchParams}
         existingItem={settings?.coverImage}
         formatResult={formatImageResult}

@@ -22,6 +22,7 @@ export default async function DashboardPage() {
           </AccordionDropdown>
         ) : (
           <section>
+            <h2>Welcome! Let&apos;s set up your site:</h2>
             <EditSettings />
           </section>
         )}

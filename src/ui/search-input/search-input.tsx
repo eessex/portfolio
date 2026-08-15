@@ -8,6 +8,7 @@ export interface SearchInputProps {
   ariaControls?: string
   ariaActivedescendant?: string
   beforeInputChildren?: React.ReactNode
+  description?: string
   isLabelHidden?: boolean
   isRequired?: boolean
   label?: string
@@ -23,6 +24,7 @@ export function SearchInput({
   ariaControls,
   ariaActivedescendant,
   beforeInputChildren,
+  description,
   isLabelHidden,
   isRequired,
   label = 'Search',
@@ -54,6 +56,7 @@ export function SearchInput({
           isRequired={isRequired}
           label={label}
         />
+        {description && <p>{description}</p>}
         {beforeInputChildren}
       </div>
 

@@ -99,6 +99,33 @@ describe('ItemPicker', () => {
         expect(getByText('Test Venue Texas')).toBeInTheDocument()
         expect(queryByText('New Venue Form')).not.toBeInTheDocument()
       })
+
+      it('passes the description through to the combobox when searching', () => {
+        renderComponent({
+          description: 'Pick a venue for this event'
+        })
+
+        expect(
+          screen.getByText('Pick a venue for this event')
+        ).toBeInTheDocument()
+      })
+
+      it('renders the description alongside the selected item', () => {
+        renderComponent({
+          existingItem: venueFixtureAlpha,
+          description: 'Pick a venue for this event'
+        })
+
+        expect(
+          screen.getByText('Pick a venue for this event')
+        ).toBeInTheDocument()
+      })
+
+      it('renders no description when none is provided', () => {
+        renderComponent({ existingItem: venueFixtureAlpha })
+
+        expect(document.querySelector('p')).not.toBeInTheDocument()
+      })
     })
 
     describe('search mode', () => {

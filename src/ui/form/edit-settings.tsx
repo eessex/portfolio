@@ -1,5 +1,7 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
+
 import type { Image } from '@/lib/images/schemas/db'
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
@@ -14,7 +16,7 @@ const pressSearchParams = { type: 'press' }
 function SettingsFormFields({
   settings
 }: {
-  settings: SiteSettingsClient
+  settings?: SiteSettingsClient
 }) {
   const errors = useFormErrors()
 
@@ -41,7 +43,8 @@ function SettingsFormFields({
         errors={errors?.description}
         attributes={{
           name: 'description',
-          maxLength: 255
+          maxLength: 255,
+          required: true
         }}
       />
 
@@ -52,6 +55,7 @@ function SettingsFormFields({
         searchParams={pressSearchParams}
         existingItem={settings?.coverImage}
         formatResult={formatImageResult}
+        isRequired
       />
     </>
   )
@@ -60,13 +64,19 @@ function SettingsFormFields({
 export function EditSettings({
   settings
 }: {
-  settings: SiteSettingsClient
+  settings?: SiteSettingsClient
 }) {
+  const router = useRouter()
+
+  async function handleSubmit(formData: FormData) {
+    const res = await editSiteSettings(formData, settings?.id)
+    if (res?.ok && !settings) router.refresh()
+    return res
+  }
+
   return (
     <Form
-      action={(formData: FormData) =>
-        editSiteSettings(formData, settings.id)
-      }
+      action={handleSubmit}
       submitButtonClassName='button-primary button-lg'
     >
       <SettingsFormFields settings={settings} />

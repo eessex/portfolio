@@ -16,10 +16,14 @@ export default async function DashboardPage() {
   return (
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading />}>
-        {settings && (
+        {settings ? (
           <AccordionDropdown title='Edit site settings'>
             <EditSettings settings={settings} />
           </AccordionDropdown>
+        ) : (
+          <section>
+            <EditSettings />
+          </section>
         )}
       </Suspense>
     </DashboardLayout>

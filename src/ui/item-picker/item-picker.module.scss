@@ -4,6 +4,10 @@
   display: flex;
   flex-direction: column;
   gap: grids.space-rem(3);
+
+  p {
+    margin: 0;
+  }
 }
 
 .item-list {

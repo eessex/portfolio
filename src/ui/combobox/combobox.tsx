@@ -29,6 +29,7 @@ export interface ComboboxProps<
   S extends PageDataResponse | undefined = undefined
 > {
   defaultQuery?: string
+  description?: string
   /** Server-seeded first page; omit to fetch on mount */
   initialResults?: ResultsResponse<TEmbeddedItem, TPage, S>
   /** Params forwarded to every API fetch */
@@ -50,6 +51,7 @@ export function Combobox<
   S extends PageDataResponse | undefined = undefined
 >({
   defaultQuery,
+  description,
   initialResults,
   searchParams,
   itemType,
@@ -217,6 +219,7 @@ export function Combobox<
         onChange={handleQueryChange}
         isRequired={isRequired}
         label={labelText()}
+        description={description}
         placeholder={placeholderText()}
         role='combobox'
         ariaControls={listId}

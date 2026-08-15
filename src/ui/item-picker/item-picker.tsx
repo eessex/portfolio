@@ -35,6 +35,7 @@ type ItemPickerSharedProps<
   /** Server-seeded first page. Omit to fetch on mount. */
   initialResults?: ResultsResponse<TEmbeddedItem, TPage, S>
   label?: string
+  description?: string
   searchParams?: SearchParams
   isRequired?: boolean
   itemType: EmbeddedItemType | PagePath
@@ -147,6 +148,7 @@ export function ItemPicker<
     isRequired,
     itemType,
     label,
+    description,
     name,
     formatResult,
     renderEditItemForm,
@@ -417,17 +419,20 @@ export function ItemPicker<
     return slot.kind === 'existing' ? (
       <div>
         {!isMulti && (
-          <h2>
-            {itemLabel}
-            {!isRequired && (
-              <>
-                {' '}
-                <span className={styles['optional-label']}>
-                  optional
-                </span>
-              </>
-            )}
-          </h2>
+          <>
+            <h2>
+              {itemLabel}
+              {!isRequired && (
+                <>
+                  {' '}
+                  <span className={styles['optional-label']}>
+                    optional
+                  </span>
+                </>
+              )}
+            </h2>
+            {description && <p>{description}</p>}
+          </>
         )}
         <SelectedResult
           itemType={itemType}
@@ -508,6 +513,7 @@ export function ItemPicker<
       {showCombobox && (
         <Combobox<TEmbeddedItem, TPage, S>
           label={label}
+          description={description}
           isRequired={isRequired}
           initialResults={initialResults}
           searchParams={searchParams}

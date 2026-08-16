@@ -5,11 +5,9 @@ import type { AboutClient } from '@/lib/about/types'
 import type { Image } from '@/lib/images/schemas/db'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
+import { EditImage } from '@/ui/images/edit-image-form'
 import { formatImageResult } from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
-
-// Only press photos may be attached as the about cover image
-const pressSearchParams = { type: 'press' }
 
 function AboutFormFields({ about }: { about: AboutClient }) {
   const errors = useFormErrors()
@@ -31,9 +29,9 @@ function AboutFormFields({ about }: { about: AboutClient }) {
         name='coverImageId'
         label='Cover image'
         itemType='images'
-        searchParams={pressSearchParams}
         existingItem={about?.coverImage}
         formatResult={formatImageResult}
+        renderEditItemForm={() => <EditImage />}
       />
     </>
   )

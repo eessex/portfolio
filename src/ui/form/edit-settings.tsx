@@ -7,11 +7,9 @@ import { editSiteSettings } from '@/lib/site-settings/actions'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
+import { EditImage } from '@/ui/images/edit-image-form'
 import { formatImageResult } from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
-
-// Only press photos may be attached as the site cover image
-const pressSearchParams = { type: 'press' }
 
 function SettingsFormFields({
   settings
@@ -53,9 +51,9 @@ function SettingsFormFields({
         itemType='images'
         label='Cover image'
         description='Shown on homepage and as default meta image for search engines and link unfurling.'
-        searchParams={pressSearchParams}
         existingItem={settings?.coverImage}
         formatResult={formatImageResult}
+        renderEditItemForm={() => <EditImage />}
         isRequired
       />
     </>

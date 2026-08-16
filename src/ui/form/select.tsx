@@ -1,3 +1,5 @@
+import { useId } from 'react'
+
 import { camelToSentence, snakeToCamel } from '@/lib/strings'
 import styles from '@/ui/form/form.module.scss'
 import { InputLabel } from '@/ui/form/input-label'
@@ -24,6 +26,8 @@ export function Select({
   placeholder: string
   value?: string | undefined
 }) {
+  const id = useId()
+
   if (!options || options.length === 0 || !onChange) return null
 
   return (
@@ -32,7 +36,7 @@ export function Select({
       hidden={attributes?.hidden}
     >
       <InputLabel
-        htmlFor={label}
+        htmlFor={id}
         isVisuallyHidden={isLabelHidden}
         isRequired={attributes?.required}
         label={label}
@@ -42,7 +46,7 @@ export function Select({
         <select
           aria-controls={ariaControls}
           defaultValue={value}
-          id={label}
+          id={id}
           onChange={(e) => onChange(e.target.value)}
           {...attributes}
         >

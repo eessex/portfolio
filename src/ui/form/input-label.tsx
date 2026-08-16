@@ -2,25 +2,28 @@ import clsx from 'clsx'
 
 import styles from '@/ui/form/form.module.scss'
 
-export function InputLabel({
-  isHidden,
-  htmlFor,
-  isVisuallyHidden,
-  isRequired,
-  label
-}: {
+type InputLabelProps = {
   isHidden?: boolean
-  htmlFor: string
   isVisuallyHidden?: boolean
   isRequired?: boolean
   label: string
-}) {
-  return (
-    <label
-      className={clsx(isVisuallyHidden && 'visually-hidden')}
-      htmlFor={htmlFor}
-      hidden={isHidden}
-    >
+  description?: string
+  descriptionId?: string
+} & ({ as?: 'label'; htmlFor: string } | { as: 'legend' })
+
+export function InputLabel(props: InputLabelProps) {
+  const {
+    isHidden,
+    isVisuallyHidden,
+    isRequired,
+    label,
+    description,
+    descriptionId
+  } = props
+
+  const className = clsx(isVisuallyHidden && 'visually-hidden')
+  const text = (
+    <>
       {label}
       {!isRequired && (
         <>
@@ -28,6 +31,25 @@ export function InputLabel({
           <span className={styles['optional-label']}>optional</span>
         </>
       )}
-    </label>
+    </>
+  )
+
+  return (
+    <>
+      {props.as === 'legend' ? (
+        <legend className={className} hidden={isHidden}>
+          {text}
+        </legend>
+      ) : (
+        <label
+          className={className}
+          htmlFor={props.htmlFor}
+          hidden={isHidden}
+        >
+          {text}
+        </label>
+      )}
+      {description && <p id={descriptionId}>{description}</p>}
+    </>
   )
 }

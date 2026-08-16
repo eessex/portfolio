@@ -123,17 +123,15 @@ export function Input<T extends InputElement = HTMLInputElement>({
   return (
     <div className={className} hidden={isHidden}>
       {!isHidden && (
-        <>
-          <InputLabel
-            isHidden={isHidden}
-            htmlFor={id}
-            isVisuallyHidden={isLabelHidden}
-            isRequired={isRequired}
-            label={label}
-          />
-
-          {description && <p id={descriptionId}>{description}</p>}
-        </>
+        <InputLabel
+          isHidden={isHidden}
+          htmlFor={id}
+          isVisuallyHidden={isLabelHidden}
+          isRequired={isRequired}
+          label={label}
+          description={description}
+          descriptionId={descriptionId}
+        />
       )}
       {as === 'textarea' ? (
         <textarea

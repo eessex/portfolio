@@ -37,6 +37,7 @@ export function SearchInput({
 }: SearchInputProps) {
   const [inputValue, setInputValue] = useState(value)
   const inputId = useId()
+  const descriptionId = useId()
 
   function onInputChange(v: string) {
     setInputValue(v)
@@ -55,8 +56,9 @@ export function SearchInput({
           isVisuallyHidden={isLabelHidden}
           isRequired={isRequired}
           label={label}
+          description={description}
+          descriptionId={descriptionId}
         />
-        {description && <p>{description}</p>}
         {beforeInputChildren}
       </div>
 
@@ -64,6 +66,7 @@ export function SearchInput({
         <input
           aria-controls={ariaControls}
           aria-activedescendant={ariaActivedescendant}
+          aria-describedby={description ? descriptionId : undefined}
           id={inputId}
           placeholder={
             placeholder || (isLabelHidden ? label : undefined)

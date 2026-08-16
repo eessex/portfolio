@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useId, useState } from 'react'
 import type { z } from 'zod'
 
 import {
@@ -23,12 +23,20 @@ interface EmbedCodeProps {
     typeof createEmbedCodeSchema
   >['fieldErrors']
   index?: number
+  /**
+   * Hides the inline "Remove embed" button on the parsed preview, for
+   * contexts that already wrap this form in their own cancel
+   * affordance (e.g. ItemPicker's per-slot "Cancel" button for new
+   * items) — avoids offering two different ways to back out.
+   */
+  isRemoveButtonHidden?: boolean
 }
 
 export const EditEmbedCode = ({
   index,
   embedCode,
-  errors
+  errors,
+  isRemoveButtonHidden
 }: EmbedCodeProps) => {
   const [embedCodeIframe, setEmbedCodeIframe] =
     useState<Partial<EmbedCode> | null>(() => {
@@ -38,6 +46,7 @@ export const EditEmbedCode = ({
   const [iframeInputValue, setIframeInputValue] = useState('')
   const namePrefix =
     typeof index === 'number' ? `embedCodes[${index}].` : ''
+  const detailsFieldsetId = useId()
 
   const { addErrorMessage } = useToast()
 
@@ -136,12 +145,16 @@ export const EditEmbedCode = ({
       <div>
         {embedCodeIframe ? (
           <EmbedCodeItem
+            ariaControls={detailsFieldsetId}
+            ariaExpanded
             embedCode={embedCodeIframe}
-            onRemove={onRemove}
+            onRemove={isRemoveButtonHidden ? undefined : onRemove}
           />
         ) : (
           <Input
             attributes={{
+              'aria-controls': detailsFieldsetId,
+              'aria-expanded': false,
               maxLength: 1500,
               name: `${namePrefix}iframe`,
               placeholder: '<iframe></iframe>',
@@ -159,79 +172,80 @@ export const EditEmbedCode = ({
           />
         )}
       </div>
-      <div className={styles['input-group']}>
-        <Select
-          key={embedCodeIframe?.type}
-          options={[...embedCodeTypes]}
-          onChange={(v) =>
-            setEmbedType(
-              (v || EmbedCodeTypes.audio) as EmbedCode['type']
-            )
-          }
-          label='Embed type'
-          placeholder='Select a type'
-          value={embedCodeIframe?.type}
-          attributes={{
-            hidden:
-              !embedCodeIframe || embedCodeIframe?.host !== 'youtube',
-            required: true,
-            name: `${namePrefix}type`
-          }}
-        />
-        <Select
-          key={`${embedCodeIframe?.type}-${embedCodeIframe?.contentType}`}
-          options={[
-            ...(embedCodeIframe?.type === EmbedCodeTypes.audio
-              ? EmbedCodeContentTypesByType.shared
-              : embedCodeContentTypes)
-          ]}
-          onChange={(v) =>
-            setEmbedContentType(v as EmbedCode['contentType'])
-          }
-          label='Content type'
-          placeholder='Select a content type'
-          value={embedCodeIframe?.contentType}
-          attributes={{
-            hidden: !embedCodeIframe,
-            required: true,
-            name: `${namePrefix}contentType`
-          }}
-        />
-      </div>
-      <Input
-        attributes={{
-          maxLength: MAX_STRING_LENGTH_SHORT,
-          name: `${namePrefix}caption`,
-          placeholder: 'Video by Artist Name (2024)',
-          type: embedCodeIframe?.src ? 'text' : 'hidden'
-        }}
-        defaultValue={embedCode?.caption}
-        description='Displayed below the iframe wherever it appears.'
-        errors={errors?.caption}
-        label='Caption'
-      />
-      {embedCodeIframe?.src && (
+      <fieldset hidden={!embedCodeIframe} id={detailsFieldsetId}>
+        <legend className='visually-hidden'>Embed details</legend>
+        <div className={styles['input-group']}>
+          <Select
+            key={embedCodeIframe?.type}
+            options={[...embedCodeTypes]}
+            onChange={(v) =>
+              setEmbedType(
+                (v || EmbedCodeTypes.audio) as EmbedCode['type']
+              )
+            }
+            label='Embed type'
+            placeholder='Select a type'
+            value={embedCodeIframe?.type}
+            attributes={{
+              hidden: embedCodeIframe?.host !== 'youtube',
+              required: true,
+              name: `${namePrefix}type`
+            }}
+          />
+          <Select
+            key={`${embedCodeIframe?.type}-${embedCodeIframe?.contentType}`}
+            options={[
+              ...(embedCodeIframe?.type === EmbedCodeTypes.audio
+                ? EmbedCodeContentTypesByType.shared
+                : embedCodeContentTypes)
+            ]}
+            onChange={(v) =>
+              setEmbedContentType(v as EmbedCode['contentType'])
+            }
+            label='Content type'
+            placeholder='Select a content type'
+            value={embedCodeIframe?.contentType}
+            attributes={{
+              required: true,
+              name: `${namePrefix}contentType`
+            }}
+          />
+        </div>
         <Input
           attributes={{
-            name: `${namePrefix}src`,
-            type: 'hidden',
-            required: true
+            maxLength: MAX_STRING_LENGTH_SHORT,
+            name: `${namePrefix}caption`,
+            placeholder: 'Video by Artist Name (2024)',
+            type: 'text'
           }}
-          defaultValue={embedCodeIframe.src}
-          label='Embed Code Source'
+          defaultValue={embedCode?.caption}
+          description='Displayed below the iframe wherever it appears.'
+          errors={errors?.caption}
+          label='Caption'
         />
-      )}
-      {embedCodeIframe?.host && (
-        <Input
-          attributes={{
-            name: `${namePrefix}host`,
-            type: 'hidden',
-            required: true
-          }}
-          defaultValue={embedCodeIframe.host}
-          label='Embed Code Host'
-        />
-      )}
+        {embedCodeIframe?.src && (
+          <Input
+            attributes={{
+              name: `${namePrefix}src`,
+              type: 'hidden',
+              required: true
+            }}
+            defaultValue={embedCodeIframe.src}
+            label='Embed Code Source'
+          />
+        )}
+        {embedCodeIframe?.host && (
+          <Input
+            attributes={{
+              name: `${namePrefix}host`,
+              type: 'hidden',
+              required: true
+            }}
+            defaultValue={embedCodeIframe.host}
+            label='Embed Code Host'
+          />
+        )}
+      </fieldset>
     </>
   )
 }

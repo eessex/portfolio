@@ -24,6 +24,11 @@
     @include breakpoints.mobile {
       padding: grids.space-em(3);
     }
+
+    > fieldset {
+      padding: 0;
+      border: none;
+    }
   }
 }
 

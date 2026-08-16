@@ -34,21 +34,6 @@
     }
   }
 
-  .input-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: grids.space-rem(4);
-
-    // When a sibling is hidden, span the full width
-    &:has(> [hidden]) > :not([hidden]) {
-      grid-column: 1 / -1;
-    }
-
-    @include breakpoints.mobile {
-      grid-template-columns: 1fr;
-    }
-  }
-
   p + p {
     margin-top: grids.space-rem(2);
     margin-bottom: grids.space-em(2);
@@ -95,6 +80,26 @@
 
   button[type='submit'] {
     margin-top: grids.space-rem(2);
+  }
+
+  .input-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: grids.space-rem(4);
+
+    // When a sibling is hidden, span the full width
+    &:has(> [hidden]) > :not([hidden]) {
+      grid-column: 1 / -1;
+    }
+
+    div + div {
+      margin-top: 0;
+    }
+
+    @include breakpoints.mobile {
+      grid-template-columns: 1fr;
+      margin-top: grids.space-rem(6);
+    }
   }
 }
 

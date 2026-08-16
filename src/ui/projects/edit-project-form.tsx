@@ -113,7 +113,11 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         formatResult={formatEmbedCodeResult}
         schema={createEmbedCodeSchema}
         renderEditItemForm={(_query, index, errors) => (
-          <EditEmbedCode index={index} errors={errors} />
+          <EditEmbedCode
+            index={index}
+            errors={errors}
+            isRemoveButtonHidden
+          />
         )}
         featured={{
           isInitiallyFeatured: !!project?.featuredEmbedCode,

@@ -1,3 +1,4 @@
+@use '@/ui/styles/breakpoints';
 @use '@/ui/styles/grids';
 
 .item-picker {
@@ -14,10 +15,25 @@
   display: flex;
   flex-direction: column;
   gap: grids.space-rem(3);
+
+  fieldset {
+    margin-inline: 0;
+    padding: grids.space-em(4);
+    border-color: var(--transparency-primary);
+
+    @include breakpoints.mobile {
+      padding: grids.space-em(3);
+    }
+  }
 }
 
 .featured-button {
   border-radius: 50%;
+}
+
+fieldset.existing-item-wrapper {
+  border: none;
+  padding: 0;
 }
 
 .new-item-legend {

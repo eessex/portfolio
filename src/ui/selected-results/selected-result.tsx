@@ -5,7 +5,6 @@ import styles from '@/ui/selected-results/selected-results.module.scss'
 
 export type SelectedResultProps = {
   as?: 'div' | 'li'
-  isRequired?: boolean
   id: string
   itemType: EmbeddedItemType | PagePath
   /**
@@ -26,7 +25,6 @@ export type SelectedResultProps = {
 
 export const SelectedResult = ({
   as: Component = 'div',
-  isRequired,
   id,
   itemType,
   name,
@@ -47,8 +45,7 @@ export const SelectedResult = ({
         attributes={{
           name: fieldName,
           readOnly: true,
-          type: 'hidden',
-          required: isRequired
+          type: 'hidden'
         }}
       />
     </Component>

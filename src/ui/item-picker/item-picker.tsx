@@ -19,6 +19,7 @@ import { normalizeFormData } from '@/lib/util'
 import { Combobox } from '@/ui/combobox/combobox'
 import { SortableList } from '@/ui/drag-and-drop/sortable-list'
 import styles from '@/ui/form/form.module.scss'
+import { InputLabel } from '@/ui/form/input-label'
 import itemPickerStyles from '@/ui/item-picker/item-picker.module.scss'
 import { SelectedResult } from '@/ui/selected-results/selected-result'
 import type { ResultsResponse } from '@/ui/useResultsList'
@@ -398,38 +399,38 @@ export function ItemPicker<
     featuredButton?: React.ReactNode
   ) {
     return slot.kind === 'existing' ? (
-      <div>
-        {!isMulti && (
-          <>
-            <h2>
-              {itemLabel}
-              {!isRequired && (
-                <>
-                  {' '}
-                  <span className={styles['optional-label']}>
-                    optional
-                  </span>
-                </>
+      (() => {
+        const Wrapper: 'div' | 'fieldset' = isMulti
+          ? 'div'
+          : 'fieldset'
+        return (
+          <Wrapper
+            className={itemPickerStyles['existing-item-wrapper']}
+          >
+            {!isMulti && (
+              <InputLabel
+                as='legend'
+                isRequired={isRequired}
+                label={itemLabel}
+                description={description}
+              />
+            )}
+            <SelectedResult
+              itemType={itemType}
+              name={isMulti ? `${name}[${index}].id` : name}
+              id={slot.item.id}
+              dragHandle={dragHandle}
+            >
+              {formatResult(
+                slot.item,
+                () => removeSlot(index),
+                removeLabel,
+                featuredButton
               )}
-            </h2>
-            {description && <p>{description}</p>}
-          </>
-        )}
-        <SelectedResult
-          itemType={itemType}
-          name={isMulti ? `${name}[${index}].id` : name}
-          id={slot.item.id}
-          isRequired={isRequired}
-          dragHandle={dragHandle}
-        >
-          {formatResult(
-            slot.item,
-            () => removeSlot(index),
-            removeLabel,
-            featuredButton
-          )}
-        </SelectedResult>
-      </div>
+            </SelectedResult>
+          </Wrapper>
+        )
+      })()
     ) : (
       <fieldset
         ref={(el) => setNewSlotFieldsetRef(slot.tempId, el)}

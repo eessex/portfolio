@@ -54,7 +54,8 @@
     margin-bottom: grids.space-em(2);
   }
 
-  label {
+  label,
+  legend {
     + p {
       margin-top: grids.space-em(1);
       margin-bottom: grids.space-em(2);
@@ -67,10 +68,6 @@
     }
   }
 
-  legend + p {
-    margin-bottom: 0;
-  }
-
   legend + div {
     margin-top: grids.space-em(3);
   }
@@ -79,14 +76,19 @@
     margin-bottom: grids.space-rem(2);
   }
 
+  fieldset {
+    div + div {
+      margin-top: grids.space-rem(6);
+    }
+  }
+
   fieldset:has(button.cancel) {
     position: relative;
 
     button.cancel {
       position: absolute;
-      top: 0;
+      top: grids.space-em(4);
       right: grids.space-em(4);
-      transform: translateY(-90%);
       background: var(--page-background-color);
     }
   }

@@ -215,6 +215,8 @@ a[href] {
 
 :where(legend) {
   padding-inline: 0;
+  width: 100%;
+  float: left;
 }
 
 :where(form, fieldset) {
@@ -224,17 +226,9 @@ a[href] {
 }
 
 :where(fieldset) {
-  padding-inline: grids.space-em(4);
-  padding-bottom: grids.space-em(4);
-  margin-inline: -#{grids.space-em(4)};
-  border-color: var(--transparency-primary);
+  --row-gap: 0;
 
-  @include breakpoints.mobile {
-    padding-inline: grids.space-em(3);
-    margin-inline: -#{grids.space-em(2)};
-  }
-
-  > fieldset {
-    margin-inline: 0;
-  }
+  border-color: transparent;
+  padding: 0;
+  margin: 0;
 }

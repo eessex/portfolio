@@ -61,14 +61,12 @@ describe('EditEmbedCode', () => {
       ).not.toBeVisible()
     })
 
-    it('has no accessible caption field, but renders it as a hidden input', () => {
+    it('renders the caption field but keeps it not visible', () => {
       renderComponent()
-      expect(
-        screen.queryByLabelText(captionRegex)
-      ).not.toBeInTheDocument()
+      expect(screen.getByLabelText(captionRegex)).not.toBeVisible()
       expect(
         document.querySelector('input[name="caption"]')
-      ).toHaveAttribute('type', 'hidden')
+      ).toHaveAttribute('type', 'text')
     })
 
     it('does not render source or host inputs at all', () => {
@@ -200,6 +198,29 @@ describe('EditEmbedCode', () => {
     })
   })
 
+  describe('isRemoveButtonHidden', () => {
+    it('hides the remove button once parsed, keeping the preview', () => {
+      renderComponent({ isRemoveButtonHidden: true })
+      pasteIframe(embedCodeYoutubeFixture)
+
+      expect(
+        screen.getByTitle('Embedded media preview')
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: removeButtonName })
+      ).not.toBeInTheDocument()
+    })
+
+    it('still shows the remove button by default', () => {
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+
+      expect(
+        screen.getByRole('button', { name: removeButtonName })
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('removing a parsed embed', () => {
     it('reverts visibility back to the pre-parse state', () => {
       renderComponent()
@@ -224,6 +245,21 @@ describe('EditEmbedCode', () => {
       expect(
         document.querySelector('input[name="host"]')
       ).not.toBeInTheDocument()
+    })
+
+    it('resets content type rather than carrying it over to the next embed', () => {
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+      fireEvent.change(screen.getByLabelText(contentTypeLabel), {
+        target: { value: 'podcast' }
+      })
+
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+      pasteIframe(embedCodeYoutubeFixture)
+
+      expect(screen.getByLabelText(contentTypeLabel)).toHaveValue('')
     })
   })
 
@@ -393,9 +429,7 @@ describe('EditEmbedCode', () => {
       expect(
         document.querySelector('input[name="iframe"]')
       ).toBeInTheDocument()
-      expect(
-        screen.queryByLabelText(captionRegex)
-      ).not.toBeInTheDocument()
+      expect(screen.getByLabelText(captionRegex)).not.toBeVisible()
     })
 
     it('auto-populates src, host and type from a pasted iframe, but not content type', () => {
@@ -495,6 +529,52 @@ describe('EditEmbedCode', () => {
       expect(captionInput).toHaveAttribute(
         'placeholder',
         'Video by Artist Name (2024)'
+      )
+    })
+  })
+
+  describe('progressive disclosure wiring', () => {
+    it('groups the secondary fields in a single fieldset', () => {
+      renderComponent()
+
+      const fieldset = document.querySelector('fieldset')
+      expect(fieldset).toContainElement(
+        screen.getByLabelText(embedTypeLabel)
+      )
+      expect(fieldset).toContainElement(
+        screen.getByLabelText(contentTypeLabel)
+      )
+      expect(fieldset).toContainElement(
+        screen.getByLabelText(captionRegex)
+      )
+    })
+
+    it('points the iframe input at the fieldset before parsing', () => {
+      renderComponent()
+
+      const fieldset = document.querySelector('fieldset') as Element
+      const iframeInput = screen.getByLabelText(iframeRegex)
+
+      expect(iframeInput).toHaveAttribute('aria-expanded', 'false')
+      expect(iframeInput).toHaveAttribute(
+        'aria-controls',
+        fieldset.id
+      )
+    })
+
+    it('points the remove button at the fieldset once parsed', () => {
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+
+      const fieldset = document.querySelector('fieldset') as Element
+      const removeButton = screen.getByRole('button', {
+        name: removeButtonName
+      })
+
+      expect(removeButton).toHaveAttribute('aria-expanded', 'true')
+      expect(removeButton).toHaveAttribute(
+        'aria-controls',
+        fieldset.id
       )
     })
   })

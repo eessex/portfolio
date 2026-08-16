@@ -2,7 +2,7 @@
 
 import { StarIcon } from '@heroicons/react/24/outline'
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import type { z } from 'zod'
 
 import {
@@ -174,12 +174,6 @@ export function ItemPicker<
   const [newSlotErrors, setNewSlotErrors] = useState<
     Record<string, FieldErrors>
   >({})
-  // Whether this itemType (under `searchParams`) has zero results to
-  // search at all — reported by Combobox once its first fetch
-  // resolves. Single-select pickers with an inline create form skip
-  // straight to that form instead of showing a search box that could
-  // never return anything.
-  const [hasNoItemsToSearch, setHasNoItemsToSearch] = useState(false)
   const nextTempId = useRef(0)
   const newSlotFieldsets = useRef(
     new Map<string, HTMLFieldSetElement>()
@@ -239,19 +233,6 @@ export function ItemPicker<
       })
     )
   }
-
-  useEffect(() => {
-    if (
-      !isMulti &&
-      hasNoItemsToSearch &&
-      renderEditItemForm &&
-      !hideCreateNew &&
-      slots.length === 0
-    ) {
-      addNew()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasNoItemsToSearch])
 
   function setNewSlotFieldsetRef(
     tempId: string,
@@ -519,9 +500,6 @@ export function ItemPicker<
           searchParams={searchParams}
           itemType={itemType}
           formatResult={formatResult}
-          onTotalCountChange={(total) =>
-            setHasNoItemsToSearch(total === 0)
-          }
           onCreateNew={
             renderEditItemForm && !hideCreateNew
               ? (q) => {

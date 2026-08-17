@@ -187,6 +187,14 @@ export function ItemPicker<
 
   const featuredSlot = featured && isFeatured ? slots[0] : undefined
   const restSlots = featuredSlot ? slots.slice(1) : slots
+  // Unsaved "new" slots are excluded from the sortable drag set —
+  // insertSlot always prepends them ahead of existing slots, so they
+  // stay clustered at the front here too, and only existing slots
+  // participate in drag/keyboard reordering.
+  const newRestSlots = restSlots.filter((slot) => slot.kind === 'new')
+  const existingRestSlots = restSlots.filter(
+    (slot) => slot.kind === 'existing'
+  )
 
   function insertSlot(
     current: Slot<TEmbeddedItem, TPage>[],
@@ -455,7 +463,6 @@ export function ItemPicker<
         }
       >
         <legend className={itemPickerStyles['new-item-legend']}>
-          {dragHandle}
           {newLabel}
           {featuredButton}
         </legend>
@@ -524,25 +531,41 @@ export function ItemPicker<
         </div>
       )}
 
-      {isMulti && restSlots.length > 1 ? (
+      {newRestSlots.length > 0 && (
+        <div className={itemPickerStyles['item-list']}>
+          {newRestSlots.map((slot, index) => {
+            const slotIndex = index + (featuredSlot ? 1 : 0)
+            return (
+              <div key={slotId(slot)}>
+                {renderSlot(
+                  slot,
+                  slotIndex,
+                  undefined,
+                  featuredControl(slotIndex, false)
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {isMulti && existingRestSlots.length > 1 ? (
         <SortableList
           className={itemPickerStyles['item-list']}
-          items={restSlots.map((slot) => ({
+          items={existingRestSlots.map((slot) => ({
             id: slotId(slot),
             slot
           }))}
           onReorder={(reordered) =>
-            setSlots(
-              featuredSlot
-                ? [
-                    featuredSlot,
-                    ...reordered.map((entry) => entry.slot)
-                  ]
-                : reordered.map((entry) => entry.slot)
-            )
+            setSlots([
+              ...(featuredSlot ? [featuredSlot] : []),
+              ...newRestSlots,
+              ...reordered.map((entry) => entry.slot)
+            ])
           }
           renderItem={(entry, index, dragHandle) => {
-            const slotIndex = index + (featuredSlot ? 1 : 0)
+            const slotIndex =
+              newRestSlots.length + index + (featuredSlot ? 1 : 0)
             return renderSlot(
               entry.slot,
               slotIndex,
@@ -552,10 +575,11 @@ export function ItemPicker<
           }}
         />
       ) : (
-        restSlots.length > 0 && (
+        existingRestSlots.length > 0 && (
           <div className={itemPickerStyles['item-list']}>
-            {restSlots.map((slot, index) => {
-              const slotIndex = index + (featuredSlot ? 1 : 0)
+            {existingRestSlots.map((slot, index) => {
+              const slotIndex =
+                newRestSlots.length + index + (featuredSlot ? 1 : 0)
               return (
                 <div key={slotId(slot)}>
                   {renderSlot(

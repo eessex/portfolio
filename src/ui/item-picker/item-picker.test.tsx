@@ -149,7 +149,7 @@ describe('ItemPicker', () => {
 
         const input = screen.getByRole('combobox')
         await userEvent.type(input, 'New Venue')
-        await userEvent.click(screen.getByText(/create/i))
+        await userEvent.click(screen.getByText(/new/i))
 
         expect(screen.getByText('New Venue Form')).toBeInTheDocument()
       })
@@ -163,7 +163,7 @@ describe('ItemPicker', () => {
         const input = screen.getByRole('combobox')
         await user.type(input, 'New Venue')
 
-        expect(screen.queryByText(/create/i)).not.toBeInTheDocument()
+        expect(screen.queryByText(/new/i)).not.toBeInTheDocument()
       })
     })
 
@@ -175,7 +175,7 @@ describe('ItemPicker', () => {
         const input = screen.getByRole('combobox')
         await user.type(input, 'New Venue')
 
-        expect(screen.queryByText(/create/i)).not.toBeInTheDocument()
+        expect(screen.queryByText(/new/i)).not.toBeInTheDocument()
       })
     })
 
@@ -186,7 +186,7 @@ describe('ItemPicker', () => {
 
         const input = screen.getByRole('combobox')
         await user.type(input, 'New Venue')
-        await user.click(screen.getByText(/create/i))
+        await user.click(screen.getByText(/new/i))
 
         expect(screen.getByText('New Venue Form')).toBeInTheDocument()
       })
@@ -201,7 +201,7 @@ describe('ItemPicker', () => {
 
         const input = screen.getByRole('combobox')
         await user.type(input, 'Alpha')
-        await user.click(screen.getByText(/create/i))
+        await user.click(screen.getByText(/new/i))
 
         expect(screen.getByText('Query: Alpha')).toBeInTheDocument()
       })
@@ -212,7 +212,7 @@ describe('ItemPicker', () => {
 
         const input = screen.getByRole('combobox')
         await user.type(input, 'New Venue')
-        await user.click(screen.getByText(/create/i))
+        await user.click(screen.getByText(/new/i))
 
         expect(screen.getByText('New Venue Form')).toBeInTheDocument()
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
@@ -354,7 +354,7 @@ describe('ItemPicker', () => {
 
         const input = screen.getByRole('combobox')
         await user.type(input, 'New Venue')
-        await user.click(screen.getByText(/create/i))
+        await user.click(screen.getByText(/new/i))
 
         expect(
           screen.getByText('New form at index 0, query: New Venue')
@@ -405,11 +405,51 @@ describe('ItemPicker', () => {
           screen.getByDisplayValue(venueFixtureAlpha.id)
         ).toHaveAttribute('name', 'venueIds[1].id')
       })
+
+      it('excludes an in-progress new slot from the sortable drag set, keeping existing items reorderable', async () => {
+        const user = userEvent.setup()
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha, venueFixtureBeta]
+        })
+
+        const input = screen.getByRole('combobox')
+        await user.type(input, 'New Venue')
+        await user.click(screen.getByText(/new venue/i))
+
+        expect(screen.getByText('New Venue Form')).toBeInTheDocument()
+        // Only the two existing items are drag-reorderable — the
+        // new, unsaved slot has no drag handle of its own.
+        expect(
+          screen.getAllByRole('button', { name: 'Drag to reorder' })
+        ).toHaveLength(2)
+
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[1].id')
+        expect(
+          screen.getByDisplayValue(venueFixtureBeta.id)
+        ).toHaveAttribute('name', 'venueIds[2].id')
+
+        const moveDownButtons = screen.getAllByRole('button', {
+          name: 'Move down'
+        })
+        await user.click(moveDownButtons[0])
+
+        expect(
+          screen.getByDisplayValue(venueFixtureBeta.id)
+        ).toHaveAttribute('name', 'venueIds[1].id')
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[2].id')
+      })
     })
 
     describe('schema validation', () => {
       function renderLinkPicker(props = {}) {
         return renderComponent({
+          itemType: 'links',
           isMulti: true,
           name: 'links',
           schema: createLinkSchema,
@@ -431,13 +471,23 @@ describe('ItemPicker', () => {
         })
       }
 
+      // Scoped to the button role: once a slot exists, its "new"
+      // fieldset legend renders the same "New link" text as the
+      // still-present create-new button, so a plain text query
+      // matches both.
+      function clickNew() {
+        return userEvent.click(
+          screen.getByRole('button', { name: /new link/i })
+        )
+      }
+
       it('blocks a second slot and shows the Zod error when the current slot fails schema validation the browser would not catch', async () => {
         const user = userEvent.setup()
         renderLinkPicker()
 
         const input = screen.getByRole('combobox')
         await user.type(input, 'New Link')
-        await user.click(screen.getByText(/create/i))
+        await clickNew()
 
         const urlInput = document.querySelector(
           'input[name="links[0].url"]'
@@ -447,7 +497,7 @@ describe('ItemPicker', () => {
         })
 
         await user.type(input, 'Another Link')
-        await user.click(screen.getByText(/create/i))
+        await clickNew()
 
         expect(
           document.querySelectorAll('input[name$=".url"]')
@@ -460,8 +510,8 @@ describe('ItemPicker', () => {
         renderLinkPicker()
 
         const input = screen.getByRole('combobox')
-        await user.type(input, 'New Link')
-        await user.click(screen.getByText(/create/i))
+        await user.type(input, 'Link')
+        await clickNew()
 
         const urlInput = document.querySelector(
           'input[name="links[0].url"]'
@@ -471,7 +521,7 @@ describe('ItemPicker', () => {
         })
 
         await user.type(input, 'Another Link')
-        await user.click(screen.getByText(/create/i))
+        await clickNew()
 
         expect(
           document.querySelectorAll('input[name$=".url"]')
@@ -482,6 +532,7 @@ describe('ItemPicker', () => {
     describe('schema validation (single item, blur-triggered)', () => {
       function renderLinkPicker(props = {}) {
         return renderComponent({
+          itemType: 'links',
           schema: createLinkSchema,
           renderEditItemForm: (
             _query: string | undefined,
@@ -503,7 +554,7 @@ describe('ItemPicker', () => {
 
         const input = screen.getByRole('combobox')
         await user.type(input, 'New Link')
-        await user.click(screen.getByText(/create/i))
+        await user.click(screen.getByText(/new/i))
 
         const urlInput = document.querySelector(
           'input[name="url"]'
@@ -522,7 +573,7 @@ describe('ItemPicker', () => {
 
         const input = screen.getByRole('combobox')
         await user.type(input, 'New Link')
-        await user.click(screen.getByText(/create/i))
+        await user.click(screen.getByText(/new/i))
 
         const urlInput = document.querySelector(
           'input[name="url"]'
@@ -544,7 +595,7 @@ describe('ItemPicker', () => {
 
         const input = screen.getByRole('combobox')
         await user.type(input, 'New Link')
-        await user.click(screen.getByText(/create/i))
+        await user.click(screen.getByText(/new/i))
 
         const urlInput = document.querySelector(
           'input[name="url"]'

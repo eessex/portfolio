@@ -8,7 +8,8 @@ import {
   embeddedItemTypes,
   itemTypeToLabel,
   type PagePath,
-  pagePaths} from '@/lib/schemas'
+  pagePaths
+} from '@/lib/schemas'
 import { camelToSnake, snakeToCamel } from '@/lib/strings'
 
 export function CreateItemButton({
@@ -33,7 +34,7 @@ export function CreateItemButton({
         href={href}
         ref={ref as React.Ref<HTMLAnchorElement>}
       >
-        <PlusIcon /> Create {formattedItemType}
+        <PlusIcon /> New {formattedItemType}
       </a>
     )
   } else {
@@ -44,7 +45,7 @@ export function CreateItemButton({
         onClick={onClick}
         ref={ref}
       >
-        <PlusIcon /> Create {formattedItemType}
+        <PlusIcon /> New {formattedItemType}
       </button>
     )
   }

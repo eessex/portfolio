@@ -13,7 +13,7 @@ describe('CreateItemFromPathnameButton', () => {
     mockUsePathname.mockReturnValue('/dashboard/images')
     render(<CreateItemFromPathnameButton />)
 
-    const link = screen.getByRole('link', { name: /create image/i })
+    const link = screen.getByRole('link', { name: /new image/i })
     expect(link).toHaveAttribute('href', '/dashboard/images/new')
   })
 
@@ -21,7 +21,7 @@ describe('CreateItemFromPathnameButton', () => {
     mockUsePathname.mockReturnValue('/projects')
     render(<CreateItemFromPathnameButton />)
 
-    const link = screen.getByRole('link', { name: /create project/i })
+    const link = screen.getByRole('link', { name: /new project/i })
     expect(link).toHaveAttribute('href', '/projects/new')
   })
 

@@ -93,7 +93,7 @@ describe('EditProjectForm', () => {
 
       const imagesInput = screen.getByLabelText(/^images/i)
       await user.type(imagesInput, 'New Image')
-      await user.click(screen.getByText(/create image/i))
+      await user.click(screen.getByText(/new image/i))
 
       expect(
         screen.getByLabelText(/upload new image/i)

@@ -63,7 +63,7 @@ export function FileInputImage({
       setImageUrl(undefined)
       setAspectRatio(undefined)
       setLoadError(
-        `"${file.name}" couldn't be loaded. Choose a different file.`
+        `"${file.name}" couldn't be loaded as an image. Choose a different file.`
       )
       onChange?.('', undefined, true)
     }

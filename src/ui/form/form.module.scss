@@ -31,6 +31,9 @@
       top: -#{grids.space-rem(1)};
       right: -#{grids.space-rem(1)};
       z-index: 1;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 1px solid;
     }
   }
 
@@ -53,7 +56,8 @@
     }
   }
 
-  legend + div {
+  legend:not(:global(.visually-hidden))
+    + div:not(:has(:global(label.visually-hidden))) {
     margin-top: grids.space-em(3);
   }
 
@@ -62,7 +66,8 @@
   }
 
   fieldset {
-    div + div {
+    div:not([hidden]) + div,
+    div:not([hidden]) + fieldset {
       margin-top: grids.space-rem(6);
     }
   }
@@ -72,7 +77,7 @@
 
     button.cancel {
       position: absolute;
-      top: grids.space-em(4);
+      top: grids.space-em(3);
       right: grids.space-em(4);
       background: var(--page-background-color);
     }

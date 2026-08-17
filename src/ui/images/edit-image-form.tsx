@@ -91,112 +91,122 @@ export const EditImage = ({
     }
   }
   const controlledCheckboxId = useId()
+  const detailsFieldsetId = useId()
+  const hasImage = !!aspectRatio
 
   return (
     <>
       <FileInputImage
+        ariaControls={detailsFieldsetId}
+        ariaExpanded={hasImage}
         attributes={{
           accept: 'image/*',
           name: `${namePrefix}file`,
-          required: true
+          required: true,
+          'aria-controls': detailsFieldsetId,
+          'aria-expanded': hasImage
         }}
         description='1MB size limit.'
         image={formImage}
         label='Upload new image'
         onChange={onFileChange}
+        isLabelHidden
       />
-      {aspectRatio && (
-        <Input
-          attributes={{
-            name: `${namePrefix}aspect`,
-            type: 'hidden'
-          }}
-          errors={errors?.aspect}
-          label='Aspect Ratio'
-          value={aspectRatio}
-        />
-      )}
-      {/* keep a record of existing image files so we can delete them from s3 */}
-      {url?.length > 0 && id && (
+      <fieldset hidden={!hasImage} id={detailsFieldsetId}>
+        <legend className='visually-hidden'>Image details</legend>
+        {aspectRatio && (
+          <Input
+            attributes={{
+              name: `${namePrefix}aspect`,
+              type: 'hidden'
+            }}
+            errors={errors?.aspect}
+            label='Aspect Ratio'
+            value={aspectRatio}
+          />
+        )}
+        {/* keep a record of existing image files so we can delete them from s3 */}
+        {url?.length > 0 && id && (
+          <Input
+            attributes={{
+              maxLength: MAX_STRING_LENGTH_SHORT,
+              name: `${namePrefix}url`,
+              placeholder:
+                'https://aws.s3.bucket/images/your-image.jpg',
+              required: true,
+              type: 'hidden'
+            }}
+            defaultValue={url}
+            description='The url of AWS S3 image location.'
+            errors={errors?.url}
+            label='Image url'
+          />
+        )}
         <Input
           attributes={{
             maxLength: MAX_STRING_LENGTH_SHORT,
-            name: `${namePrefix}url`,
-            placeholder:
-              'https://aws.s3.bucket/images/your-image.jpg',
-            required: true,
-            type: 'hidden'
+            name: `${namePrefix}caption`,
+            placeholder: 'Caption'
           }}
-          defaultValue={url}
-          description='The url of AWS S3 image location.'
-          errors={errors?.url}
-          label='Image url'
+          defaultValue={formImage?.caption}
+          description='Visible text or attribution displayed under the image, adds context or storytelling.'
+          errors={errors?.caption}
+          label='Caption'
         />
-      )}
-      <Input
-        attributes={{
-          maxLength: MAX_STRING_LENGTH_SHORT,
-          name: `${namePrefix}caption`,
-          placeholder: 'Caption'
-        }}
-        defaultValue={formImage?.caption}
-        description='Displayed below the image wherever it appears.'
-        errors={errors?.caption}
-        label='Caption'
-      />
-      <Input
-        attributes={{
-          maxLength: MAX_STRING_LENGTH_SHORT,
-          name: `${namePrefix}alt`,
-          placeholder: 'Alt text'
-        }}
-        defaultValue={formImage?.alt}
-        description='Describes the image for screen readers and search engines.'
-        errors={errors?.alt}
-        label='Alt text'
-      />
-      <Input
-        attributes={{
-          maxLength: MAX_STRING_LENGTH_SHORT,
-          name: `${namePrefix}title`,
-          placeholder: 'Title'
-        }}
-        defaultValue={formImage?.title}
-        description='Used for internal search only, never displayed publicly.'
-        label='Title'
-      />
-      <Select
-        attributes={{
-          name: `${namePrefix}type`,
-          'aria-controls': controlledCheckboxId,
-          'aria-expanded': type === 'press'
-        }}
-        label='Type'
-        onChange={setType}
-        options={imageTypeOptions}
-        placeholder='Select image type'
-        value={type}
-      />
-      {!isPressFieldsetHidden && (
-        <fieldset hidden={type !== 'press'}>
-          <legend>Press Image Details</legend>
-          <p>
-            Press images are displayed on the about page by default.
-          </p>
-          <Checkbox
-            attributes={{
-              hidden: type !== 'press',
-              name: `${namePrefix}isHiddenOnAboutPage`
-            }}
-            controlledId={controlledCheckboxId}
-            isChecked={isHiddenOnAboutPage}
-            label='Hide this image on the About page.'
-            onChange={() =>
-              setIsHiddenOnAboutPage(!isHiddenOnAboutPage)
-            }
-          />
-        </fieldset>
-      )}
+        <Input
+          attributes={{
+            maxLength: MAX_STRING_LENGTH_SHORT,
+            name: `${namePrefix}alt`,
+            placeholder: 'Alt text'
+          }}
+          defaultValue={formImage?.alt}
+          description='Hidden text for screen readers and search engines that describes exactly what is shown in the image.'
+          errors={errors?.alt}
+          label='Alt text'
+        />
+        <Input
+          attributes={{
+            maxLength: MAX_STRING_LENGTH_SHORT,
+            name: `${namePrefix}title`,
+            placeholder: 'Title'
+          }}
+          defaultValue={formImage?.title}
+          description='Used for internal search only, not displayed publicly.'
+          label='Title'
+        />
+        <Select
+          attributes={{
+            name: `${namePrefix}type`,
+            'aria-controls': controlledCheckboxId,
+            'aria-expanded': type === 'press'
+          }}
+          label='Type'
+          onChange={setType}
+          options={imageTypeOptions}
+          placeholder='Select image type'
+          value={type}
+        />
+        {!isPressFieldsetHidden && (
+          <fieldset hidden={type !== 'press'}>
+            <legend>Press Image Details</legend>
+            <p>
+              Press images are displayed on the about page by default.
+            </p>
+            <Checkbox
+              attributes={{
+                hidden: type !== 'press',
+                name: `${namePrefix}isHiddenOnAboutPage`
+              }}
+              controlledId={controlledCheckboxId}
+              isChecked={isHiddenOnAboutPage}
+              label='Hide this image on the About page.'
+              onChange={() =>
+                setIsHiddenOnAboutPage(!isHiddenOnAboutPage)
+              }
+            />
+          </fieldset>
+        )}
+      </fieldset>
     </>
   )
 }

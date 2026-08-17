@@ -44,8 +44,8 @@ describe('EditSettings', () => {
     renderComponent()
 
     const coverImageInput = screen.getByLabelText(/cover image/i)
-    await user.type(coverImageInput, 'New Image')
-    await user.click(screen.getByText(/create image/i))
+    await user.type(coverImageInput, 'Image')
+    await user.click(screen.getByText(/new image/i))
 
     expect(
       screen.getByLabelText(/upload new image/i)

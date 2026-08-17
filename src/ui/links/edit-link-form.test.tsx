@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { linkFixture, newLinkFixture } from '@/lib/links/fixtures'
@@ -190,6 +190,135 @@ describe('EditLink', () => {
       const controlsId = select.getAttribute('aria-controls')
       const fieldset = document.getElementById(controlsId!)
       expect(fieldset).not.toHaveAttribute('hidden')
+    })
+  })
+
+  describe('progressive disclosure', () => {
+    it('hides secondary fields until the url is filled', () => {
+      renderComponent({ link: undefined })
+
+      expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
+      expect(screen.getByLabelText(typeRegex)).not.toBeVisible()
+    })
+
+    it('shows secondary fields immediately when editing an existing link', () => {
+      renderComponent({ link: linkFixture })
+
+      expect(screen.getByLabelText(titleRegex)).toBeVisible()
+      expect(screen.getByLabelText(typeRegex)).toBeVisible()
+    })
+
+    it('wires aria-expanded/aria-controls on the url input to the details fieldset', () => {
+      renderComponent({ link: undefined })
+
+      const urlInput = screen.getByLabelText(urlRegex)
+      expect(urlInput).toHaveAttribute('aria-expanded', 'false')
+
+      const controlsId = urlInput.getAttribute('aria-controls')
+      expect(controlsId).toBeTruthy()
+
+      const fieldset = document.getElementById(controlsId!)
+      expect(fieldset).toHaveAttribute('hidden')
+      expect(fieldset).toContainElement(
+        screen.getByLabelText(titleRegex)
+      )
+    })
+
+    it('does not reveal secondary fields while typing one character at a time, only on blur', () => {
+      renderComponent({ link: undefined })
+      const urlInput = screen.getByLabelText(urlRegex)
+
+      const url = 'https://example.com'
+      for (let i = 1; i <= url.length; i++) {
+        fireEvent.change(urlInput, {
+          target: { value: url.slice(0, i) }
+        })
+      }
+      expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
+
+      fireEvent.blur(urlInput)
+      expect(screen.getByLabelText(titleRegex)).toBeVisible()
+      expect(urlInput).toHaveAttribute('aria-expanded', 'true')
+    })
+
+    it('keeps secondary fields hidden when the url is invalid on blur', () => {
+      renderComponent({ link: undefined })
+      const urlInput = screen.getByLabelText(urlRegex)
+
+      fireEvent.change(urlInput, { target: { value: 'not a url' } })
+      fireEvent.blur(urlInput)
+
+      expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
+    })
+
+    it('reveals secondary fields immediately when the url changes by more than one character at once (paste, autocomplete, or autofill)', () => {
+      renderComponent({ link: undefined })
+      const urlInput = screen.getByLabelText(urlRegex)
+
+      fireEvent.change(urlInput, {
+        target: { value: 'https://example.com' }
+      })
+
+      expect(screen.getByLabelText(titleRegex)).toBeVisible()
+      expect(urlInput).toHaveAttribute('aria-expanded', 'true')
+    })
+
+    it('reveals secondary fields immediately for a same-length paste the delta check alone would miss', () => {
+      renderComponent({ link: undefined })
+      const urlInput = screen.getByLabelText(urlRegex)
+      const pastedUrl = 'https://newlink1.com'
+
+      // Build up a same-length baseline one keystroke at a time, the
+      // way a user would before selecting-all and pasting a
+      // replacement of matching length (delta 0) — the length-delta
+      // heuristic alone can't tell this apart from normal typing, so
+      // this only reveals via the inputType check.
+      for (let i = 1; i <= pastedUrl.length; i++) {
+        fireEvent.change(urlInput, {
+          target: { value: 'a'.repeat(i) }
+        })
+      }
+      expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
+
+      const nativeSetter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        'value'
+      )!.set!
+      nativeSetter.call(urlInput, pastedUrl)
+      fireEvent(
+        urlInput,
+        new InputEvent('input', {
+          inputType: 'insertFromPaste',
+          bubbles: true
+        })
+      )
+
+      expect(screen.getByLabelText(titleRegex)).toBeVisible()
+      expect(urlInput).toHaveAttribute('aria-expanded', 'true')
+    })
+
+    it('does not reveal secondary fields when a bulk-inserted value is invalid', () => {
+      renderComponent({ link: undefined })
+      const urlInput = screen.getByLabelText(urlRegex)
+
+      fireEvent.change(urlInput, { target: { value: 'not a url' } })
+
+      expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
+    })
+
+    it('re-hides secondary fields without clearing their values when the url is cleared', () => {
+      renderComponent({ link: linkFixture })
+      const urlInput = screen.getByLabelText(urlRegex)
+      const titleInput = screen.getByLabelText(titleRegex)
+
+      fireEvent.change(titleInput, {
+        target: { value: 'Updated title' }
+      })
+      fireEvent.change(urlInput, { target: { value: '' } })
+      fireEvent.blur(urlInput)
+
+      expect(titleInput).not.toBeVisible()
+      expect(titleInput).toHaveValue('Updated title')
     })
   })
 })

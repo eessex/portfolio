@@ -24,6 +24,7 @@ export interface InputProps<T extends InputElement> {
   isLabelHidden?: boolean
   label: string
   onBeforeInput?: (event: React.FormEvent<T>) => void
+  onBlur?: (event: React.FocusEvent<T>) => void
   onChange?: (event: React.ChangeEvent<T>, isDirty: boolean) => void
   onDrop?: (event: React.DragEvent<T>) => void
   onKeyDown?: (event: React.KeyboardEvent<T>) => void
@@ -48,6 +49,7 @@ export function Input<T extends InputElement = HTMLInputElement>({
   isLabelHidden,
   label,
   onBeforeInput,
+  onBlur: onBlurProp,
   onChange,
   onDrop,
   onKeyDown,
@@ -57,22 +59,16 @@ export function Input<T extends InputElement = HTMLInputElement>({
 }: InputProps<T> & { as?: 'input' | 'textarea' }) {
   // user has changed value
   const [isDirty, setIsDirty] = useState<boolean>(false)
-  // user has blurred or submit occurred
-  const [_isTouched, setIsTouched] = useState(false)
 
   const onBlur = (event: React.FocusEvent<T>) => {
     if (event.target.value !== defaultValue && !isDirty) {
       setIsDirty(true)
     }
-    setIsTouched(true)
+    onBlurProp?.(event)
   }
 
   const onChangeHandler = (event: React.ChangeEvent<T>) => {
     const changed = event.target.value !== defaultValue
-    if (!isDirty) {
-      // FIXME: confirm handle checked works
-      setIsDirty(!!event.target.value && changed)
-    }
     onChange?.(event, changed)
   }
 

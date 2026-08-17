@@ -8,6 +8,8 @@ import { Input } from '@/ui/form/input'
 import { usedOnPages } from '@/ui/util'
 
 export function FileInputImage({
+  ariaControls,
+  ariaExpanded,
   label,
   className,
   description,
@@ -19,6 +21,8 @@ export function FileInputImage({
   ref,
   image
 }: Omit<InputProps<HTMLInputElement>, 'children' | 'onChange'> & {
+  ariaControls?: string
+  ariaExpanded?: boolean
   image?: Partial<Image>
   onChange?: (
     fileName: string,
@@ -34,6 +38,7 @@ export function FileInputImage({
   const [imageUrl, setImageUrl] = useState<string | undefined>(
     image?.url || undefined
   )
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   const usedOnCount = (image as Image)?.id
     ? usedOnPages(image as Image).length
@@ -52,8 +57,19 @@ export function FileInputImage({
       setAspectRatio(ratio)
       onChange?.(file.name, ratio, true)
     }
+    img.onerror = () => {
+      setPreviewUrl(null)
+      setFile(null)
+      setImageUrl(undefined)
+      setAspectRatio(undefined)
+      setLoadError(
+        `"${file.name}" couldn't be loaded. Choose a different file.`
+      )
+      onChange?.('', undefined, true)
+    }
     return () => {
       img.onload = null
+      img.onerror = null
     }
   }, [file, previewUrl, onChange])
 
@@ -67,6 +83,7 @@ export function FileInputImage({
 
   function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selectedFile = e.target.files?.[0] ?? null
+    setLoadError(null)
     if (!selectedFile) {
       setPreviewUrl(null)
       setAspectRatio(
@@ -120,6 +137,8 @@ export function FileInputImage({
             <button
               title='Remove image'
               aria-label='Remove image'
+              aria-controls={ariaControls}
+              aria-expanded={ariaExpanded}
               type='button'
               onClick={
                 previewUrl ? onRemovePreviewImage : onRemoveSavedImage
@@ -143,6 +162,7 @@ export function FileInputImage({
         className={className}
         description={description}
         defaultValue={defaultValue}
+        errors={loadError ? [loadError] : undefined}
         value={value}
         isLabelHidden={isLabelHidden}
         label={label}

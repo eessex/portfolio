@@ -163,12 +163,13 @@ export const EditEmbedCode = ({
             }}
             description='Paste a full iframe embed code. Supported services: Bandcamp, Mixcloud, Soundcloud, Spotify, YouTube.'
             value={iframeInputValue}
-            label='Embed iframe code'
+            label='iframe code'
             onKeyDown={onKeyDown}
             onDrop={(e) => e.preventDefault()}
             onPaste={onPaste}
             onChange={onChange}
             onBeforeInput={onBeforeInput}
+            isLabelHidden
           />
         )}
       </div>
@@ -183,8 +184,7 @@ export const EditEmbedCode = ({
                 (v || EmbedCodeTypes.audio) as EmbedCode['type']
               )
             }
-            label='Embed type'
-            placeholder='Select a type'
+            label='Media type'
             value={embedCodeIframe?.type}
             attributes={{
               hidden: embedCodeIframe?.host !== 'youtube',

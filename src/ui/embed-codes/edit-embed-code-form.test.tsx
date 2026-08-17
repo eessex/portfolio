@@ -37,7 +37,7 @@ function pasteIframe(value: string) {
 
 const iframeRegex = /iframe/i
 const captionRegex = /caption/i
-const embedTypeLabel = 'Embed type'
+const embedTypeLabel = 'Media type'
 const contentTypeLabel = 'Content type'
 const removeButtonName = /remove embed/i
 

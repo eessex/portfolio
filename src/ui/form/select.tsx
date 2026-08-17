@@ -23,7 +23,7 @@ export function Select({
   label: string
   onChange?: (term: string | undefined) => void | undefined
   options: Array<string> | undefined
-  placeholder: string
+  placeholder?: string
   value?: string | undefined
 }) {
   const id = useId()
@@ -50,7 +50,7 @@ export function Select({
           onChange={(e) => onChange(e.target.value)}
           {...attributes}
         >
-          <option value=''>{placeholder}</option>
+          {placeholder && <option value=''>{placeholder}</option>}
 
           {options.map((option, i) => (
             <option key={i} value={option}>

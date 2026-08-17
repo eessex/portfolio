@@ -108,6 +108,7 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         isMulti
         name='embedCodes'
         label='Embed codes'
+        description='A featured embed code is displayed below the page heading, above the cover image.'
         itemType='embedCodes'
         existingItems={embedCodes}
         formatResult={formatEmbedCodeResult}

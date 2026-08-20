@@ -106,7 +106,7 @@ export const EditImage = ({
           'aria-controls': detailsFieldsetId,
           'aria-expanded': hasImage
         }}
-        description='1MB size limit.'
+        validationText='1MB size limit.'
         image={formImage}
         label='Upload new image'
         onChange={onFileChange}

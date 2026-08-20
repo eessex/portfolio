@@ -6,7 +6,10 @@ import {
 } from '@testing-library/react'
 
 import { mockFile } from '@/test/helpers'
-import { FileInputImage } from '@/ui/form/file-input-image'
+import {
+  FileInputImage,
+  MAX_UPLOAD_FILE_SIZE
+} from '@/ui/form/file-input-image'
 
 URL.createObjectURL = jest.fn(() => 'blob:mock-preview')
 URL.revokeObjectURL = jest.fn()
@@ -58,6 +61,28 @@ describe('FileInputImage', () => {
     expect(
       screen.queryByRole('button', { name: /remove image/i })
     ).not.toBeInTheDocument()
+    expect(onChange).toHaveBeenCalledWith('', undefined, true)
+  })
+
+  it('rejects a file over the size limit without previewing it', async () => {
+    ;(URL.createObjectURL as jest.Mock).mockClear()
+    const onChange = jest.fn()
+
+    render(
+      <FileInputImage label='Upload new image' onChange={onChange} />
+    )
+    const fileInput = screen.getByLabelText(/upload new image/i)
+
+    fireEvent.change(fileInput, {
+      target: {
+        files: [mockFile('huge.jpg', MAX_UPLOAD_FILE_SIZE + 1)]
+      }
+    })
+
+    expect(screen.getByText(/too large/i)).toBeInTheDocument()
+    expect(URL.createObjectURL).not.toHaveBeenCalled()
+    expect(fileInput).not.toHaveAttribute('hidden')
+    expect(fileInput).toBeRequired()
     expect(onChange).toHaveBeenCalledWith('', undefined, true)
   })
 

@@ -19,6 +19,7 @@ export function FileInputImage({
   className,
   description,
   defaultValue,
+  validationText,
   value,
   attributes,
   isLabelHidden,
@@ -182,6 +183,7 @@ export function FileInputImage({
         description={description}
         defaultValue={defaultValue}
         errors={loadError ? [loadError] : undefined}
+        validationText={validationText}
         value={value}
         isLabelHidden={isLabelHidden}
         label={label}

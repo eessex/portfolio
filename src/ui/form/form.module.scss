@@ -66,8 +66,8 @@
   }
 
   fieldset {
-    div:not([hidden]) + div,
-    div:not([hidden]) + fieldset {
+    > div:not([hidden]) + div,
+    > div:not([hidden]) + fieldset {
       margin-top: grids.space-rem(6);
     }
   }
@@ -162,8 +162,12 @@
   }
 }
 
-.error-message {
+p.error-message {
   color: var(--error-color);
+  margin-block: grids.space-em(2) 0;
+}
+
+p.validation-text {
   margin-block: grids.space-em(2) 0;
 }
 

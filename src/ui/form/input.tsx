@@ -30,6 +30,7 @@ export interface InputProps<T extends InputElement> {
   onKeyDown?: (event: React.KeyboardEvent<T>) => void
   onPaste?: (event: React.ClipboardEvent<T>) => void
   ref?: (el: T | null) => void
+  validationText?: string
   value?: string | number
 }
 
@@ -55,7 +56,8 @@ export function Input<T extends InputElement = HTMLInputElement>({
   onKeyDown,
   onPaste,
   ref,
-  value
+  value,
+  validationText
 }: InputProps<T> & { as?: 'input' | 'textarea' }) {
   // user has changed value
   const [isDirty, setIsDirty] = useState<boolean>(false)
@@ -75,6 +77,7 @@ export function Input<T extends InputElement = HTMLInputElement>({
   const autoId = useId()
   const id = attributes?.id || autoId
   const descriptionId = useId()
+  const validationId = useId()
   const errorId = useId()
   const isHidden =
     (attributes as React.InputHTMLAttributes<HTMLInputElement>)
@@ -86,7 +89,11 @@ export function Input<T extends InputElement = HTMLInputElement>({
   )?.required
 
   const describedby =
-    [description && descriptionId, errors?.length && errorId]
+    [
+      description && descriptionId,
+      validationText && validationId,
+      errors?.length && errorId
+    ]
       .filter(Boolean)
       .join(' ') || undefined
 
@@ -143,9 +150,23 @@ export function Input<T extends InputElement = HTMLInputElement>({
           type={inputType}
         />
       )}
-
+      {validationText && (
+        <p
+          id={validationId}
+          className={clsx(
+            styles['validation-text'],
+            errors?.length && 'visually-hidden'
+          )}
+        >
+          {validationText}
+        </p>
+      )}
       {errors?.length && (
-        <p id={errorId} className={styles['error-message']}>
+        <p
+          id={errorId}
+          role='alert'
+          className={styles['error-message']}
+        >
           {errors.join(', ')}.
         </p>
       )}

@@ -7,6 +7,11 @@ import type { InputProps } from '@/ui/form/input'
 import { Input } from '@/ui/form/input'
 import { usedOnPages } from '@/ui/util'
 
+/**
+ * capped at Next.js's default 1 MB `bodySizeLimit`.
+ */
+export const MAX_UPLOAD_FILE_SIZE = 1000 * 1000 // 1 MB
+
 export function FileInputImage({
   ariaControls,
   ariaExpanded,
@@ -91,6 +96,20 @@ export function FileInputImage({
       )
       onChange?.('', undefined, true)
       setFile(null)
+      return
+    }
+    if (selectedFile.size > MAX_UPLOAD_FILE_SIZE) {
+      setPreviewUrl(null)
+      setAspectRatio(
+        imageUrl ? image?.aspect || undefined : undefined
+      )
+      setFile(null)
+      setLoadError(
+        `"${selectedFile.name}" is too large. Choose a file under 1MB.`
+      )
+      onChange?.('', undefined, true)
+      // clear the input so re-selecting the same file re-fires change
+      e.target.value = ''
       return
     }
     const url = URL.createObjectURL(selectedFile)

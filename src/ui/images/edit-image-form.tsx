@@ -28,13 +28,20 @@ interface EditImageProps {
    * attached to a published edition.
    */
   isPressFieldsetHidden?: boolean
+  /**
+   * Namespaces every input `name` in this fieldset,
+   * e.g. `'coverImage'` -> `coverImage.title`). When omitted,
+   * a multi-item picker's `index` uses `images[i].` prefix instead.
+   */
+  namePrefix?: string
 }
 
 export const EditImage = ({
   errors,
   image,
   index,
-  isPressFieldsetHidden
+  isPressFieldsetHidden,
+  namePrefix: namePrefixProp
 }: EditImageProps) => {
   const [type, setType] = useState<string | undefined>(
     image?.type || undefined
@@ -48,8 +55,11 @@ export const EditImage = ({
   const [formImage, setFormImage] = useState<Partial<Image>>(
     image || {}
   )
-  const namePrefix =
-    typeof index === 'number' ? `images[${index}].` : ''
+  const namePrefix = namePrefixProp
+    ? `${namePrefixProp}.`
+    : typeof index === 'number'
+      ? `images[${index}].`
+      : ''
 
   const { id, url } = (formImage || {}) as Image
 

@@ -4,6 +4,11 @@ import { editAbout } from '@/lib/about/actions'
 import { sql } from '@/lib/db'
 import { formDataFromObject } from '@/test/helpers'
 
+jest.mock('@/lib/images/s3', () => ({
+  uploadFile: jest.fn(),
+  deleteFromS3: jest.fn()
+}))
+
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))

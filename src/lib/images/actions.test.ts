@@ -5,6 +5,7 @@ import {
   createImageFromFields,
   deleteImage,
   editImage,
+  resolveCoverImageId,
   resolveOrderedImageIds
 } from '@/lib/images/actions'
 import {
@@ -272,6 +273,77 @@ describe('Image Actions', () => {
         coverImageId: 'image-1',
         imageIds: []
       })
+    })
+  })
+
+  describe('#resolveCoverImageId', () => {
+    it('passes an existing coverImageId straight through', async () => {
+      const data: Record<string, unknown> = {
+        coverImageId: imageFixture.id
+      }
+
+      const id = await resolveCoverImageId(data)
+
+      expect(id).toBe(imageFixture.id)
+      expect(mockSql).not.toHaveBeenCalled()
+      expect(uploadFileMock).not.toHaveBeenCalled()
+    })
+
+    it('creates a new image from inline fields when a file is submitted', async () => {
+      uploadFileMock.mockResolvedValueOnce(
+        'https://example.com/uploaded.jpg'
+      )
+      mockSql.mockResolvedValueOnce([
+        {
+          ...imageFixture,
+          id: '44444444-4444-4444-8444-444444444444'
+        }
+      ])
+
+      const data: Record<string, unknown> = {
+        'coverImage.file': mockFile(),
+        'coverImage.aspect': 1.5,
+        'coverImage.caption': 'A brand new cover'
+      }
+
+      const id = await resolveCoverImageId(data)
+
+      expect(id).toBe('44444444-4444-4444-8444-444444444444')
+      expect(uploadFileMock).toHaveBeenCalledTimes(1)
+      expect(mockSql).toHaveBeenCalledTimes(1)
+    })
+
+    it('strips prefixed image fields but leaves the parent title untouched', async () => {
+      uploadFileMock.mockResolvedValueOnce(
+        'https://example.com/uploaded.jpg'
+      )
+      mockSql.mockResolvedValueOnce([imageFixture])
+
+      const data: Record<string, unknown> = {
+        title: 'Site title',
+        description: 'Site description',
+        'coverImage.file': mockFile(),
+        'coverImage.aspect': 1.5,
+        'coverImage.caption': 'cap',
+        'coverImage.title': 'Image title'
+      }
+
+      await resolveCoverImageId(data)
+
+      expect(data).not.toHaveProperty('coverImage.file')
+      expect(data).not.toHaveProperty('coverImage.aspect')
+      expect(data).not.toHaveProperty('coverImage.caption')
+      expect(data).not.toHaveProperty('coverImage.title')
+      expect(data.title).toBe('Site title')
+      expect(data.description).toBe('Site description')
+    })
+
+    it('returns undefined when neither a coverImageId nor a file is submitted', async () => {
+      const id = await resolveCoverImageId({ description: 'x' })
+
+      expect(id).toBeUndefined()
+      expect(mockSql).not.toHaveBeenCalled()
+      expect(uploadFileMock).not.toHaveBeenCalled()
     })
   })
 })

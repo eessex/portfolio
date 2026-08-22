@@ -31,7 +31,9 @@ function AboutFormFields({ about }: { about: AboutClient }) {
         itemType='images'
         existingItem={about?.coverImage}
         formatResult={formatImageResult}
-        renderEditItemForm={() => <EditImage />}
+        renderEditItemForm={() => (
+          <EditImage namePrefix='coverImage' />
+        )}
       />
     </>
   )

@@ -119,6 +119,30 @@ export async function resolveOrderedImageIds(
   return { coverImageId, imageIds }
 }
 
+export async function resolveCoverImageId(
+  data: Record<string, unknown>,
+  prefix = 'coverImage'
+): Promise<string | undefined> {
+  if (typeof data.coverImageId === 'string' && data.coverImageId) {
+    return data.coverImageId
+  }
+
+  const fieldNames = ['file', ...Object.keys(createImageSchema.shape)]
+  const fields: Record<string, unknown> = {}
+  fieldNames.forEach((field) => {
+    fields[field] = data[`${prefix}.${field}`]
+    delete data[`${prefix}.${field}`]
+  })
+
+  const file = fields.file
+  if (!(file instanceof File) || file.size === 0) {
+    return undefined
+  }
+
+  const image = await createImageFromFields(fields)
+  return image.id
+}
+
 export async function deleteImage(image: Image) {
   return runDeleteAction<Image>({
     itemType: 'images',

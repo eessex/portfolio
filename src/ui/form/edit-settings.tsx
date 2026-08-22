@@ -53,7 +53,9 @@ function SettingsFormFields({
         description='Shown on homepage and as default meta image for search engines and link unfurling.'
         existingItem={settings?.coverImage}
         formatResult={formatImageResult}
-        renderEditItemForm={() => <EditImage />}
+        renderEditItemForm={() => (
+          <EditImage namePrefix='coverImage' />
+        )}
         isRequired
       />
     </>

@@ -4,6 +4,7 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import { runFormAction } from '@/lib/form-action'
+import { resolveCoverImageId } from '@/lib/images/actions'
 import type { CreateSiteSettings } from '@/lib/site-settings/schemas'
 import { createSiteSettingsSchema } from '@/lib/site-settings/schemas'
 
@@ -20,7 +21,14 @@ export async function editSiteSettings(
     formData,
     schema: createSiteSettingsSchema,
     itemType: 'siteSettings',
-    invalidate: () => updateTag('settings'),
+    prepare: async (data) => {
+      const coverImageId = await resolveCoverImageId(data)
+      return { ...data, coverImageId }
+    },
+    invalidate: () => {
+      updateTag('settings')
+      updateTag('images')
+    },
     save: (settings) =>
       id
         ? updateSiteSettings(settings, id)

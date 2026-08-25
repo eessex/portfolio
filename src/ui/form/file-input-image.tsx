@@ -1,5 +1,5 @@
 import { XMarkIcon } from '@heroicons/react/16/solid'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import type { Image } from '@/lib/images/schemas/db'
 import styles from '@/ui/form/form.module.scss'
@@ -45,6 +45,19 @@ export function FileInputImage({
     image?.url || undefined
   )
   const [loadError, setLoadError] = useState<string | null>(null)
+  // A file input's value can only be cleared via the live DOM node
+  // (React can't set it), so keep a ref to reset it when the preview is
+  // cleared, otherwise the input keeps showing the old filename.
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  function setInputRef(el: HTMLInputElement | null) {
+    inputRef.current = el
+    ref?.(el)
+  }
+
+  function clearFileInput() {
+    if (inputRef.current) inputRef.current.value = ''
+  }
 
   const usedOnCount = (image as Image)?.id
     ? usedOnPages(image as Image).length
@@ -72,6 +85,7 @@ export function FileInputImage({
         `"${file.name}" couldn't be loaded as an image. Choose a different file.`
       )
       onChange?.('', undefined, true)
+      clearFileInput()
     }
     return () => {
       img.onload = null
@@ -123,6 +137,7 @@ export function FileInputImage({
     setAspectRatio(imageUrl ? image?.aspect || undefined : undefined)
     onChange?.('', undefined, true)
     setFile(null)
+    clearFileInput()
   }
 
   function onRemoveSavedImage() {
@@ -171,13 +186,15 @@ export function FileInputImage({
         </>
       )}
       <Input
-        ref={ref}
+        ref={setInputRef}
         attributes={{
           ...attributes,
           name: attributes?.name || 'file',
           type: 'file',
           hidden: !!(previewUrl || imageUrl),
-          required: !previewUrl && !imageUrl
+          // Required only until an image is chosen unless the caller overrides
+          required:
+            attributes?.required !== false && !previewUrl && !imageUrl
         }}
         className={className}
         description={description}

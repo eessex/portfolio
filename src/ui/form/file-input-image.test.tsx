@@ -27,6 +27,17 @@ class FailingImage {
   }
 }
 
+class LoadingImage {
+  onload: (() => void) | null = null
+  onerror: (() => void) | null = null
+  naturalWidth = 800
+  naturalHeight = 600
+
+  set src(_value: string) {
+    queueMicrotask(() => this.onload?.())
+  }
+}
+
 describe('FileInputImage', () => {
   const originalImage = global.Image
 
@@ -106,5 +117,52 @@ describe('FileInputImage', () => {
     expect(
       screen.queryByText(/couldn.t be loaded as an image/i)
     ).not.toBeInTheDocument()
+  })
+
+  it('clears the file input filename when the preview is removed', async () => {
+    global.Image = LoadingImage as unknown as typeof Image
+
+    render(<FileInputImage label='Upload new image' />)
+    const fileInput = screen.getByLabelText(/upload new image/i)
+    // jsdom won't hold a file input's value, so spy on the setter to
+    // confirm the component resets the live node's value.
+    const setValue = jest.fn()
+    Object.defineProperty(fileInput, 'value', {
+      configurable: true,
+      get: () => '',
+      set: setValue
+    })
+
+    fireEvent.change(fileInput, {
+      target: { files: [mockFile('evepuffers.jpg')] }
+    })
+
+    const removeButton = await screen.findByRole('button', {
+      name: /remove image/i
+    })
+    fireEvent.click(removeButton)
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('button', { name: /remove image/i })
+      ).not.toBeInTheDocument()
+    })
+
+    expect(setValue).toHaveBeenCalledWith('')
+    expect(fileInput).not.toHaveAttribute('hidden')
+    expect(fileInput).toBeRequired()
+  })
+
+  it('does not mark the input required when the caller opts out', () => {
+    render(
+      <FileInputImage
+        label='Upload new image'
+        attributes={{ required: false }}
+      />
+    )
+
+    expect(
+      screen.getByLabelText(/upload new image/i)
+    ).not.toBeRequired()
   })
 })

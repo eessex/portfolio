@@ -13,6 +13,7 @@ export function ItemResultLabel({
   subtitle,
   badges = [],
   coverImage,
+  thumbnail,
   extraActions,
   onRemove,
   removeLabel
@@ -21,6 +22,11 @@ export function ItemResultLabel({
   subtitle?: React.ReactNode
   badges?: Badge[]
   coverImage?: ThumbnailImage
+  /**
+   * pre-rendered thumbnail, taking `coverImage` slot's position.
+   * next/image cannot render a file input preview.
+   */
+  thumbnail?: React.ReactNode
   /** Rendered after the title/subtitle, before the remove button. */
   extraActions?: React.ReactNode
   onRemove?: () => void
@@ -28,7 +34,8 @@ export function ItemResultLabel({
 }) {
   return (
     <div className={styles['row']}>
-      {coverImage && <CoverImageThumbnail image={coverImage} />}
+      {thumbnail ??
+        (coverImage && <CoverImageThumbnail image={coverImage} />)}
       <div className={styles['container']}>
         <span className={styles['title']}>
           <span className={styles['title-text']}>{title}</span>

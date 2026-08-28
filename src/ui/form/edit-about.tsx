@@ -9,7 +9,7 @@ import { EditImage } from '@/ui/images/edit-image-form'
 import { formatImageResult } from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 
-function AboutFormFields({ about }: { about: AboutClient }) {
+function AboutFormFields({ about }: { about?: AboutClient }) {
   const errors = useFormErrors()
 
   return (
@@ -39,10 +39,10 @@ function AboutFormFields({ about }: { about: AboutClient }) {
   )
 }
 
-export function EditAboutForm({ about }: { about: AboutClient }) {
+export function EditAboutForm({ about }: { about?: AboutClient }) {
   return (
     <Form
-      action={(formData: FormData) => editAbout(formData, about.id)}
+      action={(formData: FormData) => editAbout(formData, about?.id)}
       submitButtonClassName='button-primary button-lg'
     >
       <AboutFormFields about={about} />

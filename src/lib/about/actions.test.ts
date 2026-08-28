@@ -25,7 +25,19 @@ const validFields = {
 describe('editAbout', () => {
   beforeEach(() => jest.clearAllMocks())
 
-  it('can edit the about page', async () => {
+  it('can create the about page when no id is given', async () => {
+    mockSql.mockResolvedValueOnce([])
+    const res = await editAbout(formDataFromObject(validFields))
+
+    expect(res).toEqual({ ok: true })
+    expect(updateTag).toHaveBeenCalledWith('about')
+
+    const query = mockSql.mock.calls[0][0].join('')
+    expect(query).toContain('INSERT INTO about')
+    expect(query).toContain('created_at')
+  })
+
+  it('can edit the about page when an id is given', async () => {
     mockSql.mockResolvedValueOnce([])
     const res = await editAbout(
       formDataFromObject(validFields),

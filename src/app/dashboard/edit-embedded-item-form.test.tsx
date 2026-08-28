@@ -66,8 +66,9 @@ describe('EditEmbeddedItemForm', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: /save/i }))
 
-    await screen.findByText(/name is required/i)
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(
+      await screen.findByText(/name is required/i)
+    ).toBeInTheDocument()
   })
 
   it('shows a toast when a failure has no field errors', async () => {

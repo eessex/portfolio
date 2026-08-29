@@ -21,89 +21,70 @@
   figure {
     position: relative;
 
-    iframe,
-    img {
-      margin-top: grids.space-rem(1);
-    }
-
     button {
       position: absolute;
-      top: -#{grids.space-rem(1)};
-      right: -#{grids.space-rem(1)};
+      top: -#{grids.space-rem(2)};
+      right: -#{grids.space-rem(2)};
       z-index: 1;
       border-radius: 50%;
       flex-shrink: 0;
       border: 1px solid;
     }
-  }
 
-  p + p {
-    margin-top: grids.space-rem(2);
-    margin-bottom: grids.space-em(2);
-  }
+    button.replace-image {
+      position: static;
+      inset: auto;
+      z-index: auto;
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      background: none;
+      cursor: pointer;
 
-  label,
-  legend {
-    + p {
-      margin-top: grids.space-em(1);
-      margin-bottom: grids.space-em(2);
+      img {
+        display: block;
+        width: 100%;
+        margin-top: 0;
+      }
     }
+  }
 
+  p {
+    margin-bottom: 0.25rem;
+
+    &:not(:global(.visually-hidden)) + p {
+      margin-top: grids.space-rem(2);
+    }
+  }
+
+  label:not(:global(.visually-hidden)),
+  legend:not(:global(.visually-hidden)) {
+    // a little extra space between the label and the input
     + input,
     + :has(select), // select are wrapped in divs
     + textarea {
-      margin-top: grids.space-em(2);
+      margin-top: grids.space-em(1);
     }
-  }
-
-  legend:not(:global(.visually-hidden))
-    + div:not(:has(:global(label.visually-hidden))) {
-    margin-top: grids.space-em(3);
   }
 
   h2 {
     margin-bottom: grids.space-rem(2);
   }
 
-  fieldset {
-    > div:not([hidden]) + div,
-    > div:not([hidden]) + fieldset {
-      margin-top: grids.space-rem(6);
-    }
-  }
-
-  fieldset:has(button.cancel) {
-    position: relative;
-
-    button.cancel {
-      position: absolute;
-      top: grids.space-em(3);
-      right: grids.space-em(4);
-      background: var(--page-background-color);
-    }
-  }
-
-  button[type='submit'] {
-    margin-top: grids.space-rem(2);
-  }
-
   .input-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: grids.space-rem(4);
+    column-gap: grids.space-rem(4);
 
     // When a sibling is hidden, span the full width
     &:has(> [hidden]) > :not([hidden]) {
       grid-column: 1 / -1;
     }
 
-    div + div {
-      margin-top: 0;
-    }
-
     @include breakpoints.mobile {
       grid-template-columns: 1fr;
-      margin-top: grids.space-rem(6);
     }
   }
 }
@@ -115,6 +96,18 @@
 
   > p:last-child {
     margin-bottom: 0;
+  }
+}
+
+.field-with-remove {
+  position: relative;
+
+  > :global(.button-icon) {
+    position: absolute;
+    transform: translate(20%, -20%);
+    border-radius: 50%;
+    top: 0;
+    right: 0;
   }
 }
 

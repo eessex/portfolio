@@ -233,6 +233,33 @@ describe('Link Actions', () => {
       expect(result).toEqual({ linkIds: [] })
     })
 
+    it('ignores an untouched empty new slot', async () => {
+      const result = await resolveOrderedLinkIds({
+        'links[0].url': '',
+        'links[0].title': '',
+        'links[0].type': ''
+      })
+
+      expect(result).toEqual({ linkIds: [] })
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('drops empty new slots but keeps a filled one, preserving order', async () => {
+      mockSql.mockResolvedValueOnce([linkFixture])
+
+      const result = await resolveOrderedLinkIds({
+        'links[0].id': 'link-1',
+        'links[1].url': '',
+        'links[1].title': '',
+        'links[2].url': newLinkFixture.url,
+        'links[2].title': newLinkFixture.title
+      })
+
+      expect(result).toEqual({
+        linkIds: ['link-1', linkFixture.id]
+      })
+    })
+
     it('supports a custom field prefix', async () => {
       const result = await resolveOrderedLinkIds(
         { 'related[0].id': 'link-1' },

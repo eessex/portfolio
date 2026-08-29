@@ -15,6 +15,7 @@ import {
 import {
   extractIndexedGroups,
   formatDbResponseForClient,
+  isBlankEntry,
   normalizeFormData
 } from '@/lib/util'
 
@@ -105,7 +106,10 @@ export async function resolveOrderedImageIds(
   data: Record<string, unknown>,
   prefix = 'images'
 ): Promise<{ coverImageId: string | undefined; imageIds: string[] }> {
-  const entries = extractIndexedGroups(data, prefix)
+  const entries = extractIndexedGroups(data, prefix).filter(
+    (entry) =>
+      entry.kind === 'existing' || !isBlankEntry(entry.fields)
+  )
   const resolvedIds = await Promise.all(
     entries.map((entry) =>
       entry.kind === 'existing'

@@ -15,9 +15,9 @@
       transform: translateY(-#{grids.space-em(1)});
     }
 
-    &:has(> label:not(:global(.visually-hidden)))
-      + .search-input-container {
-      margin-top: grids.space-em(2);
+    &:not(:has(p)) {
+      // a little extra space between the label and the input
+      margin-bottom: grids.space-em(1);
     }
   }
 

@@ -182,16 +182,7 @@ export type IndexedGroupEntry =
  * Pulls indexed field groups (`${prefix}[0].field`, `${prefix}[1].field`,
  * ...) out of a flat form-data object, e.g. for a reorderable picker that
  * lets a user select existing items by id alongside creating new ones
- * inline. Mutates `data`, deleting every matched key (including the bare
- * `${prefix}[]` marker some callers render to keep the field present when
- * the list is empty) so none of it reaches schema validation.
- *
- * Returns entries in ascending index order — i.e. the order the caller
- * last arranged them in — since callers may derive meaning from position
- * (e.g. "the first entry is the cover image"), not just membership. A
- * group with an `id` field is an existing selection; a group without one
- * is a pending creation (its fields are returned, with the `${prefix}[i].`
- * prefix stripped from keys).
+ * inline. Order is set by the user, returned array preserves that order.
  */
 export function extractIndexedGroups(
   data: Record<string, unknown>,
@@ -224,4 +215,17 @@ export function extractIndexedGroups(
         ? { kind: 'existing', id: group.id }
         : { kind: 'new', fields: group }
     })
+}
+
+function isBlankValue(value: unknown): boolean {
+  if (value == null) return true
+  if (typeof value === 'string') return value.trim() === ''
+  if (value instanceof File) return value.size === 0
+  return false
+}
+
+export function isBlankEntry(
+  fields: Record<string, unknown>
+): boolean {
+  return Object.values(fields).every(isBlankValue)
 }

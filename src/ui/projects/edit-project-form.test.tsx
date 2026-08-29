@@ -26,6 +26,14 @@ const mockEditProject = jest.mocked(editProject)
 
 jest.mock('@/lib/db', () => ({ sql: jest.fn() }))
 
+const titleText = 'Title'
+const typeText = 'Type'
+const startDateRegex = /start date/i
+const endDateRegex = /end date/i
+const descriptionRegex = /^description\b/i
+const publishedRegex = /published/i
+const saveButtonText = 'Save'
+
 function renderComponent(props = {}) {
   return render(
     <ToastProvider>
@@ -41,15 +49,19 @@ describe('EditProjectForm', () => {
     it('renders title, description, type, dates, published, and images fields', () => {
       renderComponent()
 
-      expect(screen.getByLabelText(/title/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(titleText)).toBeInTheDocument()
       expect(
-        screen.getByLabelText(/^description\b/i)
+        screen.getByLabelText(descriptionRegex)
       ).toBeInTheDocument()
-      expect(screen.getByLabelText(/type/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/start date/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/end date/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/published/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/^images/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(typeText)).toBeInTheDocument()
+      expect(
+        screen.getByLabelText(startDateRegex)
+      ).toBeInTheDocument()
+      expect(screen.getByLabelText(endDateRegex)).toBeInTheDocument()
+      expect(
+        screen.getByLabelText(publishedRegex)
+      ).toBeInTheDocument()
+      expect(screen.getByText(/^images/i)).toBeInTheDocument()
     })
   })
 
@@ -87,13 +99,8 @@ describe('EditProjectForm', () => {
       )
     })
 
-    it('renders the create-new image fields inline without submitting', async () => {
-      const user = userEvent.setup()
+    it('renders the create-new image fields inline without submitting', () => {
       renderComponent()
-
-      const imagesInput = screen.getByLabelText(/^images/i)
-      await user.type(imagesInput, 'New Image')
-      await user.click(screen.getByText(/new image/i))
 
       expect(
         screen.getByLabelText(/upload new image/i)
@@ -106,11 +113,11 @@ describe('EditProjectForm', () => {
     it('sets defaultValue for each input from the project prop', () => {
       renderComponent({ project: projectFixtureBand })
 
-      expect(screen.getByLabelText(/title/i)).toHaveValue('Band 1')
+      expect(screen.getByLabelText(titleText)).toHaveValue('Band 1')
       // expect(screen.getByLabelText(/short description/i)).toHaveValue(
       //   'A test band for SEO metadata.'
       // )
-      expect(screen.getByLabelText(/start date/i)).toHaveValue(
+      expect(screen.getByLabelText(startDateRegex)).toHaveValue(
         '2025-01-01'
       )
     })
@@ -118,8 +125,8 @@ describe('EditProjectForm', () => {
     it('handles no project (create mode) without errors', () => {
       renderComponent()
 
-      expect(screen.getByLabelText(/title/i)).toHaveValue('')
-      expect(screen.getByLabelText(/published/i)).not.toBeChecked()
+      expect(screen.getByLabelText(titleText)).toHaveValue('')
+      expect(screen.getByLabelText(publishedRegex)).not.toBeChecked()
     })
   })
 
@@ -128,7 +135,7 @@ describe('EditProjectForm', () => {
       const user = userEvent.setup()
       renderComponent()
 
-      const publishedCheckbox = screen.getByLabelText(/published/i)
+      const publishedCheckbox = screen.getByLabelText(publishedRegex)
       expect(publishedCheckbox).not.toBeChecked()
 
       await user.click(publishedCheckbox)
@@ -148,19 +155,21 @@ describe('EditProjectForm', () => {
       })
       renderComponent()
 
-      fireEvent.change(screen.getByLabelText(/title/i), {
+      fireEvent.change(screen.getByLabelText(titleText), {
         target: { value: 'Changed' }
       })
-      fireEvent.change(screen.getByLabelText(/type/i), {
+      fireEvent.change(screen.getByLabelText(typeText), {
         target: { value: 'band' }
       })
-      fireEvent.change(screen.getByLabelText(/start date/i), {
+      fireEvent.change(screen.getByLabelText(startDateRegex), {
         target: { value: '2025-01-01' }
       })
-      fireEvent.change(screen.getByLabelText(/^description\b/i), {
+      fireEvent.change(screen.getByLabelText(descriptionRegex), {
         target: { value: 'A test description.' }
       })
-      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+      fireEvent.click(
+        screen.getByRole('button', { name: saveButtonText })
+      )
 
       expect(
         await screen.findByText(/title is required/i)
@@ -176,13 +185,15 @@ describe('EditProjectForm', () => {
       })
       renderComponent({ project: projectFixtureBand })
 
-      fireEvent.change(screen.getByLabelText(/title/i), {
+      fireEvent.change(screen.getByLabelText(titleText), {
         target: { value: 'Changed title' }
       })
-      fireEvent.change(screen.getByLabelText(/^description\b/i), {
+      fireEvent.change(screen.getByLabelText(descriptionRegex), {
         target: { value: 'A test description.' }
       })
-      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+      fireEvent.click(
+        screen.getByRole('button', { name: saveButtonText })
+      )
 
       await waitFor(() =>
         expect(pushMock).toHaveBeenCalledWith(
@@ -198,13 +209,15 @@ describe('EditProjectForm', () => {
       })
       renderComponent({ project: projectFixtureBand })
 
-      fireEvent.change(screen.getByLabelText(/title/i), {
+      fireEvent.change(screen.getByLabelText(titleText), {
         target: { value: 'Changed title' }
       })
-      fireEvent.change(screen.getByLabelText(/^description\b/i), {
+      fireEvent.change(screen.getByLabelText(descriptionRegex), {
         target: { value: 'A test description.' }
       })
-      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+      fireEvent.click(
+        screen.getByRole('button', { name: saveButtonText })
+      )
 
       expect(await screen.findByRole('alert')).toHaveTextContent(
         'Failed to save project: connection refused.'

@@ -1,5 +1,6 @@
 'use client'
 
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { useEffect, useId, useRef, useState } from 'react'
 
 import {
@@ -38,7 +39,17 @@ export interface ComboboxProps<
   isRequired?: boolean
   label?: string
   placeholder?: string
-  formatResult: (item: TEmbeddedItem | TPage) => React.ReactNode
+  /**
+   * Multi pickers keep the combobox mounted while an inline-create
+   * editor is open, but hide the search body and swap the "New {item}"
+   * button for a "Search {item}" toggle so the two modes are never
+   * shown at once.
+   */
+  isCreating?: boolean
+  onBackToSearch?: () => void
+  renderExistingResult: (
+    item: TEmbeddedItem | TPage
+  ) => React.ReactNode
   onCreateNew?: (query?: string) => void
   onSelect: (item: TEmbeddedItem | TPage) => void
 }
@@ -56,7 +67,9 @@ export function Combobox<
   isRequired,
   label,
   placeholder,
-  formatResult,
+  isCreating,
+  onBackToSearch,
+  renderExistingResult,
   onCreateNew,
   onSelect
 }: ComboboxProps<TEmbeddedItem, TPage, S>) {
@@ -211,20 +224,32 @@ export function Combobox<
             ? optionId(items[highlightedIndex])
             : undefined
         }
+        isBodyHidden={isCreating}
         beforeInputChildren={
-          onCreateNew &&
-          isEmbeddedItemType(itemType) && (
-            <CreateItemButton
-              className='button-sm'
-              ref={createButtonRef}
-              itemType={itemType}
-              onClick={() => onCreateNew(query || undefined)}
-            />
-          )
+          isCreating
+            ? onBackToSearch && (
+                <button
+                  type='button'
+                  className='button-sm'
+                  onClick={onBackToSearch}
+                >
+                  <MagnifyingGlassIcon /> Search{' '}
+                  {itemTypeToLabel(itemType, false, true)}
+                </button>
+              )
+            : onCreateNew &&
+              isEmbeddedItemType(itemType) && (
+                <CreateItemButton
+                  className='button-sm'
+                  ref={createButtonRef}
+                  itemType={itemType}
+                  onClick={() => onCreateNew(query || undefined)}
+                />
+              )
         }
         onKeyDown={handleKeyDown}
       />
-      {isOpen && (
+      {isOpen && !isCreating && (
         <ul id={listId} role='listbox'>
           {isLoading && items.length === 0 && (
             <li className={styles['loading']}>
@@ -243,7 +268,7 @@ export function Combobox<
               role='option'
               aria-selected={index === highlightedIndex}
             >
-              {formatResult(item)}
+              {renderExistingResult(item)}
             </li>
           ))}
           {nextCursor && (

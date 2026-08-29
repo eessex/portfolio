@@ -1,6 +1,9 @@
 import type { z } from 'zod'
 
-import type { Image } from '@/lib/images/schemas/db'
+import {
+  type Image,
+  imageClientFieldsSchema
+} from '@/lib/images/schemas/db'
 import type { Link } from '@/lib/links/schemas/db'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { createPublishedEditionSchema } from '@/lib/published-editions/schemas/db'
@@ -17,7 +20,10 @@ import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
 import { EditImage } from '@/ui/images/edit-image-form'
-import { formatImageResult } from '@/ui/images/format-image-result'
+import {
+  formatImageResult,
+  formatNewImageSummary
+} from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { formatLinkResult } from '@/ui/links/format-link-result'
 import { EditPublisher } from '@/ui/publishers/edit-publisher-form'
@@ -51,7 +57,7 @@ export const EditPublishedEdition = ({
             ? (publishedEdition.release as ReleaseClient)
             : undefined
         }
-        formatResult={formatReleaseResult}
+        renderExistingResult={formatReleaseResult}
       />
 
       <Select
@@ -68,7 +74,7 @@ export const EditPublishedEdition = ({
         itemType='publishers'
         isRequired
         existingItem={publishedEdition?.publisher}
-        formatResult={formatPublisherResult}
+        renderExistingResult={formatPublisherResult}
         schema={createPublisherSchema}
         renderEditItemForm={(_query, _index, errors) => (
           <EditPublisher errors={errors} />
@@ -124,9 +130,16 @@ export const EditPublishedEdition = ({
         itemType='images'
         label='Images'
         existingItems={images}
-        formatResult={formatImageResult}
-        renderEditItemForm={(_query, index) => (
-          <EditImage index={index} isPressFieldsetHidden />
+        renderExistingResult={formatImageResult}
+        renderNewItemSummary={formatNewImageSummary}
+        schema={imageClientFieldsSchema}
+        renderEditItemForm={(_query, index, errors, isRequired) => (
+          <EditImage
+            index={index}
+            errors={errors}
+            isPressFieldsetHidden
+            isRequired={isRequired}
+          />
         )}
       />
 
@@ -135,7 +148,7 @@ export const EditPublishedEdition = ({
         itemType='links'
         label='Purchase link'
         existingItem={publishedEdition?.buyLink}
-        formatResult={formatLinkResult}
+        renderExistingResult={formatLinkResult}
       />
     </>
   )

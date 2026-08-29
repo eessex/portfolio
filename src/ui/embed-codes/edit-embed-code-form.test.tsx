@@ -37,8 +37,8 @@ function pasteIframe(value: string) {
 
 const iframeRegex = /iframe/i
 const captionRegex = /caption/i
-const embedTypeLabel = 'Media type'
-const contentTypeLabel = 'Content type'
+const embedTypeLabel = /Media type/
+const contentTypeLabel = /Content type/
 const removeButtonName = /remove embed/i
 
 describe('EditEmbedCode', () => {
@@ -264,8 +264,9 @@ describe('EditEmbedCode', () => {
   })
 
   describe('embed type', () => {
-    it('is required', () => {
+    it('is required once an embed is parsed', () => {
       renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
       expect(screen.getByLabelText(embedTypeLabel)).toBeRequired()
     })
 
@@ -299,8 +300,9 @@ describe('EditEmbedCode', () => {
   })
 
   describe('content type', () => {
-    it('is required', () => {
+    it('is required once an embed is parsed', () => {
       renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
       expect(screen.getByLabelText(contentTypeLabel)).toBeRequired()
     })
 
@@ -576,6 +578,42 @@ describe('EditEmbedCode', () => {
         'aria-controls',
         fieldset.id
       )
+    })
+  })
+
+  describe('onReadyChange', () => {
+    it('reports not ready before an iframe is parsed', () => {
+      const onReadyChange = jest.fn()
+      renderComponent({ onReadyChange })
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(false)
+    })
+
+    it('reports ready once the iframe parses successfully', () => {
+      const onReadyChange = jest.fn()
+      renderComponent({ onReadyChange })
+      pasteIframe(embedCodeYoutubeFixture)
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(true)
+    })
+
+    it('reports not ready when a pasted iframe fails to parse', () => {
+      const onReadyChange = jest.fn()
+      renderComponent({ onReadyChange })
+      pasteIframe('invalid iframe code')
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(false)
+    })
+
+    it('reports not ready again once the parsed embed is removed', () => {
+      const onReadyChange = jest.fn()
+      renderComponent({ onReadyChange })
+      pasteIframe(embedCodeYoutubeFixture)
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(false)
     })
   })
 })

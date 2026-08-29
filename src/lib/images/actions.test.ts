@@ -263,6 +263,48 @@ describe('Image Actions', () => {
       })
     })
 
+    it('ignores an untouched empty new slot', async () => {
+      const result = await resolveOrderedImageIds({
+        'images[0].file': mockFile('', 0, ''),
+        'images[0].caption': '',
+        'images[0].alt': '',
+        'images[0].title': '',
+        'images[0].type': ''
+      })
+
+      expect(result).toEqual({
+        coverImageId: undefined,
+        imageIds: []
+      })
+      expect(uploadFileMock).not.toHaveBeenCalled()
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('drops empty new slots but keeps a filled one, preserving order', async () => {
+      uploadFileMock.mockResolvedValueOnce(
+        'https://example.com/uploaded-image.jpg'
+      )
+      mockSql.mockResolvedValueOnce([
+        {
+          ...imageFixture,
+          id: '44444444-4444-4444-8444-444444444444'
+        }
+      ])
+
+      const result = await resolveOrderedImageIds({
+        'images[0].file': mockFile('', 0, ''),
+        'images[0].caption': '',
+        'images[1].aspect': 1.5,
+        'images[1].url': 'https://example.com/image.jpg',
+        'images[2].id': 'image-2'
+      })
+
+      expect(result).toEqual({
+        coverImageId: '44444444-4444-4444-8444-444444444444',
+        imageIds: ['image-2']
+      })
+    })
+
     it('supports a custom field prefix', async () => {
       const result = await resolveOrderedImageIds(
         { 'gallery[0].id': 'image-1' },

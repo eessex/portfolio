@@ -19,6 +19,7 @@ import { EmbeddedItemTypes } from '@/lib/schemas'
 import {
   extractIndexedGroups,
   formatDbResponseForClient,
+  isBlankEntry,
   normalizeFormData
 } from '@/lib/util'
 
@@ -117,7 +118,10 @@ export async function resolveOrderedEmbedCodeIds(
   const isFeatured = Boolean(data[`${prefix}Featured`])
   delete data[`${prefix}Featured`]
 
-  const entries = extractIndexedGroups(data, prefix)
+  const entries = extractIndexedGroups(data, prefix).filter(
+    (entry) =>
+      entry.kind === 'existing' || !isBlankEntry(entry.fields)
+  )
   const resolvedIds = await Promise.all(
     entries.map((entry) =>
       entry.kind === 'existing'

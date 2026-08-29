@@ -7,7 +7,10 @@ import {
   createEmbedCodeSchema,
   type EmbedCode
 } from '@/lib/embed-codes/schemas/db'
-import type { Image } from '@/lib/images/schemas/db'
+import {
+  type Image,
+  imageClientFieldsSchema
+} from '@/lib/images/schemas/db'
 import { createLinkSchema, type Link } from '@/lib/links/schemas/db'
 import { deleteProject, editProject } from '@/lib/projects/actions'
 import { projectTypes } from '@/lib/projects/schemas'
@@ -20,7 +23,10 @@ import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
 import { EditImage } from '@/ui/images/edit-image-form'
-import { formatImageResult } from '@/ui/images/format-image-result'
+import {
+  formatImageResult,
+  formatNewImageSummary
+} from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { DeleteItemButton } from '@/ui/items/delete-item-button'
 import { EditLink } from '@/ui/links/edit-link-form'
@@ -88,9 +94,16 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         label='Images'
         itemType='images'
         existingItems={images}
-        formatResult={formatImageResult}
-        renderEditItemForm={(_query, index) => (
-          <EditImage index={index} isPressFieldsetHidden />
+        renderExistingResult={formatImageResult}
+        renderNewItemSummary={formatNewImageSummary}
+        schema={imageClientFieldsSchema}
+        renderEditItemForm={(_query, index, errors, isRequired) => (
+          <EditImage
+            index={index}
+            errors={errors}
+            isPressFieldsetHidden
+            isRequired={isRequired}
+          />
         )}
       />
       <Input
@@ -108,16 +121,16 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         isMulti
         name='embedCodes'
         label='Embed codes'
-        description='A featured embed code is displayed below the page heading, above the cover image.'
+        // description='A featured embed code is displayed below the page heading, above the cover image.'
         itemType='embedCodes'
         existingItems={embedCodes}
-        formatResult={formatEmbedCodeResult}
+        renderExistingResult={formatEmbedCodeResult}
         schema={createEmbedCodeSchema}
-        renderEditItemForm={(_query, index, errors) => (
+        renderEditItemForm={(_query, index, errors, isRequired) => (
           <EditEmbedCode
             index={index}
             errors={errors}
-            isRemoveButtonHidden
+            isRequired={isRequired}
           />
         )}
         featured={{
@@ -131,10 +144,14 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         label='Links'
         itemType='links'
         existingItems={project?.links ?? []}
-        formatResult={formatLinkResult}
+        renderExistingResult={formatLinkResult}
         schema={createLinkSchema}
-        renderEditItemForm={(_query, index, errors) => (
-          <EditLink index={index} errors={errors} />
+        renderEditItemForm={(_query, index, errors, isRequired) => (
+          <EditLink
+            index={index}
+            errors={errors}
+            isRequired={isRequired}
+          />
         )}
       />
       <Checkbox

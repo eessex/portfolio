@@ -8,7 +8,10 @@ import type { SiteSettingsClient } from '@/lib/site-settings/types'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 import { EditImage } from '@/ui/images/edit-image-form'
-import { formatImageResult } from '@/ui/images/format-image-result'
+import {
+  formatImageResult,
+  formatNewImageSummary
+} from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 
 function SettingsFormFields({
@@ -52,9 +55,15 @@ function SettingsFormFields({
         label='Cover image'
         description='Shown on homepage and as default meta image for search engines and link unfurling.'
         existingItem={settings?.coverImage}
-        formatResult={formatImageResult}
-        renderEditItemForm={() => (
-          <EditImage namePrefix='coverImage' />
+        renderExistingResult={formatImageResult}
+        renderNewItemSummary={formatNewImageSummary}
+        namePrefix='coverImage'
+        renderEditItemForm={(_query, _index, errors, isRequired) => (
+          <EditImage
+            namePrefix='coverImage'
+            errors={errors}
+            isRequired={isRequired}
+          />
         )}
         isRequired
       />

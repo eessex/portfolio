@@ -164,10 +164,6 @@ a[href] {
   }
 }
 
-:where(input, textarea) {
-  line-height: initial;
-}
-
 :where(textarea) {
   field-sizing: content;
 }
@@ -194,7 +190,6 @@ a[href] {
 
 :where(label, legend) {
   @include type.font-weight('bold');
-  @include type.line-height('sm');
 
   display: block;
 
@@ -226,9 +221,7 @@ a[href] {
 }
 
 :where(fieldset) {
-  --row-gap: 0;
-
-  border-color: transparent;
+  margin-inline: 0;
   padding: 0;
-  margin: 0;
+  border: 0;
 }

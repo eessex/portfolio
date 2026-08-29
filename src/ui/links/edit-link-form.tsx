@@ -1,4 +1,5 @@
-import { useId, useRef, useState } from 'react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useEffect, useId, useRef, useState } from 'react'
 import type { z } from 'zod'
 
 import {
@@ -24,21 +25,42 @@ const bulkInputTypes = new Set([
   'insertReplacementText'
 ])
 
+function isValidHttpUrl(value: string): boolean {
+  let parsed: URL
+  try {
+    parsed = new URL(value)
+  } catch {
+    return false
+  }
+  return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+}
+
 interface LinkProps {
   errors?: z.inferFlattenedErrors<
     typeof createLinkSchema
   >['fieldErrors']
   index?: number
+  isRequired?: boolean
   link?: Partial<Link>
+  /**
+   * Reports when a link goes from unparsed/absent to
+   * successfully parsed or back.
+   */
+  onReadyChange?: (isReady: boolean) => void
 }
 
-export const EditLink = ({ errors, index, link }: LinkProps) => {
+export const EditLink = ({
+  errors,
+  index,
+  isRequired = true,
+  link,
+  onReadyChange
+}: LinkProps) => {
   const [type, setType] = useState<string | undefined>(
     link?.type || undefined
   )
-  // Reveals the secondary fields once the url is valid, rather than
-  // on every keystroke — avoids the rest of the form jumping into
-  // view while the admin is still mid-typing.
+  // Reveals the secondary fields when the url is valid, not on
+  // every keystroke. Avoids the form jumping into view mid-typing.
   const [isUrlFilled, setIsUrlFilled] = useState(!!link?.url)
   const namePrefix =
     typeof index === 'number' ? `links[${index}].` : ''
@@ -50,9 +72,16 @@ export const EditLink = ({ errors, index, link }: LinkProps) => {
   // treated as a bulk insert worth checking immediately, leaving
   // single-character deltas (regular typing) to the blur handler.
   const prevUrlLengthRef = useRef((link?.url ?? '').length)
+  // The url is uncontrolled (`defaultValue`), so clearing it on remove
+  // has to go through the live DOM node — React can't reset it.
+  const urlInputRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    onReadyChange?.(isUrlFilled)
+  }, [isUrlFilled, onReadyChange])
 
   function onUrlBlur(event: React.FocusEvent<HTMLInputElement>) {
-    setIsUrlFilled(event.target.checkValidity())
+    setIsUrlFilled(isValidHttpUrl(event.target.value))
   }
 
   function onUrlChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -64,56 +93,87 @@ export const EditLink = ({ errors, index, link }: LinkProps) => {
     const isBulkChange = delta > 1 || bulkInputTypes.has(inputType)
     if (!isBulkChange) return
 
-    setIsUrlFilled(event.target.checkValidity())
+    setIsUrlFilled(isValidHttpUrl(event.target.value))
+  }
+
+  function onRemove() {
+    if (urlInputRef.current) urlInputRef.current.value = ''
+    prevUrlLengthRef.current = 0
+    setIsUrlFilled(false)
+    setType(undefined)
   }
 
   return (
     <>
-      <Input
-        attributes={{
-          'aria-controls': detailsFieldsetId,
-          'aria-expanded': isUrlFilled,
-          maxLength: 255,
-          name: `${namePrefix}url`,
-          placeholder: 'https://example.com',
-          required: true,
-          type: 'url'
-        }}
-        defaultValue={link?.url}
-        errors={errors?.url}
-        label='URL'
-        onBlur={onUrlBlur}
-        onChange={onUrlChange}
-        isLabelHidden
-      />
+      <div className={styles['field-with-remove']}>
+        <Input
+          ref={(el) => {
+            urlInputRef.current = el
+          }}
+          attributes={{
+            'aria-controls': detailsFieldsetId,
+            'aria-expanded': isUrlFilled,
+            maxLength: 255,
+            name: `${namePrefix}url`,
+            placeholder: 'https://example.com',
+            // Required when isRequired, or once the form is touched.
+            // Meta fields can't be saved without a url.
+            required: isRequired || isUrlFilled,
+            type: 'url'
+          }}
+          defaultValue={link?.url}
+          errors={errors?.url}
+          label='URL'
+          onBlur={onUrlBlur}
+          onChange={onUrlChange}
+          isLabelHidden
+        />
+        {isUrlFilled && (
+          <button
+            type='button'
+            title='Remove link'
+            aria-label='Remove link'
+            aria-controls={detailsFieldsetId}
+            aria-expanded={isUrlFilled}
+            className='button-icon button-primary'
+            onClick={onRemove}
+          >
+            <XMarkIcon />
+          </button>
+        )}
+      </div>
 
-      <fieldset hidden={!isUrlFilled} id={detailsFieldsetId}>
+      <fieldset
+        hidden={!isUrlFilled}
+        className={isUrlFilled ? 'expanded' : undefined}
+        id={detailsFieldsetId}
+      >
         <legend className='visually-hidden'>Link details</legend>
 
-        <Input
-          attributes={{
-            maxLength: 255,
-            name: `${namePrefix}title`,
-            placeholder: 'Title'
-          }}
-          defaultValue={link?.title}
-          errors={errors?.title}
-          label='Title'
-        />
-
-        <Select
-          attributes={{
-            name: `${namePrefix}type`,
-            'aria-controls': pressControlsId,
-            'aria-expanded': type === 'press'
-          }}
-          label='Type'
-          onChange={setType}
-          options={linkTypeOptions}
-          placeholder='Select link type'
-          value={type}
-        />
-
+        <div className={styles['input-group']}>
+          <Select
+            attributes={{
+              name: `${namePrefix}type`,
+              'aria-controls': pressControlsId,
+              'aria-expanded': type === 'press'
+            }}
+            label='Type'
+            onChange={setType}
+            options={linkTypeOptions}
+            placeholder='Select link type'
+            value={type}
+          />
+          <Input
+            attributes={{
+              maxLength: 255,
+              name: `${namePrefix}title`,
+              placeholder: 'Title'
+            }}
+            defaultValue={link?.title}
+            errors={errors?.title}
+            label='Display text'
+          />
+        </div>
         <fieldset
           className={styles['checkbox-group']}
           hidden={type !== 'press'}
@@ -122,17 +182,35 @@ export const EditLink = ({ errors, index, link }: LinkProps) => {
           <legend className='visually-hidden'>
             Press link details
           </legend>
-          <Input
-            attributes={{
-              maxLength: 255,
-              name: `${namePrefix}attribution`,
-              placeholder: 'New York Times'
-            }}
-            defaultValue={link?.attribution}
-            description='The name of the publication or link source.'
-            errors={errors?.attribution}
-            label='Attribution'
-          />
+          <div className={styles['input-group']}>
+            <Input
+              attributes={{
+                maxLength: 255,
+                name: `${namePrefix}attribution`,
+                placeholder: 'New York Times'
+              }}
+              defaultValue={link?.attribution}
+              description='The name of the publication or link source.'
+              errors={errors?.attribution}
+              label='Attribution'
+            />
+            <Input
+              attributes={{
+                name: `${namePrefix}publishDate`,
+                placeholder: 'YYYY-MM-DD',
+                type: 'date'
+              }}
+              defaultValue={
+                link?.publishDate
+                  ? new Date(link.publishDate)
+                      .toISOString()
+                      .split('T')[0]
+                  : ''
+              }
+              label='Publish date'
+              description='Press links are sorted by publish date.'
+            />
+          </div>
           <Input
             as='textarea'
             attributes={{
@@ -145,21 +223,6 @@ export const EditLink = ({ errors, index, link }: LinkProps) => {
             defaultValue={link?.quotation}
             errors={errors?.quotation}
             label='Quotation'
-          />
-          <Input
-            attributes={{
-              name: `${namePrefix}publishDate`,
-              placeholder: 'YYYY-MM-DD',
-              type: 'date'
-            }}
-            defaultValue={
-              link?.publishDate
-                ? new Date(link.publishDate)
-                    .toISOString()
-                    .split('T')[0]
-                : ''
-            }
-            label='Publish date'
           />
         </fieldset>
       </fieldset>

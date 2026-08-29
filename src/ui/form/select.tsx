@@ -7,6 +7,7 @@ import { InputLabel } from '@/ui/form/input-label'
 export function Select({
   ariaControls,
   attributes,
+  description,
   formatOptionLabel = (option) =>
     camelToSentence(snakeToCamel(option)),
   isLabelHidden,
@@ -18,6 +19,7 @@ export function Select({
 }: {
   ariaControls?: string
   attributes?: React.SelectHTMLAttributes<HTMLSelectElement>
+  description?: string
   formatOptionLabel?: (option: string) => string
   isLabelHidden?: boolean
   label: string
@@ -40,6 +42,7 @@ export function Select({
         isVisuallyHidden={isLabelHidden}
         isRequired={attributes?.required}
         label={label}
+        description={description}
       />
 
       <div className={styles['select']}>

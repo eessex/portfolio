@@ -9,7 +9,7 @@ function renderComponent(props = {}) {
 }
 
 const urlRegex = /url/i
-const titleRegex = /title/i
+const titleRegex = /display text/i
 const typeRegex = /type/i
 
 describe('EditLink', () => {
@@ -306,6 +306,24 @@ describe('EditLink', () => {
       expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
     })
 
+    it('keeps secondary fields hidden for non-http url schemes', () => {
+      renderComponent({ link: undefined })
+      const urlInput = screen.getByLabelText(urlRegex)
+
+      // native validation accepts this, but we want to reject non-http(s) schemes
+      fireEvent.change(urlInput, {
+        target: {
+          value:
+            'transform: translate(20%, -20%); border-radius: 50%;'
+        }
+      })
+      expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
+
+      fireEvent.blur(urlInput)
+      expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
+      expect(urlInput).toHaveAttribute('aria-expanded', 'false')
+    })
+
     it('re-hides secondary fields without clearing their values when the url is cleared', () => {
       renderComponent({ link: linkFixture })
       const urlInput = screen.getByLabelText(urlRegex)
@@ -319,6 +337,96 @@ describe('EditLink', () => {
 
       expect(titleInput).not.toBeVisible()
       expect(titleInput).toHaveValue('Updated title')
+    })
+  })
+
+  describe('remove', () => {
+    const removeRegex = /remove link/i
+
+    it('hides the remove button until the url is filled', () => {
+      renderComponent({ link: undefined })
+
+      expect(
+        screen.queryByRole('button', { name: removeRegex })
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows the remove button once secondary fields are revealed', () => {
+      renderComponent({ link: linkFixture })
+
+      expect(
+        screen.getByRole('button', { name: removeRegex })
+      ).toBeInTheDocument()
+    })
+
+    it('clears the url and collapses the details fieldset when removed', async () => {
+      const user = userEvent.setup()
+      renderComponent({ link: linkFixture })
+      const urlInput = screen.getByLabelText(urlRegex)
+
+      await user.click(
+        screen.getByRole('button', { name: removeRegex })
+      )
+
+      expect(urlInput).toHaveValue('')
+      expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
+      expect(urlInput).toHaveAttribute('aria-expanded', 'false')
+      expect(
+        screen.queryByRole('button', { name: removeRegex })
+      ).not.toBeInTheDocument()
+    })
+
+    it('wires the remove button to the details fieldset for assistive tech', () => {
+      renderComponent({ link: linkFixture })
+
+      const removeButton = screen.getByRole('button', {
+        name: removeRegex
+      })
+      expect(removeButton).toHaveAttribute('aria-expanded', 'true')
+      const controlsId = removeButton.getAttribute('aria-controls')
+      expect(controlsId).toBeTruthy()
+      expect(document.getElementById(controlsId!)).toContainElement(
+        screen.getByLabelText(titleRegex)
+      )
+    })
+  })
+
+  describe('onReadyChange', () => {
+    it('reports not ready without a valid url', () => {
+      const onReadyChange = jest.fn()
+      renderComponent({ link: undefined, onReadyChange })
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(false)
+    })
+
+    it('reports ready when rendered with an existing valid url', () => {
+      const onReadyChange = jest.fn()
+      renderComponent({ link: linkFixture, onReadyChange })
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(true)
+    })
+
+    it('reports ready once the url becomes valid', () => {
+      const onReadyChange = jest.fn()
+      renderComponent({ link: undefined, onReadyChange })
+      const urlInput = screen.getByLabelText(urlRegex)
+
+      fireEvent.change(urlInput, {
+        target: { value: 'https://example.com' }
+      })
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(true)
+    })
+
+    it('reports not ready again once the url is removed', () => {
+      const onReadyChange = jest.fn()
+      renderComponent({ link: linkFixture, onReadyChange })
+
+      fireEvent.click(
+        screen.getByRole('button', { name: /remove link/i })
+      )
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(false)
     })
   })
 })

@@ -1,4 +1,5 @@
 import { XMarkIcon } from '@heroicons/react/16/solid'
+import clsx from 'clsx'
 import React, { useEffect, useRef, useState } from 'react'
 
 import type { Image } from '@/lib/images/schemas/db'
@@ -140,6 +141,10 @@ export function FileInputImage({
     clearFileInput()
   }
 
+  function onReplaceImage() {
+    inputRef.current?.click()
+  }
+
   function onRemoveSavedImage() {
     if (usedOnCount > 0) {
       const confirmed = confirm(
@@ -153,7 +158,7 @@ export function FileInputImage({
   }
 
   return (
-    <div className={styles['file-input']}>
+    <div className={clsx(styles['file-input'])}>
       {(previewUrl || imageUrl) && (
         <>
           <figure
@@ -164,11 +169,20 @@ export function FileInputImage({
                 : 'auto'
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={previewUrl || imageUrl}
-              alt='Uploaded image preview'
-            />
+            {/* Clicking the preview reopens the picker to swap the file. */}
+            <button
+              type='button'
+              title='Replace image'
+              aria-label='Replace image'
+              onClick={onReplaceImage}
+              className={styles['replace-image']}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewUrl || imageUrl}
+                alt='Uploaded image preview'
+              />
+            </button>
             <button
               title='Remove image'
               aria-label='Remove image'

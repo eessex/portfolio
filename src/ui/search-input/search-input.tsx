@@ -9,6 +9,10 @@ export interface SearchInputProps {
   ariaActivedescendant?: string
   beforeInputChildren?: React.ReactNode
   description?: string
+  /** Hide the input itself (not the label/actions row) — used to swap
+   *  search for an inline-create editor while keeping the header.
+   */
+  isBodyHidden?: boolean
   isLabelHidden?: boolean
   isRequired?: boolean
   label?: string
@@ -25,6 +29,7 @@ export function SearchInput({
   ariaActivedescendant,
   beforeInputChildren,
   description,
+  isBodyHidden,
   isLabelHidden,
   isRequired,
   label = 'Search',
@@ -62,7 +67,10 @@ export function SearchInput({
         {beforeInputChildren}
       </div>
 
-      <div className={styles['search-input-container']}>
+      <div
+        className={styles['search-input-container']}
+        hidden={isBodyHidden}
+      >
         <input
           aria-controls={ariaControls}
           aria-activedescendant={ariaActivedescendant}

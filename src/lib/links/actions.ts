@@ -15,6 +15,7 @@ import {
 import {
   extractIndexedGroups,
   formatDbResponseForClient,
+  isBlankEntry,
   normalizeFormData
 } from '@/lib/util'
 
@@ -85,7 +86,10 @@ export async function resolveOrderedLinkIds(
   data: Record<string, unknown>,
   prefix = 'links'
 ): Promise<{ linkIds: string[] }> {
-  const entries = extractIndexedGroups(data, prefix)
+  const entries = extractIndexedGroups(data, prefix).filter(
+    (entry) =>
+      entry.kind === 'existing' || !isBlankEntry(entry.fields)
+  )
   const linkIds = await Promise.all(
     entries.map((entry) =>
       entry.kind === 'existing'

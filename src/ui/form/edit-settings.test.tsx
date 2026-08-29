@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import { EditSettings } from '@/ui/form/edit-settings'
@@ -39,13 +38,8 @@ describe('EditSettings', () => {
     expect(screen.getByLabelText(/cover image/i)).toBeInTheDocument()
   })
 
-  it('renders the create-new image fields inline without submitting', async () => {
-    const user = userEvent.setup()
+  it('renders the create-new image fields inline without submitting', () => {
     renderComponent()
-
-    const coverImageInput = screen.getByLabelText(/cover image/i)
-    await user.type(coverImageInput, 'Image')
-    await user.click(screen.getByText(/new image/i))
 
     expect(
       screen.getByLabelText(/upload new image/i)

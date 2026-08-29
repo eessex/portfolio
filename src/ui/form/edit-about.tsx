@@ -6,7 +6,10 @@ import type { Image } from '@/lib/images/schemas/db'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 import { EditImage } from '@/ui/images/edit-image-form'
-import { formatImageResult } from '@/ui/images/format-image-result'
+import {
+  formatImageResult,
+  formatNewImageSummary
+} from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 
 function AboutFormFields({ about }: { about?: AboutClient }) {
@@ -30,9 +33,15 @@ function AboutFormFields({ about }: { about?: AboutClient }) {
         label='Cover image'
         itemType='images'
         existingItem={about?.coverImage}
-        formatResult={formatImageResult}
-        renderEditItemForm={() => (
-          <EditImage namePrefix='coverImage' />
+        renderExistingResult={formatImageResult}
+        renderNewItemSummary={formatNewImageSummary}
+        namePrefix='coverImage'
+        renderEditItemForm={(_query, _index, errors, isRequired) => (
+          <EditImage
+            namePrefix='coverImage'
+            errors={errors}
+            isRequired={isRequired}
+          />
         )}
       />
     </>

@@ -1,4 +1,5 @@
-import { useId, useState } from 'react'
+import type { FocusEvent } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import type { z } from 'zod'
 
 import { checkIfImageExists } from '@/lib/images/data'
@@ -10,10 +11,30 @@ import { imageTypes } from '@/lib/images/schemas/db'
 import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import { Checkbox } from '@/ui/form/checkbox'
 import { FileInputImage } from '@/ui/form/file-input-image'
+import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
 
 const imageTypeOptions = [...imageTypes]
+
+// Whether every visible control in the details fieldset is empty.
+// Hidden inputs (aspect/url bookkeeping fields) don't count as user data.
+function isDetailsEmpty(fieldset: HTMLFieldSetElement): boolean {
+  const controls = fieldset.querySelectorAll<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  >('input:not([type="hidden"]), select, textarea')
+  for (const control of controls) {
+    if (
+      control instanceof HTMLInputElement &&
+      control.type === 'checkbox'
+    ) {
+      if (control.checked) return false
+    } else if (control.value.trim() !== '') {
+      return false
+    }
+  }
+  return true
+}
 
 interface EditImageProps {
   errors?: z.inferFlattenedErrors<
@@ -28,12 +49,18 @@ interface EditImageProps {
    * attached to a published edition.
    */
   isPressFieldsetHidden?: boolean
+  isRequired?: boolean
   /**
    * Namespaces every input `name` in this fieldset,
    * e.g. `'coverImage'` -> `coverImage.title`). When omitted,
    * a multi-item picker's `index` uses `images[i].` prefix instead.
    */
   namePrefix?: string
+  /**
+   * Reports when a file goes from unparsed/absent to
+   * successfully parsed or back.
+   */
+  onReadyChange?: (isReady: boolean) => void
 }
 
 export const EditImage = ({
@@ -41,7 +68,9 @@ export const EditImage = ({
   image,
   index,
   isPressFieldsetHidden,
-  namePrefix: namePrefixProp
+  isRequired = true,
+  namePrefix: namePrefixProp,
+  onReadyChange
 }: EditImageProps) => {
   const [type, setType] = useState<string | undefined>(
     image?.type || undefined
@@ -55,6 +84,8 @@ export const EditImage = ({
   const [formImage, setFormImage] = useState<Partial<Image>>(
     image || {}
   )
+  const [detailsExpanded, setDetailsExpanded] = useState(false)
+  const detailsFieldsetRef = useRef<HTMLFieldSetElement>(null)
   const namePrefix = namePrefixProp
     ? `${namePrefixProp}.`
     : typeof index === 'number'
@@ -65,10 +96,21 @@ export const EditImage = ({
 
   async function onFileChange(
     filename: string,
-    aspectRatio: number | undefined
+    aspectRatio: number | undefined,
+    _isDirty?: boolean
   ) {
     const aspectRatioValue = aspectRatio || formImage.aspect
     setAspectRatio(aspectRatioValue)
+
+    if (
+      !filename &&
+      !aspectRatioValue &&
+      detailsFieldsetRef.current &&
+      isDetailsEmpty(detailsFieldsetRef.current)
+    ) {
+      setDetailsExpanded(false)
+    }
+
     if (filename) {
       try {
         if (image?.url) {
@@ -103,18 +145,31 @@ export const EditImage = ({
   const controlledCheckboxId = useId()
   const detailsFieldsetId = useId()
   const hasImage = !!aspectRatio
+  const isExpanded = hasImage || detailsExpanded
+
+  useEffect(() => {
+    onReadyChange?.(hasImage)
+  }, [hasImage, onReadyChange])
+
+  function onDetailsBlur(e: FocusEvent<HTMLFieldSetElement>) {
+    if (!hasImage && isDetailsEmpty(e.currentTarget)) {
+      setDetailsExpanded(false)
+    }
+  }
 
   return (
     <>
       <FileInputImage
         ariaControls={detailsFieldsetId}
-        ariaExpanded={hasImage}
+        ariaExpanded={isExpanded}
         attributes={{
           accept: 'image/*',
           name: `${namePrefix}file`,
-          required: true,
+          // Required when isRequired, or once the form is touched.
+          // Meta fields can't be saved without a file.
+          required: isRequired || isExpanded,
           'aria-controls': detailsFieldsetId,
-          'aria-expanded': hasImage
+          'aria-expanded': isExpanded
         }}
         validationText='1MB size limit.'
         image={formImage}
@@ -122,7 +177,14 @@ export const EditImage = ({
         onChange={onFileChange}
         isLabelHidden
       />
-      <fieldset hidden={!hasImage} id={detailsFieldsetId}>
+      <fieldset
+        ref={detailsFieldsetRef}
+        hidden={!isExpanded}
+        className={isExpanded ? 'expanded' : undefined}
+        id={detailsFieldsetId}
+        onChange={() => setDetailsExpanded(true)}
+        onBlur={onDetailsBlur}
+      >
         <legend className='visually-hidden'>Image details</legend>
         {aspectRatio && (
           <Input
@@ -174,28 +236,31 @@ export const EditImage = ({
           errors={errors?.alt}
           label='Alt text'
         />
-        <Input
-          attributes={{
-            maxLength: MAX_STRING_LENGTH_SHORT,
-            name: `${namePrefix}title`,
-            placeholder: 'Title'
-          }}
-          defaultValue={formImage?.title}
-          description='Used for internal search only, not displayed publicly.'
-          label='Title'
-        />
-        <Select
-          attributes={{
-            name: `${namePrefix}type`,
-            'aria-controls': controlledCheckboxId,
-            'aria-expanded': type === 'press'
-          }}
-          label='Type'
-          onChange={setType}
-          options={imageTypeOptions}
-          placeholder='Select image type'
-          value={type}
-        />
+        <div className={styles['input-group']}>
+          <Input
+            attributes={{
+              maxLength: MAX_STRING_LENGTH_SHORT,
+              name: `${namePrefix}title`,
+              placeholder: 'Title'
+            }}
+            defaultValue={formImage?.title}
+            description='Used for internal search.'
+            label='Title'
+          />
+          <Select
+            attributes={{
+              name: `${namePrefix}type`,
+              'aria-controls': controlledCheckboxId,
+              'aria-expanded': type === 'press'
+            }}
+            label='Type'
+            onChange={setType}
+            options={imageTypeOptions}
+            placeholder='Select image type'
+            description='Used for internal search.'
+            value={type}
+          />
+        </div>
         {!isPressFieldsetHidden && (
           <fieldset hidden={type !== 'press'}>
             <legend>Press Image Details</legend>

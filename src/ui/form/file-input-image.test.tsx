@@ -124,8 +124,6 @@ describe('FileInputImage', () => {
 
     render(<FileInputImage label='Upload new image' />)
     const fileInput = screen.getByLabelText(/upload new image/i)
-    // jsdom won't hold a file input's value, so spy on the setter to
-    // confirm the component resets the live node's value.
     const setValue = jest.fn()
     Object.defineProperty(fileInput, 'value', {
       configurable: true,
@@ -151,6 +149,29 @@ describe('FileInputImage', () => {
     expect(setValue).toHaveBeenCalledWith('')
     expect(fileInput).not.toHaveAttribute('hidden')
     expect(fileInput).toBeRequired()
+  })
+
+  it('reopens the file picker when the preview is clicked', async () => {
+    global.Image = LoadingImage as unknown as typeof Image
+
+    render(<FileInputImage label='Upload new image' />)
+    const fileInput = screen.getByLabelText(
+      /upload new image/i
+    ) as HTMLInputElement
+
+    fireEvent.change(fileInput, {
+      target: { files: [mockFile('cat.jpg')] }
+    })
+
+    const replaceButton = await screen.findByRole('button', {
+      name: /replace image/i
+    })
+    const clickSpy = jest
+      .spyOn(fileInput, 'click')
+      .mockImplementation(() => {})
+    fireEvent.click(replaceButton)
+    expect(clickSpy).toHaveBeenCalledTimes(1)
+    clickSpy.mockRestore()
   })
 
   it('does not mark the input required when the caller opts out', () => {

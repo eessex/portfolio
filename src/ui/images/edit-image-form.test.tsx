@@ -143,4 +143,31 @@ describe('EditImage', () => {
       expect(fieldset).toHaveAttribute('hidden')
     })
   })
+
+  describe('onReadyChange', () => {
+    const existingImage = {
+      id: 'img-1',
+      url: 'https://bucket.s3.amazonaws.com/images/photo.jpg',
+      aspect: 1.5
+    }
+
+    it('reports not ready when no image is present', () => {
+      const onReadyChange = jest.fn()
+      render(<EditImage onReadyChange={onReadyChange} />)
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(false)
+    })
+
+    it('reports ready when rendered with an existing image', () => {
+      const onReadyChange = jest.fn()
+      render(
+        <EditImage
+          image={existingImage}
+          onReadyChange={onReadyChange}
+        />
+      )
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(true)
+    })
+  })
 })

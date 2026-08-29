@@ -1,4 +1,4 @@
-import { useCallback, useId, useState } from 'react'
+import { useCallback, useEffect, useId, useState } from 'react'
 import type { z } from 'zod'
 
 import {
@@ -24,19 +24,25 @@ interface EmbedCodeProps {
   >['fieldErrors']
   index?: number
   /**
-   * Hides the inline "Remove embed" button on the parsed preview, for
-   * contexts that already wrap this form in their own cancel
-   * affordance (e.g. ItemPicker's per-slot "Cancel" button for new
-   * items) — avoids offering two different ways to back out.
+   * Hides the inline "Remove embed" button on the parsed preview.
+   * Not currently used.
    */
   isRemoveButtonHidden?: boolean
+  isRequired?: boolean
+  /**
+   * Reports when a pasted iframe goes from unparsed/absent to
+   * successfully parsed or back.
+   */
+  onReadyChange?: (isReady: boolean) => void
 }
 
 export const EditEmbedCode = ({
   index,
   embedCode,
   errors,
-  isRemoveButtonHidden
+  isRemoveButtonHidden,
+  isRequired = true,
+  onReadyChange
 }: EmbedCodeProps) => {
   const [embedCodeIframe, setEmbedCodeIframe] =
     useState<Partial<EmbedCode> | null>(() => {
@@ -49,6 +55,10 @@ export const EditEmbedCode = ({
   const detailsFieldsetId = useId()
 
   const { addErrorMessage } = useToast()
+
+  useEffect(() => {
+    onReadyChange?.(!!embedCodeIframe)
+  }, [embedCodeIframe, onReadyChange])
 
   const changeIframeValue = useCallback(
     (value: string) => {
@@ -158,7 +168,7 @@ export const EditEmbedCode = ({
               maxLength: 1500,
               name: `${namePrefix}iframe`,
               placeholder: '<iframe></iframe>',
-              required: true,
+              required: isRequired,
               type: 'text'
             }}
             description='Paste a full iframe embed code. Supported services: Bandcamp, Mixcloud, Soundcloud, Spotify, YouTube.'
@@ -173,7 +183,11 @@ export const EditEmbedCode = ({
           />
         )}
       </div>
-      <fieldset hidden={!embedCodeIframe} id={detailsFieldsetId}>
+      <fieldset
+        hidden={!embedCodeIframe}
+        className={embedCodeIframe ? 'expanded' : undefined}
+        id={detailsFieldsetId}
+      >
         <legend className='visually-hidden'>Embed details</legend>
         <div className={styles['input-group']}>
           <Select
@@ -185,10 +199,11 @@ export const EditEmbedCode = ({
               )
             }
             label='Media type'
+            placeholder='Select a media type'
             value={embedCodeIframe?.type}
             attributes={{
               hidden: embedCodeIframe?.host !== 'youtube',
-              required: true,
+              required: !!embedCodeIframe,
               name: `${namePrefix}type`
             }}
           />
@@ -206,7 +221,7 @@ export const EditEmbedCode = ({
             placeholder='Select a content type'
             value={embedCodeIframe?.contentType}
             attributes={{
-              required: true,
+              required: !!embedCodeIframe,
               name: `${namePrefix}contentType`
             }}
           />

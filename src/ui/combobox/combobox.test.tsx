@@ -24,7 +24,7 @@ const defaultProps: ComboboxProps<Venue> = {
     totalCount: 0
   },
   itemType: 'venues',
-  formatResult: (item) => item.name,
+  renderExistingResult: (item) => item.name,
   onCreateNew: onCreateNewMock,
   onSelect: onSelectMock
 }
@@ -71,7 +71,7 @@ describe('Combobox', () => {
         expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
       })
 
-      it('renders results using formatResult when opened', () => {
+      it('renders results using renderExistingResult when opened', () => {
         renderCombobox({ initialResults })
         fireEvent.focus(screen.getByRole('combobox'))
 

@@ -359,6 +359,50 @@ describe('Embed Code Actions', () => {
       })
     })
 
+    it('ignores an untouched empty new slot', async () => {
+      const result = await resolveOrderedEmbedCodeIds({
+        'embedCodes[0].iframe': '',
+        'embedCodes[0].type': '',
+        'embedCodes[0].contentType': '',
+        'embedCodes[0].caption': ''
+      })
+
+      expect(result).toEqual({
+        embedCodeIds: [],
+        featuredEmbedCodeId: undefined
+      })
+      expect(fetchEmbedCodeMetadataMock).not.toHaveBeenCalled()
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('drops empty new slots but keeps a filled one, preserving order', async () => {
+      fetchEmbedCodeMetadataMock.mockResolvedValueOnce({})
+      mockSql.mockResolvedValueOnce([
+        {
+          ...embedCodeFixture,
+          id: '44444444-4444-4444-8444-444444444444'
+        }
+      ])
+
+      const result = await resolveOrderedEmbedCodeIds({
+        'embedCodes[0].id': 'embed-1',
+        'embedCodes[1].iframe': '',
+        'embedCodes[1].type': '',
+        'embedCodes[1].caption': '',
+        'embedCodes[2].host': createEmbedCodeFixture.host,
+        'embedCodes[2].type': createEmbedCodeFixture.type,
+        'embedCodes[2].src': createEmbedCodeFixture.src
+      })
+
+      expect(result).toEqual({
+        embedCodeIds: [
+          'embed-1',
+          '44444444-4444-4444-8444-444444444444'
+        ],
+        featuredEmbedCodeId: undefined
+      })
+    })
+
     it('supports a custom field prefix, including its own featured flag', async () => {
       const result = await resolveOrderedEmbedCodeIds(
         {

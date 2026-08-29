@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import {
   createContext,
+  startTransition,
   useActionState,
   useContext,
   useEffect,
@@ -130,6 +131,13 @@ export function Form<T>({
     FormData
   >(onSubmit, null)
 
+  // prevent reload
+  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    startTransition(() => formAction(formData))
+  }
+
   async function onSubmit(
     prevState: FormResponse<T> | null,
     formData: FormData
@@ -187,7 +195,7 @@ export function Form<T>({
     <>
       <form
         className={className || styles.form}
-        action={formAction}
+        onSubmit={handleSubmit}
         ref={formRef}
       >
         <FormErrorsContext.Provider

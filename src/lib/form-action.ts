@@ -28,8 +28,10 @@ interface RunFormActionOptions<S extends z.ZodTypeAny, T> {
   isNormalized?: boolean
   /**
    * Runs after the auth check, before validation; may replace
-   * entries (e.g. swapping an uploaded file for its S3 url).
-   * Thrown errors propagate to the caller unformatted.
+   * entries (e.g. swapping an uploaded file for its S3 url). Thrown
+   * errors are logged and returned as a `{ ok: false }` response (same
+   * as a failed `save`), so a failed upload surfaces as a form error
+   * rather than a masked server-action rejection.
    */
   prepare?: (
     data: Record<string, unknown>
@@ -53,7 +55,17 @@ export async function runFormAction<S extends z.ZodTypeAny, T>({
   if (denied) return denied
 
   let data: Record<string, unknown> = Object.fromEntries(formData)
-  if (prepare) data = await prepare(data)
+  if (prepare) {
+    try {
+      data = await prepare(data)
+    } catch (err) {
+      console.error(`Failed to prepare ${itemType}:`, err)
+      return formatErrorResponse(
+        `Failed to save ${itemTypeToLabel(itemType, true, true)}`,
+        err
+      )
+    }
+  }
 
   const validated = schema.safeParse(
     isNormalized ? normalizeFormData(data) : data

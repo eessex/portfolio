@@ -103,6 +103,24 @@ describe('Form', () => {
     })
   })
 
+  describe('failed submit', () => {
+    it('preserves the typed input when the action fails', async () => {
+      const action = jest
+        .fn()
+        .mockResolvedValue({ ok: false, message: 'S3 upload failed' })
+      renderForm(action)
+
+      fireEvent.change(screen.getByLabelText(/title/i), {
+        target: { value: 'Changed' }
+      })
+      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+      await screen.findByText(/s3 upload failed/i)
+      expect(action).toHaveBeenCalledTimes(1)
+      expect(screen.getByLabelText(/title/i)).toHaveValue('Changed')
+    })
+  })
+
   describe('confirmUnsavedChanges={false}', () => {
     it('does not show a confirm dialog when navigating away dirty', async () => {
       renderForm(jest.fn(), { confirmUnsavedChanges: false })

@@ -146,13 +146,15 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
           isRequired,
           _onCancel,
           _onReady,
-          existingItem
+          existingItem,
+          onBusyChange
         ) => (
           <EditEmbedCode
             embedCode={existingItem}
             index={index}
             errors={errors}
             isRequired={isRequired}
+            onBusyChange={onBusyChange}
           />
         )}
         featured={{

@@ -112,14 +112,9 @@ interface SaveItemFromFieldsOptions<S extends z.ZodTypeAny, T> {
 }
 
 /**
- * Shared normalize → validate → save pipeline for a single embedded item
- * pulled out of another domain's multi-item picker submission (see
- * `extractIndexedGroups`) — the body of the `createXFromFields` /
- * `updateXFromFields` helpers. Mirrors `runFormAction`'s frame but for a raw
- * field group rather than FormData, and without the auth/cache concerns the
- * parent form action already owns. Creates when `id` is absent, updates when
- * present; the only per-call difference is the id and which of
- * `create`/`update` runs.
+ * normalize → validate → save pipeline for a single item embedded
+ * via another domain's multi-item picker: accepts raw data (not FormData).
+ * Creates when `id` is absent, updates when present.
  */
 export async function saveItemFromFields<S extends z.ZodTypeAny, T>({
   id,

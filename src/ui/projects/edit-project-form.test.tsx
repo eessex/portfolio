@@ -53,6 +53,21 @@ function deferPreviewMetadata() {
   }
 }
 
+// same as above, but *rejected*
+function deferPreviewMetadataFailure() {
+  let reject!: (err: unknown) => void
+  mockPreviewMetadata.mockReturnValueOnce(
+    new Promise((_resolve, r) => {
+      reject = r
+    })
+  )
+  return async () => {
+    await act(async () => {
+      reject(new Error('oEmbed failed'))
+    })
+  }
+}
+
 const titleText = 'Title'
 const typeText = 'Type'
 const startDateRegex = /start date/i
@@ -169,6 +184,47 @@ describe('EditProjectForm', () => {
         screen.getByRole('img', { name: 'Resolved embed title' })
       ).toHaveAttribute('src', resolvedMeta.thumbnailUrl)
       expect(mockEditProject).not.toHaveBeenCalled()
+    })
+
+    it('disables Save while the preview resolves, then re-enables it', async () => {
+      const resolvePreview = deferPreviewMetadata()
+      renderComponent()
+
+      fireEvent.change(screen.getByLabelText(/iframe code/i), {
+        target: { value: embedCodeYoutubeFixture }
+      })
+
+      expect(screen.getByText('Loading preview…')).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Save embed code' })
+      ).toBeDisabled()
+
+      await resolvePreview(resolvedMeta)
+
+      expect(
+        screen.queryByText('Loading preview…')
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Save embed code' })
+      ).toBeEnabled()
+    })
+
+    it('re-enables Save when the preview resolution fails', async () => {
+      const failPreview = deferPreviewMetadataFailure()
+      renderComponent()
+
+      fireEvent.change(screen.getByLabelText(/iframe code/i), {
+        target: { value: embedCodeYoutubeFixture }
+      })
+      expect(
+        screen.getByRole('button', { name: 'Save embed code' })
+      ).toBeDisabled()
+
+      await failPreview()
+
+      expect(
+        screen.getByRole('button', { name: 'Save embed code' })
+      ).toBeEnabled()
     })
   })
 

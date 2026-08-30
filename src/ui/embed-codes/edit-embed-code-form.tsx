@@ -1,6 +1,13 @@
-import { useCallback, useEffect, useId, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState
+} from 'react'
 import type { z } from 'zod'
 
+import { previewEmbedCodeMetadata } from '@/lib/embed-codes/preview-metadata'
 import {
   type createEmbedCodeSchema,
   type EmbedCode,
@@ -50,6 +57,13 @@ export const EditEmbedCode = ({
       return embedCode
     })
   const [iframeInputValue, setIframeInputValue] = useState('')
+  // oEmbed title/thumbnail for the collapsed-chip preview
+  const [previewMeta, setPreviewMeta] = useState<{
+    title?: string
+    thumbnailUrl?: string
+  } | null>(null)
+  // Ignore a slower resolve landing after a newer paste cleared/changed it.
+  const previewRequestId = useRef(0)
   const namePrefix =
     typeof index === 'number' ? `embedCodes[${index}].` : ''
   const detailsFieldsetId = useId()
@@ -60,11 +74,20 @@ export const EditEmbedCode = ({
     onReadyChange?.(!!embedCodeIframe)
   }, [embedCodeIframe, onReadyChange])
 
+  // A resolve that lands after unmount becomes stale (no match).
+  useEffect(() => {
+    return () => {
+      previewRequestId.current = -1
+    }
+  }, [])
+
   const changeIframeValue = useCallback(
     (value: string) => {
       if (!value) {
+        previewRequestId.current++
         setEmbedCodeIframe(null)
         setIframeInputValue('')
+        setPreviewMeta(null)
         return
       }
 
@@ -75,10 +98,27 @@ export const EditEmbedCode = ({
         )
         setEmbedCodeIframe(iframeData)
         setIframeInputValue(value)
+
+        // Resolve the chip's cover image + title from the host's oEmbed
+        // endpoint, keyed so a stale response can't clobber a newer paste.
+        const requestId = ++previewRequestId.current
+        setPreviewMeta(null)
+        if (iframeData?.host && iframeData.src) {
+          previewEmbedCodeMetadata(
+            iframeData.host,
+            iframeData.src
+          ).then((meta) => {
+            if (previewRequestId.current === requestId) {
+              setPreviewMeta(meta)
+            }
+          })
+        }
       } catch {
         addErrorMessage('Error parsing iframe.')
+        previewRequestId.current++
         setEmbedCodeIframe(null)
         setIframeInputValue('')
+        setPreviewMeta(null)
       }
     },
     [addErrorMessage]
@@ -258,6 +298,29 @@ export const EditEmbedCode = ({
             }}
             defaultValue={embedCodeIframe.host}
             label='Embed Code Host'
+          />
+        )}
+        {/* Display-only oEmbed metadata for the collapsed new-item chip.
+            Not schema fields, so `createEmbedCodeSchema` strips them on
+            submit — the server re-resolves title/cover at save time. */}
+        {previewMeta?.title && (
+          <Input
+            attributes={{
+              name: `${namePrefix}previewTitle`,
+              type: 'hidden'
+            }}
+            defaultValue={previewMeta.title}
+            label='Embed Code Preview Title'
+          />
+        )}
+        {previewMeta?.thumbnailUrl && (
+          <Input
+            attributes={{
+              name: `${namePrefix}previewThumbnailUrl`,
+              type: 'hidden'
+            }}
+            defaultValue={previewMeta.thumbnailUrl}
+            label='Embed Code Preview Thumbnail'
           />
         )}
       </fieldset>

@@ -1,6 +1,12 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import {
+  act,
+  fireEvent,
+  render,
+  screen
+} from '@testing-library/react'
 
 import { embedCodeFixture } from '@/lib/embed-codes/fixtures'
+import { previewEmbedCodeMetadata } from '@/lib/embed-codes/preview-metadata'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
 import {
   embedCodeSoundcloud,
@@ -12,6 +18,13 @@ import { useToast } from '@/ui/toast/toast-context'
 jest.mock('@/ui/toast/toast-context', () => {
   return { useToast: jest.fn() }
 })
+jest.mock('@/lib/embed-codes/preview-metadata', () => ({
+  previewEmbedCodeMetadata: jest.fn()
+}))
+const mockPreviewMetadata =
+  previewEmbedCodeMetadata as jest.MockedFunction<
+    typeof previewEmbedCodeMetadata
+  >
 const mockAddError = jest.fn()
 const mockAddSuccess = jest.fn()
 ;(useToast as jest.Mock).mockReturnValue({
@@ -26,11 +39,40 @@ function renderComponent(props = {}) {
 
 beforeEach(() => {
   jest.clearAllMocks()
+  mockPreviewMetadata.mockResolvedValue({})
 })
 
-function pasteIframe(value: string) {
+// Every iframe parse fires an async `previewEmbedCodeMetadata` whose
+// state update lands after the test body; drain it inside act so it
+// neither warns nor leaks into the next test.
+afterEach(async () => {
+  await act(async () => {
+    await Promise.resolve()
+  })
+})
+
+// A `previewEmbedCodeMetadata` result whose resolution we flush inside
+// act, for deterministic assertions on the hidden preview inputs.
+function deferPreviewMetadata() {
+  let resolve!: (meta: {
+    title?: string
+    thumbnailUrl?: string
+  }) => void
+  mockPreviewMetadata.mockReturnValueOnce(
+    new Promise((r) => {
+      resolve = r
+    })
+  )
+  return async (meta: { title?: string; thumbnailUrl?: string }) => {
+    await act(async () => {
+      resolve(meta)
+    })
+  }
+}
+
+function pasteIframe(value: string, name = 'iframe') {
   const input = document.querySelector(
-    'input[name="iframe"]'
+    `input[name="${name}"]`
   ) as HTMLInputElement
   fireEvent.change(input, { target: { value } })
 }
@@ -614,6 +656,92 @@ describe('EditEmbedCode', () => {
       )
 
       expect(onReadyChange).toHaveBeenLastCalledWith(false)
+    })
+  })
+
+  describe('oEmbed preview metadata', () => {
+    const resolvedMeta = {
+      title: 'Resolved title',
+      thumbnailUrl: 'https://img.youtube.com/vi/abc/hqdefault.jpg'
+    }
+
+    it('resolves the host/src once an iframe is parsed', () => {
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+
+      expect(mockPreviewMetadata).toHaveBeenCalledWith(
+        embedCodeFixture.host,
+        embedCodeFixture.src
+      )
+    })
+
+    it('renders the resolved title/thumbnail as hidden inputs', async () => {
+      const resolvePreview = deferPreviewMetadata()
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+      await resolvePreview(resolvedMeta)
+
+      const titleInput = document.querySelector(
+        'input[name="previewTitle"]'
+      )
+      expect(titleInput).toHaveAttribute('type', 'hidden')
+      expect(titleInput).toHaveValue(resolvedMeta.title)
+
+      const thumbnailInput = document.querySelector(
+        'input[name="previewThumbnailUrl"]'
+      )
+      expect(thumbnailInput).toHaveAttribute('type', 'hidden')
+      expect(thumbnailInput).toHaveValue(resolvedMeta.thumbnailUrl)
+    })
+
+    it('prefixes the preview inputs when indexed', async () => {
+      const resolvePreview = deferPreviewMetadata()
+      renderComponent({ index: 2 })
+      pasteIframe(embedCodeYoutubeFixture, 'embedCodes[2].iframe')
+      await resolvePreview(resolvedMeta)
+
+      expect(
+        document.querySelector(
+          'input[name="embedCodes[2].previewTitle"]'
+        )
+      ).toBeInTheDocument()
+      expect(
+        document.querySelector(
+          'input[name="embedCodes[2].previewThumbnailUrl"]'
+        )
+      ).toBeInTheDocument()
+    })
+
+    it('renders no preview inputs when the host returns no metadata', async () => {
+      const resolvePreview = deferPreviewMetadata()
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+      await resolvePreview({})
+
+      expect(
+        document.querySelector('input[name="previewTitle"]')
+      ).not.toBeInTheDocument()
+      expect(
+        document.querySelector('input[name="previewThumbnailUrl"]')
+      ).not.toBeInTheDocument()
+    })
+
+    it('drops resolved metadata once the parsed embed is removed', async () => {
+      const resolvePreview = deferPreviewMetadata()
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+      await resolvePreview(resolvedMeta)
+      expect(
+        document.querySelector('input[name="previewTitle"]')
+      ).toBeInTheDocument()
+
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      expect(
+        document.querySelector('input[name="previewTitle"]')
+      ).not.toBeInTheDocument()
     })
   })
 })

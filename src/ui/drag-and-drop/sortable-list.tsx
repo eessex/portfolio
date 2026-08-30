@@ -22,6 +22,7 @@ import {
   ArrowUpIcon,
   Bars2Icon
 } from '@heroicons/react/24/outline'
+import { useId } from 'react'
 
 import styles from '@/ui/drag-and-drop/sortable-list.module.scss'
 
@@ -55,6 +56,8 @@ export function SortableList<T extends { id: string }>({
   renderItem,
   className
 }: SortableListProps<T>) {
+  const dndId = useId()
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -75,6 +78,7 @@ export function SortableList<T extends { id: string }>({
 
   return (
     <DndContext
+      id={dndId}
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}

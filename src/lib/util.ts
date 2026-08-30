@@ -176,6 +176,7 @@ export function normalizeFormData(
 
 export type IndexedGroupEntry =
   | { kind: 'existing'; id: string }
+  | { kind: 'edited'; id: string; fields: Record<string, unknown> }
   | { kind: 'new'; fields: Record<string, unknown> }
 
 /**
@@ -211,9 +212,15 @@ export function extractIndexedGroups(
     .sort((a, b) => a - b)
     .map((index): IndexedGroupEntry => {
       const group = groups[index]
-      return typeof group.id === 'string'
-        ? { kind: 'existing', id: group.id }
-        : { kind: 'new', fields: group }
+      if (typeof group.id === 'string') {
+        const { id, ...fields } = group
+        // An id alongside edited fields means an existing item was
+        // opened and changed inline; id alone is an untouched selection.
+        return Object.keys(fields).length > 0
+          ? { kind: 'edited', id, fields }
+          : { kind: 'existing', id }
+      }
+      return { kind: 'new', fields: group }
     })
 }
 

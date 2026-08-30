@@ -6,7 +6,8 @@ import {
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { createLinkSchema } from '@/lib/links/schemas/db'
+import { linkFixture, pressLinkFixture } from '@/lib/links/fixtures'
+import { createLinkSchema, type Link } from '@/lib/links/schemas/db'
 import { ReleaseTypes } from '@/lib/releases/schemas'
 import type {
   FetchReleasesResult,
@@ -87,16 +88,28 @@ describe('ItemPicker', () => {
     })
 
     describe('initial render', () => {
-      it('opens in create mode by default when no existing item is provided', () => {
-        renderComponent()
+      it('opens picker in create mode by default', () => {
+        renderComponent({
+          itemType: 'links',
+          renderEditItemForm: () => <div>New Link Form</div>
+        })
 
-        expect(screen.getByText('New Venue Form')).toBeInTheDocument()
+        expect(screen.getByText('New Link Form')).toBeInTheDocument()
         expect(
-          screen.getByRole('button', { name: /search venue/i })
+          screen.getByRole('button', { name: /search link/i })
         ).toBeInTheDocument()
       })
 
-      it('renders the selected item when an existing item is provided', () => {
+      it('opens a search-first itemType in search mode', () => {
+        renderComponent()
+
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+        expect(
+          screen.queryByText('New Venue Form')
+        ).not.toBeInTheDocument()
+      })
+
+      it('renders an existing item when provided', () => {
         const { getByText, queryByText } = renderComponent({
           existingItem: venueFixtureAlpha
         })
@@ -151,9 +164,7 @@ describe('ItemPicker', () => {
             />
           )
         })
-        await user.click(
-          screen.getByRole('button', { name: /search venue/i })
-        )
+        // `venues` is search-first, so the combobox is shown on load.
         const input = screen.getByRole('combobox')
         await user.type(input, 'Test')
         await user.click(screen.getByText('Test Venue Texas'))
@@ -166,11 +177,12 @@ describe('ItemPicker', () => {
       it('returns to the edit item form after toggling to search and back', async () => {
         const user = userEvent.setup()
         renderComponent({
+          itemType: 'links',
           renderEditItemForm: () => (
             <div>
-              New Venue Form
+              New Link Form
               <input
-                aria-label='Venue name'
+                aria-label='Link title'
                 defaultValue=''
                 onChange={() => {}}
                 required
@@ -180,15 +192,15 @@ describe('ItemPicker', () => {
         })
 
         await user.click(
-          screen.getByRole('button', { name: /search venue/i })
+          screen.getByRole('button', { name: /search link/i })
         )
         const input = screen.getByRole('combobox')
-        await user.type(input, 'New Venue')
+        await user.type(input, 'New Link')
         await user.click(
-          screen.getByRole('button', { name: /new venue/i })
+          screen.getByRole('button', { name: /new link/i })
         )
 
-        expect(screen.getByText('New Venue Form')).toBeInTheDocument()
+        expect(screen.getByText('New Link Form')).toBeInTheDocument()
       })
     })
 
@@ -206,19 +218,23 @@ describe('ItemPicker', () => {
 
     describe('create-new mode', () => {
       it('renders the edit item form by default', () => {
-        renderComponent()
+        renderComponent({
+          itemType: 'links',
+          renderEditItemForm: () => <div>New Link Form</div>
+        })
 
-        expect(screen.getByText('New Venue Form')).toBeInTheDocument()
+        expect(screen.getByText('New Link Form')).toBeInTheDocument()
       })
 
       it('passes the search query to the edit item form', async () => {
         const user = userEvent.setup()
         renderComponent({
+          itemType: 'links',
           renderEditItemForm: (query: string) => (
             <div>
               Query: {query}
               <input
-                aria-label='Venue name'
+                aria-label='Link title'
                 defaultValue=''
                 onChange={() => {}}
                 required
@@ -228,12 +244,12 @@ describe('ItemPicker', () => {
         })
 
         await user.click(
-          screen.getByRole('button', { name: /search venue/i })
+          screen.getByRole('button', { name: /search link/i })
         )
         const input = screen.getByRole('combobox')
         await user.type(input, 'Alpha')
         await user.click(
-          screen.getByRole('button', { name: /new venue/i })
+          screen.getByRole('button', { name: /new link/i })
         )
 
         expect(screen.getByText('Query: Alpha')).toBeInTheDocument()
@@ -465,6 +481,369 @@ describe('ItemPicker', () => {
       })
     })
 
+    describe('create-first default (multi)', () => {
+      function renderLinksPicker(featured?: {
+        isInitiallyFeatured: boolean
+        label?: string
+      }) {
+        return render(
+          <ItemPicker<Link>
+            initialResults={{
+              res: [],
+              nextCursor: null,
+              totalCount: 0
+            }}
+            itemType='links'
+            isMulti
+            name='links'
+            existingItems={[linkFixture, pressLinkFixture]}
+            renderExistingResult={(
+              item,
+              onRemove,
+              removeLabel,
+              extraActions
+            ) => (
+              <ItemResultLabel
+                title={item.title ?? item.url}
+                onRemove={onRemove}
+                removeLabel={removeLabel}
+                extraActions={extraActions}
+              />
+            )}
+            renderEditItemForm={() => <div>New Link Form</div>}
+            featured={featured}
+          />
+        )
+      }
+
+      it('opens with a blank create form above the existing chips, search hidden', () => {
+        renderLinksPicker()
+
+        expect(screen.getByText('New Link Form')).toBeInTheDocument()
+        expect(
+          screen.getByRole('button', { name: /search link/i })
+        ).toBeInTheDocument()
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+
+        // Existing items still render, below the blank form — which
+        // claims index 0, shifting them to links[1], links[2].
+        expect(screen.getByText('Test Link')).toBeInTheDocument()
+        expect(
+          screen.getByText('Test Press Link')
+        ).toBeInTheDocument()
+        expect(
+          screen.getByDisplayValue(linkFixture.id)
+        ).toHaveAttribute('name', 'links[1].id')
+        expect(
+          screen.getByDisplayValue(pressLinkFixture.id)
+        ).toHaveAttribute('name', 'links[2].id')
+      })
+
+      it('toggling to search drops the blank form and re-indexes from 0', async () => {
+        const user = userEvent.setup()
+        renderLinksPicker()
+
+        await user.click(
+          screen.getByRole('button', { name: /search link/i })
+        )
+
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+        expect(
+          screen.queryByText('New Link Form')
+        ).not.toBeInTheDocument()
+        expect(
+          screen.getByDisplayValue(linkFixture.id)
+        ).toHaveAttribute('name', 'links[0].id')
+        expect(
+          screen.getByDisplayValue(pressLinkFixture.id)
+        ).toHaveAttribute('name', 'links[1].id')
+      })
+
+      it('pins an initially-featured item as the closed head, with the blank form after it', () => {
+        renderLinksPicker({
+          isInitiallyFeatured: true,
+          label: 'Featured'
+        })
+
+        // The featured item stays the pinned, closed head chip (links[0])
+        expect(
+          screen.getByDisplayValue(linkFixture.id)
+        ).toHaveAttribute('name', 'links[0].id')
+        expect(
+          document.querySelector('input[name="linksFeatured"]')
+        ).toHaveValue('true')
+        // the blank create form opens after it
+        expect(screen.getByText('New Link Form')).toBeInTheDocument()
+        // and the star toggle lives only on closed chips: the featured
+        // head shows Unset, the one other closed chip shows Set, and the
+        // open blank form shows neither.
+        expect(
+          screen.getByRole('button', { name: 'Unset Featured' })
+        ).toBeInTheDocument()
+        expect(
+          screen.getAllByRole('button', { name: 'Set as Featured' })
+        ).toHaveLength(1)
+      })
+
+      it('keeps search as the default for search-first types (venues, publishers)', () => {
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha]
+        })
+
+        // A search-first type opens in search with no blank create form,
+        // even though it has an inline create form and existing items.
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+        expect(
+          screen.queryByText('New Venue Form')
+        ).not.toBeInTheDocument()
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+      })
+    })
+
+    describe('editing an existing item', () => {
+      const editableProps = {
+        isMulti: true as const,
+        name: 'venueIds',
+        existingItems: [venueFixtureAlpha],
+        renderEditItemForm: (
+          _query: string | undefined,
+          index: number | undefined,
+          _errors: unknown,
+          _isRequired: boolean | undefined,
+          _onCancel: (() => void) | undefined,
+          _onReady: ((r: boolean) => void) | undefined,
+          existingItem: Venue | undefined
+        ) => (
+          <input
+            aria-label='Venue name'
+            name={`venueIds[${index}].name`}
+            defaultValue={existingItem?.name ?? ''}
+          />
+        )
+      }
+
+      it('opens the edit form seeded with the existing item on Edit', async () => {
+        const user = userEvent.setup()
+        renderComponent(editableProps)
+
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+
+        // form is seeded with the item's current value, and its id is
+        // carried in a hidden input so the server sees an edited entry
+        await waitFor(() =>
+          expect(screen.getByLabelText('Venue name')).toHaveValue(
+            venueFixtureAlpha.name
+          )
+        )
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+      })
+
+      it('submits the id alongside the edited fields after Save', async () => {
+        const user = userEvent.setup()
+        renderComponent(editableProps)
+
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+        const nameInput = await screen.findByLabelText('Venue name')
+        fireEvent.change(nameInput, {
+          target: { value: 'Edited Venue' }
+        })
+        await user.click(
+          screen.getByRole('button', { name: /save venue/i })
+        )
+
+        // collapsed back to a chip showing the edit, with both the id and
+        // the edited field submitted under the same index
+        expect(screen.getByText('Edited Venue')).toBeInTheDocument()
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+        expect(
+          screen.getByDisplayValue('Edited Venue')
+        ).toHaveAttribute('name', 'venueIds[0].name')
+      })
+
+      it('Cancel reverts to the read-only chip, dropping the id input', async () => {
+        const user = userEvent.setup()
+        renderComponent(editableProps)
+
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+        await screen.findByLabelText('Venue name')
+        await user.click(
+          screen.getByRole('button', { name: /^cancel$/i })
+        )
+
+        // back to the plain selected result: no edit fieldset, and the id
+        // is once again the chip's own hidden input (venueIds[0].id)
+        expect(
+          screen.queryByLabelText('Venue name')
+        ).not.toBeInTheDocument()
+        expect(
+          screen.getByText('Test Venue Texas')
+        ).toBeInTheDocument()
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+      })
+
+      it('hides the search input while editing, restoring it on Save', async () => {
+        const user = userEvent.setup()
+        renderComponent(editableProps)
+
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+
+        await screen.findByLabelText('Venue name')
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+
+        fireEvent.change(screen.getByLabelText('Venue name'), {
+          target: { value: 'Edited Venue' }
+        })
+        await user.click(
+          screen.getByRole('button', { name: /save venue/i })
+        )
+
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+
+      it('restores the search input on Cancel from an edit', async () => {
+        const user = userEvent.setup()
+        renderComponent(editableProps)
+
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+        await screen.findByLabelText('Venue name')
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+
+        await user.click(
+          screen.getByRole('button', { name: /^cancel$/i })
+        )
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+    })
+
+    describe('editing returns to create mode (create-first)', () => {
+      const editableLinkProps: ItemPickerProps<Link> = {
+        initialResults: {
+          res: [],
+          nextCursor: null,
+          totalCount: 0
+        },
+        itemType: 'links',
+        isMulti: true,
+        name: 'links',
+        existingItems: [linkFixture],
+        renderExistingResult: (
+          item,
+          onRemove,
+          removeLabel,
+          extraActions
+        ) => (
+          <ItemResultLabel
+            title={item.title ?? item.url}
+            onRemove={onRemove}
+            removeLabel={removeLabel}
+            extraActions={extraActions}
+          />
+        ),
+        renderEditItemForm: (
+          _query,
+          index,
+          _errors,
+          _isRequired,
+          _onCancel,
+          _onReady,
+          existingItem
+        ) => (
+          <input
+            aria-label='Link url'
+            name={`links[${index}].url`}
+            defaultValue={existingItem?.url ?? ''}
+          />
+        )
+      }
+
+      function renderEditableLinks() {
+        return render(<ItemPicker<Link> {...editableLinkProps} />)
+      }
+
+      it('drops the resting blank create form when an edit opens', async () => {
+        const user = userEvent.setup()
+        renderEditableLinks()
+
+        expect(screen.getByLabelText('Link url')).toHaveValue('')
+
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+
+        // the blank is gone: the only editor is the seeded edit, so a
+        // single 'Link url' input remains, now carrying the item value
+        await waitFor(() =>
+          expect(screen.getByLabelText('Link url')).toHaveValue(
+            linkFixture.url!
+          )
+        )
+      })
+
+      it('re-seeds a blank create form after saving an edit', async () => {
+        const user = userEvent.setup()
+        renderEditableLinks()
+
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+        const input = await screen.findByLabelText('Link url')
+        fireEvent.change(input, {
+          target: { value: 'https://edited-link.com' }
+        })
+        await user.click(
+          screen.getByRole('button', { name: /save link/i })
+        )
+
+        // the edited item collapses back to its read-only chip (its
+        // title is unchanged by a url edit) and a blank form re-seeds
+        expect(screen.getByText('Test Link')).toBeInTheDocument()
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+        expect(
+          screen.getByRole('button', { name: /save link/i })
+        ).toBeInTheDocument()
+      })
+
+      it('re-seeds a blank create form after cancelling an edit', async () => {
+        const user = userEvent.setup()
+        renderEditableLinks()
+
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+        await screen.findByLabelText('Link url')
+        await user.click(
+          screen.getByRole('button', { name: /^cancel$/i })
+        )
+
+        expect(screen.getByText('Test Link')).toBeInTheDocument()
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+        expect(
+          screen.getByRole('button', { name: /save link/i })
+        ).toBeInTheDocument()
+      })
+    })
+
     describe('slim mode (search/create never coexist)', () => {
       function renderVenuePicker(props = {}) {
         return renderComponent({
@@ -559,25 +938,27 @@ describe('ItemPicker', () => {
           screen.getByRole('button', { name: /search venue/i })
         )
 
-        // Completed draft is kept: search returns and the chip's Edit
-        // control is present (fieldset survives, collapsed).
+        // Completed draft is kept: search returns and its collapsed chip's
+        // Edit control is present (fieldset survives, collapsed) alongside
+        // the existing venue's own Edit control — two chips, two Edits.
         expect(screen.getByRole('combobox')).toBeInTheDocument()
         expect(
-          screen.getByRole('button', { name: /^edit$/i })
-        ).toBeInTheDocument()
+          screen.getAllByRole('button', { name: /^edit$/i })
+        ).toHaveLength(2)
       })
     })
 
     describe('slim mode (single item)', () => {
       function renderSinglePicker(props = {}) {
         return renderComponent({
+          itemType: 'links',
           renderEditItemForm: () => (
             <div>
               <input
-                name='name'
+                name='url'
                 defaultValue=''
                 onChange={() => {}}
-                aria-label='Venue name'
+                aria-label='Link url'
                 required
               />
             </div>
@@ -591,16 +972,14 @@ describe('ItemPicker', () => {
         renderSinglePicker()
 
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+        expect(screen.getByLabelText('Link url')).toBeInTheDocument()
         expect(
-          screen.getByLabelText('Venue name')
-        ).toBeInTheDocument()
-        expect(
-          screen.getByRole('button', { name: /search venue/i })
+          screen.getByRole('button', { name: /search link/i })
         ).toBeInTheDocument()
 
         // Toggling swaps the create editor to search.
         await user.click(
-          screen.getByRole('button', { name: /search venue/i })
+          screen.getByRole('button', { name: /search link/i })
         )
         expect(screen.getByRole('combobox')).toBeInTheDocument()
       })
@@ -610,15 +989,15 @@ describe('ItemPicker', () => {
         renderSinglePicker()
 
         await user.click(
-          screen.getByRole('button', { name: /search venue/i })
+          screen.getByRole('button', { name: /search link/i })
         )
         await user.click(
-          screen.getByRole('button', { name: /new venue/i })
+          screen.getByRole('button', { name: /new link/i })
         )
-        expect(screen.getByLabelText('Venue name')).toHaveFocus()
+        expect(screen.getByLabelText('Link url')).toHaveFocus()
 
         await user.click(
-          screen.getByRole('button', { name: /search venue/i })
+          screen.getByRole('button', { name: /search link/i })
         )
         expect(screen.getByRole('combobox')).toHaveFocus()
       })
@@ -628,12 +1007,12 @@ describe('ItemPicker', () => {
         renderSinglePicker()
 
         await user.click(
-          screen.getByRole('button', { name: /search venue/i })
+          screen.getByRole('button', { name: /search link/i })
         )
 
         expect(screen.getByRole('combobox')).toBeInTheDocument()
         expect(
-          screen.queryByLabelText('Venue name')
+          screen.queryByLabelText('Link url')
         ).not.toBeInTheDocument()
       })
 
@@ -641,11 +1020,11 @@ describe('ItemPicker', () => {
         const user = userEvent.setup()
         renderSinglePicker()
 
-        fireEvent.change(screen.getByLabelText('Venue name'), {
-          target: { value: 'A New Venue' }
+        fireEvent.change(screen.getByLabelText('Link url'), {
+          target: { value: 'https://a-new-link.com' }
         })
         await user.click(
-          screen.getByRole('button', { name: /search venue/i })
+          screen.getByRole('button', { name: /search link/i })
         )
 
         // Single picker's one slot is filled, so it collapses to a chip
@@ -660,11 +1039,11 @@ describe('ItemPicker', () => {
         const user = userEvent.setup()
         renderSinglePicker()
 
-        fireEvent.change(screen.getByLabelText('Venue name'), {
-          target: { value: 'A New Venue' }
+        fireEvent.change(screen.getByLabelText('Link url'), {
+          target: { value: 'https://a-new-link.com' }
         })
         await user.click(
-          screen.getByRole('button', { name: /search venue/i })
+          screen.getByRole('button', { name: /search link/i })
         )
 
         expect(
@@ -676,6 +1055,7 @@ describe('ItemPicker', () => {
     describe('main field readiness (single item)', () => {
       function renderReadinessPicker(props = {}) {
         return renderComponent({
+          itemType: 'links',
           renderEditItemForm: (
             _query: string | undefined,
             _index: number | undefined,
@@ -686,7 +1066,7 @@ describe('ItemPicker', () => {
           ) => (
             <div>
               <input
-                aria-label='Venue name'
+                aria-label='Link url'
                 defaultValue=''
                 onChange={(e) =>
                   onMainFieldReadyChange?.(
@@ -704,42 +1084,45 @@ describe('ItemPicker', () => {
         renderReadinessPicker()
 
         expect(
-          screen.getByRole('button', { name: /search venue/i })
+          screen.getByRole('button', { name: /search link/i })
         ).toBeInTheDocument()
       })
 
       it('hides the Search toggle once the main field becomes present and valid', () => {
         renderReadinessPicker()
 
-        fireEvent.change(screen.getByLabelText('Venue name'), {
-          target: { value: 'A New Venue' }
+        fireEvent.change(screen.getByLabelText('Link url'), {
+          target: { value: 'https://a-new-link.com' }
         })
 
         expect(
-          screen.queryByRole('button', { name: /search venue/i })
+          screen.queryByRole('button', { name: /search link/i })
         ).not.toBeInTheDocument()
       })
 
       it('re-shows the Search toggle once the main field is cleared again', () => {
         renderReadinessPicker()
-        const input = screen.getByLabelText('Venue name')
+        const input = screen.getByLabelText('Link url')
 
-        fireEvent.change(input, { target: { value: 'A New Venue' } })
+        fireEvent.change(input, { target: { value: 'A New Link' } })
         fireEvent.change(input, { target: { value: '' } })
 
         expect(
-          screen.getByRole('button', { name: /search venue/i })
+          screen.getByRole('button', { name: /search link/i })
         ).toBeInTheDocument()
       })
 
       it('does not pass a readiness callback for multi pickers', () => {
         const renderEditItemForm = jest.fn((...args: unknown[]) => {
           void args
-          return <div>New Venue Form</div>
+          return <div>New Link Form</div>
         })
+        // A create-first type so the blank create form renders on load,
+        // exposing the render args to inspect.
         renderComponent({
+          itemType: 'links',
           isMulti: true,
-          name: 'venueIds',
+          name: 'links',
           renderEditItemForm
         })
 
@@ -1015,7 +1398,7 @@ describe('ItemPicker', () => {
         ).toHaveLength(2)
       })
 
-      it('keeps the create form open (search hidden) when an open new slot is set featured', async () => {
+      it('keeps the create form open (search hidden) when an existing chip is set featured', async () => {
         const user = userEvent.setup()
         renderComponent({
           isMulti: true,
@@ -1030,14 +1413,15 @@ describe('ItemPicker', () => {
         expect(screen.getByText('New Venue Form')).toBeInTheDocument()
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
 
-        // The open new slot's own "Set as Featured" button — the
-        // other one belongs to the still-unfeatured existing item.
+        // The star toggle shows only on closed chips (never the open
+        // create form), so the sole "Set as Featured" button is the
+        // existing item's.
         const setFeaturedButtons = screen.getAllByRole('button', {
           name: 'Set as Featured'
         })
         await user.click(setFeaturedButtons[0])
 
-        // Featuring pins the slot to the front, but its create form
+        // Featuring pins that chip to the front, but the create form
         // is still open — search must stay hidden, not silently
         // reappear alongside it.
         expect(screen.getByText('New Venue Form')).toBeInTheDocument()

@@ -2,11 +2,11 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import {
-  createImageFromFields,
   deleteImage,
   editImage,
   resolveCoverImageId,
-  resolveOrderedImageIds
+  resolveOrderedImageIds,
+  saveImageFromFields
 } from '@/lib/images/actions'
 import {
   createImageFixture,
@@ -171,14 +171,14 @@ describe('Image Actions', () => {
     })
   })
 
-  describe('#createImageFromFields', () => {
+  describe('#saveImageFromFields', () => {
     it('uploads the file and creates an image from raw fields', async () => {
       uploadFileMock.mockResolvedValueOnce(
         'https://example.com/uploaded-image.jpg'
       )
       mockSql.mockResolvedValueOnce([imageFixture])
 
-      const res = await createImageFromFields({
+      const res = await saveImageFromFields({
         ...createImageFixture,
         file: mockFile('uploaded-image.jpg', 2048, 'image/jpeg')
       })
@@ -193,7 +193,7 @@ describe('Image Actions', () => {
     it('normalizes raw checkbox/empty-string fields before validating', async () => {
       mockSql.mockResolvedValueOnce([imageFixture])
 
-      await createImageFromFields({
+      await saveImageFromFields({
         ...createImageFixture,
         type: 'press',
         alt: ''
@@ -209,7 +209,7 @@ describe('Image Actions', () => {
       const invalid: Partial<CreateImage> = { ...createImageFixture }
       delete invalid.url
 
-      await expect(createImageFromFields(invalid)).rejects.toThrow(
+      await expect(saveImageFromFields(invalid)).rejects.toThrow(
         'Invalid image data: Required'
       )
       expect(mockSql).not.toHaveBeenCalled()
@@ -252,6 +252,27 @@ describe('Image Actions', () => {
         coverImageId: '44444444-4444-4444-8444-444444444444',
         imageIds: ['image-2']
       })
+    })
+
+    it('updates an edited existing entry (id + fields) in place', async () => {
+      mockSql
+        .mockResolvedValueOnce([imageFixture]) // fetchImagesByIds
+        .mockResolvedValueOnce([imageFixture]) // UPDATE ... RETURNING *
+
+      const result = await resolveOrderedImageIds({
+        'images[0].id': 'image-1',
+        'images[0].url': imageFixture.url,
+        'images[0].aspect': 1.5,
+        'images[0].caption': 'Edited caption'
+      })
+
+      expect(result).toEqual({
+        coverImageId: imageFixture.id,
+        imageIds: []
+      })
+      // a metadata-only edit keeps the existing file (no new upload)
+      expect(uploadFileMock).not.toHaveBeenCalled()
+      expect(mockSql).toHaveBeenCalledTimes(2)
     })
 
     it('returns an undefined coverImageId and empty imageIds when nothing is selected', async () => {

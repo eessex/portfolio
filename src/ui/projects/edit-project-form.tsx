@@ -97,8 +97,17 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         renderExistingResult={formatImageResult}
         renderNewItemSummary={formatNewImageSummary}
         schema={imageClientFieldsSchema}
-        renderEditItemForm={(_query, index, errors, isRequired) => (
+        renderEditItemForm={(
+          _query,
+          index,
+          errors,
+          isRequired,
+          _onCancel,
+          _onReady,
+          existingItem
+        ) => (
           <EditImage
+            image={existingItem}
             index={index}
             errors={errors}
             isPressFieldsetHidden
@@ -126,8 +135,17 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         existingItems={embedCodes}
         renderExistingResult={formatEmbedCodeResult}
         schema={createEmbedCodeSchema}
-        renderEditItemForm={(_query, index, errors, isRequired) => (
+        renderEditItemForm={(
+          _query,
+          index,
+          errors,
+          isRequired,
+          _onCancel,
+          _onReady,
+          existingItem
+        ) => (
           <EditEmbedCode
+            embedCode={existingItem}
             index={index}
             errors={errors}
             isRequired={isRequired}
@@ -146,8 +164,17 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         existingItems={project?.links ?? []}
         renderExistingResult={formatLinkResult}
         schema={createLinkSchema}
-        renderEditItemForm={(_query, index, errors, isRequired) => (
+        renderEditItemForm={(
+          _query,
+          index,
+          errors,
+          isRequired,
+          _onCancel,
+          _onReady,
+          existingItem
+        ) => (
           <EditLink
+            link={existingItem}
             index={index}
             errors={errors}
             isRequired={isRequired}

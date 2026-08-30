@@ -6,13 +6,15 @@ import { formattedLinkUrl } from '@/ui/util'
 export function formatLinkResult(
   link: Link,
   onRemove?: () => void,
-  removeLabel?: string
+  removeLabel?: string,
+  extraActions?: React.ReactNode
 ) {
   return (
     <ItemResultLabel
       title={link.title || formattedLinkUrl(link.url)}
       subtitle={link.title && formattedLinkUrl(link.url)}
       badges={itemBadges(link)}
+      extraActions={extraActions}
       onRemove={onRemove}
       removeLabel={removeLabel}
     />

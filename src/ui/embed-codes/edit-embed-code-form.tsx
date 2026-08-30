@@ -41,6 +41,10 @@ interface EmbedCodeProps {
    * successfully parsed or back.
    */
   onReadyChange?: (isReady: boolean) => void
+  /**
+   * So the picker can block Save until the chip's title/thumbnail exist (or fail).
+   */
+  onBusyChange?: (isBusy: boolean) => void
 }
 
 export const EditEmbedCode = ({
@@ -49,7 +53,8 @@ export const EditEmbedCode = ({
   errors,
   isRemoveButtonHidden,
   isRequired = true,
-  onReadyChange
+  onReadyChange,
+  onBusyChange
 }: EmbedCodeProps) => {
   const [embedCodeIframe, setEmbedCodeIframe] =
     useState<Partial<EmbedCode> | null>(() => {
@@ -62,6 +67,7 @@ export const EditEmbedCode = ({
     title?: string
     thumbnailUrl?: string
   } | null>(null)
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false)
   // Ignore a slower resolve landing after a newer paste cleared/changed it.
   const previewRequestId = useRef(0)
   const namePrefix =
@@ -73,6 +79,10 @@ export const EditEmbedCode = ({
   useEffect(() => {
     onReadyChange?.(!!embedCodeIframe)
   }, [embedCodeIframe, onReadyChange])
+
+  useEffect(() => {
+    onBusyChange?.(isPreviewLoading)
+  }, [isPreviewLoading, onBusyChange])
 
   // A resolve that lands after unmount becomes stale (no match).
   useEffect(() => {
@@ -88,6 +98,7 @@ export const EditEmbedCode = ({
         setEmbedCodeIframe(null)
         setIframeInputValue('')
         setPreviewMeta(null)
+        setIsPreviewLoading(false)
         return
       }
 
@@ -104,14 +115,21 @@ export const EditEmbedCode = ({
         const requestId = ++previewRequestId.current
         setPreviewMeta(null)
         if (iframeData?.host && iframeData.src) {
-          previewEmbedCodeMetadata(
-            iframeData.host,
-            iframeData.src
-          ).then((meta) => {
-            if (previewRequestId.current === requestId) {
-              setPreviewMeta(meta)
-            }
-          })
+          setIsPreviewLoading(true)
+          previewEmbedCodeMetadata(iframeData.host, iframeData.src)
+            .then((meta) => {
+              if (previewRequestId.current === requestId) {
+                setPreviewMeta(meta)
+              }
+            })
+            .catch(() => {})
+            .finally(() => {
+              if (previewRequestId.current === requestId) {
+                setIsPreviewLoading(false)
+              }
+            })
+        } else {
+          setIsPreviewLoading(false)
         }
       } catch {
         addErrorMessage('Error parsing iframe.')
@@ -119,6 +137,7 @@ export const EditEmbedCode = ({
         setEmbedCodeIframe(null)
         setIframeInputValue('')
         setPreviewMeta(null)
+        setIsPreviewLoading(false)
       }
     },
     [addErrorMessage]
@@ -229,6 +248,11 @@ export const EditEmbedCode = ({
         id={detailsFieldsetId}
       >
         <legend className='visually-hidden'>Embed details</legend>
+        {isPreviewLoading && (
+          <p role='status' aria-live='polite'>
+            Loading preview…
+          </p>
+        )}
         <div className={styles['input-group']}>
           <Select
             key={embedCodeIframe?.type}

@@ -73,7 +73,13 @@ type ItemPickerSharedProps<
      * already-attached item (see the `editing` slot kind); omitted for
      * create slots.
      */
-    existingItem?: TEmbeddedItem | TPage
+    existingItem?: TEmbeddedItem | TPage,
+    /**
+     * Reports that the form has async work in flight (e.g. embed codes
+     * resolving oEmbed metadata) that must settle before the slot can be
+     * saved. ItemPicker disables this slot's Save button while busy.
+     */
+    onBusyChange?: (isBusy: boolean) => void
   ) => React.ReactNode
   /**
    * omit for item types whose schema needs data unavailable client-side
@@ -298,6 +304,11 @@ export function ItemPicker<
   const [newSlotErrors, setNewSlotErrors] = useState<
     Record<string, FieldErrors>
   >({})
+  // Per-draft-slot flag, keyed by tempId: true while the slot's edit form
+  // has async work in flight (see `renderEditItemForm`'s `onBusyChange`).
+  const [busySlots, setBusySlots] = useState<Record<string, boolean>>(
+    {}
+  )
   // The existing item the user asked to open for inline editing. A fresh
   // object per request (so re-editing the same id refires) set by a
   // ref-free onClick — keeping `renderSlot` out of the refs lint rule;
@@ -397,6 +408,7 @@ export function ItemPicker<
       const removed = current[index]
       if (isDraftSlot(removed)) {
         setNewSlotErrors(({ [removed.tempId]: _, ...rest }) => rest)
+        setBusySlots(({ [removed.tempId]: _, ...rest }) => rest)
         if (removed.previewUrl)
           URL.revokeObjectURL(removed.previewUrl)
       }
@@ -1008,11 +1020,18 @@ export function ItemPicker<
           // suffices and no create-form cancel is passed.
           isMulti ? undefined : () => removeSlot(slot),
           isMulti ? undefined : setIsMainFieldReady,
-          slot.kind === 'editing' ? slot.item : undefined
+          slot.kind === 'editing' ? slot.item : undefined,
+          (isBusy: boolean) =>
+            setBusySlots((current) =>
+              current[slot.tempId] === isBusy
+                ? current
+                : { ...current, [slot.tempId]: isBusy }
+            )
         )}
         <button
           type='button'
           className={`button-primary ${itemPickerStyles['save-button']}`}
+          disabled={busySlots[slot.tempId]}
           onClick={() => {
             if (!saveNewSlot(slot, submitIndex)) return
             // After saving a *new* item, reopen an empty editor for the

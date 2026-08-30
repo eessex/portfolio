@@ -1,6 +1,8 @@
 import type { WithCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
+import type { EmbeddedItem } from '@/lib/types'
 import { itemBadges } from '@/ui/badges'
+import thumbnailStyles from '@/ui/cover-image-thumbnail.module.scss'
 import { coverImageAspectByHost } from '@/ui/embed-codes/util'
 import { ItemResultLabel } from '@/ui/item-result-label'
 
@@ -32,6 +34,44 @@ export function formatEmbedCodeResult(
       extraActions={extraActions}
       onRemove={onRemove}
       removeLabel={removeLabel}
+    />
+  )
+}
+
+/**
+ * Renders a collapsed chip for a saved-but-unsubmitted "new" embed code.
+ */
+export function formatNewEmbedCodeSummary(
+  data: Record<string, unknown>,
+  _previewUrl: string | undefined,
+  { onEdit, onRemove }: { onEdit: () => void; onRemove: () => void }
+) {
+  const title = data.previewTitle as string | undefined
+  const thumbnailUrl = data.previewThumbnailUrl as string | undefined
+  const host = data.host as string | undefined
+
+  return (
+    <ItemResultLabel
+      title={title || 'New embed code'}
+      subtitle={host}
+      badges={itemBadges(data as Partial<EmbeddedItem>)}
+      thumbnail={
+        thumbnailUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={thumbnailUrl}
+            alt={title || ''}
+            className={thumbnailStyles['cover-image']}
+          />
+        )
+      }
+      extraActions={
+        <button type='button' className='button-sm' onClick={onEdit}>
+          Edit
+        </button>
+      }
+      onRemove={onRemove}
+      removeLabel='Remove embed code'
     />
   )
 }

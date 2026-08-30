@@ -16,7 +16,10 @@ import { deleteProject, editProject } from '@/lib/projects/actions'
 import { projectTypes } from '@/lib/projects/schemas'
 import type { ProjectClient } from '@/lib/projects/types'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
-import { formatEmbedCodeResult } from '@/ui/embed-codes/format-embed-code-result'
+import {
+  formatEmbedCodeResult,
+  formatNewEmbedCodeSummary
+} from '@/ui/embed-codes/format-embed-code-result'
 import { Checkbox } from '@/ui/form/checkbox'
 import { Form, useFormErrors } from '@/ui/form/form'
 import styles from '@/ui/form/form.module.scss'
@@ -134,6 +137,7 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         itemType='embedCodes'
         existingItems={embedCodes}
         renderExistingResult={formatEmbedCodeResult}
+        renderNewItemSummary={formatNewEmbedCodeSummary}
         schema={createEmbedCodeSchema}
         renderEditItemForm={(
           _query,

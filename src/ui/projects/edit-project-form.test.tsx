@@ -1,4 +1,5 @@
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -6,9 +7,11 @@ import {
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { previewEmbedCodeMetadata } from '@/lib/embed-codes/preview-metadata'
 import { imageFixture } from '@/lib/images/fixtures'
 import { editProject } from '@/lib/projects/actions'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
+import { embedCodeYoutubeFixture } from '@/ui/embed-codes/fixtures'
 import { EditProjectForm } from '@/ui/projects/edit-project-form'
 import { ToastProvider } from '@/ui/toast/toast-context'
 
@@ -24,7 +27,31 @@ jest.mock('@/lib/projects/actions', () => ({
 }))
 const mockEditProject = jest.mocked(editProject)
 
+jest.mock('@/lib/embed-codes/preview-metadata', () => ({
+  previewEmbedCodeMetadata: jest.fn()
+}))
+const mockPreviewMetadata = jest.mocked(previewEmbedCodeMetadata)
+
 jest.mock('@/lib/db', () => ({ sql: jest.fn() }))
+
+// A `previewEmbedCodeMetadata` result whose resolution is flushed inside
+// act, for deterministic assertions on the collapsed chip.
+function deferPreviewMetadata() {
+  let resolve!: (meta: {
+    title?: string
+    thumbnailUrl?: string
+  }) => void
+  mockPreviewMetadata.mockReturnValueOnce(
+    new Promise((r) => {
+      resolve = r
+    })
+  )
+  return async (meta: { title?: string; thumbnailUrl?: string }) => {
+    await act(async () => {
+      resolve(meta)
+    })
+  }
+}
 
 const titleText = 'Title'
 const typeText = 'Type'
@@ -43,7 +70,10 @@ function renderComponent(props = {}) {
 }
 
 describe('EditProjectForm', () => {
-  beforeEach(() => jest.clearAllMocks())
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockPreviewMetadata.mockResolvedValue({})
+  })
 
   describe('initial render', () => {
     it('renders title, description, type, dates, published, and images fields', () => {
@@ -105,6 +135,39 @@ describe('EditProjectForm', () => {
       expect(
         screen.getByLabelText(/upload new image/i)
       ).toBeInTheDocument()
+      expect(mockEditProject).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('embed codes field', () => {
+    const resolvedMeta = {
+      title: 'Resolved embed title',
+      thumbnailUrl: 'https://img.youtube.com/vi/abc/hqdefault.jpg'
+    }
+
+    it('collapses a new embed into a rich chip with the resolved title and thumbnail', async () => {
+      const resolvePreview = deferPreviewMetadata()
+      renderComponent()
+
+      fireEvent.change(screen.getByLabelText(/iframe code/i), {
+        target: { value: embedCodeYoutubeFixture }
+      })
+      await resolvePreview(resolvedMeta)
+
+      // Content type is required before the slot can collapse.
+      fireEvent.change(screen.getByLabelText('Content type'), {
+        target: { value: 'official_music_video' }
+      })
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Save embed code' })
+      )
+
+      expect(
+        screen.getByText('Resolved embed title')
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('img', { name: 'Resolved embed title' })
+      ).toHaveAttribute('src', resolvedMeta.thumbnailUrl)
       expect(mockEditProject).not.toHaveBeenCalled()
     })
   })

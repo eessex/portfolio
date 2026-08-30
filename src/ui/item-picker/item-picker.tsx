@@ -73,32 +73,25 @@ type ItemPickerSharedProps<
      * already-attached item (see the `editing` slot kind); omitted for
      * create slots.
      */
-    existingItem?: TEmbeddedItem | TPage
+    existingItem?: TEmbeddedItem | TPage,
+    /**
+     * Reports that the form has async work in flight (e.g. embed codes
+     * resolving oEmbed metadata) that must settle before the slot can be
+     * saved. ItemPicker disables this slot's Save button while busy.
+     */
+    onBusyChange?: (isBusy: boolean) => void
   ) => React.ReactNode
   /**
-   * omit for item types whose schema needs data unavailable client-side
-   * (e.g. `images`, where `url` is generated from server-side S3 upload).
+   * currently only omitted in tests
    */
   schema?: z.ZodTypeAny
-  /**
-   * For single-item pickers only: the prefix the inline-create form
-   * namespaces its inputs with (mirrors `EditImage`'s `namePrefix`,
-   * e.g. `'coverImage'` → `coverImage.title`). Used to strip that prefix
-   * when collecting a slot's values for `schema` validation and
-   * `renderNewItemSummary`, the same way the `${name}[i].` bracket prefix
-   * is stripped for `isMulti`. Omit when the create form's inputs aren't
-   * namespaced.
-   */
   namePrefix?: string
   /**
    * Renders the collapsed chip for a saved-but-unsubmitted "new" slot
    * (see `saveNewSlot`). `data` is the slot's fieldset values, already
    * collected + `normalizeFormData`-normalized the same way `schema`
-   * validation reads them; `previewUrl` is the object URL of the
-   * picked file, if any. Falls back to a minimal generic chip (label +
-   * Edit + remove) when omitted — pass this for item types whose
-   * `renderExistingResult` can't render an unsaved item (e.g. `images`, which
-   * needs a real uploaded `url`).
+   * validation reads them. Use this for item types whose `renderExistingResult`
+   * can't render an unsaved item (e.g. `images`, which needs an s3 `url`).
    */
   renderNewItemSummary?: (
     data: Record<string, unknown>,
@@ -263,8 +256,6 @@ export function ItemPicker<
     isMulti && isCreateFirst ? 'create' : 'search'
   )
 
-  // A blank create slot is seeded on load in create mode (multi), or for
-  // a create-first single-item picker with nothing attached yet.
   const startWithBlankSlot =
     mode === 'create' ||
     (!isMulti && isCreateFirst && !hasExistingItems)
@@ -282,9 +273,8 @@ export function ItemPicker<
           : []
       if (!startWithBlankSlot) return existing
       const blank = { kind: 'new' as const, tempId: 'new-0' }
-      // Keep an initially-featured item pinned at the head; the blank
-      // create form joins the rest just after it (featured lives on
-      // closed chips, never the open create form).
+      // Keep an initially-featured item pinned at the head. The blank
+      // create form joins the rest just after it.
       if (featured?.isInitiallyFeatured && existing.length > 0) {
         return [existing[0], blank, ...existing.slice(1)]
       }
@@ -298,10 +288,15 @@ export function ItemPicker<
   const [newSlotErrors, setNewSlotErrors] = useState<
     Record<string, FieldErrors>
   >({})
+  // Per-draft-slot flag, keyed by tempId: true while the slot's edit form
+  // has async work in flight (see `renderEditItemForm`'s `onBusyChange`).
+  const [busySlots, setBusySlots] = useState<Record<string, boolean>>(
+    {}
+  )
   // The existing item the user asked to open for inline editing. A fresh
   // object per request (so re-editing the same id refires) set by a
-  // ref-free onClick — keeping `renderSlot` out of the refs lint rule;
-  // the ref work (tempId mint + focus) happens in an effect below.
+  // ref-free onClick — keeping `renderSlot` out of the refs lint rule.
+  // The ref work (tempId mint + focus) happens in an effect below.
   const [editRequest, setEditRequest] = useState<{
     id: string
   } | null>(null)
@@ -397,6 +392,7 @@ export function ItemPicker<
       const removed = current[index]
       if (isDraftSlot(removed)) {
         setNewSlotErrors(({ [removed.tempId]: _, ...rest }) => rest)
+        setBusySlots(({ [removed.tempId]: _, ...rest }) => rest)
         if (removed.previewUrl)
           URL.revokeObjectURL(removed.previewUrl)
       }
@@ -1008,11 +1004,18 @@ export function ItemPicker<
           // suffices and no create-form cancel is passed.
           isMulti ? undefined : () => removeSlot(slot),
           isMulti ? undefined : setIsMainFieldReady,
-          slot.kind === 'editing' ? slot.item : undefined
+          slot.kind === 'editing' ? slot.item : undefined,
+          (isBusy: boolean) =>
+            setBusySlots((current) =>
+              current[slot.tempId] === isBusy
+                ? current
+                : { ...current, [slot.tempId]: isBusy }
+            )
         )}
         <button
           type='button'
           className={`button-primary ${itemPickerStyles['save-button']}`}
+          disabled={busySlots[slot.tempId]}
           onClick={() => {
             if (!saveNewSlot(slot, submitIndex)) return
             // After saving a *new* item, reopen an empty editor for the

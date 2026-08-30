@@ -2,7 +2,10 @@
 
 import { editAbout } from '@/lib/about/actions'
 import type { AboutClient } from '@/lib/about/types'
-import type { Image } from '@/lib/images/schemas/db'
+import {
+  type Image,
+  imageClientFieldsSchema
+} from '@/lib/images/schemas/db'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 import { EditImage } from '@/ui/images/edit-image-form'
@@ -36,6 +39,7 @@ function AboutFormFields({ about }: { about?: AboutClient }) {
         renderExistingResult={formatImageResult}
         renderNewItemSummary={formatNewImageSummary}
         namePrefix='coverImage'
+        schema={imageClientFieldsSchema}
         renderEditItemForm={(_query, _index, errors, isRequired) => (
           <EditImage
             namePrefix='coverImage'

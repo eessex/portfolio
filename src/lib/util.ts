@@ -215,7 +215,7 @@ export function extractIndexedGroups(
       if (typeof group.id === 'string') {
         const { id, ...fields } = group
         // An id alongside edited fields means an existing item was
-        // opened and changed inline; id alone is an untouched selection.
+        // opened and changed inline. id alone is an untouched selection.
         return Object.keys(fields).length > 0
           ? { kind: 'edited', id, fields }
           : { kind: 'existing', id }

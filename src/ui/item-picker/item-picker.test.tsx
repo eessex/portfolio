@@ -565,18 +565,14 @@ describe('ItemPicker', () => {
           label: 'Featured'
         })
 
-        // The featured item stays the pinned, closed head chip (links[0])
         expect(
           screen.getByDisplayValue(linkFixture.id)
         ).toHaveAttribute('name', 'links[0].id')
         expect(
           document.querySelector('input[name="linksFeatured"]')
         ).toHaveValue('true')
-        // the blank create form opens after it
+
         expect(screen.getByText('New Link Form')).toBeInTheDocument()
-        // and the star toggle lives only on closed chips: the featured
-        // head shows Unset, the one other closed chip shows Set, and the
-        // open blank form shows neither.
         expect(
           screen.getByRole('button', { name: 'Unset Featured' })
         ).toBeInTheDocument()
@@ -592,8 +588,6 @@ describe('ItemPicker', () => {
           existingItems: [venueFixtureAlpha]
         })
 
-        // A search-first type opens in search with no blank create form,
-        // even though it has an inline create form and existing items.
         expect(screen.getByRole('combobox')).toBeInTheDocument()
         expect(
           screen.queryByText('New Venue Form')
@@ -634,8 +628,6 @@ describe('ItemPicker', () => {
           screen.getByRole('button', { name: /^edit$/i })
         )
 
-        // form is seeded with the item's current value, and its id is
-        // carried in a hidden input so the server sees an edited entry
         await waitFor(() =>
           expect(screen.getByLabelText('Venue name')).toHaveValue(
             venueFixtureAlpha.name
@@ -661,8 +653,6 @@ describe('ItemPicker', () => {
           screen.getByRole('button', { name: /save venue/i })
         )
 
-        // collapsed back to a chip showing the edit, with both the id and
-        // the edited field submitted under the same index
         expect(screen.getByText('Edited Venue')).toBeInTheDocument()
         expect(
           screen.getByDisplayValue(venueFixtureAlpha.id)
@@ -684,8 +674,6 @@ describe('ItemPicker', () => {
           screen.getByRole('button', { name: /^cancel$/i })
         )
 
-        // back to the plain selected result: no edit fieldset, and the id
-        // is once again the chip's own hidden input (venueIds[0].id)
         expect(
           screen.queryByLabelText('Venue name')
         ).not.toBeInTheDocument()
@@ -815,8 +803,6 @@ describe('ItemPicker', () => {
           screen.getByRole('button', { name: /save link/i })
         )
 
-        // the edited item collapses back to its read-only chip (its
-        // title is unchanged by a url edit) and a blank form re-seeds
         expect(screen.getByText('Test Link')).toBeInTheDocument()
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
         expect(
@@ -913,8 +899,6 @@ describe('ItemPicker', () => {
           screen.getByRole('button', { name: /search venue/i })
         )
 
-        // Empty, unsaved draft is dropped — back to just the search
-        // field and the existing item, no leftover editor.
         expect(screen.getByRole('combobox')).toBeInTheDocument()
         expect(
           screen.queryByLabelText('Venue name')
@@ -938,9 +922,6 @@ describe('ItemPicker', () => {
           screen.getByRole('button', { name: /search venue/i })
         )
 
-        // Completed draft is kept: search returns and its collapsed chip's
-        // Edit control is present (fieldset survives, collapsed) alongside
-        // the existing venue's own Edit control — two chips, two Edits.
         expect(screen.getByRole('combobox')).toBeInTheDocument()
         expect(
           screen.getAllByRole('button', { name: /^edit$/i })
@@ -977,7 +958,6 @@ describe('ItemPicker', () => {
           screen.getByRole('button', { name: /search link/i })
         ).toBeInTheDocument()
 
-        // Toggling swaps the create editor to search.
         await user.click(
           screen.getByRole('button', { name: /search link/i })
         )
@@ -1027,8 +1007,6 @@ describe('ItemPicker', () => {
           screen.getByRole('button', { name: /search link/i })
         )
 
-        // Single picker's one slot is filled, so it collapses to a chip
-        // (no combobox) with an Edit control, rather than back to search.
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
         expect(
           screen.getByRole('button', { name: /^edit$/i })
@@ -1117,8 +1095,6 @@ describe('ItemPicker', () => {
           void args
           return <div>New Link Form</div>
         })
-        // A create-first type so the blank create form renders on load,
-        // exposing the render args to inspect.
         renderComponent({
           itemType: 'links',
           isMulti: true,
@@ -1413,17 +1389,11 @@ describe('ItemPicker', () => {
         expect(screen.getByText('New Venue Form')).toBeInTheDocument()
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
 
-        // The star toggle shows only on closed chips (never the open
-        // create form), so the sole "Set as Featured" button is the
-        // existing item's.
         const setFeaturedButtons = screen.getAllByRole('button', {
           name: 'Set as Featured'
         })
         await user.click(setFeaturedButtons[0])
 
-        // Featuring pins that chip to the front, but the create form
-        // is still open — search must stay hidden, not silently
-        // reappear alongside it.
         expect(screen.getByText('New Venue Form')).toBeInTheDocument()
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
       })

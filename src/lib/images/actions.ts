@@ -3,7 +3,11 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
-import { runDeleteAction, runFormAction } from '@/lib/form-action'
+import {
+  runDeleteAction,
+  runFormAction,
+  saveItemFromFields
+} from '@/lib/form-action'
 import { fetchImagesByIds } from '@/lib/images/data'
 import { deleteFromS3, uploadFile } from '@/lib/images/s3'
 import {
@@ -15,8 +19,7 @@ import {
 import {
   extractIndexedGroups,
   formatDbResponseForClient,
-  isBlankEntry,
-  normalizeFormData
+  isBlankEntry
 } from '@/lib/util'
 
 /**
@@ -71,52 +74,54 @@ async function uploadNewFile(data: Record<string, unknown>) {
 }
 
 /**
- * Creates a new image from raw (unnormalized) field data, e.g. an
- * indexed group pulled out of another domain's form submission by a
- * multi-item picker. Mirrors `editImage`'s own
- * `prepare` -> `normalizeFormData` -> validate -> save pipeline, since
- * it runs outside `runFormAction`.
+ * Creates or updates from raw (unnormalized) field data, ie an
+ * indexed group pulled out of another domain's form submission. A
+ * replaced file (if any) is uploaded by `uploadNewFile`, which also
+ * removes the previous S3 object; a metadata-only edit keeps the
+ * existing `url`.
  */
-export async function createImageFromFields(
-  fields: Record<string, unknown>
+export async function saveImageFromFields(
+  fields: Record<string, unknown>,
+  id?: string
 ): Promise<Image> {
-  const uploaded = await uploadNewFile(fields)
-  const parsed = createImageSchema.safeParse(
-    normalizeFormData(uploaded)
-  )
-  if (!parsed.success) {
-    throw new Error(
-      `Invalid image data: ${parsed.error.issues
-        .map((issue) => issue.message)
-        .join(', ')}`
-    )
-  }
-  return createImage(parsed.data)
+  return saveItemFromFields({
+    id,
+    fields,
+    schema: createImageSchema,
+    itemType: 'images',
+    prepare: uploadNewFile,
+    create: createImage,
+    update: updateImage
+  })
 }
 
 /**
  * Resolves a reorderable multi-image picker's submitted entries (mix of
- * existing selections and pending inline creations, in the user's chosen
- * order — see `extractIndexedGroups`) into a cover id + the rest, for
- * domains that treat the first image in the list as the cover. Position,
- * not kind, determines the cover: a newly-created image placed first
- * becomes the cover just as an existing selection would.
+ * existing selections, inline edits of attached images, and pending
+ * inline creations, in the user's chosen order — see
+ * `extractIndexedGroups`) into a cover id + the rest, for domains that
+ * treat the first image in the list as the cover. Position, not kind,
+ * determines the cover: a newly-created image placed first becomes the
+ * cover just as an existing selection would.
  */
 export async function resolveOrderedImageIds(
   data: Record<string, unknown>,
   prefix = 'images'
 ): Promise<{ coverImageId: string | undefined; imageIds: string[] }> {
   const entries = extractIndexedGroups(data, prefix).filter(
-    (entry) =>
-      entry.kind === 'existing' || !isBlankEntry(entry.fields)
+    (entry) => entry.kind !== 'new' || !isBlankEntry(entry.fields)
   )
   const resolvedIds = await Promise.all(
     entries.map((entry) =>
       entry.kind === 'existing'
         ? entry.id
-        : createImageFromFields(entry.fields).then(
-            (image) => image.id
-          )
+        : entry.kind === 'edited'
+          ? saveImageFromFields(entry.fields, entry.id).then(
+              (image) => image.id
+            )
+          : saveImageFromFields(entry.fields).then(
+              (image) => image.id
+            )
     )
   )
   const [coverImageId, ...imageIds] = resolvedIds
@@ -143,7 +148,7 @@ export async function resolveCoverImageId(
     return undefined
   }
 
-  const image = await createImageFromFields(fields)
+  const image = await saveImageFromFields(fields)
   return image.id
 }
 

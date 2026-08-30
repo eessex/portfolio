@@ -98,6 +98,45 @@ describe('#extractIndexedGroups', () => {
     ])
   })
 
+  it('collects a group with an id AND edited fields as an edited entry', () => {
+    const data = {
+      'images[0].id': 'image-1',
+      'images[0].caption': 'Edited caption',
+      'images[0].alt': 'Edited alt'
+    }
+
+    const result = extractIndexedGroups(data, 'images')
+
+    expect(result).toEqual([
+      {
+        kind: 'edited',
+        id: 'image-1',
+        fields: { caption: 'Edited caption', alt: 'Edited alt' }
+      }
+    ])
+  })
+
+  it('preserves interleaved existing, edited and new entries by index', () => {
+    const data = {
+      'images[0].caption': 'New image caption',
+      'images[1].id': 'image-1',
+      'images[2].id': 'image-2',
+      'images[2].caption': 'Edited caption'
+    }
+
+    const result = extractIndexedGroups(data, 'images')
+
+    expect(result).toEqual([
+      { kind: 'new', fields: { caption: 'New image caption' } },
+      { kind: 'existing', id: 'image-1' },
+      {
+        kind: 'edited',
+        id: 'image-2',
+        fields: { caption: 'Edited caption' }
+      }
+    ])
+  })
+
   it('preserves the interleaved order of existing and new entries by index', () => {
     const data = {
       'images[0].caption': 'New image caption',

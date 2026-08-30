@@ -3,7 +3,11 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
-import { runDeleteAction, runFormAction } from '@/lib/form-action'
+import {
+  runDeleteAction,
+  runFormAction,
+  saveItemFromFields
+} from '@/lib/form-action'
 import { fetchLinksByIds } from '@/lib/links/data'
 import {
   type CreateLink,
@@ -15,8 +19,7 @@ import {
 import {
   extractIndexedGroups,
   formatDbResponseForClient,
-  isBlankEntry,
-  normalizeFormData
+  isBlankEntry
 } from '@/lib/util'
 
 export async function editLink(formData: FormData, id?: string) {
@@ -57,44 +60,45 @@ export async function deleteLink(link: Link) {
 }
 
 /**
- * Creates a new link from raw (unnormalized) field data, e.g. an
- * indexed group pulled out of another domain's form submission by a
- * multi-item picker. Mirrors `editLink`'s own normalize -> validate ->
- * save pipeline, since it runs outside `runFormAction`.
+ * Creates or updates from raw (unnormalized) field data, ie an
+ * indexed group pulled out of another domain's form submission.
  */
-export async function createLinkFromFields(
-  fields: Record<string, unknown>
+export async function saveLinkFromFields(
+  fields: Record<string, unknown>,
+  id?: string
 ): Promise<Link> {
-  const parsed = createLinkSchema.safeParse(normalizeFormData(fields))
-  if (!parsed.success) {
-    throw new Error(
-      `Invalid link data: ${parsed.error.issues
-        .map((issue) => issue.message)
-        .join(', ')}`
-    )
-  }
-  return createLink(parsed.data)
+  return saveItemFromFields({
+    id,
+    fields,
+    schema: createLinkSchema,
+    itemType: 'links',
+    create: createLink,
+    update: updateLink
+  })
 }
 
 /**
  * Resolves a reorderable multi-link picker's submitted entries (mix of
- * existing selections and pending inline creations, in the user's
- * chosen order — see `extractIndexedGroups`) into an ordered list of
- * link ids.
+ * existing selections, inline edits of attached links, and pending
+ * inline creations, in the user's chosen order — see
+ * `extractIndexedGroups`) into an ordered list of link ids.
  */
 export async function resolveOrderedLinkIds(
   data: Record<string, unknown>,
   prefix = 'links'
 ): Promise<{ linkIds: string[] }> {
   const entries = extractIndexedGroups(data, prefix).filter(
-    (entry) =>
-      entry.kind === 'existing' || !isBlankEntry(entry.fields)
+    (entry) => entry.kind !== 'new' || !isBlankEntry(entry.fields)
   )
   const linkIds = await Promise.all(
     entries.map((entry) =>
       entry.kind === 'existing'
         ? entry.id
-        : createLinkFromFields(entry.fields).then((link) => link.id)
+        : entry.kind === 'edited'
+          ? saveLinkFromFields(entry.fields, entry.id).then(
+              (link) => link.id
+            )
+          : saveLinkFromFields(entry.fields).then((link) => link.id)
     )
   )
   return { linkIds }

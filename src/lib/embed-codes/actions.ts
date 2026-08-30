@@ -14,13 +14,16 @@ import {
   type EmbedCodeHost,
   embedCodeSchema
 } from '@/lib/embed-codes/schemas/db'
-import { runDeleteAction, runFormAction } from '@/lib/form-action'
+import {
+  runDeleteAction,
+  runFormAction,
+  saveItemFromFields
+} from '@/lib/form-action'
 import { EmbeddedItemTypes } from '@/lib/schemas'
 import {
   extractIndexedGroups,
   formatDbResponseForClient,
-  isBlankEntry,
-  normalizeFormData
+  isBlankEntry
 } from '@/lib/util'
 
 export async function editEmbedCode(formData: FormData, id?: string) {
@@ -73,34 +76,30 @@ async function attachEmbedCodeMetadata(
 }
 
 /**
- * Creates a new embed code from raw (unnormalized) field data, e.g. an
- * indexed group pulled out of another domain's form submission by a
- * multi-item picker. Mirrors `editEmbedCode`'s own
- * `attachEmbedCodeMetadata` -> normalize -> validate -> save pipeline,
- * since it runs outside `runFormAction`.
+ * Creates or updates from raw (unnormalized) field data, ie an
+ * indexed group pulled out of another domain's form submission.
  */
-export async function createEmbedCodeFromFields(
-  fields: Record<string, unknown>
+export async function saveEmbedCodeFromFields(
+  fields: Record<string, unknown>,
+  id?: string
 ): Promise<EmbedCode> {
-  const withMetadata = await attachEmbedCodeMetadata(fields)
-  const parsed = createEmbedCodeSchema.safeParse(
-    normalizeFormData(withMetadata)
-  )
-  if (!parsed.success) {
-    throw new Error(
-      `Invalid embed code data: ${parsed.error.issues
-        .map((issue) => issue.message)
-        .join(', ')}`
-    )
-  }
-  return createEmbedCode(parsed.data)
+  return saveItemFromFields({
+    id,
+    fields,
+    schema: createEmbedCodeSchema,
+    itemType: EmbeddedItemTypes.embedCodes,
+    prepare: attachEmbedCodeMetadata,
+    create: createEmbedCode,
+    update: updateEmbedCode
+  })
 }
 
 /**
  * Resolves a reorderable multi-embed-code picker's submitted entries
- * (mix of existing selections and pending inline creations, in the
- * user's chosen order — see `extractIndexedGroups`) into an ordered
- * list of embed code ids, plus a featured id split off the front.
+ * (mix of existing selections, inline edits of attached embed codes,
+ * and pending inline creations, in the user's chosen order — see
+ * `extractIndexedGroups`) into an ordered list of embed code ids, plus a
+ * featured id split off the front.
  *
  * Unlike a cover image, a featured embed code is never inferred from
  * position alone: the picker only submits a `${prefix}Featured` flag
@@ -119,16 +118,19 @@ export async function resolveOrderedEmbedCodeIds(
   delete data[`${prefix}Featured`]
 
   const entries = extractIndexedGroups(data, prefix).filter(
-    (entry) =>
-      entry.kind === 'existing' || !isBlankEntry(entry.fields)
+    (entry) => entry.kind !== 'new' || !isBlankEntry(entry.fields)
   )
   const resolvedIds = await Promise.all(
     entries.map((entry) =>
       entry.kind === 'existing'
         ? entry.id
-        : createEmbedCodeFromFields(entry.fields).then(
-            (embedCode) => embedCode.id
-          )
+        : entry.kind === 'edited'
+          ? saveEmbedCodeFromFields(entry.fields, entry.id).then(
+              (embedCode) => embedCode.id
+            )
+          : saveEmbedCodeFromFields(entry.fields).then(
+              (embedCode) => embedCode.id
+            )
     )
   )
 

@@ -90,6 +90,58 @@ export async function runFormAction<S extends z.ZodTypeAny, T>({
   }
 }
 
+interface SaveItemFromFieldsOptions<S extends z.ZodTypeAny, T> {
+  /** present → update that row; absent → create a new one */
+  id?: string
+  /** the raw (unnormalized) field group */
+  fields: Record<string, unknown>
+  /** validates the (normalized) fields */
+  schema: S
+  /** names the item in the thrown `Invalid <item> data` message */
+  itemType: ItemType
+  /**
+   * Optional pre-validation work (e.g. S3 upload, metadata fetch),
+   * receiving the `id` so edit-time behavior can differ from create.
+   */
+  prepare?: (
+    fields: Record<string, unknown>,
+    id?: string
+  ) => Record<string, unknown> | Promise<Record<string, unknown>>
+  create: (data: z.output<S>) => Promise<T>
+  update: (data: z.output<S>, id: string) => Promise<T>
+}
+
+/**
+ * Shared normalize → validate → save pipeline for a single embedded item
+ * pulled out of another domain's multi-item picker submission (see
+ * `extractIndexedGroups`) — the body of the `createXFromFields` /
+ * `updateXFromFields` helpers. Mirrors `runFormAction`'s frame but for a raw
+ * field group rather than FormData, and without the auth/cache concerns the
+ * parent form action already owns. Creates when `id` is absent, updates when
+ * present; the only per-call difference is the id and which of
+ * `create`/`update` runs.
+ */
+export async function saveItemFromFields<S extends z.ZodTypeAny, T>({
+  id,
+  fields,
+  schema,
+  itemType,
+  prepare,
+  create,
+  update
+}: SaveItemFromFieldsOptions<S, T>): Promise<T> {
+  const prepared = prepare ? await prepare(fields, id) : fields
+  const parsed = schema.safeParse(normalizeFormData(prepared))
+  if (!parsed.success) {
+    throw new Error(
+      `Invalid ${itemTypeToLabel(itemType, true, true)} data: ${parsed.error.issues
+        .map((issue) => issue.message)
+        .join(', ')}`
+    )
+  }
+  return id ? update(parsed.data, id) : create(parsed.data)
+}
+
 interface RunDeleteActionOptions<T> {
   itemType: ItemType
   /** performs the delete; return a FormState to short-circuit (e.g. not found) */

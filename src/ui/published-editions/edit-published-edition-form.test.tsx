@@ -133,11 +133,11 @@ describe('EditPublishedEdition', () => {
 
       expect(screen.getByDisplayValue('cover-image')).toHaveAttribute(
         'name',
-        'images[0].id'
+        'images[1].id'
       )
       expect(screen.getByDisplayValue('image-1')).toHaveAttribute(
         'name',
-        'images[1].id'
+        'images[2].id'
       )
     })
   })

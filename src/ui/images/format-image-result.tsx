@@ -10,7 +10,8 @@ import { formattedFilename } from '@/ui/util'
 export function formatImageResult(
   image: Image,
   onRemove?: () => void,
-  removeLabel?: string
+  removeLabel?: string,
+  extraActions?: React.ReactNode
 ) {
   return (
     <ItemResultLabel
@@ -18,6 +19,7 @@ export function formatImageResult(
       subtitle={formattedFilename(image.url)}
       badges={itemBadges(image)}
       coverImage={image}
+      extraActions={extraActions}
       onRemove={onRemove}
       removeLabel={removeLabel}
     />

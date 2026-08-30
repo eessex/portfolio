@@ -744,4 +744,56 @@ describe('EditEmbedCode', () => {
       ).not.toBeInTheDocument()
     })
   })
+
+  describe('onBusyChange (Save gating)', () => {
+    it('reports busy while resolving and settled once resolved', async () => {
+      const onBusyChange = jest.fn()
+      const resolvePreview = deferPreviewMetadata()
+      renderComponent({ onBusyChange })
+      pasteIframe(embedCodeYoutubeFixture)
+
+      expect(screen.getByText('Loading preview…')).toBeInTheDocument()
+      expect(onBusyChange).toHaveBeenLastCalledWith(true)
+
+      await resolvePreview({})
+
+      expect(
+        screen.queryByText('Loading preview…')
+      ).not.toBeInTheDocument()
+      expect(onBusyChange).toHaveBeenLastCalledWith(false)
+    })
+
+    it('reports settled even when resolution fails', async () => {
+      const onBusyChange = jest.fn()
+      let reject!: (err: unknown) => void
+      mockPreviewMetadata.mockReturnValueOnce(
+        new Promise((_resolve, r) => {
+          reject = r
+        })
+      )
+      renderComponent({ onBusyChange })
+      pasteIframe(embedCodeYoutubeFixture)
+      expect(onBusyChange).toHaveBeenLastCalledWith(true)
+
+      await act(async () => {
+        reject(new Error('oEmbed failed'))
+      })
+
+      expect(onBusyChange).toHaveBeenLastCalledWith(false)
+    })
+
+    it('reports settled when the iframe is cleared before resolving', () => {
+      const onBusyChange = jest.fn()
+      deferPreviewMetadata()
+      renderComponent({ onBusyChange })
+      pasteIframe(embedCodeYoutubeFixture)
+      expect(onBusyChange).toHaveBeenLastCalledWith(true)
+
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      expect(onBusyChange).toHaveBeenLastCalledWith(false)
+    })
+  })
 })

@@ -4,7 +4,10 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import { runDeleteAction, runFormAction } from '@/lib/form-action'
-import { formatDbResponseForClient } from '@/lib/util'
+import {
+  formatDbResponseForClient,
+  normalizeFormData
+} from '@/lib/util'
 import { fetchVenueById } from '@/lib/venues/data'
 import {
   type CreateVenue,
@@ -32,6 +35,59 @@ export async function editVenue(formData: FormData, id?: string) {
 function invalidateVenueTags() {
   updateTag('venues')
   updateTag('events')
+}
+
+export async function createVenueFromFields(
+  fields: Record<string, unknown>
+): Promise<Venue> {
+  const parsed = createVenueSchema.safeParse(
+    normalizeFormData(fields)
+  )
+  if (!parsed.success) {
+    throw new Error(
+      `Invalid venue data: ${parsed.error.issues
+        .map((issue) => issue.message)
+        .join(', ')}`
+    )
+  }
+  return createVenue(parsed.data)
+}
+
+export async function resolveVenueId(
+  data: Record<string, unknown>
+): Promise<string | undefined> {
+  if (typeof data.venueId === 'string' && data.venueId) {
+    return data.venueId
+  }
+
+  const fields = {
+    name: data.name,
+    address: data.address,
+    city: data.city,
+    country: data.country,
+    state: data.state,
+    timezone: data.timezone,
+    url: data.url
+  }
+  delete data.name
+  delete data.address
+  delete data.city
+  delete data.country
+  delete data.state
+  delete data.timezone
+  delete data.url
+
+  if (
+    typeof fields.city !== 'string' ||
+    !fields.city ||
+    typeof fields.timezone !== 'string' ||
+    !fields.timezone
+  ) {
+    return undefined
+  }
+
+  const venue = await createVenueFromFields(fields)
+  return venue.id
 }
 
 export async function deleteVenue(venue: Venue) {

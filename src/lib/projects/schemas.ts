@@ -10,7 +10,6 @@ import {
   taxonomyFields
 } from '@/lib/schemas/fields'
 import { date, uuid } from '@/lib/schemas/primitives'
-import { venueSchema } from '@/lib/venues/schemas/db'
 
 export const projectTypes = [
   'band',
@@ -59,8 +58,7 @@ export const projectClientSchema = projectSchema.extend({
   hasAudio: z.boolean().optional(),
   hasVideo: z.boolean().optional(),
   images: z.lazy(() => imageSchema.array()).optional(),
-  links: z.lazy(() => linkSchema.array()).optional(),
-  venue: z.lazy(() => venueSchema).optional()
+  links: z.lazy(() => linkSchema.array()).optional()
 })
 
 /**

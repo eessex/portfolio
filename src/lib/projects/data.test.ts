@@ -8,15 +8,6 @@ jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))
 
-jest.mock('@/lib/projects/data', () => {
-  const actual = jest.requireActual('@/lib/projects/data')
-
-  return {
-    ...actual,
-    getTotalCount: jest.fn().mockResolvedValue(1)
-  }
-})
-
 import { sql } from '@/lib/db'
 import { fetchCachedProjectsFirstPage } from '@/lib/projects/cached'
 import * as Projects from '@/lib/projects/data'

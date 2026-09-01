@@ -29,6 +29,7 @@ import { formatLinkResult } from '@/ui/links/format-link-result'
 import { EditPublisher } from '@/ui/publishers/edit-publisher-form'
 import { formatPublisherResult } from '@/ui/publishers/format-publisher-result'
 import { formatReleaseResult } from '@/ui/releases/format-release-result'
+import { toDateInputValue } from '@/ui/util'
 
 interface EditPublishedEditionProps {
   errors?: z.inferFlattenedErrors<
@@ -88,13 +89,7 @@ export const EditPublishedEdition = ({
           required: true,
           type: 'date'
         }}
-        defaultValue={
-          publishedEdition?.publishDate
-            ? new Date(publishedEdition.publishDate)
-                .toISOString()
-                .split('T')[0]
-            : ''
-        }
+        defaultValue={toDateInputValue(publishedEdition?.publishDate)}
         errors={errors?.publishDate}
         label='Publish date'
       />

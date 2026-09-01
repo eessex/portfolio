@@ -150,6 +150,19 @@ export function formattedDateTime(
   return formattedDate
 }
 
+/**
+ * Format a date for a `type='date'` input from local calendar parts.
+ * The neon driver returns Postgres `DATE` as a local-midnight `Date`.
+ */
+export function toDateInputValue(date?: Date | string) {
+  if (!date) return ''
+  const d = new Date(date)
+  if (isNaN(d.getTime())) return ''
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${d.getFullYear()}-${m}-${day}`
+}
+
 export function eventUrl(slug: string) {
   return `/${PagePaths.events}/${slug}`
 }

@@ -10,6 +10,7 @@ import {
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
+import { toDateInputValue } from '@/ui/util'
 
 const linkTypeOptions = [...linkTypes]
 
@@ -200,13 +201,7 @@ export const EditLink = ({
                 placeholder: 'YYYY-MM-DD',
                 type: 'date'
               }}
-              defaultValue={
-                link?.publishDate
-                  ? new Date(link.publishDate)
-                      .toISOString()
-                      .split('T')[0]
-                  : ''
-              }
+              defaultValue={toDateInputValue(link?.publishDate)}
               label='Publish date'
               description='Press links are sorted by publish date.'
             />

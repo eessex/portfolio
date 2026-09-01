@@ -34,10 +34,7 @@ import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { DeleteItemButton } from '@/ui/items/delete-item-button'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { formatLinkResult } from '@/ui/links/format-link-result'
-
-function formattedDateInputValue(date?: Date) {
-  return date ? new Date(date).toISOString().split('T')[0] : ''
-}
+import { toDateInputValue } from '@/ui/util'
 
 function ProjectFormFields({ project }: { project?: ProjectClient }) {
   const errors = useFormErrors()
@@ -80,13 +77,13 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
             type: 'date',
             required: true
           }}
-          defaultValue={formattedDateInputValue(project?.startDate)}
+          defaultValue={toDateInputValue(project?.startDate)}
           errors={errors?.startDate}
           label='Start date'
         />
         <Input
           attributes={{ name: 'endDate', type: 'date' }}
-          defaultValue={formattedDateInputValue(project?.endDate)}
+          defaultValue={toDateInputValue(project?.endDate)}
           errors={errors?.endDate}
           label='End date'
         />

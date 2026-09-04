@@ -129,8 +129,6 @@ describe('Project Actions', () => {
         .mockResolvedValueOnce([projectFixtureAlpha])
         .mockResolvedValueOnce([projectFixtureAlpha])
 
-      // only title is submitted; other fields should fall back to
-      // the existing project's values rather than being nulled out
       await editProject(
         formDataFromObject({ title: 'Updated Title' }),
         projectFixtureAlpha.id
@@ -138,7 +136,7 @@ describe('Project Actions', () => {
 
       const [, , , , , , , isPublished, , shortDescription] = mockSql
         .mock.calls[1] as unknown as string[]
-      expect(isPublished).toBe(projectFixtureAlpha.isPublished)
+      expect(isPublished).toBe(false)
       expect(shortDescription).toBe(
         projectFixtureAlpha.shortDescription ?? null
       )

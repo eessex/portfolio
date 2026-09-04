@@ -32,7 +32,7 @@ export const contentFields = {
   description: longText.optional(),
   shortDescription: shortText.optional(),
   slug,
-  isPublished: bool.optional()
+  isPublished: bool.optional().default(false)
 }
 
 /** related entities from other tables */

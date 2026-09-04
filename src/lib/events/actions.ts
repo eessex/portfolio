@@ -2,6 +2,10 @@
 
 import { updateTag } from 'next/cache'
 
+import {
+  DEFAULT_TIME_ZONE,
+  fromDateTimeInputValue
+} from '@/lib/dates'
 import { sql } from '@/lib/db'
 import { resolveOrderedEmbedCodeIds } from '@/lib/embed-codes/actions'
 import { fetchEventById } from '@/lib/events/data'
@@ -13,6 +17,7 @@ import { resolveOrderedLinkIds } from '@/lib/links/actions'
 import { generateUniqueSlug } from '@/lib/slug/data'
 import { formatDbResponseForClient } from '@/lib/util'
 import { resolveVenueId } from '@/lib/venues/actions'
+import { fetchVenueById } from '@/lib/venues/data'
 
 async function prepareEventData(
   data: Record<string, unknown>,
@@ -23,6 +28,7 @@ async function prepareEventData(
   const { linkIds } = await resolveOrderedLinkIds(data)
   const { embedCodeIds } = await resolveOrderedEmbedCodeIds(data)
   const venueId = await resolveVenueId(data)
+  const timeZone = await resolveVenueTimeZone(venueId)
 
   return {
     ...data,
@@ -31,6 +37,8 @@ async function prepareEventData(
     imageIds,
     linkIds,
     venueId,
+    startTime: toEventInstant(data.startTime, timeZone),
+    endTime: toEventInstant(data.endTime, timeZone),
     path: 'events',
     slug: await generateUniqueSlug(
       String(data.title || ''),
@@ -38,6 +46,18 @@ async function prepareEventData(
       id
     )
   }
+}
+
+async function resolveVenueTimeZone(venueId?: string) {
+  if (!venueId) return DEFAULT_TIME_ZONE
+  const venue = await fetchVenueById(venueId)
+  return venue?.timezone ?? DEFAULT_TIME_ZONE
+}
+
+function toEventInstant(value: unknown, timeZone: string) {
+  return typeof value === 'string' && value
+    ? fromDateTimeInputValue(value, timeZone)
+    : value
 }
 
 export async function editEvent(formData: FormData, id?: string) {

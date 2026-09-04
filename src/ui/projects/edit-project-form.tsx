@@ -97,15 +97,12 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         renderExistingResult={formatImageResult}
         renderNewItemSummary={formatNewImageSummary}
         schema={imageClientFieldsSchema}
-        renderEditItemForm={(
-          _query,
+        renderEditItemForm={({
           index,
           errors,
           isRequired,
-          _onCancel,
-          _onReady,
           existingItem
-        ) => (
+        }) => (
           <EditImage
             image={existingItem}
             index={index}
@@ -136,16 +133,13 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         renderExistingResult={formatEmbedCodeResult}
         renderNewItemSummary={formatNewEmbedCodeSummary}
         schema={createEmbedCodeSchema}
-        renderEditItemForm={(
-          _query,
+        renderEditItemForm={({
           index,
           errors,
           isRequired,
-          _onCancel,
-          _onReady,
           existingItem,
           onBusyChange
-        ) => (
+        }) => (
           <EditEmbedCode
             embedCode={existingItem}
             index={index}
@@ -167,15 +161,12 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         existingItems={project?.links ?? []}
         renderExistingResult={formatLinkResult}
         schema={createLinkSchema}
-        renderEditItemForm={(
-          _query,
+        renderEditItemForm={({
           index,
           errors,
           isRequired,
-          _onCancel,
-          _onReady,
           existingItem
-        ) => (
+        }) => (
           <EditLink
             link={existingItem}
             index={index}

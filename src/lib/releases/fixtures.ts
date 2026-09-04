@@ -10,7 +10,8 @@ export const releaseFixtureAlbum: ReleaseClient = {
   updatedAt: new Date('2025-01-01'),
   releaseDate: new Date('2025-01-01'),
   artist: 'Test Artist Album',
-  shortDescription: 'A test album for SEO metadata.'
+  shortDescription: 'A test album for SEO metadata.',
+  isPublished: true
 }
 
 export const releaseFixtureSingle: ReleaseClient = {
@@ -22,5 +23,6 @@ export const releaseFixtureSingle: ReleaseClient = {
   createdAt: new Date('2026-01-01'),
   updatedAt: new Date('2026-01-01'),
   releaseDate: new Date('2026-01-01'),
-  artist: 'Test Artist Single'
+  artist: 'Test Artist Single',
+  isPublished: true
 }

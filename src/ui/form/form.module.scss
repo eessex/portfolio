@@ -52,7 +52,7 @@
   }
 
   p {
-    margin-bottom: 0.25rem;
+    margin-bottom: grids.space-em(2);
 
     &:not(:global(.visually-hidden)) + p {
       margin-top: grids.space-rem(2);
@@ -61,6 +61,8 @@
 
   label:not(:global(.visually-hidden)),
   legend:not(:global(.visually-hidden)) {
+    margin-bottom: 0.125rem;
+
     // a little extra space between the label and the input
     + input,
     + :has(select), // select are wrapped in divs

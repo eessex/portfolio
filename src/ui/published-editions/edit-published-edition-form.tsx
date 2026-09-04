@@ -77,8 +77,8 @@ export const EditPublishedEdition = ({
         existingItem={publishedEdition?.publisher}
         renderExistingResult={formatPublisherResult}
         schema={createPublisherSchema}
-        renderEditItemForm={(_query, _index, errors) => (
-          <EditPublisher errors={errors} />
+        renderEditItemForm={({ errors, existingItem }) => (
+          <EditPublisher errors={errors} publisher={existingItem} />
         )}
       />
 
@@ -128,8 +128,14 @@ export const EditPublishedEdition = ({
         renderExistingResult={formatImageResult}
         renderNewItemSummary={formatNewImageSummary}
         schema={imageClientFieldsSchema}
-        renderEditItemForm={(_query, index, errors, isRequired) => (
+        renderEditItemForm={({
+          index,
+          errors,
+          isRequired,
+          existingItem
+        }) => (
           <EditImage
+            image={existingItem}
             index={index}
             errors={errors}
             isPressFieldsetHidden

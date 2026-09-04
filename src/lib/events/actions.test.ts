@@ -12,8 +12,10 @@ import type { CreateEvent, Event } from '@/lib/events/types'
 import { resolveOrderedImageIds } from '@/lib/images/actions'
 import { resolveOrderedLinkIds } from '@/lib/links/actions'
 import { generateUniqueSlug } from '@/lib/slug/data'
+import { fetchVenueById } from '@/lib/venues/data'
 import { venueFixtureAlpha } from '@/lib/venues/fixtures'
 import { formDataFromObject } from '@/test/helpers'
+import { toDateTimeInputValue } from '@/ui/util'
 
 jest.mock('@/lib/slug/data', () => ({
   generateUniqueSlug: jest.fn()
@@ -42,6 +44,15 @@ jest.mock('@/lib/links/actions', () => ({
 }))
 const mockResolveOrderedLinkIds = jest.mocked(resolveOrderedLinkIds)
 
+jest.mock('@/lib/venues/data', () => ({
+  ...jest.requireActual('@/lib/venues/data'),
+  fetchVenueById: jest.fn()
+}))
+const mockFetchVenueById = jest.mocked(fetchVenueById)
+const mockVenue = venueFixtureAlpha as unknown as Awaited<
+  ReturnType<typeof fetchVenueById>
+>
+
 const EXISTING_IMAGE_ID = '11111111-1111-4111-8111-111111111111'
 const EXISTING_EMBED_CODE_ID = '22222222-2222-4222-8222-222222222222'
 
@@ -58,6 +69,7 @@ describe('Event Actions', () => {
       featuredEmbedCodeId: undefined
     })
     mockResolveOrderedLinkIds.mockResolvedValue({ linkIds: [] })
+    mockFetchVenueById.mockResolvedValue(mockVenue)
   })
 
   it('rejects unauthenticated callers', async () => {
@@ -124,7 +136,23 @@ describe('Event Actions', () => {
       expect(mockSql.mock.calls[1]?.[3]).toEqual([
         EXISTING_EMBED_CODE_ID
       ])
+      expect(mockSql.mock.calls[1]?.[6]).toBe(true)
       expect(mockSql).toHaveBeenCalledTimes(2)
+    })
+
+    it('unpublishes an event when the Published checkbox is unchecked', async () => {
+      mockSql
+        .mockResolvedValueOnce([eventFixtureAlpha])
+        .mockResolvedValueOnce([eventFixtureAlpha])
+
+      const { isPublished: _omit, ...withoutPublished } =
+        eventFixtureAlpha
+      await editEvent(
+        formDataFromObject(withoutPublished),
+        eventFixtureAlpha.id
+      )
+
+      expect(mockSql.mock.calls[1]?.[6]).toBe(false)
     })
 
     it('merges submitted fields with the existing event on update', async () => {
@@ -177,6 +205,26 @@ describe('Event Actions', () => {
       expect(mockSql).toHaveBeenCalledTimes(1)
     })
 
+    it('interprets the start time in the venue timezone', async () => {
+      mockSql.mockResolvedValueOnce([eventFixtureAlpha])
+
+      await editEvent(
+        formDataFromObject({
+          ...newEventFixtureAlpha,
+          isPublished: 'on',
+          startTime: '2030-06-01T20:00'
+        })
+      )
+
+      const startTime = mockSql.mock.calls[0]?.[11] as Date
+      expect(startTime.toISOString()).not.toBe(
+        '2030-06-01T20:00:00.000Z'
+      )
+      expect(
+        toDateTimeInputValue(startTime, venueFixtureAlpha.timezone)
+      ).toBe('2030-06-01T20:00')
+    })
+
     it('resolves an inline-created venue into venue_id', async () => {
       const withoutVenue: Partial<CreateEvent> = {
         ...newEventFixtureAlpha
@@ -184,8 +232,8 @@ describe('Event Actions', () => {
       delete withoutVenue.venueId
 
       mockSql
-        .mockResolvedValueOnce([venueFixtureAlpha]) // inline venue INSERT
-        .mockResolvedValueOnce([eventFixtureAlpha]) // event INSERT
+        .mockResolvedValueOnce([venueFixtureAlpha])
+        .mockResolvedValueOnce([eventFixtureAlpha])
       const res = await editEvent(
         formDataFromObject({
           ...withoutVenue,

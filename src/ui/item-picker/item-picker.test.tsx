@@ -2,9 +2,11 @@ import {
   fireEvent,
   render,
   screen,
-  waitFor
+  waitFor,
+  within
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { useState } from 'react'
 
 import { linkFixture, pressLinkFixture } from '@/lib/links/fixtures'
 import { createLinkSchema, type Link } from '@/lib/links/schemas/db'
@@ -21,7 +23,8 @@ import {
 import type { Venue } from '@/lib/venues/schemas/db'
 import {
   ItemPicker,
-  type ItemPickerProps
+  type ItemPickerProps,
+  type RenderEditItemFormArgs
 } from '@/ui/item-picker/item-picker'
 import { ItemResultLabel } from '@/ui/item-result-label'
 import { useResultsList } from '@/ui/useResultsList'
@@ -230,7 +233,9 @@ describe('ItemPicker', () => {
         const user = userEvent.setup()
         renderComponent({
           itemType: 'links',
-          renderEditItemForm: (query: string) => (
+          renderEditItemForm: ({
+            query
+          }: RenderEditItemFormArgs<Link, never>) => (
             <div>
               Query: {query}
               <input
@@ -372,10 +377,10 @@ describe('ItemPicker', () => {
           isMulti: true,
           name: 'venueIds',
           existingItems: [venueFixtureAlpha],
-          renderEditItemForm: (
-            query: string | undefined,
-            index: number | undefined
-          ) => (
+          renderEditItemForm: ({
+            query,
+            index
+          }: RenderEditItemFormArgs<Venue, never>) => (
             <div>
               New form at index {index}, query: {query}
             </div>
@@ -603,15 +608,10 @@ describe('ItemPicker', () => {
         isMulti: true as const,
         name: 'venueIds',
         existingItems: [venueFixtureAlpha],
-        renderEditItemForm: (
-          _query: string | undefined,
-          index: number | undefined,
-          _errors: unknown,
-          _isRequired: boolean | undefined,
-          _onCancel: (() => void) | undefined,
-          _onReady: ((r: boolean) => void) | undefined,
-          existingItem: Venue | undefined
-        ) => (
+        renderEditItemForm: ({
+          index,
+          existingItem
+        }: RenderEditItemFormArgs<Venue, never>) => (
           <input
             aria-label='Venue name'
             name={`venueIds[${index}].name`}
@@ -748,15 +748,7 @@ describe('ItemPicker', () => {
             extraActions={extraActions}
           />
         ),
-        renderEditItemForm: (
-          _query,
-          index,
-          _errors,
-          _isRequired,
-          _onCancel,
-          _onReady,
-          existingItem
-        ) => (
+        renderEditItemForm: ({ index, existingItem }) => (
           <input
             aria-label='Link url'
             name={`links[${index}].url`}
@@ -836,10 +828,9 @@ describe('ItemPicker', () => {
           isMulti: true,
           name: 'venueIds',
           existingItems: [venueFixtureAlpha],
-          renderEditItemForm: (
-            _query: string | undefined,
-            index: number | undefined
-          ) => (
+          renderEditItemForm: ({
+            index
+          }: RenderEditItemFormArgs<Venue, never>) => (
             <div>
               <input
                 name={`venueIds[${index}].name`}
@@ -1034,22 +1025,15 @@ describe('ItemPicker', () => {
       function renderReadinessPicker(props = {}) {
         return renderComponent({
           itemType: 'links',
-          renderEditItemForm: (
-            _query: string | undefined,
-            _index: number | undefined,
-            _errors: unknown,
-            _isRequired: boolean | undefined,
-            _onCancel: (() => void) | undefined,
-            onMainFieldReadyChange?: (isReady: boolean) => void
-          ) => (
+          renderEditItemForm: ({
+            onReadyChange
+          }: RenderEditItemFormArgs<Link, never>) => (
             <div>
               <input
                 aria-label='Link url'
                 defaultValue=''
                 onChange={(e) =>
-                  onMainFieldReadyChange?.(
-                    e.target.value.trim() !== ''
-                  )
+                  onReadyChange?.(e.target.value.trim() !== '')
                 }
               />
             </div>
@@ -1091,10 +1075,14 @@ describe('ItemPicker', () => {
       })
 
       it('does not pass a readiness callback for multi pickers', () => {
-        const renderEditItemForm = jest.fn((...args: unknown[]) => {
-          void args
-          return <div>New Link Form</div>
-        })
+        const renderEditItemForm = jest.fn(
+          ({
+            onReadyChange
+          }: RenderEditItemFormArgs<Link, never>) => {
+            void onReadyChange
+            return <div>New Link Form</div>
+          }
+        )
         renderComponent({
           itemType: 'links',
           isMulti: true,
@@ -1102,7 +1090,127 @@ describe('ItemPicker', () => {
           renderEditItemForm
         })
 
-        expect(renderEditItemForm.mock.calls[0][5]).toBeUndefined()
+        expect(
+          renderEditItemForm.mock.calls[0][0].onReadyChange
+        ).toBeUndefined()
+      })
+    })
+
+    describe('create-form-actions visibility', () => {
+      function CreateFirstForm({
+        onReadyChange
+      }: RenderEditItemFormArgs<Link, never>) {
+        const [url, setUrl] = useState('')
+        return (
+          <>
+            <input
+              aria-label='Link url'
+              value={url}
+              onChange={(e) => {
+                setUrl(e.target.value)
+                onReadyChange?.(e.target.value.trim() !== '')
+              }}
+            />
+            <fieldset
+              className={url ? 'expanded' : undefined}
+              hidden={!url}
+            >
+              <input aria-label='Link title' />
+            </fieldset>
+          </>
+        )
+      }
+
+      function actionsFor(button: HTMLElement) {
+        return button.closest('.create-form-actions')
+      }
+
+      it('hides the actions row for a create-first form showing only its main field', () => {
+        renderComponent({
+          itemType: 'links',
+          renderEditItemForm: (
+            args: RenderEditItemFormArgs<Link, never>
+          ) => <CreateFirstForm {...args} />
+        })
+
+        const actions = actionsFor(
+          screen.getByRole('button', { name: /save link/i })
+        )
+        expect(actions).not.toHaveClass('create-form-actions-visible')
+        expect(
+          document.querySelector('fieldset.expanded')
+        ).not.toBeInTheDocument()
+      })
+
+      it('exposes the .expanded hook beside the actions row once the main field is filled', () => {
+        renderComponent({
+          itemType: 'links',
+          renderEditItemForm: (
+            args: RenderEditItemFormArgs<Link, never>
+          ) => <CreateFirstForm {...args} />
+        })
+
+        fireEvent.change(screen.getByLabelText('Link url'), {
+          target: { value: 'https://a-new-link.com' }
+        })
+
+        const actions = actionsFor(
+          screen.getByRole('button', { name: /save link/i })
+        )
+        const expanded = document.querySelector('fieldset.expanded')
+        expect(expanded).toBeInTheDocument()
+        const fieldset = actions?.closest('.new-item-fieldset')
+        expect(fieldset).not.toBeNull()
+        expect(actions?.parentElement).toBe(fieldset)
+        expect(expanded?.parentElement).toBe(fieldset)
+      })
+
+      it('shows the actions row for a search-first form (all fields at once)', async () => {
+        const user = userEvent.setup()
+        renderComponent()
+
+        await user.click(
+          screen.getByRole('button', { name: /new venue/i })
+        )
+
+        const actions = actionsFor(
+          screen.getByRole('button', { name: /save venue/i })
+        )
+        expect(actions).toHaveClass('create-form-actions-visible')
+      })
+
+      it('shows the actions row, with Cancel, when editing an existing item', async () => {
+        const user = userEvent.setup()
+        renderComponent({
+          isMulti: true,
+          name: 'venueIds',
+          existingItems: [venueFixtureAlpha],
+          renderEditItemForm: ({
+            index,
+            existingItem
+          }: RenderEditItemFormArgs<Venue, never>) => (
+            <input
+              aria-label='Venue name'
+              name={`venueIds[${index}].name`}
+              defaultValue={existingItem?.name ?? ''}
+            />
+          )
+        })
+
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+        await screen.findByLabelText('Venue name')
+
+        const actions = actionsFor(
+          screen.getByRole('button', { name: /save venue/i })
+        )
+        expect(actions).toHaveClass('create-form-actions-visible')
+        expect(
+          within(actions as HTMLElement).getByRole('button', {
+            name: /^cancel$/i
+          })
+        ).toBeInTheDocument()
       })
     })
 
@@ -1113,11 +1221,10 @@ describe('ItemPicker', () => {
           isMulti: true,
           name: 'links',
           schema: createLinkSchema,
-          renderEditItemForm: (
-            _query: string | undefined,
-            index: number | undefined,
-            errors?: Record<string, string[] | undefined>
-          ) => (
+          renderEditItemForm: ({
+            index,
+            errors
+          }: RenderEditItemFormArgs<Link, never>) => (
             <div>
               <input
                 name={`links[${index}].url`}
@@ -1202,11 +1309,9 @@ describe('ItemPicker', () => {
         return renderComponent({
           itemType: 'links',
           schema: createLinkSchema,
-          renderEditItemForm: (
-            _query: string | undefined,
-            _index: number | undefined,
-            errors?: Record<string, string[] | undefined>
-          ) => (
+          renderEditItemForm: ({
+            errors
+          }: RenderEditItemFormArgs<Link, never>) => (
             <div>
               <input name='url' defaultValue='' onChange={() => {}} />
               {errors?.url && <p>{errors.url.join(', ')}</p>}

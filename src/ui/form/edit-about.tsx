@@ -40,11 +40,19 @@ function AboutFormFields({ about }: { about?: AboutClient }) {
         renderNewItemSummary={formatNewImageSummary}
         namePrefix='coverImage'
         schema={imageClientFieldsSchema}
-        renderEditItemForm={(_query, _index, errors, isRequired) => (
+        renderEditItemForm={({
+          errors,
+          isRequired,
+          existingItem,
+          onReadyChange
+        }) => (
           <EditImage
+            image={existingItem}
             namePrefix='coverImage'
             errors={errors}
             isRequired={isRequired}
+            onReadyChange={onReadyChange}
+            isPressFieldsetHidden
           />
         )}
       />

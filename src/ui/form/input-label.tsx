@@ -9,7 +9,7 @@ type InputLabelProps = {
   label: string
   description?: string
   descriptionId?: string
-} & ({ as?: 'label'; htmlFor: string } | { as: 'legend' })
+} & ({ as?: 'label'; htmlFor?: string } | { as: 'legend' })
 
 export function InputLabel(props: InputLabelProps) {
   const {

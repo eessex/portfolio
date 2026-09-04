@@ -3,11 +3,12 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
-import { runDeleteAction, runFormAction } from '@/lib/form-action'
 import {
-  formatDbResponseForClient,
-  normalizeFormData
-} from '@/lib/util'
+  runDeleteAction,
+  runFormAction,
+  saveItemFromFields
+} from '@/lib/form-action'
+import { formatDbResponseForClient } from '@/lib/util'
 import { fetchVenueById } from '@/lib/venues/data'
 import {
   type CreateVenue,
@@ -37,29 +38,27 @@ function invalidateVenueTags() {
   updateTag('events')
 }
 
-export async function createVenueFromFields(
-  fields: Record<string, unknown>
+/**
+ * Creates or updates from raw (unnormalized) field data,
+ * ie an entry pulled out of another domain's form submission.
+ */
+export async function saveVenueFromFields(
+  fields: Record<string, unknown>,
+  id?: string
 ): Promise<Venue> {
-  const parsed = createVenueSchema.safeParse(
-    normalizeFormData(fields)
-  )
-  if (!parsed.success) {
-    throw new Error(
-      `Invalid venue data: ${parsed.error.issues
-        .map((issue) => issue.message)
-        .join(', ')}`
-    )
-  }
-  return createVenue(parsed.data)
+  return saveItemFromFields({
+    id,
+    fields,
+    schema: createVenueSchema,
+    itemType: 'venues',
+    create: createVenue,
+    update: updateVenue
+  })
 }
 
 export async function resolveVenueId(
   data: Record<string, unknown>
 ): Promise<string | undefined> {
-  if (typeof data.venueId === 'string' && data.venueId) {
-    return data.venueId
-  }
-
   const fields = {
     name: data.name,
     address: data.address,
@@ -77,16 +76,25 @@ export async function resolveVenueId(
   delete data.timezone
   delete data.url
 
-  if (
-    typeof fields.city !== 'string' ||
-    !fields.city ||
-    typeof fields.timezone !== 'string' ||
-    !fields.timezone
-  ) {
-    return undefined
+  const hasInlineFields =
+    typeof fields.city === 'string' &&
+    !!fields.city &&
+    typeof fields.timezone === 'string' &&
+    !!fields.timezone
+
+  if (typeof data.venueId === 'string' && data.venueId) {
+    // An already existing venue was edited inline, update it
+    if (hasInlineFields) {
+      const venue = await saveVenueFromFields(fields, data.venueId)
+      return venue.id
+    }
+    // No changes to existing venue, pass the id along
+    return data.venueId
   }
 
-  const venue = await createVenueFromFields(fields)
+  if (!hasInlineFields) return undefined
+  // create a new venue from inline fields
+  const venue = await saveVenueFromFields(fields)
   return venue.id
 }
 

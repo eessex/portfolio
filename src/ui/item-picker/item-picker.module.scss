@@ -1,4 +1,5 @@
 @use '@/ui/styles/grids';
+@use '@/ui/styles/type';
 
 .item-picker {
   display: flex;
@@ -6,6 +7,8 @@
 }
 
 .item-list {
+  --row-gap: 0;
+
   display: flex;
   flex-direction: column;
   gap: grids.space-em(2);
@@ -16,21 +19,48 @@
   border-radius: 50%;
 }
 
+.item-picker-single fieldset:has(.create-form-actions-visible) {
+  box-shadow: inset 0 0 0 2px var(--transparency-primary);
+  padding: grids.space-em(4);
+}
+
+.item-picker-single-slot {
+  --row-gap: #{grids.space-em(1)};
+}
+
+.draft-wrapper {
+  --row-gap: #{grids.space-em(4)};
+
+  display: flex;
+  flex-direction: column;
+}
+
 fieldset:has(:global(fieldset.expanded)) {
   box-shadow: inset 0 0 0 2px var(--transparency-primary);
   padding-bottom: grids.space-em(4);
 
   > fieldset,
-  > button.save-button {
+  > .create-form-actions {
     margin-inline: grids.space-em(4);
   }
 }
 
-.save-button {
-  // Hidden until the new item's required fields are satisfied
+.create-form-actions {
   display: none;
+  align-items: center;
+  gap: grids.space-em(2);
 }
 
-fieldset:has(:global(fieldset.expanded)) > .save-button {
-  display: inline-flex;
+.create-form-actions-visible {
+  display: flex;
+}
+
+fieldset:has(:global(fieldset.expanded)) > .create-form-actions {
+  display: flex;
+}
+
+.save-button {
+  @include type.font-weight('bold');
+
+  width: 100%;
 }

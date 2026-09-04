@@ -1,3 +1,5 @@
+import { embedCodeContentTypes } from '@/lib/embed-codes/schemas/db'
+import { imageTypes } from '@/lib/images/schemas/db'
 import { snakeToSentence } from '@/lib/strings'
 import type { Badge, EmbeddedItem } from '@/lib/types'
 import styles from '@/ui/badges.module.scss'
@@ -25,18 +27,17 @@ const badgeColorPalette: Badge['color'][] = [
   'rose',
   'indigo'
 ]
-const assignedColorsByType = new Map<string, Badge['color']>()
 
-function colorForType(type: string) {
-  let color = assignedColorsByType.get(type)
-  if (!color) {
-    color =
-      badgeColorPalette[
-        assignedColorsByType.size % badgeColorPalette.length
-      ]
-    assignedColorsByType.set(type, color)
-  }
-  return color
+// Every badgeable type in stable order to avoid hydration errors
+const badgeTypes: readonly string[] = [
+  ...imageTypes,
+  ...embedCodeContentTypes
+]
+
+function colorForType(type: string): Badge['color'] {
+  const index = badgeTypes.indexOf(type)
+  if (index === -1) return 'green'
+  return badgeColorPalette[index % badgeColorPalette.length]
 }
 
 export function itemBadges(item: Partial<EmbeddedItem>): Badge[] {

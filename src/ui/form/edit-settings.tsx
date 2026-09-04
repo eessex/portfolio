@@ -2,7 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 
-import { type Image,imageClientFieldsSchema } from '@/lib/images/schemas/db'
+import {
+  type Image,
+  imageClientFieldsSchema
+} from '@/lib/images/schemas/db'
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
 import { Form, useFormErrors } from '@/ui/form/form'
@@ -59,11 +62,18 @@ function SettingsFormFields({
         renderNewItemSummary={formatNewImageSummary}
         namePrefix='coverImage'
         schema={imageClientFieldsSchema}
-        renderEditItemForm={(_query, _index, errors, isRequired) => (
+        renderEditItemForm={({
+          errors,
+          isRequired,
+          existingItem,
+          onReadyChange
+        }) => (
           <EditImage
+            image={existingItem}
             namePrefix='coverImage'
             errors={errors}
             isRequired={isRequired}
+            onReadyChange={onReadyChange}
           />
         )}
         isRequired

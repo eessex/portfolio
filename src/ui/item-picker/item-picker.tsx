@@ -7,6 +7,7 @@ import type { z } from 'zod'
 
 import {
   type EmbeddedItemType,
+  itemTypeSingulars,
   itemTypeToLabel,
   type PagePath
 } from '@/lib/schemas'
@@ -27,6 +28,32 @@ import type { ResultsResponse } from '@/ui/useResultsList'
 import type { SearchParams } from '@/ui/util'
 
 type FieldErrors = Record<string, string[] | undefined>
+
+/** Named args passed to a picker's `renderEditItemForm` callback. */
+export type RenderEditItemFormArgs<
+  TEmbeddedItem extends EmbeddedItem,
+  TPage extends PageItemClient
+> = {
+  /** search query, for seeding a value into a create form. */
+  query?: string
+  /** The slot's submit index (`isMulti` only). */
+  index?: number
+  errors?: FieldErrors
+  isRequired?: boolean
+  onCancel?: () => void
+  existingItem?: TEmbeddedItem | TPage
+  /**
+   * cb for progressive-disclosure forms to report when their main field
+   * (e.g. a link's URL) is filled. A single-item picker uses this to drop
+   * the combobox's back-to-search toggle once the form is underway.
+   */
+  onReadyChange?: (isReady: boolean) => void
+  /**
+   * cb for forms with async work (e.g. embed codes fetching oEmbeds)
+   * that must resolve before a new item is saved.
+   */
+  onBusyChange?: (isBusy: boolean) => void
+}
 
 type ItemPickerSharedProps<
   TEmbeddedItem extends EmbeddedItem,
@@ -62,24 +89,7 @@ type ItemPickerSharedProps<
   ) => React.ReactNode
 
   renderEditItemForm?: (
-    query: string | undefined,
-    index?: number,
-    errors?: FieldErrors,
-    isRequired?: boolean,
-    onCancel?: () => void,
-    onMainFieldReadyChange?: (isReady: boolean) => void,
-    /**
-     * The existing item to seed the form with when a slot is editing an
-     * already-attached item (see the `editing` slot kind); omitted for
-     * create slots.
-     */
-    existingItem?: TEmbeddedItem | TPage,
-    /**
-     * Reports that the form has async work in flight (e.g. embed codes
-     * resolving oEmbed metadata) that must settle before the slot can be
-     * saved. ItemPicker disables this slot's Save button while busy.
-     */
-    onBusyChange?: (isBusy: boolean) => void
+    args: RenderEditItemFormArgs<TEmbeddedItem, TPage>
   ) => React.ReactNode
   /**
    * currently only omitted in tests
@@ -244,9 +254,10 @@ export function ItemPicker<
   // `publisher.name`) the search box can capture directly. Types whose first
   // field is a URL/iframe/file default to create.
   const searchFirstItemTypes = ['venues', 'publishers'] as const
-  const isCreateFirst =
+  const isSearchFirst =
     !!renderEditItemForm &&
-    !(searchFirstItemTypes as readonly string[]).includes(itemType)
+    (searchFirstItemTypes as readonly string[]).includes(itemType)
+  const isCreateFirst = !!renderEditItemForm && !isSearchFirst
 
   const hasExistingItems = isMulti
     ? (props.existingItems?.length ?? 0) > 0
@@ -955,6 +966,9 @@ export function ItemPicker<
     slot: DraftSlot<TEmbeddedItem, TPage>,
     submitIndex: number
   ) {
+    const idInputName = isMulti
+      ? name && `${name}[${submitIndex}].id`
+      : (name ?? `${itemTypeSingulars[itemType]}Id`)
     return (
       <fieldset
         hidden={slot.saved}
@@ -984,75 +998,82 @@ export function ItemPicker<
         {/* An edited existing item submits its id alongside the edited
             fields, so the server UPDATEs it (an `edited` entry) rather
             than creating a duplicate. */}
-        {slot.kind === 'editing' && name && (
+        {slot.kind === 'editing' && idInputName && (
           <input
             type='hidden'
-            name={`${name}[${submitIndex}].id`}
+            name={idInputName}
             value={slot.item.id}
             readOnly
           />
         )}
-        {renderEditItemForm?.(
-          slot.kind === 'new' ? slot.query : undefined,
-          isMulti ? submitIndex : undefined,
-          newSlotErrors[slot.tempId],
-          isRequired ?? false,
+        {renderEditItemForm?.({
+          query: slot.kind === 'new' ? slot.query : undefined,
+          index: isMulti ? submitIndex : undefined,
+          errors: newSlotErrors[slot.tempId],
+          isRequired: isRequired ?? false,
           // Single-item pickers replace their combobox with this form,
           // so removing the slot returns to search — wire that as the
           // create form's own cancel (e.g. the image preview's X). Multi
           // keeps its always-present combobox, so its Cancel button
           // suffices and no create-form cancel is passed.
-          isMulti ? undefined : () => removeSlot(slot),
-          isMulti ? undefined : setIsMainFieldReady,
-          slot.kind === 'editing' ? slot.item : undefined,
-          (isBusy: boolean) =>
+          onCancel: isMulti ? undefined : () => removeSlot(slot),
+          onReadyChange: isMulti ? undefined : setIsMainFieldReady,
+          existingItem:
+            slot.kind === 'editing' ? slot.item : undefined,
+          onBusyChange: (isBusy: boolean) =>
             setBusySlots((current) =>
               current[slot.tempId] === isBusy
                 ? current
                 : { ...current, [slot.tempId]: isBusy }
             )
-        )}
-        <button
-          type='button'
-          className={`button-primary ${itemPickerStyles['save-button']}`}
-          disabled={busySlots[slot.tempId]}
-          onClick={() => {
-            if (!saveNewSlot(slot, submitIndex)) return
-            // After saving a *new* item, reopen an empty editor for the
-            // next one. A saved edit collapses to its chip.
-            if (isMulti && slot.kind === 'new') {
-              pendingCreateFocusTempId.current = addNew()
-            } else if (
-              isMulti &&
-              slot.kind === 'editing' &&
-              mode === 'create'
-            ) {
-              pendingCreateFocusTempId.current = addNew()
-            } else {
-              pendingChipFocusTempId.current = slot.tempId
-            }
-          }}
+        })}
+        <div
+          className={`${itemPickerStyles['create-form-actions']} ${
+            isSearchFirst || slot.kind === 'editing'
+              ? itemPickerStyles['create-form-actions-visible']
+              : ''
+          }`}
         >
-          {saveLabel}
-        </button>
-        {slot.kind === 'editing' && (
           <button
             type='button'
-            className='button-sm'
+            className={`button-primary ${itemPickerStyles['save-button']}`}
+            disabled={busySlots[slot.tempId]}
             onClick={() => {
-              revertEditingSlot(slot)
-              // In create mode restore the resting blank the edit
-              // replaced. in search mode the search input returns.
-              if (mode === 'create') {
+              if (!saveNewSlot(slot, submitIndex)) return
+              // After saving a *new* item, reopen an empty editor for the
+              // next one. A saved edit collapses to its chip.
+              if (isMulti && slot.kind === 'new') {
+                pendingCreateFocusTempId.current = addNew()
+              } else if (
+                isMulti &&
+                slot.kind === 'editing' &&
+                mode === 'create'
+              ) {
                 pendingCreateFocusTempId.current = addNew()
               } else {
-                pendingComboboxFocus.current = true
+                pendingChipFocusTempId.current = slot.tempId
               }
             }}
           >
-            Cancel
+            {saveLabel}
           </button>
-        )}
+          {slot.kind === 'editing' && (
+            <button
+              type='button'
+              className='button-sm'
+              onClick={() => {
+                revertEditingSlot(slot)
+                if (mode === 'create') {
+                  pendingCreateFocusTempId.current = addNew()
+                } else {
+                  pendingComboboxFocus.current = true
+                }
+              }}
+            >
+              Cancel
+            </button>
+          )}
+        </div>
       </fieldset>
     )
   }
@@ -1068,19 +1089,16 @@ export function ItemPicker<
         const Wrapper: 'div' | 'fieldset' = isMulti
           ? 'div'
           : 'fieldset'
-        // Multi-item pickers with an inline editor let an attached item
-        // be opened for editing; compose that control with any featured
-        // toggle into the chip's actions.
-        const editButton =
-          isMulti && renderEditItemForm ? (
-            <button
-              type='button'
-              className='button-sm'
-              onClick={() => setEditRequest({ id: slot.item.id })}
-            >
-              Edit
-            </button>
-          ) : undefined
+
+        const editButton = !!renderEditItemForm ? (
+          <button
+            type='button'
+            className='button-sm'
+            onClick={() => setEditRequest({ id: slot.item.id })}
+          >
+            Edit
+          </button>
+        ) : undefined
         const extraActions =
           editButton || featuredButton ? (
             <>
@@ -1088,6 +1106,7 @@ export function ItemPicker<
               {featuredButton}
             </>
           ) : undefined
+
         return (
           <Wrapper
             className={itemPickerStyles['existing-item-wrapper']}
@@ -1122,21 +1141,19 @@ export function ItemPicker<
         {renderNewFieldset(slot, index)}
       </>
     ) : (
-      <fieldset className={itemPickerStyles['existing-item-wrapper']}>
-        {/* While creating, the mounted combobox header carries the
-            label + Search toggle; once collapsed to a chip the combobox
-            is gone, so this fieldset provides the label itself. */}
+      <div className={itemPickerStyles['draft-wrapper']}>
         {!hasOpenDraft && (
-          <InputLabel
-            as='legend'
-            isRequired={isRequired}
-            label={itemLabel}
-            description={description}
-          />
+          <div>
+            <InputLabel
+              isRequired={isRequired}
+              label={itemLabel}
+              description={description}
+            />
+          </div>
         )}
         {slot.saved && renderNewItemChip(slot)}
         {renderNewFieldset(slot, index)}
-      </fieldset>
+      </div>
     )
   }
 
@@ -1171,7 +1188,12 @@ export function ItemPicker<
   const showCombobox = isMulti || slots.length === 0 || hasOpenDraft
 
   return (
-    <div className={itemPickerStyles['item-picker']} ref={rootRef}>
+    <div
+      className={`${itemPickerStyles['item-picker']} ${
+        !isMulti ? itemPickerStyles['item-picker-single'] : ''
+      }`}
+      ref={rootRef}
+    >
       {isMulti && name && (
         <input name={`${name}[]`} type='hidden' value='' readOnly />
       )}
@@ -1222,7 +1244,7 @@ export function ItemPicker<
       )}
 
       {featuredSlot && (
-        <div>
+        <div className='featured-slot'>
           {renderSlot(
             featuredSlot,
             0,
@@ -1239,15 +1261,16 @@ export function ItemPicker<
        * editors show here and aren't draggable; the collapsed chips
        * (below) carry no file input, so they reorder freely.
        */}
-      {isMulti && newRestSlots.length > 0 && (
-        <div>
-          {stableNewSlots.map((slot) => (
-            <div key={slotId(slot)}>
-              {renderNewFieldset(slot, restIndex(slot))}
-            </div>
-          ))}
-        </div>
-      )}
+      {isMulti &&
+        newRestSlots.length > 0 &&
+        stableNewSlots.map((slot) => (
+          <div
+            key={slotId(slot)}
+            className={itemPickerStyles['item-picker-multi-slot']}
+          >
+            {renderNewFieldset(slot, restIndex(slot))}
+          </div>
+        ))}
 
       {/*
        * One sortable list for every chip — existing-item results and
@@ -1282,9 +1305,14 @@ export function ItemPicker<
         )
       ) : (
         restSlots.length > 0 && (
-          <div className={itemPickerStyles['item-list']}>
+          <>
             {restSlots.map((slot, index) => (
-              <div key={slotId(slot)}>
+              <div
+                className={
+                  itemPickerStyles['item-picker-single-slot']
+                }
+                key={slotId(slot)}
+              >
                 {renderSlot(
                   slot,
                   index,
@@ -1293,7 +1321,7 @@ export function ItemPicker<
                 )}
               </div>
             ))}
-          </div>
+          </>
         )
       )}
     </div>

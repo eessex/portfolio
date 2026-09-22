@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import { DEFAULT_TIME_ZONE } from '@/lib/dates'
 import {
   createEmbedCodeSchema,
   type EmbedCode
@@ -80,7 +81,7 @@ function EventFormFields({ event }: { event?: EventClient }) {
           }}
           defaultValue={toDateTimeInputValue(
             event?.startTime,
-            event?.venue?.timezone
+            event?.venue?.timezone ?? DEFAULT_TIME_ZONE
           )}
           errors={errors?.startTime}
           label='Start time'
@@ -89,7 +90,7 @@ function EventFormFields({ event }: { event?: EventClient }) {
           attributes={{ name: 'endTime', type: 'datetime-local' }}
           defaultValue={toDateTimeInputValue(
             event?.endTime,
-            event?.venue?.timezone
+            event?.venue?.timezone ?? DEFAULT_TIME_ZONE
           )}
           errors={errors?.endTime}
           label='End time'

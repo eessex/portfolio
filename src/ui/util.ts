@@ -1,4 +1,8 @@
-import { DEFAULT_TIME_ZONE, getUtcOffsetMinutes } from '@/lib/dates'
+import {
+  DEFAULT_TIME_ZONE,
+  getUtcOffsetMinutes,
+  getWallClockParts
+} from '@/lib/dates'
 import type { DashboardEmbedCode } from '@/lib/embed-codes/schemas/client'
 import type { DashboardImage } from '@/lib/images/schemas/client'
 import type { Image } from '@/lib/images/schemas/db'
@@ -125,20 +129,12 @@ export function toDateTimeInputValue(
   if (isNaN(d.getTime())) return ''
 
   if (timeZone) {
-    const parts = new Intl.DateTimeFormat('en-US', {
-      timeZone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }).formatToParts(d)
-    const part = (type: string) =>
-      parts.find((p) => p.type === type)?.value ?? ''
-    // `hour12: false` emits 24 for midnight in some engines
-    const hour = part('hour') === '24' ? '00' : part('hour')
-    return `${part('year')}-${part('month')}-${part('day')}T${hour}:${part('minute')}`
+    const { year, month, day, hour, minute } = getWallClockParts(
+      d,
+      timeZone
+    )
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`
   }
 
   const m = String(d.getMonth() + 1).padStart(2, '0')

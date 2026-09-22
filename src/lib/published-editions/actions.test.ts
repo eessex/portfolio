@@ -278,9 +278,9 @@ describe('Published Edition Actions', () => {
         const res = await editPublishedEdition(
           formDataFromObject({
             ...withoutPublisherId,
-            name: newPublisherFixtureAlpha.name,
-            type: newPublisherFixtureAlpha.type,
-            url: newPublisherFixtureAlpha.url
+            'publisher.name': newPublisherFixtureAlpha.name,
+            'publisher.type': newPublisherFixtureAlpha.type,
+            'publisher.url': newPublisherFixtureAlpha.url
           })
         )
 

@@ -238,8 +238,8 @@ describe('Event Actions', () => {
         formDataFromObject({
           ...withoutVenue,
           isPublished: 'on',
-          city: venueFixtureAlpha.city,
-          timezone: venueFixtureAlpha.timezone
+          'venue.city': venueFixtureAlpha.city,
+          'venue.timezone': venueFixtureAlpha.timezone
         })
       )
 

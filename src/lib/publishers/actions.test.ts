@@ -187,9 +187,9 @@ describe('Publisher Actions', () => {
     it('creates a new publisher from inline fields when no publisherId is submitted', async () => {
       mockSql.mockResolvedValueOnce([publisherFixtureAlpha])
       const data: Record<string, unknown> = {
-        name: newPublisherFixtureAlpha.name,
-        type: newPublisherFixtureAlpha.type,
-        url: newPublisherFixtureAlpha.url
+        'publisher.name': newPublisherFixtureAlpha.name,
+        'publisher.type': newPublisherFixtureAlpha.type,
+        'publisher.url': newPublisherFixtureAlpha.url
       }
 
       const id = await resolvePublisherId(data)
@@ -201,16 +201,16 @@ describe('Publisher Actions', () => {
     it('strips the inline-creation fields from data so they do not leak into the parent schema', async () => {
       mockSql.mockResolvedValueOnce([publisherFixtureAlpha])
       const data: Record<string, unknown> = {
-        name: newPublisherFixtureAlpha.name,
-        type: newPublisherFixtureAlpha.type,
-        url: newPublisherFixtureAlpha.url
+        'publisher.name': newPublisherFixtureAlpha.name,
+        'publisher.type': newPublisherFixtureAlpha.type,
+        'publisher.url': newPublisherFixtureAlpha.url
       }
 
       await resolvePublisherId(data)
 
-      expect(data).not.toHaveProperty('name')
-      expect(data).not.toHaveProperty('type')
-      expect(data).not.toHaveProperty('url')
+      expect(data).not.toHaveProperty(['publisher.name'])
+      expect(data).not.toHaveProperty(['publisher.type'])
+      expect(data).not.toHaveProperty(['publisher.url'])
     })
 
     it('returns undefined when neither an id nor inline fields are submitted', async () => {

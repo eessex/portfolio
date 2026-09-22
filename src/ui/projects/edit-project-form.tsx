@@ -98,14 +98,12 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         renderNewItemSummary={formatNewImageSummary}
         schema={imageClientFieldsSchema}
         renderEditItemForm={({
-          index,
           errors,
           isRequired,
           existingItem
         }) => (
           <EditImage
             image={existingItem}
-            index={index}
             errors={errors}
             isPressFieldsetHidden
             isRequired={isRequired}
@@ -134,7 +132,6 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         renderNewItemSummary={formatNewEmbedCodeSummary}
         schema={createEmbedCodeSchema}
         renderEditItemForm={({
-          index,
           errors,
           isRequired,
           existingItem,
@@ -142,7 +139,6 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         }) => (
           <EditEmbedCode
             embedCode={existingItem}
-            index={index}
             errors={errors}
             isRequired={isRequired}
             onBusyChange={onBusyChange}
@@ -162,14 +158,12 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         renderExistingResult={formatLinkResult}
         schema={createLinkSchema}
         renderEditItemForm={({
-          index,
           errors,
           isRequired,
           existingItem
         }) => (
           <EditLink
             link={existingItem}
-            index={index}
             errors={errors}
             isRequired={isRequired}
           />

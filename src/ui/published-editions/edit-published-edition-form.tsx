@@ -129,14 +129,12 @@ export const EditPublishedEdition = ({
         renderNewItemSummary={formatNewImageSummary}
         schema={imageClientFieldsSchema}
         renderEditItemForm={({
-          index,
           errors,
           isRequired,
           existingItem
         }) => (
           <EditImage
             image={existingItem}
-            index={index}
             errors={errors}
             isPressFieldsetHidden
             isRequired={isRequired}

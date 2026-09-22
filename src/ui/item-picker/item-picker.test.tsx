@@ -26,10 +26,28 @@ import {
   type ItemPickerProps,
   type RenderEditItemFormArgs
 } from '@/ui/item-picker/item-picker'
+import { useNamePrefix } from '@/ui/item-picker/name-prefix'
 import { ItemResultLabel } from '@/ui/item-result-label'
 import { useResultsList } from '@/ui/useResultsList'
 
 jest.mock('@/ui/useResultsList')
+
+/**
+ * A slot's edit form reads its namespace from context, so these stand
+ * in for the real domain forms (hooks can't run in the
+ * `renderEditItemForm` callback itself — only in what it renders).
+ */
+function PrefixedInput({
+  field,
+  ...attributes
+}: { field: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+  const namePrefix = useNamePrefix()
+  return <input name={`${namePrefix}${field}`} {...attributes} />
+}
+
+function PrefixLabel() {
+  return <>{useNamePrefix()}</>
+}
 
 describe('ItemPicker', () => {
   describe('embedded items', () => {
@@ -378,11 +396,10 @@ describe('ItemPicker', () => {
           name: 'venueIds',
           existingItems: [venueFixtureAlpha],
           renderEditItemForm: ({
-            query,
-            index
+            query
           }: RenderEditItemFormArgs<Venue, never>) => (
             <div>
-              New form at index {index}, query: {query}
+              New form at <PrefixLabel />, query: {query}
             </div>
           )
         })
@@ -392,7 +409,9 @@ describe('ItemPicker', () => {
         await user.click(screen.getByText(/new/i))
 
         expect(
-          screen.getByText('New form at index 0, query: New Venue')
+          screen.getByText(
+            'New form at venueIds[0]., query: New Venue'
+          )
         ).toBeInTheDocument()
         // the existing item remains, unaffected
         expect(
@@ -609,12 +628,11 @@ describe('ItemPicker', () => {
         name: 'venueIds',
         existingItems: [venueFixtureAlpha],
         renderEditItemForm: ({
-          index,
           existingItem
         }: RenderEditItemFormArgs<Venue, never>) => (
-          <input
+          <PrefixedInput
+            field='name'
             aria-label='Venue name'
-            name={`venueIds[${index}].name`}
             defaultValue={existingItem?.name ?? ''}
           />
         )
@@ -748,10 +766,10 @@ describe('ItemPicker', () => {
             extraActions={extraActions}
           />
         ),
-        renderEditItemForm: ({ index, existingItem }) => (
-          <input
+        renderEditItemForm: ({ existingItem }) => (
+          <PrefixedInput
+            field='url'
             aria-label='Link url'
-            name={`links[${index}].url`}
             defaultValue={existingItem?.url ?? ''}
           />
         )
@@ -828,12 +846,10 @@ describe('ItemPicker', () => {
           isMulti: true,
           name: 'venueIds',
           existingItems: [venueFixtureAlpha],
-          renderEditItemForm: ({
-            index
-          }: RenderEditItemFormArgs<Venue, never>) => (
+          renderEditItemForm: () => (
             <div>
-              <input
-                name={`venueIds[${index}].name`}
+              <PrefixedInput
+                field='name'
                 defaultValue=''
                 onChange={() => {}}
                 aria-label='Venue name'
@@ -1186,12 +1202,11 @@ describe('ItemPicker', () => {
           name: 'venueIds',
           existingItems: [venueFixtureAlpha],
           renderEditItemForm: ({
-            index,
             existingItem
           }: RenderEditItemFormArgs<Venue, never>) => (
-            <input
+            <PrefixedInput
+              field='name'
               aria-label='Venue name'
-              name={`venueIds[${index}].name`}
               defaultValue={existingItem?.name ?? ''}
             />
           )
@@ -1222,12 +1237,11 @@ describe('ItemPicker', () => {
           name: 'links',
           schema: createLinkSchema,
           renderEditItemForm: ({
-            index,
             errors
           }: RenderEditItemFormArgs<Link, never>) => (
             <div>
-              <input
-                name={`links[${index}].url`}
+              <PrefixedInput
+                field='url'
                 defaultValue=''
                 onChange={() => {}}
               />
@@ -1304,16 +1318,61 @@ describe('ItemPicker', () => {
       })
     })
 
+    describe('slot name prefix', () => {
+      function renderPrefixPicker(props = {}) {
+        renderComponent({
+          renderEditItemForm: () => <PrefixLabel />,
+          ...props
+        })
+        // Venues are search-first, so the form only mounts on New.
+        fireEvent.click(
+          screen.getByRole('button', { name: /new venue/i })
+        )
+      }
+
+      it("namespaces a single item under its type's singular", () => {
+        renderPrefixPicker()
+
+        expect(screen.getByText('venue.')).toBeInTheDocument()
+      })
+
+      it('ignores the id field name when deriving it', () => {
+        renderPrefixPicker({ name: 'coverImageId' })
+
+        expect(screen.getByText('venue.')).toBeInTheDocument()
+      })
+
+      it('indexes under the array name when isMulti', () => {
+        renderPrefixPicker({ isMulti: true, name: 'venueIds' })
+
+        expect(screen.getByText('venueIds[0].')).toBeInTheDocument()
+      })
+
+      it('leaves an edit form outside a picker unprefixed', () => {
+        render(<PrefixedInput field='city' aria-label='City' />)
+
+        expect(screen.getByLabelText('City')).toHaveAttribute(
+          'name',
+          'city'
+        )
+      })
+    })
+
     describe('schema validation (single item, blur-triggered)', () => {
       function renderLinkPicker(props = {}) {
         return renderComponent({
           itemType: 'links',
+          name: 'linkId',
           schema: createLinkSchema,
           renderEditItemForm: ({
             errors
           }: RenderEditItemFormArgs<Link, never>) => (
             <div>
-              <input name='url' defaultValue='' onChange={() => {}} />
+              <PrefixedInput
+                field='url'
+                defaultValue=''
+                onChange={() => {}}
+              />
               {errors?.url && <p>{errors.url.join(', ')}</p>}
             </div>
           ),
@@ -1325,7 +1384,7 @@ describe('ItemPicker', () => {
         renderLinkPicker()
 
         const urlInput = document.querySelector(
-          'input[name="url"]'
+          'input[name="link.url"]'
         ) as HTMLInputElement
         fireEvent.change(urlInput, {
           target: { value: 'not-a-valid-url' }
@@ -1339,7 +1398,7 @@ describe('ItemPicker', () => {
         renderLinkPicker()
 
         const urlInput = document.querySelector(
-          'input[name="url"]'
+          'input[name="link.url"]'
         ) as HTMLInputElement
         const saveButton = screen.getByRole('button', {
           name: /save link/i
@@ -1358,7 +1417,7 @@ describe('ItemPicker', () => {
         renderLinkPicker()
 
         const urlInput = document.querySelector(
-          'input[name="url"]'
+          'input[name="link.url"]'
         ) as HTMLInputElement
         fireEvent.change(urlInput, {
           target: { value: 'not-a-valid-url' }

@@ -364,9 +364,9 @@ describe('Image Actions', () => {
       ])
 
       const data: Record<string, unknown> = {
-        'coverImage.file': mockFile(),
-        'coverImage.aspect': 1.5,
-        'coverImage.caption': 'A brand new cover'
+        'image.file': mockFile(),
+        'image.aspect': 1.5,
+        'image.caption': 'A brand new cover'
       }
 
       const id = await resolveCoverImageId(data)
@@ -385,18 +385,18 @@ describe('Image Actions', () => {
       const data: Record<string, unknown> = {
         title: 'Site title',
         description: 'Site description',
-        'coverImage.file': mockFile(),
-        'coverImage.aspect': 1.5,
-        'coverImage.caption': 'cap',
-        'coverImage.title': 'Image title'
+        'image.file': mockFile(),
+        'image.aspect': 1.5,
+        'image.caption': 'cap',
+        'image.title': 'Image title'
       }
 
       await resolveCoverImageId(data)
 
-      expect(data).not.toHaveProperty('coverImage.file')
-      expect(data).not.toHaveProperty('coverImage.aspect')
-      expect(data).not.toHaveProperty('coverImage.caption')
-      expect(data).not.toHaveProperty('coverImage.title')
+      expect(data).not.toHaveProperty('image.file')
+      expect(data).not.toHaveProperty('image.aspect')
+      expect(data).not.toHaveProperty('image.caption')
+      expect(data).not.toHaveProperty('image.title')
       expect(data.title).toBe('Site title')
       expect(data.description).toBe('Site description')
     })

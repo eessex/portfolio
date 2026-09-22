@@ -2,10 +2,15 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { linkFixture, newLinkFixture } from '@/lib/links/fixtures'
+import { NamePrefixProvider } from '@/ui/item-picker/name-prefix'
 import { EditLink } from '@/ui/links/edit-link-form'
 
-function renderComponent(props = {}) {
-  return render(<EditLink link={newLinkFixture} {...props} />)
+function renderComponent(props = {}, namePrefix = '') {
+  return render(
+    <NamePrefixProvider prefix={namePrefix}>
+      <EditLink link={newLinkFixture} {...props} />
+    </NamePrefixProvider>
+  )
 }
 
 const urlRegex = /url/i
@@ -34,11 +39,8 @@ describe('EditLink', () => {
       )
     })
 
-    it('applies prefix to input names correctly if index is provided', () => {
-      renderComponent({
-        link: linkFixture,
-        index: 2
-      })
+    it("namespaces its inputs under a picker slot's prefix", () => {
+      renderComponent({ link: linkFixture }, 'links[2].')
 
       expect(screen.getByLabelText(urlRegex)).toHaveAttribute(
         'name',

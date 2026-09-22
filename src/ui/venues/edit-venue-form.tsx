@@ -9,21 +9,17 @@ import { venueTimezones } from '@/lib/venues/schemas/db'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
+import { useNamePrefix } from '@/ui/item-picker/name-prefix'
 
 interface EditVenueProps {
   errors?: z.inferFlattenedErrors<
     typeof createVenueSchema
   >['fieldErrors']
-  isPrefixEnabled?: boolean
   venue?: Partial<Venue>
 }
 
-export const EditVenue = ({
-  errors,
-  isPrefixEnabled,
-  venue
-}: EditVenueProps) => {
-  const namePrefix = isPrefixEnabled ? 'venue.' : ''
+export const EditVenue = ({ errors, venue }: EditVenueProps) => {
+  const namePrefix = useNamePrefix()
 
   return (
     <>

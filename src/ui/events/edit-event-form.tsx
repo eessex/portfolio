@@ -133,14 +133,12 @@ function EventFormFields({ event }: { event?: EventClient }) {
         renderNewItemSummary={formatNewImageSummary}
         schema={imageClientFieldsSchema}
         renderEditItemForm={({
-          index,
           errors,
           isRequired,
           existingItem
         }) => (
           <EditImage
             image={existingItem}
-            index={index}
             errors={errors}
             isPressFieldsetHidden
             isRequired={isRequired}
@@ -157,7 +155,6 @@ function EventFormFields({ event }: { event?: EventClient }) {
         renderNewItemSummary={formatNewEmbedCodeSummary}
         schema={createEmbedCodeSchema}
         renderEditItemForm={({
-          index,
           errors,
           isRequired,
           existingItem,
@@ -165,7 +162,6 @@ function EventFormFields({ event }: { event?: EventClient }) {
         }) => (
           <EditEmbedCode
             embedCode={existingItem}
-            index={index}
             errors={errors}
             isRequired={isRequired}
             onBusyChange={onBusyChange}
@@ -181,14 +177,12 @@ function EventFormFields({ event }: { event?: EventClient }) {
         renderExistingResult={formatLinkResult}
         schema={createLinkSchema}
         renderEditItemForm={({
-          index,
           errors,
           isRequired,
           existingItem
         }) => (
           <EditLink
             link={existingItem}
-            index={index}
             errors={errors}
             isRequired={isRequired}
           />

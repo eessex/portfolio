@@ -1,13 +1,20 @@
 /** Fallback zone when an event has no venue timezone yet. */
 export const DEFAULT_TIME_ZONE = 'America/New_York'
 
-/** Minutes `timeZone`'s wall clock is ahead of UTC at `utcDate`. */
-export function getUtcOffsetMinutes(
-  utcDate: string | Date,
-  timeZone: string
-): number {
-  const date = new Date(utcDate)
+export interface WallClockParts {
+  year: number
+  month: number
+  day: number
+  hour: number
+  minute: number
+  second: number
+}
 
+/** The wall-clock calendar parts of `date` as rendered in `timeZone`. */
+export function getWallClockParts(
+  date: Date,
+  timeZone: string
+): WallClockParts {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone,
     year: 'numeric',
@@ -22,16 +29,32 @@ export function getUtcOffsetMinutes(
   const part = (type: string) =>
     parseInt(parts.find((p) => p.type === type)?.value || '0', 10)
 
-  // `hour12: false` emits 24 for midnight in some engines
-  const hour = part('hour') % 24
+  return {
+    year: part('year'),
+    month: part('month'),
+    day: part('day'),
+    // `hour12: false` emits 24 for midnight in some engines
+    hour: part('hour') % 24,
+    minute: part('minute'),
+    second: part('second')
+  }
+}
 
+/** Minutes `timeZone`'s wall clock is ahead of UTC at `utcDate`. */
+export function getUtcOffsetMinutes(
+  utcDate: string | Date,
+  timeZone: string
+): number {
+  const date = new Date(utcDate)
+  const { year, month, day, hour, minute, second } =
+    getWallClockParts(date, timeZone)
   const localTzTimestamp = Date.UTC(
-    part('year'),
-    part('month') - 1,
-    part('day'),
+    year,
+    month - 1,
+    day,
     hour,
-    part('minute'),
-    part('second')
+    minute,
+    second
   )
 
   return (localTzTimestamp - date.getTime()) / 60000
@@ -49,7 +72,7 @@ export function fromDateTimeInputValue(
   timeZone: string = DEFAULT_TIME_ZONE
 ): Date | undefined {
   const match = value.match(
-    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/
   )
   if (!match) {
     const parsed = new Date(value)

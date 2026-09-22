@@ -62,9 +62,9 @@ Each content type (`releases`, `events`, `projects`, `venues`, `links`, `images`
 
 ### In-progress scaffolding
 
-Two areas intentionally don't yet follow the full domain-module pattern — treat as known TODOs, not bugs, unless asked to build them out:
+One area intentionally doesn't yet follow the full domain-module pattern — treat as a known TODO, not a bug, unless asked to build it out:
 
-- `releases` and `events` have no `actions.ts` — only reads (`data.ts`/`cached.ts`) exist, so these domains have no admin create/update/delete path yet (unlike `about` and `projects`, which do).
+- `releases` has no `actions.ts` — only reads (`data.ts`/`cached.ts`) exist, so this domain has no admin create/update/delete path yet (unlike `about`, `projects`, and `events`, which do).
 - `tags` is scaffolded in the DB (table + `tag_ids` columns) and in Zod schemas, but has no `src/lib/tags/data.ts` or `actions.ts` — no read/write implementation exists yet.
 
 ### Auth

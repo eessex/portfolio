@@ -22,6 +22,7 @@ import { extractIframeParams } from '@/ui/embed-codes/util'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
+import { useNamePrefix } from '@/ui/item-picker/name-prefix'
 import { useToast } from '@/ui/toast/toast-context'
 
 interface EmbedCodeProps {
@@ -29,7 +30,6 @@ interface EmbedCodeProps {
   errors?: z.inferFlattenedErrors<
     typeof createEmbedCodeSchema
   >['fieldErrors']
-  index?: number
   /**
    * Hides the inline "Remove embed" button on the parsed preview.
    * Not currently used.
@@ -48,7 +48,6 @@ interface EmbedCodeProps {
 }
 
 export const EditEmbedCode = ({
-  index,
   embedCode,
   errors,
   isRemoveButtonHidden,
@@ -70,8 +69,7 @@ export const EditEmbedCode = ({
   const [isPreviewLoading, setIsPreviewLoading] = useState(false)
   // Ignore a slower resolve landing after a newer paste cleared/changed it.
   const previewRequestId = useRef(0)
-  const namePrefix =
-    typeof index === 'number' ? `embedCodes[${index}].` : ''
+  const namePrefix = useNamePrefix()
   const detailsFieldsetId = useId()
 
   const { addErrorMessage } = useToast()

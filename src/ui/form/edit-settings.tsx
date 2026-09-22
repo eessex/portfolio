@@ -60,7 +60,6 @@ function SettingsFormFields({
         existingItem={settings?.coverImage}
         renderExistingResult={formatImageResult}
         renderNewItemSummary={formatNewImageSummary}
-        namePrefix='coverImage'
         schema={imageClientFieldsSchema}
         renderEditItemForm={({
           errors,
@@ -70,7 +69,6 @@ function SettingsFormFields({
         }) => (
           <EditImage
             image={existingItem}
-            namePrefix='coverImage'
             errors={errors}
             isRequired={isRequired}
             onReadyChange={onReadyChange}

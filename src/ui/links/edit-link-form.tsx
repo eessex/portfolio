@@ -10,6 +10,7 @@ import {
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
+import { useNamePrefix } from '@/ui/item-picker/name-prefix'
 import { toDateInputValue } from '@/ui/util'
 
 const linkTypeOptions = [...linkTypes]
@@ -40,7 +41,6 @@ interface LinkProps {
   errors?: z.inferFlattenedErrors<
     typeof createLinkSchema
   >['fieldErrors']
-  index?: number
   isRequired?: boolean
   link?: Partial<Link>
   /**
@@ -52,7 +52,6 @@ interface LinkProps {
 
 export const EditLink = ({
   errors,
-  index,
   isRequired = true,
   link,
   onReadyChange
@@ -63,8 +62,7 @@ export const EditLink = ({
   // Reveals the secondary fields when the url is valid, not on
   // every keystroke. Avoids the form jumping into view mid-typing.
   const [isUrlFilled, setIsUrlFilled] = useState(!!link?.url)
-  const namePrefix =
-    typeof index === 'number' ? `links[${index}].` : ''
+  const namePrefix = useNamePrefix()
   const pressControlsId = useId()
   const detailsFieldsetId = useId()
   // Browsers don't reliably report insertReplacementText for

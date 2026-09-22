@@ -57,24 +57,15 @@ export async function saveVenueFromFields(
 }
 
 export async function resolveVenueId(
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
+  prefix = 'venue'
 ): Promise<string | undefined> {
-  const fields = {
-    name: data.name,
-    address: data.address,
-    city: data.city,
-    country: data.country,
-    state: data.state,
-    timezone: data.timezone,
-    url: data.url
-  }
-  delete data.name
-  delete data.address
-  delete data.city
-  delete data.country
-  delete data.state
-  delete data.timezone
-  delete data.url
+  const fieldNames = Object.keys(createVenueSchema.shape)
+  const fields: Record<string, unknown> = {}
+  fieldNames.forEach((field) => {
+    fields[field] = data[`${prefix}.${field}`]
+    delete data[`${prefix}.${field}`]
+  })
 
   const hasInlineFields =
     typeof fields.city === 'string' &&

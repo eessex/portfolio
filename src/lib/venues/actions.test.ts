@@ -208,26 +208,26 @@ describe('Venue Actions', () => {
         .mockResolvedValueOnce([venueFixtureAlpha])
       const data: Record<string, unknown> = {
         venueId: venueFixtureAlpha.id,
-        name: 'Edited Name',
-        city: newVenueFixtureAlpha.city,
-        timezone: newVenueFixtureAlpha.timezone
+        'venue.name': 'Edited Name',
+        'venue.city': newVenueFixtureAlpha.city,
+        'venue.timezone': newVenueFixtureAlpha.timezone
       }
 
       const id = await resolveVenueId(data)
 
       expect(id).toBe(venueFixtureAlpha.id)
       expect(mockSql).toHaveBeenCalledTimes(2)
-      expect(data).not.toHaveProperty('name')
-      expect(data).not.toHaveProperty('city')
-      expect(data).not.toHaveProperty('timezone')
+      expect(data).not.toHaveProperty(['venue.name'])
+      expect(data).not.toHaveProperty(['venue.city'])
+      expect(data).not.toHaveProperty(['venue.timezone'])
     })
 
     it('creates a new venue from inline fields when no venueId is submitted', async () => {
       mockSql.mockResolvedValueOnce([venueFixtureAlpha])
       const data: Record<string, unknown> = {
-        name: newVenueFixtureAlpha.name,
-        city: newVenueFixtureAlpha.city,
-        timezone: newVenueFixtureAlpha.timezone
+        'venue.name': newVenueFixtureAlpha.name,
+        'venue.city': newVenueFixtureAlpha.city,
+        'venue.timezone': newVenueFixtureAlpha.timezone
       }
 
       const id = await resolveVenueId(data)
@@ -239,24 +239,24 @@ describe('Venue Actions', () => {
     it('strips the inline-creation fields from data so they do not leak into the parent schema', async () => {
       mockSql.mockResolvedValueOnce([venueFixtureAlpha])
       const data: Record<string, unknown> = {
-        name: newVenueFixtureAlpha.name,
-        address: newVenueFixtureAlpha.address,
-        city: newVenueFixtureAlpha.city,
-        country: newVenueFixtureAlpha.country,
-        state: newVenueFixtureAlpha.state,
-        timezone: newVenueFixtureAlpha.timezone,
-        url: newVenueFixtureAlpha.url
+        'venue.name': newVenueFixtureAlpha.name,
+        'venue.address': newVenueFixtureAlpha.address,
+        'venue.city': newVenueFixtureAlpha.city,
+        'venue.country': newVenueFixtureAlpha.country,
+        'venue.state': newVenueFixtureAlpha.state,
+        'venue.timezone': newVenueFixtureAlpha.timezone,
+        'venue.url': newVenueFixtureAlpha.url
       }
 
       await resolveVenueId(data)
 
-      expect(data).not.toHaveProperty('name')
-      expect(data).not.toHaveProperty('address')
-      expect(data).not.toHaveProperty('city')
-      expect(data).not.toHaveProperty('country')
-      expect(data).not.toHaveProperty('state')
-      expect(data).not.toHaveProperty('timezone')
-      expect(data).not.toHaveProperty('url')
+      expect(data).not.toHaveProperty(['venue.name'])
+      expect(data).not.toHaveProperty(['venue.address'])
+      expect(data).not.toHaveProperty(['venue.city'])
+      expect(data).not.toHaveProperty(['venue.country'])
+      expect(data).not.toHaveProperty(['venue.state'])
+      expect(data).not.toHaveProperty(['venue.timezone'])
+      expect(data).not.toHaveProperty(['venue.url'])
     })
 
     it('returns undefined when neither an id nor inline city/timezone are submitted', async () => {

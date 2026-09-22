@@ -130,7 +130,7 @@ export async function resolveOrderedImageIds(
 
 export async function resolveCoverImageId(
   data: Record<string, unknown>,
-  prefix = 'coverImage'
+  prefix = 'image'
 ): Promise<string | undefined> {
   if (typeof data.coverImageId === 'string' && data.coverImageId) {
     return data.coverImageId

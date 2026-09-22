@@ -62,27 +62,26 @@ export async function createPublisherFromFields(
 /**
  * Resolves a single-item publisher picker's submission — either an
  * existing selection (`publisherId`) or a pending inline creation (the
- * unbracketed `name`/`type`/`url` fields `EditPublisher` renders when
- * used as a picker's `renderEditItemForm`, since the picker isn't
- * `isMulti`) — into a publisher id. Mutates `data`, removing the
- * inline-creation fields so they don't reach the parent form's own
+ * `publisher.name`/`publisher.type`/`publisher.url` fields
+ * `EditPublisher` renders when used as a picker's
+ * `renderEditItemForm`) — into a publisher id. Mutates `data`, removing
+ * the inline-creation fields so they don't reach the parent form's own
  * schema validation. Returns `undefined` when neither was submitted.
  */
 export async function resolvePublisherId(
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
+  prefix = 'publisher'
 ): Promise<string | undefined> {
+  const fieldNames = Object.keys(createPublisherSchema.shape)
+  const fields: Record<string, unknown> = {}
+  fieldNames.forEach((field) => {
+    fields[field] = data[`${prefix}.${field}`]
+    delete data[`${prefix}.${field}`]
+  })
+
   if (typeof data.publisherId === 'string' && data.publisherId) {
     return data.publisherId
   }
-
-  const fields = {
-    name: data.name,
-    type: data.type,
-    url: data.url
-  }
-  delete data.name
-  delete data.type
-  delete data.url
 
   if (typeof fields.name !== 'string' || !fields.name) {
     return undefined

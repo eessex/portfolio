@@ -21,6 +21,7 @@ import { Combobox } from '@/ui/combobox/combobox'
 import { SortableList } from '@/ui/drag-and-drop/sortable-list'
 import { InputLabel } from '@/ui/form/input-label'
 import itemPickerStyles from '@/ui/item-picker/item-picker.module.scss'
+import { NamePrefixProvider } from '@/ui/item-picker/name-prefix'
 import { ItemResultLabel } from '@/ui/item-result-label'
 import { SelectedResult } from '@/ui/selected-results/selected-result'
 import selectedResultStyles from '@/ui/selected-results/selected-results.module.scss'
@@ -36,8 +37,6 @@ export type RenderEditItemFormArgs<
 > = {
   /** search query, for seeding a value into a create form. */
   query?: string
-  /** The slot's submit index (`isMulti` only). */
-  index?: number
   errors?: FieldErrors
   isRequired?: boolean
   onCancel?: () => void
@@ -95,7 +94,6 @@ type ItemPickerSharedProps<
    * currently only omitted in tests
    */
   schema?: z.ZodTypeAny
-  namePrefix?: string
   /**
    * Renders the collapsed chip for a saved-but-unsubmitted "new" slot
    * (see `saveNewSlot`). `data` is the slot's fieldset values, already
@@ -245,8 +243,7 @@ export function ItemPicker<
     isMulti,
     featured,
     schema,
-    renderNewItemSummary,
-    namePrefix
+    renderNewItemSummary
   } = props
 
   // Search-first types default to the search input rather than a blank
@@ -565,15 +562,16 @@ export function ItemPicker<
   }
 
   /**
-   * The prefix a "new" slot's fields are rendered with, stripped when
-   * reading them back: `${name}[${index}].` for `isMulti`, or the
-   * single-item create form's `namePrefix` (e.g. `coverImage.`)
-   * when set — matching how `extractIndexedGroups`/`resolveCoverImageId`
-   * strip the same prefix server-side from the real submission.
+   * The prefix a "new" slot's fields are rendered with, provided to the
+   * slot's edit form and stripped when reading it back:
+   * `${name}[${index}].` for `isMulti`, the item type's singular
+   * (`venue.`) for a single item — matching how `extractIndexedGroups`
+   * and the `resolve*Id` helpers strip the same prefix server-side from
+   * the real submission.
    */
   function slotFieldPrefix(submitIndex: number): string {
     if (isMulti) return `${name}[${submitIndex}].`
-    return namePrefix ? `${namePrefix}.` : ''
+    return `${itemTypeSingulars[itemType]}.`
   }
 
   /**
@@ -1006,27 +1004,28 @@ export function ItemPicker<
             readOnly
           />
         )}
-        {renderEditItemForm?.({
-          query: slot.kind === 'new' ? slot.query : undefined,
-          index: isMulti ? submitIndex : undefined,
-          errors: newSlotErrors[slot.tempId],
-          isRequired: isRequired ?? false,
-          // Single-item pickers replace their combobox with this form,
-          // so removing the slot returns to search — wire that as the
-          // create form's own cancel (e.g. the image preview's X). Multi
-          // keeps its always-present combobox, so its Cancel button
-          // suffices and no create-form cancel is passed.
-          onCancel: isMulti ? undefined : () => removeSlot(slot),
-          onReadyChange: isMulti ? undefined : setIsMainFieldReady,
-          existingItem:
-            slot.kind === 'editing' ? slot.item : undefined,
-          onBusyChange: (isBusy: boolean) =>
-            setBusySlots((current) =>
-              current[slot.tempId] === isBusy
-                ? current
-                : { ...current, [slot.tempId]: isBusy }
-            )
-        })}
+        <NamePrefixProvider prefix={slotFieldPrefix(submitIndex)}>
+          {renderEditItemForm?.({
+            query: slot.kind === 'new' ? slot.query : undefined,
+            errors: newSlotErrors[slot.tempId],
+            isRequired: isRequired ?? false,
+            // Single-item pickers replace their combobox with this form,
+            // so removing the slot returns to search — wire that as the
+            // create form's own cancel (e.g. the image preview's X). Multi
+            // keeps its always-present combobox, so its Cancel button
+            // suffices and no create-form cancel is passed.
+            onCancel: isMulti ? undefined : () => removeSlot(slot),
+            onReadyChange: isMulti ? undefined : setIsMainFieldReady,
+            existingItem:
+              slot.kind === 'editing' ? slot.item : undefined,
+            onBusyChange: (isBusy: boolean) =>
+              setBusySlots((current) =>
+                current[slot.tempId] === isBusy
+                  ? current
+                  : { ...current, [slot.tempId]: isBusy }
+              )
+          })}
+        </NamePrefixProvider>
         <div
           className={`${itemPickerStyles['create-form-actions']} ${
             isSearchFirst || slot.kind === 'editing'

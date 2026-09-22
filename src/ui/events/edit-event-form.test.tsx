@@ -132,6 +132,47 @@ describe('EditEventForm', () => {
       expect(mockEditEvent).not.toHaveBeenCalled()
     })
 
+    it('namespaces the inline venue fields under venue.', () => {
+      renderComponent()
+
+      fireEvent.click(
+        screen.getByRole('button', { name: /new venue/i })
+      )
+
+      expect(screen.getByLabelText(/^city$/i)).toHaveAttribute(
+        'name',
+        'venue.city'
+      )
+      expect(screen.getByLabelText(/timezone/i)).toHaveAttribute(
+        'name',
+        'venue.timezone'
+      )
+    })
+
+    it('collapses a new venue into a chip', async () => {
+      renderComponent()
+
+      fireEvent.click(
+        screen.getByRole('button', { name: /new venue/i })
+      )
+      fireEvent.change(screen.getByLabelText(/^city$/i), {
+        target: { value: venueFixtureAlpha.city }
+      })
+      fireEvent.change(screen.getByLabelText(/timezone/i), {
+        target: { value: venueFixtureAlpha.timezone }
+      })
+      fireEvent.click(
+        screen.getByRole('button', { name: /save venue/i })
+      )
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/^city$/i)).not.toBeVisible()
+      })
+      expect(
+        screen.getByText(new RegExp(venueFixtureAlpha.city))
+      ).toBeVisible()
+    })
+
     it('opens the attached venue for inline editing, seeded with its fields', () => {
       renderComponent({ event: eventFixtureUpcoming })
 

@@ -4,10 +4,12 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import {
+  resolveItemId,
   runDeleteAction,
   runFormAction,
   saveItemFromFields
 } from '@/lib/form-action'
+import { itemIdFieldName } from '@/lib/item-fields'
 import { formatDbResponseForClient } from '@/lib/util'
 import { fetchVenueById } from '@/lib/venues/data'
 import {
@@ -58,35 +60,9 @@ export async function saveVenueFromFields(
 
 export async function resolveVenueId(
   data: Record<string, unknown>,
-  prefix = 'venue'
+  idField = itemIdFieldName('venues')
 ): Promise<string | undefined> {
-  const fieldNames = Object.keys(createVenueSchema.shape)
-  const fields: Record<string, unknown> = {}
-  fieldNames.forEach((field) => {
-    fields[field] = data[`${prefix}.${field}`]
-    delete data[`${prefix}.${field}`]
-  })
-
-  const hasInlineFields =
-    typeof fields.city === 'string' &&
-    !!fields.city &&
-    typeof fields.timezone === 'string' &&
-    !!fields.timezone
-
-  if (typeof data.venueId === 'string' && data.venueId) {
-    // An already existing venue was edited inline, update it
-    if (hasInlineFields) {
-      const venue = await saveVenueFromFields(fields, data.venueId)
-      return venue.id
-    }
-    // No changes to existing venue, pass the id along
-    return data.venueId
-  }
-
-  if (!hasInlineFields) return undefined
-  // create a new venue from inline fields
-  const venue = await saveVenueFromFields(fields)
-  return venue.id
+  return resolveItemId(data, idField, saveVenueFromFields)
 }
 
 export async function deleteVenue(venue: Venue) {

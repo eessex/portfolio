@@ -1336,10 +1336,10 @@ describe('ItemPicker', () => {
         expect(screen.getByText('venue.')).toBeInTheDocument()
       })
 
-      it('ignores the id field name when deriving it', () => {
+      it('derives it from the id field name when one is given', () => {
         renderPrefixPicker({ name: 'coverImageId' })
 
-        expect(screen.getByText('venue.')).toBeInTheDocument()
+        expect(screen.getByText('coverImage.')).toBeInTheDocument()
       })
 
       it('indexes under the array name when isMulti', () => {

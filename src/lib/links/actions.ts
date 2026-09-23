@@ -4,6 +4,7 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import {
+  resolveOrderedIds,
   runDeleteAction,
   runFormAction,
   saveItemFromFields
@@ -16,11 +17,7 @@ import {
   linkSchema,
   LinkTypes
 } from '@/lib/links/schemas/db'
-import {
-  extractIndexedGroups,
-  formatDbResponseForClient,
-  isBlankEntry
-} from '@/lib/util'
+import { formatDbResponseForClient } from '@/lib/util'
 
 export async function editLink(formData: FormData, id?: string) {
   return runFormAction({
@@ -85,21 +82,12 @@ export async function saveLinkFromFields(
  */
 export async function resolveOrderedLinkIds(
   data: Record<string, unknown>,
-  prefix = 'links'
+  name = 'links'
 ): Promise<{ linkIds: string[] }> {
-  const entries = extractIndexedGroups(data, prefix).filter(
-    (entry) => entry.kind !== 'new' || !isBlankEntry(entry.fields)
-  )
-  const linkIds = await Promise.all(
-    entries.map((entry) =>
-      entry.kind === 'existing'
-        ? entry.id
-        : entry.kind === 'edited'
-          ? saveLinkFromFields(entry.fields, entry.id).then(
-              (link) => link.id
-            )
-          : saveLinkFromFields(entry.fields).then((link) => link.id)
-    )
+  const linkIds = await resolveOrderedIds(
+    data,
+    name,
+    saveLinkFromFields
   )
   return { linkIds }
 }

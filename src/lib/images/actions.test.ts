@@ -352,6 +352,28 @@ describe('Image Actions', () => {
       expect(uploadFileMock).not.toHaveBeenCalled()
     })
 
+    it('updates the image when an id is submitted alongside edited fields', async () => {
+      mockSql
+        .mockResolvedValueOnce([imageFixture]) // fetchImagesByIds
+        .mockResolvedValueOnce([imageFixture]) // UPDATE ... RETURNING *
+
+      const data: Record<string, unknown> = {
+        coverImageId: imageFixture.id,
+        'coverImage.url': imageFixture.url,
+        'coverImage.aspect': 1.5,
+        'coverImage.caption': 'Edited caption'
+      }
+
+      const id = await resolveCoverImageId(data)
+
+      expect(id).toBe(imageFixture.id)
+      // a metadata-only edit keeps the existing file (no new upload)
+      expect(uploadFileMock).not.toHaveBeenCalled()
+      expect(mockSql).toHaveBeenCalledTimes(2)
+      expect(data).not.toHaveProperty(['coverImage.url'])
+      expect(data).not.toHaveProperty(['coverImage.caption'])
+    })
+
     it('creates a new image from inline fields when a file is submitted', async () => {
       uploadFileMock.mockResolvedValueOnce(
         'https://example.com/uploaded.jpg'
@@ -364,9 +386,9 @@ describe('Image Actions', () => {
       ])
 
       const data: Record<string, unknown> = {
-        'image.file': mockFile(),
-        'image.aspect': 1.5,
-        'image.caption': 'A brand new cover'
+        'coverImage.file': mockFile(),
+        'coverImage.aspect': 1.5,
+        'coverImage.caption': 'A brand new cover'
       }
 
       const id = await resolveCoverImageId(data)
@@ -385,20 +407,39 @@ describe('Image Actions', () => {
       const data: Record<string, unknown> = {
         title: 'Site title',
         description: 'Site description',
-        'image.file': mockFile(),
-        'image.aspect': 1.5,
-        'image.caption': 'cap',
-        'image.title': 'Image title'
+        'coverImage.file': mockFile(),
+        'coverImage.aspect': 1.5,
+        'coverImage.caption': 'cap',
+        'coverImage.title': 'Image title'
       }
 
       await resolveCoverImageId(data)
 
-      expect(data).not.toHaveProperty('image.file')
-      expect(data).not.toHaveProperty('image.aspect')
-      expect(data).not.toHaveProperty('image.caption')
-      expect(data).not.toHaveProperty('image.title')
+      expect(data).not.toHaveProperty('coverImage.file')
+      expect(data).not.toHaveProperty('coverImage.aspect')
+      expect(data).not.toHaveProperty('coverImage.caption')
+      expect(data).not.toHaveProperty('coverImage.title')
       expect(data.title).toBe('Site title')
       expect(data.description).toBe('Site description')
+    })
+
+    it('reads the id and inline fields from a custom id field name', async () => {
+      mockSql
+        .mockResolvedValueOnce([imageFixture]) // fetchImagesByIds
+        .mockResolvedValueOnce([imageFixture]) // UPDATE ... RETURNING *
+
+      const data: Record<string, unknown> = {
+        heroImageId: imageFixture.id,
+        'heroImage.url': imageFixture.url,
+        'heroImage.aspect': 1.5,
+        'heroImage.caption': 'Edited caption'
+      }
+
+      const id = await resolveCoverImageId(data, 'heroImageId')
+
+      expect(id).toBe(imageFixture.id)
+      expect(mockSql).toHaveBeenCalledTimes(2)
+      expect(data).not.toHaveProperty(['heroImage.url'])
     })
 
     it('returns undefined when neither a coverImageId nor a file is submitted', async () => {

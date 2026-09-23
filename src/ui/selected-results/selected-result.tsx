@@ -1,5 +1,6 @@
+import { itemIdFieldName } from '@/lib/item-fields'
 import type { EmbeddedItemType, PagePath } from '@/lib/schemas'
-import { itemTypeSingulars, itemTypeToLabel } from '@/lib/schemas'
+import { itemTypeToLabel } from '@/lib/schemas'
 import { Input } from '@/ui/form/input'
 import styles from '@/ui/selected-results/selected-results.module.scss'
 
@@ -32,7 +33,7 @@ export const SelectedResult = ({
   children
 }: SelectedResultProps) => {
   const formattedIdLabel = `${itemTypeToLabel(itemType, true)} ID`
-  const fieldName = name ?? `${itemTypeSingulars[itemType]}Id`
+  const fieldName = itemIdFieldName(itemType, name)
 
   return (
     <Component className={styles['selected-result']}>

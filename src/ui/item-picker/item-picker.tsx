@@ -6,8 +6,14 @@ import { useEffect, useRef, useState } from 'react'
 import type { z } from 'zod'
 
 import {
+  emptyListFieldName,
+  featuredFlagFieldName,
+  indexedItemFieldPrefix,
+  itemFieldPrefix,
+  itemIdFieldName
+} from '@/lib/item-fields'
+import {
   type EmbeddedItemType,
-  itemTypeSingulars,
   itemTypeToLabel,
   type PagePath
 } from '@/lib/schemas'
@@ -130,7 +136,11 @@ export type ItemPickerProps<
 > = ItemPickerSharedProps<TEmbeddedItem, TPage, S> &
   (
     | { isMulti?: false; existingItem?: TEmbeddedItem | TPage }
-    | { isMulti: true; existingItems?: (TEmbeddedItem | TPage)[] }
+    | {
+        isMulti: true
+        name: string
+        existingItems?: (TEmbeddedItem | TPage)[]
+      }
   )
 
 type Slot<TEmbeddedItem, TPage> =
@@ -245,6 +255,8 @@ export function ItemPicker<
     schema,
     renderNewItemSummary
   } = props
+
+  const singleIdFieldName = itemIdFieldName(itemType, name)
 
   // Search-first types default to the search input rather than a blank
   // create form because their first field is free text (`venue.name`,
@@ -564,14 +576,15 @@ export function ItemPicker<
   /**
    * The prefix a "new" slot's fields are rendered with, provided to the
    * slot's edit form and stripped when reading it back:
-   * `${name}[${index}].` for `isMulti`, the item type's singular
-   * (`venue.`) for a single item — matching how `extractIndexedGroups`
-   * and the `resolve*Id` helpers strip the same prefix server-side from
-   * the real submission.
+   * `${name}[${index}].` for `isMulti`, the single id field's name
+   * without its `Id` suffix (`venue.`, `coverImage.`) for a single
+   * item — matching how `extractIndexedGroups` and the `resolve*Id`
+   * helpers strip the same prefix server-side from the real
+   * submission.
    */
   function slotFieldPrefix(submitIndex: number): string {
-    if (isMulti) return `${name}[${submitIndex}].`
-    return `${itemTypeSingulars[itemType]}.`
+    if (isMulti) return indexedItemFieldPrefix(name, submitIndex)
+    return itemFieldPrefix(singleIdFieldName)
   }
 
   /**
@@ -965,8 +978,8 @@ export function ItemPicker<
     submitIndex: number
   ) {
     const idInputName = isMulti
-      ? name && `${name}[${submitIndex}].id`
-      : (name ?? `${itemTypeSingulars[itemType]}Id`)
+      ? `${indexedItemFieldPrefix(name, submitIndex)}id`
+      : singleIdFieldName
     return (
       <fieldset
         hidden={slot.saved}
@@ -1120,7 +1133,11 @@ export function ItemPicker<
             )}
             <SelectedResult
               itemType={itemType}
-              name={isMulti ? `${name}[${index}].id` : name}
+              name={
+                isMulti
+                  ? `${indexedItemFieldPrefix(name, index)}id`
+                  : singleIdFieldName
+              }
               id={slot.item.id}
               dragHandle={dragHandle}
             >
@@ -1193,13 +1210,18 @@ export function ItemPicker<
       }`}
       ref={rootRef}
     >
-      {isMulti && name && (
-        <input name={`${name}[]`} type='hidden' value='' readOnly />
+      {isMulti && (
+        <input
+          name={emptyListFieldName(name)}
+          type='hidden'
+          value=''
+          readOnly
+        />
       )}
 
-      {featuredSlot && name && (
+      {isMulti && featuredSlot && (
         <input
-          name={`${name}Featured`}
+          name={featuredFlagFieldName(name)}
           type='hidden'
           value='true'
           readOnly

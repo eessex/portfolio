@@ -1,12 +1,16 @@
 import type { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth/guard'
+import { itemFieldPrefix } from '@/lib/item-fields'
 import type { ItemType } from '@/lib/schemas'
 import { itemTypeToLabel } from '@/lib/schemas'
 import type { FormResponse, FormState } from '@/lib/types'
 import {
+  extractIndexedGroups,
+  extractPrefixedGroup,
   formatErrorResponse,
   formatValidationResponse,
+  isBlankEntry,
   normalizeFormData
 } from '@/lib/util'
 
@@ -135,6 +139,75 @@ export async function saveItemFromFields<S extends z.ZodTypeAny, T>({
     )
   }
   return id ? update(parsed.data, id) : create(parsed.data)
+}
+
+/**
+ * Saves one picker slot's submitted fields, creating or updating as
+ * the entry's kind requires.
+ */
+type SaveFromFields<T extends { id: string }> = (
+  fields: Record<string, unknown>,
+  id?: string
+) => Promise<T>
+
+/**
+ * Resolves a single-item picker's submission into an item id: an
+ * untouched selection passes its id through, an inline edit UPDATEs,
+ * a pending creation INSERTs, and an untouched blank create form
+ * resolves to `undefined`. Mutates `data`, removing the slot's fields
+ * so they don't reach the parent form's own schema validation.
+ *
+ * Both the id field it reads and the prefix it strips come from
+ * `idFieldName` (`coverImageId` -> `coverImage.`), the same pair
+ * `ItemPicker` renders from — see `@/lib/item-fields`.
+ */
+export async function resolveItemId<T extends { id: string }>(
+  data: Record<string, unknown>,
+  idFieldName: string,
+  save: SaveFromFields<T>
+): Promise<string | undefined> {
+  const entry = extractPrefixedGroup(
+    data,
+    itemFieldPrefix(idFieldName),
+    idFieldName
+  )
+  if (!entry) return undefined
+  if (entry.kind === 'existing') return entry.id
+  if (entry.kind === 'edited') {
+    const item = await save(entry.fields, entry.id)
+    return item.id
+  }
+  // an opened-but-untouched create form submits blank fields
+  if (isBlankEntry(entry.fields)) return undefined
+  const item = await save(entry.fields)
+  return item.id
+}
+
+/**
+ * Resolves a reorderable multi picker's submitted entries (a mix of
+ * existing selections, inline edits of attached items, and pending
+ * inline creations, in the user's chosen order — see
+ * `extractIndexedGroups`) into an ordered list of ids. Untouched blank
+ * create forms are dropped rather than saved.
+ */
+export async function resolveOrderedIds<T extends { id: string }>(
+  data: Record<string, unknown>,
+  name: string,
+  save: SaveFromFields<T>
+): Promise<string[]> {
+  const entries = extractIndexedGroups(data, name).filter(
+    (entry) => entry.kind !== 'new' || !isBlankEntry(entry.fields)
+  )
+  return Promise.all(
+    entries.map((entry) =>
+      entry.kind === 'existing'
+        ? entry.id
+        : save(
+            entry.fields,
+            entry.kind === 'edited' ? entry.id : undefined
+          ).then((item) => item.id)
+    )
+  )
 }
 
 interface RunDeleteActionOptions<T> {

@@ -23,12 +23,19 @@ async function prepareEventData(
   data: Record<string, unknown>,
   id?: string
 ) {
-  const { coverImageId, imageIds } =
-    await resolveOrderedImageIds(data)
-  const { linkIds } = await resolveOrderedLinkIds(data)
-  const { embedCodeIds, featuredEmbedCodeId } =
-    await resolveOrderedEmbedCodeIds(data)
-  const venueId = await resolveVenueId(data)
+  const [
+    { coverImageId, imageIds },
+    { linkIds },
+    { embedCodeIds, featuredEmbedCodeId },
+    venueId,
+    slug
+  ] = await Promise.all([
+    resolveOrderedImageIds(data),
+    resolveOrderedLinkIds(data),
+    resolveOrderedEmbedCodeIds(data),
+    resolveVenueId(data),
+    generateUniqueSlug(String(data.title || ''), 'events', id)
+  ])
   const timeZone = await resolveVenueTimeZone(venueId)
 
   return {
@@ -42,11 +49,7 @@ async function prepareEventData(
     startTime: toEventInstant(data.startTime, timeZone),
     endTime: toEventInstant(data.endTime, timeZone),
     path: 'events',
-    slug: await generateUniqueSlug(
-      String(data.title || ''),
-      'events',
-      id
-    )
+    slug
   }
 }
 

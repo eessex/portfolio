@@ -60,6 +60,7 @@ export const EditPublishedEdition = ({
 
       <ItemPicker<Publisher>
         itemType='publishers'
+        isSearchFirst
         isRequired
         existingItem={publishedEdition?.publisher}
         renderExistingResult={formatPublisherResult}

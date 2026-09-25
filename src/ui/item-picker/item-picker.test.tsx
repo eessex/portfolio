@@ -81,6 +81,15 @@ describe('ItemPicker', () => {
       )
     }
 
+    function renderMultiPicker(props = {}) {
+      return renderComponent({
+        isSearchFirst: true,
+        isMulti: true,
+        name: 'venueIds',
+        ...props
+      })
+    }
+
     beforeEach(() => {
       jest.clearAllMocks()
       const actual = jest.requireActual('@/ui/useResultsList')
@@ -121,8 +130,8 @@ describe('ItemPicker', () => {
         ).toBeInTheDocument()
       })
 
-      it('opens a search-first itemType in search mode', () => {
-        renderComponent()
+      it('opens in search mode when isSearchFirst', () => {
+        renderComponent({ isSearchFirst: true })
 
         expect(screen.getByRole('combobox')).toBeInTheDocument()
         expect(
@@ -171,6 +180,7 @@ describe('ItemPicker', () => {
       it('allows selecting an item from the combobox', async () => {
         const user = userEvent.setup()
         renderComponent({
+          isSearchFirst: true,
           initialResults: {
             res: [venueFixtureAlpha],
             nextCursor: null,
@@ -185,7 +195,6 @@ describe('ItemPicker', () => {
             />
           )
         })
-        // `venues` is search-first, so the combobox is shown on load.
         const input = screen.getByRole('combobox')
         await user.type(input, 'Test')
         await user.click(screen.getByText('Test Venue Texas'))
@@ -305,8 +314,7 @@ describe('ItemPicker', () => {
 
     describe('isMulti', () => {
       it('defaults the list field name to itemType', () => {
-        renderComponent({
-          isMulti: true,
+        renderMultiPicker({
           name: undefined,
           existingItems: [venueFixtureAlpha]
         })
@@ -321,7 +329,9 @@ describe('ItemPicker', () => {
       })
 
       it('defaults the label to the plural item type', () => {
-        renderComponent({ isMulti: true, name: undefined })
+        renderMultiPicker({
+          name: undefined
+        })
 
         expect(
           screen.getByRole('combobox', { name: /^Venues/ })
@@ -329,9 +339,7 @@ describe('ItemPicker', () => {
       })
 
       it('renders existing items as indexed chips and keeps the combobox visible', () => {
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        renderMultiPicker({
           existingItems: [venueFixtureAlpha, venueFixtureBeta]
         })
 
@@ -351,7 +359,7 @@ describe('ItemPicker', () => {
       })
 
       it('renders an always-present empty marker input', () => {
-        renderComponent({ isMulti: true, name: 'venueIds' })
+        renderMultiPicker()
 
         const marker = document.querySelector(
           'input[name="venueIds[]"]'
@@ -362,9 +370,7 @@ describe('ItemPicker', () => {
 
       it('prepends a search selection instead of replacing or appending', async () => {
         const user = userEvent.setup()
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        renderMultiPicker({
           existingItems: [venueFixtureAlpha],
           initialResults: {
             res: [venueFixtureBeta],
@@ -391,9 +397,7 @@ describe('ItemPicker', () => {
 
       it('removes only the targeted item, keeping the rest and their indices', async () => {
         const user = userEvent.setup()
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        renderMultiPicker({
           existingItems: [venueFixtureAlpha, venueFixtureBeta]
         })
 
@@ -415,9 +419,7 @@ describe('ItemPicker', () => {
 
       it('renders the create-new form inline at the front without submitting', async () => {
         const user = userEvent.setup()
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        renderMultiPicker({
           existingItems: [venueFixtureAlpha],
           renderEditItemForm: ({
             query
@@ -450,9 +452,7 @@ describe('ItemPicker', () => {
       })
 
       it('does not render drag/move controls with 0 or 1 items', () => {
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        renderMultiPicker({
           existingItems: [venueFixtureAlpha]
         })
 
@@ -463,9 +463,7 @@ describe('ItemPicker', () => {
 
       it('is reorderable once there are 2+ items, updating indexed names', async () => {
         const user = userEvent.setup()
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        renderMultiPicker({
           existingItems: [venueFixtureAlpha, venueFixtureBeta]
         })
 
@@ -491,9 +489,7 @@ describe('ItemPicker', () => {
 
       it('excludes an in-progress new entry from the sortable drag set, keeping existing items reorderable', async () => {
         const user = userEvent.setup()
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        renderMultiPicker({
           existingItems: [venueFixtureAlpha, venueFixtureBeta]
         })
 
@@ -629,10 +625,8 @@ describe('ItemPicker', () => {
         ).toHaveLength(1)
       })
 
-      it('keeps search as the default for search-first types (venues, publishers)', () => {
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+      it('keeps search as the default when isSearchFirst', () => {
+        renderMultiPicker({
           existingItems: [venueFixtureAlpha]
         })
 
@@ -648,8 +642,6 @@ describe('ItemPicker', () => {
 
     describe('editing an existing item', () => {
       const editableProps = {
-        isMulti: true as const,
-        name: 'venueIds',
         existingItems: [venueFixtureAlpha],
         renderEditItemForm: ({
           existingItem
@@ -664,7 +656,7 @@ describe('ItemPicker', () => {
 
       it('opens the edit form seeded with the existing item on Edit', async () => {
         const user = userEvent.setup()
-        renderComponent(editableProps)
+        renderMultiPicker(editableProps)
 
         await user.click(
           screen.getByRole('button', { name: /^edit$/i })
@@ -682,7 +674,7 @@ describe('ItemPicker', () => {
 
       it('submits the id alongside the edited fields after Save', async () => {
         const user = userEvent.setup()
-        renderComponent(editableProps)
+        renderMultiPicker(editableProps)
 
         await user.click(
           screen.getByRole('button', { name: /^edit$/i })
@@ -706,7 +698,7 @@ describe('ItemPicker', () => {
 
       it('Cancel reverts to the read-only chip, dropping the id input', async () => {
         const user = userEvent.setup()
-        renderComponent(editableProps)
+        renderMultiPicker(editableProps)
 
         await user.click(
           screen.getByRole('button', { name: /^edit$/i })
@@ -729,7 +721,7 @@ describe('ItemPicker', () => {
 
       it('hides the search input while editing, restoring it on Save', async () => {
         const user = userEvent.setup()
-        renderComponent(editableProps)
+        renderMultiPicker(editableProps)
 
         expect(screen.getByRole('combobox')).toBeInTheDocument()
         await user.click(
@@ -751,7 +743,7 @@ describe('ItemPicker', () => {
 
       it('restores the search input on Cancel from an edit', async () => {
         const user = userEvent.setup()
-        renderComponent(editableProps)
+        renderMultiPicker(editableProps)
 
         await user.click(
           screen.getByRole('button', { name: /^edit$/i })
@@ -866,9 +858,7 @@ describe('ItemPicker', () => {
 
     describe('slim mode (search/create never coexist)', () => {
       function renderVenuePicker(props = {}) {
-        return renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        return renderMultiPicker({
           existingItems: [venueFixtureAlpha],
           renderEditItemForm: () => (
             <div>
@@ -1207,7 +1197,7 @@ describe('ItemPicker', () => {
 
       it('shows the actions row for a search-first form (all fields at once)', async () => {
         const user = userEvent.setup()
-        renderComponent()
+        renderComponent({ isSearchFirst: true })
 
         await user.click(
           screen.getByRole('button', { name: /new venue/i })
@@ -1221,9 +1211,7 @@ describe('ItemPicker', () => {
 
       it('shows the actions row, with Cancel, when editing an existing item', async () => {
         const user = userEvent.setup()
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        renderMultiPicker({
           existingItems: [venueFixtureAlpha],
           renderEditItemForm: ({
             existingItem
@@ -1345,10 +1333,10 @@ describe('ItemPicker', () => {
     describe('entry name prefix', () => {
       function renderPrefixPicker(props = {}) {
         renderComponent({
+          isSearchFirst: true,
           renderEditItemForm: () => <PrefixLabel />,
           ...props
         })
-        // Venues are search-first, so the form only mounts on New.
         fireEvent.click(
           screen.getByRole('button', { name: /new venue/i })
         )
@@ -1462,9 +1450,7 @@ describe('ItemPicker', () => {
 
     describe('featured toggle', () => {
       it('renders no featured flag and a "Set as Featured" button on every item when nothing is featured initially', () => {
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        renderMultiPicker({
           existingItems: [venueFixtureAlpha, venueFixtureBeta],
           featured: { isInitiallyFeatured: false, label: 'Featured' }
         })
@@ -1478,9 +1464,7 @@ describe('ItemPicker', () => {
       })
 
       it('pins the initially-featured item first, excludes it from drag, and submits the flag', () => {
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        renderMultiPicker({
           existingItems: [
             venueFixtureAlpha,
             venueFixtureBeta,
@@ -1512,9 +1496,7 @@ describe('ItemPicker', () => {
 
       it('promotes a non-featured item to the pinned front entry', async () => {
         const user = userEvent.setup()
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        renderMultiPicker({
           existingItems: [venueFixtureAlpha, venueFixtureBeta],
           featured: { isInitiallyFeatured: false, label: 'Featured' }
         })
@@ -1537,9 +1519,7 @@ describe('ItemPicker', () => {
 
       it('unsets the featured item without removing it from the list', async () => {
         const user = userEvent.setup()
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        renderMultiPicker({
           existingItems: [venueFixtureAlpha, venueFixtureBeta],
           featured: { isInitiallyFeatured: true, label: 'Featured' }
         })
@@ -1564,9 +1544,7 @@ describe('ItemPicker', () => {
 
       it('keeps the create form open (search hidden) when an existing chip is set featured', async () => {
         const user = userEvent.setup()
-        renderComponent({
-          isMulti: true,
-          name: 'venueIds',
+        renderMultiPicker({
           existingItems: [venueFixtureAlpha],
           featured: { isInitiallyFeatured: false, label: 'Featured' }
         })

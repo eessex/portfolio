@@ -77,6 +77,7 @@ function EventFormFields({ event }: { event?: EventClient }) {
       </div>
       <ItemPicker<Venue>
         itemType='venues'
+        isSearchFirst
         isRequired
         existingItem={event?.venue}
         renderExistingResult={formatVenueResult}

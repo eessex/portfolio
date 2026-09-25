@@ -228,7 +228,7 @@ export function extractIndexedGroups(
 
 /**
  * The single-item counterpart of `extractIndexedGroups`: pulls one
- * picker slot's fields (`${prefix}field`, e.g. `venue.city`) out of a
+ * picker entry's fields (`${prefix}field`, e.g. `venue.city`) out of a
  * flat form-data object and classifies it the same way.
  *
  * An id alongside fields is an inline edit, an id alone an untouched

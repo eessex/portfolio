@@ -101,7 +101,7 @@ export async function saveEmbedCodeFromFields(
  *
  * Unlike a cover image, a featured embed code is never inferred from
  * position alone: the picker only submits its `featuredFlagFieldName`
- * flag while a slot is explicitly pinned as featured, so a project
+ * flag while an entry is explicitly pinned as featured, so a project
  * with no featured embed code chosen gets `featuredEmbedCodeId:
  * undefined` even though it has embed codes.
  */

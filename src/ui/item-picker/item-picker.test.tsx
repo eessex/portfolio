@@ -33,7 +33,7 @@ import { useResultsList } from '@/ui/useResultsList'
 jest.mock('@/ui/useResultsList')
 
 /**
- * A slot's edit form reads its namespace from context, so these stand
+ * An entry's edit form reads its namespace from context, so these stand
  * in for the real domain forms (hooks can't run in the
  * `renderEditItemForm` callback itself — only in what it renders).
  */
@@ -489,7 +489,7 @@ describe('ItemPicker', () => {
         ).toHaveAttribute('name', 'venueIds[1].id')
       })
 
-      it('excludes an in-progress new slot from the sortable drag set, keeping existing items reorderable', async () => {
+      it('excludes an in-progress new entry from the sortable drag set, keeping existing items reorderable', async () => {
         const user = userEvent.setup()
         renderComponent({
           isMulti: true,
@@ -503,7 +503,7 @@ describe('ItemPicker', () => {
 
         expect(screen.getByText('New Venue Form')).toBeInTheDocument()
         // Only the two existing items are drag-reorderable — the
-        // new, unsaved slot has no drag handle of its own.
+        // new, unsaved entry has no drag handle of its own.
         expect(
           screen.getAllByRole('button', { name: 'Drag to reorder' })
         ).toHaveLength(2)
@@ -1276,7 +1276,7 @@ describe('ItemPicker', () => {
         })
       }
 
-      it('blocks Save and shows the Zod error when the slot fails schema validation the browser would not catch', async () => {
+      it('blocks Save and shows the Zod error when the entry fails schema validation the browser would not catch', async () => {
         const user = userEvent.setup()
         renderLinkPicker()
 
@@ -1342,7 +1342,7 @@ describe('ItemPicker', () => {
       })
     })
 
-    describe('slot name prefix', () => {
+    describe('entry name prefix', () => {
       function renderPrefixPicker(props = {}) {
         renderComponent({
           renderEditItemForm: () => <PrefixLabel />,
@@ -1510,7 +1510,7 @@ describe('ItemPicker', () => {
         ).toHaveLength(2)
       })
 
-      it('promotes a non-featured item to the pinned front slot', async () => {
+      it('promotes a non-featured item to the pinned front entry', async () => {
         const user = userEvent.setup()
         renderComponent({
           isMulti: true,

@@ -304,6 +304,30 @@ describe('ItemPicker', () => {
     })
 
     describe('isMulti', () => {
+      it('defaults the list field name to itemType', () => {
+        renderComponent({
+          isMulti: true,
+          name: undefined,
+          existingItems: [venueFixtureAlpha]
+        })
+
+        expect(screen.getByDisplayValue(/b3b8c8e2/)).toHaveAttribute(
+          'name',
+          'venues[0].id'
+        )
+        expect(
+          document.querySelector('input[name="venues[]"]')
+        ).toBeInTheDocument()
+      })
+
+      it('defaults the label to the plural item type', () => {
+        renderComponent({ isMulti: true, name: undefined })
+
+        expect(
+          screen.getByRole('combobox', { name: /^Venues/ })
+        ).toBeInTheDocument()
+      })
+
       it('renders existing items as indexed chips and keeps the combobox visible', () => {
         renderComponent({
           isMulti: true,

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { camelToSentence } from '@/lib/strings'
+import { camelToSentence, capitalizeFirstLetter } from '@/lib/strings'
 
 /**
  * Types of pages that can have paths
@@ -114,7 +114,7 @@ export function singularizePath(path: ItemType | ItemTypeSingular) {
 
 /**
  * Human-readable label for an item type, e.g. `publishedEditions` →
- * 'Published Editions', or 'published edition' with `isSingular` and
+ * 'Published editions', or 'published edition' with `isSingular` and
  * `isDownCased`. Used for UI headings/placeholders and server-action
  * response messages. Singularizes before formatting so the
  * `itemTypeSingulars` mapping (keyed by camelCase name) applies.
@@ -124,11 +124,8 @@ export function itemTypeToLabel(
   isSingular = false,
   isDownCased = false
 ) {
-  let formatted = camelToSentence(
+  const formatted = camelToSentence(
     isSingular ? singularizePath(itemType) : itemType
-  )
-  if (isDownCased) {
-    formatted = formatted.toLowerCase()
-  }
-  return formatted
+  ).toLowerCase()
+  return isDownCased ? formatted : capitalizeFirstLetter(formatted)
 }

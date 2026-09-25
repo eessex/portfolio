@@ -1,9 +1,5 @@
 import type { z } from 'zod'
 
-import {
-  type Image,
-  imageClientFieldsSchema
-} from '@/lib/images/schemas/db'
 import type { Link } from '@/lib/links/schemas/db'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { createPublishedEditionSchema } from '@/lib/published-editions/schemas/db'
@@ -19,11 +15,7 @@ import type {
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
-import { EditImage } from '@/ui/images/edit-image-form'
-import {
-  formatImageResult,
-  formatNewImageSummary
-} from '@/ui/images/format-image-result'
+import { ImagesPicker } from '@/ui/images/images-picker'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { formatLinkResult } from '@/ui/links/format-link-result'
 import { EditPublisher } from '@/ui/publishers/edit-publisher-form'
@@ -42,11 +34,6 @@ export const EditPublishedEdition = ({
   errors,
   publishedEdition
 }: EditPublishedEditionProps) => {
-  const images = [
-    publishedEdition?.coverImage,
-    ...(publishedEdition?.images ?? [])
-  ].filter((image): image is Image => !!image)
-
   return (
     <>
       <ItemPicker<never, ReleaseClient, FetchReleasesResult>
@@ -119,27 +106,9 @@ export const EditPublishedEdition = ({
         />
       </div>
 
-      <ItemPicker<Image>
-        isMulti
-        name='images'
-        itemType='images'
-        label='Images'
-        existingItems={images}
-        renderExistingResult={formatImageResult}
-        renderNewItemSummary={formatNewImageSummary}
-        schema={imageClientFieldsSchema}
-        renderEditItemForm={({
-          errors,
-          isRequired,
-          existingItem
-        }) => (
-          <EditImage
-            image={existingItem}
-            errors={errors}
-            isPressFieldsetHidden
-            isRequired={isRequired}
-          />
-        )}
+      <ImagesPicker
+        coverImage={publishedEdition?.coverImage}
+        images={publishedEdition?.images}
       />
 
       <ItemPicker<Link>

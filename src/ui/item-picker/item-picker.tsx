@@ -74,10 +74,10 @@ type ItemPickerSharedProps<
   itemType: EmbeddedItemType | PagePath
   /**
    * Form field name for the hidden id input(s). Defaults to
-   * `${singular(itemType)}Id`; pass explicitly for specific-purpose
-   * relations (e.g. `coverImageId` for an `images` item), or as the
-   * array field name when `isMulti` (e.g. `images`, rendering hidden
-   * inputs named `images[0].id`, `images[1].id`, ...).
+   * `${singular(itemType)}Id`, or to `itemType` itself as the array
+   * field name when `isMulti` (`images` renders `images[0].id`, ...);
+   * pass explicitly for specific-purpose relations (e.g. `coverImageId`
+   * for an `images` item).
    */
   name?: string
   /**
@@ -138,7 +138,6 @@ export type ItemPickerProps<
     | { isMulti?: false; existingItem?: TEmbeddedItem | TPage }
     | {
         isMulti: true
-        name: string
         existingItems?: (TEmbeddedItem | TPage)[]
       }
   )
@@ -257,6 +256,7 @@ export function ItemPicker<
   } = props
 
   const singleIdFieldName = itemIdFieldName(itemType, name)
+  const listFieldName = name ?? itemType
 
   // Search-first types default to the search input rather than a blank
   // create form because their first field is free text (`venue.name`,
@@ -583,7 +583,8 @@ export function ItemPicker<
    * submission.
    */
   function slotFieldPrefix(submitIndex: number): string {
-    if (isMulti) return indexedItemFieldPrefix(name, submitIndex)
+    if (isMulti)
+      return indexedItemFieldPrefix(listFieldName, submitIndex)
     return itemFieldPrefix(singleIdFieldName)
   }
 
@@ -978,7 +979,7 @@ export function ItemPicker<
     submitIndex: number
   ) {
     const idInputName = isMulti
-      ? `${indexedItemFieldPrefix(name, submitIndex)}id`
+      ? `${indexedItemFieldPrefix(listFieldName, submitIndex)}id`
       : singleIdFieldName
     return (
       <fieldset
@@ -1135,7 +1136,7 @@ export function ItemPicker<
               itemType={itemType}
               name={
                 isMulti
-                  ? `${indexedItemFieldPrefix(name, index)}id`
+                  ? `${indexedItemFieldPrefix(listFieldName, index)}id`
                   : singleIdFieldName
               }
               id={slot.item.id}
@@ -1212,7 +1213,7 @@ export function ItemPicker<
     >
       {isMulti && (
         <input
-          name={emptyListFieldName(name)}
+          name={emptyListFieldName(listFieldName)}
           type='hidden'
           value=''
           readOnly
@@ -1221,7 +1222,7 @@ export function ItemPicker<
 
       {isMulti && featuredSlot && (
         <input
-          name={featuredFlagFieldName(name)}
+          name={featuredFlagFieldName(listFieldName)}
           type='hidden'
           value='true'
           readOnly
@@ -1230,7 +1231,7 @@ export function ItemPicker<
 
       {showCombobox && (
         <Combobox<TEmbeddedItem, TPage, S>
-          label={label}
+          label={label || itemTypeToLabel(itemType, !isMulti)}
           description={description}
           isRequired={isRequired}
           initialResults={initialResults}

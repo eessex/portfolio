@@ -3,7 +3,7 @@
 import { createContext, useContext } from 'react'
 
 /**
- * The namespace an edit form's field names render under. A picker slot
+ * The namespace an edit form's field names render under. A picker entry
  * provides it so the form doesn't have to be told: `isMulti` indexes
  * under the array name (`images[0].`), a single item namespaces under
  * its id field (`venueId` -> `venue.`) — both derived in

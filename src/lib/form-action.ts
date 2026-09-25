@@ -142,7 +142,7 @@ export async function saveItemFromFields<S extends z.ZodTypeAny, T>({
 }
 
 /**
- * Saves one picker slot's submitted fields, creating or updating as
+ * Saves one picker entry's submitted fields, creating or updating as
  * the entry's kind requires.
  */
 type SaveFromFields<T extends { id: string }> = (
@@ -154,7 +154,7 @@ type SaveFromFields<T extends { id: string }> = (
  * Resolves a single-item picker's submission into an item id: an
  * untouched selection passes its id through, an inline edit UPDATEs,
  * a pending creation INSERTs, and an untouched blank create form
- * resolves to `undefined`. Mutates `data`, removing the slot's fields
+ * resolves to `undefined`. Mutates `data`, removing the entry's fields
  * so they don't reach the parent form's own schema validation.
  *
  * Both the id field it reads and the prefix it strips come from

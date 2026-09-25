@@ -2,6 +2,7 @@
 
 import { StarIcon } from '@heroicons/react/24/outline'
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid'
+import clsx from 'clsx'
 import { useEffect, useRef, useState } from 'react'
 import type { z } from 'zod'
 
@@ -27,14 +28,25 @@ import { Combobox } from '@/ui/combobox/combobox'
 import { SortableList } from '@/ui/drag-and-drop/sortable-list'
 import { InputLabel } from '@/ui/form/input-label'
 import itemPickerStyles from '@/ui/item-picker/item-picker.module.scss'
+import {
+  entryId,
+  type ExpandedEntry,
+  isEntryExpanded,
+  type ItemPickerEntry,
+  newEntrySeq
+} from '@/ui/item-picker/item-picker-entry'
 import { NamePrefixProvider } from '@/ui/item-picker/name-prefix'
+import {
+  collectEntryData,
+  type FieldErrors,
+  findFileInput,
+  useEntryValidation
+} from '@/ui/item-picker/use-entry-validation'
 import { ItemResultLabel } from '@/ui/item-result-label'
 import { SelectedResult } from '@/ui/selected-results/selected-result'
 import selectedResultStyles from '@/ui/selected-results/selected-results.module.scss'
 import type { ResultsResponse } from '@/ui/useResultsList'
 import type { SearchParams } from '@/ui/util'
-
-type FieldErrors = Record<string, string[] | undefined>
 
 /** Named args passed to a picker's `renderEditItemForm` callback. */
 export type RenderEditItemFormArgs<
@@ -148,76 +160,6 @@ export type ItemPickerProps<
       }
   )
 
-type ItemPickerEntry<TEmbeddedItem, TPage> =
-  | { kind: 'existing'; item: TEmbeddedItem | TPage }
-  | {
-      kind: 'new'
-      query?: string
-      tempId: string
-      /** Set once the entry's Save action has validated it — the
-       * fieldset stays mounted but collapses into a chip. */
-      saved?: boolean
-      /**
-       * Set once the user edits any field in the entry's fieldset.
-       */
-      touched?: boolean
-      /** Object URL for the entry's picked file, created on Save and
-       * revoked on Edit/remove. */
-      previewUrl?: string
-      /**
-       * Snapshot of the fieldset's collected + normalized values,
-       * taken on Save for the collapsed chip to render from — reading
-       * the live fieldset via ref during render isn't allowed, and the
-       * fieldset is hidden (non-interactive) anyway while saved.
-       */
-      summaryData?: Record<string, unknown>
-    }
-  | {
-      /**
-       * An existing item opened for inline editing — reuses the whole
-       * `new`-entry fieldset/collapse lifecycle (hence the shared
-       * `tempId`/`saved`/`touched`/`previewUrl`/`summaryData` fields),
-       * but carries the source `item` so it can seed the edit form and
-       * submit a hidden `id` alongside its edited fields (server sees id
-       * + fields → an `edited` entry that UPDATEs rather than creates).
-       */
-      kind: 'editing'
-      item: TEmbeddedItem | TPage
-      tempId: string
-      saved?: boolean
-      touched?: boolean
-      previewUrl?: string
-      summaryData?: Record<string, unknown>
-    }
-
-/** An entry with a mounted edit fieldset: a new item or an edited existing one. */
-type ExpandedEntry<TEmbeddedItem, TPage> = Extract<
-  ItemPickerEntry<TEmbeddedItem, TPage>,
-  { kind: 'new' | 'editing' }
->
-
-function isEntryExpanded<TEmbeddedItem, TPage>(
-  entry: ItemPickerEntry<TEmbeddedItem, TPage>
-): entry is ExpandedEntry<TEmbeddedItem, TPage> {
-  return entry.kind === 'new' || entry.kind === 'editing'
-}
-
-function entryId(entry: ItemPickerEntry<unknown, unknown>): string {
-  return entry.kind === 'existing' || entry.kind === 'editing'
-    ? (entry.item as { id: string }).id
-    : entry.tempId
-}
-
-/**
- * A "new" entry's creation order, parsed from its `tempId` (`new-0`,
- * `new-1`, ... as `addNew` mints them). Used to render fieldsets in a
- * fixed order that never changes as chips reorder, so an entry's file
- * input is never remounted.
- */
-function newEntrySeq(entry: { tempId: string }): number {
-  return Number(entry.tempId.replace('new-', ''))
-}
-
 /**
  * Search for and select an existing item — an embedded item (image,
  * link, venue, etc.) or a page item (event, project, release) — to
@@ -305,9 +247,15 @@ export function ItemPicker<
     featured?.isInitiallyFeatured ?? false
   )
   const [isMainFieldReady, setIsMainFieldReady] = useState(false)
-  const [newEntryErrors, setNewEntryErrors] = useState<
-    Record<string, FieldErrors>
-  >({})
+  const {
+    newEntryErrors,
+    clearErrors,
+    validateNewEntry,
+    validateEntryStrict,
+    isEntryComplete,
+    setFieldsetRef,
+    getFieldset
+  } = useEntryValidation({ schema, fieldPrefix: entryFieldPrefix })
   // Per-draft-entry flag, keyed by tempId: true while the entry's edit form
   // has async work in flight (see `renderEditItemForm`'s `onBusyChange`).
   const [busyEntries, setBusyEntries] = useState<
@@ -320,9 +268,6 @@ export function ItemPicker<
   const [editRequest, setEditRequest] = useState<{
     id: string
   } | null>(null)
-  const newEntryFieldsets = useRef(
-    new Map<string, HTMLFieldSetElement>()
-  )
   // Collapsed-chip DOM nodes, so we can move focus into a chip after
   // its editor collapses via Save (see `pendingChipFocusTempId`).
   const newEntryChips = useRef(new Map<string, HTMLDivElement>())
@@ -375,13 +320,13 @@ export function ItemPicker<
   // chips share ONE sortable list (`sortableEntries`); only open editors
   // (`openNewEntries`) stay fixed, ahead of it.
   const openNewEntries = newRestEntries.filter(
-    (entry) => !entry.saved
+    (entry) => !entry.isSaved
   )
   const stableNewEntries = [...newRestEntries].sort(
     (a, b) => newEntrySeq(a) - newEntrySeq(b)
   )
   const sortableEntries = restEntries.filter(
-    (entry) => entry.kind === 'existing' || entry.saved
+    (entry) => entry.kind === 'existing' || entry.isSaved
   )
   // An entry's submit/action index is its position in the canonical rest
   // order — open editors first, then the sortable chips — offset past
@@ -414,7 +359,7 @@ export function ItemPicker<
       if (index === -1) return current
       const removed = current[index]
       if (isEntryExpanded(removed)) {
-        setNewEntryErrors(({ [removed.tempId]: _, ...rest }) => rest)
+        clearErrors(removed.tempId)
         setBusyEntries(({ [removed.tempId]: _, ...rest }) => rest)
         if (removed.previewUrl)
           URL.revokeObjectURL(removed.previewUrl)
@@ -450,7 +395,7 @@ export function ItemPicker<
   ) {
     if (entry.kind !== 'editing') return
     if (entry.previewUrl) URL.revokeObjectURL(entry.previewUrl)
-    setNewEntryErrors(({ [entry.tempId]: _, ...rest }) => rest)
+    clearErrors(entry.tempId)
     setEntries((current) =>
       current.map((s) =>
         entryId(s) === entryId(entry)
@@ -466,14 +411,6 @@ export function ItemPicker<
       insertEntry(current, { kind: 'new', query, tempId })
     )
     return tempId
-  }
-
-  function setNewEntryFieldsetRef(
-    tempId: string,
-    el: HTMLFieldSetElement | null
-  ) {
-    if (el) newEntryFieldsets.current.set(tempId, el)
-    else newEntryFieldsets.current.delete(tempId)
   }
 
   function setNewEntryChipRef(
@@ -503,7 +440,9 @@ export function ItemPicker<
     // form is open at once (create mode re-seeds on editor close).
     setEntries((current) =>
       current
-        .filter((s) => !(s.kind === 'new' && !s.saved && !s.touched))
+        .filter(
+          (s) => !(s.kind === 'new' && !s.isSaved && !s.isTouched)
+        )
         .map((s) =>
           s.kind === 'existing' && entryId(s) === id
             ? { kind: 'editing' as const, item: s.item, tempId }
@@ -535,13 +474,13 @@ export function ItemPicker<
     const tempId = pendingCreateFocusTempId.current
     if (!tempId) return
     pendingCreateFocusTempId.current = null
-    const fieldset = newEntryFieldsets.current.get(tempId)
+    const fieldset = getFieldset(tempId)
     fieldset
       ?.querySelector<HTMLElement>(
         'input:not([type="hidden"]), select, textarea'
       )
       ?.focus()
-  }, [entries])
+  }, [entries, getFieldset])
 
   // Refocus the search input after a multi picker toggles back to
   // search from create mode, so focus isn't dropped on <body>.
@@ -569,15 +508,6 @@ export function ItemPicker<
       ?.focus()
   }, [entries, isMulti])
 
-  function isValidatable(
-    el: Element
-  ): el is
-    | HTMLInputElement
-    | HTMLSelectElement
-    | HTMLTextAreaElement {
-    return 'willValidate' in el && 'checkValidity' in el
-  }
-
   /**
    * The prefix a "new" entry's fields are rendered with, provided to the
    * entry's edit form and stripped when reading it back:
@@ -593,126 +523,20 @@ export function ItemPicker<
     return itemFieldPrefix(singleIdFieldName)
   }
 
-  /**
-   * strip `entryFieldPrefix`.
-   */
-  function collectEntryData(
-    fieldset: HTMLFieldSetElement,
-    prefix: string
-  ): Record<string, unknown> {
-    const data: Record<string, unknown> = {}
-    Array.from(fieldset.elements)
-      .filter(isValidatable)
-      .forEach((el) => {
-        if (!el.name.startsWith(prefix)) return
-        const field = el.name.slice(prefix.length)
-        data[field] =
-          el instanceof HTMLInputElement && el.type === 'checkbox'
-            ? el.checked
-            : el instanceof HTMLInputElement && el.type === 'file'
-              ? el.files?.[0]
-              : el.value
-      })
-    return data
-  }
-
-  /**
-   * Validates a "new" entry, updating `newEntryErrors` with Zod errors.
-   * Always valid (a no-op) for item types (e.g. `images`) whose schema
-   * needs data not yet available client-side.
-   * Moves focus to the first invalid field  when blocking progress (adding
-   * another entry). Omitted for the quieter blur-triggered check below,
-   * which shouldn't fight the user's own tab navigation.
-   */
-  function validateNewEntry(
-    entry: ItemPickerEntry<TEmbeddedItem, TPage>,
-    submitIndex: number,
-    options: { focus?: boolean } = {}
-  ): boolean {
-    if (!isEntryExpanded(entry) || !schema) return true
-    const fieldset = newEntryFieldsets.current.get(entry.tempId)
-    if (!fieldset) return true
-
-    const prefix = entryFieldPrefix(submitIndex)
-    const parsed = schema.safeParse(
-      normalizeFormData(collectEntryData(fieldset, prefix))
-    )
-
-    if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten()
-        .fieldErrors as FieldErrors
-      setNewEntryErrors((current) => ({
-        ...current,
-        [entry.tempId]: fieldErrors
-      }))
-      if (options.focus) {
-        const firstField = Object.keys(fieldErrors)[0]
-        const invalidEl = firstField
-          ? fieldset.elements.namedItem(`${prefix}${firstField}`)
-          : null
-        if (invalidEl instanceof HTMLElement) invalidEl.focus()
-      }
-      return false
-    }
-
-    if (entry.tempId in newEntryErrors) {
-      setNewEntryErrors(({ [entry.tempId]: _, ...rest }) => rest)
-    }
-    return true
-  }
-
-  /**
-   * Runs native `required`/`type` constraints (the only signal for
-   * fields a schema can't see yet, e.g. embed codes' `iframe`
-   * textarea, which isn't itself a schema field — only the
-   * `host`/`src`/`type` parsed from it are) then `validateNewEntry`,
-   * for a single entry — the full validate-and-focus sequence shared by
-   * collapsing open entries on another entry (`saveOpenNewEntries`) and an
-   * explicit Save.
-   */
-  function validateEntryStrict(
-    entry: ItemPickerEntry<TEmbeddedItem, TPage>,
-    submitIndex: number
-  ): boolean {
-    if (!isEntryExpanded(entry)) return true
-    const fieldset = newEntryFieldsets.current.get(entry.tempId)
-    if (!fieldset) return true
-
-    const invalid = Array.from(fieldset.elements)
-      .filter(isValidatable)
-      .find((el) => el.willValidate && !el.checkValidity())
-
-    if (invalid) {
-      invalid.reportValidity()
-      return false
-    }
-
-    return validateNewEntry(entry, submitIndex, { focus: true })
-  }
-
-  function findFileInput(
-    fieldset: HTMLFieldSetElement
-  ): HTMLInputElement | undefined {
-    return Array.from(fieldset.elements).find(
-      (el): el is HTMLInputElement =>
-        el instanceof HTMLInputElement && el.type === 'file'
-    )
-  }
-
   // Flag a draft entry as touched the first time the user edits any fields.
   // Returns `current` unchanged once already touched so repeated edits don't
-  // re-render. See `Entry`'s `touched` for why untouched entries are pruned.
+  // re-render. See `ItemPickerEntry`'s `isTouched` for why untouched entries are pruned.
   function markEntryTouched(tempId: string) {
     setEntries((current) => {
       const target = current.find(
         (s) => isEntryExpanded(s) && s.tempId === tempId
       )
-      if (!target || !isEntryExpanded(target) || target.touched) {
+      if (!target || !isEntryExpanded(target) || target.isTouched) {
         return current
       }
       return current.map((s) =>
         isEntryExpanded(s) && s.tempId === tempId
-          ? { ...s, touched: true }
+          ? { ...s, isTouched: true }
           : s
       )
     })
@@ -733,7 +557,7 @@ export function ItemPicker<
     if (!isEntryExpanded(entry)) return true
     if (!validateEntryStrict(entry, submitIndex)) return false
 
-    const fieldset = newEntryFieldsets.current.get(entry.tempId)
+    const fieldset = getFieldset(entry.tempId)
     const prefix = entryFieldPrefix(submitIndex)
     const summaryData = fieldset
       ? normalizeFormData(collectEntryData(fieldset, prefix))
@@ -744,7 +568,7 @@ export function ItemPicker<
     setEntries((current) =>
       current.map((s) =>
         isEntryExpanded(s) && s.tempId === entry.tempId
-          ? { ...s, saved: true, previewUrl, summaryData }
+          ? { ...s, isSaved: true, previewUrl, summaryData }
           : s
       )
     )
@@ -764,26 +588,20 @@ export function ItemPicker<
     // this entry re-expands, so editing doesn't leave a stray file input
     // open beside its edit form. Only `new` strays are disposable —
     // an untouched `editing` entry still owns an item, so it's never
-    // pruned. Its `touched` is kept — the entry has content, so toggling
+    // pruned. Its `isTouched` is kept — the entry has content, so toggling
     // back to search should still fold it to a chip.
     const strayIds = new Set(
       entries
         .filter(
           (s) =>
             s.kind === 'new' &&
-            !s.saved &&
-            !s.touched &&
+            !s.isSaved &&
+            !s.isTouched &&
             s.tempId !== entry.tempId
         )
         .map((s) => (s as { tempId: string }).tempId)
     )
-    if (strayIds.size > 0) {
-      setNewEntryErrors((current) => {
-        const next = { ...current }
-        strayIds.forEach((id) => delete next[id])
-        return next
-      })
-    }
+    clearErrors(...strayIds)
     setEntries((current) =>
       current
         .filter((s) => !(s.kind === 'new' && strayIds.has(s.tempId)))
@@ -793,7 +611,7 @@ export function ItemPicker<
           if (s.previewUrl) URL.revokeObjectURL(s.previewUrl)
           return {
             ...s,
-            saved: false,
+            isSaved: false,
             previewUrl: undefined,
             summaryData: undefined
           }
@@ -809,29 +627,10 @@ export function ItemPicker<
    */
   function saveOpenNewEntries(): boolean {
     for (const entry of entries) {
-      if (!isEntryExpanded(entry) || entry.saved) continue
+      if (!isEntryExpanded(entry) || entry.isSaved) continue
       if (!saveNewEntry(entry, restIndex(entry))) return false
     }
     return true
-  }
-
-  /**
-   * Whether a "new" entry passes native + schema validation *without*
-   * reporting or focusing — used to decide collapse-vs-discard when the
-   * user toggles back to search (a mode switch shouldn't nag with
-   * validation bubbles the way an explicit Save does).
-   */
-  function isEntryComplete(
-    entry: ItemPickerEntry<TEmbeddedItem, TPage>
-  ): boolean {
-    if (!isEntryExpanded(entry)) return true
-    const fieldset = newEntryFieldsets.current.get(entry.tempId)
-    if (!fieldset) return false
-    const nativeValid = Array.from(fieldset.elements)
-      .filter(isValidatable)
-      .every((el) => !el.willValidate || el.checkValidity())
-    if (!nativeValid) return false
-    return validateNewEntry(entry, restIndex(entry))
   }
 
   /**
@@ -863,7 +662,7 @@ export function ItemPicker<
       pendingComboboxFocus.current = true
       return
     }
-    if (open.touched && isEntryComplete(open)) {
+    if (open.isTouched && isEntryComplete(open, restIndex(open))) {
       if (saveNewEntry(open, restIndex(open))) {
         pendingChipFocusTempId.current = open.tempId
       }
@@ -993,9 +792,9 @@ export function ItemPicker<
       : singleIdFieldName
     return (
       <fieldset
-        hidden={entry.saved}
+        hidden={entry.isSaved}
         className={itemPickerStyles['new-item-fieldset']}
-        ref={(el) => setNewEntryFieldsetRef(entry.tempId, el)}
+        ref={(el) => setFieldsetRef(entry.tempId, el)}
         onChange={() => markEntryTouched(entry.tempId)}
         // Multi-item entries are already validated when the user tries
         // to add another one (`saveOpenNewEntries`). Single-item
@@ -1033,11 +832,9 @@ export function ItemPicker<
             query: entry.kind === 'new' ? entry.query : undefined,
             errors: newEntryErrors[entry.tempId],
             isRequired: isRequired ?? false,
-            // Single-item pickers replace their combobox with this form,
-            // so removing the entry returns to search — wire that as the
-            // create form's own cancel (e.g. the image preview's X). Multi
-            // keeps its always-present combobox, so its Cancel button
-            // suffices and no create-form cancel is passed.
+            // Single: the form's own cancel (e.g. the image preview's X)
+            // drops the entry entirely rather than keeping its data, and
+            // the combobox returns. Multi relies on its Cancel button.
             onCancel: isMulti ? undefined : () => removeEntry(entry),
             onReadyChange: isMulti ? undefined : setIsMainFieldReady,
             existingItem:
@@ -1051,11 +848,11 @@ export function ItemPicker<
           })}
         </NamePrefixProvider>
         <div
-          className={`${itemPickerStyles['create-form-actions']} ${
-            isSearchFirst || entry.kind === 'editing'
-              ? itemPickerStyles['create-form-actions-visible']
-              : ''
-          }`}
+          className={clsx(
+            itemPickerStyles['create-form-actions'],
+            (isSearchFirst || entry.kind === 'editing') &&
+              itemPickerStyles['create-form-actions-visible']
+          )}
         >
           <button
             type='button'
@@ -1086,6 +883,8 @@ export function ItemPicker<
               className='button-sm'
               onClick={() => {
                 revertEditingEntry(entry)
+                // Single: just reverts
+                if (!isMulti) return
                 if (mode === 'create') {
                   pendingCreateFocusTempId.current = addNew()
                 } else {
@@ -1164,7 +963,7 @@ export function ItemPicker<
       })()
     ) : isMulti ? (
       <>
-        {entry.saved && renderNewItemChip(entry, dragHandle)}
+        {entry.isSaved && renderNewItemChip(entry, dragHandle)}
         {renderNewFieldset(entry, index)}
       </>
     ) : (
@@ -1178,7 +977,7 @@ export function ItemPicker<
             />
           </div>
         )}
-        {entry.saved && renderNewItemChip(entry)}
+        {entry.isSaved && renderNewItemChip(entry)}
         {renderNewFieldset(entry, index)}
       </div>
     )
@@ -1208,7 +1007,7 @@ export function ItemPicker<
   // hides its search input, swapping the "New {item}" button for a
   // "Search {item}" toggle. Search and create are never shown at once.
   const hasOpenDraft = entries.some(
-    (entry) => isEntryExpanded(entry) && !entry.saved
+    (entry) => isEntryExpanded(entry) && !entry.isSaved
   )
   // Multi always shows the combobox, single shows it only to search
   // (empty list) or while a draft is open (the toggle carries label + Search).

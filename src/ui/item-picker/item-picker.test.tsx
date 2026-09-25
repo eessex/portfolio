@@ -758,6 +758,105 @@ describe('ItemPicker', () => {
       })
     })
 
+    describe('single item: discard / revert', () => {
+      const singleProps = {
+        renderEditItemForm: ({
+          existingItem,
+          onCancel
+        }: RenderEditItemFormArgs<Venue, never>) => (
+          <>
+            <PrefixedInput
+              field='name'
+              aria-label='Venue name'
+              defaultValue={existingItem?.name ?? ''}
+            />
+            <button type='button' onClick={onCancel}>
+              Discard
+            </button>
+          </>
+        )
+      }
+
+      it('discarding a filled draft drops the entry, keeping none of its fields', async () => {
+        const user = userEvent.setup()
+        const { container } = renderComponent(singleProps)
+
+        fireEvent.change(screen.getByLabelText('Venue name'), {
+          target: { value: 'Unsaved Venue' }
+        })
+        await user.click(
+          screen.getByRole('button', { name: /discard/i })
+        )
+
+        expect(
+          container.querySelector(
+            '[name^="venue."], [name="venueId"]'
+          )
+        ).toBeNull()
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+
+      it('Cancel on an edit reverts to the existing item, keeping its id', async () => {
+        const user = userEvent.setup()
+        const { container } = renderComponent({
+          ...singleProps,
+          existingItem: venueFixtureAlpha
+        })
+
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+        fireEvent.change(await screen.findByLabelText('Venue name'), {
+          target: { value: 'Edited Venue' }
+        })
+        await user.click(
+          screen.getByRole('button', { name: /^cancel$/i })
+        )
+
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueId')
+        expect(container.querySelector('[name^="venue."]')).toBeNull()
+      })
+
+      it('Cancel on an edit keeps the item after an earlier draft was discarded', async () => {
+        const user = userEvent.setup()
+        renderComponent({
+          ...singleProps,
+          isSearchFirst: true,
+          initialResults: {
+            res: [venueFixtureBeta],
+            nextCursor: null,
+            totalCount: 1
+          }
+        })
+
+        // leaves the picker in create mode with no entries
+        await user.click(
+          screen.getByRole('button', { name: /new venue/i })
+        )
+        await user.click(
+          screen.getByRole('button', { name: /discard/i })
+        )
+
+        await user.type(screen.getByRole('combobox'), 'New York')
+        await user.click(screen.getByText('Test Venue New York'))
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+        await user.click(
+          await screen.findByRole('button', { name: /^cancel$/i })
+        )
+
+        expect(
+          screen.getByDisplayValue(venueFixtureBeta.id)
+        ).toHaveAttribute('name', 'venueId')
+        expect(
+          screen.queryByLabelText('Venue name')
+        ).not.toBeInTheDocument()
+      })
+    })
+
     describe('editing returns to create mode (create-first)', () => {
       const editableLinkProps: ItemPickerProps<Link> = {
         initialResults: {

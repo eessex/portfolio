@@ -1264,17 +1264,6 @@ export function ItemPicker<
         />
       )}
 
-      {featuredSlot && (
-        <div className='featured-slot'>
-          {renderSlot(
-            featuredSlot,
-            0,
-            undefined,
-            featuredControl(featuredSlot, true)
-          )}
-        </div>
-      )}
-
       {/*
        * New slots' always-mounted fieldsets render on their own, in a
        * fixed creation order that never reorders — reordering (or moving
@@ -1292,6 +1281,17 @@ export function ItemPicker<
             {renderNewFieldset(slot, restIndex(slot))}
           </div>
         ))}
+
+      {featuredSlot && (
+        <div className={itemPickerStyles['featured-slot']}>
+          {renderSlot(
+            featuredSlot,
+            0,
+            undefined,
+            featuredControl(featuredSlot, true)
+          )}
+        </div>
+      )}
 
       {/*
        * One sortable list for every chip — existing-item results and

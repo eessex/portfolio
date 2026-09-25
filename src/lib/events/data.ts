@@ -70,11 +70,13 @@ export async function fetchEventsRaw(
         e.start_time > now() AS is_upcoming,
         EXISTS (
           SELECT 1 FROM embed_codes ec
-          WHERE ec.id = ANY(e.embed_code_ids) AND ec.type = ${EmbedCodeTypes.video}
+          WHERE (ec.id = ANY(e.embed_code_ids) OR ec.id = e.featured_embed_code_id)
+            AND ec.type = ${EmbedCodeTypes.video}
         ) AS has_video,
         EXISTS (
           SELECT 1 FROM embed_codes ec
-          WHERE ec.id = ANY(e.embed_code_ids) AND ec.type = ${EmbedCodeTypes.audio}
+          WHERE (ec.id = ANY(e.embed_code_ids) OR ec.id = e.featured_embed_code_id)
+            AND ec.type = ${EmbedCodeTypes.audio}
         ) AS has_audio,
         (
           CASE
@@ -130,11 +132,13 @@ export async function fetchUpcomingEventsRaw(
         e.start_time > now() AS is_upcoming,
         EXISTS (
           SELECT 1 FROM embed_codes ec
-          WHERE ec.id = ANY(e.embed_code_ids) AND ec.type = ${EmbedCodeTypes.video}
+          WHERE (ec.id = ANY(e.embed_code_ids) OR ec.id = e.featured_embed_code_id)
+            AND ec.type = ${EmbedCodeTypes.video}
         ) AS has_video,
         EXISTS (
           SELECT 1 FROM embed_codes ec
-          WHERE ec.id = ANY(e.embed_code_ids) AND ec.type = ${EmbedCodeTypes.audio}
+          WHERE (ec.id = ANY(e.embed_code_ids) OR ec.id = e.featured_embed_code_id)
+            AND ec.type = ${EmbedCodeTypes.audio}
         ) AS has_audio,
         (
           CASE
@@ -188,15 +192,14 @@ export async function fetchEventById(
           SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
           FROM embed_codes ec
           WHERE ec.id = ANY(e.embed_code_ids)
-            AND ec.id != e.embed_code_ids[1]
         ) AS embed_codes,
         (
           CASE
-            WHEN e.embed_code_ids[1] IS NOT NULL
+            WHEN e.featured_embed_code_id IS NOT NULL
             THEN (
               SELECT build_embed_code_json(ec)
               FROM embed_codes ec
-              WHERE ec.id = e.embed_code_ids[1]
+              WHERE ec.id = e.featured_embed_code_id
             )
           END
         ) AS featured_embed_code,

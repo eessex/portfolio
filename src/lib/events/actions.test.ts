@@ -55,6 +55,7 @@ const mockVenue = venueFixtureAlpha as unknown as Awaited<
 
 const EXISTING_IMAGE_ID = '11111111-1111-4111-8111-111111111111'
 const EXISTING_EMBED_CODE_ID = '22222222-2222-4222-8222-222222222222'
+const FEATURED_EMBED_CODE_ID = '33333333-3333-4333-8333-333333333333'
 
 describe('Event Actions', () => {
   beforeEach(() => {
@@ -136,7 +137,7 @@ describe('Event Actions', () => {
       expect(mockSql.mock.calls[1]?.[3]).toEqual([
         EXISTING_EMBED_CODE_ID
       ])
-      expect(mockSql.mock.calls[1]?.[6]).toBe(true)
+      expect(mockSql.mock.calls[1]?.[7]).toBe(true)
       expect(mockSql).toHaveBeenCalledTimes(2)
     })
 
@@ -152,7 +153,7 @@ describe('Event Actions', () => {
         eventFixtureAlpha.id
       )
 
-      expect(mockSql.mock.calls[1]?.[6]).toBe(false)
+      expect(mockSql.mock.calls[1]?.[7]).toBe(false)
     })
 
     it('merges submitted fields with the existing event on update', async () => {
@@ -171,7 +172,7 @@ describe('Event Actions', () => {
         eventFixtureAlpha.id
       )
 
-      expect(mockSql.mock.calls[1]?.[9]).toBe(
+      expect(mockSql.mock.calls[1]?.[10]).toBe(
         eventFixtureAlpha.shortDescription
       )
     })
@@ -216,7 +217,7 @@ describe('Event Actions', () => {
         })
       )
 
-      const startTime = mockSql.mock.calls[0]?.[11] as Date
+      const startTime = mockSql.mock.calls[0]?.[12] as Date
       expect(startTime.toISOString()).not.toBe(
         '2030-06-01T20:00:00.000Z'
       )
@@ -244,7 +245,7 @@ describe('Event Actions', () => {
       )
 
       expect(res?.ok).toBe(true)
-      expect(mockSql.mock.calls[1]?.[15]).toEqual(
+      expect(mockSql.mock.calls[1]?.[16]).toEqual(
         venueFixtureAlpha.id
       )
     })
@@ -283,6 +284,72 @@ describe('Event Actions', () => {
 
       expect(res!.message).toBe('Failed to validate event.')
       expect(res!.errors).toEqual({ title: ['Required'] })
+    })
+
+    describe('embed codes picker (featuredEmbedCodeId + embedCodeIds)', () => {
+      it('writes the resolved featuredEmbedCodeId and embedCodeIds to the saved row', async () => {
+        mockSql
+          .mockResolvedValueOnce([eventFixtureAlpha]) // fetchEventById
+          .mockResolvedValueOnce([eventFixtureAlpha]) // UPDATE
+        mockResolveOrderedEmbedCodeIds.mockResolvedValueOnce({
+          embedCodeIds: [EXISTING_EMBED_CODE_ID],
+          featuredEmbedCodeId: FEATURED_EMBED_CODE_ID
+        })
+
+        await editEvent(
+          formDataFromObject({
+            ...eventFixtureAlpha,
+            isPublished: 'on'
+          }),
+          eventFixtureAlpha.id
+        )
+
+        expect(mockSql.mock.calls[1]?.[3]).toEqual([
+          EXISTING_EMBED_CODE_ID
+        ])
+        expect(mockSql.mock.calls[1]?.[5]).toEqual(
+          FEATURED_EMBED_CODE_ID
+        )
+      })
+
+      it('leaves featuredEmbedCodeId unset when no slot is marked featured', async () => {
+        mockSql
+          .mockResolvedValueOnce([eventFixtureAlpha])
+          .mockResolvedValueOnce([eventFixtureAlpha])
+        mockResolveOrderedEmbedCodeIds.mockResolvedValueOnce({
+          embedCodeIds: [EXISTING_EMBED_CODE_ID],
+          featuredEmbedCodeId: undefined
+        })
+
+        await editEvent(
+          formDataFromObject({
+            ...eventFixtureAlpha,
+            isPublished: 'on'
+          }),
+          eventFixtureAlpha.id
+        )
+
+        expect(mockSql.mock.calls[1]?.[5]).toBeNull()
+      })
+
+      it('writes the resolved featuredEmbedCodeId on create', async () => {
+        mockSql.mockResolvedValueOnce([eventFixtureAlpha])
+        mockResolveOrderedEmbedCodeIds.mockResolvedValueOnce({
+          embedCodeIds: [],
+          featuredEmbedCodeId: FEATURED_EMBED_CODE_ID
+        })
+
+        await editEvent(
+          formDataFromObject({
+            ...newEventFixtureAlpha,
+            isPublished: 'on'
+          })
+        )
+
+        expect(mockSql.mock.calls[0]?.[5]).toEqual(
+          FEATURED_EMBED_CODE_ID
+        )
+      })
     })
 
     it('passes the raw submitted data to the ordered id resolvers', async () => {

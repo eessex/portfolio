@@ -26,7 +26,8 @@ async function prepareEventData(
   const { coverImageId, imageIds } =
     await resolveOrderedImageIds(data)
   const { linkIds } = await resolveOrderedLinkIds(data)
-  const { embedCodeIds } = await resolveOrderedEmbedCodeIds(data)
+  const { embedCodeIds, featuredEmbedCodeId } =
+    await resolveOrderedEmbedCodeIds(data)
   const venueId = await resolveVenueId(data)
   const timeZone = await resolveVenueTimeZone(venueId)
 
@@ -34,6 +35,7 @@ async function prepareEventData(
     ...data,
     coverImageId,
     embedCodeIds,
+    featuredEmbedCodeId,
     imageIds,
     linkIds,
     venueId,
@@ -104,6 +106,7 @@ async function createEvent(event: CreateEvent) {
       description,
       embedCodeIds,
       endTime,
+      featuredEmbedCodeId,
       imageIds,
       isPublished,
       linkIds,
@@ -122,6 +125,7 @@ async function createEvent(event: CreateEvent) {
         description,
         embed_code_ids,
         end_time,
+        featured_embed_code_id,
         image_ids,
         is_published,
         link_ids,
@@ -139,6 +143,7 @@ async function createEvent(event: CreateEvent) {
         ${description},
         ${embedCodeIds},
         ${endTime},
+        ${featuredEmbedCodeId},
         ${imageIds},
         ${isPublished},
         ${linkIds},
@@ -173,6 +178,7 @@ async function updateEvent(event: CreateEvent, id: string) {
       description,
       embedCodeIds,
       endTime,
+      featuredEmbedCodeId,
       imageIds,
       isPublished,
       linkIds,
@@ -192,6 +198,7 @@ async function updateEvent(event: CreateEvent, id: string) {
         description = ${description},
         embed_code_ids = ${embedCodeIds},
         end_time = ${endTime},
+        featured_embed_code_id = ${featuredEmbedCodeId},
         image_ids = ${imageIds},
         is_published = ${isPublished},
         link_ids = ${linkIds},
@@ -229,6 +236,7 @@ function toDbRow(event: CreateEvent, existing?: Partial<Event>) {
     description: eventToSave.description ?? null,
     embedCodeIds: eventToSave.embedCodeIds ?? null,
     endTime: eventToSave.endTime ?? null,
+    featuredEmbedCodeId: eventToSave.featuredEmbedCodeId ?? null,
     imageIds: eventToSave.imageIds ?? null,
     isPublished: eventToSave.isPublished ?? null,
     linkIds: eventToSave.linkIds ?? null,

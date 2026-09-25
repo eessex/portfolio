@@ -58,6 +58,10 @@ function EventFormFields({ event }: { event?: EventClient }) {
   const images = [event?.coverImage, ...(event?.images ?? [])].filter(
     (image): image is Image => !!image
   )
+  const embedCodes = [
+    event?.featuredEmbedCode,
+    ...(event?.embedCodes ?? [])
+  ].filter((embedCode): embedCode is EmbedCode => !!embedCode)
   const [isPublished, setIsPublished] = useState(!!event?.isPublished)
 
   return (
@@ -150,7 +154,7 @@ function EventFormFields({ event }: { event?: EventClient }) {
         name='embedCodes'
         label='Embed codes'
         itemType='embedCodes'
-        existingItems={event?.embedCodes ?? []}
+        existingItems={embedCodes}
         renderExistingResult={formatEmbedCodeResult}
         renderNewItemSummary={formatNewEmbedCodeSummary}
         schema={createEmbedCodeSchema}
@@ -167,6 +171,10 @@ function EventFormFields({ event }: { event?: EventClient }) {
             onBusyChange={onBusyChange}
           />
         )}
+        featured={{
+          isInitiallyFeatured: !!event?.featuredEmbedCode,
+          label: 'Featured'
+        }}
       />
       <ItemPicker<Link>
         isMulti

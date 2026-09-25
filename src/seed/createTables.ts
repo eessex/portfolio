@@ -532,6 +532,7 @@ async function createEventsTable() {
       end_time TIMESTAMP WITH TIME ZONE,
       is_published BOOLEAN,
       cover_image_id UUID,
+      featured_embed_code_id UUID,
       image_ids UUID[],
       embed_code_ids UUID[],
       link_ids UUID[],

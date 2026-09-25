@@ -97,6 +97,12 @@ type ItemPickerSharedProps<
     args: RenderEditItemFormArgs<TEmbeddedItem, TPage>
   ) => React.ReactNode
   /**
+   * Open on the search input rather than a blank create form. Suits
+   * types whose first field is free text the search box can capture
+   * directly (`venue.name`, `publisher.name`), unlike a URL/iframe/file.
+   */
+  isSearchFirst?: boolean
+  /**
    * currently only omitted in tests
    */
   schema?: z.ZodTypeAny
@@ -252,20 +258,14 @@ export function ItemPicker<
     isMulti,
     featured,
     schema,
-    renderNewItemSummary
+    renderNewItemSummary,
+    isSearchFirst: isSearchFirstProp
   } = props
 
   const singleIdFieldName = itemIdFieldName(itemType, name)
   const listFieldName = name ?? itemType
 
-  // Search-first types default to the search input rather than a blank
-  // create form because their first field is free text (`venue.name`,
-  // `publisher.name`) the search box can capture directly. Types whose first
-  // field is a URL/iframe/file default to create.
-  const searchFirstItemTypes = ['venues', 'publishers'] as const
-  const isSearchFirst =
-    !!renderEditItemForm &&
-    (searchFirstItemTypes as readonly string[]).includes(itemType)
+  const isSearchFirst = !!renderEditItemForm && !!isSearchFirstProp
   const isCreateFirst = !!renderEditItemForm && !isSearchFirst
 
   const hasExistingItems = isMulti

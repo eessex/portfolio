@@ -191,7 +191,8 @@ export function useResultsList<
       if (isFetchingRef.current) return
 
       abortControllerRef.current?.abort()
-      abortControllerRef.current = new AbortController()
+      const controller = new AbortController()
+      abortControllerRef.current = controller
 
       isFetchingRef.current = true
       setIsLoading(true)
@@ -203,7 +204,7 @@ export function useResultsList<
         const res = await fetch(
           buildUrl(options.cursor, currentQuery),
           {
-            signal: abortControllerRef.current.signal
+            signal: controller.signal
           }
         )
         const data: ResultsResponse<TEmbeddedItem, TPage, S> =
@@ -272,8 +273,11 @@ export function useResultsList<
           console.error('Fetch page error:', err)
         }
       } finally {
-        isFetchingRef.current = false
-        setIsLoading(false)
+        // An aborted fetch mustn't clear a newer one's in-flight state.
+        if (abortControllerRef.current === controller) {
+          isFetchingRef.current = false
+          setIsLoading(false)
+        }
       }
     },
     [applyFilter, buildUrl]
@@ -365,6 +369,8 @@ export function useResultsList<
   useEffect(() => {
     return () => {
       abortControllerRef.current?.abort()
+      abortControllerRef.current = null
+      isFetchingRef.current = false
     }
   }, [])
 

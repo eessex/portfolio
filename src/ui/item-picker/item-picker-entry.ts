@@ -2,8 +2,13 @@
  * Fields shared by an entry with a mounted edit fieldset, tracking its
  * save/collapse lifecycle.
  */
-interface ExpandedFields {
+interface DraftFields {
   tempId: string
+  /**
+   * Creation order. Fieldsets render in this fixed order, which never
+   * changes as chips reorder, so an entry's file input never remounts.
+   */
+  seq: number
   /** Set once the entry's Save action has validated it — the
    * fieldset stays mounted but collapses into a chip. */
   isSaved?: boolean
@@ -25,7 +30,7 @@ interface ExpandedFields {
 
 export type ItemPickerEntry<TEmbeddedItem, TPage> =
   | { kind: 'existing'; item: TEmbeddedItem | TPage }
-  | ({ kind: 'new'; query?: string } & ExpandedFields)
+  | ({ kind: 'new'; query?: string } & DraftFields)
   /**
    * An existing item opened for inline editing — reuses the `new`
    * entry's fieldset/collapse lifecycle, but carries the source `item`
@@ -36,17 +41,17 @@ export type ItemPickerEntry<TEmbeddedItem, TPage> =
   | ({
       kind: 'editing'
       item: TEmbeddedItem | TPage
-    } & ExpandedFields)
+    } & DraftFields)
 
 /** An entry with a mounted edit fieldset: a new item or an edited existing one. */
-export type ExpandedEntry<TEmbeddedItem, TPage> = Extract<
+export type Draft<TEmbeddedItem, TPage> = Extract<
   ItemPickerEntry<TEmbeddedItem, TPage>,
   { kind: 'new' | 'editing' }
 >
 
-export function isEntryExpanded<TEmbeddedItem, TPage>(
+export function isDraft<TEmbeddedItem, TPage>(
   entry: ItemPickerEntry<TEmbeddedItem, TPage>
-): entry is ExpandedEntry<TEmbeddedItem, TPage> {
+): entry is Draft<TEmbeddedItem, TPage> {
   return entry.kind === 'new' || entry.kind === 'editing'
 }
 
@@ -56,14 +61,4 @@ export function entryId(
   return entry.kind === 'existing' || entry.kind === 'editing'
     ? (entry.item as { id: string }).id
     : entry.tempId
-}
-
-/**
- * A "new" entry's creation order, parsed from its `tempId` (`new-0`,
- * `new-1`, ... as `addNew` mints them). Used to render fieldsets in a
- * fixed order that never changes as chips reorder, so an entry's file
- * input is never remounted.
- */
-export function newEntrySeq(entry: { tempId: string }): number {
-  return Number(entry.tempId.replace('new-', ''))
 }

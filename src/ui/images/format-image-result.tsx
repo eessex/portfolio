@@ -1,6 +1,7 @@
 import type { Image } from '@/lib/images/schemas/db'
 import { itemBadges } from '@/ui/badges'
 import thumbnailStyles from '@/ui/cover-image-thumbnail.module.scss'
+import type { NewItemSummaryActions } from '@/ui/item-picker/item-picker'
 import { ItemResultLabel } from '@/ui/item-result-label'
 import { formattedFilename } from '@/ui/util'
 
@@ -32,7 +33,7 @@ export function formatImageResult(
 export function formatNewImageSummary(
   data: Record<string, unknown>,
   previewUrl: string | undefined,
-  { onEdit, onRemove }: { onEdit: () => void; onRemove: () => void }
+  { editButton, onRemove, removeLabel }: NewItemSummaryActions
 ) {
   const fileName = (data.file as File | undefined)?.name
   const label = (data.title as string) || (data.caption as string)
@@ -50,13 +51,9 @@ export function formatNewImageSummary(
           />
         )
       }
-      extraActions={
-        <button type='button' className='button-sm' onClick={onEdit}>
-          Edit
-        </button>
-      }
+      extraActions={editButton}
       onRemove={onRemove}
-      removeLabel='Remove image'
+      removeLabel={removeLabel}
     />
   )
 }

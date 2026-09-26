@@ -1,8 +1,10 @@
 import { embedCodeContentTypes } from '@/lib/embed-codes/schemas/db'
 import { imageTypes } from '@/lib/images/schemas/db'
+import { linkTypes } from '@/lib/links/schemas/db'
+import { publisherTypes } from '@/lib/publishers/schemas/db'
 import { snakeToSentence } from '@/lib/strings'
 import type { Badge, EmbeddedItem } from '@/lib/types'
-import styles from '@/ui/badges.module.scss'
+import styles from '@/ui/badges/badges.module.scss'
 
 export function Badges({ badges }: { badges: Badge[] }) {
   return (
@@ -28,16 +30,24 @@ const badgeColorPalette: Badge['color'][] = [
   'indigo'
 ]
 
-// Every badgeable type in stable order to avoid hydration errors
-const badgeTypes: readonly string[] = [
+// Every badgeable type in stable order to avoid hydration errors.
+// Deduped so a type shared across domains (e.g. 'press') keeps one color.
+const badgeTypes = new Set<string>([
   ...imageTypes,
-  ...embedCodeContentTypes
-]
+  ...embedCodeContentTypes,
+  ...linkTypes,
+  ...publisherTypes
+])
+
+const colorByType = new Map<string, Badge['color']>(
+  Array.from(badgeTypes, (type, index) => [
+    type,
+    badgeColorPalette[index % badgeColorPalette.length]
+  ])
+)
 
 function colorForType(type: string): Badge['color'] {
-  const index = badgeTypes.indexOf(type)
-  if (index === -1) return 'green'
-  return badgeColorPalette[index % badgeColorPalette.length]
+  return colorByType.get(type) ?? 'green'
 }
 
 export function itemBadges(item: Partial<EmbeddedItem>): Badge[] {

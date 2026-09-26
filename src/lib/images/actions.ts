@@ -4,6 +4,8 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import {
+  resolveItemId,
+  resolveOrderedIds,
   runDeleteAction,
   runFormAction,
   saveItemFromFields
@@ -16,11 +18,7 @@ import {
   type Image,
   imageSchema
 } from '@/lib/images/schemas/db'
-import {
-  extractIndexedGroups,
-  formatDbResponseForClient,
-  isBlankEntry
-} from '@/lib/util'
+import { formatDbResponseForClient } from '@/lib/util'
 
 /**
  * Images are embedded directly into these parents' cached fetches via
@@ -106,50 +104,26 @@ export async function saveImageFromFields(
  */
 export async function resolveOrderedImageIds(
   data: Record<string, unknown>,
-  prefix = 'images'
+  name = 'images'
 ): Promise<{ coverImageId: string | undefined; imageIds: string[] }> {
-  const entries = extractIndexedGroups(data, prefix).filter(
-    (entry) => entry.kind !== 'new' || !isBlankEntry(entry.fields)
-  )
-  const resolvedIds = await Promise.all(
-    entries.map((entry) =>
-      entry.kind === 'existing'
-        ? entry.id
-        : entry.kind === 'edited'
-          ? saveImageFromFields(entry.fields, entry.id).then(
-              (image) => image.id
-            )
-          : saveImageFromFields(entry.fields).then(
-              (image) => image.id
-            )
-    )
+  const resolvedIds = await resolveOrderedIds(
+    data,
+    name,
+    saveImageFromFields
   )
   const [coverImageId, ...imageIds] = resolvedIds
   return { coverImageId, imageIds }
 }
 
+/**
+ * Resolves a single-image picker's submission into an image id, see
+ * `resolveItemId`. Defaults to `coverImageId`.
+ */
 export async function resolveCoverImageId(
   data: Record<string, unknown>,
-  prefix = 'coverImage'
+  idField = 'coverImageId'
 ): Promise<string | undefined> {
-  if (typeof data.coverImageId === 'string' && data.coverImageId) {
-    return data.coverImageId
-  }
-
-  const fieldNames = ['file', ...Object.keys(createImageSchema.shape)]
-  const fields: Record<string, unknown> = {}
-  fieldNames.forEach((field) => {
-    fields[field] = data[`${prefix}.${field}`]
-    delete data[`${prefix}.${field}`]
-  })
-
-  const file = fields.file
-  if (!(file instanceof File) || file.size === 0) {
-    return undefined
-  }
-
-  const image = await saveImageFromFields(fields)
-  return image.id
+  return resolveItemId(data, idField, saveImageFromFields)
 }
 
 export async function deleteImage(image: Image) {

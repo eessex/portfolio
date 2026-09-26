@@ -450,6 +450,30 @@ describe('useResultsList', () => {
       expect(global.fetch).toHaveBeenCalledTimes(2)
     })
 
+    it('refetches the first page when a StrictMode remount aborts the mount fetch', async () => {
+      global.fetch = jest
+        .fn()
+        .mockReturnValueOnce(new Promise(() => {}))
+        .mockResolvedValueOnce({
+          json: async () => makeResponse(defaultVenues)
+        } as Response)
+
+      const { result } = renderHook(
+        () => useResultsList<Venue>('/api/venues'),
+        { reactStrictMode: true }
+      )
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual(defaultVenues)
+      })
+
+      expect(
+        getAbortControllers().some((c) => c.abort.mock.calls.length)
+      ).toBe(true)
+      expect(global.fetch).toHaveBeenCalledTimes(2)
+      expect(result.current.isLoading).toBe(false)
+    })
+
     it('does not refetch via ensureFirstPage once the first page has loaded', async () => {
       mockFetchOnce(makeResponse(defaultVenues))
 

@@ -23,28 +23,33 @@ async function prepareEventData(
   data: Record<string, unknown>,
   id?: string
 ) {
-  const { coverImageId, imageIds } =
-    await resolveOrderedImageIds(data)
-  const { linkIds } = await resolveOrderedLinkIds(data)
-  const { embedCodeIds } = await resolveOrderedEmbedCodeIds(data)
-  const venueId = await resolveVenueId(data)
+  const [
+    { coverImageId, imageIds },
+    { linkIds },
+    { embedCodeIds, featuredEmbedCodeId },
+    venueId,
+    slug
+  ] = await Promise.all([
+    resolveOrderedImageIds(data),
+    resolveOrderedLinkIds(data),
+    resolveOrderedEmbedCodeIds(data),
+    resolveVenueId(data),
+    generateUniqueSlug(String(data.title || ''), 'events', id)
+  ])
   const timeZone = await resolveVenueTimeZone(venueId)
 
   return {
     ...data,
     coverImageId,
     embedCodeIds,
+    featuredEmbedCodeId,
     imageIds,
     linkIds,
     venueId,
     startTime: toEventInstant(data.startTime, timeZone),
     endTime: toEventInstant(data.endTime, timeZone),
     path: 'events',
-    slug: await generateUniqueSlug(
-      String(data.title || ''),
-      'events',
-      id
-    )
+    slug
   }
 }
 
@@ -104,6 +109,7 @@ async function createEvent(event: CreateEvent) {
       description,
       embedCodeIds,
       endTime,
+      featuredEmbedCodeId,
       imageIds,
       isPublished,
       linkIds,
@@ -122,6 +128,7 @@ async function createEvent(event: CreateEvent) {
         description,
         embed_code_ids,
         end_time,
+        featured_embed_code_id,
         image_ids,
         is_published,
         link_ids,
@@ -139,6 +146,7 @@ async function createEvent(event: CreateEvent) {
         ${description},
         ${embedCodeIds},
         ${endTime},
+        ${featuredEmbedCodeId},
         ${imageIds},
         ${isPublished},
         ${linkIds},
@@ -173,6 +181,7 @@ async function updateEvent(event: CreateEvent, id: string) {
       description,
       embedCodeIds,
       endTime,
+      featuredEmbedCodeId,
       imageIds,
       isPublished,
       linkIds,
@@ -192,6 +201,7 @@ async function updateEvent(event: CreateEvent, id: string) {
         description = ${description},
         embed_code_ids = ${embedCodeIds},
         end_time = ${endTime},
+        featured_embed_code_id = ${featuredEmbedCodeId},
         image_ids = ${imageIds},
         is_published = ${isPublished},
         link_ids = ${linkIds},
@@ -229,6 +239,7 @@ function toDbRow(event: CreateEvent, existing?: Partial<Event>) {
     description: eventToSave.description ?? null,
     embedCodeIds: eventToSave.embedCodeIds ?? null,
     endTime: eventToSave.endTime ?? null,
+    featuredEmbedCodeId: eventToSave.featuredEmbedCodeId ?? null,
     imageIds: eventToSave.imageIds ?? null,
     isPublished: eventToSave.isPublished ?? null,
     linkIds: eventToSave.linkIds ?? null,

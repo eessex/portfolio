@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import {
   extractIndexedGroups,
+  extractPrefixedGroup,
   formatErrorResponse,
   formatValidationResponse,
   normalizeFormData
@@ -199,6 +200,92 @@ describe('#extractIndexedGroups', () => {
       'links[0].id': 'link-1',
       title: 'My Project'
     })
+  })
+})
+
+describe('#extractPrefixedGroup', () => {
+  it('reads an id with no fields as an untouched selection', () => {
+    const data = { venueId: 'venue-1', title: 'My Event' }
+
+    const result = extractPrefixedGroup(data, 'venue.', 'venueId')
+
+    expect(result).toEqual({ kind: 'existing', id: 'venue-1' })
+  })
+
+  it('reads an id alongside fields as an inline edit', () => {
+    const data = {
+      venueId: 'venue-1',
+      'venue.city': 'Brooklyn',
+      'venue.timezone': 'America/New_York'
+    }
+
+    const result = extractPrefixedGroup(data, 'venue.', 'venueId')
+
+    expect(result).toEqual({
+      kind: 'edited',
+      id: 'venue-1',
+      fields: { city: 'Brooklyn', timezone: 'America/New_York' }
+    })
+  })
+
+  it('reads fields with no id as a pending creation', () => {
+    const data = { 'venue.city': 'Brooklyn' }
+
+    const result = extractPrefixedGroup(data, 'venue.', 'venueId')
+
+    expect(result).toEqual({
+      kind: 'new',
+      fields: { city: 'Brooklyn' }
+    })
+  })
+
+  it('sweeps every prefixed key, including ones outside the schema', () => {
+    const data: Record<string, unknown> = {
+      title: 'Site title',
+      coverImageId: 'image-1',
+      'coverImage.file': 'a-file',
+      'coverImage.url': 'https://example.com/i.jpg'
+    }
+
+    extractPrefixedGroup(data, 'coverImage.', 'coverImageId')
+
+    // the id stays for the parent schema, the fields don't
+    expect(data).toEqual({
+      title: 'Site title',
+      coverImageId: 'image-1'
+    })
+  })
+
+  it('leaves a different picker of the same item type alone', () => {
+    const data = {
+      coverImageId: 'image-1',
+      'coverImage.caption': 'Cover',
+      heroImageId: 'image-2',
+      'heroImage.caption': 'Hero'
+    }
+
+    const result = extractPrefixedGroup(
+      data,
+      'coverImage.',
+      'coverImageId'
+    )
+
+    expect(result).toEqual({
+      kind: 'edited',
+      id: 'image-1',
+      fields: { caption: 'Cover' }
+    })
+    expect(data).toHaveProperty(['heroImage.caption'], 'Hero')
+  })
+
+  it('returns undefined when the picker submitted nothing', () => {
+    const result = extractPrefixedGroup(
+      { title: 'My Event' },
+      'venue.',
+      'venueId'
+    )
+
+    expect(result).toBeUndefined()
   })
 })
 

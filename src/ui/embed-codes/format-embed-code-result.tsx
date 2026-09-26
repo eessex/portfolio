@@ -1,9 +1,10 @@
 import type { WithCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import type { EmbeddedItem } from '@/lib/types'
-import { itemBadges } from '@/ui/badges'
+import { itemBadges } from '@/ui/badges/badges'
 import thumbnailStyles from '@/ui/cover-image-thumbnail.module.scss'
 import { coverImageAspectByHost } from '@/ui/embed-codes/util'
+import type { NewItemSummaryActions } from '@/ui/item-picker/item-picker'
 import { ItemResultLabel } from '@/ui/item-result-label'
 
 export function formatEmbedCodeResult(
@@ -44,7 +45,7 @@ export function formatEmbedCodeResult(
 export function formatNewEmbedCodeSummary(
   data: Record<string, unknown>,
   _previewUrl: string | undefined,
-  { onEdit, onRemove }: { onEdit: () => void; onRemove: () => void }
+  { editButton, onRemove, removeLabel }: NewItemSummaryActions
 ) {
   const title = data.previewTitle as string | undefined
   const thumbnailUrl = data.previewThumbnailUrl as string | undefined
@@ -65,13 +66,9 @@ export function formatNewEmbedCodeSummary(
           />
         )
       }
-      extraActions={
-        <button type='button' className='button-sm' onClick={onEdit}>
-          Edit
-        </button>
-      }
+      extraActions={editButton}
       onRemove={onRemove}
-      removeLabel='Remove embed code'
+      removeLabel={removeLabel}
     />
   )
 }

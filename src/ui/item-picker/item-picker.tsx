@@ -1,13 +1,18 @@
 'use client'
 
-import { StarIcon } from '@heroicons/react/24/outline'
-import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid'
+import clsx from 'clsx'
 import { useEffect, useRef, useState } from 'react'
 import type { z } from 'zod'
 
 import {
+  emptyListFieldName,
+  featuredFlagFieldName,
+  indexedItemFieldPrefix,
+  itemFieldPrefix,
+  itemIdFieldName
+} from '@/lib/item-fields'
+import {
   type EmbeddedItemType,
-  itemTypeSingulars,
   itemTypeToLabel,
   type PagePath
 } from '@/lib/schemas'
@@ -16,18 +21,26 @@ import type {
   PageDataResponse,
   PageItemClient
 } from '@/lib/types'
-import { normalizeFormData } from '@/lib/util'
 import { Combobox } from '@/ui/combobox/combobox'
 import { SortableList } from '@/ui/drag-and-drop/sortable-list'
 import { InputLabel } from '@/ui/form/input-label'
+import { DraftChip } from '@/ui/item-picker/draft-chip'
+import { DraftFieldset } from '@/ui/item-picker/draft-fieldset'
+import { ExistingEntryRow } from '@/ui/item-picker/existing-entry-row'
+import { FeaturedToggleButton } from '@/ui/item-picker/featured-toggle-button'
 import itemPickerStyles from '@/ui/item-picker/item-picker.module.scss'
-import { ItemResultLabel } from '@/ui/item-result-label'
-import { SelectedResult } from '@/ui/selected-results/selected-result'
-import selectedResultStyles from '@/ui/selected-results/selected-results.module.scss'
+import {
+  type Draft,
+  entryId,
+  type ItemPickerEntry
+} from '@/ui/item-picker/item-picker-entry'
+import {
+  type FieldErrors,
+  useEntryValidation
+} from '@/ui/item-picker/use-entry-validation'
+import { useItemPickerEntries } from '@/ui/item-picker/use-item-picker-entries'
 import type { ResultsResponse } from '@/ui/useResultsList'
 import type { SearchParams } from '@/ui/util'
-
-type FieldErrors = Record<string, string[] | undefined>
 
 /** Named args passed to a picker's `renderEditItemForm` callback. */
 export type RenderEditItemFormArgs<
@@ -36,11 +49,8 @@ export type RenderEditItemFormArgs<
 > = {
   /** search query, for seeding a value into a create form. */
   query?: string
-  /** The slot's submit index (`isMulti` only). */
-  index?: number
   errors?: FieldErrors
   isRequired?: boolean
-  onCancel?: () => void
   existingItem?: TEmbeddedItem | TPage
   /**
    * cb for progressive-disclosure forms to report when their main field
@@ -54,6 +64,18 @@ export type RenderEditItemFormArgs<
    */
   onBusyChange?: (isBusy: boolean) => void
 }
+
+/** Actions passed to a picker's `renderNewItemSummary` callback. */
+export type NewItemSummaryActions = {
+  editButton: React.ReactNode
+  onRemove: () => void
+  removeLabel: string
+}
+
+type FocusTarget =
+  | { kind: 'edit'; id: string }
+  | { kind: 'create'; tempId: string }
+  | { kind: 'combobox' }
 
 type ItemPickerSharedProps<
   TEmbeddedItem extends EmbeddedItem,
@@ -69,16 +91,16 @@ type ItemPickerSharedProps<
   itemType: EmbeddedItemType | PagePath
   /**
    * Form field name for the hidden id input(s). Defaults to
-   * `${singular(itemType)}Id`; pass explicitly for specific-purpose
-   * relations (e.g. `coverImageId` for an `images` item), or as the
-   * array field name when `isMulti` (e.g. `images`, rendering hidden
-   * inputs named `images[0].id`, `images[1].id`, ...).
+   * `${singular(itemType)}Id`, or to `itemType` itself as the array
+   * field name when `isMulti` (`images` renders `images[0].id`, ...);
+   * pass explicitly for specific-purpose relations (e.g. `coverImageId`
+   * for an `images` item).
    */
   name?: string
   /**
    * Renders item content for both the `Combobox` dropdown row and
    * `SelectedResult` chip. `extraActions` (e.g. the `featured` toggle)
-   * is passed through only for the latter,  rendered next to `onRemove`
+   * is passed through only for the latter, rendered next to `onRemove`
    * button when the formatter supports it.
    */
   renderExistingResult: (
@@ -92,37 +114,29 @@ type ItemPickerSharedProps<
     args: RenderEditItemFormArgs<TEmbeddedItem, TPage>
   ) => React.ReactNode
   /**
+   * Open on the search input rather than a blank create form. Suits
+   * types whose first field is free text the search box can capture
+   * directly (`venue.name`, `publisher.name`), unlike a URL/iframe/file.
+   */
+  isSearchFirst?: boolean
+  /**
    * currently only omitted in tests
    */
   schema?: z.ZodTypeAny
-  namePrefix?: string
   /**
-   * Renders the collapsed chip for a saved-but-unsubmitted "new" slot
-   * (see `saveNewSlot`). `data` is the slot's fieldset values, already
+   * Renders the collapsed chip for a saved-but-unsubmitted "new" entry
+   * (see `saveDraft`). `data` is the entry's fieldset values, already
    * collected + `normalizeFormData`-normalized the same way `schema`
    * validation reads them. Use this for item types whose `renderExistingResult`
    * can't render an unsaved item (e.g. `images`, which needs an s3 `url`).
+   * `editButton` is the picker's own (so it can move focus to it after
+   * Save); render it as-is. `removeLabel` matches `renderExistingResult`'s.
    */
   renderNewItemSummary?: (
     data: Record<string, unknown>,
     previewUrl: string | undefined,
-    actions: { onEdit: () => void; onRemove: () => void }
+    actions: NewItemSummaryActions
   ) => React.ReactNode
-  /**
-   * Enables an explicit "featured" toggle on an `isMulti` list: any
-   * slot can be pinned to the front (excluded from drag reordering)
-   * via a button, and un-pinned again, rather than position alone
-   * carrying that meaning (contrast `images`, where the first slot is
-   * always the cover). Submits a `${name}Featured` hidden flag only
-   * while a slot is pinned, so a list with no explicit featured choice
-   * round-trips with none — pair with a resolver that checks for that
-   * flag (e.g. `resolveOrderedEmbedCodeIds`) rather than assuming
-   * position 0.
-   */
-  featured?: {
-    isInitiallyFeatured: boolean
-    label?: string
-  }
 }
 
 export type ItemPickerProps<
@@ -132,78 +146,26 @@ export type ItemPickerProps<
 > = ItemPickerSharedProps<TEmbeddedItem, TPage, S> &
   (
     | { isMulti?: false; existingItem?: TEmbeddedItem | TPage }
-    | { isMulti: true; existingItems?: (TEmbeddedItem | TPage)[] }
+    | {
+        isMulti: true
+        existingItems?: (TEmbeddedItem | TPage)[]
+        /**
+         * Enables an explicit "featured" toggle on an `isMulti` list: any
+         * entry can be pinned to the front (excluded from drag reordering)
+         * via a button, and un-pinned again, rather than position alone
+         * carrying that meaning (contrast `images`, where the first entry is
+         * always the cover). Submits a `${name}Featured` hidden flag only
+         * while an entry is pinned, so a list with no explicit featured choice
+         * round-trips with none — pair with a resolver that checks for that
+         * flag (e.g. `resolveOrderedEmbedCodeIds`) rather than assuming
+         * position 0.
+         */
+        featured?: {
+          isInitiallyFeatured: boolean
+          label?: string
+        }
+      }
   )
-
-type Slot<TEmbeddedItem, TPage> =
-  | { kind: 'existing'; item: TEmbeddedItem | TPage }
-  | {
-      kind: 'new'
-      query?: string
-      tempId: string
-      /** Set once the slot's Save action has validated it — the
-       * fieldset stays mounted but collapses into a chip. */
-      saved?: boolean
-      /**
-       * Set once the user edits any field in the slot's fieldset.
-       */
-      touched?: boolean
-      /** Object URL for the slot's picked file, created on Save and
-       * revoked on Edit/remove. */
-      previewUrl?: string
-      /**
-       * Snapshot of the fieldset's collected + normalized values,
-       * taken on Save for the collapsed chip to render from — reading
-       * the live fieldset via ref during render isn't allowed, and the
-       * fieldset is hidden (non-interactive) anyway while saved.
-       */
-      summaryData?: Record<string, unknown>
-    }
-  | {
-      /**
-       * An existing item opened for inline editing — reuses the whole
-       * `new`-slot fieldset/collapse lifecycle (hence the shared
-       * `tempId`/`saved`/`touched`/`previewUrl`/`summaryData` fields),
-       * but carries the source `item` so it can seed the edit form and
-       * submit a hidden `id` alongside its edited fields (server sees id
-       * + fields → an `edited` entry that UPDATEs rather than creates).
-       */
-      kind: 'editing'
-      item: TEmbeddedItem | TPage
-      tempId: string
-      saved?: boolean
-      touched?: boolean
-      previewUrl?: string
-      summaryData?: Record<string, unknown>
-    }
-
-/** A slot with a mounted edit fieldset: a new item or an edited existing one. */
-type DraftSlot<TEmbeddedItem, TPage> = Extract<
-  Slot<TEmbeddedItem, TPage>,
-  { kind: 'new' | 'editing' }
->
-
-function isDraftSlot<TEmbeddedItem, TPage>(
-  slot: Slot<TEmbeddedItem, TPage>
-): slot is DraftSlot<TEmbeddedItem, TPage> {
-  return slot.kind === 'new' || slot.kind === 'editing'
-}
-
-function slotId(slot: Slot<unknown, unknown>): string {
-  return slot.kind === 'existing' || slot.kind === 'editing'
-    ? (slot.item as { id: string }).id
-    : slot.tempId
-}
-
-/**
- * A "new" slot's creation order, parsed from its `tempId` (`new-0`,
- * `new-1`, ... as `addNew` mints them). Used to render fieldsets in a
- * fixed order that never changes as chips reorder, so a slot's file
- * input is never remounted.
- */
-function newSlotSeq(slot: { tempId: string }): number {
-  return Number(slot.tempId.replace('new-', ''))
-}
 
 /**
  * Search for and select an existing item — an embedded item (image,
@@ -243,108 +205,81 @@ export function ItemPicker<
     renderExistingResult,
     renderEditItemForm,
     isMulti,
-    featured,
     schema,
     renderNewItemSummary,
-    namePrefix
+    isSearchFirst: isSearchFirstProp
   } = props
 
-  // Search-first types default to the search input rather than a blank
-  // create form because their first field is free text (`venue.name`,
-  // `publisher.name`) the search box can capture directly. Types whose first
-  // field is a URL/iframe/file default to create.
-  const searchFirstItemTypes = ['venues', 'publishers'] as const
-  const isSearchFirst =
-    !!renderEditItemForm &&
-    (searchFirstItemTypes as readonly string[]).includes(itemType)
+  const featured = props.isMulti ? props.featured : undefined
+  const singleIdFieldName = itemIdFieldName(itemType, name)
+  const listFieldName = name ?? itemType
+
+  const isSearchFirst = !!renderEditItemForm && !!isSearchFirstProp
   const isCreateFirst = !!renderEditItemForm && !isSearchFirst
 
-  const hasExistingItems = isMulti
-    ? (props.existingItems?.length ?? 0) > 0
-    : !!props.existingItem
-
+  // Create vs search for a multi picker's next entry; single pickers
+  // don't use it (see `setMultiMode`).
   const [mode, setMode] = useState<'create' | 'search'>(
     isMulti && isCreateFirst ? 'create' : 'search'
   )
-
-  const startWithBlankSlot =
-    mode === 'create' ||
-    (!isMulti && isCreateFirst && !hasExistingItems)
-
-  const nextTempId = useRef(startWithBlankSlot ? 1 : 0)
-  const [slots, setSlots] = useState<Slot<TEmbeddedItem, TPage>[]>(
-    () => {
-      const existing = isMulti
-        ? (props.existingItems ?? []).map((item) => ({
-            kind: 'existing' as const,
-            item
-          }))
-        : props.existingItem
-          ? [{ kind: 'existing' as const, item: props.existingItem }]
-          : []
-      if (!startWithBlankSlot) return existing
-      const blank = { kind: 'new' as const, tempId: 'new-0' }
-      // Keep an initially-featured item pinned at the head. The blank
-      // create form joins the rest just after it.
-      if (featured?.isInitiallyFeatured && existing.length > 0) {
-        return [existing[0], blank, ...existing.slice(1)]
-      }
-      return [blank, ...existing]
-    }
-  )
-  const [isFeatured, setIsFeatured] = useState(
-    featured?.isInitiallyFeatured ?? false
-  )
+  const setMultiMode = (next: 'create' | 'search') => {
+    if (isMulti) setMode(next)
+  }
   const [isMainFieldReady, setIsMainFieldReady] = useState(false)
-  const [newSlotErrors, setNewSlotErrors] = useState<
-    Record<string, FieldErrors>
-  >({})
-  // Per-draft-slot flag, keyed by tempId: true while the slot's edit form
-  // has async work in flight (see `renderEditItemForm`'s `onBusyChange`).
-  const [busySlots, setBusySlots] = useState<Record<string, boolean>>(
-    {}
-  )
-  // The existing item the user asked to open for inline editing. A fresh
-  // object per request (so re-editing the same id refires) set by a
-  // ref-free onClick — keeping `renderSlot` out of the refs lint rule.
-  // The ref work (tempId mint + focus) happens in an effect below.
-  const [editRequest, setEditRequest] = useState<{
-    id: string
-  } | null>(null)
-  const newSlotFieldsets = useRef(
-    new Map<string, HTMLFieldSetElement>()
-  )
-  // Collapsed-chip DOM nodes, so we can move focus into a chip after
-  // its editor collapses via Save (see `pendingChipFocusTempId`).
-  const newSlotChips = useRef(new Map<string, HTMLDivElement>())
-  // tempId of a slot whose chip should receive focus on the next
-  // render, set when the Save button collapses a fieldset out from
-  // under the user's focus.
-  const pendingChipFocusTempId = useRef<string | null>(null)
-  // tempId of a freshly opened create editor to focus on next render.
-  const pendingCreateFocusTempId = useRef<string | null>(null)
-  // Set when a multi picker toggles back to search, so the search
-  // input refocuses on the next render.
-  const pendingComboboxFocus = useRef(false)
+  const {
+    draftErrors,
+    clearErrors,
+    validateDraft,
+    validateEntryStrict,
+    readEntryValues,
+    setFieldsetRef,
+    getFieldset
+  } = useEntryValidation({ schema, fieldPrefix: entryFieldPrefix })
+  const {
+    entries,
+    busyEntries,
+    featuredEntry,
+    openDraft,
+    stableDrafts,
+    sortableEntries,
+    restIndex,
+    hasOpenDraft,
+    addExisting,
+    addNew,
+    editExisting,
+    removeEntry,
+    revertEditingEntry,
+    markEntryTouched,
+    setBusyEntry,
+    saveDraft,
+    editDraft,
+    saveOpenDrafts,
+    setFeatured,
+    unsetFeatured,
+    reorderSortable
+  } = useItemPickerEntries<TEmbeddedItem, TPage>({
+    isMulti: !!isMulti,
+    existingItems: isMulti
+      ? (props.existingItems ?? [])
+      : props.existingItem
+        ? [props.existingItem]
+        : [],
+    isCreateFirst,
+    featured,
+    validation: { validateEntryStrict, clearErrors, readEntryValues }
+  })
+  // Where to move focus once the next `entries` change commits — the
+  // control that triggered it (Save, Cancel, the search toggle) is
+  // usually unmounted or hidden by that change.
+  const pendingFocus = useRef<FocusTarget | null>(null)
+  // Edit buttons by `entryId`: a saved chip's (after Save) or an
+  // existing row's (after Cancel).
+  const editButtons = useRef(new Map<string, HTMLButtonElement>())
   // The picker's root, so the combobox can refocus.
   const rootRef = useRef<HTMLDivElement>(null)
-  // Slot count as of the last commit, so the combobox-refocus effect can
-  // detect a single-item picker emptying (1 → 0).
-  const prevSlotCount = useRef(slots.length)
-
-  const slotsRef = useRef(slots)
-  useEffect(() => {
-    slotsRef.current = slots
-  }, [slots])
-  useEffect(() => {
-    return () => {
-      slotsRef.current.forEach((slot) => {
-        if (isDraftSlot(slot) && slot.previewUrl) {
-          URL.revokeObjectURL(slot.previewUrl)
-        }
-      })
-    }
-  }, [])
+  // Entry count as of the last commit, so the focus effect can detect a
+  // single-item picker emptying (1 → 0).
+  const prevEntryCount = useRef(entries.length)
 
   const itemLabel = label || itemTypeToLabel(itemType, true)
   const newLabel = `New ${itemTypeToLabel(itemType, true, true)}`
@@ -352,793 +287,265 @@ export function ItemPicker<
   const removeLabel = `Remove ${itemTypeToLabel(itemType, true, true)}`
   const featuredLabel = featured?.label || 'Featured'
 
-  const featuredSlot = featured && isFeatured ? slots[0] : undefined
-  const restSlots = featuredSlot ? slots.slice(1) : slots
-  // Draft slots (new + edited-existing) both carry a mounted fieldset.
-  const newRestSlots = restSlots.filter(isDraftSlot)
-  // A saved draft slot's `<input type=file>` can't be repopulated, so
-  // its fieldset must never move containers or reorder (either remounts
-  // it and drops the file). So the always-mounted draft fieldsets render
-  // on their own in a fixed creation order that never changes, while the
-  // *chips* — which carry no file input — reorder freely. Since existing
-  // slots are likewise fieldset-free, their results and the saved draft
-  // chips share ONE sortable list (`sortableSlots`); only open editors
-  // (`openNewSlots`) stay fixed, ahead of it.
-  const openNewSlots = newRestSlots.filter((slot) => !slot.saved)
-  const stableNewSlots = [...newRestSlots].sort(
-    (a, b) => newSlotSeq(a) - newSlotSeq(b)
-  )
-  const sortableSlots = restSlots.filter(
-    (slot) => slot.kind === 'existing' || slot.saved
-  )
-  // A slot's submit/action index is its position in the canonical rest
-  // order — open editors first, then the sortable chips — offset past
-  // any pinned featured slot at the array head.
-  const orderedRest = [...openNewSlots, ...sortableSlots]
-  const restIndex = (slot: Slot<TEmbeddedItem, TPage>) =>
-    orderedRest.indexOf(slot) + (featuredSlot ? 1 : 0)
-
-  function insertSlot(
-    current: Slot<TEmbeddedItem, TPage>[],
-    slot: Slot<TEmbeddedItem, TPage>
+  function setEditButtonRef(
+    id: string,
+    el: HTMLButtonElement | null
   ) {
-    if (!isMulti) return [slot]
-    // Keep a pinned featured slot at the front; new picks join the
-    // (reorderable) rest right after it instead of displacing it.
-    if (featured && isFeatured && current.length > 0) {
-      return [current[0], slot, ...current.slice(1)]
-    }
-    return [slot, ...current]
+    if (el) editButtons.current.set(id, el)
+    else editButtons.current.delete(id)
   }
 
-  function removeSlot(slot: Slot<TEmbeddedItem, TPage>) {
-    if (featuredSlot && slotId(featuredSlot) === slotId(slot)) {
-      setIsFeatured(false)
-    }
-    setSlots((current) => {
-      const index = current.findIndex(
-        (s) => slotId(s) === slotId(slot)
-      )
-      if (index === -1) return current
-      const removed = current[index]
-      if (isDraftSlot(removed)) {
-        setNewSlotErrors(({ [removed.tempId]: _, ...rest }) => rest)
-        setBusySlots(({ [removed.tempId]: _, ...rest }) => rest)
-        if (removed.previewUrl)
-          URL.revokeObjectURL(removed.previewUrl)
-      }
-      return current.filter((_, i) => i !== index)
-    })
-  }
+  // Resolve `pendingFocus` after the change that requested it commits,
+  // so keyboard/screen-reader users aren't dropped on <body>. With
+  // nothing pending, a single-item picker emptying (1 → 0) means its
+  // open form was abandoned or its chip removed — the control that did
+  // it unmounted, so fall back to the reappearing search input. Guarded
+  // on the transition so an initially-empty picker doesn't grab focus
+  // on mount.
+  useEffect(() => {
+    const wasNonEmpty = prevEntryCount.current > 0
+    prevEntryCount.current = entries.length
+    const target = pendingFocus.current
+    pendingFocus.current = null
 
-  function addExisting(item: TEmbeddedItem | TPage) {
-    setSlots((current) => {
-      if (
-        current.some(
-          (s) =>
-            (s.kind === 'existing' || s.kind === 'editing') &&
-            s.item.id === item.id
+    if (target?.kind === 'edit') {
+      editButtons.current.get(target.id)?.focus()
+    } else if (target?.kind === 'create') {
+      getFieldset(target.tempId)
+        ?.querySelector<HTMLElement>(
+          'input:not([type="hidden"]), select, textarea'
         )
-      ) {
-        return current
-      }
-      return insertSlot(current, { kind: 'existing', item })
-    })
-  }
-
-  /**
-   * Cancels an in-progress edit of an existing item, restoring its
-   * read-only `existing` chip and discarding the edits — the editing
-   * counterpart to discarding a `new` draft (which removes it entirely).
-   * Ref-free (setState only) so render helpers can reference it; the
-   * caller owns any pending-focus ref write.
-   */
-  function revertEditingSlot(slot: Slot<TEmbeddedItem, TPage>) {
-    if (slot.kind !== 'editing') return
-    if (slot.previewUrl) URL.revokeObjectURL(slot.previewUrl)
-    setNewSlotErrors(({ [slot.tempId]: _, ...rest }) => rest)
-    setSlots((current) =>
-      current.map((s) =>
-        slotId(s) === slotId(slot)
-          ? { kind: 'existing' as const, item: slot.item }
-          : s
-      )
-    )
-  }
-
-  function addNew(query?: string) {
-    const tempId = `new-${nextTempId.current++}`
-    setSlots((current) =>
-      insertSlot(current, { kind: 'new', query, tempId })
-    )
-    return tempId
-  }
-
-  function setNewSlotFieldsetRef(
-    tempId: string,
-    el: HTMLFieldSetElement | null
-  ) {
-    if (el) newSlotFieldsets.current.set(tempId, el)
-    else newSlotFieldsets.current.delete(tempId)
-  }
-
-  function setNewSlotChipRef(
-    tempId: string,
-    el: HTMLDivElement | null
-  ) {
-    if (el) newSlotChips.current.set(tempId, el)
-    else newSlotChips.current.delete(tempId)
-  }
-
-  // Opens an already-attached item for inline editing (requested via
-  // `editRequest`): swaps its read-only `existing` slot for an `editing`
-  // slot (same item, fresh tempId) that mounts the edit fieldset seeded
-  // with the item, then hands off to the create-focus effect. Runs from
-  // an effect rather than the onClick so the ref access (tempId mint +
-  // focus) stays out of render (see `editRequest`); reuses the shared
-  // `new-` tempId sequence so `newSlotSeq` orders the fieldset normally.
-  useEffect(() => {
-    if (!editRequest) return
-    const id = editRequest.id
-    const target = slotsRef.current.find(
-      (s) => s.kind === 'existing' && slotId(s) === id
-    )
-    if (!target) return
-    const tempId = `new-${nextTempId.current++}`
-    // Hide untouched-blank create form when editor opens, only one
-    // form is open at once (create mode re-seeds on editor close).
-    setSlots((current) =>
-      current
-        .filter((s) => !(s.kind === 'new' && !s.saved && !s.touched))
-        .map((s) =>
-          s.kind === 'existing' && slotId(s) === id
-            ? { kind: 'editing' as const, item: s.item, tempId }
-            : s
-        )
-    )
-    pendingCreateFocusTempId.current = tempId
-  }, [editRequest])
-
-  // When Save collapses a fieldset, its Save button (which had focus)
-  // is hidden and replaced by a chip — move focus to that chip's Edit
-  // control so keyboard/screen-reader users aren't dropped on <body>.
-  useEffect(() => {
-    const tempId = pendingChipFocusTempId.current
-    if (!tempId) return
-    pendingChipFocusTempId.current = null
-    const chip = newSlotChips.current.get(tempId)
-    if (!chip) return
-    const editButton = Array.from(
-      chip.querySelectorAll('button')
-    ).find((b) => b.textContent?.trim() === 'Edit')
-    ;(editButton ?? chip.querySelector('button'))?.focus()
-  }, [slots])
-
-  // Focus the first field of a freshly opened create editor so the
-  // user lands in the form rather than on <body> after the search
-  // input is hidden.
-  useEffect(() => {
-    const tempId = pendingCreateFocusTempId.current
-    if (!tempId) return
-    pendingCreateFocusTempId.current = null
-    const fieldset = newSlotFieldsets.current.get(tempId)
-    fieldset
-      ?.querySelector<HTMLElement>(
-        'input:not([type="hidden"]), select, textarea'
-      )
-      ?.focus()
-  }, [slots])
-
-  // Refocus the search input after a multi picker toggles back to
-  // search from create mode, so focus isn't dropped on <body>.
-  useEffect(() => {
-    if (!pendingComboboxFocus.current) return
-    pendingComboboxFocus.current = false
-    rootRef.current
-      ?.querySelector<HTMLElement>('[role="combobox"]')
-      ?.focus()
-  }, [slots])
-
-  // A single-item picker emptying (1 → 0 slots) means its open create
-  // form was abandoned — via the image preview's X (the escape hatch),
-  // the Cancel button, or removing the saved chip — which restores the
-  // combobox (`showCombobox`). The control that triggered it unmounts
-  // with the form, so move focus to the reappearing search input rather
-  // than let it drop to <body>. Guarded on the 1 → 0 transition so an
-  // initially-empty picker doesn't grab focus on mount.
-  useEffect(() => {
-    const wasNonEmpty = prevSlotCount.current > 0
-    prevSlotCount.current = slots.length
-    if (isMulti || !wasNonEmpty || slots.length !== 0) return
-    rootRef.current
-      ?.querySelector<HTMLElement>('[role="combobox"]')
-      ?.focus()
-  }, [slots, isMulti])
-
-  function isValidatable(
-    el: Element
-  ): el is
-    | HTMLInputElement
-    | HTMLSelectElement
-    | HTMLTextAreaElement {
-    return 'willValidate' in el && 'checkValidity' in el
-  }
-
-  /**
-   * The prefix a "new" slot's fields are rendered with, stripped when
-   * reading them back: `${name}[${index}].` for `isMulti`, or the
-   * single-item create form's `namePrefix` (e.g. `coverImage.`)
-   * when set — matching how `extractIndexedGroups`/`resolveCoverImageId`
-   * strip the same prefix server-side from the real submission.
-   */
-  function slotFieldPrefix(submitIndex: number): string {
-    if (isMulti) return `${name}[${submitIndex}].`
-    return namePrefix ? `${namePrefix}.` : ''
-  }
-
-  /**
-   * strip `slotFieldPrefix`.
-   */
-  function collectSlotData(
-    fieldset: HTMLFieldSetElement,
-    prefix: string
-  ): Record<string, unknown> {
-    const data: Record<string, unknown> = {}
-    Array.from(fieldset.elements)
-      .filter(isValidatable)
-      .forEach((el) => {
-        if (!el.name.startsWith(prefix)) return
-        const field = el.name.slice(prefix.length)
-        data[field] =
-          el instanceof HTMLInputElement && el.type === 'checkbox'
-            ? el.checked
-            : el instanceof HTMLInputElement && el.type === 'file'
-              ? el.files?.[0]
-              : el.value
-      })
-    return data
-  }
-
-  /**
-   * Validates a "new" slot, updating `newSlotErrors` with Zod errors.
-   * Always valid (a no-op) for item types (e.g. `images`) whose schema
-   * needs data not yet available client-side.
-   * Moves focus to the first invalid field  when blocking progress (adding
-   * another slot). Omitted for the quieter blur-triggered check below,
-   * which shouldn't fight the user's own tab navigation.
-   */
-  function validateNewSlot(
-    slot: Slot<TEmbeddedItem, TPage>,
-    submitIndex: number,
-    options: { focus?: boolean } = {}
-  ): boolean {
-    if (!isDraftSlot(slot) || !schema) return true
-    const fieldset = newSlotFieldsets.current.get(slot.tempId)
-    if (!fieldset) return true
-
-    const prefix = slotFieldPrefix(submitIndex)
-    const parsed = schema.safeParse(
-      normalizeFormData(collectSlotData(fieldset, prefix))
-    )
-
-    if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten()
-        .fieldErrors as FieldErrors
-      setNewSlotErrors((current) => ({
-        ...current,
-        [slot.tempId]: fieldErrors
-      }))
-      if (options.focus) {
-        const firstField = Object.keys(fieldErrors)[0]
-        const invalidEl = firstField
-          ? fieldset.elements.namedItem(`${prefix}${firstField}`)
-          : null
-        if (invalidEl instanceof HTMLElement) invalidEl.focus()
-      }
-      return false
+        ?.focus()
+    } else if (
+      target?.kind === 'combobox' ||
+      (!isMulti && wasNonEmpty && entries.length === 0)
+    ) {
+      rootRef.current
+        ?.querySelector<HTMLElement>('[role="combobox"]')
+        ?.focus()
     }
-
-    if (slot.tempId in newSlotErrors) {
-      setNewSlotErrors(({ [slot.tempId]: _, ...rest }) => rest)
-    }
-    return true
-  }
+  }, [entries, getFieldset, isMulti])
 
   /**
-   * Runs native `required`/`type` constraints (the only signal for
-   * fields a schema can't see yet, e.g. embed codes' `iframe`
-   * textarea, which isn't itself a schema field — only the
-   * `host`/`src`/`type` parsed from it are) then `validateNewSlot`,
-   * for a single slot — the full validate-and-focus sequence shared by
-   * collapsing open slots on another entry (`saveOpenNewSlots`) and an
-   * explicit Save.
+   * The prefix a draft's fields are rendered with, provided to the
+   * entry's edit form and stripped when reading it back:
+   * `${name}[${index}].` for `isMulti`, the single id field's name
+   * without its `Id` suffix (`venue.`, `coverImage.`) for a single
+   * item — matching how `extractIndexedGroups` and the `resolve*Id`
+   * helpers strip the same prefix server-side from the real
+   * submission.
    */
-  function validateSlotStrict(
-    slot: Slot<TEmbeddedItem, TPage>,
-    submitIndex: number
-  ): boolean {
-    if (!isDraftSlot(slot)) return true
-    const fieldset = newSlotFieldsets.current.get(slot.tempId)
-    if (!fieldset) return true
-
-    const invalid = Array.from(fieldset.elements)
-      .filter(isValidatable)
-      .find((el) => el.willValidate && !el.checkValidity())
-
-    if (invalid) {
-      invalid.reportValidity()
-      return false
-    }
-
-    return validateNewSlot(slot, submitIndex, { focus: true })
-  }
-
-  function findFileInput(
-    fieldset: HTMLFieldSetElement
-  ): HTMLInputElement | undefined {
-    return Array.from(fieldset.elements).find(
-      (el): el is HTMLInputElement =>
-        el instanceof HTMLInputElement && el.type === 'file'
-    )
-  }
-
-  // Flag a draft slot as touched the first time the user edits any fields.
-  // Returns `current` unchanged once already touched so repeated edits don't
-  // re-render. See `Slot`'s `touched` for why untouched slots are pruned.
-  function markSlotTouched(tempId: string) {
-    setSlots((current) => {
-      const target = current.find(
-        (s) => isDraftSlot(s) && s.tempId === tempId
-      )
-      if (!target || !isDraftSlot(target) || target.touched) {
-        return current
-      }
-      return current.map((s) =>
-        isDraftSlot(s) && s.tempId === tempId
-          ? { ...s, touched: true }
-          : s
-      )
-    })
+  function entryFieldPrefix(submitIndex: number): string {
+    if (isMulti)
+      return indexedItemFieldPrefix(listFieldName, submitIndex)
+    return itemFieldPrefix(singleIdFieldName)
   }
 
   /**
-   * Validates a single "new" slot and, on success, collapses it into
-   * its saved state — the fieldset stays mounted, hidden, and renders
-   * a chip in its place. Snapshots the fieldset's values (`summaryData`)
-   * and, for any picked file, a `previewUrl`, since the collapsed chip
-   * renders from state rather than reading the (now hidden, and
-   * ref-only-outside-render) fieldset directly.
-   */
-  function saveNewSlot(
-    slot: Slot<TEmbeddedItem, TPage>,
-    submitIndex: number
-  ): boolean {
-    if (!isDraftSlot(slot)) return true
-    if (!validateSlotStrict(slot, submitIndex)) return false
-
-    const fieldset = newSlotFieldsets.current.get(slot.tempId)
-    const prefix = slotFieldPrefix(submitIndex)
-    const summaryData = fieldset
-      ? normalizeFormData(collectSlotData(fieldset, prefix))
-      : {}
-    const file = fieldset && findFileInput(fieldset)?.files?.[0]
-    const previewUrl = file ? URL.createObjectURL(file) : undefined
-
-    setSlots((current) =>
-      current.map((s) =>
-        isDraftSlot(s) && s.tempId === slot.tempId
-          ? { ...s, saved: true, previewUrl, summaryData }
-          : s
-      )
-    )
-    return true
-  }
-
-  /**
-   * Re-expands a saved "new" slot for editing, revoking its preview
-   * object URL — Save creates a fresh one when the slot is next saved.
-   */
-  function editNewSlot(slot: Slot<TEmbeddedItem, TPage>) {
-    if (!isDraftSlot(slot)) return
-    // Only one editor open at a time: drop any *other* still-untouched
-    // create editor (the one Save auto-reopens for the next item) as
-    // this slot re-expands, so editing doesn't leave a stray file input
-    // open beside its edit form. Only `new` strays are disposable —
-    // an untouched `editing` slot still owns an item, so it's never
-    // pruned. Its `touched` is kept — the slot has content, so toggling
-    // back to search should still fold it to a chip.
-    const strayIds = new Set(
-      slots
-        .filter(
-          (s) =>
-            s.kind === 'new' &&
-            !s.saved &&
-            !s.touched &&
-            s.tempId !== slot.tempId
-        )
-        .map((s) => (s as { tempId: string }).tempId)
-    )
-    if (strayIds.size > 0) {
-      setNewSlotErrors((current) => {
-        const next = { ...current }
-        strayIds.forEach((id) => delete next[id])
-        return next
-      })
-    }
-    setSlots((current) =>
-      current
-        .filter((s) => !(s.kind === 'new' && strayIds.has(s.tempId)))
-        .map((s) => {
-          if (!isDraftSlot(s) || s.tempId !== slot.tempId) return s
-          if (s.previewUrl) URL.revokeObjectURL(s.previewUrl)
-          return {
-            ...s,
-            saved: false,
-            previewUrl: undefined,
-            summaryData: undefined
-          }
-        })
-    )
-  }
-
-  /**
-   * Collapses every still-open "new" slot into its saved chip. Run
-   * when the user starts another entry, so completed slots fold up
-   * instead of stacking open forms. Blocks (returns false)
-   * as soon as an open slot is invalid, with `saveNewSlot`'s validation.
-   */
-  function saveOpenNewSlots(): boolean {
-    for (const slot of slots) {
-      if (!isDraftSlot(slot) || slot.saved) continue
-      if (!saveNewSlot(slot, restIndex(slot))) return false
-    }
-    return true
-  }
-
-  /**
-   * Whether a "new" slot passes native + schema validation *without*
-   * reporting or focusing — used to decide collapse-vs-discard when the
-   * user toggles back to search (a mode switch shouldn't nag with
-   * validation bubbles the way an explicit Save does).
-   */
-  function isSlotComplete(slot: Slot<TEmbeddedItem, TPage>): boolean {
-    if (!isDraftSlot(slot)) return true
-    const fieldset = newSlotFieldsets.current.get(slot.tempId)
-    if (!fieldset) return false
-    const nativeValid = Array.from(fieldset.elements)
-      .filter(isValidatable)
-      .every((el) => !el.willValidate || el.checkValidity())
-    if (!nativeValid) return false
-    return validateNewSlot(slot, restIndex(slot))
-  }
-
-  /**
-   * Toggle back to search from create mode: collapse a complete draft
-   * into its chip, or discard an empty/incomplete one — either way the
-   * open editor closes, so `showCombobox`/`hasOpenDraft` fall back to the
-   * search input. Only one editor is ever open at a time (adding
-   * another runs `saveOpenNewSlots` first), so the head slot suffices.
+   * Toggle back to search, closing the open editor so
+   * `showCombobox`/`hasOpenDraft` fall back to the search input. Only
+   * one editor is ever open at a time (adding another runs
+   * `saveOpenDrafts` first).
    *
-   * An untouched editor (Save reopens one for the next item) is
-   * discarded, not saved: for schemaless items like images its empty
-   * form passes validation, so `isSlotComplete` alone would fold it into
-   * a phantom chip.
+   * An untouched draft closes: a new one is discarded (for schemaless
+   * items like images its empty form would pass validation and fold
+   * into a phantom chip), an edit reverts. A touched draft is saved
+   * like an explicit Save — never discarded, since only Cancel drops
+   * changes — and stays open with its errors if invalid; returns
+   * `false` then, since the editor didn't close.
    *
-   * Sets the matching pending-focus ref for whichever happens: a
-   * discarded slot leaves the search input as the thing to focus, but a
-   * collapsed one replaces the editor with a chip (and, for a
-   * single-item picker, can hide the combobox entirely — see
-   * `showCombobox`) — so focus must follow to the chip's Edit control
-   * instead, the same as the explicit Save button does.
+   * Focus follows whichever happens: the search input after a close,
+   * or the saved chip's Edit button (a single picker's combobox hides
+   * once it has an entry — see `showCombobox`).
    */
-  function returnToSearch() {
-    const open = openNewSlots[0]
-    if (!open) return
-    // An open edit of an existing item reverts to its chip rather than
-    // being discarded — discarding would drop the attached item.
-    if (open.kind === 'editing') {
-      revertEditingSlot(open)
-      pendingComboboxFocus.current = true
-      return
+  function returnToSearch(): boolean {
+    if (!openDraft) return true
+    if (!openDraft.isTouched) {
+      if (openDraft.kind === 'editing') revertEditingEntry(openDraft)
+      else removeEntry(openDraft)
+      pendingFocus.current = { kind: 'combobox' }
+      return true
     }
-    if (open.touched && isSlotComplete(open)) {
-      if (saveNewSlot(open, restIndex(open))) {
-        pendingChipFocusTempId.current = open.tempId
-      }
-    } else {
-      removeSlot(open)
-      pendingComboboxFocus.current = true
-    }
-  }
-
-  function setFeatured(slot: Slot<TEmbeddedItem, TPage>) {
-    setSlots((current) => {
-      const index = current.findIndex(
-        (s) => slotId(s) === slotId(slot)
-      )
-      if (index === -1) return current
-      const target = current[index]
-      return [target, ...current.filter((_, i) => i !== index)]
-    })
-    setIsFeatured(true)
+    if (!saveDraft(openDraft, restIndex(openDraft))) return false
+    pendingFocus.current = { kind: 'edit', id: entryId(openDraft) }
+    return true
   }
 
   function featuredControl(
-    slot: Slot<TEmbeddedItem, TPage>,
+    entry: ItemPickerEntry<TEmbeddedItem, TPage>,
     isCurrentlyFeatured: boolean
   ) {
     if (!featured) return undefined
-    return isCurrentlyFeatured ? (
-      <button
-        type='button'
-        aria-label={`Unset ${featuredLabel}`}
-        className={`${itemPickerStyles['featured-button']} button-icon`}
-        onClick={() => setIsFeatured(false)}
-      >
-        <StarIconSolid />
-      </button>
-    ) : (
-      <button
-        type='button'
-        aria-label={`Set as ${featuredLabel}`}
-        className={`${itemPickerStyles['featured-button']} button-icon`}
-        onClick={() => setFeatured(slot)}
-      >
-        <StarIcon />
-      </button>
+    return (
+      <FeaturedToggleButton
+        isCurrentlyFeatured={isCurrentlyFeatured}
+        onToggle={
+          isCurrentlyFeatured
+            ? unsetFeatured
+            : () => setFeatured(entry)
+        }
+        featuredLabel={featuredLabel}
+      />
     )
   }
 
-  /** The collapsed chip for a saved draft (new or edited-existing) slot. */
-  function renderNewItemChip(
-    slot: DraftSlot<TEmbeddedItem, TPage>,
+  function renderDraftChip(
+    entry: Draft<TEmbeddedItem, TPage>,
     dragHandle?: React.ReactNode
   ) {
-    const actions = {
-      onEdit: () => editNewSlot(slot),
-      onRemove: () => removeSlot(slot)
-    }
-    const editButton = (
-      <button
-        type='button'
-        className='button-sm'
-        onClick={actions.onEdit}
-      >
-        Edit
-      </button>
-    )
     return (
-      <div
-        className={selectedResultStyles['selected-result']}
-        ref={(el) => setNewSlotChipRef(slot.tempId, el)}
-      >
-        {dragHandle}
-        <div className={selectedResultStyles['content']}>
-          {slot.kind === 'editing' ? (
-            // An edited existing item collapses back to its normal result
-            // chip (merged with the edits), plus an Edit control to reopen.
-            renderExistingResult(
-              { ...slot.item, ...slot.summaryData } as
-                | TEmbeddedItem
-                | TPage,
-              actions.onRemove,
-              removeLabel,
-              editButton
-            )
-          ) : renderNewItemSummary ? (
-            renderNewItemSummary(
-              slot.summaryData ?? {},
-              slot.previewUrl,
-              actions
-            )
-          ) : (
-            <ItemResultLabel
-              title={newLabel}
-              onRemove={actions.onRemove}
-              removeLabel={removeLabel}
-              extraActions={editButton}
-            />
-          )}
-        </div>
-      </div>
+      <DraftChip
+        entry={entry}
+        dragHandle={dragHandle}
+        onEdit={() => editDraft(entry)}
+        onRemove={() => removeEntry(entry)}
+        renderExistingResult={renderExistingResult}
+        renderNewItemSummary={renderNewItemSummary}
+        newLabel={newLabel}
+        removeLabel={removeLabel}
+        setEditButtonRef={(el) =>
+          setEditButtonRef(entryId(entry), el)
+        }
+      />
     )
   }
 
-  /**
-   * The "new" slot's edit fieldset — kept mounted (never unmounted or
-   * disabled) even once saved, only visually hidden — a picked
-   * `<input type=file>` can't be programmatically repopulated, so its
-   * live DOM node must survive a save→edit round-trip; `hidden` still
-   * submits the fieldset's inputs on final form submit. The body is just
-   * the create form: no visible legend or Cancel button (the combobox
-   * header's "Search {item}" toggle is the way back to search), so an
-   * `aria-label` names the group in the accessible tree in the legend's
-   * place. A `featured` picker's star toggle is not surfaced here,
-   * currently shown only on closed chips (see `featuredControl`).
-   *
-   * A sibling function (rather than a JSX value assigned to a local)
-   * called directly from `renderSlot`, matching `renderSlot` itself —
-   * assigning this fieldset's output (it carries a `ref` callback) to a
-   * variable instead of returning it directly trips the
-   * `react-hooks/refs` lint rule's ref-reachability analysis.
-   */
-  function renderNewFieldset(
-    slot: DraftSlot<TEmbeddedItem, TPage>,
+  function handleSave(
+    entry: Draft<TEmbeddedItem, TPage>,
     submitIndex: number
   ) {
-    const idInputName = isMulti
-      ? name && `${name}[${submitIndex}].id`
-      : (name ?? `${itemTypeSingulars[itemType]}Id`)
+    if (!saveDraft(entry, submitIndex)) return
+    // Multi: reopen an empty editor for the next item after a new one,
+    // or after an edit in create mode. Otherwise the saved entry
+    // collapses to its chip.
+    if (isMulti && (entry.kind === 'new' || mode === 'create')) {
+      pendingFocus.current = { kind: 'create', tempId: addNew() }
+    } else {
+      pendingFocus.current = { kind: 'edit', id: entryId(entry) }
+    }
+  }
+
+  function handleCancelEdit(
+    entry: Extract<
+      ItemPickerEntry<TEmbeddedItem, TPage>,
+      { kind: 'editing' }
+    >
+  ) {
+    revertEditingEntry(entry)
+    if (!isMulti) {
+      // The reverted row replaces the editor; focus its Edit button.
+      pendingFocus.current = { kind: 'edit', id: entry.item.id }
+    } else if (mode === 'create') {
+      pendingFocus.current = { kind: 'create', tempId: addNew() }
+    } else {
+      pendingFocus.current = { kind: 'combobox' }
+    }
+  }
+
+  function renderDraftFieldset(
+    entry: Draft<TEmbeddedItem, TPage>,
+    submitIndex: number
+  ) {
     return (
-      <fieldset
-        hidden={slot.saved}
-        className={itemPickerStyles['new-item-fieldset']}
-        ref={(el) => setNewSlotFieldsetRef(slot.tempId, el)}
-        onChange={() => markSlotTouched(slot.tempId)}
-        // Multi-item slots are already validated when the user tries
-        // to add another one (`saveOpenNewSlots`). Single-item
+      <DraftFieldset
+        entry={entry}
+        idInputName={
+          isMulti
+            ? `${indexedItemFieldPrefix(listFieldName, submitIndex)}id`
+            : singleIdFieldName
+        }
+        fieldPrefix={entryFieldPrefix(submitIndex)}
+        errors={draftErrors[entry.tempId]}
+        isBusy={busyEntries[entry.tempId]}
+        isRequired={isRequired ?? false}
+        isSearchFirst={isSearchFirst}
+        legend={entry.kind === 'editing' ? itemLabel : newLabel}
+        saveLabel={saveLabel}
+        onSave={() => handleSave(entry, submitIndex)}
+        onCancelEdit={
+          entry.kind === 'editing'
+            ? () => handleCancelEdit(entry)
+            : undefined
+        }
+        onTouched={() => markEntryTouched(entry.tempId)}
+        // Multi-item entries are already validated when the user tries
+        // to add another one (`saveOpenDrafts`). Single-item
         // pickers validate on blur when focus leaves the fieldset.
-        onBlur={
+        onBlurValidate={
           isMulti
             ? undefined
-            : (e) => {
-                if (
-                  e.relatedTarget instanceof Node &&
-                  e.currentTarget.contains(e.relatedTarget)
-                ) {
-                  return
-                }
-                validateNewSlot(slot, submitIndex)
-              }
+            : () => validateDraft(entry.tempId, submitIndex)
         }
-      >
-        <legend className='visually-hidden'>
-          {slot.kind === 'editing' ? itemLabel : newLabel}
-        </legend>
-        {/* An edited existing item submits its id alongside the edited
-            fields, so the server UPDATEs it (an `edited` entry) rather
-            than creating a duplicate. */}
-        {slot.kind === 'editing' && idInputName && (
-          <input
-            type='hidden'
-            name={idInputName}
-            value={slot.item.id}
-            readOnly
-          />
-        )}
-        {renderEditItemForm?.({
-          query: slot.kind === 'new' ? slot.query : undefined,
-          index: isMulti ? submitIndex : undefined,
-          errors: newSlotErrors[slot.tempId],
-          isRequired: isRequired ?? false,
-          // Single-item pickers replace their combobox with this form,
-          // so removing the slot returns to search — wire that as the
-          // create form's own cancel (e.g. the image preview's X). Multi
-          // keeps its always-present combobox, so its Cancel button
-          // suffices and no create-form cancel is passed.
-          onCancel: isMulti ? undefined : () => removeSlot(slot),
-          onReadyChange: isMulti ? undefined : setIsMainFieldReady,
-          existingItem:
-            slot.kind === 'editing' ? slot.item : undefined,
-          onBusyChange: (isBusy: boolean) =>
-            setBusySlots((current) =>
-              current[slot.tempId] === isBusy
-                ? current
-                : { ...current, [slot.tempId]: isBusy }
-            )
-        })}
-        <div
-          className={`${itemPickerStyles['create-form-actions']} ${
-            isSearchFirst || slot.kind === 'editing'
-              ? itemPickerStyles['create-form-actions-visible']
-              : ''
-          }`}
-        >
-          <button
-            type='button'
-            className={`button-primary ${itemPickerStyles['save-button']}`}
-            disabled={busySlots[slot.tempId]}
-            onClick={() => {
-              if (!saveNewSlot(slot, submitIndex)) return
-              // After saving a *new* item, reopen an empty editor for the
-              // next one. A saved edit collapses to its chip.
-              if (isMulti && slot.kind === 'new') {
-                pendingCreateFocusTempId.current = addNew()
-              } else if (
-                isMulti &&
-                slot.kind === 'editing' &&
-                mode === 'create'
-              ) {
-                pendingCreateFocusTempId.current = addNew()
-              } else {
-                pendingChipFocusTempId.current = slot.tempId
-              }
-            }}
-          >
-            {saveLabel}
-          </button>
-          {slot.kind === 'editing' && (
-            <button
-              type='button'
-              className='button-sm'
-              onClick={() => {
-                revertEditingSlot(slot)
-                if (mode === 'create') {
-                  pendingCreateFocusTempId.current = addNew()
-                } else {
-                  pendingComboboxFocus.current = true
-                }
-              }}
-            >
-              Cancel
-            </button>
-          )}
-        </div>
-      </fieldset>
+        onReadyChange={isMulti ? undefined : setIsMainFieldReady}
+        onBusyChange={(isBusy) => setBusyEntry(entry.tempId, isBusy)}
+        setFieldsetRef={(el) => setFieldsetRef(entry.tempId, el)}
+        renderEditItemForm={renderEditItemForm}
+      />
     )
   }
 
-  function renderSlot(
-    slot: Slot<TEmbeddedItem, TPage>,
+  function handleEditExisting(id: string) {
+    pendingFocus.current = {
+      kind: 'create',
+      tempId: editExisting(id)
+    }
+  }
+
+  function renderExistingEntry(
+    entry: Extract<
+      ItemPickerEntry<TEmbeddedItem, TPage>,
+      { kind: 'existing' }
+    >,
     index: number,
     dragHandle?: React.ReactNode,
     featuredButton?: React.ReactNode
   ) {
-    return slot.kind === 'existing' ? (
-      (() => {
-        const Wrapper: 'div' | 'fieldset' = isMulti
-          ? 'div'
-          : 'fieldset'
+    return (
+      <ExistingEntryRow<TEmbeddedItem, TPage>
+        entry={entry}
+        itemType={itemType}
+        idInputName={
+          isMulti
+            ? `${indexedItemFieldPrefix(listFieldName, index)}id`
+            : singleIdFieldName
+        }
+        dragHandle={dragHandle}
+        featuredButton={featuredButton}
+        legend={
+          isMulti ? undefined : (
+            <InputLabel
+              as='legend'
+              isRequired={isRequired}
+              label={itemLabel}
+              description={description}
+            />
+          )
+        }
+        onEdit={
+          renderEditItemForm
+            ? () => handleEditExisting(entry.item.id)
+            : undefined
+        }
+        onRemove={() => removeEntry(entry)}
+        removeLabel={removeLabel}
+        setEditButtonRef={(el) => setEditButtonRef(entry.item.id, el)}
+        renderExistingResult={renderExistingResult}
+      />
+    )
+  }
 
-        const editButton = !!renderEditItemForm ? (
-          <button
-            type='button'
-            className='button-sm'
-            onClick={() => setEditRequest({ id: slot.item.id })}
-          >
-            Edit
-          </button>
-        ) : undefined
-        const extraActions =
-          editButton || featuredButton ? (
-            <>
-              {editButton}
-              {featuredButton}
-            </>
-          ) : undefined
-
-        return (
-          <Wrapper
-            className={itemPickerStyles['existing-item-wrapper']}
-          >
-            {!isMulti && (
-              <InputLabel
-                as='legend'
-                isRequired={isRequired}
-                label={itemLabel}
-                description={description}
-              />
-            )}
-            <SelectedResult
-              itemType={itemType}
-              name={isMulti ? `${name}[${index}].id` : name}
-              id={slot.item.id}
-              dragHandle={dragHandle}
-            >
-              {renderExistingResult(
-                slot.item,
-                () => removeSlot(slot),
-                removeLabel,
-                extraActions
-              )}
-            </SelectedResult>
-          </Wrapper>
-        )
-      })()
+  function renderEntry(
+    entry: ItemPickerEntry<TEmbeddedItem, TPage>,
+    index: number,
+    dragHandle?: React.ReactNode,
+    featuredButton?: React.ReactNode
+  ) {
+    return entry.kind === 'existing' ? (
+      renderExistingEntry(entry, index, dragHandle, featuredButton)
     ) : isMulti ? (
       <>
-        {slot.saved && renderNewItemChip(slot, dragHandle)}
-        {renderNewFieldset(slot, index)}
+        {entry.isSaved && renderDraftChip(entry, dragHandle)}
+        {renderDraftFieldset(entry, index)}
       </>
     ) : (
       <div className={itemPickerStyles['draft-wrapper']}>
@@ -1151,56 +558,56 @@ export function ItemPicker<
             />
           </div>
         )}
-        {slot.saved && renderNewItemChip(slot)}
-        {renderNewFieldset(slot, index)}
+        {entry.isSaved && renderDraftChip(entry)}
+        {renderDraftFieldset(entry, index)}
       </div>
     )
   }
 
   /**
    * One reorderable chip in the shared sortable list: an existing item's
-   * result, or a saved-new slot's collapsed chip (its fieldset lives in
+   * result, or a saved draft's collapsed chip (its fieldset lives in
    * the fixed list, so only the chip is rendered here).
    */
   function renderSortableRow(
-    slot: Slot<TEmbeddedItem, TPage>,
+    entry: ItemPickerEntry<TEmbeddedItem, TPage>,
     dragHandle?: React.ReactNode
   ) {
-    const index = restIndex(slot)
-    return slot.kind === 'existing'
-      ? renderSlot(
-          slot,
+    const index = restIndex(entry)
+    return entry.kind === 'existing'
+      ? renderEntry(
+          entry,
           index,
           dragHandle,
-          featuredControl(slot, false)
+          featuredControl(entry, false)
         )
-      : renderNewItemChip(slot, dragHandle)
+      : renderDraftChip(entry, dragHandle)
   }
 
-  // While a draft editor is open  the combobox stays mounted but
-  // hides its search input, swapping the "New {item}" button for a
-  // "Search {item}" toggle. Search and create are never shown at once.
-  const hasOpenDraft = slots.some(
-    (slot) => isDraftSlot(slot) && !slot.saved
-  )
   // Multi always shows the combobox, single shows it only to search
   // (empty list) or while a draft is open (the toggle carries label + Search).
-  const showCombobox = isMulti || slots.length === 0 || hasOpenDraft
+  const showCombobox = isMulti || entries.length === 0 || hasOpenDraft
 
   return (
     <div
-      className={`${itemPickerStyles['item-picker']} ${
-        !isMulti ? itemPickerStyles['item-picker-single'] : ''
-      }`}
+      className={clsx(
+        itemPickerStyles['item-picker'],
+        !isMulti && itemPickerStyles['item-picker-single']
+      )}
       ref={rootRef}
     >
-      {isMulti && name && (
-        <input name={`${name}[]`} type='hidden' value='' readOnly />
+      {isMulti && (
+        <input
+          name={emptyListFieldName(listFieldName)}
+          type='hidden'
+          value=''
+          readOnly
+        />
       )}
 
-      {featuredSlot && name && (
+      {isMulti && featuredEntry && (
         <input
-          name={`${name}Featured`}
+          name={featuredFlagFieldName(listFieldName)}
           type='hidden'
           value='true'
           readOnly
@@ -1209,33 +616,33 @@ export function ItemPicker<
 
       {showCombobox && (
         <Combobox<TEmbeddedItem, TPage, S>
-          label={label}
+          label={label || itemTypeToLabel(itemType, !isMulti)}
           description={description}
           isRequired={isRequired}
           initialResults={initialResults}
           searchParams={searchParams}
           itemType={itemType}
           isCreating={hasOpenDraft}
-          // Hidden if single-picker & open slot's main field is valid,
+          // Hidden if single-picker & open entry's main field is valid,
           // so the toggle can't discard entered content.
           onBackToSearch={
             !isMulti && isMainFieldReady
               ? undefined
               : () => {
-                  setMode('search')
-                  returnToSearch()
+                  if (returnToSearch()) setMultiMode('search')
                 }
           }
           renderExistingResult={renderExistingResult}
           onCreateNew={
             renderEditItemForm
               ? (q) => {
-                  // Collapse open slot(s) before adding another.
-                  if (!saveOpenNewSlots()) return
-                  setMode('create')
-                  pendingCreateFocusTempId.current = addNew(
-                    q || undefined
-                  )
+                  // Collapse open drafts before adding another.
+                  if (!saveOpenDrafts()) return
+                  setMultiMode('create')
+                  pendingFocus.current = {
+                    kind: 'create',
+                    tempId: addNew(q || undefined)
+                  }
                 }
               : undefined
           }
@@ -1243,85 +650,69 @@ export function ItemPicker<
         />
       )}
 
-      {featuredSlot && (
-        <div className='featured-slot'>
-          {renderSlot(
-            featuredSlot,
-            0,
-            undefined,
-            featuredControl(featuredSlot, true)
-          )}
-        </div>
-      )}
-
       {/*
-       * New slots' always-mounted fieldsets render on their own, in a
+       * Drafts' always-mounted fieldsets render on their own, in a
        * fixed creation order that never reorders — reordering (or moving
        * containers) would remount them and drop their picked file. Open
        * editors show here and aren't draggable; the collapsed chips
        * (below) carry no file input, so they reorder freely.
        */}
       {isMulti &&
-        newRestSlots.length > 0 &&
-        stableNewSlots.map((slot) => (
+        stableDrafts.map((entry) => (
           <div
-            key={slotId(slot)}
+            key={entryId(entry)}
             className={itemPickerStyles['item-picker-multi-slot']}
           >
-            {renderNewFieldset(slot, restIndex(slot))}
+            {renderDraftFieldset(entry, restIndex(entry))}
           </div>
         ))}
 
+      {featuredEntry && (
+        <div className={itemPickerStyles['featured-slot']}>
+          {renderEntry(
+            featuredEntry,
+            0,
+            undefined,
+            featuredControl(featuredEntry, true)
+          )}
+        </div>
+      )}
+
       {/*
        * One sortable list for every chip — existing-item results and
-       * collapsed saved-new slots together — so they reorder relative to
+       * collapsed saved drafts together — so they reorder relative to
        * one another. Drag controls appear only with more than one chip.
        */}
       {isMulti ? (
-        sortableSlots.length > 1 ? (
+        sortableEntries.length > 1 ? (
           <SortableList
             className={itemPickerStyles['item-list']}
-            items={sortableSlots.map((slot) => ({
-              id: slotId(slot),
-              slot
+            items={sortableEntries.map((entry) => ({
+              id: entryId(entry),
+              entry
             }))}
             onReorder={(reordered) =>
-              setSlots([
-                ...(featuredSlot ? [featuredSlot] : []),
-                ...openNewSlots,
-                ...reordered.map((entry) => entry.slot)
-              ])
+              reorderSortable(reordered.map((entry) => entry.entry))
             }
             renderItem={(entry, _index, dragHandle) =>
-              renderSortableRow(entry.slot, dragHandle)
+              renderSortableRow(entry.entry, dragHandle)
             }
           />
         ) : (
-          sortableSlots.length === 1 && (
+          sortableEntries.length === 1 && (
             <div className={itemPickerStyles['item-list']}>
-              {renderSortableRow(sortableSlots[0])}
+              {renderSortableRow(sortableEntries[0])}
             </div>
           )
         )
       ) : (
-        restSlots.length > 0 && (
-          <>
-            {restSlots.map((slot, index) => (
-              <div
-                className={
-                  itemPickerStyles['item-picker-single-slot']
-                }
-                key={slotId(slot)}
-              >
-                {renderSlot(
-                  slot,
-                  index,
-                  undefined,
-                  featuredControl(slot, false)
-                )}
-              </div>
-            ))}
-          </>
+        entries[0] && (
+          <div
+            className={itemPickerStyles['item-picker-single-slot']}
+            key={entryId(entries[0])}
+          >
+            {renderEntry(entries[0], 0)}
+          </div>
         )
       )}
     </div>

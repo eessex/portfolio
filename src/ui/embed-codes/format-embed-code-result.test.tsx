@@ -69,7 +69,12 @@ describe('formatEmbedCodeResult', () => {
 })
 
 describe('formatNewEmbedCodeSummary', () => {
-  const actions = { onEdit: jest.fn(), onRemove: jest.fn() }
+  const onEdit = jest.fn()
+  const actions = {
+    editButton: <button onClick={onEdit}>Edit</button>,
+    onRemove: jest.fn(),
+    removeLabel: 'Remove embed code'
+  }
   const data = {
     host: 'youtube',
     type: 'video',
@@ -116,11 +121,11 @@ describe('formatNewEmbedCodeSummary', () => {
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
   })
 
-  it('wires the Edit and Remove actions', () => {
+  it('renders the Edit button and wires Remove', () => {
     render(formatNewEmbedCodeSummary(data, undefined, actions))
 
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
-    expect(actions.onEdit).toHaveBeenCalled()
+    expect(onEdit).toHaveBeenCalled()
 
     fireEvent.click(
       screen.getByRole('button', { name: 'Remove embed code' })

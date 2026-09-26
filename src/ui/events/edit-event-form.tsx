@@ -4,17 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { DEFAULT_TIME_ZONE } from '@/lib/dates'
-import {
-  createEmbedCodeSchema,
-  type EmbedCode
-} from '@/lib/embed-codes/schemas/db'
 import { deleteEvent, editEvent } from '@/lib/events/actions'
 import type { EventClient } from '@/lib/events/types'
-import {
-  type Image,
-  imageClientFieldsSchema
-} from '@/lib/images/schemas/db'
-import { createLinkSchema, type Link } from '@/lib/links/schemas/db'
 import type {
   FetchProjectsResult,
   ProjectClient
@@ -27,24 +18,15 @@ import {
   createVenueSchema,
   type Venue
 } from '@/lib/venues/schemas/db'
-import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
-import {
-  formatEmbedCodeResult,
-  formatNewEmbedCodeSummary
-} from '@/ui/embed-codes/format-embed-code-result'
+import { EmbedCodesPicker } from '@/ui/embed-codes/embed-codes-picker'
 import { Checkbox } from '@/ui/form/checkbox'
 import { Form, useFormErrors } from '@/ui/form/form'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
-import { EditImage } from '@/ui/images/edit-image-form'
-import {
-  formatImageResult,
-  formatNewImageSummary
-} from '@/ui/images/format-image-result'
+import { ImagesPicker } from '@/ui/images/images-picker'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { DeleteItemButton } from '@/ui/items/delete-item-button'
-import { EditLink } from '@/ui/links/edit-link-form'
-import { formatLinkResult } from '@/ui/links/format-link-result'
+import { LinksPicker } from '@/ui/links/links-picker'
 import { formatProjectResult } from '@/ui/projects/format-project-result'
 import { toDateTimeInputValue } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
@@ -55,9 +37,6 @@ import {
 
 function EventFormFields({ event }: { event?: EventClient }) {
   const errors = useFormErrors()
-  const images = [event?.coverImage, ...(event?.images ?? [])].filter(
-    (image): image is Image => !!image
-  )
   const [isPublished, setIsPublished] = useState(!!event?.isPublished)
 
   return (
@@ -98,6 +77,7 @@ function EventFormFields({ event }: { event?: EventClient }) {
       </div>
       <ItemPicker<Venue>
         itemType='venues'
+        isSearchFirst
         isRequired
         existingItem={event?.venue}
         renderExistingResult={formatVenueResult}
@@ -123,77 +103,15 @@ function EventFormFields({ event }: { event?: EventClient }) {
         errors={errors?.description}
         label='Description'
       />
-      <ItemPicker<Image>
-        isMulti
-        name='images'
-        label='Images'
-        itemType='images'
-        existingItems={images}
-        renderExistingResult={formatImageResult}
-        renderNewItemSummary={formatNewImageSummary}
-        schema={imageClientFieldsSchema}
-        renderEditItemForm={({
-          index,
-          errors,
-          isRequired,
-          existingItem
-        }) => (
-          <EditImage
-            image={existingItem}
-            index={index}
-            errors={errors}
-            isPressFieldsetHidden
-            isRequired={isRequired}
-          />
-        )}
+      <ImagesPicker
+        coverImage={event?.coverImage}
+        images={event?.images}
       />
-      <ItemPicker<EmbedCode>
-        isMulti
-        name='embedCodes'
-        label='Embed codes'
-        itemType='embedCodes'
-        existingItems={event?.embedCodes ?? []}
-        renderExistingResult={formatEmbedCodeResult}
-        renderNewItemSummary={formatNewEmbedCodeSummary}
-        schema={createEmbedCodeSchema}
-        renderEditItemForm={({
-          index,
-          errors,
-          isRequired,
-          existingItem,
-          onBusyChange
-        }) => (
-          <EditEmbedCode
-            embedCode={existingItem}
-            index={index}
-            errors={errors}
-            isRequired={isRequired}
-            onBusyChange={onBusyChange}
-          />
-        )}
+      <EmbedCodesPicker
+        featuredEmbedCode={event?.featuredEmbedCode}
+        embedCodes={event?.embedCodes}
       />
-      <ItemPicker<Link>
-        isMulti
-        name='links'
-        label='Links'
-        itemType='links'
-        existingItems={event?.links ?? []}
-        renderExistingResult={formatLinkResult}
-        schema={createLinkSchema}
-        renderEditItemForm={({
-          index,
-          errors,
-          isRequired,
-          existingItem
-        }) => (
-          <EditLink
-            link={existingItem}
-            index={index}
-            errors={errors}
-            isRequired={isRequired}
-          />
-        )}
-      />
+      <LinksPicker links={event?.links} />
       <ItemPicker<never, ProjectClient, FetchProjectsResult>
         itemType='projects'
         label='Project'

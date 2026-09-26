@@ -25,6 +25,7 @@ export const eventSchema = z.object({
   coverImageId: relationFields.coverImageId,
   embedCodeIds: relationFields.embedCodeIds,
   endTime: date.optional(),
+  featuredEmbedCodeId: uuid.optional(),
   imageIds: relationFields.imageIds,
   linkIds: relationFields.linkIds,
   path: z.literal('events'),

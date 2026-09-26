@@ -14,6 +14,7 @@ import { FileInputImage } from '@/ui/form/file-input-image'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
+import { useNamePrefix } from '@/ui/item-picker/name-prefix'
 
 const imageTypeOptions = [...imageTypes]
 
@@ -41,7 +42,6 @@ interface EditImageProps {
     typeof createImageSchema
   >['fieldErrors']
   image?: Partial<Image>
-  index?: number
   /**
    * Hides the "Press Image Details" fieldset (the About-page
    * visibility checkbox, shown only when type is 'press') for
@@ -50,12 +50,6 @@ interface EditImageProps {
    */
   isPressFieldsetHidden?: boolean
   isRequired?: boolean
-  /**
-   * Namespaces every input `name` in this fieldset,
-   * e.g. `'coverImage'` -> `coverImage.title`). When omitted,
-   * a multi-item picker's `index` uses `images[i].` prefix instead.
-   */
-  namePrefix?: string
   /**
    * Reports when a file goes from unparsed/absent to
    * successfully parsed or back.
@@ -66,10 +60,8 @@ interface EditImageProps {
 export const EditImage = ({
   errors,
   image,
-  index,
   isPressFieldsetHidden,
   isRequired = true,
-  namePrefix: namePrefixProp,
   onReadyChange
 }: EditImageProps) => {
   const [type, setType] = useState<string | undefined>(
@@ -86,11 +78,7 @@ export const EditImage = ({
   )
   const [detailsExpanded, setDetailsExpanded] = useState(false)
   const detailsFieldsetRef = useRef<HTMLFieldSetElement>(null)
-  const namePrefix = namePrefixProp
-    ? `${namePrefixProp}.`
-    : typeof index === 'number'
-      ? `images[${index}].`
-      : ''
+  const namePrefix = useNamePrefix()
 
   const { id, url } = (formImage || {}) as Image
 

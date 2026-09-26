@@ -38,7 +38,6 @@ function AboutFormFields({ about }: { about?: AboutClient }) {
         existingItem={about?.coverImage}
         renderExistingResult={formatImageResult}
         renderNewItemSummary={formatNewImageSummary}
-        namePrefix='coverImage'
         schema={imageClientFieldsSchema}
         renderEditItemForm={({
           errors,
@@ -48,7 +47,6 @@ function AboutFormFields({ about }: { about?: AboutClient }) {
         }) => (
           <EditImage
             image={existingItem}
-            namePrefix='coverImage'
             errors={errors}
             isRequired={isRequired}
             onReadyChange={onReadyChange}

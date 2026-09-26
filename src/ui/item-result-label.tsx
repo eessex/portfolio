@@ -1,7 +1,7 @@
 import { XMarkIcon } from '@heroicons/react/16/solid'
 
 import type { Badge } from '@/lib/types'
-import { Badges } from '@/ui/badges'
+import { Badges } from '@/ui/badges/badges'
 import {
   CoverImageThumbnail,
   type ThumbnailImage

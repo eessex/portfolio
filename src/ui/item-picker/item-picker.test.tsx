@@ -696,6 +696,65 @@ describe('ItemPicker', () => {
         ).toHaveAttribute('name', 'venueIds[0].name')
       })
 
+      it('back to search saves a changed edit into its chip', async () => {
+        const user = userEvent.setup()
+        renderMultiPicker(editableProps)
+
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+        fireEvent.change(await screen.findByLabelText('Venue name'), {
+          target: { value: 'Edited Venue' }
+        })
+        await user.click(
+          screen.getByRole('button', { name: /search venue/i })
+        )
+
+        expect(screen.getByText('Edited Venue')).toBeInTheDocument()
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+        expect(
+          screen.getByDisplayValue('Edited Venue')
+        ).toHaveAttribute('name', 'venueIds[0].name')
+        expect(
+          screen.getByRole('button', { name: /^edit$/i })
+        ).toHaveFocus()
+      })
+
+      it('back to search keeps an invalid edit open', async () => {
+        const user = userEvent.setup()
+        renderMultiPicker({
+          ...editableProps,
+          renderEditItemForm: ({
+            existingItem
+          }: RenderEditItemFormArgs<Venue, never>) => (
+            <PrefixedInput
+              field='name'
+              aria-label='Venue name'
+              required
+              defaultValue={existingItem?.name ?? ''}
+            />
+          )
+        })
+
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+        fireEvent.change(await screen.findByLabelText('Venue name'), {
+          target: { value: '' }
+        })
+        await user.click(
+          screen.getByRole('button', { name: /search venue/i })
+        )
+
+        expect(screen.getByLabelText('Venue name')).toBeVisible()
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+      })
+
       it('Cancel reverts to the read-only chip, dropping the id input', async () => {
         const user = userEvent.setup()
         renderMultiPicker(editableProps)
@@ -761,40 +820,15 @@ describe('ItemPicker', () => {
     describe('single item: discard / revert', () => {
       const singleProps = {
         renderEditItemForm: ({
-          existingItem,
-          onCancel
+          existingItem
         }: RenderEditItemFormArgs<Venue, never>) => (
-          <>
-            <PrefixedInput
-              field='name'
-              aria-label='Venue name'
-              defaultValue={existingItem?.name ?? ''}
-            />
-            <button type='button' onClick={onCancel}>
-              Discard
-            </button>
-          </>
+          <PrefixedInput
+            field='name'
+            aria-label='Venue name'
+            defaultValue={existingItem?.name ?? ''}
+          />
         )
       }
-
-      it('discarding a filled draft drops the entry, keeping none of its fields', async () => {
-        const user = userEvent.setup()
-        const { container } = renderComponent(singleProps)
-
-        fireEvent.change(screen.getByLabelText('Venue name'), {
-          target: { value: 'Unsaved Venue' }
-        })
-        await user.click(
-          screen.getByRole('button', { name: /discard/i })
-        )
-
-        expect(
-          container.querySelector(
-            '[name^="venue."], [name="venueId"]'
-          )
-        ).toBeNull()
-        expect(screen.getByRole('combobox')).toBeInTheDocument()
-      })
 
       it('Cancel on an edit reverts to the existing item, keeping its id', async () => {
         const user = userEvent.setup()
@@ -819,6 +853,25 @@ describe('ItemPicker', () => {
         expect(container.querySelector('[name^="venue."]')).toBeNull()
       })
 
+      it("Cancel on an edit focuses the reverted item's Edit button", async () => {
+        const user = userEvent.setup()
+        renderComponent({
+          ...singleProps,
+          existingItem: venueFixtureAlpha
+        })
+
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+        await user.click(
+          await screen.findByRole('button', { name: /^cancel$/i })
+        )
+
+        expect(
+          screen.getByRole('button', { name: /^edit$/i })
+        ).toHaveFocus()
+      })
+
       it('Cancel on an edit keeps the item after an earlier draft was discarded', async () => {
         const user = userEvent.setup()
         renderComponent({
@@ -836,7 +889,7 @@ describe('ItemPicker', () => {
           screen.getByRole('button', { name: /new venue/i })
         )
         await user.click(
-          screen.getByRole('button', { name: /discard/i })
+          screen.getByRole('button', { name: /search venue/i })
         )
 
         await user.type(screen.getByRole('combobox'), 'New York')
@@ -1113,6 +1166,23 @@ describe('ItemPicker', () => {
         expect(screen.getByRole('combobox')).toBeInTheDocument()
         expect(
           screen.queryByLabelText('Link url')
+        ).not.toBeInTheDocument()
+      })
+
+      it('keeps a changed invalid draft open on toggle back', async () => {
+        const user = userEvent.setup()
+        renderSinglePicker()
+
+        const urlInput = screen.getByLabelText('Link url')
+        fireEvent.change(urlInput, { target: { value: 'x' } })
+        fireEvent.change(urlInput, { target: { value: '' } })
+        await user.click(
+          screen.getByRole('button', { name: /search link/i })
+        )
+
+        expect(screen.getByLabelText('Link url')).toBeVisible()
+        expect(
+          screen.queryByRole('button', { name: /^edit$/i })
         ).not.toBeInTheDocument()
       })
 
@@ -1427,6 +1497,62 @@ describe('ItemPicker', () => {
         )
         expect(reopened).toHaveFocus()
       })
+
+      it('toggling back to search keeps a changed invalid draft open with its error', async () => {
+        const user = userEvent.setup()
+        renderLinkPicker()
+
+        const urlInput = document.querySelector(
+          'input[name="links[0].url"]'
+        ) as HTMLInputElement
+        fireEvent.change(urlInput, {
+          target: { value: 'not-a-valid-url' }
+        })
+        await user.click(
+          screen.getByRole('button', { name: /search link/i })
+        )
+
+        expect(urlInput).toBeVisible()
+        expect(urlInput).toHaveValue('not-a-valid-url')
+        expect(screen.getByText('Invalid url')).toBeInTheDocument()
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+      })
+
+      it('clears a corrected error when toggling back to search/chip', async () => {
+        const user = userEvent.setup()
+        renderLinkPicker()
+
+        const urlInput = document.querySelector(
+          'input[name="links[0].url"]'
+        ) as HTMLInputElement
+        fireEvent.change(urlInput, {
+          target: { value: 'not-a-valid-url' }
+        })
+        await user.click(
+          screen.getByRole('button', { name: /save link/i })
+        )
+        expect(screen.getByText('Invalid url')).toBeInTheDocument()
+
+        // Correcting the value alone doesn't revalidate.
+        fireEvent.change(urlInput, {
+          target: { value: 'https://example.com' }
+        })
+        expect(screen.getByText('Invalid url')).toBeInTheDocument()
+
+        await user.click(
+          screen.getByRole('button', { name: /search link/i })
+        )
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+
+        expect(
+          document.querySelector('input[name="links[0].url"]')
+        ).toHaveValue('https://example.com')
+        expect(
+          screen.queryByText('Invalid url')
+        ).not.toBeInTheDocument()
+      })
     })
 
     describe('entry name prefix', () => {
@@ -1662,6 +1788,34 @@ describe('ItemPicker', () => {
         expect(screen.getByText('New Venue Form')).toBeInTheDocument()
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
       })
+
+      it('closes an unchanged edit of the featured item on back to search', async () => {
+        const user = userEvent.setup()
+        renderMultiPicker({
+          existingItems: [venueFixtureAlpha, venueFixtureBeta],
+          featured: { isInitiallyFeatured: true, label: 'Featured' }
+        })
+
+        await user.click(
+          screen.getAllByRole('button', { name: /^edit$/i })[0]
+        )
+        expect(screen.getByText('New Venue Form')).toBeInTheDocument()
+
+        await user.click(
+          screen.getByRole('button', { name: /search venue/i })
+        )
+
+        expect(
+          screen.queryByText('New Venue Form')
+        ).not.toBeInTheDocument()
+        expect(screen.getByRole('combobox')).toHaveFocus()
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'venueIds[0].id')
+        expect(
+          document.querySelector('input[name="venueIdsFeatured"]')
+        ).toHaveValue('true')
+      })
     })
   })
 
@@ -1789,6 +1943,36 @@ describe('ItemPicker', () => {
         expect(screen.getByRole('combobox')).toBeInTheDocument()
 
         await waitFor(() => expect(global.fetch).toHaveBeenCalled())
+      })
+
+      it('focuses the search input and opens its results after removing the selected item', async () => {
+        ;(useResultsList as jest.Mock).mockReturnValue({
+          query: '',
+          setQuery: jest.fn(),
+          items: [releaseFixture],
+          isLoading: false,
+          nextCursor: null,
+          loadMoreRef: jest.fn(),
+          ensureFirstPage: jest.fn()
+        })
+        const user = userEvent.setup()
+        renderReleasePicker({
+          existingItem: {
+            id: 'release-1',
+            title: 'Test Release',
+            type: ReleaseTypes.album
+          } as ReleaseClient
+        })
+
+        await user.click(
+          screen.getByRole('button', { name: /remove release/i })
+        )
+
+        expect(screen.getByRole('combobox')).toHaveFocus()
+        expect(screen.getByRole('listbox')).toBeInTheDocument()
+        expect(
+          screen.getByText('Searched Release')
+        ).toBeInTheDocument()
       })
     })
   })

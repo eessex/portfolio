@@ -2,10 +2,6 @@ import { useCallback, useRef, useState } from 'react'
 import type { z } from 'zod'
 
 import { normalizeFormData } from '@/lib/util'
-import {
-  isEntryExpanded,
-  type ItemPickerEntry
-} from '@/ui/item-picker/item-picker-entry'
 
 export type FieldErrors = Record<string, string[] | undefined>
 
@@ -32,7 +28,7 @@ function firstInvalidElement(fieldset: HTMLFieldSetElement) {
 }
 
 /** A fieldset's values keyed by field name, `prefix` stripped. */
-export function collectEntryData(
+function collectEntryData(
   fieldset: HTMLFieldSetElement,
   prefix: string
 ): Record<string, unknown> {
@@ -52,7 +48,7 @@ export function collectEntryData(
   return data
 }
 
-export function findFileInput(
+function findFileInput(
   fieldset: HTMLFieldSetElement
 ): HTMLInputElement | undefined {
   return Array.from(fieldset.elements).find(
@@ -62,14 +58,14 @@ export function findFileInput(
 }
 
 /**
- * An expanded entry's schema + native-constraint validation, plus the
+ * A draft's schema + native-constraint validation, plus the
  * fieldset-ref map it reads from and the per-entry errors it produces.
  */
 export function useEntryValidation({
   schema,
   fieldPrefix
 }: UseEntryValidationOptions) {
-  const [newEntryErrors, setNewEntryErrors] = useState<
+  const [draftErrors, setDraftErrors] = useState<
     Record<string, FieldErrors>
   >({})
   const fieldsets = useRef(new Map<string, HTMLFieldSetElement>())
@@ -89,7 +85,7 @@ export function useEntryValidation({
 
   function clearErrors(...tempIds: string[]) {
     if (tempIds.length === 0) return
-    setNewEntryErrors((current) => {
+    setDraftErrors((current) => {
       const next = { ...current }
       tempIds.forEach((id) => delete next[id])
       return next
@@ -97,33 +93,47 @@ export function useEntryValidation({
   }
 
   /**
-   * Validates an expanded entry, updating `newEntryErrors` with Zod
-   * errors. Always valid (a no-op) for item types (e.g. `images`) whose
-   * schema needs data not yet available client-side.
-   * Moves focus to the first invalid field when blocking progress
-   * (adding another entry). Omitted for the quieter blur-triggered
-   * check, which shouldn't fight the user's own tab navigation.
+   * Parses a draft's fieldset against `schema` without
+   * touching state. `undefined` when there's nothing to parse: no
+   * schema (e.g. `images`, whose schema needs data not yet available
+   * client-side) or no mounted fieldset.
    */
-  function validateNewEntry<TEmbeddedItem, TPage>(
-    entry: ItemPickerEntry<TEmbeddedItem, TPage>,
-    submitIndex: number,
-    options: { focus?: boolean } = {}
-  ): boolean {
-    if (!isEntryExpanded(entry) || !schema) return true
-    const fieldset = fieldsets.current.get(entry.tempId)
-    if (!fieldset) return true
+  function parseEntry(tempId: string, submitIndex: number) {
+    if (!schema) return undefined
+
+    const fieldset = fieldsets.current.get(tempId)
+    if (!fieldset) return undefined
 
     const prefix = fieldPrefix(submitIndex)
     const parsed = schema.safeParse(
       normalizeFormData(collectEntryData(fieldset, prefix))
     )
+    return { parsed, fieldset, prefix }
+  }
+
+  /**
+   * Validates a draft, updating `draftErrors` with Zod
+   * errors. Always valid when `parseEntry` has nothing to parse.
+   * Moves focus to the first invalid field when blocking progress
+   * (adding another entry). Omitted for the quieter blur-triggered
+   * check, which shouldn't fight the user's own tab navigation.
+   */
+  function validateDraft(
+    tempId: string,
+    submitIndex: number,
+    options: { focus?: boolean } = {}
+  ): boolean {
+    const result = parseEntry(tempId, submitIndex)
+    if (!result) return true
+
+    const { parsed, fieldset, prefix } = result
 
     if (!parsed.success) {
       const fieldErrors = parsed.error.flatten()
         .fieldErrors as FieldErrors
-      setNewEntryErrors((current) => ({
+      setDraftErrors((current) => ({
         ...current,
-        [entry.tempId]: fieldErrors
+        [tempId]: fieldErrors
       }))
       if (options.focus) {
         const firstField = Object.keys(fieldErrors)[0]
@@ -135,7 +145,7 @@ export function useEntryValidation({
       return false
     }
 
-    if (entry.tempId in newEntryErrors) clearErrors(entry.tempId)
+    if (tempId in draftErrors) clearErrors(tempId)
     return true
   }
 
@@ -143,17 +153,16 @@ export function useEntryValidation({
    * Runs native `required`/`type` constraints (the only signal for
    * fields a schema can't see yet, e.g. embed codes' `iframe`
    * textarea, which isn't itself a schema field — only the
-   * `host`/`src`/`type` parsed from it are) then `validateNewEntry` —
+   * `host`/`src`/`type` parsed from it are) then `validateDraft` —
    * the full validate-and-focus sequence shared by collapsing open
-   * entries on adding another (`saveOpenNewEntries`) and an explicit
+   * entries on adding another (`saveOpenDrafts`) and an explicit
    * Save.
    */
-  function validateEntryStrict<TEmbeddedItem, TPage>(
-    entry: ItemPickerEntry<TEmbeddedItem, TPage>,
+  function validateEntryStrict(
+    tempId: string,
     submitIndex: number
   ): boolean {
-    if (!isEntryExpanded(entry)) return true
-    const fieldset = fieldsets.current.get(entry.tempId)
+    const fieldset = fieldsets.current.get(tempId)
     if (!fieldset) return true
 
     const invalid = firstInvalidElement(fieldset)
@@ -162,32 +171,31 @@ export function useEntryValidation({
       return false
     }
 
-    return validateNewEntry(entry, submitIndex, { focus: true })
+    return validateDraft(tempId, submitIndex, { focus: true })
   }
 
   /**
-   * Whether an expanded entry passes native + schema validation
-   * *without* reporting or focusing — used to decide collapse-vs-discard
-   * when the user toggles back to search (a mode switch shouldn't nag
-   * with validation bubbles the way an explicit Save does).
+   * An entry's current fieldset values (collected + normalized, the
+   * same way validation reads them) and picked file, for its saved chip
+   * to render from.
    */
-  function isEntryComplete<TEmbeddedItem, TPage>(
-    entry: ItemPickerEntry<TEmbeddedItem, TPage>,
-    submitIndex: number
-  ): boolean {
-    if (!isEntryExpanded(entry)) return true
-    const fieldset = fieldsets.current.get(entry.tempId)
-    if (!fieldset) return false
-    if (firstInvalidElement(fieldset)) return false
-    return validateNewEntry(entry, submitIndex)
+  function readEntryValues(tempId: string, submitIndex: number) {
+    const fieldset = fieldsets.current.get(tempId)
+    if (!fieldset) return { summaryData: {} }
+    return {
+      summaryData: normalizeFormData(
+        collectEntryData(fieldset, fieldPrefix(submitIndex))
+      ),
+      file: findFileInput(fieldset)?.files?.[0]
+    }
   }
 
   return {
-    newEntryErrors,
+    draftErrors,
     clearErrors,
-    validateNewEntry,
+    validateDraft,
     validateEntryStrict,
-    isEntryComplete,
+    readEntryValues,
     setFieldsetRef,
     getFieldset
   }

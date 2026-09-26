@@ -1,5 +1,5 @@
 import type { Image } from '@/lib/images/schemas/db'
-import { itemBadges } from '@/ui/badges'
+import { itemBadges } from '@/ui/badges/badges'
 import thumbnailStyles from '@/ui/cover-image-thumbnail.module.scss'
 import type { NewItemSummaryActions } from '@/ui/item-picker/item-picker'
 import { ItemResultLabel } from '@/ui/item-result-label'

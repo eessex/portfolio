@@ -3,7 +3,7 @@ import {
   PublisherTypes
 } from '@/lib/publishers/schemas/db'
 import type { Badge } from '@/lib/types'
-import { Badges } from '@/ui/badges'
+import { Badges } from '@/ui/badges/badges'
 import { formattedItemType } from '@/ui/util'
 
 const publisherTypeColors: Record<Publisher['type'], Badge['color']> =

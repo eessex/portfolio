@@ -3,7 +3,7 @@ import { imageTypes } from '@/lib/images/schemas/db'
 import { linkTypes } from '@/lib/links/schemas/db'
 import { publisherTypes } from '@/lib/publishers/schemas/db'
 import type { Badge, EmbeddedItem } from '@/lib/types'
-import { itemBadges } from '@/ui/badges'
+import { itemBadges } from '@/ui/badges/badges'
 
 const colorOf = (item: Partial<EmbeddedItem>) =>
   itemBadges(item)[0]?.color

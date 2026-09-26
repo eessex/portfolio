@@ -1,5 +1,5 @@
 import type { Link } from '@/lib/links/schemas/db'
-import { itemBadges } from '@/ui/badges'
+import { itemBadges } from '@/ui/badges/badges'
 import { ItemResultLabel } from '@/ui/item-result-label'
 import { formattedLinkUrl } from '@/ui/util'
 

@@ -14,8 +14,8 @@ import type {
   PageItemProps,
   PageItemResponseWithCursor
 } from '@/lib/types'
+import { DraftBadge } from '@/ui/badges/draft-badge'
 import { TicketButton } from '@/ui/buttons/ticket-button'
-import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { ImageFigure } from '@/ui/images/image-figure'

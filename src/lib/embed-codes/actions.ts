@@ -15,16 +15,14 @@ import {
   embedCodeSchema
 } from '@/lib/embed-codes/schemas/db'
 import {
+  resolveOrderedIds,
   runDeleteAction,
   runFormAction,
   saveItemFromFields
 } from '@/lib/form-action'
+import { featuredFlagFieldName } from '@/lib/item-fields'
 import { EmbeddedItemTypes } from '@/lib/schemas'
-import {
-  extractIndexedGroups,
-  formatDbResponseForClient,
-  isBlankEntry
-} from '@/lib/util'
+import { formatDbResponseForClient } from '@/lib/util'
 
 export async function editEmbedCode(formData: FormData, id?: string) {
   return runFormAction({
@@ -102,36 +100,26 @@ export async function saveEmbedCodeFromFields(
  * featured id split off the front.
  *
  * Unlike a cover image, a featured embed code is never inferred from
- * position alone: the picker only submits a `${prefix}Featured` flag
- * while a slot is explicitly pinned as featured, so a project with no
- * featured embed code chosen gets `featuredEmbedCodeId: undefined`
- * even though it has embed codes.
+ * position alone: the picker only submits its `featuredFlagFieldName`
+ * flag while an entry is explicitly pinned as featured, so a project
+ * with no featured embed code chosen gets `featuredEmbedCodeId:
+ * undefined` even though it has embed codes.
  */
 export async function resolveOrderedEmbedCodeIds(
   data: Record<string, unknown>,
-  prefix = 'embedCodes'
+  name = 'embedCodes'
 ): Promise<{
   embedCodeIds: string[]
   featuredEmbedCodeId: string | undefined
 }> {
-  const isFeatured = Boolean(data[`${prefix}Featured`])
-  delete data[`${prefix}Featured`]
+  const featuredFlag = featuredFlagFieldName(name)
+  const isFeatured = Boolean(data[featuredFlag])
+  delete data[featuredFlag]
 
-  const entries = extractIndexedGroups(data, prefix).filter(
-    (entry) => entry.kind !== 'new' || !isBlankEntry(entry.fields)
-  )
-  const resolvedIds = await Promise.all(
-    entries.map((entry) =>
-      entry.kind === 'existing'
-        ? entry.id
-        : entry.kind === 'edited'
-          ? saveEmbedCodeFromFields(entry.fields, entry.id).then(
-              (embedCode) => embedCode.id
-            )
-          : saveEmbedCodeFromFields(entry.fields).then(
-              (embedCode) => embedCode.id
-            )
-    )
+  const resolvedIds = await resolveOrderedIds(
+    data,
+    name,
+    saveEmbedCodeFromFields
   )
 
   if (!isFeatured) {

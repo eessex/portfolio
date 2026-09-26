@@ -3,49 +3,22 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-import {
-  createEmbedCodeSchema,
-  type EmbedCode
-} from '@/lib/embed-codes/schemas/db'
-import {
-  type Image,
-  imageClientFieldsSchema
-} from '@/lib/images/schemas/db'
-import { createLinkSchema, type Link } from '@/lib/links/schemas/db'
 import { deleteProject, editProject } from '@/lib/projects/actions'
 import { projectTypes } from '@/lib/projects/schemas'
 import type { ProjectClient } from '@/lib/projects/types'
-import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
-import {
-  formatEmbedCodeResult,
-  formatNewEmbedCodeSummary
-} from '@/ui/embed-codes/format-embed-code-result'
+import { EmbedCodesPicker } from '@/ui/embed-codes/embed-codes-picker'
 import { Checkbox } from '@/ui/form/checkbox'
 import { Form, useFormErrors } from '@/ui/form/form'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
-import { EditImage } from '@/ui/images/edit-image-form'
-import {
-  formatImageResult,
-  formatNewImageSummary
-} from '@/ui/images/format-image-result'
-import { ItemPicker } from '@/ui/item-picker/item-picker'
+import { ImagesPicker } from '@/ui/images/images-picker'
 import { DeleteItemButton } from '@/ui/items/delete-item-button'
-import { EditLink } from '@/ui/links/edit-link-form'
-import { formatLinkResult } from '@/ui/links/format-link-result'
+import { LinksPicker } from '@/ui/links/links-picker'
 import { toDateInputValue } from '@/ui/util'
 
 function ProjectFormFields({ project }: { project?: ProjectClient }) {
   const errors = useFormErrors()
-  const images = [
-    project?.coverImage,
-    ...(project?.images ?? [])
-  ].filter((image): image is Image => !!image)
-  const embedCodes = [
-    project?.featuredEmbedCode,
-    ...(project?.embedCodes ?? [])
-  ].filter((embedCode): embedCode is EmbedCode => !!embedCode)
   const [isPublished, setIsPublished] = useState(
     !!project?.isPublished
   )
@@ -88,29 +61,9 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
           label='End date'
         />
       </div>
-      <ItemPicker<Image>
-        isMulti
-        name='images'
-        label='Images'
-        itemType='images'
-        existingItems={images}
-        renderExistingResult={formatImageResult}
-        renderNewItemSummary={formatNewImageSummary}
-        schema={imageClientFieldsSchema}
-        renderEditItemForm={({
-          index,
-          errors,
-          isRequired,
-          existingItem
-        }) => (
-          <EditImage
-            image={existingItem}
-            index={index}
-            errors={errors}
-            isPressFieldsetHidden
-            isRequired={isRequired}
-          />
-        )}
+      <ImagesPicker
+        coverImage={project?.coverImage}
+        images={project?.images}
       />
       <Input
         as='textarea'
@@ -123,58 +76,11 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         errors={errors?.description}
         label='Description'
       />
-      <ItemPicker<EmbedCode>
-        isMulti
-        name='embedCodes'
-        label='Embed codes'
-        // description='A featured embed code is displayed below the page heading, above the cover image.'
-        itemType='embedCodes'
-        existingItems={embedCodes}
-        renderExistingResult={formatEmbedCodeResult}
-        renderNewItemSummary={formatNewEmbedCodeSummary}
-        schema={createEmbedCodeSchema}
-        renderEditItemForm={({
-          index,
-          errors,
-          isRequired,
-          existingItem,
-          onBusyChange
-        }) => (
-          <EditEmbedCode
-            embedCode={existingItem}
-            index={index}
-            errors={errors}
-            isRequired={isRequired}
-            onBusyChange={onBusyChange}
-          />
-        )}
-        featured={{
-          isInitiallyFeatured: !!project?.featuredEmbedCode,
-          label: 'Featured'
-        }}
+      <EmbedCodesPicker
+        featuredEmbedCode={project?.featuredEmbedCode}
+        embedCodes={project?.embedCodes}
       />
-      <ItemPicker<Link>
-        isMulti
-        name='links'
-        label='Links'
-        itemType='links'
-        existingItems={project?.links ?? []}
-        renderExistingResult={formatLinkResult}
-        schema={createLinkSchema}
-        renderEditItemForm={({
-          index,
-          errors,
-          isRequired,
-          existingItem
-        }) => (
-          <EditLink
-            link={existingItem}
-            index={index}
-            errors={errors}
-            isRequired={isRequired}
-          />
-        )}
-      />
+      <LinksPicker links={project?.links} />
       <Checkbox
         attributes={{ name: 'isPublished' }}
         isChecked={isPublished}

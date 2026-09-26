@@ -13,6 +13,7 @@ import {
   embedCodeSoundcloudFixtureRaw,
   embedCodeYoutubeFixture
 } from '@/ui/embed-codes/fixtures'
+import { NamePrefixProvider } from '@/ui/item-picker/name-prefix'
 import { useToast } from '@/ui/toast/toast-context'
 
 jest.mock('@/ui/toast/toast-context', () => {
@@ -33,8 +34,12 @@ const mockAddSuccess = jest.fn()
   removeMessage: jest.fn()
 })
 
-function renderComponent(props = {}) {
-  return render(<EditEmbedCode embedCode={undefined} {...props} />)
+function renderComponent(props = {}, namePrefix = '') {
+  return render(
+    <NamePrefixProvider prefix={namePrefix}>
+      <EditEmbedCode embedCode={undefined} {...props} />
+    </NamePrefixProvider>
+  )
 }
 
 beforeEach(() => {
@@ -497,10 +502,7 @@ describe('EditEmbedCode', () => {
 
   describe('name prefixing', () => {
     it('applies the prefix before an embed is parsed', () => {
-      renderComponent({
-        embedCode: {},
-        index: 2
-      })
+      renderComponent({ embedCode: {} }, 'embedCodes[2].')
 
       expect(screen.getByLabelText(iframeRegex)).toHaveAttribute(
         'name',
@@ -517,13 +519,15 @@ describe('EditEmbedCode', () => {
     })
 
     it('applies the prefix once an embed is parsed', () => {
-      renderComponent({
-        embedCode: {
-          src: embedCodeSoundcloud.src,
-          host: embedCodeSoundcloud.host
+      renderComponent(
+        {
+          embedCode: {
+            src: embedCodeSoundcloud.src,
+            host: embedCodeSoundcloud.host
+          }
         },
-        index: 3
-      })
+        'embedCodes[3].'
+      )
 
       expect(screen.getByLabelText(captionRegex)).toHaveAttribute(
         'name',
@@ -696,7 +700,7 @@ describe('EditEmbedCode', () => {
 
     it('prefixes the preview inputs when indexed', async () => {
       const resolvePreview = deferPreviewMetadata()
-      renderComponent({ index: 2 })
+      renderComponent({}, 'embedCodes[2].')
       pasteIframe(embedCodeYoutubeFixture, 'embedCodes[2].iframe')
       await resolvePreview(resolvedMeta)
 

@@ -21,7 +21,7 @@ Run a single test by name: add `-t "test name"`.
 
 When running commands agentically, keep output minimal: prefer the single-file jest invocation (with `--silent`) while iterating and `pnpm test:quiet` for full-suite checks; drop the flags only when a failure needs its console output or stack trace. Don't run `pnpm build` unless the task specifically requires verifying the production build — `pnpm typecheck` + `pnpm lint` cover correctness checks.
 
-Package manager is pnpm (`packageManager: pnpm@11.0.0`); Node 22.x. There is no CI config in this repo — lint/test/build are run locally.
+Package manager is pnpm (`packageManager: pnpm@11.0.0`); Node 22.x. CI is Vercel: `vercel.json` sets the build command to `pnpm check` (typecheck → lint → test:quiet → build), so any of those failing fails the deploy.
 
 ## Architecture
 

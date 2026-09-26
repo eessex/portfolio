@@ -1,7 +1,7 @@
 import type { WithCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import type { EmbeddedItem } from '@/lib/types'
-import { itemBadges } from '@/ui/badges'
+import { itemBadges } from '@/ui/badges/badges'
 import thumbnailStyles from '@/ui/cover-image-thumbnail.module.scss'
 import { coverImageAspectByHost } from '@/ui/embed-codes/util'
 import type { NewItemSummaryActions } from '@/ui/item-picker/item-picker'

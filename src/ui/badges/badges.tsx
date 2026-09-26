@@ -4,7 +4,7 @@ import { linkTypes } from '@/lib/links/schemas/db'
 import { publisherTypes } from '@/lib/publishers/schemas/db'
 import { snakeToSentence } from '@/lib/strings'
 import type { Badge, EmbeddedItem } from '@/lib/types'
-import styles from '@/ui/badges.module.scss'
+import styles from '@/ui/badges/badges.module.scss'
 
 export function Badges({ badges }: { badges: Badge[] }) {
   return (

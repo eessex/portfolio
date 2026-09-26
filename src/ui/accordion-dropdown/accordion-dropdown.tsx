@@ -9,7 +9,7 @@ import { useEffect, useId, useState } from 'react'
 
 import type { Badge } from '@/lib/types'
 import styles from '@/ui/accordion-dropdown/accordion-dropdown.module.scss'
-import { Badges } from '@/ui/badges'
+import { Badges } from '@/ui/badges/badges'
 
 export function AccordionDropdown({
   badges,

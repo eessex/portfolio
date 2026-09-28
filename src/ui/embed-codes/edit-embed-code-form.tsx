@@ -47,6 +47,20 @@ interface EmbedCodeProps {
   onBusyChange?: (isBusy: boolean) => void
 }
 
+// A video-only content type (e.g. "Trailer") doesn't apply to audio.
+function isContentTypeValidFor(
+  type: EmbedCode['type'] | undefined,
+  contentType: EmbedCode['contentType'] | undefined
+) {
+  return (
+    type !== EmbedCodeTypes.audio ||
+    !contentType ||
+    !(
+      EmbedCodeContentTypesByType.video as readonly string[]
+    ).includes(contentType)
+  )
+}
+
 export const EditEmbedCode = ({
   embedCode,
   errors,
@@ -60,6 +74,13 @@ export const EditEmbedCode = ({
       if (!embedCode?.src) return null
       return embedCode
     })
+  // Kept apart from the parsed iframe so it survives removing it.
+  const [contentType, setContentType] = useState<
+    EmbedCode['contentType'] | undefined
+  >(embedCode?.src ? embedCode.contentType : undefined)
+  // Details stay open after the iframe is removed if they have content.
+  const [isDetailsKept, setIsDetailsKept] = useState(false)
+  const detailsFieldsetRef = useRef<HTMLFieldSetElement>(null)
   const [iframeInputValue, setIframeInputValue] = useState('')
   // oEmbed title/thumbnail for the collapsed-chip preview
   const [previewMeta, setPreviewMeta] = useState<{
@@ -73,6 +94,16 @@ export const EditEmbedCode = ({
   const detailsFieldsetId = useId()
 
   const { addErrorMessage } = useToast()
+  const isExpanded = !!embedCodeIframe || isDetailsKept
+
+  // Only user-entered fields count; media type is host-derived.
+  function hasDetails() {
+    const caption =
+      detailsFieldsetRef.current?.querySelector<HTMLInputElement>(
+        `input[name="${namePrefix}caption"]`
+      )
+    return !!contentType || !!caption?.value.trim()
+  }
 
   useEffect(() => {
     onReadyChange?.(!!embedCodeIframe)
@@ -107,6 +138,9 @@ export const EditEmbedCode = ({
         )
         setEmbedCodeIframe(iframeData)
         setIframeInputValue(value)
+        if (!isContentTypeValidFor(iframeData?.type, contentType)) {
+          setContentType(undefined)
+        }
 
         // Resolve the chip's cover image + title from the host's oEmbed
         // endpoint, keyed so a stale response can't clobber a newer paste.
@@ -138,7 +172,7 @@ export const EditEmbedCode = ({
         setIsPreviewLoading(false)
       }
     },
-    [addErrorMessage]
+    [addErrorMessage, contentType]
   )
 
   function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -171,49 +205,32 @@ export const EditEmbedCode = ({
   }
 
   function onRemove() {
+    setIsDetailsKept(hasDetails())
     changeIframeValue('')
   }
 
   function setEmbedType(type: EmbedCode['type']) {
     if (!embedCodeIframe) return
 
-    // A video-only content type (e.g. "Trailer") no longer applies once
-    // the embed is marked audio — clear it rather than silently
+    // Clear an invalidated content type rather than silently
     // submitting a mismatched value.
-    const contentTypeStillValid =
-      type !== EmbedCodeTypes.audio ||
-      !embedCodeIframe.contentType ||
-      !(
-        EmbedCodeContentTypesByType.video as readonly string[]
-      ).includes(embedCodeIframe.contentType)
-
-    setEmbedCodeIframe({
-      ...embedCodeIframe,
-      type,
-      contentType: contentTypeStillValid
-        ? embedCodeIframe.contentType
-        : undefined
-    })
+    if (!isContentTypeValidFor(type, contentType)) {
+      setContentType(undefined)
+    }
+    setEmbedCodeIframe({ ...embedCodeIframe, type })
   }
 
-  function setEmbedContentType(
-    contentType: EmbedCode['contentType']
-  ) {
-    if (!embedCodeIframe) return
-
-    setEmbedCodeIframe({
-      ...embedCodeIframe,
-      contentType
-    })
+  function onDetailsBlur() {
+    if (!embedCodeIframe && !hasDetails()) setIsDetailsKept(false)
   }
 
   return (
     <>
-      <div>
+      <div className={embedCodeIframe ? 'item-preview' : undefined}>
         {embedCodeIframe ? (
           <EmbedCodeItem
             ariaControls={detailsFieldsetId}
-            ariaExpanded
+            ariaExpanded={isExpanded}
             embedCode={embedCodeIframe}
             onRemove={isRemoveButtonHidden ? undefined : onRemove}
           />
@@ -221,14 +238,21 @@ export const EditEmbedCode = ({
           <Input
             attributes={{
               'aria-controls': detailsFieldsetId,
-              'aria-expanded': false,
+              'aria-expanded': isExpanded,
               maxLength: 1500,
               name: `${namePrefix}iframe`,
               placeholder: '<iframe></iframe>',
-              required: isRequired,
+              // Details can't be saved without an iframe.
+              required: isRequired || isExpanded,
               type: 'text'
             }}
-            description='Paste a full iframe embed code. Supported services: Bandcamp, Mixcloud, Soundcloud, Spotify, YouTube.'
+            description='Paste an iframe from Bandcamp, Mixcloud, Soundcloud, Spotify, Vimeo or YouTube.'
+            // `src`/`host` are hidden fields parsed from the iframe.
+            errors={
+              errors?.src || errors?.host
+                ? ['Paste an iframe embed code']
+                : undefined
+            }
             value={iframeInputValue}
             label='iframe code'
             onKeyDown={onKeyDown}
@@ -236,14 +260,16 @@ export const EditEmbedCode = ({
             onPaste={onPaste}
             onChange={onChange}
             onBeforeInput={onBeforeInput}
-            isLabelHidden
+            isLabelHidden={!isExpanded}
           />
         )}
       </div>
       <fieldset
-        hidden={!embedCodeIframe}
-        className={embedCodeIframe ? 'expanded' : undefined}
+        ref={detailsFieldsetRef}
+        hidden={!isExpanded}
+        className={isExpanded ? 'expanded' : undefined}
         id={detailsFieldsetId}
+        onBlur={onDetailsBlur}
       >
         <legend className='visually-hidden'>Embed details</legend>
         {isPreviewLoading && (
@@ -270,20 +296,22 @@ export const EditEmbedCode = ({
             }}
           />
           <Select
-            key={`${embedCodeIframe?.type}-${embedCodeIframe?.contentType}`}
+            key={`${embedCodeIframe?.type}-${contentType}`}
             options={[
               ...(embedCodeIframe?.type === EmbedCodeTypes.audio
                 ? EmbedCodeContentTypesByType.shared
                 : embedCodeContentTypes)
             ]}
             onChange={(v) =>
-              setEmbedContentType(v as EmbedCode['contentType'])
+              setContentType(
+                (v || undefined) as EmbedCode['contentType']
+              )
             }
             label='Content type'
             placeholder='Select a content type'
-            value={embedCodeIframe?.contentType}
+            value={contentType}
             attributes={{
-              required: !!embedCodeIframe,
+              required: isExpanded,
               name: `${namePrefix}contentType`
             }}
           />

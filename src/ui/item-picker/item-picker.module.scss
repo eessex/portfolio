@@ -11,12 +11,12 @@
 
   display: flex;
   flex-direction: column;
-  gap: grids.space-em(2);
-  margin-top: grids.space-em(2);
+  gap: grids.space-em(3);
+  margin-top: grids.space-em(3);
 }
 
 .featured-slot {
-  margin-top: grids.space-em(2);
+  margin-top: grids.space-em(3);
 }
 
 .featured-button {
@@ -49,6 +49,21 @@ fieldset:has(:global(fieldset.expanded)) {
   }
 }
 
+// Once expanded, forms with a labelled first field sit fully inside
+// the box: links, or images/embed codes with their preview removed
+fieldset:has(> :global(fieldset.boxed-details:not([hidden]))),
+fieldset:has(:global(fieldset.expanded)):not(
+    :has(:global(.item-preview))
+  ) {
+  box-shadow: inset 0 0 0 2px var(--transparency-primary);
+  padding: grids.space-em(4);
+
+  > fieldset,
+  > .create-form-actions {
+    margin-inline: 0;
+  }
+}
+
 .create-form-actions {
   display: none;
   align-items: center;
@@ -59,7 +74,9 @@ fieldset:has(:global(fieldset.expanded)) {
   display: flex;
 }
 
-fieldset:has(:global(fieldset.expanded)) > .create-form-actions {
+fieldset:has(:global(fieldset.expanded)) > .create-form-actions,
+fieldset:has(> :global(fieldset.boxed-details:not([hidden])))
+  > .create-form-actions {
   display: flex;
 }
 

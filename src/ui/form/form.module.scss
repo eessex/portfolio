@@ -101,18 +101,6 @@
   }
 }
 
-.field-with-remove {
-  position: relative;
-
-  > :global(.button-icon) {
-    position: absolute;
-    transform: translate(20%, -20%);
-    border-radius: 50%;
-    top: 0;
-    right: 0;
-  }
-}
-
 .select-container {
   display: flex;
   flex-direction: column;
@@ -164,6 +152,35 @@ p.error-message {
 
 p.validation-text {
   margin-block: grids.space-em(2) 0;
+}
+
+// Size hint shown inside the file input, right-aligned
+.file-input > div:not([hidden]):has(> input[type='file']) {
+  display: flex;
+  flex-wrap: wrap;
+
+  > * {
+    flex: 0 0 100%;
+  }
+
+  // Zero-width so it shares the input's line; content overflows left
+  > p.validation-text:not(:global(.visually-hidden)) {
+    flex-basis: 0;
+    // lets it shrink below its text width
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin: 0;
+    // padding offset by the margin, so it still fits the line
+    margin-inline-start: -#{grids.space-em(2)};
+    padding-inline-end: grids.space-em(2);
+    white-space: nowrap;
+    pointer-events: none;
+    color: var(--secondary-text-color);
+
+    @include type.size('sm', 'normal', 'xs');
+  }
 }
 
 .optional-label {

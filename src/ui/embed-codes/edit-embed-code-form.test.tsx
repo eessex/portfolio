@@ -294,7 +294,7 @@ describe('EditEmbedCode', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('resets content type rather than carrying it over to the next embed', () => {
+    it('keeps the details open with a chosen content type', () => {
       renderComponent()
       pasteIframe(embedCodeYoutubeFixture)
       fireEvent.change(screen.getByLabelText(contentTypeLabel), {
@@ -304,7 +304,81 @@ describe('EditEmbedCode', () => {
       fireEvent.click(
         screen.getByRole('button', { name: removeButtonName })
       )
+
+      expect(
+        document.querySelector('input[name="iframe"]')
+      ).toBeInTheDocument()
+      expect(screen.getByLabelText(contentTypeLabel)).toBeVisible()
+      expect(screen.getByLabelText(contentTypeLabel)).toHaveValue(
+        'podcast'
+      )
+      expect(
+        document.querySelector('fieldset.expanded')
+      ).toBeInTheDocument()
+    })
+
+    it('keeps the details open with a caption', () => {
+      renderComponent()
       pasteIframe(embedCodeYoutubeFixture)
+      fireEvent.change(screen.getByLabelText(captionRegex), {
+        target: { value: 'A caption' }
+      })
+
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      expect(screen.getByLabelText(captionRegex)).toBeVisible()
+      expect(screen.getByLabelText(captionRegex)).toHaveValue(
+        'A caption'
+      )
+    })
+
+    it('keeps the details open for an existing embed with saved meta', () => {
+      renderComponent({
+        embedCode: {
+          ...embedCodeSoundcloud,
+          caption: 'Saved caption',
+          contentType: 'radio_show'
+        }
+      })
+
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      expect(screen.getByLabelText(contentTypeLabel)).toHaveValue(
+        'radio_show'
+      )
+      expect(screen.getByLabelText(captionRegex)).toBeVisible()
+    })
+
+    it('collapses the kept details once they are emptied and blurred', () => {
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+      const caption = screen.getByLabelText(captionRegex)
+      fireEvent.change(caption, { target: { value: 'A caption' } })
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      fireEvent.change(caption, { target: { value: '' } })
+      fireEvent.blur(caption)
+
+      expect(caption).not.toBeVisible()
+    })
+
+    it('clears a kept video-only content type when an audio embed is pasted', () => {
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+      fireEvent.change(screen.getByLabelText(contentTypeLabel), {
+        target: { value: 'trailer' }
+      })
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      pasteIframe(embedCodeSoundcloudFixtureRaw)
 
       expect(screen.getByLabelText(contentTypeLabel)).toHaveValue('')
     })
@@ -552,6 +626,14 @@ describe('EditEmbedCode', () => {
         screen.getByText(/caption is too long/i)
       ).toBeInTheDocument()
     })
+
+    it('surfaces src/host errors on the iframe input', () => {
+      renderComponent({ errors: { src: ['Required'] } })
+
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        /paste an iframe embed code/i
+      )
+    })
   })
 
   describe('input attributes', () => {
@@ -566,6 +648,18 @@ describe('EditEmbedCode', () => {
       )
       expect(iframeInput).toHaveAttribute('type', 'text')
       expect(iframeInput).toBeRequired()
+    })
+
+    it('requires the iframe when not required but details are open', () => {
+      renderComponent({
+        isRequired: false,
+        embedCode: { ...embedCodeFixture, caption: 'Kept' }
+      })
+      fireEvent.click(
+        screen.getByRole('button', { name: /remove embed/i })
+      )
+
+      expect(screen.getByLabelText(iframeRegex)).toBeRequired()
     })
 
     it('applies caption attributes correctly once an embed is parsed', () => {

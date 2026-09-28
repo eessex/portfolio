@@ -155,7 +155,7 @@ export function useEntryValidation({
    * textarea, which isn't itself a schema field — only the
    * `host`/`src`/`type` parsed from it are) then `validateDraft` —
    * the full validate-and-focus sequence shared by collapsing open
-   * entries on adding another (`saveOpenDrafts`) and an explicit
+   * entries on opening another (`closeOpenDrafts`) and an explicit
    * Save.
    */
   function validateEntryStrict(
@@ -172,6 +172,25 @@ export function useEntryValidation({
     }
 
     return validateDraft(tempId, submitIndex, { focus: true })
+  }
+
+  /**
+   * Whether the user has entered anything: a picked file or non-blank
+   * text. Read from the DOM rather than `isTouched`, which misses
+   * values seeded without a change event (e.g. a search query).
+   * Selects/checkboxes/hidden inputs are skipped — they carry defaults.
+   */
+  function hasEntryContent(tempId: string): boolean {
+    const fieldset = fieldsets.current.get(tempId)
+    if (!fieldset) return false
+    return Array.from(fieldset.elements).some((el) => {
+      if (el instanceof HTMLTextAreaElement) return !!el.value.trim()
+      if (!(el instanceof HTMLInputElement)) return false
+      if (el.type === 'file') return !!el.files?.length
+      if (['hidden', 'checkbox', 'radio'].includes(el.type))
+        return false
+      return !!el.value.trim()
+    })
   }
 
   /**
@@ -196,6 +215,7 @@ export function useEntryValidation({
     validateDraft,
     validateEntryStrict,
     readEntryValues,
+    hasEntryContent,
     setFieldsetRef,
     getFieldset
   }

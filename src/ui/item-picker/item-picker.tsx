@@ -232,6 +232,7 @@ export function ItemPicker<
     validateDraft,
     validateEntryStrict,
     readEntryValues,
+    hasEntryContent,
     setFieldsetRef,
     getFieldset
   } = useEntryValidation({ schema, fieldPrefix: entryFieldPrefix })
@@ -253,7 +254,8 @@ export function ItemPicker<
     setBusyEntry,
     saveDraft,
     editDraft,
-    saveOpenDrafts,
+    closeDraft,
+    closeOpenDrafts,
     setFeatured,
     unsetFeatured,
     reorderSortable
@@ -266,7 +268,12 @@ export function ItemPicker<
         : [],
     isCreateFirst,
     featured,
-    validation: { validateEntryStrict, clearErrors, readEntryValues }
+    validation: {
+      validateEntryStrict,
+      clearErrors,
+      readEntryValues,
+      hasEntryContent
+    }
   })
   // Where to move focus once the next `entries` change commits — the
   // control that triggered it (Save, Cancel, the search toggle) is
@@ -342,32 +349,22 @@ export function ItemPicker<
   }
 
   /**
-   * Toggle back to search, closing the open editor so
-   * `showCombobox`/`hasOpenDraft` fall back to the search input. Only
-   * one editor is ever open at a time (adding another runs
-   * `saveOpenDrafts` first).
+   * Toggle back to search, closing the open editor via `closeDraft`
+   * (validated; only an untouched empty new draft is dropped unchecked). Returns
+   * `false` if it stays open, invalid.
    *
-   * An untouched draft closes: a new one is discarded (for schemaless
-   * items like images its empty form would pass validation and fold
-   * into a phantom chip), an edit reverts. A touched draft is saved
-   * like an explicit Save — never discarded, since only Cancel drops
-   * changes — and stays open with its errors if invalid; returns
-   * `false` then, since the editor didn't close.
-   *
-   * Focus follows whichever happens: the search input after a close,
-   * or the saved chip's Edit button (a single picker's combobox hides
-   * once it has an entry — see `showCombobox`).
+   * Focus follows whichever happens: the search input after a
+   * discard, or the saved chip's Edit button (a single picker's
+   * combobox hides once it has an entry — see `showCombobox`).
    */
   function returnToSearch(): boolean {
     if (!openDraft) return true
-    if (!openDraft.isTouched) {
-      if (openDraft.kind === 'editing') revertEditingEntry(openDraft)
-      else removeEntry(openDraft)
-      pendingFocus.current = { kind: 'combobox' }
-      return true
-    }
-    if (!saveDraft(openDraft, restIndex(openDraft))) return false
-    pendingFocus.current = { kind: 'edit', id: entryId(openDraft) }
+    const closed = closeDraft(openDraft)
+    if (!closed) return false
+    pendingFocus.current =
+      closed === 'saved'
+        ? { kind: 'edit', id: entryId(openDraft) }
+        : { kind: 'combobox' }
     return true
   }
 
@@ -469,7 +466,7 @@ export function ItemPicker<
         }
         onTouched={() => markEntryTouched(entry.tempId)}
         // Multi-item entries are already validated when the user tries
-        // to add another one (`saveOpenDrafts`). Single-item
+        // to open another one (`closeOpenDrafts`). Single-item
         // pickers validate on blur when focus leaves the fieldset.
         onBlurValidate={
           isMulti
@@ -485,10 +482,8 @@ export function ItemPicker<
   }
 
   function handleEditExisting(id: string) {
-    pendingFocus.current = {
-      kind: 'create',
-      tempId: editExisting(id)
-    }
+    const tempId = editExisting(id)
+    if (tempId) pendingFocus.current = { kind: 'create', tempId }
   }
 
   function renderExistingEntry(
@@ -637,7 +632,7 @@ export function ItemPicker<
             renderEditItemForm
               ? (q) => {
                   // Collapse open drafts before adding another.
-                  if (!saveOpenDrafts()) return
+                  if (!closeOpenDrafts()) return
                   setMultiMode('create')
                   pendingFocus.current = {
                     kind: 'create',

@@ -217,7 +217,7 @@ a[href] {
 :where(form, fieldset) {
   display: flex;
   flex-direction: column;
-  gap: var(--row-gap, #{grids.space-em(6)});
+  gap: var(--row-gap, #{grids.space-em(8)});
 }
 
 :where(fieldset) {

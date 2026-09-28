@@ -159,11 +159,11 @@ export const EditImage = ({
           'aria-controls': detailsFieldsetId,
           'aria-expanded': isExpanded
         }}
-        validationText='1MB size limit.'
+        validationText='1MB size limit'
         image={formImage}
         label='Upload new image'
         onChange={onFileChange}
-        isLabelHidden
+        isLabelHidden={!isExpanded}
       />
       <fieldset
         ref={detailsFieldsetRef}

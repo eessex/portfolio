@@ -966,6 +966,56 @@ describe('ItemPicker', () => {
         )
       })
 
+      it('collapses a filled-in create form into a chip when an edit opens', async () => {
+        const user = userEvent.setup()
+        renderEditableLinks()
+
+        fireEvent.change(screen.getByLabelText('Link url'), {
+          target: { value: 'https://new-link.com' }
+        })
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+
+        // the filled draft stays mounted (hidden) behind its chip
+        await waitFor(() =>
+          expect(
+            screen
+              .getAllByLabelText('Link url')
+              .filter((input) => input.closest('[hidden]') === null)
+              .map((input) => (input as HTMLInputElement).value)
+          ).toEqual([linkFixture.url])
+        )
+        expect(
+          screen.getByDisplayValue('https://new-link.com')
+        ).not.toBeVisible()
+      })
+
+      it('closes an open edit when another item is edited', async () => {
+        const user = userEvent.setup()
+        render(
+          <ItemPicker<Link>
+            {...editableLinkProps}
+            existingItems={[linkFixture, pressLinkFixture]}
+          />
+        )
+
+        const [firstEdit] = screen.getAllByRole('button', {
+          name: /^edit$/i
+        })
+        await user.click(firstEdit)
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+
+        await waitFor(() =>
+          expect(screen.getByLabelText('Link url')).toHaveValue(
+            pressLinkFixture.url!
+          )
+        )
+        expect(screen.getAllByLabelText('Link url')).toHaveLength(1)
+      })
+
       it('re-seeds a blank create form after saving an edit', async () => {
         const user = userEvent.setup()
         renderEditableLinks()
@@ -1297,9 +1347,10 @@ describe('ItemPicker', () => {
 
     describe('create-form-actions visibility', () => {
       function CreateFirstForm({
+        existingItem,
         onReadyChange
       }: RenderEditItemFormArgs<Link, never>) {
-        const [url, setUrl] = useState('')
+        const [url, setUrl] = useState(existingItem?.url ?? '')
         return (
           <>
             <input
@@ -1362,6 +1413,32 @@ describe('ItemPicker', () => {
         expect(fieldset).not.toBeNull()
         expect(actions?.parentElement).toBe(fieldset)
         expect(expanded?.parentElement).toBe(fieldset)
+      })
+
+      it('hides the actions row once an edited create-first item is cleared', async () => {
+        const user = userEvent.setup()
+        renderComponent({
+          itemType: 'links',
+          existingItem: linkFixture,
+          renderEditItemForm: (
+            args: RenderEditItemFormArgs<Link, never>
+          ) => <CreateFirstForm {...args} />
+        })
+
+        await user.click(
+          screen.getByRole('button', { name: /^edit$/i })
+        )
+        fireEvent.change(screen.getByLabelText('Link url'), {
+          target: { value: '' }
+        })
+
+        const actions = actionsFor(
+          screen.getByRole('button', { name: /save link/i })
+        )
+        expect(actions).not.toHaveClass('create-form-actions-visible')
+        expect(
+          document.querySelector('fieldset.expanded')
+        ).not.toBeInTheDocument()
       })
 
       it('shows the actions row for a search-first form (all fields at once)', async () => {

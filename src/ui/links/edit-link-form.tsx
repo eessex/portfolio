@@ -1,4 +1,3 @@
-import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useEffect, useId, useRef, useState } from 'react'
 import type { z } from 'zod'
 
@@ -71,9 +70,6 @@ export const EditLink = ({
   // treated as a bulk insert worth checking immediately, leaving
   // single-character deltas (regular typing) to the blur handler.
   const prevUrlLengthRef = useRef((link?.url ?? '').length)
-  // The url is uncontrolled (`defaultValue`), so clearing it on remove
-  // has to go through the live DOM node — React can't reset it.
-  const urlInputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     onReadyChange?.(isUrlFilled)
@@ -95,56 +91,34 @@ export const EditLink = ({
     setIsUrlFilled(isValidHttpUrl(event.target.value))
   }
 
-  function onRemove() {
-    if (urlInputRef.current) urlInputRef.current.value = ''
-    prevUrlLengthRef.current = 0
-    setIsUrlFilled(false)
-    setType(undefined)
-  }
-
   return (
     <>
-      <div className={styles['field-with-remove']}>
-        <Input
-          ref={(el) => {
-            urlInputRef.current = el
-          }}
-          attributes={{
-            'aria-controls': detailsFieldsetId,
-            'aria-expanded': isUrlFilled,
-            maxLength: 255,
-            name: `${namePrefix}url`,
-            placeholder: 'https://example.com',
-            // Required when isRequired, or once the form is touched.
-            // Meta fields can't be saved without a url.
-            required: isRequired || isUrlFilled,
-            type: 'url'
-          }}
-          defaultValue={link?.url}
-          errors={errors?.url}
-          label='URL'
-          onBlur={onUrlBlur}
-          onChange={onUrlChange}
-          isLabelHidden
-        />
-        {isUrlFilled && (
-          <button
-            type='button'
-            title='Remove link'
-            aria-label='Remove link'
-            aria-controls={detailsFieldsetId}
-            aria-expanded={isUrlFilled}
-            className='button-icon button-primary'
-            onClick={onRemove}
-          >
-            <XMarkIcon />
-          </button>
-        )}
-      </div>
+      <Input
+        attributes={{
+          'aria-controls': detailsFieldsetId,
+          'aria-expanded': isUrlFilled,
+          maxLength: 255,
+          name: `${namePrefix}url`,
+          // `type=url` alone accepts any scheme; match `isValidHttpUrl`.
+          pattern: 'https?://.+',
+          placeholder: 'https://example.com',
+          title: 'A URL starting with http:// or https://',
+          // Required when isRequired, or once the form is touched.
+          // Meta fields can't be saved without a url.
+          required: isRequired || isUrlFilled,
+          type: 'url'
+        }}
+        defaultValue={link?.url}
+        errors={errors?.url}
+        label='URL'
+        onBlur={onUrlBlur}
+        onChange={onUrlChange}
+        isLabelHidden={!isUrlFilled}
+      />
 
       <fieldset
         hidden={!isUrlFilled}
-        className={isUrlFilled ? 'expanded' : undefined}
+        className='boxed-details'
         id={detailsFieldsetId}
       >
         <legend className='visually-hidden'>Link details</legend>

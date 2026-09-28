@@ -11,7 +11,10 @@ import type { useEntryValidation } from '@/ui/item-picker/use-entry-validation'
 
 type EntryValidation = Pick<
   ReturnType<typeof useEntryValidation>,
-  'validateEntryStrict' | 'clearErrors' | 'readEntryValues'
+  | 'validateEntryStrict'
+  | 'clearErrors'
+  | 'readEntryValues'
+  | 'hasEntryContent'
 >
 
 interface UseItemPickerEntriesOptions<TItem> {
@@ -34,7 +37,12 @@ export function useItemPickerEntries<
   existingItems,
   isCreateFirst,
   featured,
-  validation: { validateEntryStrict, clearErrors, readEntryValues }
+  validation: {
+    validateEntryStrict,
+    clearErrors,
+    readEntryValues,
+    hasEntryContent
+  }
 }: UseItemPickerEntriesOptions<TEmbeddedItem | TPage>) {
   type Entry = ItemPickerEntry<TEmbeddedItem, TPage>
 
@@ -130,16 +138,6 @@ export function useItemPickerEntries<
     })
   }
 
-  /** An untouched blank create editor, safe to drop when another opens. */
-  function isStrayDraft(entry: Entry, exceptTempId?: string) {
-    return (
-      entry.kind === 'new' &&
-      !entry.isSaved &&
-      !entry.isTouched &&
-      entry.tempId !== exceptTempId
-    )
-  }
-
   function insertEntry(current: Entry[], entry: Entry) {
     if (!isMulti) return [entry]
     // Keep a pinned featured entry at the front; new picks join the
@@ -188,21 +186,18 @@ export function useItemPickerEntries<
    * Opens an already-attached item for inline editing: swaps its
    * read-only `existing` entry for an `editing` entry (same item, fresh
    * tempId) that mounts the edit fieldset seeded with the item. Returns
-   * the new tempId.
+   * the new tempId, or `undefined` if an open editor blocked it (see
+   * `closeOpenDrafts`).
    */
   function editExisting(id: string) {
+    if (!closeOpenDrafts()) return undefined
     const ids = mintTempId()
-    // Hide untouched-blank create form when editor opens, only one
-    // form is open at once (create mode re-seeds on editor close).
-    entries.filter((s) => isStrayDraft(s)).forEach(disposeEntry)
     setEntries((current) =>
-      current
-        .filter((s) => !isStrayDraft(s))
-        .map((s) =>
-          s.kind === 'existing' && entryId(s) === id
-            ? { kind: 'editing' as const, item: s.item, ...ids }
-            : s
-        )
+      current.map((s) =>
+        s.kind === 'existing' && entryId(s) === id
+          ? { kind: 'editing' as const, item: s.item, ...ids }
+          : s
+      )
     )
     return ids.tempId
   }
@@ -278,44 +273,61 @@ export function useItemPickerEntries<
    * Re-expands a saved draft entry for editing, revoking its preview
    * object URL — Save creates a fresh one when the entry is next saved.
    */
-  function editDraft(entry: Draft<TEmbeddedItem, TPage>) {
-    // Only one editor open at a time: drop any *other* still-untouched
-    // create editor (the one Save auto-reopens for the next item) as
-    // this entry re-expands, so editing doesn't leave a stray file input
-    // open beside its edit form. Only `new` strays are disposable —
-    // an untouched `editing` entry still owns an item, so it's never
-    // pruned. Its `isTouched` is kept — the entry has content, so toggling
-    // back to search should still fold it to a chip.
-    entries
-      .filter((s) => isStrayDraft(s, entry.tempId))
-      .forEach(disposeEntry)
+  function editDraft(entry: Draft<TEmbeddedItem, TPage>): boolean {
+    // Keeps `isTouched`: the entry has content, so toggling back to
+    // search should still fold it to a chip.
+    if (!closeOpenDrafts()) return false
     if (entry.previewUrl) URL.revokeObjectURL(entry.previewUrl)
     setEntries((current) =>
-      current
-        .filter((s) => !isStrayDraft(s, entry.tempId))
-        .map((s) =>
-          isDraft(s) && s.tempId === entry.tempId
-            ? {
-                ...s,
-                isSaved: false,
-                previewUrl: undefined,
-                summaryData: undefined
-              }
-            : s
-        )
+      current.map((s) =>
+        isDraft(s) && s.tempId === entry.tempId
+          ? {
+              ...s,
+              isSaved: false,
+              previewUrl: undefined,
+              summaryData: undefined
+            }
+          : s
+      )
     )
+    return true
   }
 
   /**
-   * Collapses every still-open draft entry into its saved chip. Run
-   * when the user starts another entry, so completed entries fold up
-   * instead of stacking open forms. Blocks (returns false) as soon as
-   * an open entry is invalid, with `saveDraft`'s validation.
+   * Closes an open editor, validating first — only an untouched new
+   * draft with nothing entered is dropped unchecked. A valid untouched edit
+   * reverts; anything else saves to its chip. Returns how it closed,
+   * or `undefined` if invalid (left open with its errors).
    */
-  function saveOpenDrafts(): boolean {
+  function closeDraft(
+    entry: Draft<TEmbeddedItem, TPage>
+  ): 'discarded' | 'saved' | undefined {
+    if (
+      entry.kind === 'new' &&
+      !entry.isTouched &&
+      !hasEntryContent(entry.tempId)
+    ) {
+      removeEntry(entry)
+      return 'discarded'
+    }
+    if (entry.kind === 'editing' && !entry.isTouched) {
+      if (!validateEntryStrict(entry.tempId, restIndex(entry))) {
+        return undefined
+      }
+      revertEditingEntry(entry)
+      return 'discarded'
+    }
+    return saveDraft(entry, restIndex(entry)) ? 'saved' : undefined
+  }
+
+  /**
+   * Closes every open editor (`closeDraft`) so another can expand —
+   * only one is ever open. Returns false if one stays open invalid.
+   */
+  function closeOpenDrafts(): boolean {
     for (const entry of entries) {
       if (!isDraft(entry) || entry.isSaved) continue
-      if (!saveDraft(entry, restIndex(entry))) return false
+      if (!closeDraft(entry)) return false
     }
     return true
   }
@@ -365,7 +377,8 @@ export function useItemPickerEntries<
     setBusyEntry,
     saveDraft,
     editDraft,
-    saveOpenDrafts,
+    closeDraft,
+    closeOpenDrafts,
     setFeatured,
     unsetFeatured,
     reorderSortable

@@ -114,7 +114,7 @@ export function DraftFieldset<
       <div
         className={clsx(
           itemPickerStyles['create-form-actions'],
-          (isSearchFirst || entry.kind === 'editing') &&
+          isSearchFirst &&
             itemPickerStyles['create-form-actions-visible']
         )}
       >

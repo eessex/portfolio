@@ -342,57 +342,6 @@ describe('EditLink', () => {
     })
   })
 
-  describe('remove', () => {
-    const removeRegex = /remove link/i
-
-    it('hides the remove button until the url is filled', () => {
-      renderComponent({ link: undefined })
-
-      expect(
-        screen.queryByRole('button', { name: removeRegex })
-      ).not.toBeInTheDocument()
-    })
-
-    it('shows the remove button once secondary fields are revealed', () => {
-      renderComponent({ link: linkFixture })
-
-      expect(
-        screen.getByRole('button', { name: removeRegex })
-      ).toBeInTheDocument()
-    })
-
-    it('clears the url and collapses the details fieldset when removed', async () => {
-      const user = userEvent.setup()
-      renderComponent({ link: linkFixture })
-      const urlInput = screen.getByLabelText(urlRegex)
-
-      await user.click(
-        screen.getByRole('button', { name: removeRegex })
-      )
-
-      expect(urlInput).toHaveValue('')
-      expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
-      expect(urlInput).toHaveAttribute('aria-expanded', 'false')
-      expect(
-        screen.queryByRole('button', { name: removeRegex })
-      ).not.toBeInTheDocument()
-    })
-
-    it('wires the remove button to the details fieldset for assistive tech', () => {
-      renderComponent({ link: linkFixture })
-
-      const removeButton = screen.getByRole('button', {
-        name: removeRegex
-      })
-      expect(removeButton).toHaveAttribute('aria-expanded', 'true')
-      const controlsId = removeButton.getAttribute('aria-controls')
-      expect(controlsId).toBeTruthy()
-      expect(document.getElementById(controlsId!)).toContainElement(
-        screen.getByLabelText(titleRegex)
-      )
-    })
-  })
-
   describe('onReadyChange', () => {
     it('reports not ready without a valid url', () => {
       const onReadyChange = jest.fn()
@@ -420,13 +369,13 @@ describe('EditLink', () => {
       expect(onReadyChange).toHaveBeenLastCalledWith(true)
     })
 
-    it('reports not ready again once the url is removed', () => {
+    it('reports not ready again once the url is cleared', () => {
       const onReadyChange = jest.fn()
       renderComponent({ link: linkFixture, onReadyChange })
 
-      fireEvent.click(
-        screen.getByRole('button', { name: /remove link/i })
-      )
+      fireEvent.change(screen.getByLabelText(urlRegex), {
+        target: { value: '' }
+      })
 
       expect(onReadyChange).toHaveBeenLastCalledWith(false)
     })

@@ -15,6 +15,7 @@ URL.revokeObjectURL = jest.fn()
 function makeValidation(
   overrides: Partial<{
     validateEntryStrict: boolean
+    hasEntryContent: boolean
     file?: File
     summaryData: Record<string, unknown>
   }> = {}
@@ -24,6 +25,7 @@ function makeValidation(
       () => overrides.validateEntryStrict ?? true
     ),
     clearErrors: jest.fn(),
+    hasEntryContent: jest.fn(() => overrides.hasEntryContent ?? true),
     readEntryValues: jest.fn(() => ({
       summaryData: overrides.summaryData ?? { name: 'A Venue' },
       file: overrides.file
@@ -206,7 +208,7 @@ describe('useItemPickerEntries', () => {
 
       let tempId = ''
       act(() => {
-        tempId = result.current.editExisting(venueFixtureAlpha.id)
+        tempId = result.current.editExisting(venueFixtureAlpha.id)!
       })
 
       expect(result.current.entries).toEqual([
@@ -222,7 +224,8 @@ describe('useItemPickerEntries', () => {
     it('drops an untouched blank draft when an edit opens', () => {
       const { result } = setup({
         isMulti: true,
-        existingItems: [venueFixtureAlpha]
+        existingItems: [venueFixtureAlpha],
+        validation: makeValidation({ hasEntryContent: false })
       })
 
       act(() => {
@@ -237,7 +240,7 @@ describe('useItemPickerEntries', () => {
       ).toHaveLength(0)
     })
 
-    it('keeps a touched blank draft alongside the new edit', () => {
+    it('saves a touched draft to its chip before the edit opens', () => {
       const { result } = setup({
         isMulti: true,
         existingItems: [venueFixtureAlpha]
@@ -254,8 +257,32 @@ describe('useItemPickerEntries', () => {
       })
 
       expect(
-        result.current.entries.filter((e) => e.kind === 'new')
-      ).toHaveLength(1)
+        result.current.entries.find((e) => e.kind === 'new')
+      ).toMatchObject({ isSaved: true })
+    })
+
+    it('does not open the edit while a touched draft is invalid', () => {
+      const { result } = setup({
+        isMulti: true,
+        existingItems: [venueFixtureAlpha],
+        validation: makeValidation({ validateEntryStrict: false })
+      })
+
+      act(() => {
+        result.current.addNew()
+      })
+      act(() => {
+        result.current.markEntryTouched('new-0')
+      })
+      let tempId: string | undefined = ''
+      act(() => {
+        tempId = result.current.editExisting(venueFixtureAlpha.id)
+      })
+
+      expect(tempId).toBeUndefined()
+      expect(
+        result.current.entries.find((e) => e.kind === 'existing')
+      ).toBeDefined()
     })
   })
 
@@ -267,7 +294,7 @@ describe('useItemPickerEntries', () => {
 
       let tempId = ''
       act(() => {
-        tempId = result.current.editExisting(venueFixtureAlpha.id)
+        tempId = result.current.editExisting(venueFixtureAlpha.id)!
       })
       const editingEntry = result.current.entries[0]
       act(() => result.current.revertEditingEntry(editingEntry))
@@ -429,8 +456,9 @@ describe('useItemPickerEntries', () => {
       })
     })
 
-    it('prunes any other untouched blank draft, but not the one reopening', () => {
-      const { result } = setup({ isMulti: true })
+    it('drops another empty open draft, but not the one reopening', () => {
+      const validation = makeValidation()
+      const { result } = setup({ isMulti: true, validation })
 
       act(() => {
         result.current.addNew()
@@ -447,6 +475,7 @@ describe('useItemPickerEntries', () => {
       })
 
       expect(result.current.entries).toHaveLength(2)
+      validation.hasEntryContent.mockReturnValue(false)
 
       const saved = result.current.entries.find(
         (e) => isDraft(e) && e.isSaved
@@ -456,7 +485,7 @@ describe('useItemPickerEntries', () => {
       >
       act(() => result.current.editDraft(saved))
 
-      // the untouched blank opened by the second addNew() is dropped;
+      // the empty draft opened by the second addNew() is dropped;
       // only the reopened editor remains
       expect(result.current.entries).toHaveLength(1)
       expect(result.current.entries[0]).toMatchObject({
@@ -466,7 +495,7 @@ describe('useItemPickerEntries', () => {
     })
   })
 
-  describe('saveOpenDrafts', () => {
+  describe('closeOpenDrafts', () => {
     it('returns true and leaves entries alone when there are no open drafts', () => {
       const { result } = setup({
         existingItems: [venueFixtureAlpha]
@@ -474,7 +503,7 @@ describe('useItemPickerEntries', () => {
 
       let ok = false
       act(() => {
-        ok = result.current.saveOpenDrafts()
+        ok = result.current.closeOpenDrafts()
       })
 
       expect(ok).toBe(true)
@@ -492,13 +521,48 @@ describe('useItemPickerEntries', () => {
 
       let ok = false
       act(() => {
-        ok = result.current.saveOpenDrafts()
+        ok = result.current.closeOpenDrafts()
       })
 
       expect(ok).toBe(true)
       expect(
         result.current.entries.every((e) => !isDraft(e) || e.isSaved)
       ).toBe(true)
+    })
+
+    it('drops an empty new draft without validating it', () => {
+      const validation = makeValidation({ hasEntryContent: false })
+      const { result } = setup({ isCreateFirst: true, validation })
+
+      let ok = false
+      act(() => {
+        ok = result.current.closeOpenDrafts()
+      })
+
+      expect(ok).toBe(true)
+      expect(validation.validateEntryStrict).not.toHaveBeenCalled()
+      expect(result.current.entries).toEqual([])
+    })
+
+    it('validates an untouched edit before reverting it', () => {
+      const validation = makeValidation({
+        validateEntryStrict: false
+      })
+      const { result } = setup({
+        existingItems: [venueFixtureAlpha],
+        validation
+      })
+      act(() => {
+        result.current.editExisting(venueFixtureAlpha.id)
+      })
+
+      let ok = true
+      act(() => {
+        ok = result.current.closeOpenDrafts()
+      })
+
+      expect(ok).toBe(false)
+      expect(result.current.entries[0].kind).toBe('editing')
     })
 
     it('stops at the first invalid open draft', () => {
@@ -509,7 +573,7 @@ describe('useItemPickerEntries', () => {
 
       let ok = true
       act(() => {
-        ok = result.current.saveOpenDrafts()
+        ok = result.current.closeOpenDrafts()
       })
 
       expect(ok).toBe(false)

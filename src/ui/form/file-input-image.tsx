@@ -162,7 +162,7 @@ export function FileInputImage({
       {(previewUrl || imageUrl) && (
         <>
           <figure
-            className={styles['image-preview']}
+            className={clsx(styles['image-preview'], 'item-preview')}
             style={{
               aspectRatio: _aspectRatio
                 ? _aspectRatio.toString()

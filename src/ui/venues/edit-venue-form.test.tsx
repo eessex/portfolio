@@ -4,10 +4,15 @@ import {
   newVenueFixtureAlpha,
   venueFixtureAlpha
 } from '@/lib/venues/fixtures'
+import { NamePrefixProvider } from '@/ui/item-picker/name-prefix'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 
-function renderComponent(props = {}) {
-  return render(<EditVenue venue={newVenueFixtureAlpha} {...props} />)
+function renderComponent(props = {}, namePrefix = '') {
+  return render(
+    <NamePrefixProvider prefix={namePrefix}>
+      <EditVenue venue={newVenueFixtureAlpha} {...props} />
+    </NamePrefixProvider>
+  )
 }
 
 describe('EditVenue', () => {
@@ -41,11 +46,8 @@ describe('EditVenue', () => {
       ).toBeInTheDocument()
     })
 
-    it('applies isPrefixEnabled to prefix to input names correctly', () => {
-      renderComponent({
-        venue: venueFixtureAlpha,
-        isPrefixEnabled: true
-      })
+    it("namespaces its inputs under a picker slot's prefix", () => {
+      renderComponent({ venue: venueFixtureAlpha }, 'venue.')
 
       expect(screen.getByLabelText(/name/i)).toHaveAttribute(
         'name',

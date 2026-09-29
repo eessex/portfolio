@@ -55,6 +55,20 @@ describe('SearchInput', () => {
       ).toBeInTheDocument()
     })
 
+    it('renders the description when provided', () => {
+      renderComponent({ description: 'Search by name or tag' })
+
+      expect(
+        screen.getByText('Search by name or tag')
+      ).toBeInTheDocument()
+    })
+
+    it('does not render a description when not provided', () => {
+      const { container } = renderComponent()
+
+      expect(container.querySelector('p')).not.toBeInTheDocument()
+    })
+
     it('renders role when provided', () => {
       renderComponent({ role: 'combobox' })
 

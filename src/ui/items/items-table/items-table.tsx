@@ -23,7 +23,7 @@ import type {
 } from '@/lib/types'
 import { DEFAULT_PAGE_SIZE } from '@/lib/util'
 import type { Venue } from '@/lib/venues/schemas/db'
-import { Badges, itemBadges } from '@/ui/badges'
+import { Badges, itemBadges } from '@/ui/badges/badges'
 import { FiltersWrapper } from '@/ui/filters/filters'
 import { ItemsList } from '@/ui/items/items-list'
 import styles from '@/ui/items/items-table/items-table.module.scss'

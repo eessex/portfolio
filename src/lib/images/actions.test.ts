@@ -2,10 +2,11 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import {
-  createImageFromFields,
   deleteImage,
   editImage,
-  resolveOrderedImageIds
+  resolveCoverImageId,
+  resolveOrderedImageIds,
+  saveImageFromFields
 } from '@/lib/images/actions'
 import {
   createImageFixture,
@@ -170,14 +171,14 @@ describe('Image Actions', () => {
     })
   })
 
-  describe('#createImageFromFields', () => {
+  describe('#saveImageFromFields', () => {
     it('uploads the file and creates an image from raw fields', async () => {
       uploadFileMock.mockResolvedValueOnce(
         'https://example.com/uploaded-image.jpg'
       )
       mockSql.mockResolvedValueOnce([imageFixture])
 
-      const res = await createImageFromFields({
+      const res = await saveImageFromFields({
         ...createImageFixture,
         file: mockFile('uploaded-image.jpg', 2048, 'image/jpeg')
       })
@@ -192,7 +193,7 @@ describe('Image Actions', () => {
     it('normalizes raw checkbox/empty-string fields before validating', async () => {
       mockSql.mockResolvedValueOnce([imageFixture])
 
-      await createImageFromFields({
+      await saveImageFromFields({
         ...createImageFixture,
         type: 'press',
         alt: ''
@@ -208,7 +209,7 @@ describe('Image Actions', () => {
       const invalid: Partial<CreateImage> = { ...createImageFixture }
       delete invalid.url
 
-      await expect(createImageFromFields(invalid)).rejects.toThrow(
+      await expect(saveImageFromFields(invalid)).rejects.toThrow(
         'Invalid image data: Required'
       )
       expect(mockSql).not.toHaveBeenCalled()
@@ -253,12 +254,75 @@ describe('Image Actions', () => {
       })
     })
 
+    it('updates an edited existing entry (id + fields) in place', async () => {
+      mockSql
+        .mockResolvedValueOnce([imageFixture]) // fetchImagesByIds
+        .mockResolvedValueOnce([imageFixture]) // UPDATE ... RETURNING *
+
+      const result = await resolveOrderedImageIds({
+        'images[0].id': 'image-1',
+        'images[0].url': imageFixture.url,
+        'images[0].aspect': 1.5,
+        'images[0].caption': 'Edited caption'
+      })
+
+      expect(result).toEqual({
+        coverImageId: imageFixture.id,
+        imageIds: []
+      })
+      // a metadata-only edit keeps the existing file (no new upload)
+      expect(uploadFileMock).not.toHaveBeenCalled()
+      expect(mockSql).toHaveBeenCalledTimes(2)
+    })
+
     it('returns an undefined coverImageId and empty imageIds when nothing is selected', async () => {
       const result = await resolveOrderedImageIds({ 'images[]': '' })
 
       expect(result).toEqual({
         coverImageId: undefined,
         imageIds: []
+      })
+    })
+
+    it('ignores an untouched empty new slot', async () => {
+      const result = await resolveOrderedImageIds({
+        'images[0].file': mockFile('', 0, ''),
+        'images[0].caption': '',
+        'images[0].alt': '',
+        'images[0].title': '',
+        'images[0].type': ''
+      })
+
+      expect(result).toEqual({
+        coverImageId: undefined,
+        imageIds: []
+      })
+      expect(uploadFileMock).not.toHaveBeenCalled()
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('drops empty new slots but keeps a filled one, preserving order', async () => {
+      uploadFileMock.mockResolvedValueOnce(
+        'https://example.com/uploaded-image.jpg'
+      )
+      mockSql.mockResolvedValueOnce([
+        {
+          ...imageFixture,
+          id: '44444444-4444-4444-8444-444444444444'
+        }
+      ])
+
+      const result = await resolveOrderedImageIds({
+        'images[0].file': mockFile('', 0, ''),
+        'images[0].caption': '',
+        'images[1].aspect': 1.5,
+        'images[1].url': 'https://example.com/image.jpg',
+        'images[2].id': 'image-2'
+      })
+
+      expect(result).toEqual({
+        coverImageId: '44444444-4444-4444-8444-444444444444',
+        imageIds: ['image-2']
       })
     })
 
@@ -272,6 +336,118 @@ describe('Image Actions', () => {
         coverImageId: 'image-1',
         imageIds: []
       })
+    })
+  })
+
+  describe('#resolveCoverImageId', () => {
+    it('passes an existing coverImageId straight through', async () => {
+      const data: Record<string, unknown> = {
+        coverImageId: imageFixture.id
+      }
+
+      const id = await resolveCoverImageId(data)
+
+      expect(id).toBe(imageFixture.id)
+      expect(mockSql).not.toHaveBeenCalled()
+      expect(uploadFileMock).not.toHaveBeenCalled()
+    })
+
+    it('updates the image when an id is submitted alongside edited fields', async () => {
+      mockSql
+        .mockResolvedValueOnce([imageFixture]) // fetchImagesByIds
+        .mockResolvedValueOnce([imageFixture]) // UPDATE ... RETURNING *
+
+      const data: Record<string, unknown> = {
+        coverImageId: imageFixture.id,
+        'coverImage.url': imageFixture.url,
+        'coverImage.aspect': 1.5,
+        'coverImage.caption': 'Edited caption'
+      }
+
+      const id = await resolveCoverImageId(data)
+
+      expect(id).toBe(imageFixture.id)
+      // a metadata-only edit keeps the existing file (no new upload)
+      expect(uploadFileMock).not.toHaveBeenCalled()
+      expect(mockSql).toHaveBeenCalledTimes(2)
+      expect(data).not.toHaveProperty(['coverImage.url'])
+      expect(data).not.toHaveProperty(['coverImage.caption'])
+    })
+
+    it('creates a new image from inline fields when a file is submitted', async () => {
+      uploadFileMock.mockResolvedValueOnce(
+        'https://example.com/uploaded.jpg'
+      )
+      mockSql.mockResolvedValueOnce([
+        {
+          ...imageFixture,
+          id: '44444444-4444-4444-8444-444444444444'
+        }
+      ])
+
+      const data: Record<string, unknown> = {
+        'coverImage.file': mockFile(),
+        'coverImage.aspect': 1.5,
+        'coverImage.caption': 'A brand new cover'
+      }
+
+      const id = await resolveCoverImageId(data)
+
+      expect(id).toBe('44444444-4444-4444-8444-444444444444')
+      expect(uploadFileMock).toHaveBeenCalledTimes(1)
+      expect(mockSql).toHaveBeenCalledTimes(1)
+    })
+
+    it('strips prefixed image fields but leaves the parent title untouched', async () => {
+      uploadFileMock.mockResolvedValueOnce(
+        'https://example.com/uploaded.jpg'
+      )
+      mockSql.mockResolvedValueOnce([imageFixture])
+
+      const data: Record<string, unknown> = {
+        title: 'Site title',
+        description: 'Site description',
+        'coverImage.file': mockFile(),
+        'coverImage.aspect': 1.5,
+        'coverImage.caption': 'cap',
+        'coverImage.title': 'Image title'
+      }
+
+      await resolveCoverImageId(data)
+
+      expect(data).not.toHaveProperty('coverImage.file')
+      expect(data).not.toHaveProperty('coverImage.aspect')
+      expect(data).not.toHaveProperty('coverImage.caption')
+      expect(data).not.toHaveProperty('coverImage.title')
+      expect(data.title).toBe('Site title')
+      expect(data.description).toBe('Site description')
+    })
+
+    it('reads the id and inline fields from a custom id field name', async () => {
+      mockSql
+        .mockResolvedValueOnce([imageFixture]) // fetchImagesByIds
+        .mockResolvedValueOnce([imageFixture]) // UPDATE ... RETURNING *
+
+      const data: Record<string, unknown> = {
+        heroImageId: imageFixture.id,
+        'heroImage.url': imageFixture.url,
+        'heroImage.aspect': 1.5,
+        'heroImage.caption': 'Edited caption'
+      }
+
+      const id = await resolveCoverImageId(data, 'heroImageId')
+
+      expect(id).toBe(imageFixture.id)
+      expect(mockSql).toHaveBeenCalledTimes(2)
+      expect(data).not.toHaveProperty(['heroImage.url'])
+    })
+
+    it('returns undefined when neither a coverImageId nor a file is submitted', async () => {
+      const id = await resolveCoverImageId({ description: 'x' })
+
+      expect(id).toBeUndefined()
+      expect(mockSql).not.toHaveBeenCalled()
+      expect(uploadFileMock).not.toHaveBeenCalled()
     })
   })
 })

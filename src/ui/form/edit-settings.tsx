@@ -1,20 +1,26 @@
 'use client'
 
-import type { Image } from '@/lib/images/schemas/db'
+import { useRouter } from 'next/navigation'
+
+import {
+  type Image,
+  imageClientFieldsSchema
+} from '@/lib/images/schemas/db'
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
-import { formatImageResult } from '@/ui/images/format-image-result'
+import { EditImage } from '@/ui/images/edit-image-form'
+import {
+  formatImageResult,
+  formatNewImageSummary
+} from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
-
-// Only press photos may be attached as the site cover image
-const pressSearchParams = { type: 'press' }
 
 function SettingsFormFields({
   settings
 }: {
-  settings: SiteSettingsClient
+  settings?: SiteSettingsClient
 }) {
   const errors = useFormErrors()
 
@@ -41,7 +47,8 @@ function SettingsFormFields({
         errors={errors?.description}
         attributes={{
           name: 'description',
-          maxLength: 255
+          maxLength: 255,
+          required: true
         }}
       />
 
@@ -49,9 +56,25 @@ function SettingsFormFields({
         name='coverImageId'
         itemType='images'
         label='Cover image'
-        searchParams={pressSearchParams}
+        description='Shown on homepage and as default meta image for search engines and link unfurling.'
         existingItem={settings?.coverImage}
-        formatResult={formatImageResult}
+        renderExistingResult={formatImageResult}
+        renderNewItemSummary={formatNewImageSummary}
+        schema={imageClientFieldsSchema}
+        renderEditItemForm={({
+          errors,
+          isRequired,
+          existingItem,
+          onReadyChange
+        }) => (
+          <EditImage
+            image={existingItem}
+            errors={errors}
+            isRequired={isRequired}
+            onReadyChange={onReadyChange}
+          />
+        )}
+        isRequired
       />
     </>
   )
@@ -60,13 +83,19 @@ function SettingsFormFields({
 export function EditSettings({
   settings
 }: {
-  settings: SiteSettingsClient
+  settings?: SiteSettingsClient
 }) {
+  const router = useRouter()
+
+  async function handleSubmit(formData: FormData) {
+    const res = await editSiteSettings(formData, settings?.id)
+    if (res?.ok && !settings) router.refresh()
+    return res
+  }
+
   return (
     <Form
-      action={(formData: FormData) =>
-        editSiteSettings(formData, settings.id)
-      }
+      action={handleSubmit}
       submitButtonClassName='button-primary button-lg'
     >
       <SettingsFormFields settings={settings} />

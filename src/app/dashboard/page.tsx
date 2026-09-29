@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
+import styles from '@/ui/dashboard/dashboard.module.scss'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { EditSettings } from '@/ui/form/edit-settings'
 import { Loading } from '@/ui/loading'
@@ -16,10 +17,15 @@ export default async function DashboardPage() {
   return (
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading />}>
-        {settings && (
+        {settings ? (
           <AccordionDropdown title='Edit site settings'>
             <EditSettings settings={settings} />
           </AccordionDropdown>
+        ) : (
+          <section className={styles['dashboard-inner']}>
+            <h2>Welcome! Let&apos;s set up your site:</h2>
+            <EditSettings />
+          </section>
         )}
       </Suspense>
     </DashboardLayout>

@@ -24,7 +24,7 @@ const defaultProps: ComboboxProps<Venue> = {
     totalCount: 0
   },
   itemType: 'venues',
-  formatResult: (item) => item.name,
+  renderExistingResult: (item) => item.name,
   onCreateNew: onCreateNewMock,
   onSelect: onSelectMock
 }
@@ -71,7 +71,7 @@ describe('Combobox', () => {
         expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
       })
 
-      it('renders results using formatResult when opened', () => {
+      it('renders results using renderExistingResult when opened', () => {
         renderCombobox({ initialResults })
         fireEvent.focus(screen.getByRole('combobox'))
 
@@ -98,6 +98,20 @@ describe('Combobox', () => {
         expect(
           screen.getByPlaceholderText('Custom Venue Placeholder')
         ).toBeInTheDocument()
+      })
+
+      it('renders the description when provided', () => {
+        renderCombobox({ description: 'Search existing venues' })
+
+        expect(
+          screen.getByText('Search existing venues')
+        ).toBeInTheDocument()
+      })
+
+      it('does not render a description when not provided', () => {
+        const { container } = renderCombobox()
+
+        expect(container.querySelector('p')).not.toBeInTheDocument()
       })
     })
 

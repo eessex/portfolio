@@ -9,7 +9,7 @@ import type { EventClient } from '@/lib/events/types'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import type { PageItemClient } from '@/lib/types'
-import { DraftBadge } from '@/ui/draft-badge'
+import { DraftBadge } from '@/ui/badges/draft-badge'
 import { FormattedItemDate } from '@/ui/items/item-date'
 import styles from '@/ui/items/items.module.scss'
 import {

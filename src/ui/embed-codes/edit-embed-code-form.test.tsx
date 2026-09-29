@@ -1,17 +1,31 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import {
+  act,
+  fireEvent,
+  render,
+  screen
+} from '@testing-library/react'
 
 import { embedCodeFixture } from '@/lib/embed-codes/fixtures'
+import { previewEmbedCodeMetadata } from '@/lib/embed-codes/preview-metadata'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
 import {
   embedCodeSoundcloud,
   embedCodeSoundcloudFixtureRaw,
   embedCodeYoutubeFixture
 } from '@/ui/embed-codes/fixtures'
+import { NamePrefixProvider } from '@/ui/item-picker/name-prefix'
 import { useToast } from '@/ui/toast/toast-context'
 
 jest.mock('@/ui/toast/toast-context', () => {
   return { useToast: jest.fn() }
 })
+jest.mock('@/lib/embed-codes/preview-metadata', () => ({
+  previewEmbedCodeMetadata: jest.fn()
+}))
+const mockPreviewMetadata =
+  previewEmbedCodeMetadata as jest.MockedFunction<
+    typeof previewEmbedCodeMetadata
+  >
 const mockAddError = jest.fn()
 const mockAddSuccess = jest.fn()
 ;(useToast as jest.Mock).mockReturnValue({
@@ -20,25 +34,58 @@ const mockAddSuccess = jest.fn()
   removeMessage: jest.fn()
 })
 
-function renderComponent(props = {}) {
-  return render(<EditEmbedCode embedCode={undefined} {...props} />)
+function renderComponent(props = {}, namePrefix = '') {
+  return render(
+    <NamePrefixProvider prefix={namePrefix}>
+      <EditEmbedCode embedCode={undefined} {...props} />
+    </NamePrefixProvider>
+  )
 }
 
 beforeEach(() => {
   jest.clearAllMocks()
+  mockPreviewMetadata.mockResolvedValue({})
 })
 
-function pasteIframe(value: string) {
+// Every iframe parse fires an async `previewEmbedCodeMetadata` whose
+// state update lands after the test body; drain it inside act so it
+// neither warns nor leaks into the next test.
+afterEach(async () => {
+  await act(async () => {
+    await Promise.resolve()
+  })
+})
+
+// A `previewEmbedCodeMetadata` result whose resolution we flush inside
+// act, for deterministic assertions on the hidden preview inputs.
+function deferPreviewMetadata() {
+  let resolve!: (meta: {
+    title?: string
+    thumbnailUrl?: string
+  }) => void
+  mockPreviewMetadata.mockReturnValueOnce(
+    new Promise((r) => {
+      resolve = r
+    })
+  )
+  return async (meta: { title?: string; thumbnailUrl?: string }) => {
+    await act(async () => {
+      resolve(meta)
+    })
+  }
+}
+
+function pasteIframe(value: string, name = 'iframe') {
   const input = document.querySelector(
-    'input[name="iframe"]'
+    `input[name="${name}"]`
   ) as HTMLInputElement
   fireEvent.change(input, { target: { value } })
 }
 
 const iframeRegex = /iframe/i
 const captionRegex = /caption/i
-const embedTypeLabel = 'Embed type'
-const contentTypeLabel = 'Content type'
+const embedTypeLabel = /Media type/
+const contentTypeLabel = /Content type/
 const removeButtonName = /remove embed/i
 
 describe('EditEmbedCode', () => {
@@ -61,14 +108,12 @@ describe('EditEmbedCode', () => {
       ).not.toBeVisible()
     })
 
-    it('has no accessible caption field, but renders it as a hidden input', () => {
+    it('renders the caption field but keeps it not visible', () => {
       renderComponent()
-      expect(
-        screen.queryByLabelText(captionRegex)
-      ).not.toBeInTheDocument()
+      expect(screen.getByLabelText(captionRegex)).not.toBeVisible()
       expect(
         document.querySelector('input[name="caption"]')
-      ).toHaveAttribute('type', 'hidden')
+      ).toHaveAttribute('type', 'text')
     })
 
     it('does not render source or host inputs at all', () => {
@@ -200,6 +245,29 @@ describe('EditEmbedCode', () => {
     })
   })
 
+  describe('isRemoveButtonHidden', () => {
+    it('hides the remove button once parsed, keeping the preview', () => {
+      renderComponent({ isRemoveButtonHidden: true })
+      pasteIframe(embedCodeYoutubeFixture)
+
+      expect(
+        screen.getByTitle('Embedded media preview')
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: removeButtonName })
+      ).not.toBeInTheDocument()
+    })
+
+    it('still shows the remove button by default', () => {
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+
+      expect(
+        screen.getByRole('button', { name: removeButtonName })
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('removing a parsed embed', () => {
     it('reverts visibility back to the pre-parse state', () => {
       renderComponent()
@@ -225,11 +293,101 @@ describe('EditEmbedCode', () => {
         document.querySelector('input[name="host"]')
       ).not.toBeInTheDocument()
     })
+
+    it('keeps the details open with a chosen content type', () => {
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+      fireEvent.change(screen.getByLabelText(contentTypeLabel), {
+        target: { value: 'podcast' }
+      })
+
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      expect(
+        document.querySelector('input[name="iframe"]')
+      ).toBeInTheDocument()
+      expect(screen.getByLabelText(contentTypeLabel)).toBeVisible()
+      expect(screen.getByLabelText(contentTypeLabel)).toHaveValue(
+        'podcast'
+      )
+      expect(
+        document.querySelector('fieldset.expanded')
+      ).toBeInTheDocument()
+    })
+
+    it('keeps the details open with a caption', () => {
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+      fireEvent.change(screen.getByLabelText(captionRegex), {
+        target: { value: 'A caption' }
+      })
+
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      expect(screen.getByLabelText(captionRegex)).toBeVisible()
+      expect(screen.getByLabelText(captionRegex)).toHaveValue(
+        'A caption'
+      )
+    })
+
+    it('keeps the details open for an existing embed with saved meta', () => {
+      renderComponent({
+        embedCode: {
+          ...embedCodeSoundcloud,
+          caption: 'Saved caption',
+          contentType: 'radio_show'
+        }
+      })
+
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      expect(screen.getByLabelText(contentTypeLabel)).toHaveValue(
+        'radio_show'
+      )
+      expect(screen.getByLabelText(captionRegex)).toBeVisible()
+    })
+
+    it('collapses the kept details once they are emptied and blurred', () => {
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+      const caption = screen.getByLabelText(captionRegex)
+      fireEvent.change(caption, { target: { value: 'A caption' } })
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      fireEvent.change(caption, { target: { value: '' } })
+      fireEvent.blur(caption)
+
+      expect(caption).not.toBeVisible()
+    })
+
+    it('clears a kept video-only content type when an audio embed is pasted', () => {
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+      fireEvent.change(screen.getByLabelText(contentTypeLabel), {
+        target: { value: 'trailer' }
+      })
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      pasteIframe(embedCodeSoundcloudFixtureRaw)
+
+      expect(screen.getByLabelText(contentTypeLabel)).toHaveValue('')
+    })
   })
 
   describe('embed type', () => {
-    it('is required', () => {
+    it('is required once an embed is parsed', () => {
       renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
       expect(screen.getByLabelText(embedTypeLabel)).toBeRequired()
     })
 
@@ -263,8 +421,9 @@ describe('EditEmbedCode', () => {
   })
 
   describe('content type', () => {
-    it('is required', () => {
+    it('is required once an embed is parsed', () => {
       renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
       expect(screen.getByLabelText(contentTypeLabel)).toBeRequired()
     })
 
@@ -393,9 +552,7 @@ describe('EditEmbedCode', () => {
       expect(
         document.querySelector('input[name="iframe"]')
       ).toBeInTheDocument()
-      expect(
-        screen.queryByLabelText(captionRegex)
-      ).not.toBeInTheDocument()
+      expect(screen.getByLabelText(captionRegex)).not.toBeVisible()
     })
 
     it('auto-populates src, host and type from a pasted iframe, but not content type', () => {
@@ -419,10 +576,7 @@ describe('EditEmbedCode', () => {
 
   describe('name prefixing', () => {
     it('applies the prefix before an embed is parsed', () => {
-      renderComponent({
-        embedCode: {},
-        index: 2
-      })
+      renderComponent({ embedCode: {} }, 'embedCodes[2].')
 
       expect(screen.getByLabelText(iframeRegex)).toHaveAttribute(
         'name',
@@ -439,13 +593,15 @@ describe('EditEmbedCode', () => {
     })
 
     it('applies the prefix once an embed is parsed', () => {
-      renderComponent({
-        embedCode: {
-          src: embedCodeSoundcloud.src,
-          host: embedCodeSoundcloud.host
+      renderComponent(
+        {
+          embedCode: {
+            src: embedCodeSoundcloud.src,
+            host: embedCodeSoundcloud.host
+          }
         },
-        index: 3
-      })
+        'embedCodes[3].'
+      )
 
       expect(screen.getByLabelText(captionRegex)).toHaveAttribute(
         'name',
@@ -470,6 +626,14 @@ describe('EditEmbedCode', () => {
         screen.getByText(/caption is too long/i)
       ).toBeInTheDocument()
     })
+
+    it('surfaces src/host errors on the iframe input', () => {
+      renderComponent({ errors: { src: ['Required'] } })
+
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        /paste an iframe embed code/i
+      )
+    })
   })
 
   describe('input attributes', () => {
@@ -486,6 +650,18 @@ describe('EditEmbedCode', () => {
       expect(iframeInput).toBeRequired()
     })
 
+    it('requires the iframe when not required but details are open', () => {
+      renderComponent({
+        isRequired: false,
+        embedCode: { ...embedCodeFixture, caption: 'Kept' }
+      })
+      fireEvent.click(
+        screen.getByRole('button', { name: /remove embed/i })
+      )
+
+      expect(screen.getByLabelText(iframeRegex)).toBeRequired()
+    })
+
     it('applies caption attributes correctly once an embed is parsed', () => {
       renderComponent()
       pasteIframe(embedCodeYoutubeFixture)
@@ -496,6 +672,226 @@ describe('EditEmbedCode', () => {
         'placeholder',
         'Video by Artist Name (2024)'
       )
+    })
+  })
+
+  describe('progressive disclosure wiring', () => {
+    it('groups the secondary fields in a single fieldset', () => {
+      renderComponent()
+
+      const fieldset = document.querySelector('fieldset')
+      expect(fieldset).toContainElement(
+        screen.getByLabelText(embedTypeLabel)
+      )
+      expect(fieldset).toContainElement(
+        screen.getByLabelText(contentTypeLabel)
+      )
+      expect(fieldset).toContainElement(
+        screen.getByLabelText(captionRegex)
+      )
+    })
+
+    it('points the iframe input at the fieldset before parsing', () => {
+      renderComponent()
+
+      const fieldset = document.querySelector('fieldset') as Element
+      const iframeInput = screen.getByLabelText(iframeRegex)
+
+      expect(iframeInput).toHaveAttribute('aria-expanded', 'false')
+      expect(iframeInput).toHaveAttribute(
+        'aria-controls',
+        fieldset.id
+      )
+    })
+
+    it('points the remove button at the fieldset once parsed', () => {
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+
+      const fieldset = document.querySelector('fieldset') as Element
+      const removeButton = screen.getByRole('button', {
+        name: removeButtonName
+      })
+
+      expect(removeButton).toHaveAttribute('aria-expanded', 'true')
+      expect(removeButton).toHaveAttribute(
+        'aria-controls',
+        fieldset.id
+      )
+    })
+  })
+
+  describe('onReadyChange', () => {
+    it('reports not ready before an iframe is parsed', () => {
+      const onReadyChange = jest.fn()
+      renderComponent({ onReadyChange })
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(false)
+    })
+
+    it('reports ready once the iframe parses successfully', () => {
+      const onReadyChange = jest.fn()
+      renderComponent({ onReadyChange })
+      pasteIframe(embedCodeYoutubeFixture)
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(true)
+    })
+
+    it('reports not ready when a pasted iframe fails to parse', () => {
+      const onReadyChange = jest.fn()
+      renderComponent({ onReadyChange })
+      pasteIframe('invalid iframe code')
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(false)
+    })
+
+    it('reports not ready again once the parsed embed is removed', () => {
+      const onReadyChange = jest.fn()
+      renderComponent({ onReadyChange })
+      pasteIframe(embedCodeYoutubeFixture)
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      expect(onReadyChange).toHaveBeenLastCalledWith(false)
+    })
+  })
+
+  describe('oEmbed preview metadata', () => {
+    const resolvedMeta = {
+      title: 'Resolved title',
+      thumbnailUrl: 'https://img.youtube.com/vi/abc/hqdefault.jpg'
+    }
+
+    it('resolves the host/src once an iframe is parsed', () => {
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+
+      expect(mockPreviewMetadata).toHaveBeenCalledWith(
+        embedCodeFixture.host,
+        embedCodeFixture.src
+      )
+    })
+
+    it('renders the resolved title/thumbnail as hidden inputs', async () => {
+      const resolvePreview = deferPreviewMetadata()
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+      await resolvePreview(resolvedMeta)
+
+      const titleInput = document.querySelector(
+        'input[name="previewTitle"]'
+      )
+      expect(titleInput).toHaveAttribute('type', 'hidden')
+      expect(titleInput).toHaveValue(resolvedMeta.title)
+
+      const thumbnailInput = document.querySelector(
+        'input[name="previewThumbnailUrl"]'
+      )
+      expect(thumbnailInput).toHaveAttribute('type', 'hidden')
+      expect(thumbnailInput).toHaveValue(resolvedMeta.thumbnailUrl)
+    })
+
+    it('prefixes the preview inputs when indexed', async () => {
+      const resolvePreview = deferPreviewMetadata()
+      renderComponent({}, 'embedCodes[2].')
+      pasteIframe(embedCodeYoutubeFixture, 'embedCodes[2].iframe')
+      await resolvePreview(resolvedMeta)
+
+      expect(
+        document.querySelector(
+          'input[name="embedCodes[2].previewTitle"]'
+        )
+      ).toBeInTheDocument()
+      expect(
+        document.querySelector(
+          'input[name="embedCodes[2].previewThumbnailUrl"]'
+        )
+      ).toBeInTheDocument()
+    })
+
+    it('renders no preview inputs when the host returns no metadata', async () => {
+      const resolvePreview = deferPreviewMetadata()
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+      await resolvePreview({})
+
+      expect(
+        document.querySelector('input[name="previewTitle"]')
+      ).not.toBeInTheDocument()
+      expect(
+        document.querySelector('input[name="previewThumbnailUrl"]')
+      ).not.toBeInTheDocument()
+    })
+
+    it('drops resolved metadata once the parsed embed is removed', async () => {
+      const resolvePreview = deferPreviewMetadata()
+      renderComponent()
+      pasteIframe(embedCodeYoutubeFixture)
+      await resolvePreview(resolvedMeta)
+      expect(
+        document.querySelector('input[name="previewTitle"]')
+      ).toBeInTheDocument()
+
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      expect(
+        document.querySelector('input[name="previewTitle"]')
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('onBusyChange (Save gating)', () => {
+    it('reports busy while resolving and settled once resolved', async () => {
+      const onBusyChange = jest.fn()
+      const resolvePreview = deferPreviewMetadata()
+      renderComponent({ onBusyChange })
+      pasteIframe(embedCodeYoutubeFixture)
+
+      expect(screen.getByText('Loading preview…')).toBeInTheDocument()
+      expect(onBusyChange).toHaveBeenLastCalledWith(true)
+
+      await resolvePreview({})
+
+      expect(
+        screen.queryByText('Loading preview…')
+      ).not.toBeInTheDocument()
+      expect(onBusyChange).toHaveBeenLastCalledWith(false)
+    })
+
+    it('reports settled even when resolution fails', async () => {
+      const onBusyChange = jest.fn()
+      let reject!: (err: unknown) => void
+      mockPreviewMetadata.mockReturnValueOnce(
+        new Promise((_resolve, r) => {
+          reject = r
+        })
+      )
+      renderComponent({ onBusyChange })
+      pasteIframe(embedCodeYoutubeFixture)
+      expect(onBusyChange).toHaveBeenLastCalledWith(true)
+
+      await act(async () => {
+        reject(new Error('oEmbed failed'))
+      })
+
+      expect(onBusyChange).toHaveBeenLastCalledWith(false)
+    })
+
+    it('reports settled when the iframe is cleared before resolving', () => {
+      const onBusyChange = jest.fn()
+      deferPreviewMetadata()
+      renderComponent({ onBusyChange })
+      pasteIframe(embedCodeYoutubeFixture)
+      expect(onBusyChange).toHaveBeenLastCalledWith(true)
+
+      fireEvent.click(
+        screen.getByRole('button', { name: removeButtonName })
+      )
+
+      expect(onBusyChange).toHaveBeenLastCalledWith(false)
     })
   })
 })

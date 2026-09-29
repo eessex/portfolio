@@ -2,10 +2,10 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import {
-  createEmbedCodeFromFields,
   deleteEmbedCode,
   editEmbedCode,
-  resolveOrderedEmbedCodeIds
+  resolveOrderedEmbedCodeIds,
+  saveEmbedCodeFromFields
 } from '@/lib/embed-codes/actions'
 import { fetchEmbedCodeMetadata } from '@/lib/embed-codes/cover-image'
 import {
@@ -227,7 +227,7 @@ describe('Embed Code Actions', () => {
     })
   })
 
-  describe('#createEmbedCodeFromFields', () => {
+  describe('#saveEmbedCodeFromFields', () => {
     it('creates an embed code from raw fields, resolving metadata first', async () => {
       fetchEmbedCodeMetadataMock.mockResolvedValueOnce({
         coverImageId: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
@@ -235,7 +235,7 @@ describe('Embed Code Actions', () => {
       })
       mockSql.mockResolvedValueOnce([embedCodeFixture])
 
-      const res = await createEmbedCodeFromFields({
+      const res = await saveEmbedCodeFromFields({
         ...createEmbedCodeFixture
       })
 
@@ -252,7 +252,7 @@ describe('Embed Code Actions', () => {
     it('normalizes raw checkbox/empty-string fields before validating', async () => {
       mockSql.mockResolvedValueOnce([embedCodeFixture])
 
-      await createEmbedCodeFromFields({
+      await saveEmbedCodeFromFields({
         ...createEmbedCodeFixture,
         caption: ''
       })
@@ -268,9 +268,9 @@ describe('Embed Code Actions', () => {
       }
       delete invalid.src
 
-      await expect(
-        createEmbedCodeFromFields(invalid)
-      ).rejects.toThrow('Invalid embed code data: Required')
+      await expect(saveEmbedCodeFromFields(invalid)).rejects.toThrow(
+        'Invalid embed code data: Required'
+      )
       expect(mockSql).not.toHaveBeenCalled()
     })
   })
@@ -314,6 +314,26 @@ describe('Embed Code Actions', () => {
       expect(data).toEqual({})
     })
 
+    it('updates an edited existing entry (id + fields) in place', async () => {
+      mockSql
+        .mockResolvedValueOnce([embedCodeFixture]) // fetchEmbedCodesByIds
+        .mockResolvedValueOnce([embedCodeFixture]) // UPDATE ... RETURNING *
+
+      const result = await resolveOrderedEmbedCodeIds({
+        'embedCodes[0].id': 'embed-1',
+        'embedCodes[0].caption': 'Edited caption',
+        'embedCodes[0].type': createEmbedCodeFixture.type,
+        'embedCodes[0].host': createEmbedCodeFixture.host,
+        'embedCodes[0].src': createEmbedCodeFixture.src
+      })
+
+      expect(result).toEqual({
+        embedCodeIds: [embedCodeFixture.id],
+        featuredEmbedCodeId: undefined
+      })
+      expect(mockSql).toHaveBeenCalledTimes(2)
+    })
+
     it('creates pending new embed codes in place, preserving position', async () => {
       fetchEmbedCodeMetadataMock.mockResolvedValueOnce({})
       mockSql.mockResolvedValueOnce([
@@ -355,6 +375,50 @@ describe('Embed Code Actions', () => {
 
       expect(result).toEqual({
         embedCodeIds: [],
+        featuredEmbedCodeId: undefined
+      })
+    })
+
+    it('ignores an untouched empty new slot', async () => {
+      const result = await resolveOrderedEmbedCodeIds({
+        'embedCodes[0].iframe': '',
+        'embedCodes[0].type': '',
+        'embedCodes[0].contentType': '',
+        'embedCodes[0].caption': ''
+      })
+
+      expect(result).toEqual({
+        embedCodeIds: [],
+        featuredEmbedCodeId: undefined
+      })
+      expect(fetchEmbedCodeMetadataMock).not.toHaveBeenCalled()
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('drops empty new slots but keeps a filled one, preserving order', async () => {
+      fetchEmbedCodeMetadataMock.mockResolvedValueOnce({})
+      mockSql.mockResolvedValueOnce([
+        {
+          ...embedCodeFixture,
+          id: '44444444-4444-4444-8444-444444444444'
+        }
+      ])
+
+      const result = await resolveOrderedEmbedCodeIds({
+        'embedCodes[0].id': 'embed-1',
+        'embedCodes[1].iframe': '',
+        'embedCodes[1].type': '',
+        'embedCodes[1].caption': '',
+        'embedCodes[2].host': createEmbedCodeFixture.host,
+        'embedCodes[2].type': createEmbedCodeFixture.type,
+        'embedCodes[2].src': createEmbedCodeFixture.src
+      })
+
+      expect(result).toEqual({
+        embedCodeIds: [
+          'embed-1',
+          '44444444-4444-4444-8444-444444444444'
+        ],
         featuredEmbedCodeId: undefined
       })
     })

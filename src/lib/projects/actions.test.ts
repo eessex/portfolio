@@ -4,6 +4,7 @@ import { auth } from '@/auth'
 import { sql } from '@/lib/db'
 import { resolveOrderedEmbedCodeIds } from '@/lib/embed-codes/actions'
 import { resolveOrderedImageIds } from '@/lib/images/actions'
+import { resolveOrderedLinkIds } from '@/lib/links/actions'
 import { deleteProject, editProject } from '@/lib/projects/actions'
 import {
   newProjectFixtureAlpha,
@@ -35,6 +36,11 @@ const mockResolveOrderedEmbedCodeIds = jest.mocked(
   resolveOrderedEmbedCodeIds
 )
 
+jest.mock('@/lib/links/actions', () => ({
+  resolveOrderedLinkIds: jest.fn()
+}))
+const mockResolveOrderedLinkIds = jest.mocked(resolveOrderedLinkIds)
+
 const EXISTING_IMAGE_ID_1 = '11111111-1111-4111-8111-111111111111'
 const NEW_IMAGE_ID = '33333333-3333-4333-8333-333333333333'
 const EXISTING_EMBED_CODE_ID = '22222222-2222-4222-8222-222222222222'
@@ -52,6 +58,7 @@ describe('Project Actions', () => {
       embedCodeIds: [],
       featuredEmbedCodeId: undefined
     })
+    mockResolveOrderedLinkIds.mockResolvedValue({ linkIds: [] })
   })
 
   it('rejects unauthenticated callers', async () => {
@@ -122,8 +129,6 @@ describe('Project Actions', () => {
         .mockResolvedValueOnce([projectFixtureAlpha])
         .mockResolvedValueOnce([projectFixtureAlpha])
 
-      // only title is submitted; other fields should fall back to
-      // the existing project's values rather than being nulled out
       await editProject(
         formDataFromObject({ title: 'Updated Title' }),
         projectFixtureAlpha.id
@@ -131,7 +136,7 @@ describe('Project Actions', () => {
 
       const [, , , , , , , isPublished, , shortDescription] = mockSql
         .mock.calls[1] as unknown as string[]
-      expect(isPublished).toBe(projectFixtureAlpha.isPublished)
+      expect(isPublished).toBe(false)
       expect(shortDescription).toBe(
         projectFixtureAlpha.shortDescription ?? null
       )

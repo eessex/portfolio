@@ -31,3 +31,15 @@ export async function fetchSiteSettings() {
     throw new Error('Failed to fetch site settings.', { cause })
   }
 }
+
+/** Whether the site_settings row has been created yet (first-run setup). */
+export async function hasSiteSettings(): Promise<boolean> {
+  try {
+    const rows = await sql`
+      SELECT EXISTS(SELECT 1 FROM site_settings) AS exists
+    `
+    return Boolean(rows[0]?.exists)
+  } catch (cause) {
+    throw new Error('Failed to check site settings.', { cause })
+  }
+}

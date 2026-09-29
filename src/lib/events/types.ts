@@ -1,12 +1,14 @@
 import type { z } from 'zod'
 
 import type {
+  createEventSchema,
   eventClientSchema,
   eventSchema
 } from '@/lib//events/schemas'
 
 export type Event = z.infer<typeof eventSchema>
 export type EventClient = z.infer<typeof eventClientSchema>
+export type CreateEvent = z.infer<typeof createEventSchema>
 
 export interface FetchEventsResult {
   upcomingEvents: EventClient[]

@@ -23,7 +23,7 @@ describe('EditPublishedEdition', () => {
     it('renders publisher, format, publish date, edition size, and catalog number inputs', () => {
       renderComponent()
 
-      expect(screen.getByLabelText(/publisher/i)).toBeInTheDocument()
+      expect(screen.getByText('Publisher')).toBeInTheDocument()
       expect(screen.getByLabelText(/format/i)).toBeInTheDocument()
       expect(
         screen.getByLabelText(/publish date/i)
@@ -45,7 +45,8 @@ describe('EditPublishedEdition', () => {
     it('renders search inputs for images and buy link when none is attached', () => {
       renderComponent({ publishedEdition: {} })
 
-      expect(screen.getByLabelText(/^images/i)).toBeInTheDocument()
+      // No images attached, so the picker's create form is open and "Images" is a heading, not a control label.
+      expect(screen.getByText(/^images/i)).toBeInTheDocument()
       expect(
         screen.getByLabelText(/purchase link/i)
       ).toBeInTheDocument()
@@ -132,11 +133,11 @@ describe('EditPublishedEdition', () => {
 
       expect(screen.getByDisplayValue('cover-image')).toHaveAttribute(
         'name',
-        'images[0].id'
+        'images[1].id'
       )
       expect(screen.getByDisplayValue('image-1')).toHaveAttribute(
         'name',
-        'images[1].id'
+        'images[2].id'
       )
     })
   })

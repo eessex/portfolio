@@ -8,7 +8,7 @@ export const projectFixtureBand: ProjectClient = {
   path: 'projects',
   id: '550e8400-e29b-41d4-a716-446655440000',
   title: 'Band 1',
-  startDate: new Date('2025-01-01'),
+  startDate: new Date('2025-01-01T00:00:00'),
   createdAt: new Date('2025-01-01'),
   updatedAt: new Date('2025-01-01'),
   slug: 'band-1',

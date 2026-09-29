@@ -60,6 +60,38 @@ describe('ItemResultLabel', () => {
     )
   })
 
+  it('renders a pre-rendered thumbnail when provided', () => {
+    render(
+      <ItemResultLabel
+        title='Test Title'
+        // eslint-disable-next-line @next/next/no-img-element
+        thumbnail={<img alt='File preview' src='blob:preview' />}
+      />
+    )
+
+    expect(
+      screen.getByRole('img', { name: 'File preview' })
+    ).toBeInTheDocument()
+  })
+
+  it('prefers the thumbnail over coverImage when both are provided', () => {
+    render(
+      <ItemResultLabel
+        title='Test Title'
+        // eslint-disable-next-line @next/next/no-img-element
+        thumbnail={<img alt='File preview' src='blob:preview' />}
+        coverImage={{ ...imageFixture, alt: 'Cover alt text' }}
+      />
+    )
+
+    expect(
+      screen.getByRole('img', { name: 'File preview' })
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('img', { name: 'Cover alt text' })
+    ).not.toBeInTheDocument()
+  })
+
   it('does not render a remove button when onRemove is not provided', () => {
     render(<ItemResultLabel title='Test Title' />)
 

@@ -14,8 +14,8 @@ import type {
   PageItemProps,
   PageItemResponseWithCursor
 } from '@/lib/types'
+import { DraftBadge } from '@/ui/badges/draft-badge'
 import { TicketButton } from '@/ui/buttons/ticket-button'
-import { DraftBadge } from '@/ui/draft-badge'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { ImageFigure } from '@/ui/images/image-figure'
@@ -232,12 +232,21 @@ function generateItemDescription(item: PageItemClient) {
   }
 }
 
+// Cache Components requires a non-empty generateStaticParams. When there are
+// no public slugs (nothing published yet), fall back to placeholder slug.
+// Real slugs still render via dynamicParams.
+export const placeholderStaticParamSlug = '__placeholder__'
+
 export async function generateItemStaticParams<
   T extends PageItemClient,
   S extends PageDataResponse
 >(fetchFn: () => Promise<PageItemResponseWithCursor<T, S>>) {
   const items = await fetchFn()
-  return Object.values(items.res)
+  const params = Object.values(items.res)
     .flat()
     .map((i) => ({ slug: (i as T).slug }))
+
+  return params.length
+    ? params
+    : [{ slug: placeholderStaticParamSlug }]
 }

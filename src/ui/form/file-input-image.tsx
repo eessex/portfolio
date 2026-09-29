@@ -1,5 +1,6 @@
 import { XMarkIcon } from '@heroicons/react/16/solid'
-import React, { useEffect, useState } from 'react'
+import clsx from 'clsx'
+import React, { useEffect, useRef, useState } from 'react'
 
 import type { Image } from '@/lib/images/schemas/db'
 import styles from '@/ui/form/form.module.scss'
@@ -7,11 +8,19 @@ import type { InputProps } from '@/ui/form/input'
 import { Input } from '@/ui/form/input'
 import { usedOnPages } from '@/ui/util'
 
+/**
+ * capped at Next.js's default 1 MB `bodySizeLimit`.
+ */
+export const MAX_UPLOAD_FILE_SIZE = 1000 * 1000 // 1 MB
+
 export function FileInputImage({
+  ariaControls,
+  ariaExpanded,
   label,
   className,
   description,
   defaultValue,
+  validationText,
   value,
   attributes,
   isLabelHidden,
@@ -19,6 +28,8 @@ export function FileInputImage({
   ref,
   image
 }: Omit<InputProps<HTMLInputElement>, 'children' | 'onChange'> & {
+  ariaControls?: string
+  ariaExpanded?: boolean
   image?: Partial<Image>
   onChange?: (
     fileName: string,
@@ -34,6 +45,20 @@ export function FileInputImage({
   const [imageUrl, setImageUrl] = useState<string | undefined>(
     image?.url || undefined
   )
+  const [loadError, setLoadError] = useState<string | null>(null)
+  // A file input's value can only be cleared via the live DOM node
+  // (React can't set it), so keep a ref to reset it when the preview is
+  // cleared, otherwise the input keeps showing the old filename.
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  function setInputRef(el: HTMLInputElement | null) {
+    inputRef.current = el
+    ref?.(el)
+  }
+
+  function clearFileInput() {
+    if (inputRef.current) inputRef.current.value = ''
+  }
 
   const usedOnCount = (image as Image)?.id
     ? usedOnPages(image as Image).length
@@ -52,8 +77,20 @@ export function FileInputImage({
       setAspectRatio(ratio)
       onChange?.(file.name, ratio, true)
     }
+    img.onerror = () => {
+      setPreviewUrl(null)
+      setFile(null)
+      setImageUrl(undefined)
+      setAspectRatio(undefined)
+      setLoadError(
+        `"${file.name}" couldn't be loaded as an image. Choose a different file.`
+      )
+      onChange?.('', undefined, true)
+      clearFileInput()
+    }
     return () => {
       img.onload = null
+      img.onerror = null
     }
   }, [file, previewUrl, onChange])
 
@@ -67,6 +104,7 @@ export function FileInputImage({
 
   function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selectedFile = e.target.files?.[0] ?? null
+    setLoadError(null)
     if (!selectedFile) {
       setPreviewUrl(null)
       setAspectRatio(
@@ -74,6 +112,20 @@ export function FileInputImage({
       )
       onChange?.('', undefined, true)
       setFile(null)
+      return
+    }
+    if (selectedFile.size > MAX_UPLOAD_FILE_SIZE) {
+      setPreviewUrl(null)
+      setAspectRatio(
+        imageUrl ? image?.aspect || undefined : undefined
+      )
+      setFile(null)
+      setLoadError(
+        `"${selectedFile.name}" is too large. Choose a file under 1MB.`
+      )
+      onChange?.('', undefined, true)
+      // clear the input so re-selecting the same file re-fires change
+      e.target.value = ''
       return
     }
     const url = URL.createObjectURL(selectedFile)
@@ -86,6 +138,11 @@ export function FileInputImage({
     setAspectRatio(imageUrl ? image?.aspect || undefined : undefined)
     onChange?.('', undefined, true)
     setFile(null)
+    clearFileInput()
+  }
+
+  function onReplaceImage() {
+    inputRef.current?.click()
   }
 
   function onRemoveSavedImage() {
@@ -101,25 +158,36 @@ export function FileInputImage({
   }
 
   return (
-    <div className={styles['file-input']}>
+    <div className={clsx(styles['file-input'])}>
       {(previewUrl || imageUrl) && (
         <>
           <figure
-            className={styles['image-preview']}
+            className={clsx(styles['image-preview'], 'item-preview')}
             style={{
               aspectRatio: _aspectRatio
                 ? _aspectRatio.toString()
                 : 'auto'
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={previewUrl || imageUrl}
-              alt='Uploaded image preview'
-            />
+            {/* Clicking the preview reopens the picker to swap the file. */}
+            <button
+              type='button'
+              title='Replace image'
+              aria-label='Replace image'
+              onClick={onReplaceImage}
+              className={styles['replace-image']}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewUrl || imageUrl}
+                alt='Uploaded image preview'
+              />
+            </button>
             <button
               title='Remove image'
               aria-label='Remove image'
+              aria-controls={ariaControls}
+              aria-expanded={ariaExpanded}
               type='button'
               onClick={
                 previewUrl ? onRemovePreviewImage : onRemoveSavedImage
@@ -132,17 +200,21 @@ export function FileInputImage({
         </>
       )}
       <Input
-        ref={ref}
+        ref={setInputRef}
         attributes={{
           ...attributes,
           name: attributes?.name || 'file',
           type: 'file',
           hidden: !!(previewUrl || imageUrl),
-          required: !previewUrl && !imageUrl
+          // Required only until an image is chosen unless the caller overrides
+          required:
+            attributes?.required !== false && !previewUrl && !imageUrl
         }}
         className={className}
         description={description}
         defaultValue={defaultValue}
+        errors={loadError ? [loadError] : undefined}
+        validationText={validationText}
         value={value}
         isLabelHidden={isLabelHidden}
         label={label}

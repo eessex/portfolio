@@ -55,3 +55,10 @@ export const createImageSchema = z.object({
   ...imageFields
 })
 export type CreateImage = z.infer<typeof createImageSchema>
+
+/**
+ * In forms, `url` is only known on the server after the file is uploaded.
+ */
+export const imageClientFieldsSchema = createImageSchema.omit({
+  url: true
+})

@@ -1,10 +1,11 @@
 import { itemTypeSingulars } from '@/lib/schemas'
 
 /**
- * How an item picker names the fields it submits, shared by the client
- * that renders them (`ItemPicker`, `SelectedResult`) and the server
- * that reads them back (the `resolve*Id` helpers,
- * `extractIndexedGroups`) so the two can't drift apart.
+ * How an item picker or any repeatable list read by
+ * `extractIndexedGroups()`, names thefields it submits.
+ * Shared by the client that renders them (`ItemPicker`, `SelectedResult`,
+ *  `ContactInfoFields`) and the server that reads them back
+ * (the `resolve*Id` helpers, `extractIndexedGroups`) to avoid drift.
  */
 
 /**

@@ -3,6 +3,10 @@
 import { PlusIcon } from '@heroicons/react/24/outline'
 import { useRef, useState } from 'react'
 
+import {
+  emptyListFieldName,
+  indexedItemFieldPrefix
+} from '@/lib/item-fields'
 import { type Contact, contactSchema } from '@/lib/schemas/fields'
 import { normalizeFormData } from '@/lib/util'
 import styles from '@/ui/form/form.module.scss'
@@ -11,6 +15,8 @@ import { ItemResultLabel } from '@/ui/item-result-label'
 import selectedResultStyles from '@/ui/selected-results/selected-results.module.scss'
 
 type FieldErrors = Record<string, string[] | undefined>
+
+const name = 'contactInfo'
 
 interface ContactRow {
   key: string
@@ -147,7 +153,7 @@ export function ContactInfoFields({
     const fieldset = rowFieldsets.current.get(row.key)
     if (!fieldset) return row.contact
 
-    const prefix = `contactInfo[${index}].`
+    const prefix = indexedItemFieldPrefix(name, index)
     const parsed = contactSchema.safeParse(
       normalizeFormData(collectRowData(fieldset, prefix))
     )
@@ -266,10 +272,15 @@ export function ContactInfoFields({
         )}
       </legend>
 
-      <input name='contactInfo[]' type='hidden' value='' readOnly />
+      <input
+        name={emptyListFieldName(name)}
+        type='hidden'
+        value=''
+        readOnly
+      />
 
       {rows.map((row, index) => {
-        const prefix = `contactInfo[${index}].`
+        const prefix = indexedItemFieldPrefix(name, index)
         const errors = rowErrors[row.key]
 
         if (row.kind === 'saved' && row.contact) {

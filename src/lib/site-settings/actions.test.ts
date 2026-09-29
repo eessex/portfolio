@@ -6,6 +6,11 @@ import { formDataFromObject } from '@/test/helpers'
 
 jest.mock('next/cache')
 
+jest.mock('@/lib/images/s3', () => ({
+  uploadFile: jest.fn(),
+  deleteFromS3: jest.fn()
+}))
+
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))
@@ -21,7 +26,17 @@ const validFields = {
 describe('editSiteSettings', () => {
   beforeEach(() => jest.clearAllMocks())
 
-  it('can edit site settings', async () => {
+  it('can create site settings when no id is given', async () => {
+    mockSql.mockResolvedValueOnce([])
+    const res = await editSiteSettings(
+      formDataFromObject(validFields)
+    )
+
+    expect(res).toEqual({ ok: true })
+    expect(updateTag).toHaveBeenCalledWith('settings')
+  })
+
+  it('can edit existing site settings when an id is given', async () => {
     mockSql.mockResolvedValueOnce([])
     const res = await editSiteSettings(
       formDataFromObject(validFields),

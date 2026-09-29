@@ -7,6 +7,7 @@ import type {
 import { publisherTypes } from '@/lib/publishers/schemas/db'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
+import { useNamePrefix } from '@/ui/item-picker/name-prefix'
 
 const publisherTypeOptions = [...publisherTypes]
 
@@ -21,12 +22,14 @@ export const EditPublisher = ({
   errors,
   publisher
 }: EditPublisherProps) => {
+  const namePrefix = useNamePrefix()
+
   return (
     <>
       <Input
         attributes={{
           maxLength: 255,
-          name: 'name',
+          name: `${namePrefix}name`,
           placeholder: 'Soap Library',
           required: true
         }}
@@ -36,7 +39,10 @@ export const EditPublisher = ({
       />
 
       <Select
-        attributes={{ name: 'type', required: true }}
+        attributes={{
+          name: `${namePrefix}type`,
+          required: true
+        }}
         label='Type'
         onChange={() => {}}
         options={publisherTypeOptions}
@@ -47,7 +53,7 @@ export const EditPublisher = ({
       <Input
         attributes={{
           maxLength: 255,
-          name: 'url',
+          name: `${namePrefix}url`,
           placeholder: 'https://example.com',
           type: 'url'
         }}

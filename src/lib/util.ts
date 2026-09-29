@@ -176,22 +176,16 @@ export function normalizeFormData(
 
 export type IndexedGroupEntry =
   | { kind: 'existing'; id: string }
+  | { kind: 'edited'; id: string; fields: Record<string, unknown> }
   | { kind: 'new'; fields: Record<string, unknown> }
 
 /**
  * Pulls indexed field groups (`${prefix}[0].field`, `${prefix}[1].field`,
  * ...) out of a flat form-data object, e.g. for a reorderable picker that
  * lets a user select existing items by id alongside creating new ones
- * inline. Mutates `data`, deleting every matched key (including the bare
- * `${prefix}[]` marker some callers render to keep the field present when
- * the list is empty) so none of it reaches schema validation.
- *
- * Returns entries in ascending index order — i.e. the order the caller
- * last arranged them in — since callers may derive meaning from position
- * (e.g. "the first entry is the cover image"), not just membership. A
- * group with an `id` field is an existing selection; a group without one
- * is a pending creation (its fields are returned, with the `${prefix}[i].`
- * prefix stripped from keys).
+ * inline. The client side of that naming is `indexedItemFieldPrefix()`
+ * in `@/lib/item-fields`. Order is set by the user, returned array
+ * preserves that order.
  */
 export function extractIndexedGroups(
   data: Record<string, unknown>,
@@ -220,8 +214,60 @@ export function extractIndexedGroups(
     .sort((a, b) => a - b)
     .map((index): IndexedGroupEntry => {
       const group = groups[index]
-      return typeof group.id === 'string'
-        ? { kind: 'existing', id: group.id }
-        : { kind: 'new', fields: group }
+      if (typeof group.id === 'string') {
+        const { id, ...fields } = group
+        // An id alongside edited fields means an existing item was
+        // opened and changed inline. id alone is an untouched selection.
+        return Object.keys(fields).length > 0
+          ? { kind: 'edited', id, fields }
+          : { kind: 'existing', id }
+      }
+      return { kind: 'new', fields: group }
     })
+}
+
+/**
+ * The single-item counterpart of `extractIndexedGroups`: pulls one
+ * picker entry's fields (`${prefix}field`, e.g. `venue.city`) out of a
+ * flat form-data object and classifies it the same way.
+ *
+ * An id alongside fields is an inline edit, an id alone an untouched
+ * selection, fields alone a pending creation.
+ * Returns `undefined` when the picker submitted nothing at all.
+ */
+export function extractPrefixedGroup(
+  data: Record<string, unknown>,
+  prefix: string,
+  idFieldName: string
+): IndexedGroupEntry | undefined {
+  const fields: Record<string, unknown> = {}
+
+  Object.keys(data).forEach((key) => {
+    if (!key.startsWith(prefix)) return
+    fields[key.slice(prefix.length)] = data[key]
+    delete data[key]
+  })
+
+  const id = data[idFieldName]
+  if (typeof id === 'string' && id) {
+    return Object.keys(fields).length > 0
+      ? { kind: 'edited', id, fields }
+      : { kind: 'existing', id }
+  }
+  return Object.keys(fields).length > 0
+    ? { kind: 'new', fields }
+    : undefined
+}
+
+function isBlankValue(value: unknown): boolean {
+  if (value == null) return true
+  if (typeof value === 'string') return value.trim() === ''
+  if (value instanceof File) return value.size === 0
+  return false
+}
+
+export function isBlankEntry(
+  fields: Record<string, unknown>
+): boolean {
+  return Object.values(fields).every(isBlankValue)
 }

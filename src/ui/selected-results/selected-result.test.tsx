@@ -59,17 +59,6 @@ describe('SelectedResult', () => {
     expect(input).not.toBeRequired()
   })
 
-  it('Input carries the required attribute when isRequired is true', () => {
-    renderSelectedResult({ isRequired: true })
-    const input = screen.getByDisplayValue(
-      defaultProps.id
-    ) as HTMLInputElement
-    // Not asserted via toBeRequired(): per the HTML spec, `required` has
-    // no validation effect on type="hidden" inputs, so jest-dom correctly
-    // reports it as not required despite the attribute being present.
-    expect(input).toHaveAttribute('required')
-  })
-
   it('derives the name attribute from itemType when name is not passed', () => {
     renderSelectedResult()
     const input = screen.getByDisplayValue(

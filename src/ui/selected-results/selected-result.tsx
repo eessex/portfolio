@@ -1,11 +1,11 @@
+import { itemIdFieldName } from '@/lib/item-fields'
 import type { EmbeddedItemType, PagePath } from '@/lib/schemas'
-import { itemTypeSingulars, itemTypeToLabel } from '@/lib/schemas'
+import { itemTypeToLabel } from '@/lib/schemas'
 import { Input } from '@/ui/form/input'
 import styles from '@/ui/selected-results/selected-results.module.scss'
 
 export type SelectedResultProps = {
   as?: 'div' | 'li'
-  isRequired?: boolean
   id: string
   itemType: EmbeddedItemType | PagePath
   /**
@@ -26,7 +26,6 @@ export type SelectedResultProps = {
 
 export const SelectedResult = ({
   as: Component = 'div',
-  isRequired,
   id,
   itemType,
   name,
@@ -34,7 +33,7 @@ export const SelectedResult = ({
   children
 }: SelectedResultProps) => {
   const formattedIdLabel = `${itemTypeToLabel(itemType, true)} ID`
-  const fieldName = name ?? `${itemTypeSingulars[itemType]}Id`
+  const fieldName = itemIdFieldName(itemType, name)
 
   return (
     <Component className={styles['selected-result']}>
@@ -47,8 +46,7 @@ export const SelectedResult = ({
         attributes={{
           name: fieldName,
           readOnly: true,
-          type: 'hidden',
-          required: isRequired
+          type: 'hidden'
         }}
       />
     </Component>

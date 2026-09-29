@@ -14,9 +14,10 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "prettier": "prettier --write .",
-    "test": "NODE_OPTIONS=--no-deprecation jest",
+    "test": "NODE_ENV=test NODE_OPTIONS=--no-deprecation jest",
     "test:watch": "npm run test -- --watch",
-    "test:quiet": "npm run test -- --silent --noStackTrace"
+    "test:quiet": "npm run test -- --silent --noStackTrace",
+    "check": "pnpm typecheck && pnpm lint && pnpm test:quiet && pnpm build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1075.0",
@@ -29,11 +30,11 @@
     "bcrypt": "^6.0",
     "clsx": "^2.1",
     "js-cookie": "^3.0.8",
-    "next": "16.2.9",
-    "next-auth": "^5.0.0-b",
+    "next": "16.3.3",
+    "next-auth": "^5.0.0-beta.32",
     "react": "19.2.7",
     "react-dom": "19.2.7",
-    "sharp": "^0.34.5",
+    "sharp": "^0.35.4",
     "zod": "^3"
   },
   "devDependencies": {

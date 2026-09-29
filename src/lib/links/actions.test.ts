@@ -2,10 +2,10 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import {
-  createLinkFromFields,
   deleteLink,
   editLink,
-  resolveOrderedLinkIds
+  resolveOrderedLinkIds,
+  saveLinkFromFields
 } from '@/lib/links/actions'
 import {
   linkFixture,
@@ -149,11 +149,11 @@ describe('Link Actions', () => {
     })
   })
 
-  describe('#createLinkFromFields', () => {
+  describe('#saveLinkFromFields', () => {
     it('creates a link from raw fields', async () => {
       mockSql.mockResolvedValueOnce([linkFixture])
 
-      const res = await createLinkFromFields({ ...newLinkFixture })
+      const res = await saveLinkFromFields({ ...newLinkFixture })
 
       expect(res.title).toEqual('Test Link')
       expect(mockSql).toHaveBeenCalledTimes(1)
@@ -162,7 +162,7 @@ describe('Link Actions', () => {
     it('normalizes raw checkbox/empty-string fields before validating', async () => {
       mockSql.mockResolvedValueOnce([linkFixture])
 
-      await createLinkFromFields({ ...newLinkFixture, title: '' })
+      await saveLinkFromFields({ ...newLinkFixture, title: '' })
 
       const [, , , , , title] = mockSql.mock
         .calls[0] as unknown as unknown[]
@@ -173,7 +173,7 @@ describe('Link Actions', () => {
       const invalid: Partial<CreateLink> = { ...newLinkFixture }
       delete invalid.url
 
-      await expect(createLinkFromFields(invalid)).rejects.toThrow(
+      await expect(saveLinkFromFields(invalid)).rejects.toThrow(
         'Invalid link data: Required'
       )
       expect(mockSql).not.toHaveBeenCalled()
@@ -207,6 +207,21 @@ describe('Link Actions', () => {
       })
     })
 
+    it('updates an edited existing entry (id + fields) in place', async () => {
+      mockSql
+        .mockResolvedValueOnce([linkFixture]) // fetchLinksByIds
+        .mockResolvedValueOnce([linkFixture]) // UPDATE ... RETURNING *
+
+      const result = await resolveOrderedLinkIds({
+        'links[0].id': 'link-1',
+        'links[0].url': newLinkFixture.url,
+        'links[0].title': 'Edited title'
+      })
+
+      expect(result).toEqual({ linkIds: [linkFixture.id] })
+      expect(mockSql).toHaveBeenCalledTimes(2)
+    })
+
     it('removes consumed indexed keys from the input data object', async () => {
       const data: Record<string, unknown> = {
         'links[0].id': 'link-1',
@@ -231,6 +246,33 @@ describe('Link Actions', () => {
       const result = await resolveOrderedLinkIds({ 'links[]': '' })
 
       expect(result).toEqual({ linkIds: [] })
+    })
+
+    it('ignores an untouched empty new slot', async () => {
+      const result = await resolveOrderedLinkIds({
+        'links[0].url': '',
+        'links[0].title': '',
+        'links[0].type': ''
+      })
+
+      expect(result).toEqual({ linkIds: [] })
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('drops empty new slots but keeps a filled one, preserving order', async () => {
+      mockSql.mockResolvedValueOnce([linkFixture])
+
+      const result = await resolveOrderedLinkIds({
+        'links[0].id': 'link-1',
+        'links[1].url': '',
+        'links[1].title': '',
+        'links[2].url': newLinkFixture.url,
+        'links[2].title': newLinkFixture.title
+      })
+
+      expect(result).toEqual({
+        linkIds: ['link-1', linkFixture.id]
+      })
     })
 
     it('supports a custom field prefix', async () => {

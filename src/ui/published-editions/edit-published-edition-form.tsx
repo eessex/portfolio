@@ -1,6 +1,5 @@
 import type { z } from 'zod'
 
-import type { Image } from '@/lib/images/schemas/db'
 import type { Link } from '@/lib/links/schemas/db'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { createPublishedEditionSchema } from '@/lib/published-editions/schemas/db'
@@ -16,13 +15,13 @@ import type {
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
-import { EditImage } from '@/ui/images/edit-image-form'
-import { formatImageResult } from '@/ui/images/format-image-result'
+import { ImagesPicker } from '@/ui/images/images-picker'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { formatLinkResult } from '@/ui/links/format-link-result'
 import { EditPublisher } from '@/ui/publishers/edit-publisher-form'
 import { formatPublisherResult } from '@/ui/publishers/format-publisher-result'
 import { formatReleaseResult } from '@/ui/releases/format-release-result'
+import { toDateInputValue } from '@/ui/util'
 
 interface EditPublishedEditionProps {
   errors?: z.inferFlattenedErrors<
@@ -35,11 +34,6 @@ export const EditPublishedEdition = ({
   errors,
   publishedEdition
 }: EditPublishedEditionProps) => {
-  const images = [
-    publishedEdition?.coverImage,
-    ...(publishedEdition?.images ?? [])
-  ].filter((image): image is Image => !!image)
-
   return (
     <>
       <ItemPicker<never, ReleaseClient, FetchReleasesResult>
@@ -51,7 +45,7 @@ export const EditPublishedEdition = ({
             ? (publishedEdition.release as ReleaseClient)
             : undefined
         }
-        formatResult={formatReleaseResult}
+        renderExistingResult={formatReleaseResult}
       />
 
       <Select
@@ -66,12 +60,13 @@ export const EditPublishedEdition = ({
 
       <ItemPicker<Publisher>
         itemType='publishers'
+        isSearchFirst
         isRequired
         existingItem={publishedEdition?.publisher}
-        formatResult={formatPublisherResult}
+        renderExistingResult={formatPublisherResult}
         schema={createPublisherSchema}
-        renderEditItemForm={(_query, _index, errors) => (
-          <EditPublisher errors={errors} />
+        renderEditItemForm={({ errors, existingItem }) => (
+          <EditPublisher errors={errors} publisher={existingItem} />
         )}
       />
 
@@ -82,13 +77,7 @@ export const EditPublishedEdition = ({
           required: true,
           type: 'date'
         }}
-        defaultValue={
-          publishedEdition?.publishDate
-            ? new Date(publishedEdition.publishDate)
-                .toISOString()
-                .split('T')[0]
-            : ''
-        }
+        defaultValue={toDateInputValue(publishedEdition?.publishDate)}
         errors={errors?.publishDate}
         label='Publish date'
       />
@@ -118,16 +107,9 @@ export const EditPublishedEdition = ({
         />
       </div>
 
-      <ItemPicker<Image>
-        isMulti
-        name='images'
-        itemType='images'
-        label='Images'
-        existingItems={images}
-        formatResult={formatImageResult}
-        renderEditItemForm={(_query, index) => (
-          <EditImage index={index} isPressFieldsetHidden />
-        )}
+      <ImagesPicker
+        coverImage={publishedEdition?.coverImage}
+        images={publishedEdition?.images}
       />
 
       <ItemPicker<Link>
@@ -135,7 +117,7 @@ export const EditPublishedEdition = ({
         itemType='links'
         label='Purchase link'
         existingItem={publishedEdition?.buyLink}
-        formatResult={formatLinkResult}
+        renderExistingResult={formatLinkResult}
       />
     </>
   )

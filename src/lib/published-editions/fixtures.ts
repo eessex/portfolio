@@ -13,7 +13,7 @@ export const newPublishedEditionFixtureAlpha: CreatePublishedEdition =
     publisherId: publisherFixtureAlpha.id,
     catalogNumber: 'SL021',
     format: 'LP',
-    publishDate: new Date('2020-01-01'),
+    publishDate: new Date('2020-01-01T00:00:00'),
     releaseId: 'a3b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a'
   }
 

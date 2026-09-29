@@ -3,7 +3,13 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
-import { runDeleteAction, runFormAction } from '@/lib/form-action'
+import {
+  resolveItemId,
+  runDeleteAction,
+  runFormAction,
+  saveItemFromFields
+} from '@/lib/form-action'
+import { itemIdFieldName } from '@/lib/item-fields'
 import { formatDbResponseForClient } from '@/lib/util'
 import { fetchVenueById } from '@/lib/venues/data'
 import {
@@ -32,6 +38,31 @@ export async function editVenue(formData: FormData, id?: string) {
 function invalidateVenueTags() {
   updateTag('venues')
   updateTag('events')
+}
+
+/**
+ * Creates or updates from raw (unnormalized) field data,
+ * ie an entry pulled out of another domain's form submission.
+ */
+export async function saveVenueFromFields(
+  fields: Record<string, unknown>,
+  id?: string
+): Promise<Venue> {
+  return saveItemFromFields({
+    id,
+    fields,
+    schema: createVenueSchema,
+    itemType: 'venues',
+    create: createVenue,
+    update: updateVenue
+  })
+}
+
+export async function resolveVenueId(
+  data: Record<string, unknown>,
+  idField = itemIdFieldName('venues')
+): Promise<string | undefined> {
+  return resolveItemId(data, idField, saveVenueFromFields)
 }
 
 export async function deleteVenue(venue: Venue) {

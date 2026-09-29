@@ -164,10 +164,6 @@ a[href] {
   }
 }
 
-:where(input, textarea) {
-  line-height: initial;
-}
-
 :where(textarea) {
   field-sizing: content;
 }
@@ -194,7 +190,6 @@ a[href] {
 
 :where(label, legend) {
   @include type.font-weight('bold');
-  @include type.line-height('sm');
 
   display: block;
 
@@ -215,26 +210,18 @@ a[href] {
 
 :where(legend) {
   padding-inline: 0;
+  width: 100%;
+  float: left;
 }
 
 :where(form, fieldset) {
   display: flex;
   flex-direction: column;
-  gap: var(--row-gap, #{grids.space-em(6)});
+  gap: var(--row-gap, #{grids.space-em(8)});
 }
 
 :where(fieldset) {
-  padding-inline: grids.space-em(4);
-  padding-bottom: grids.space-em(4);
-  margin-inline: -#{grids.space-em(4)};
-  border-color: var(--transparency-primary);
-
-  @include breakpoints.mobile {
-    padding-inline: grids.space-em(3);
-    margin-inline: -#{grids.space-em(2)};
-  }
-
-  > fieldset {
-    margin-inline: 0;
-  }
+  margin-inline: 0;
+  padding: 0;
+  border: 0;
 }

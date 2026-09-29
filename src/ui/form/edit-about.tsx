@@ -2,16 +2,20 @@
 
 import { editAbout } from '@/lib/about/actions'
 import type { AboutClient } from '@/lib/about/types'
-import type { Image } from '@/lib/images/schemas/db'
+import {
+  type Image,
+  imageClientFieldsSchema
+} from '@/lib/images/schemas/db'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
-import { formatImageResult } from '@/ui/images/format-image-result'
+import { EditImage } from '@/ui/images/edit-image-form'
+import {
+  formatImageResult,
+  formatNewImageSummary
+} from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 
-// Only press photos may be attached as the about cover image
-const pressSearchParams = { type: 'press' }
-
-function AboutFormFields({ about }: { about: AboutClient }) {
+function AboutFormFields({ about }: { about?: AboutClient }) {
   const errors = useFormErrors()
 
   return (
@@ -31,18 +35,33 @@ function AboutFormFields({ about }: { about: AboutClient }) {
         name='coverImageId'
         label='Cover image'
         itemType='images'
-        searchParams={pressSearchParams}
         existingItem={about?.coverImage}
-        formatResult={formatImageResult}
+        renderExistingResult={formatImageResult}
+        renderNewItemSummary={formatNewImageSummary}
+        schema={imageClientFieldsSchema}
+        renderEditItemForm={({
+          errors,
+          isRequired,
+          existingItem,
+          onReadyChange
+        }) => (
+          <EditImage
+            image={existingItem}
+            errors={errors}
+            isRequired={isRequired}
+            onReadyChange={onReadyChange}
+            isPressFieldsetHidden
+          />
+        )}
       />
     </>
   )
 }
 
-export function EditAboutForm({ about }: { about: AboutClient }) {
+export function EditAboutForm({ about }: { about?: AboutClient }) {
   return (
     <Form
-      action={(formData: FormData) => editAbout(formData, about.id)}
+      action={(formData: FormData) => editAbout(formData, about?.id)}
       submitButtonClassName='button-primary button-lg'
     >
       <AboutFormFields about={about} />

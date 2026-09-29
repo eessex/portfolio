@@ -36,17 +36,17 @@ export default async function AboutPage() {
         <h1>{title}</h1>
       </header>
 
-      {about && (
-        <section>
-          <EditAboutForm
-            about={{
+      <section>
+        <EditAboutForm
+          about={
+            about && {
               ...about,
               coverImageId: about.coverImageId,
               coverImage: about.coverImage
-            }}
-          />
-        </section>
-      )}
+            }
+          }
+        />
+      </section>
     </article>
   )
 }

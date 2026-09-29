@@ -7,3 +7,13 @@
     padding: grids.space-rem(2, 4, 6, 4);
   }
 }
+
+.dashboard-inner {
+  padding: grids.space-rem(2, 4, 6, 4);
+  max-width: var(--body-width);
+  margin: auto;
+
+  h2 {
+    margin-bottom: grids.space-rem(4);
+  }
+}

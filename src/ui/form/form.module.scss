@@ -21,23 +21,64 @@
   figure {
     position: relative;
 
-    iframe,
-    img {
-      margin-top: grids.space-rem(1);
-    }
-
     button {
       position: absolute;
-      top: -#{grids.space-rem(1)};
-      right: -#{grids.space-rem(1)};
+      top: -#{grids.space-rem(2)};
+      right: -#{grids.space-rem(2)};
       z-index: 1;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 1px solid;
     }
+
+    button.replace-image {
+      position: static;
+      inset: auto;
+      z-index: auto;
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      background: none;
+      cursor: pointer;
+
+      img {
+        display: block;
+        width: 100%;
+        margin-top: 0;
+      }
+    }
+  }
+
+  p {
+    margin-bottom: grids.space-em(2);
+
+    &:not(:global(.visually-hidden)) + p {
+      margin-top: grids.space-rem(2);
+    }
+  }
+
+  label:not(:global(.visually-hidden)),
+  legend:not(:global(.visually-hidden)) {
+    margin-bottom: 0.125rem;
+
+    // a little extra space between the label and the input
+    + input,
+    + :has(select), // select are wrapped in divs
+    + textarea {
+      margin-top: grids.space-em(1);
+    }
+  }
+
+  h2 {
+    margin-bottom: grids.space-rem(2);
   }
 
   .input-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: grids.space-rem(4);
+    column-gap: grids.space-rem(4);
 
     // When a sibling is hidden, span the full width
     &:has(> [hidden]) > :not([hidden]) {
@@ -49,53 +90,11 @@
     }
   }
 
-  p + p {
-    margin-top: grids.space-rem(2);
-    margin-bottom: grids.space-em(2);
-  }
-
-  label {
-    + p {
-      margin-top: grids.space-em(1);
-      margin-bottom: grids.space-em(2);
-    }
-
-    + input,
-    + :has(select), // select are wrapped in divs
-    + textarea {
-      margin-top: grids.space-em(2);
-    }
-  }
-
-  legend + p {
-    margin-bottom: 0;
-  }
-
   legend.with-action {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-  }
-
-  legend + div {
-    margin-top: grids.space-em(3);
-  }
-
-  h2 {
-    margin-bottom: grids.space-rem(2);
-  }
-
-  fieldset:has(button.cancel) {
-    position: relative;
-
-    button.cancel {
-      position: absolute;
-      top: 0;
-      right: grids.space-em(4);
-      transform: translateY(-90%);
-      background: var(--page-background-color);
-    }
   }
 
   .row-actions {
@@ -108,10 +107,6 @@
     border: none;
     padding-inline: 0;
     margin-inline: 0;
-  }
-
-  button[type='submit'] {
-    margin-top: grids.space-rem(2);
   }
 }
 
@@ -169,9 +164,42 @@
   }
 }
 
-.error-message {
+p.error-message {
   color: var(--error-color);
   margin-block: grids.space-em(2) 0;
+}
+
+p.validation-text {
+  margin-block: grids.space-em(2) 0;
+}
+
+// Size hint shown inside the file input, right-aligned
+.file-input > div:not([hidden]):has(> input[type='file']) {
+  display: flex;
+  flex-wrap: wrap;
+
+  > * {
+    flex: 0 0 100%;
+  }
+
+  // Zero-width so it shares the input's line; content overflows left
+  > p.validation-text:not(:global(.visually-hidden)) {
+    flex-basis: 0;
+    // lets it shrink below its text width
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin: 0;
+    // padding offset by the margin, so it still fits the line
+    margin-inline-start: -#{grids.space-em(2)};
+    padding-inline-end: grids.space-em(2);
+    white-space: nowrap;
+    pointer-events: none;
+    color: var(--secondary-text-color);
+
+    @include type.size('sm', 'normal', 'xs');
+  }
 }
 
 .optional-label {

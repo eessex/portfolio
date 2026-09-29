@@ -2,7 +2,12 @@ import { updateTag } from 'next/cache'
 
 import { auth } from '@/auth'
 import { sql } from '@/lib/db'
-import { deleteVenue, editVenue } from '@/lib/venues/actions'
+import {
+  deleteVenue,
+  editVenue,
+  resolveVenueId,
+  saveVenueFromFields
+} from '@/lib/venues/actions'
 import {
   newVenueFixtureAlpha,
   venueFixtureAlpha
@@ -142,6 +147,123 @@ describe('Venue Actions', () => {
 
       expect(res!.message).toBe('Failed to validate venue.')
       expect(res!.errors).toEqual({ city: ['Required'] })
+    })
+  })
+
+  describe('#saveVenueFromFields', () => {
+    it('creates a venue from raw field data', async () => {
+      mockSql.mockResolvedValueOnce([venueFixtureAlpha])
+
+      const venue = await saveVenueFromFields({
+        name: newVenueFixtureAlpha.name,
+        city: newVenueFixtureAlpha.city,
+        timezone: newVenueFixtureAlpha.timezone
+      })
+
+      expect(venue.name).toBe('Test Venue Texas')
+      expect(mockSql).toHaveBeenCalledTimes(1)
+    })
+
+    it('updates an existing venue when given an id', async () => {
+      mockSql
+        .mockResolvedValueOnce([existingVenueRow])
+        .mockResolvedValueOnce([venueFixtureAlpha])
+
+      const venue = await saveVenueFromFields(
+        {
+          name: newVenueFixtureAlpha.name,
+          city: newVenueFixtureAlpha.city,
+          timezone: newVenueFixtureAlpha.timezone
+        },
+        venueFixtureAlpha.id
+      )
+
+      expect(venue.id).toBe(venueFixtureAlpha.id)
+      expect(mockSql).toHaveBeenCalledTimes(2)
+    })
+
+    it('throws for invalid field data', async () => {
+      await expect(
+        saveVenueFromFields({ name: 'No City' })
+      ).rejects.toThrow(/invalid venue data/i)
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('#resolveVenueId', () => {
+    it('passes an existing venueId straight through', async () => {
+      const data: Record<string, unknown> = {
+        venueId: venueFixtureAlpha.id
+      }
+
+      const id = await resolveVenueId(data)
+
+      expect(id).toBe(venueFixtureAlpha.id)
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('updates the venue when an id is submitted alongside edited fields', async () => {
+      mockSql
+        .mockResolvedValueOnce([existingVenueRow])
+        .mockResolvedValueOnce([venueFixtureAlpha])
+      const data: Record<string, unknown> = {
+        venueId: venueFixtureAlpha.id,
+        'venue.name': 'Edited Name',
+        'venue.city': newVenueFixtureAlpha.city,
+        'venue.timezone': newVenueFixtureAlpha.timezone
+      }
+
+      const id = await resolveVenueId(data)
+
+      expect(id).toBe(venueFixtureAlpha.id)
+      expect(mockSql).toHaveBeenCalledTimes(2)
+      expect(data).not.toHaveProperty(['venue.name'])
+      expect(data).not.toHaveProperty(['venue.city'])
+      expect(data).not.toHaveProperty(['venue.timezone'])
+    })
+
+    it('creates a new venue from inline fields when no venueId is submitted', async () => {
+      mockSql.mockResolvedValueOnce([venueFixtureAlpha])
+      const data: Record<string, unknown> = {
+        'venue.name': newVenueFixtureAlpha.name,
+        'venue.city': newVenueFixtureAlpha.city,
+        'venue.timezone': newVenueFixtureAlpha.timezone
+      }
+
+      const id = await resolveVenueId(data)
+
+      expect(id).toBe(venueFixtureAlpha.id)
+      expect(mockSql).toHaveBeenCalledTimes(1)
+    })
+
+    it('strips the inline-creation fields from data so they do not leak into the parent schema', async () => {
+      mockSql.mockResolvedValueOnce([venueFixtureAlpha])
+      const data: Record<string, unknown> = {
+        'venue.name': newVenueFixtureAlpha.name,
+        'venue.address': newVenueFixtureAlpha.address,
+        'venue.city': newVenueFixtureAlpha.city,
+        'venue.country': newVenueFixtureAlpha.country,
+        'venue.state': newVenueFixtureAlpha.state,
+        'venue.timezone': newVenueFixtureAlpha.timezone,
+        'venue.url': newVenueFixtureAlpha.url
+      }
+
+      await resolveVenueId(data)
+
+      expect(data).not.toHaveProperty(['venue.name'])
+      expect(data).not.toHaveProperty(['venue.address'])
+      expect(data).not.toHaveProperty(['venue.city'])
+      expect(data).not.toHaveProperty(['venue.country'])
+      expect(data).not.toHaveProperty(['venue.state'])
+      expect(data).not.toHaveProperty(['venue.timezone'])
+      expect(data).not.toHaveProperty(['venue.url'])
+    })
+
+    it('returns undefined when neither an id nor inline city/timezone are submitted', async () => {
+      const id = await resolveVenueId({})
+
+      expect(id).toBeUndefined()
+      expect(mockSql).not.toHaveBeenCalled()
     })
   })
 })

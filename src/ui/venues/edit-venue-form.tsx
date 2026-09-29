@@ -1,5 +1,6 @@
 import type { z } from 'zod'
 
+import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import type {
   createVenueSchema,
   Venue
@@ -8,27 +9,23 @@ import { venueTimezones } from '@/lib/venues/schemas/db'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
+import { useNamePrefix } from '@/ui/item-picker/name-prefix'
 
 interface EditVenueProps {
   errors?: z.inferFlattenedErrors<
     typeof createVenueSchema
   >['fieldErrors']
-  isPrefixEnabled?: boolean
   venue?: Partial<Venue>
 }
 
-export const EditVenue = ({
-  errors,
-  isPrefixEnabled,
-  venue
-}: EditVenueProps) => {
-  const namePrefix = isPrefixEnabled ? 'venue.' : ''
+export const EditVenue = ({ errors, venue }: EditVenueProps) => {
+  const namePrefix = useNamePrefix()
 
   return (
     <>
       <Input
         attributes={{
-          maxLength: 255,
+          maxLength: MAX_STRING_LENGTH_SHORT,
           name: `${namePrefix}name`,
           placeholder: 'CBGB'
         }}
@@ -39,7 +36,7 @@ export const EditVenue = ({
       />
       <Input
         attributes={{
-          maxLength: 255,
+          maxLength: MAX_STRING_LENGTH_SHORT,
           name: `${namePrefix}address`,
           placeholder: '123 Main St'
         }}
@@ -47,18 +44,19 @@ export const EditVenue = ({
         errors={errors?.address}
         label='Street address'
       />
-      <Input
-        attributes={{
-          maxLength: 255,
-          name: `${namePrefix}city`,
-          placeholder: 'Brooklyn',
-          required: true
-        }}
-        defaultValue={venue?.city}
-        errors={errors?.city}
-        label='City'
-      />
+
       <div className={styles['input-group']}>
+        <Input
+          attributes={{
+            maxLength: MAX_STRING_LENGTH_SHORT,
+            name: `${namePrefix}city`,
+            placeholder: 'Brooklyn',
+            required: true
+          }}
+          defaultValue={venue?.city}
+          errors={errors?.city}
+          label='City'
+        />
         <Input
           attributes={{
             maxLength: 2,
@@ -69,9 +67,12 @@ export const EditVenue = ({
           errors={errors?.state}
           label='State'
         />
+      </div>
+
+      <div className={styles['input-group']}>
         <Input
           attributes={{
-            maxLength: 255,
+            maxLength: MAX_STRING_LENGTH_SHORT,
             name: `${namePrefix}country`,
             placeholder: 'USA'
           }}
@@ -79,19 +80,23 @@ export const EditVenue = ({
           errors={errors?.country}
           label='Country'
         />
+        <Select
+          options={[...venueTimezones]}
+          formatOptionLabel={(tz) => tz.replace(/_/g, ' ')}
+          onChange={() => {}}
+          label='Timezone'
+          placeholder='Select a timezone'
+          value={venue?.timezone}
+          attributes={{
+            name: `${namePrefix}timezone`,
+            required: true
+          }}
+        />
       </div>
-      <Select
-        options={[...venueTimezones]}
-        formatOptionLabel={(tz) => tz.replace(/_/g, ' ')}
-        onChange={() => {}}
-        label='Timezone'
-        placeholder='Select a timezone'
-        value={venue?.timezone}
-        attributes={{ name: `${namePrefix}timezone`, required: true }}
-      />
+
       <Input
         attributes={{
-          maxLength: 255,
+          maxLength: MAX_STRING_LENGTH_SHORT,
           name: `${namePrefix}url`,
           placeholder: 'https://cbgb.com',
           type: 'url'

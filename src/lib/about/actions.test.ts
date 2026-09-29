@@ -4,6 +4,11 @@ import { editAbout } from '@/lib/about/actions'
 import { sql } from '@/lib/db'
 import { formDataFromObject } from '@/test/helpers'
 
+jest.mock('@/lib/images/s3', () => ({
+  uploadFile: jest.fn(),
+  deleteFromS3: jest.fn()
+}))
+
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))
@@ -20,7 +25,19 @@ const validFields = {
 describe('editAbout', () => {
   beforeEach(() => jest.clearAllMocks())
 
-  it('can edit the about page', async () => {
+  it('can create the about page when no id is given', async () => {
+    mockSql.mockResolvedValueOnce([])
+    const res = await editAbout(formDataFromObject(validFields))
+
+    expect(res).toEqual({ ok: true })
+    expect(updateTag).toHaveBeenCalledWith('about')
+
+    const query = mockSql.mock.calls[0][0].join('')
+    expect(query).toContain('INSERT INTO about')
+    expect(query).toContain('created_at')
+  })
+
+  it('can edit the about page when an id is given', async () => {
     mockSql.mockResolvedValueOnce([])
     const res = await editAbout(
       formDataFromObject(validFields),

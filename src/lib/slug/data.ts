@@ -27,15 +27,13 @@ async function slugExists(
   excludeId?: string
 ) {
   const table = getTableIdentifier(tableName)
-  const excludeClause = excludeId
-    ? sql`AND id <> ${excludeId}`
-    : undefined
+  const excludeId_ = excludeId ?? null
   const result = await sql`
     SELECT EXISTS (
       SELECT 1
       FROM ${table}
       WHERE slug = ${slug}
-      ${excludeClause}
+        AND (${excludeId_}::uuid IS NULL OR id <> ${excludeId_}::uuid)
     ) AS exists
   `
 

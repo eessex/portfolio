@@ -1,0 +1,26 @@
+@use '@/ui/styles/grids';
+
+// Spaced like `ItemPicker`'s wrapper rather than a form fieldset's
+// default row gap: header, open row, then the chip list.
+.contact-info {
+  --row-gap: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.open-row {
+  --row-gap: #{grids.space-em(4)};
+
+  margin-top: grids.space-em(3);
+}
+
+// Boxed once started, like an expanded `ItemPicker` draft.
+.open-row-filled {
+  box-shadow: inset 0 0 0 2px var(--transparency-primary);
+  padding: grids.space-em(4);
+}

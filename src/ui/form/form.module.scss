@@ -89,25 +89,6 @@
       grid-template-columns: 1fr;
     }
   }
-
-  legend.with-action {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .row-actions {
-    display: flex;
-    gap: grids.space-em(2);
-    margin-top: grids.space-rem(2);
-  }
-
-  fieldset.bare {
-    border: none;
-    padding-inline: 0;
-    margin-inline: 0;
-  }
 }
 
 .checkbox {

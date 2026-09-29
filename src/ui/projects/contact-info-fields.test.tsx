@@ -14,7 +14,7 @@ function addButton() {
 }
 
 function saveButton() {
-  return screen.getByRole('button', { name: /^save$/i })
+  return screen.getByRole('button', { name: /^save contact$/i })
 }
 
 function cancelButton() {
@@ -78,15 +78,19 @@ describe('ContactInfoFields', () => {
     const user = userEvent.setup()
     render(<ContactInfoFields />)
 
+    await user.type(screen.getByLabelText(/^label\b/i), 'Bookings')
     await user.click(saveButton())
 
     // still open, since `contact` is required by `contactSchema`
     expect(contactField()).toBeInTheDocument()
   })
 
-  it('hides Cancel on a still-blank row', () => {
+  it('hides Save and Cancel on a still-blank row', () => {
     render(<ContactInfoFields />)
 
+    expect(
+      screen.queryByRole('button', { name: /^save contact$/i })
+    ).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: /^cancel$/i })
     ).not.toBeInTheDocument()
@@ -104,7 +108,7 @@ describe('ContactInfoFields', () => {
     expect(contactField()).toHaveValue('')
   })
 
-  it('blocks adding a new row while an open row is invalid', async () => {
+  it('hides "Add contact" while a row is open, focusing the new row', async () => {
     const user = userEvent.setup()
     const contactInfo: Contact[] = [{ contact: 'a@example.com' }]
     const { container } = render(
@@ -112,12 +116,39 @@ describe('ContactInfoFields', () => {
     )
 
     await user.click(addButton())
-    expect(contactInputs(container)).toHaveLength(2)
 
-    // the newly opened row's `contact` is empty, which fails
-    // `contactSchema` — a second click is blocked
-    await user.click(addButton())
     expect(contactInputs(container)).toHaveLength(2)
+    expect(
+      screen.queryByRole('button', { name: /add contact/i })
+    ).not.toBeInTheDocument()
+    expect(screen.getByLabelText(/^label\b/i)).toHaveFocus()
+  })
+
+  it('renders the open row above saved rows, submitting it after them', async () => {
+    const user = userEvent.setup()
+    const contactInfo: Contact[] = [{ contact: 'a@example.com' }]
+    const { container } = render(
+      <ContactInfoFields contactInfo={contactInfo} />
+    )
+
+    await user.click(addButton())
+
+    const [first, second] = contactInputs(container)
+    expect(first).toHaveAttribute('name', 'contactInfo[1].contact')
+    expect(first).not.toHaveAttribute('type', 'hidden')
+    expect(second).toHaveAttribute('name', 'contactInfo[0].contact')
+  })
+
+  it('returns focus to "Add contact" after cancelling an open row', async () => {
+    const user = userEvent.setup()
+    const contactInfo: Contact[] = [{ contact: 'a@example.com' }]
+    render(<ContactInfoFields contactInfo={contactInfo} />)
+
+    await user.click(addButton())
+    await user.type(contactField(), 'b@example.com')
+    await user.click(cancelButton())
+
+    expect(addButton()).toHaveFocus()
   })
 
   it('allows adding another row once the first is saved', async () => {
@@ -126,6 +157,7 @@ describe('ContactInfoFields', () => {
 
     await user.type(contactField(), 'hi@example.com')
     await user.click(saveButton())
+    expect(addButton()).toHaveFocus()
     await user.click(addButton())
 
     expect(contactInputs(container)).toHaveLength(2)

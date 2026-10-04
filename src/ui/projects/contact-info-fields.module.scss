@@ -1,9 +1,9 @@
 @use '@/ui/styles/grids';
 
-// Spaced like `ItemPicker`'s wrapper rather than a form fieldset's
-// default row gap: header, open row, then the chip list.
+// Spaced like `ItemPicker`'s item list rather than a form fieldset's
+// default row gap.
 .contact-info {
-  --row-gap: 0;
+  --row-gap: #{grids.space-em(3)};
 }
 
 .header {
@@ -13,14 +13,26 @@
   width: 100%;
 }
 
-.open-row {
-  --row-gap: #{grids.space-em(4)};
+// Label/Contact inputs with the remove button beside the inputs
+// (below their labels).
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: grids.space-em(2);
 
-  margin-top: grids.space-em(3);
+  > :first-child {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
-// Boxed once started, like an expanded `ItemPicker` draft.
-.open-row-filled {
-  box-shadow: inset 0 0 0 2px var(--transparency-primary);
-  padding: grids.space-em(4);
+.remove {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--input-height) - 0.5em);
+  width: calc(var(--input-height) - 0.5em);
+  margin-bottom: 0.25em;
+  border-radius: 50%;
 }

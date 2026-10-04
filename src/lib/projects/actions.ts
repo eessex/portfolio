@@ -31,10 +31,13 @@ export async function editProject(formData: FormData, id?: string) {
       const { linkIds } = await resolveOrderedLinkIds(data)
       const { embedCodeIds, featuredEmbedCodeId } =
         await resolveOrderedEmbedCodeIds(data)
+      const contactInfo = resolveContactInfo(data)
 
       return {
         ...data,
-        contactInfo: resolveContactInfo(data),
+        // Omitted (not just undefined) when the editor wasn't submitted,
+        // so a partial update keeps the existing contacts.
+        ...(contactInfo && { contactInfo }),
         coverImageId,
         embedCodeIds,
         featuredEmbedCodeId,
@@ -326,18 +329,36 @@ function diffIds(next: string[], previous: string[]) {
  * form fields out of the raw submission (mirroring the id resolvers,
  * which strip their own bracketed keys before validation) into a plain
  * `Contact[]`. Contacts carry no id, so every extracted group is a `new`
- * entry. Blank values are dropped to `undefined` and rows with no
- * `contact` are discarded, so empty editor rows never persist.
+ * entry. Blank (including whitespace-only) values are dropped to
+ * `undefined`. A fully blank row is discarded, so empty editor rows never
+ * persist, but a labelled row with no `contact` throws — surfaced by
+ * `runFormAction` as a form error rather than silently losing the label.
+ *
+ * Returns `undefined` when the submission has no `contactInfo` fields,
+ * so partial updates leave stored contacts alone.
  */
 function resolveContactInfo(
   data: Record<string, unknown>
-): Contact[] {
+): Contact[] | undefined {
+  const isSubmitted = Object.keys(data).some((key) =>
+    key.startsWith('contactInfo[')
+  )
+  if (!isSubmitted) return undefined
+
   const contacts: Contact[] = []
   for (const entry of extractIndexedGroups(data, 'contactInfo')) {
     const fields = entry.kind === 'new' ? entry.fields : {}
+    const title = cleanContactField(fields.title)
     const contact = cleanContactField(fields.contact)
-    if (!contact) continue
-    contacts.push({ title: cleanContactField(fields.title), contact })
+    if (!contact) {
+      if (title) {
+        throw new Error(
+          `Contact "${title}" needs an email, phone, or link`
+        )
+      }
+      continue
+    }
+    contacts.push({ title, contact })
   }
   return contacts
 }

@@ -2,7 +2,7 @@ import { itemTypeSingulars } from '@/lib/schemas'
 
 /**
  * How an item picker or any repeatable list read by
- * `extractIndexedGroups()`, names thefields it submits.
+ * `extractIndexedGroups()` names the fields it submits.
  * Shared by the client that renders them (`ItemPicker`, `SelectedResult`,
  *  `ContactInfoFields`) and the server that reads them back
  * (the `resolve*Id` helpers, `extractIndexedGroups`) to avoid drift.

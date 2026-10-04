@@ -6,6 +6,12 @@ type InputLabelProps = {
   isHidden?: boolean
   isVisuallyHidden?: boolean
   isRequired?: boolean
+  /**
+   * Omits the "optional" suffix from a not-`required` field whose
+   * requiredness is conditional (it's only optional until something
+   * else is filled in), so the suffix doesn't flicker or mislead.
+   */
+  isOptionalLabelHidden?: boolean
   label: string
   description?: string
   descriptionId?: string
@@ -16,6 +22,7 @@ export function InputLabel(props: InputLabelProps) {
     isHidden,
     isVisuallyHidden,
     isRequired,
+    isOptionalLabelHidden,
     label,
     description,
     descriptionId
@@ -25,7 +32,7 @@ export function InputLabel(props: InputLabelProps) {
   const text = (
     <>
       {label}
-      {!isRequired && (
+      {!isRequired && !isOptionalLabelHidden && (
         <>
           {' '}
           <span className={styles['optional-label']}>optional</span>

@@ -22,6 +22,8 @@ export interface InputProps<T extends InputElement> {
   description?: string
   errors?: string[]
   isLabelHidden?: boolean
+  /** See `InputLabel`'s `isOptionalLabelHidden`. */
+  isOptionalLabelHidden?: boolean
   label: string
   onBeforeInput?: (event: React.FormEvent<T>) => void
   onBlur?: (event: React.FocusEvent<T>) => void
@@ -48,6 +50,7 @@ export function Input<T extends InputElement = HTMLInputElement>({
   description,
   errors,
   isLabelHidden,
+  isOptionalLabelHidden,
   label,
   onBeforeInput,
   onBlur: onBlurProp,
@@ -131,6 +134,7 @@ export function Input<T extends InputElement = HTMLInputElement>({
           htmlFor={id}
           isVisuallyHidden={isLabelHidden}
           isRequired={isRequired}
+          isOptionalLabelHidden={isOptionalLabelHidden}
           label={label}
           description={description}
           descriptionId={descriptionId}

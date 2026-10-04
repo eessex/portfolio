@@ -472,7 +472,7 @@ describe('Project Actions', () => {
         ])
       })
 
-      it('drops blank contact rows so empty editor rows never persist', async () => {
+      it('drops fully blank contact rows so empty editor rows never persist', async () => {
         mockSql.mockResolvedValueOnce([projectFixtureAlpha])
 
         await editProject(
@@ -482,7 +482,7 @@ describe('Project Actions', () => {
             'contactInfo[]': '',
             'contactInfo[0].title': 'Bookings',
             'contactInfo[0].contact': 'bookings@example.com',
-            'contactInfo[1].title': 'Press',
+            'contactInfo[1].title': ' ',
             'contactInfo[1].contact': '   '
           })
         )
@@ -492,20 +492,64 @@ describe('Project Actions', () => {
         ])
       })
 
-      it('stores NULL when no contacts are submitted', async () => {
+      it('rejects a labelled row whose contact is whitespace-only', async () => {
+        const res = await editProject(
+          formDataFromObject({
+            ...newProjectFixtureAlpha,
+            isPublished: 'on',
+            'contactInfo[]': '',
+            'contactInfo[0].title': 'Press',
+            'contactInfo[0].contact': '   '
+          })
+        )
+
+        expect(res).toEqual({
+          ok: false,
+          message:
+            'Failed to save project: Contact "Press" needs an email, phone, or link.'
+        })
+        expect(mockSql).not.toHaveBeenCalled()
+      })
+
+      const existingContacts = [
+        { title: 'Bookings', contact: 'bookings@example.com' }
+      ]
+
+      it('preserves existing contacts when a partial update omits the editor', async () => {
         mockSql
-          .mockResolvedValueOnce([projectFixtureAlpha]) // fetchProjectById
+          .mockResolvedValueOnce([
+            { ...projectFixtureAlpha, contactInfo: existingContacts }
+          ]) // fetchProjectById
           .mockResolvedValueOnce([projectFixtureAlpha]) // UPDATE
 
-        await editProject(
+        const res = await editProject(
+          formDataFromObject({ title: 'Updated Title' }),
+          projectFixtureAlpha.id
+        )
+
+        expect(res?.ok).toBe(true)
+        // last UPDATE SET param (before the WHERE id) is contact_info
+        expect(mockSql.mock.calls[1]?.[15]).toEqual([
+          '{"title":"Bookings","contact":"bookings@example.com"}'
+        ])
+      })
+
+      it('clears existing contacts when the emptied editor submits only its marker', async () => {
+        mockSql
+          .mockResolvedValueOnce([
+            { ...projectFixtureAlpha, contactInfo: existingContacts }
+          ]) // fetchProjectById
+          .mockResolvedValueOnce([projectFixtureAlpha]) // UPDATE
+
+        const res = await editProject(
           formDataFromObject({
-            ...projectFixtureAlpha,
-            isPublished: 'on'
+            title: 'Updated Title',
+            'contactInfo[]': ''
           }),
           projectFixtureAlpha.id
         )
 
-        // last UPDATE SET param (before the WHERE id) is contact_info
+        expect(res?.ok).toBe(true)
         expect(mockSql.mock.calls[1]?.[15]).toBeNull()
       })
     })

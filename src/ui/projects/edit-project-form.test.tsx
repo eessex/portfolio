@@ -84,10 +84,6 @@ function renderComponent(props = {}) {
   )
 }
 
-/**
- * The form's own submit button — distinguished from the contact-info
- * editor's per-row "Save" button, which shares its name.
- */
 function submitButton() {
   return screen
     .getAllByRole('button', { name: saveButtonText })

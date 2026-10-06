@@ -1,19 +1,33 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 
 import { isAuthed } from '@/lib/auth/guard'
 import { fetchCachedProjectById } from '@/lib/projects/cached'
 import { PagePaths } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
+import { Loading } from '@/ui/loading'
 import { EditProjectForm } from '@/ui/projects/edit-project-form'
 
 const title = 'Edit Project'
 export const metadata: Metadata = { title }
 
-export default async function EditProjectPage({
-  params
-}: PageItemProps) {
+export default function EditProjectPage({ params }: PageItemProps) {
+  return (
+    <article>
+      <header>
+        <h1>{title}</h1>
+      </header>
+
+      <Suspense fallback={<Loading />}>
+        <EditProject params={params} />
+      </Suspense>
+    </article>
+  )
+}
+
+async function EditProject({ params }: PageItemProps) {
   const { slug } = await params
   const resolved = await resolveSlug(PagePaths.projects, slug)
   const authed = await isAuthed()
@@ -22,13 +36,5 @@ export default async function EditProjectPage({
 
   if (!project) return notFound()
 
-  return (
-    <article>
-      <header>
-        <h1>{title}</h1>
-      </header>
-
-      <EditProjectForm project={project} />
-    </article>
-  )
+  return <EditProjectForm project={project} />
 }

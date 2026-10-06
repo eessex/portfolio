@@ -1,3 +1,4 @@
+import { embedCodeFixture } from '@/lib/embed-codes/fixtures'
 import {
   releaseFixtureAlbum,
   releaseFixtureSingle
@@ -139,6 +140,30 @@ describe('fetchReleaseById', () => {
     )
 
     expect(result).toEqual(releaseFixtureAlbum)
+  })
+
+  it('derives cover-image URLs for nested embed codes', async () => {
+    mockSql.mockResolvedValue([
+      {
+        ...releaseFixtureAlbum,
+        embedCodes: [embedCodeFixture],
+        featuredEmbedCode: embedCodeFixture
+      }
+    ])
+
+    const result = await Releases.fetchReleaseById(
+      releaseFixtureAlbum.id
+    )
+
+    expect(result?.embedCodes?.[0].coverImageUrl).toContain(
+      embedCodeFixture.coverImageId
+    )
+    expect(result?.embedCodes?.[0].coverImageThumbnailUrl).toContain(
+      embedCodeFixture.coverImageId
+    )
+    expect(result?.featuredEmbedCode?.coverImageUrl).toContain(
+      embedCodeFixture.coverImageId
+    )
   })
 
   it('returns undefined when not found', async () => {

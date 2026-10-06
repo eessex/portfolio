@@ -630,7 +630,8 @@ async function setupJsonbFunctions() {
         'host', e.host,
         'contentType', e.content_type,
         'title', e.title,
-        'caption', e.caption
+        'caption', e.caption,
+        'coverImageId', e.cover_image_id
       ) || build_write_dates_json(e.created_at, e.updated_at);
     $$ LANGUAGE sql IMMUTABLE;
   `

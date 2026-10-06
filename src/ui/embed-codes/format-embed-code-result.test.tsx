@@ -61,10 +61,34 @@ describe('formatEmbedCodeResult', () => {
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
   })
 
-  it('renders a Video badge for video embed codes', () => {
+  it('renders a video icon for video embed codes', () => {
     render(formatEmbedCodeResult(embedCodeWithCoverImage))
 
-    expect(screen.getByText('Video')).toBeInTheDocument()
+    expect(screen.getByText('Contains video:')).toBeInTheDocument()
+    expect(screen.queryByText('Video')).not.toBeInTheDocument()
+  })
+
+  it('renders an audio icon for audio embed codes', () => {
+    render(
+      formatEmbedCodeResult({
+        ...embedCodeWithCoverImage,
+        type: 'audio'
+      })
+    )
+
+    expect(screen.getByText('Contains audio:')).toBeInTheDocument()
+  })
+
+  it('renders a badge for the content type, not the media type', () => {
+    render(
+      formatEmbedCodeResult({
+        ...embedCodeWithCoverImage,
+        contentType: 'live_performance'
+      })
+    )
+
+    expect(screen.getByText('Live performance')).toBeInTheDocument()
+    expect(screen.queryByText('Video')).not.toBeInTheDocument()
   })
 })
 
@@ -102,10 +126,23 @@ describe('formatNewEmbedCodeSummary', () => {
     expect(img).toHaveAttribute('alt', 'Resolved video title')
   })
 
-  it('renders a badge from the collected type/contentType', () => {
+  it('renders the media icon label, not a media type badge', () => {
     render(formatNewEmbedCodeSummary(data, undefined, actions))
 
-    expect(screen.getByText('Video')).toBeInTheDocument()
+    expect(screen.getByText('Contains video:')).toBeInTheDocument()
+    expect(screen.queryByText('Video')).not.toBeInTheDocument()
+  })
+
+  it('renders a badge for the collected contentType', () => {
+    render(
+      formatNewEmbedCodeSummary(
+        { ...data, contentType: 'live_performance' },
+        undefined,
+        actions
+      )
+    )
+
+    expect(screen.getByText('Live performance')).toBeInTheDocument()
   })
 
   it('falls back to a generic label with no resolved title', () => {

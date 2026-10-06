@@ -31,11 +31,21 @@
   @media (hover: hover) {
     &:hover {
       background: var(--accent-secondary);
+
+      &:disabled {
+        text-decoration: none;
+      }
     }
   }
 
   &:active {
     background: var(--accent-primary);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background: none transparent;
+    color: var(--disabled-color);
   }
 }
 
@@ -103,6 +113,12 @@ a[href] {
     padding: grids.space-em(3, 4);
     justify-content: center;
   }
+}
+
+// After the variants, at equal specificity, so it beats their hover/active
+button.button-primary:disabled {
+  background: none transparent;
+  color: var(--disabled-color);
 }
 
 :where(:focus-visible) {

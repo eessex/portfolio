@@ -115,4 +115,19 @@ describe('ItemResultLabel', () => {
 
     expect(onRemove).toHaveBeenCalledTimes(1)
   })
+
+  it('does not propagate the remove click to a clickable parent', () => {
+    const onRemove = jest.fn()
+    const onParentClick = jest.fn()
+    render(
+      <div onClick={onParentClick}>
+        <ItemResultLabel title='Test Title' onRemove={onRemove} />
+      </div>
+    )
+
+    screen.getByRole('button', { name: 'Remove' }).click()
+
+    expect(onRemove).toHaveBeenCalledTimes(1)
+    expect(onParentClick).not.toHaveBeenCalled()
+  })
 })

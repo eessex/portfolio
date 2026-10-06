@@ -171,7 +171,8 @@ export function formattedFilename(url: string) {
 export function formattedLinkUrl(url: string) {
   try {
     const { hostname, pathname } = new URL(url)
-    return `${hostname}${pathname === '/' ? '' : pathname}`
+    const host = hostname.replace(/^www\./, '')
+    return `${host}${pathname}`.replace(/\/$/, '')
   } catch {
     return url
   }

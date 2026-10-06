@@ -1,4 +1,5 @@
 import { sql } from '@/lib/db'
+import { withEmbedCodeCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import { eventClientSchema } from '@/lib/events/schemas'
@@ -233,12 +234,14 @@ export async function fetchEventById(
     if (!data[0]) {
       return
     }
-    return formatDbResponseForClient(
-      {
-        ...data[0],
-        path
-      },
-      eventClientSchema
+    return withEmbedCodeCoverImageUrls(
+      formatDbResponseForClient(
+        {
+          ...data[0],
+          path
+        },
+        eventClientSchema
+      )
     )
   } catch (cause) {
     throw new Error(`Failed to fetch ${pathSingular}: ${id}.`, {

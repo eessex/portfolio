@@ -1,3 +1,4 @@
+import { embedCodeFixture } from '@/lib/embed-codes/fixtures'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
 
 jest.mock('@/lib/projects/cached', () => ({
@@ -98,6 +99,27 @@ describe('fetchProjectById', () => {
     )
 
     expect(result).toEqual(projectFixtureBand)
+  })
+
+  it('derives cover-image URLs for nested embed codes', async () => {
+    mockSql.mockResolvedValue([
+      {
+        ...projectFixtureBand,
+        embedCodes: [embedCodeFixture],
+        featuredEmbedCode: embedCodeFixture
+      }
+    ])
+
+    const result = await Projects.fetchProjectById(
+      projectFixtureBand.id
+    )
+
+    expect(result?.embedCodes?.[0].coverImageUrl).toContain(
+      embedCodeFixture.coverImageId
+    )
+    expect(result?.featuredEmbedCode?.coverImageUrl).toContain(
+      embedCodeFixture.coverImageId
+    )
   })
 
   it('returns undefined when not found', async () => {

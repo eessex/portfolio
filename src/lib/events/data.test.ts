@@ -1,3 +1,4 @@
+import { embedCodeFixture } from '@/lib/embed-codes/fixtures'
 import {
   eventFixturePast,
   eventFixtureUpcoming
@@ -116,6 +117,25 @@ describe('fetchEventById', () => {
     const result = await Events.fetchEventById(eventFixturePast.id)
 
     expect(result).toEqual(eventFixturePast)
+  })
+
+  it('derives cover-image URLs for nested embed codes', async () => {
+    mockSql.mockResolvedValue([
+      {
+        ...eventFixturePast,
+        embedCodes: [embedCodeFixture],
+        featuredEmbedCode: embedCodeFixture
+      }
+    ])
+
+    const result = await Events.fetchEventById(eventFixturePast.id)
+
+    expect(result?.embedCodes?.[0].coverImageUrl).toContain(
+      embedCodeFixture.coverImageId
+    )
+    expect(result?.featuredEmbedCode?.coverImageUrl).toContain(
+      embedCodeFixture.coverImageId
+    )
   })
 
   it('returns undefined when not found', async () => {

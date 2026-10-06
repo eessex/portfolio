@@ -1,4 +1,5 @@
 import { sql } from '@/lib/db'
+import { withEmbedCodeCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import { runListFetch } from '@/lib/list-fetch'
 import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
@@ -81,12 +82,14 @@ export async function fetchReleaseById(
     if (data.length === 0) {
       return
     }
-    return formatDbResponseForClient(
-      {
-        ...data[0],
-        path
-      },
-      releaseClientSchema
+    return withEmbedCodeCoverImageUrls(
+      formatDbResponseForClient(
+        {
+          ...data[0],
+          path
+        },
+        releaseClientSchema
+      )
     )
   } catch (cause) {
     throw new Error(`Failed to fetch ${pathSingular}: ${id}.`, {

@@ -1,4 +1,5 @@
 import { sql } from '@/lib/db'
+import { withEmbedCodeCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import { runListFetch } from '@/lib/list-fetch'
 import { fetchCachedProjectsFirstPage } from '@/lib/projects/cached'
@@ -119,7 +120,7 @@ export async function fetchProjectsRaw(
 export async function fetchProjectById(
   id: string,
   isAuthed: boolean = false
-): Promise<ProjectClient | undefined> {
+) {
   try {
     const data = await sql`
       SELECT
@@ -168,14 +169,15 @@ export async function fetchProjectById(
     if (data.length === 0) {
       return undefined
     }
-    const project = formatDbResponseForClient(
-      {
-        ...data[0],
-        path
-      },
-      projectClientSchema
+    return withEmbedCodeCoverImageUrls(
+      formatDbResponseForClient(
+        {
+          ...data[0],
+          path
+        },
+        projectClientSchema
+      )
     )
-    return project
   } catch (cause) {
     throw new Error(`Failed to fetch ${pathSingular}: ${id}.`, {
       cause

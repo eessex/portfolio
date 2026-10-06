@@ -51,7 +51,10 @@ export function ItemResultLabel({
           type='button'
           aria-label={removeLabel || 'Remove'}
           className={`${styles['remove']} button-icon`}
-          onClick={onRemove}
+          onClick={(event) => {
+            event.stopPropagation()
+            onRemove()
+          }}
         >
           <XMarkIcon />
         </button>

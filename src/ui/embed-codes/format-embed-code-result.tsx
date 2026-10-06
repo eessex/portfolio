@@ -1,11 +1,38 @@
+import {
+  SpeakerWaveIcon,
+  VideoCameraIcon
+} from '@heroicons/react/24/outline'
+
 import type { WithCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
-import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
-import type { EmbeddedItem } from '@/lib/types'
+import {
+  type EmbedCode,
+  EmbedCodeTypes
+} from '@/lib/embed-codes/schemas/db'
 import { itemBadges } from '@/ui/badges/badges'
 import thumbnailStyles from '@/ui/cover-image-thumbnail.module.scss'
+import styles from '@/ui/embed-codes/format-embed-code-result.module.scss'
 import { coverImageAspectByHost } from '@/ui/embed-codes/util'
 import type { NewItemSummaryActions } from '@/ui/item-picker/item-picker'
 import { ItemResultLabel } from '@/ui/item-result-label'
+
+function mediaSubtitle(
+  type: EmbedCode['type'] | undefined,
+  host: string | undefined
+) {
+  if (!type) return host
+
+  const MediaIcon =
+    type === EmbedCodeTypes.audio ? SpeakerWaveIcon : VideoCameraIcon
+
+  return (
+    <span className={styles['host']}>
+      {/* heroicons force aria-hidden, so label via hidden text */}
+      <MediaIcon className={styles['media-icon']} />
+      <span className='visually-hidden'>{`Contains ${type}: `}</span>
+      {host}
+    </span>
+  )
+}
 
 export function formatEmbedCodeResult(
   embedCode: EmbedCode & WithCoverImageUrls,
@@ -21,8 +48,8 @@ export function formatEmbedCodeResult(
   return (
     <ItemResultLabel
       title={embedCode.title || 'Untitled'}
-      subtitle={embedCode.host}
-      badges={itemBadges(embedCode)}
+      subtitle={mediaSubtitle(embedCode.type, embedCode.host)}
+      badges={itemBadges({ contentType: embedCode.contentType })}
       coverImage={
         thumbnailUrl
           ? {
@@ -50,12 +77,16 @@ export function formatNewEmbedCodeSummary(
   const title = data.previewTitle as string | undefined
   const thumbnailUrl = data.previewThumbnailUrl as string | undefined
   const host = data.host as string | undefined
+  const type = data.type as EmbedCode['type'] | undefined
+  const contentType = data.contentType as
+    | EmbedCode['contentType']
+    | undefined
 
   return (
     <ItemResultLabel
       title={title || 'New embed code'}
-      subtitle={host}
-      badges={itemBadges(data as Partial<EmbeddedItem>)}
+      subtitle={mediaSubtitle(type, host)}
+      badges={itemBadges({ contentType })}
       thumbnail={
         thumbnailUrl && (
           // eslint-disable-next-line @next/next/no-img-element

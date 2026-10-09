@@ -210,7 +210,13 @@ export async function fetchEventById(
             AND i.id != COALESCE(e.cover_image_id, e.image_ids[1])
         ) AS images,
         (
-          SELECT COALESCE(jsonb_agg(build_link_json(l)), '[]'::jsonb)
+          SELECT COALESCE(
+            jsonb_agg(
+              build_link_json(l)
+              ORDER BY array_position(e.link_ids, l.id)
+            ),
+            '[]'::jsonb
+          )
           FROM links l
           WHERE l.id = ANY(e.link_ids)
         ) AS links,

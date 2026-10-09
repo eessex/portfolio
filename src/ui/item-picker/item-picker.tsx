@@ -1,7 +1,8 @@
 'use client'
 
 import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import type { z } from 'zod'
 
 import {
@@ -164,6 +165,20 @@ export type ItemPickerProps<
           isInitiallyFeatured: boolean
           label?: string
         }
+        /**
+         * Chips stay sorted by `compare` until dragged out of order;
+         * then new chips join the top and a `resetLabel` button
+         * restores the default. `group` ranks are enforced even in a
+         * custom order (lower first).
+         */
+        defaultOrder?: {
+          compare: (
+            a: Record<string, unknown>,
+            b: Record<string, unknown>
+          ) => number
+          group?: (item: Record<string, unknown>) => number
+          resetLabel: string
+        }
       }
   )
 
@@ -211,6 +226,7 @@ export function ItemPicker<
   } = props
 
   const featured = props.isMulti ? props.featured : undefined
+  const defaultOrder = props.isMulti ? props.defaultOrder : undefined
   const singleIdFieldName = itemIdFieldName(itemType, name)
   const listFieldName = name ?? itemType
 
@@ -258,7 +274,11 @@ export function ItemPicker<
     closeOpenDrafts,
     setFeatured,
     unsetFeatured,
-    reorderSortable
+    reorderSortable,
+    isReorderable,
+    isSameGroup,
+    isCustomOrder,
+    resetToDefaultOrder
   } = useItemPickerEntries<TEmbeddedItem, TPage>({
     isMulti: !!isMulti,
     existingItems: isMulti
@@ -268,6 +288,8 @@ export function ItemPicker<
         : [],
     isCreateFirst,
     featured,
+    compareDefaultOrder: defaultOrder?.compare,
+    orderGroup: defaultOrder?.group,
     validation: {
       validateEntryStrict,
       clearErrors,
@@ -332,6 +354,30 @@ export function ItemPicker<
         ?.focus()
     }
   }, [entries, getFieldset, isMulti])
+
+  // save the open editor before parent submit so it's sorted;
+  // block if invalid, skip if busy
+  const onParentSubmit = useEffectEvent((event: SubmitEvent) => {
+    if (!defaultOrder || !openDraft) return
+    if (busyEntries[openDraft.tempId]) return
+    let closed: ReturnType<typeof closeDraft>
+    flushSync(() => {
+      closed = closeDraft(openDraft)
+    })
+    if (!closed) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+  })
+
+  useEffect(() => {
+    const form = rootRef.current?.closest('form')
+    if (!form) return
+    // capture phase: runs before React's delegated onSubmit
+    const listener = (event: SubmitEvent) => onParentSubmit(event)
+    form.addEventListener('submit', listener, true)
+    return () => form.removeEventListener('submit', listener, true)
+  }, [])
 
   /**
    * The prefix a draft's fields are rendered with, provided to the
@@ -674,29 +720,45 @@ export function ItemPicker<
       )}
 
       {/*
-       * One sortable list for every chip — existing-item results and
-       * collapsed saved drafts together — so they reorder relative to
-       * one another. Drag controls appear only with more than one chip.
+       * Existing items and saved drafts share one list so they reorder
+       * together; drag controls only on chips with a same-group
+       * neighbour (`isSameGroup`).
        */}
       {isMulti ? (
-        sortableEntries.length > 1 ? (
-          <SortableList
-            className={itemPickerStyles['item-list']}
-            items={sortableEntries.map((entry) => ({
-              id: entryId(entry),
-              entry
-            }))}
-            onReorder={(reordered) =>
-              reorderSortable(reordered.map((entry) => entry.entry))
-            }
-            renderItem={(entry, _index, dragHandle) =>
-              renderSortableRow(entry.entry, dragHandle)
-            }
-          />
+        sortableEntries.some(isReorderable) ? (
+          <>
+            <SortableList
+              className={itemPickerStyles['item-list']}
+              items={sortableEntries.map((entry) => ({
+                id: entryId(entry),
+                entry
+              }))}
+              onReorder={(reordered) =>
+                reorderSortable(reordered.map((entry) => entry.entry))
+              }
+              isSwappable={(a, b) => isSameGroup(a.entry, b.entry)}
+              renderItem={(entry, _index, dragHandle) =>
+                renderSortableRow(entry.entry, dragHandle)
+              }
+            />
+            {defaultOrder && isCustomOrder && (
+              <button
+                type='button'
+                className={`button-sm ${itemPickerStyles['reset-order-button']}`}
+                onClick={resetToDefaultOrder}
+              >
+                {defaultOrder.resetLabel}
+              </button>
+            )}
+          </>
         ) : (
-          sortableEntries.length === 1 && (
+          sortableEntries.length > 0 && (
             <div className={itemPickerStyles['item-list']}>
-              {renderSortableRow(sortableEntries[0])}
+              {sortableEntries.map((entry) => (
+                <div key={entryId(entry)}>
+                  {renderSortableRow(entry)}
+                </div>
+              ))}
             </div>
           )
         )

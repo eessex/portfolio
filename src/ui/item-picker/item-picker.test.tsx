@@ -10,6 +10,10 @@ import { useState } from 'react'
 
 import { linkFixture, pressLinkFixture } from '@/lib/links/fixtures'
 import { createLinkSchema, type Link } from '@/lib/links/schemas/db'
+import {
+  compareLinksByDefaultOrder,
+  linkOrderGroup
+} from '@/lib/links/util'
 import { ReleaseTypes } from '@/lib/releases/schemas'
 import type {
   FetchReleasesResult,
@@ -525,6 +529,195 @@ describe('ItemPicker', () => {
       })
     })
 
+    describe('links with a default order', () => {
+      const olderPress: Link = {
+        ...pressLinkFixture,
+        id: 'press-older',
+        publishDate: new Date('2020-01-01')
+      }
+      const newerPress: Link = {
+        ...pressLinkFixture,
+        id: 'press-newer',
+        publishDate: new Date('2024-01-01')
+      }
+
+      function renderInForm(
+        existingItems: Link[],
+        onSubmit = jest.fn()
+      ) {
+        render(
+          <form
+            onSubmit={(event) => {
+              event.preventDefault()
+              onSubmit(new FormData(event.currentTarget))
+            }}
+          >
+            <ItemPicker<Link>
+              initialResults={{
+                res: [],
+                nextCursor: null,
+                totalCount: 0
+              }}
+              itemType='links'
+              isMulti
+              name='links'
+              existingItems={existingItems}
+              defaultOrder={{
+                compare: compareLinksByDefaultOrder,
+                group: linkOrderGroup,
+                resetLabel: 'Sort press links by date'
+              }}
+              renderExistingResult={(
+                item,
+                onRemove,
+                removeLabel,
+                extraActions
+              ) => (
+                <ItemResultLabel
+                  title={item.title ?? item.url}
+                  onRemove={onRemove}
+                  removeLabel={removeLabel}
+                  extraActions={extraActions}
+                />
+              )}
+              renderEditItemForm={({ existingItem }) => (
+                <>
+                  <PrefixedInput
+                    field='url'
+                    aria-label='Link url'
+                    defaultValue={existingItem?.url ?? ''}
+                    required
+                  />
+                  <PrefixedInput
+                    field='publishDate'
+                    aria-label='Publish date'
+                    defaultValue={
+                      existingItem?.publishDate
+                        ?.toISOString()
+                        .slice(0, 10) ?? ''
+                    }
+                  />
+                </>
+              )}
+            />
+            <button type='submit'>Save project</button>
+          </form>
+        )
+        return onSubmit
+      }
+
+      const submitted = (onSubmit: jest.Mock) =>
+        onSubmit.mock.calls[0][0] as FormData
+
+      const related: Link = { ...linkFixture, id: 'related' }
+      const dragHandles = () =>
+        screen.queryAllByRole('button', { name: 'Drag to reorder' })
+
+      it('hides drag controls when no chip shares its group', () => {
+        renderInForm([newerPress, related])
+
+        expect(dragHandles()).toHaveLength(0)
+        expect(
+          screen.queryByRole('button', { name: 'Move up' })
+        ).not.toBeInTheDocument()
+        expect(screen.getByDisplayValue('related')).toHaveAttribute(
+          'name',
+          'links[2].id'
+        )
+      })
+
+      it('shows drag controls only on chips with a group-mate', () => {
+        renderInForm([newerPress, olderPress, related])
+
+        expect(dragHandles()).toHaveLength(2)
+      })
+
+      it('disables move buttons at a group boundary', () => {
+        const otherRelated: Link = {
+          ...linkFixture,
+          id: 'other-related'
+        }
+        renderInForm([newerPress, olderPress, related, otherRelated])
+
+        const moveUp = screen.getAllByRole('button', {
+          name: 'Move up'
+        })
+        const moveDown = screen.getAllByRole('button', {
+          name: 'Move down'
+        })
+        // last press link can't move down; first related can't move up
+        expect(moveDown[1]).toBeDisabled()
+        expect(moveUp[2]).toBeDisabled()
+        expect(moveDown[0]).not.toBeDisabled()
+        expect(moveUp[3]).not.toBeDisabled()
+      })
+
+      it('sorts a filled-in new related link after press links', async () => {
+        const user = userEvent.setup()
+        const onSubmit = renderInForm([newerPress])
+
+        fireEvent.change(screen.getByLabelText('Link url'), {
+          target: { value: 'https://related.com' }
+        })
+        await user.click(
+          screen.getByRole('button', { name: 'Save project' })
+        )
+
+        const formData = submitted(onSubmit)
+        expect(formData.get('links[0].id')).toBe('press-newer')
+        expect(formData.get('links[1].url')).toBe(
+          'https://related.com'
+        )
+      })
+
+      it('re-sorts a press link whose date was edited', async () => {
+        const user = userEvent.setup()
+        const onSubmit = renderInForm([newerPress, olderPress])
+
+        await user.click(
+          screen.getAllByRole('button', { name: /^edit$/i })[1]
+        )
+        fireEvent.change(
+          await screen.findByLabelText('Publish date'),
+          {
+            target: { value: '2025-01-01' }
+          }
+        )
+        await user.click(
+          screen.getByRole('button', { name: 'Save project' })
+        )
+
+        const formData = submitted(onSubmit)
+        expect(formData.get('links[0].id')).toBe('press-older')
+        expect(formData.get('links[0].publishDate')).toBe(
+          '2025-01-01'
+        )
+        expect(formData.get('links[1].id')).toBe('press-newer')
+        expect(
+          screen.queryByRole('button', {
+            name: 'Sort press links by date'
+          })
+        ).not.toBeInTheDocument()
+      })
+
+      it('blocks the submit while the open editor is invalid', () => {
+        const onSubmit = renderInForm([newerPress])
+
+        // touched, missing required url
+        fireEvent.change(screen.getByLabelText('Publish date'), {
+          target: { value: '2025-01-01' }
+        })
+        fireEvent.submit(
+          screen
+            .getByRole('button', { name: 'Save project' })
+            .closest('form')!
+        )
+
+        expect(onSubmit).not.toHaveBeenCalled()
+        expect(screen.getByLabelText('Link url')).toBeInTheDocument()
+      })
+    })
+
     describe('create-first default (multi)', () => {
       function renderLinksPicker(featured?: {
         isInitiallyFeatured: boolean
@@ -694,6 +887,42 @@ describe('ItemPicker', () => {
         expect(
           screen.getByDisplayValue('Edited Venue')
         ).toHaveAttribute('name', 'venueIds[0].name')
+      })
+
+      it('keeps a reopened non-first item in its slot on a global submit', async () => {
+        const user = userEvent.setup()
+        const { container } = render(
+          <form>
+            <ItemPicker<Venue>
+              {...defaultProps}
+              {...editableProps}
+              isSearchFirst
+              isMulti
+              name='venueIds'
+              existingItems={[venueFixtureAlpha, venueFixtureBeta]}
+            />
+          </form>
+        )
+
+        await user.click(
+          screen.getAllByRole('button', { name: /^edit$/i })[1]
+        )
+        fireEvent.change(await screen.findByLabelText('Venue name'), {
+          target: { value: 'Edited Venue' }
+        })
+
+        // submitted with editor open
+        const formData = new FormData(
+          container.querySelector('form')!
+        )
+        expect(formData.get('venueIds[0].id')).toBe(
+          venueFixtureAlpha.id
+        )
+        expect(formData.get('venueIds[0].name')).toBeNull()
+        expect(formData.get('venueIds[1].id')).toBe(
+          venueFixtureBeta.id
+        )
+        expect(formData.get('venueIds[1].name')).toBe('Edited Venue')
       })
 
       it('back to search saves a changed edit into its chip', async () => {

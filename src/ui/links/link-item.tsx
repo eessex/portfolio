@@ -41,7 +41,9 @@ export function LinkItem({
             <>
               <b>{link.title || link.url}</b>
               <div>
-                {link.attribution && <em>— {link.attribution}, </em>}
+                {link.attribution && (
+                  <span>{link.attribution}, </span>
+                )}
                 {formattedDateTime(
                   link.publishDate || link.createdAt!,
                   'xs'

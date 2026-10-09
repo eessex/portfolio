@@ -20,9 +20,10 @@ jest.mock('@/lib/slug/data', () => ({
 const mockGenerateUniqueSlug = jest.mocked(generateUniqueSlug)
 
 jest.mock('@/lib/db', () => ({
-  sql: jest.fn()
+  sql: Object.assign(jest.fn(), { transaction: jest.fn() })
 }))
 const mockSql = jest.mocked(sql)
+const mockTransaction = jest.mocked(sql.transaction)
 
 jest.mock('@/lib/images/actions', () => ({
   resolveOrderedImageIds: jest.fn()
@@ -45,6 +46,7 @@ const EXISTING_IMAGE_ID_1 = '11111111-1111-4111-8111-111111111111'
 const NEW_IMAGE_ID = '33333333-3333-4333-8333-333333333333'
 const EXISTING_EMBED_CODE_ID = '22222222-2222-4222-8222-222222222222'
 const NEW_EMBED_CODE_ID = '44444444-4444-4444-8444-444444444444'
+const EXISTING_LINK_ID = '55555555-5555-4555-8555-555555555555'
 
 describe('Project Actions', () => {
   beforeEach(() => {
@@ -75,7 +77,6 @@ describe('Project Actions', () => {
 
   describe('#deleteProject', () => {
     it('can delete a project', async () => {
-      mockSql.mockResolvedValueOnce([projectFixtureAlpha])
       const res = await deleteProject(projectFixtureAlpha)
 
       expect(res).toEqual({ ok: true })
@@ -91,10 +92,40 @@ describe('Project Actions', () => {
     })
 
     it('can handle errors', async () => {
-      mockSql.mockRejectedValueOnce(new Error('DB error'))
+      mockTransaction.mockRejectedValueOnce(new Error('DB error'))
       const res = await deleteProject(projectFixtureAlpha)
 
       expect(res!.message).toBe('Failed to delete project: DB error.')
+      expect(updateTag).not.toHaveBeenCalled()
+    })
+
+    it('hands off everything the project owns before deleting it, in one transaction', async () => {
+      const queries = ['images', 'links', 'embedCodes', 'delete']
+      queries.forEach((query) =>
+        mockSql.mockReturnValueOnce(query as never)
+      )
+
+      await deleteProject(projectFixtureAlpha)
+
+      expect(mockTransaction).toHaveBeenCalledTimes(1)
+      expect(mockTransaction).toHaveBeenCalledWith(queries)
+      const texts = mockSql.mock.calls.map(([strings]) =>
+        strings.join('?')
+      )
+      expect(texts).toHaveLength(4)
+      expect(texts[0]).toContain('UPDATE images AS i')
+      expect(texts[1]).toContain('UPDATE links AS l')
+      expect(texts[2]).toContain('UPDATE embed_codes AS ec')
+      expect(texts[3]).toContain('DELETE FROM projects')
+      // no id filter: every item the project owns is handed off
+      for (const [, ...params] of mockSql.mock.calls.slice(0, 3)) {
+        expect(params).toEqual([
+          projectFixtureAlpha.id,
+          projectFixtureAlpha.id,
+          null,
+          null
+        ])
+      }
     })
   })
 
@@ -415,13 +446,110 @@ describe('Project Actions', () => {
         )
         expect(mockSql.mock.calls[2]?.[2]).toEqual([NEW_IMAGE_ID])
 
-        // call 3: clear project_id from the removed EXISTING_IMAGE_ID_1
-        expect(mockSql.mock.calls[3]?.[1]).toEqual([
-          EXISTING_IMAGE_ID_1
+        // call 3: hand off the removed EXISTING_IMAGE_ID_1
+        const [strings, ...params] = mockSql.mock.calls[3]!
+        expect(strings.join('?')).toContain('UPDATE images AS i')
+        expect(params).toEqual([
+          projectFixtureAlpha.id, // other projects only
+          projectFixtureAlpha.id, // owned by this project
+          [EXISTING_IMAGE_ID_1],
+          [EXISTING_IMAGE_ID_1]
         ])
-        expect(mockSql.mock.calls[3]?.[2]).toEqual(
+      })
+
+      it('only claims unowned items on attach', async () => {
+        mockSql.mockResolvedValueOnce([projectFixtureAlpha])
+        mockResolveOrderedImageIds.mockResolvedValueOnce({
+          coverImageId: NEW_IMAGE_ID,
+          imageIds: []
+        })
+        mockResolveOrderedLinkIds.mockResolvedValueOnce({
+          linkIds: [EXISTING_LINK_ID]
+        })
+        mockResolveOrderedEmbedCodeIds.mockResolvedValueOnce({
+          embedCodeIds: [],
+          featuredEmbedCodeId: NEW_EMBED_CODE_ID
+        })
+
+        await editProject(
+          formDataFromObject({
+            ...newProjectFixtureAlpha,
+            isPublished: 'on'
+          })
+        )
+
+        // calls 1–3: one attach per table, images → links → embed codes
+        expect(mockSql).toHaveBeenCalledTimes(4)
+        const attaches = mockSql.mock.calls.slice(1)
+        const expected = [
+          ['UPDATE images', NEW_IMAGE_ID],
+          ['UPDATE links', EXISTING_LINK_ID],
+          ['UPDATE embed_codes', NEW_EMBED_CODE_ID]
+        ] as const
+        attaches.forEach(([strings, ...params], i) => {
+          const [table, id] = expected[i]!
+          const text = strings.join('?')
+          expect(text).toContain(table)
+          expect(text).toContain('SET project_id = ?')
+          expect(text).toContain('AND project_id IS NULL')
+          expect(params).toEqual([projectFixtureAlpha.id, [id]])
+        })
+      })
+
+      it('hands detached items to another project still listing them, else NULL', async () => {
+        const existingProject = {
+          ...projectFixtureAlpha,
+          imageIds: [EXISTING_IMAGE_ID_1],
+          linkIds: [EXISTING_LINK_ID],
+          embedCodeIds: [EXISTING_EMBED_CODE_ID]
+        }
+        mockSql
+          .mockResolvedValueOnce([existingProject]) // fetchProjectById
+          .mockResolvedValueOnce([projectFixtureAlpha]) // UPDATE ... RETURNING
+
+        await editProject(
+          formDataFromObject({
+            ...projectFixtureAlpha,
+            isPublished: 'on'
+          }),
           projectFixtureAlpha.id
         )
+
+        // calls 2–4: one hand-off per table, in images → links →
+        // embed codes order, each limited to the detached ids
+        expect(mockSql).toHaveBeenCalledTimes(5)
+        const handOffs = mockSql.mock.calls.slice(2)
+        const expected = [
+          [
+            'UPDATE images AS i',
+            'p.cover_image_id = i.id',
+            EXISTING_IMAGE_ID_1
+          ],
+          [
+            'UPDATE links AS l',
+            'l.id = ANY(p.link_ids)',
+            EXISTING_LINK_ID
+          ],
+          [
+            'UPDATE embed_codes AS ec',
+            'p.featured_embed_code_id = ec.id',
+            EXISTING_EMBED_CODE_ID
+          ]
+        ] as const
+        handOffs.forEach(([strings, ...params], i) => {
+          const [table, listedBy, id] = expected[i]!
+          const text = strings.join('?')
+          expect(text).toContain(table)
+          expect(text).toContain(listedBy)
+          expect(text).toContain('WHERE p.id <> ?')
+          expect(text).toContain('ORDER BY p.created_at, p.id')
+          expect(params).toEqual([
+            projectFixtureAlpha.id,
+            projectFixtureAlpha.id,
+            [id],
+            [id]
+          ])
+        })
       })
 
       it('does not detach an image still present in the resolved list', async () => {

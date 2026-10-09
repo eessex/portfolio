@@ -84,11 +84,18 @@ export async function deleteProject(project: Project) {
   return runDeleteAction<Project>({
     itemType: 'projects',
     invalidate: () => invalidateProjectTags(project.id),
+    // one transaction, so a failed DELETE doesn't leave the hand-offs
+    // applied to a project that still exists
     del: async () => {
-      await sql`
-        DELETE FROM projects
-        WHERE id = ${project.id}
-      `
+      await sql.transaction([
+        handOffImages(project.id),
+        handOffLinks(project.id),
+        handOffEmbedCodes(project.id),
+        sql`
+          DELETE FROM projects
+          WHERE id = ${project.id}
+        `
+      ])
     }
   })
 }
@@ -246,11 +253,13 @@ function childIdsOf(project: {
 type ChildIds = ReturnType<typeof childIdsOf>
 
 /**
- * Keeps the canonical, indexed `project_id` back-reference on
- * images/links/embed_codes in sync with a project's `*Ids` arrays: every
- * id newly present is stamped with this project's id, every id no
- * longer present is cleared back to NULL (which reassigns it to the
- * default project, per the NULL-means-default ownership rule).
+ * Keeps the canonical, indexed `project_id` owner on
+ * images/links/embed_codes in sync with a project's `*Ids` arrays. An
+ * item can be listed by many projects but has one owner: the first
+ * project to attach it. Newly attached ids are claimed only if
+ * unowned; a project reusing another's item shows it (via its own
+ * arrays) without taking it over. Newly detached ids this project owns
+ * are handed off (see `handOffImages`).
  */
 async function syncChildProjectIds(
   projectId: string,
@@ -268,47 +277,96 @@ async function syncChildProjectIds(
     await sql`
       UPDATE images
       SET project_id = ${projectId}
-      WHERE id = ANY(${images.attached})
+      WHERE id = ANY(${images.attached}) AND project_id IS NULL
     `
   }
   if (images.detached.length) {
-    await sql`
-      UPDATE images
-      SET project_id = NULL
-      WHERE id = ANY(${images.detached}) AND project_id = ${projectId}
-    `
+    await handOffImages(projectId, images.detached)
   }
 
   if (links.attached.length) {
     await sql`
       UPDATE links
       SET project_id = ${projectId}
-      WHERE id = ANY(${links.attached})
+      WHERE id = ANY(${links.attached}) AND project_id IS NULL
     `
   }
   if (links.detached.length) {
-    await sql`
-      UPDATE links
-      SET project_id = NULL
-      WHERE id = ANY(${links.detached}) AND project_id = ${projectId}
-    `
+    await handOffLinks(projectId, links.detached)
   }
 
   if (embedCodes.attached.length) {
     await sql`
       UPDATE embed_codes
       SET project_id = ${projectId}
-      WHERE id = ANY(${embedCodes.attached})
+      WHERE id = ANY(${embedCodes.attached}) AND project_id IS NULL
     `
   }
   if (embedCodes.detached.length) {
-    await sql`
-      UPDATE embed_codes
-      SET project_id = NULL
-      WHERE id = ANY(${embedCodes.detached})
-        AND project_id = ${projectId}
-    `
+    await handOffEmbedCodes(projectId, embedCodes.detached)
   }
+}
+
+/**
+ * Hands images owned by `projectId` to the earliest-created other
+ * project that still lists them (`image_ids` or `cover_image_id`), or
+ * to NULL — the unassigned pool, which follows the current default
+ * project — when none does. `ids` limits it to those images; omitted,
+ * it hands off everything the project owns (before a delete, whose
+ * `ON DELETE SET NULL` would otherwise skip the hand-off). Returns the
+ * unawaited query so `deleteProject` can batch it into a transaction.
+ */
+function handOffImages(projectId: string, ids?: string[]) {
+  return sql`
+    UPDATE images AS i
+    SET project_id = (
+      SELECT p.id FROM projects AS p
+      WHERE p.id <> ${projectId}
+        AND (i.id = ANY(p.image_ids) OR p.cover_image_id = i.id)
+      ORDER BY p.created_at, p.id
+      LIMIT 1
+    )
+    WHERE i.project_id = ${projectId}
+      AND (${ids ?? null}::uuid[] IS NULL OR i.id = ANY(${ids ?? null}::uuid[]))
+  `
+}
+
+/** `handOffImages` for links, listed via `link_ids`. */
+function handOffLinks(projectId: string, ids?: string[]) {
+  return sql`
+    UPDATE links AS l
+    SET project_id = (
+      SELECT p.id FROM projects AS p
+      WHERE p.id <> ${projectId}
+        AND l.id = ANY(p.link_ids)
+      ORDER BY p.created_at, p.id
+      LIMIT 1
+    )
+    WHERE l.project_id = ${projectId}
+      AND (${ids ?? null}::uuid[] IS NULL OR l.id = ANY(${ids ?? null}::uuid[]))
+  `
+}
+
+/**
+ * `handOffImages` for embed codes, listed via `embed_code_ids` or
+ * `featured_embed_code_id`.
+ */
+function handOffEmbedCodes(projectId: string, ids?: string[]) {
+  return sql`
+    UPDATE embed_codes AS ec
+    SET project_id = (
+      SELECT p.id FROM projects AS p
+      WHERE p.id <> ${projectId}
+        AND (
+          ec.id = ANY(p.embed_code_ids)
+          OR p.featured_embed_code_id = ec.id
+        )
+      ORDER BY p.created_at, p.id
+      LIMIT 1
+    )
+    WHERE ec.project_id = ${projectId}
+      AND (${ids ?? null}::uuid[] IS NULL OR ec.id = ANY(${ids ?? null}::uuid[]))
+  `
 }
 
 function diffedIds(next: string[], previous: string[] = []) {

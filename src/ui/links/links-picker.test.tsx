@@ -54,4 +54,79 @@ describe('LinksPicker', () => {
       expect(visibleUrlInputs().map((i) => i.value)).toEqual([value])
     })
   })
+
+  describe('default order', () => {
+    function submittedIds() {
+      return Array.from(
+        document.querySelectorAll<HTMLInputElement>(
+          'input[name^="links["][name$="].id"]'
+        )
+      )
+        .sort(
+          (a, b) =>
+            Number(a.name.match(/\d+/)?.[0]) -
+            Number(b.name.match(/\d+/)?.[0])
+        )
+        .map((input) => input.value)
+    }
+
+    const resetButton = () =>
+      screen.queryByRole('button', {
+        name: /sort press links by date/i
+      })
+
+    it('hides the reset button while links are in default order', () => {
+      render(<LinksPicker links={[pressLinkFixture, linkFixture]} />)
+
+      expect(resetButton()).toBeNull()
+    })
+
+    const olderPress = {
+      ...pressLinkFixture,
+      id: 'press-older',
+      publishDate: new Date('2020-01-01')
+    }
+
+    it('offers a reset once a press link is moved out of place', async () => {
+      const user = userEvent.setup()
+      render(
+        <LinksPicker
+          links={[pressLinkFixture, olderPress, linkFixture]}
+        />
+      )
+
+      await user.click(
+        screen.getAllByRole('button', { name: /move down/i })[0]
+      )
+      expect(submittedIds()).toEqual([
+        olderPress.id,
+        pressLinkFixture.id,
+        linkFixture.id
+      ])
+
+      await user.click(resetButton()!)
+
+      expect(submittedIds()).toEqual([
+        pressLinkFixture.id,
+        olderPress.id,
+        linkFixture.id
+      ])
+      expect(resetButton()).toBeNull()
+    })
+
+    it('keeps press links above other links, with nothing to drag', () => {
+      render(<LinksPicker links={[linkFixture, pressLinkFixture]} />)
+
+      expect(submittedIds()).toEqual([
+        pressLinkFixture.id,
+        linkFixture.id
+      ])
+      expect(
+        screen.queryByRole('button', { name: /move down/i })
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Drag to reorder' })
+      ).not.toBeInTheDocument()
+    })
+  })
 })

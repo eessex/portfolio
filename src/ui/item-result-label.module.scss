@@ -40,6 +40,12 @@
   @include type.line-clamp(1);
 }
 
+.details {
+  color: var(--transparency-dark);
+
+  @include type.line-clamp(1);
+}
+
 .remove {
   flex-shrink: 0;
   border-radius: 50%;

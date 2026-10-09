@@ -41,6 +41,14 @@ export interface SortableListProps<T extends { id: string }> {
     dragHandle: React.ReactNode
   ) => React.ReactNode
   className?: string
+  /**
+   * `false` keeps two adjacent items from trading places, e.g. across
+   * a boundary the caller enforces (which would otherwise snap
+   * straight back): the move-up/move-down button between them is
+   * disabled, and an item with no swappable neighbour gets no
+   * drag/move controls at all.
+   */
+  isSwappable?: (a: T, b: T) => boolean
 }
 
 /**
@@ -54,7 +62,8 @@ export function SortableList<T extends { id: string }>({
   items,
   onReorder,
   renderItem,
-  className
+  className,
+  isSwappable = () => true
 }: SortableListProps<T>) {
   const dndId = useId()
 
@@ -88,23 +97,31 @@ export function SortableList<T extends { id: string }>({
         strategy={verticalListSortingStrategy}
       >
         <div className={className}>
-          {items.map((item, index) => (
-            <SortableListItem
-              key={item.id}
-              id={item.id}
-              isFirst={index === 0}
-              isLast={index === items.length - 1}
-              onMoveUp={() =>
-                onReorder(arrayMove(items, index, index - 1))
-              }
-              onMoveDown={() =>
-                onReorder(arrayMove(items, index, index + 1))
-              }
-              render={(dragHandle) =>
-                renderItem(item, index, dragHandle)
-              }
-            />
-          ))}
+          {items.map((item, index) => {
+            const isMovableUp =
+              index > 0 && isSwappable(items[index - 1], item)
+            const isMovableDown =
+              index < items.length - 1 &&
+              isSwappable(item, items[index + 1])
+            return (
+              <SortableListItem
+                key={item.id}
+                id={item.id}
+                isSortable={isMovableUp || isMovableDown}
+                isMovableUp={isMovableUp}
+                isMovableDown={isMovableDown}
+                onMoveUp={() =>
+                  onReorder(arrayMove(items, index, index - 1))
+                }
+                onMoveDown={() =>
+                  onReorder(arrayMove(items, index, index + 1))
+                }
+                render={(dragHandle) =>
+                  renderItem(item, index, dragHandle)
+                }
+              />
+            )
+          })}
         </div>
       </SortableContext>
     </DndContext>
@@ -113,28 +130,30 @@ export function SortableList<T extends { id: string }>({
 
 function SortableListItem({
   id,
-  isFirst,
-  isLast,
+  isSortable,
+  isMovableUp,
+  isMovableDown,
   onMoveUp,
   onMoveDown,
   render
 }: {
   id: string
-  isFirst: boolean
-  isLast: boolean
+  isSortable: boolean
+  isMovableUp: boolean
+  isMovableDown: boolean
   onMoveUp: () => void
   onMoveDown: () => void
   render: (dragHandle: React.ReactNode) => React.ReactNode
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id })
+    useSortable({ id, disabled: !isSortable })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition
   }
 
-  const dragHandle = (
+  const dragHandle = isSortable && (
     <button
       type='button'
       className={styles['drag-handle']}
@@ -149,24 +168,28 @@ function SortableListItem({
   return (
     <div ref={setNodeRef} style={style}>
       {render(dragHandle)}
-      <button
-        type='button'
-        className={`${styles['move-button']} visually-hidden`}
-        aria-label='Move up'
-        disabled={isFirst}
-        onClick={onMoveUp}
-      >
-        <ArrowUpIcon />
-      </button>
-      <button
-        type='button'
-        className={`${styles['move-button']} visually-hidden`}
-        aria-label='Move down'
-        disabled={isLast}
-        onClick={onMoveDown}
-      >
-        <ArrowDownIcon />
-      </button>
+      {isSortable && (
+        <>
+          <button
+            type='button'
+            className={`${styles['move-button']} visually-hidden`}
+            aria-label='Move up'
+            disabled={!isMovableUp}
+            onClick={onMoveUp}
+          >
+            <ArrowUpIcon />
+          </button>
+          <button
+            type='button'
+            className={`${styles['move-button']} visually-hidden`}
+            aria-label='Move down'
+            disabled={!isMovableDown}
+            onClick={onMoveDown}
+          >
+            <ArrowDownIcon />
+          </button>
+        </>
+      )}
     </div>
   )
 }

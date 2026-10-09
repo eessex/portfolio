@@ -20,10 +20,9 @@ interface DraftFields {
    * revoked on Edit/remove. */
   previewUrl?: string
   /**
-   * Snapshot of the fieldset's collected + normalized values, taken on
-   * Save for the collapsed chip to render from — reading the live
-   * fieldset via ref during render isn't allowed, and the fieldset is
-   * hidden (non-interactive) anyway while saved.
+   * Normalized field values snapshotted on Save for the chip to render
+   * (can't read the fieldset ref during render). Kept on reopen for
+   * default ordering.
    */
   summaryData?: Record<string, unknown>
 }

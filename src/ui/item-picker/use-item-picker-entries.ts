@@ -23,6 +23,13 @@ interface UseItemPickerEntriesOptions<TItem> {
   /** Open on a blank create form (see `ItemPicker`'s `isSearchFirst`). */
   isCreateFirst: boolean
   featured?: { isInitiallyFeatured: boolean }
+  /** See `ItemPicker`'s `defaultOrder.compare`. */
+  compareDefaultOrder?: (
+    a: Record<string, unknown>,
+    b: Record<string, unknown>
+  ) => number
+  /** See `ItemPicker`'s `defaultOrder.group`. */
+  orderGroup?: (values: Record<string, unknown>) => number
   validation: EntryValidation
 }
 
@@ -37,6 +44,8 @@ export function useItemPickerEntries<
   existingItems,
   isCreateFirst,
   featured,
+  compareDefaultOrder,
+  orderGroup,
   validation: {
     validateEntryStrict,
     clearErrors,
@@ -51,10 +60,17 @@ export function useItemPickerEntries<
 
   const nextSeq = useRef(startWithBlankEntry ? 1 : 0)
   const [entries, setEntries] = useState<Entry[]>(() => {
-    const existing = existingItems.map((item) => ({
+    const items = existingItems.map((item) => ({
       kind: 'existing' as const,
       item
     }))
+    const head = featured?.isInitiallyFeatured
+      ? items.slice(0, 1)
+      : []
+    const existing = [
+      ...head,
+      ...keepGroups(items.slice(head.length))
+    ]
     if (!startWithBlankEntry) return existing
     const blank = { kind: 'new' as const, tempId: 'new-0', seq: 0 }
     // Keep an initially-featured item pinned at the head. The blank
@@ -92,34 +108,128 @@ export function useItemPickerEntries<
   const restEntries = featuredEntry ? entries.slice(1) : entries
   // Draft entries (new + edited-existing) both carry a mounted fieldset.
   const restDrafts = restEntries.filter(isDraft)
-  // A saved draft entry's `<input type=file>` can't be repopulated, so
-  // its fieldset must never move containers or reorder (either remounts
-  // it and drops the file). So the always-mounted draft fieldsets render
-  // on their own in a fixed creation order that never changes, while the
-  // *chips* — which carry no file input — reorder freely. Since existing
-  // entries are likewise fieldset-free, their results and the saved draft
-  // chips share ONE sortable list (`sortableEntries`); only open editors
-  // (`openRestDrafts`) stay fixed, ahead of it.
-  const openRestDrafts = restDrafts.filter((entry) => !entry.isSaved)
+  // Draft fieldsets render in fixed creation order: moving one remounts
+  // it and drops its `<input type=file>`. Chips (no fieldset) share
+  // one sortable list (`sortableEntries`).
   const stableDrafts = [...restDrafts].sort((a, b) => a.seq - b.seq)
   const sortableEntries = restEntries.filter(
     (entry) => entry.kind === 'existing' || entry.isSaved
   )
-  // An entry's submit/action index is its position in the canonical rest
-  // order — open editors first, then the sortable chips — offset past
-  // any pinned featured entry at the array head.
-  const orderedRest = [...openRestDrafts, ...sortableEntries]
+  // submit index = array slot (+1 past a featured head); reopened
+  // chips keep their slot, so order survives submit with editor open
   const restIndex = (entry: Entry) =>
     entry === featuredEntry
       ? 0
-      : orderedRest.indexOf(entry) + (featuredEntry ? 1 : 0)
-  // The one open editor, if any — including the featured entry's, which
-  // `openRestDrafts` (rest only) leaves out.
+      : restEntries.indexOf(entry) + (featuredEntry ? 1 : 0)
+  // The one open editor, if any — including the featured entry's.
   const openDraft = entries.find(
     (entry): entry is Draft<TEmbeddedItem, TPage> =>
       isDraft(entry) && !entry.isSaved
   )
   const hasOpenDraft = !!openDraft
+  const isCustomOrder = !isInDefaultOrder(
+    splitEntries(entries).positioned
+  )
+
+  /** Needs another chip in its own group to move. */
+  function isReorderable(entry: Entry) {
+    if (!orderGroup) return sortableEntries.length > 1
+    const group = orderGroup(entryValues(entry))
+    return (
+      sortableEntries.filter(
+        (other) => orderGroup(entryValues(other)) === group
+      ).length > 1
+    )
+  }
+
+  /** Whether two chips share an `orderGroup` (and so can swap). */
+  function isSameGroup(a: Entry, b: Entry) {
+    if (!orderGroup) return true
+    return orderGroup(entryValues(a)) === orderGroup(entryValues(b))
+  }
+
+  function splitEntries(list: Entry[]) {
+    const head =
+      featured && isFeatured && list.length > 0 ? [list[0]] : []
+    const rest = list.slice(head.length)
+    return {
+      head,
+      rest,
+      chips: rest.filter(isChip),
+      positioned: rest.filter(hasChipPosition)
+    }
+  }
+
+  function isChip(entry: Entry) {
+    return entry.kind === 'existing' || !!entry.isSaved
+  }
+
+  /** Chips plus reopened chips; excludes never-saved new drafts. */
+  function hasChipPosition(entry: Entry) {
+    return entry.kind !== 'new' || !!entry.summaryData
+  }
+
+  function placeInSlots(
+    list: Entry[],
+    ordered: Entry[],
+    isSlot: (entry: Entry) => boolean
+  ) {
+    const { head, rest } = splitEntries(list)
+    let i = 0
+    return [
+      ...head,
+      ...rest.map((entry) => (isSlot(entry) ? ordered[i++] : entry))
+    ]
+  }
+
+  /** Item merged with saved draft values. */
+  function entryValues(entry: Entry): Record<string, unknown> {
+    const item =
+      entry.kind === 'new'
+        ? {}
+        : (entry.item as Record<string, unknown>)
+    return isDraft(entry) && entry.summaryData
+      ? { ...item, ...entry.summaryData }
+      : item
+  }
+
+  function isInDefaultOrder(chips: Entry[]) {
+    if (!compareDefaultOrder) return true
+    return chips.every(
+      (entry, i) =>
+        i === 0 ||
+        compareDefaultOrder(
+          entryValues(chips[i - 1]),
+          entryValues(entry)
+        ) <= 0
+    )
+  }
+
+  /** Stable sort by `orderGroup`. */
+  function keepGroups<T extends Entry>(chips: T[]) {
+    if (!orderGroup) return chips
+    return [...chips].sort(
+      (a, b) =>
+        orderGroup(entryValues(a)) - orderGroup(entryValues(b))
+    )
+  }
+
+  function sortByDefaultOrder(chips: Entry[]) {
+    if (!compareDefaultOrder) return chips
+    return [...chips].sort((a, b) =>
+      compareDefaultOrder(entryValues(a), entryValues(b))
+    )
+  }
+
+  /** Re-sorts `next` unless `previous` was in a custom order. */
+  function keepDefaultOrder(previous: Entry[], next: Entry[]) {
+    if (!compareDefaultOrder) return next
+    const { chips } = splitEntries(next)
+    const sorted = isInDefaultOrder(splitEntries(previous).positioned)
+      ? sortByDefaultOrder(chips)
+      : keepGroups(chips)
+    return placeInSlots(next, sorted, isChip)
+  }
 
   function mintTempId() {
     const seq = nextSeq.current++
@@ -169,7 +279,10 @@ export function useItemPickerEntries<
       ) {
         return current
       }
-      return insertEntry(current, { kind: 'existing', item })
+      return keepDefaultOrder(
+        current,
+        insertEntry(current, { kind: 'existing', item })
+      )
     })
   }
 
@@ -211,10 +324,13 @@ export function useItemPickerEntries<
     if (entry.kind !== 'editing') return
     disposeEntry(entry)
     setEntries((current) =>
-      current.map((s) =>
-        entryId(s) === entryId(entry)
-          ? { kind: 'existing' as const, item: entry.item }
-          : s
+      keepDefaultOrder(
+        current,
+        current.map((s) =>
+          entryId(s) === entryId(entry)
+            ? { kind: 'existing' as const, item: entry.item }
+            : s
+        )
       )
     )
   }
@@ -260,18 +376,21 @@ export function useItemPickerEntries<
     const previewUrl = file ? URL.createObjectURL(file) : undefined
 
     setEntries((current) =>
-      current.map((s) =>
-        isDraft(s) && s.tempId === entry.tempId
-          ? { ...s, isSaved: true, previewUrl, summaryData }
-          : s
+      keepDefaultOrder(
+        current,
+        current.map((s) =>
+          isDraft(s) && s.tempId === entry.tempId
+            ? { ...s, isSaved: true, previewUrl, summaryData }
+            : s
+        )
       )
     )
     return true
   }
 
   /**
-   * Re-expands a saved draft entry for editing, revoking its preview
-   * object URL — Save creates a fresh one when the entry is next saved.
+   * Reopens a saved draft. Revokes its preview URL (Save makes a new
+   * one); keeps `summaryData` for default ordering.
    */
   function editDraft(entry: Draft<TEmbeddedItem, TPage>): boolean {
     // Keeps `isTouched`: the entry has content, so toggling back to
@@ -284,8 +403,7 @@ export function useItemPickerEntries<
           ? {
               ...s,
               isSaved: false,
-              previewUrl: undefined,
-              summaryData: undefined
+              previewUrl: undefined
             }
           : s
       )
@@ -352,11 +470,19 @@ export function useItemPickerEntries<
 
   /** Applies a drag reorder of `sortableEntries`. */
   function reorderSortable(reordered: Entry[]) {
-    setEntries([
-      ...(featuredEntry ? [featuredEntry] : []),
-      ...openRestDrafts,
-      ...reordered
-    ])
+    setEntries((current) =>
+      placeInSlots(current, keepGroups(reordered), isChip)
+    )
+  }
+
+  function resetToDefaultOrder() {
+    setEntries((current) =>
+      placeInSlots(
+        current,
+        sortByDefaultOrder(splitEntries(current).positioned),
+        hasChipPosition
+      )
+    )
   }
 
   return {
@@ -381,6 +507,10 @@ export function useItemPickerEntries<
     closeOpenDrafts,
     setFeatured,
     unsetFeatured,
-    reorderSortable
+    reorderSortable,
+    isReorderable,
+    isSameGroup,
+    isCustomOrder,
+    resetToDefaultOrder
   }
 }

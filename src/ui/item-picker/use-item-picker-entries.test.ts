@@ -1,5 +1,11 @@
 import { act, renderHook } from '@testing-library/react'
 
+import { linkFixture, pressLinkFixture } from '@/lib/links/fixtures'
+import type { Link } from '@/lib/links/schemas/db'
+import {
+  compareLinksByDefaultOrder,
+  linkOrderGroup
+} from '@/lib/links/util'
 import {
   venueFixtureAlpha,
   venueFixtureBeta,
@@ -452,7 +458,8 @@ describe('useItemPickerEntries', () => {
       expect(result.current.entries[0]).toMatchObject({
         isSaved: false,
         previewUrl: undefined,
-        summaryData: undefined
+        // kept for default ordering
+        summaryData: { name: 'A Venue' }
       })
     })
 
@@ -747,6 +754,230 @@ describe('useItemPickerEntries', () => {
       unmount()
 
       expect(URL.revokeObjectURL).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('defaultOrder', () => {
+    const olderPress: Link = {
+      ...pressLinkFixture,
+      id: 'press-older',
+      publishDate: new Date('2020-01-01')
+    }
+    const newerPress: Link = {
+      ...pressLinkFixture,
+      id: 'press-newer',
+      publishDate: new Date('2024-01-01')
+    }
+    const related: Link = { ...linkFixture, id: 'related' }
+
+    function setupLinks(
+      existingItems: Link[],
+      validation = makeValidation()
+    ) {
+      return renderHook(() =>
+        useItemPickerEntries<Link, never>({
+          isMulti: true,
+          existingItems,
+          isCreateFirst: false,
+          compareDefaultOrder: compareLinksByDefaultOrder,
+          validation
+        })
+      )
+    }
+
+    const chipIds = (entries: { kind: string }[]) =>
+      entries.map((entry) => entryId(entry as never))
+
+    it('treats a list in default order as not custom', () => {
+      const { result } = setupLinks([newerPress, olderPress, related])
+
+      expect(result.current.isCustomOrder).toBe(false)
+    })
+
+    it('treats a saved list out of default order as custom', () => {
+      const { result } = setupLinks([related, newerPress])
+
+      expect(result.current.isCustomOrder).toBe(true)
+    })
+
+    it('slots an added link into its default place', () => {
+      const { result } = setupLinks([newerPress, related])
+
+      act(() => result.current.addExisting(olderPress))
+
+      expect(chipIds(result.current.entries)).toEqual([
+        'press-newer',
+        'press-older',
+        'related'
+      ])
+    })
+
+    it('adds to the top without re-sorting a custom order', () => {
+      const { result } = setupLinks([related, newerPress])
+
+      act(() => result.current.addExisting(olderPress))
+
+      expect(chipIds(result.current.entries)).toEqual([
+        'press-older',
+        'related',
+        'press-newer'
+      ])
+      expect(result.current.isCustomOrder).toBe(true)
+    })
+
+    it('sorts a saved new draft by its snapshotted values', () => {
+      const { result } = setupLinks(
+        [olderPress, related],
+        makeValidation({
+          summaryData: { type: 'press', publishDate: '2022-06-01' }
+        })
+      )
+
+      let tempId = ''
+      act(() => {
+        tempId = result.current.addNew()
+      })
+      const draft = result.current.entries.find(
+        (entry) => isDraft(entry) && entry.tempId === tempId
+      )
+      act(() => {
+        if (draft && isDraft(draft))
+          result.current.saveDraft(draft, 0)
+      })
+
+      expect(chipIds(result.current.entries)).toEqual([
+        tempId,
+        'press-older',
+        'related'
+      ])
+    })
+
+    describe('editing a chip in a custom order', () => {
+      const customOrder = ['press-older', 'press-newer', 'related']
+
+      it('stays custom while the editor is open', () => {
+        const { result } = setupLinks([
+          olderPress,
+          newerPress,
+          related
+        ])
+
+        act(() => {
+          result.current.editExisting('press-older')
+        })
+
+        expect(result.current.isCustomOrder).toBe(true)
+      })
+
+      it('keeps the order when the edit is reverted', () => {
+        const { result } = setupLinks([
+          olderPress,
+          newerPress,
+          related
+        ])
+
+        act(() => {
+          result.current.editExisting('press-older')
+        })
+        act(() => {
+          result.current.revertEditingEntry(result.current.openDraft!)
+        })
+
+        expect(chipIds(result.current.entries)).toEqual(customOrder)
+      })
+
+      it('keeps the order when the edit is saved and reopened', () => {
+        const { result } = setupLinks(
+          [olderPress, newerPress, related],
+          makeValidation({ summaryData: { title: 'Edited' } })
+        )
+
+        act(() => {
+          result.current.editExisting('press-older')
+        })
+        act(() => {
+          result.current.saveDraft(result.current.openDraft!, 0)
+        })
+        expect(chipIds(result.current.entries)).toEqual(customOrder)
+
+        const saved = result.current.entries[0]
+        act(() => {
+          if (isDraft(saved)) result.current.editDraft(saved)
+        })
+        expect(result.current.isCustomOrder).toBe(true)
+        act(() => {
+          result.current.saveDraft(result.current.openDraft!, 0)
+        })
+
+        expect(chipIds(result.current.entries)).toEqual(customOrder)
+      })
+    })
+
+    it('restores the default order on reset', () => {
+      const { result } = setupLinks([related, olderPress, newerPress])
+
+      act(() => result.current.resetToDefaultOrder())
+
+      expect(chipIds(result.current.entries)).toEqual([
+        'press-newer',
+        'press-older',
+        'related'
+      ])
+      expect(result.current.isCustomOrder).toBe(false)
+    })
+
+    describe('with an order group', () => {
+      function setupGrouped(existingItems: Link[]) {
+        return renderHook(() =>
+          useItemPickerEntries<Link, never>({
+            isMulti: true,
+            existingItems,
+            isCreateFirst: false,
+            compareDefaultOrder: compareLinksByDefaultOrder,
+            orderGroup: linkOrderGroup,
+            validation: makeValidation()
+          })
+        )
+      }
+
+      it('groups a saved list on load', () => {
+        const { result } = setupGrouped([related, olderPress])
+
+        expect(chipIds(result.current.entries)).toEqual([
+          'press-older',
+          'related'
+        ])
+      })
+
+      it('keeps groups when dragged across them', () => {
+        const { result } = setupGrouped([olderPress, related])
+
+        act(() =>
+          result.current.reorderSortable([
+            result.current.entries[1],
+            result.current.entries[0]
+          ])
+        )
+
+        expect(chipIds(result.current.entries)).toEqual([
+          'press-older',
+          'related'
+        ])
+      })
+
+      it('adds to the top of its group in a custom order', () => {
+        const { result } = setupGrouped([olderPress, newerPress])
+        const otherRelated: Link = { ...linkFixture, id: 'other' }
+
+        act(() => result.current.addExisting(otherRelated))
+
+        expect(chipIds(result.current.entries)).toEqual([
+          'press-older',
+          'press-newer',
+          'other'
+        ])
+        expect(result.current.isCustomOrder).toBe(true)
+      })
     })
   })
 })

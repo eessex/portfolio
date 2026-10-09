@@ -14,11 +14,15 @@ const items: TestItem[] = [
   { id: 'c', label: 'Gamma' }
 ]
 
-function renderList(onReorder = jest.fn()) {
+function renderList(
+  onReorder = jest.fn(),
+  isSwappable?: (a: TestItem, b: TestItem) => boolean
+) {
   render(
     <SortableList<TestItem>
       items={items}
       onReorder={onReorder}
+      isSwappable={isSwappable}
       renderItem={(item, _index, dragHandle) => (
         <div>
           {dragHandle}
@@ -99,5 +103,38 @@ describe('SortableList', () => {
     expect(
       screen.getAllByRole('button', { name: 'Drag to reorder' })
     ).toHaveLength(3)
+  })
+
+  it("omits drag and move controls for items that can't move", () => {
+    // Gamma can't trade places with anything
+    renderList(jest.fn(), (a, b) => a.id !== 'c' && b.id !== 'c')
+
+    expect(
+      screen.getAllByRole('button', { name: 'Drag to reorder' })
+    ).toHaveLength(2)
+    expect(
+      screen.getAllByRole('button', { name: 'Move up' })
+    ).toHaveLength(2)
+    expect(screen.getByText('Gamma')).toBeInTheDocument()
+  })
+
+  it('disables the move buttons that would swap across a boundary', () => {
+    // Alpha | Beta, Gamma
+    const group = (item: TestItem) => (item.id === 'a' ? 0 : 1)
+    renderList(jest.fn(), (a, b) => group(a) === group(b))
+
+    // Alpha has no group-mate, so only Beta and Gamma get controls
+    const moveUpButtons = screen.getAllByRole('button', {
+      name: 'Move up'
+    })
+    const moveDownButtons = screen.getAllByRole('button', {
+      name: 'Move down'
+    })
+    expect(moveUpButtons).toHaveLength(2)
+
+    expect(moveUpButtons[0]).toBeDisabled()
+    expect(moveDownButtons[0]).not.toBeDisabled()
+    expect(moveUpButtons[1]).not.toBeDisabled()
+    expect(moveDownButtons[1]).toBeDisabled()
   })
 })

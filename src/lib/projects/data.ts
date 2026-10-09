@@ -156,7 +156,13 @@ export async function fetchProjectById(
             AND i.id != COALESCE(p.cover_image_id, p.image_ids[1])
         ) AS images,
         (
-          SELECT COALESCE(jsonb_agg(build_link_json(l)), '[]'::jsonb)
+          SELECT COALESCE(
+            jsonb_agg(
+              build_link_json(l)
+              ORDER BY array_position(p.link_ids, l.id)
+            ),
+            '[]'::jsonb
+          )
           FROM links l
           WHERE l.id = ANY(p.link_ids)
         ) AS links

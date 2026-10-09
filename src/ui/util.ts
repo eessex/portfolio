@@ -177,26 +177,6 @@ export function formattedLinkUrl(url: string) {
   }
 }
 
-export function filteredLinksByPress(links: Array<Link>) {
-  const sortByDate = (a: Link, b: Link) => {
-    const aDate = new Date(a.publishDate ?? a.createdAt)
-    const bDate = new Date(b.publishDate ?? b.createdAt)
-    return bDate.getTime() - aDate.getTime()
-  }
-
-  const pressLinks: Array<Link> = []
-  const otherLinks: Array<Link> = []
-
-  links.forEach((link) => {
-    ;(link.type === 'press' ? pressLinks : otherLinks).push(link)
-  })
-
-  pressLinks.sort(sortByDate)
-  otherLinks.sort(sortByDate)
-
-  return [pressLinks, otherLinks]
-}
-
 export function combinePublishedEditions(
   publishedEditions: ReleaseClient['publishedEditions']
 ) {

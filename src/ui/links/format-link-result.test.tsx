@@ -76,3 +76,67 @@ describe('formatNewLinkSummary', () => {
     expect(screen.queryByText('New link')).not.toBeInTheDocument()
   })
 })
+
+describe('formatLinkResult press links', () => {
+  const lines = () =>
+    Array.from(
+      document.querySelectorAll('span[class*="title-text"], small')
+    ).map((el) => el.textContent)
+
+  it('orders quote, then attribution + date, then url', () => {
+    render(
+      formatLinkResult({
+        ...pressLinkFixture,
+        publishDate: new Date('2024-03-15T12:00:00Z')
+      })
+    )
+
+    const [quote, citation, url] = lines()
+    expect(quote).toBe('Test Quotation')
+    expect(citation).toMatch(/^— Test Attribution, .*2024/)
+    expect(url).toBe('testpresslink.com')
+  })
+
+  it('shows the title first, without an em dash, when unquoted', () => {
+    render(
+      formatLinkResult({ ...pressLinkFixture, quotation: undefined })
+    )
+
+    const [title, citation, url] = lines()
+    expect(title).toBe('Test Press Link')
+    expect(citation).toMatch(/^Test Attribution, /)
+    expect(url).toBe('testpresslink.com')
+  })
+
+  it('omits the citation for non-press links', () => {
+    render(
+      formatLinkResult({
+        ...linkFixture,
+        attribution: 'Someone',
+        quotation: 'A quote'
+      })
+    )
+
+    expect(lines()).toEqual(['Test Link', 'testlink.com'])
+  })
+
+  it('omits the date for an unsaved draft without one', () => {
+    render(
+      formatNewLinkSummary(
+        {
+          url: 'https://press.com',
+          type: 'press',
+          attribution: 'Press Outlet'
+        },
+        undefined,
+        {
+          editButton: <button type='button'>Edit</button>,
+          onRemove: jest.fn(),
+          removeLabel: 'Remove link'
+        }
+      )
+    )
+
+    expect(lines()).toEqual(['press.com', 'Press Outlet'])
+  })
+})

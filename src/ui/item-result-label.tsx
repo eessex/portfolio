@@ -11,6 +11,7 @@ import styles from '@/ui/item-result-label.module.scss'
 export function ItemResultLabel({
   title,
   subtitle,
+  details,
   badges = [],
   coverImage,
   thumbnail,
@@ -20,6 +21,8 @@ export function ItemResultLabel({
 }: {
   title: React.ReactNode
   subtitle?: React.ReactNode
+  /** Rendered between title and subtitle. */
+  details?: React.ReactNode
   badges?: Badge[]
   coverImage?: ThumbnailImage
   /**
@@ -41,6 +44,9 @@ export function ItemResultLabel({
           <span className={styles['title-text']}>{title}</span>
           <Badges badges={badges} />
         </span>
+        {details && (
+          <small className={styles['details']}>{details}</small>
+        )}
         {subtitle && (
           <small className={styles['subtitle']}>{subtitle}</small>
         )}

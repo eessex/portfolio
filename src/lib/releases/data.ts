@@ -59,7 +59,13 @@ export async function fetchReleaseById(
             AND i.id != COALESCE(r.cover_image_id, r.image_ids[1])
         ) AS images,
         (
-          SELECT COALESCE(jsonb_agg(build_link_json(l)), '[]'::jsonb)
+          SELECT COALESCE(
+            jsonb_agg(
+              build_link_json(l)
+              ORDER BY array_position(r.link_ids, l.id)
+            ),
+            '[]'::jsonb
+          )
           FROM links l
           WHERE l.id = ANY(r.link_ids)
         ) AS links,

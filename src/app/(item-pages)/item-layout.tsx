@@ -26,7 +26,6 @@ import {
 import { LinksList } from '@/ui/links/link-list'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import {
-  filteredLinksByPress,
   formattedDateTime,
   formattedItemTitle,
   formattedItemType,
@@ -150,21 +149,7 @@ export default async function ItemLayout({
           </p>
         )}
 
-        {item.links &&
-          !!filteredLinksByPress(item.links)[0].length && (
-            <LinksList
-              links={filteredLinksByPress(item.links)[0]}
-              className={styles['press-links']}
-              isPress
-            />
-          )}
-        {item.links &&
-          !!filteredLinksByPress(item.links)[1].length && (
-            <LinksList
-              links={filteredLinksByPress(item.links)[1]}
-              className={styles['related-links']}
-            />
-          )}
+        {item.links && <LinksList links={item.links} />}
         {item.embedCodes && (
           <EmbedCodes embedCodes={item.embedCodes} />
         )}

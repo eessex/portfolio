@@ -1,4 +1,8 @@
 import { createLinkSchema, type Link } from '@/lib/links/schemas/db'
+import {
+  compareLinksByDefaultOrder,
+  linkOrderGroup
+} from '@/lib/links/util'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { EditLink } from '@/ui/links/edit-link-form'
 import {
@@ -12,6 +16,11 @@ export function LinksPicker({ links }: { links?: Link[] }) {
       isMulti
       itemType='links'
       existingItems={links ?? []}
+      defaultOrder={{
+        compare: compareLinksByDefaultOrder,
+        group: linkOrderGroup,
+        resetLabel: 'Sort press links by date'
+      }}
       renderExistingResult={formatLinkResult}
       renderNewItemSummary={formatNewLinkSummary}
       schema={createLinkSchema}

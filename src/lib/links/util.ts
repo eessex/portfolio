@@ -35,8 +35,9 @@ export function linkOrderGroup(link: LinkOrderFields) {
 }
 
 /**
- * Press links first, newest first (publish date, else created date);
- * other links compare equal so a stable sort keeps their order.
+ * Press links first: quoted ones, then the rest, each newest first
+ * (publish date, else created date); other links compare equal so a
+ * stable sort keeps their order.
  */
 export function compareLinksByDefaultOrder(
   a: LinkOrderFields,
@@ -45,6 +46,8 @@ export function compareLinksByDefaultOrder(
   const groupDiff = linkOrderGroup(a) - linkOrderGroup(b)
   if (groupDiff !== 0) return groupDiff
   if (!isSortedAsPress(a)) return 0
+  const quoteDiff = Number(!a.quotation) - Number(!b.quotation)
+  if (quoteDiff !== 0) return quoteDiff
   const timeA = linkTime(a)
   const timeB = linkTime(b)
   return timeA === timeB ? 0 : timeA > timeB ? -1 : 1

@@ -16,7 +16,7 @@ export function LinkItem({
       className={className}
     >
       {link.type === 'press' ? (
-        <div>
+        <>
           {link.quotation ? (
             <>
               <blockquote cite={link.url}>
@@ -40,20 +40,19 @@ export function LinkItem({
             </>
           ) : (
             <>
-              <b>{link.title || link.url}</b>
-              <div>
-                {link.attribution && (
-                  <span>{link.attribution}, </span>
-                )}
+              <b>{link.attribution}</b>
+              <span>{link.title || link.url}</span>
+              <span>
                 {formattedDateOrTimestamp(
                   link.publishDate,
                   link.createdAt!,
                   'xs'
-                )}
-              </div>
+                )}{' '}
+                <span aria-hidden='true'>↗</span>
+              </span>
             </>
           )}
-        </div>
+        </>
       ) : (
         <>{link.title || link.url}</>
       )}

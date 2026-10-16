@@ -829,7 +829,11 @@ describe('useItemPickerEntries', () => {
       const { result } = setupLinks(
         [olderPress, related],
         makeValidation({
-          summaryData: { type: 'press', publishDate: '2022-06-01' }
+          summaryData: {
+            type: 'press',
+            quotation: 'Great',
+            publishDate: '2022-06-01'
+          }
         })
       )
 

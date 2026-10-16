@@ -72,4 +72,35 @@ describe('LinksList', () => {
 
     expect(container).toBeEmptyDOMElement()
   })
+
+  it('renders plain links as a separate list after press links', () => {
+    render(<LinksList links={[relatedA, pressOlder, relatedB]} />)
+
+    const [pressList, plainList] = within(
+      screen.getByRole('region', { name: 'Links' })
+    ).getAllByRole('list')
+    expect(renderedHrefs(pressList)).toEqual([
+      'https://press-older.com'
+    ])
+    expect(renderedHrefs(plainList)).toEqual([
+      'https://related-a.com',
+      'https://related-b.com'
+    ])
+  })
+
+  it('renders only the plain list when there are no press links', () => {
+    render(<LinksList links={[relatedA, relatedB]} />)
+
+    expect(screen.getAllByRole('list')).toHaveLength(1)
+  })
+
+  it('shows every press link, without a reveal button', () => {
+    const press = Array.from({ length: 9 }, (_, i) =>
+      link(pressLinkFixture, `press-${i}`, { quotation: undefined })
+    )
+    render(<LinksList links={press} />)
+
+    expect(screen.getAllByRole('link')).toHaveLength(9)
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
 })

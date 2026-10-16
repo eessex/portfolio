@@ -1,7 +1,8 @@
 jest.mock('@/lib/db', () => ({ sql: jest.fn() }))
 jest.mock('@/lib/auth/guard', () => ({ isAuthed: jest.fn() }))
 jest.mock('@/lib/projects/cached', () => ({
-  fetchCachedDefaultProject: jest.fn()
+  fetchCachedDefaultProject: jest.fn(),
+  fetchCachedProjectsFirstPage: jest.fn()
 }))
 jest.mock('@/lib/about/cached', () => ({
   fetchCachedAboutPage: jest.fn()
@@ -17,12 +18,19 @@ import AboutPage, { generateMetadata } from '@/app/about/page'
 import { fetchCachedAboutPage } from '@/lib/about/cached'
 import { isAuthed } from '@/lib/auth/guard'
 import { imageFixture } from '@/lib/images/fixtures'
-import { fetchCachedDefaultProject } from '@/lib/projects/cached'
+import {
+  fetchCachedDefaultProject,
+  fetchCachedProjectsFirstPage
+} from '@/lib/projects/cached'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
 import type { ProjectClient } from '@/lib/projects/types'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
+import { ProjectsCarousel } from '@/ui/projects/projects-carousel'
 
 const mockDefault = jest.mocked(fetchCachedDefaultProject)
+const mockProjectsFirstPage = jest.mocked(
+  fetchCachedProjectsFirstPage
+)
 const mockIsAuthed = jest.mocked(isAuthed)
 const mockAbout = jest.mocked(fetchCachedAboutPage)
 const mockSettings = jest.mocked(fetchCachedSiteSettings)
@@ -74,6 +82,32 @@ describe('AboutPage', () => {
     expect(el.type).toBe(ItemLayout)
     expect(el.props.item).toBe(defaultProject)
     expect(mockIsAuthed).not.toHaveBeenCalled()
+  })
+
+  it('lists the other projects in a carousel', async () => {
+    mockDefaults({ published: defaultProject })
+    const allProjects = [projectFixtureBand]
+    const firstPage = {
+      res: { allProjects },
+      nextCursor: null,
+      totalCount: 0
+    } as unknown as Awaited<
+      ReturnType<typeof fetchCachedProjectsFirstPage>
+    >
+    mockProjectsFirstPage.mockResolvedValue(firstPage)
+
+    const el = (await AboutPage()) as ReactElement<{
+      children: ReactElement<{ children: ReactElement }>
+    }>
+    const projects = el.props.children.props.children
+    const carousel = (await (
+      projects.type as () => Promise<ReactElement>
+    )()) as ReactElement<Record<string, unknown>>
+
+    expect(componentName(projects)).toBe('AboutProjects')
+    expect(mockProjectsFirstPage).toHaveBeenCalledWith(false, true)
+    expect(carousel.type).toBe(ProjectsCarousel)
+    expect(carousel.props).toEqual({ initialProjects: allProjects })
   })
 
   it('falls back to the legacy page, without reading the session, when no default exists', async () => {

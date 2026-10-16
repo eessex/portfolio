@@ -182,9 +182,12 @@ footer {
 :where(figcaption) {
   @include type.size('sm');
 
-  margin: grids.space-rem(1, 2);
-  text-align: center;
+  // flush with the image's left edge
+  margin: grids.space-rem(1, 0);
+  text-align: end;
   color: var(--transparency-dark);
+  max-width: 70%;
+  margin-left: auto;
 }
 
 .category {

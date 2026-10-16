@@ -1,0 +1,62 @@
+@use '@/ui/carousel/carousel';
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
+
+.project {
+  @include carousel.media-slide('img, .placeholder');
+
+  display: flex;
+  flex-direction: column;
+  gap: grids.space-rem(2);
+  color: inherit;
+  text-decoration: none;
+
+  img,
+  .placeholder {
+    background-color: var(--transparency-extra-light);
+  }
+
+  &:hover .title {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+.media {
+  position: relative;
+  display: block;
+
+  img {
+    display: block;
+  }
+
+  mark {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin: 0;
+  }
+}
+
+.placeholder {
+  display: block;
+  aspect-ratio: 1;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.title {
+  @include type.heading('lg');
+}
+
+.type {
+  @include type.meta();
+}
+
+.years {
+  @include type.size('base', 'normal', 'sm');
+}

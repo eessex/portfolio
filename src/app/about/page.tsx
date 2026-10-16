@@ -7,7 +7,10 @@ import type { AboutContact } from '@/lib/about/types'
 import { isAuthed } from '@/lib/auth/guard'
 import { fetchCachedPressImagesFirstPage } from '@/lib/images/cached'
 import { fetchCachedPressLinks } from '@/lib/links/cached'
-import { fetchCachedDefaultProject } from '@/lib/projects/cached'
+import {
+  fetchCachedDefaultProject,
+  fetchCachedProjectsFirstPage
+} from '@/lib/projects/cached'
 import { fetchProjects } from '@/lib/projects/data'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
@@ -15,6 +18,7 @@ import { ImageFigure } from '@/ui/images/image-figure'
 import { ImageGrid } from '@/ui/images/image-grid'
 import { LinksList } from '@/ui/links/link-list'
 import { MoreProjectsList } from '@/ui/projects/more-projects-list'
+import { ProjectsCarousel } from '@/ui/projects/projects-carousel'
 
 const title = 'About'
 
@@ -71,7 +75,7 @@ export default async function AboutPage() {
   return (
     <ItemLayout item={project}>
       <Suspense>
-        <MoreProjects />
+        <AboutProjects />
       </Suspense>
     </ItemLayout>
   )
@@ -90,6 +94,15 @@ async function fetchDefaultProjectForViewer() {
   if (!draft) return undefined
 
   return (await isAuthed()) ? draft : undefined
+}
+
+/** The other projects, as a carousel. */
+async function AboutProjects() {
+  const {
+    res: { allProjects }
+  } = await fetchCachedProjectsFirstPage(false, true)
+
+  return <ProjectsCarousel initialProjects={allProjects} />
 }
 
 /** The `about` table's page, until the default project replaces it. */

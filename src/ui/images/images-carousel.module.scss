@@ -1,0 +1,52 @@
+@use '@/ui/carousel/carousel';
+@use '@/ui/styles/grids';
+
+// the image is a plain zoom target, not a styled button
+@mixin image-button {
+  button {
+    display: block;
+    padding: 0;
+    background: none;
+    cursor: zoom-in;
+
+    &:hover,
+    &:active {
+      background: none;
+    }
+  }
+
+  img {
+    display: block;
+    background-color: var(--transparency-extra-light);
+  }
+}
+
+.carousel-image {
+  @include image-button;
+  @include carousel.media-slide;
+
+  margin: 0;
+}
+
+.inline {
+  padding-top: grids.space-rem(12);
+}
+
+.inline-image {
+  @include image-button;
+
+  margin: 0;
+
+  button {
+    width: 100%;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.download {
+  margin: 0;
+}

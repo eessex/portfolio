@@ -3,10 +3,12 @@ import { render, screen } from '@testing-library/react'
 import ItemLayout, {
   generateItemMetadata
 } from '@/app/(item-pages)/item-layout'
+import { embedCodeFixture } from '@/lib/embed-codes/fixtures'
 import {
   eventFixturePast,
   eventFixtureUpcoming
 } from '@/lib/events/fixtures'
+import { imageFixture } from '@/lib/images/fixtures'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
 import { releaseFixtureAlbum } from '@/lib/releases/fixtures'
 import { PagePaths } from '@/lib/schemas'
@@ -220,5 +222,157 @@ describe('ItemLayout header', () => {
     expect(screen.getByRole('article').parentElement).not.toHaveClass(
       'default-project'
     )
+  })
+})
+
+describe('ItemLayout on the default project', () => {
+  const images = [
+    { ...imageFixture, type: 'press' as const, caption: 'Photo one' },
+    {
+      ...imageFixture,
+      id: 'b5a0c1de-1111-4222-8333-944455556666',
+      type: 'press' as const,
+      caption: 'Photo two'
+    }
+  ]
+  const coverImage = {
+    ...imageFixture,
+    id: 'e8d3f4a1-4444-4555-8666-c77788889999',
+    caption: 'Cover'
+  }
+  const embedCodes = [
+    { ...embedCodeFixture, caption: 'Video one' },
+    {
+      ...embedCodeFixture,
+      id: 'd7c2e3f0-3333-4444-8555-b66677778888',
+      caption: 'Video two'
+    }
+  ]
+
+  async function renderDefault(
+    item: Partial<Parameters<typeof ItemLayout>[0]['item']>
+  ) {
+    render(
+      await ItemLayout({
+        item: {
+          ...projectFixtureBand,
+          isDefaultProject: true,
+          ...item
+        } as Parameters<typeof ItemLayout>[0]['item'],
+        children: <p>All projects</p>
+      })
+    )
+  }
+
+  function region(name: string) {
+    return screen.getByRole('region', {
+      name
+    })
+  }
+
+  it('orders embed and image carousels around the children, outside the article', async () => {
+    await renderDefault({ coverImage, images, embedCodes })
+
+    const media = region('Video & audio')
+    const pressImages = region('Press images')
+    const projects = screen.getByText('All projects')
+
+    expect(screen.getByRole('article')).not.toContainElement(media)
+    expect(media.nextElementSibling).toBe(projects)
+    expect(projects.nextElementSibling).toBe(pressImages)
+    expect(pressImages).toHaveTextContent('Photo two')
+    expect(media).toHaveTextContent('Video two')
+  })
+
+  it('keeps a lone embed and image inline in the article', async () => {
+    await renderDefault({
+      images: images.slice(0, 1),
+      embedCodes: embedCodes.slice(0, 1)
+    })
+
+    const article = screen.getByRole('article')
+    expect(article).toHaveTextContent('Video one')
+    expect(article).toHaveTextContent('Photo one')
+    expect(
+      screen.getByRole('link', { name: 'Download high-res ↓' })
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('region', { name: /Video & audio/ })
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('region', { name: /Press images/ })
+    ).not.toBeInTheDocument()
+  })
+
+  it('carousels images once there are 3, counting the cover', async () => {
+    await renderDefault({ coverImage, images })
+
+    const carousel = region('Press images')
+    expect(carousel).toHaveTextContent('Photo one')
+    expect(carousel).toHaveTextContent('Photo two')
+    expect(carousel).not.toHaveTextContent('Cover')
+  })
+
+  it('keeps fewer than 3 images inline in the article', async () => {
+    await renderDefault({ coverImage, images: images.slice(0, 1) })
+
+    expect(screen.getByRole('article')).toHaveTextContent('Photo one')
+    expect(
+      screen.queryByRole('region', { name: /Press images/ })
+    ).not.toBeInTheDocument()
+  })
+
+  it('keeps 2 images inline without a cover', async () => {
+    await renderDefault({ images })
+
+    const article = screen.getByRole('article')
+    expect(article).toHaveTextContent('Photo one')
+    expect(article).toHaveTextContent('Photo two')
+    expect(
+      screen.queryByRole('region', { name: /Press images/ })
+    ).not.toBeInTheDocument()
+  })
+})
+
+describe('ItemLayout embed codes', () => {
+  const embedCodes = [
+    { ...embedCodeFixture, caption: 'Video one' },
+    {
+      ...embedCodeFixture,
+      id: 'd7c2e3f0-3333-4444-8555-b66677778888',
+      caption: 'Video two'
+    }
+  ]
+
+  it('carousels 2+ embeds below the article on any page', async () => {
+    render(
+      await ItemLayout({
+        item: { ...eventFixturePast, embedCodes },
+        children: <p>More events</p>
+      })
+    )
+
+    const media = screen.getByRole('region', {
+      name: 'Video & audio'
+    })
+    expect(screen.getByRole('article')).not.toContainElement(media)
+    expect(media).toHaveTextContent('Video two')
+    expect(media.nextElementSibling).toHaveTextContent('More events')
+  })
+
+  it('keeps a lone embed inline on any page', async () => {
+    render(
+      await ItemLayout({
+        item: {
+          ...eventFixturePast,
+          embedCodes: embedCodes.slice(0, 1)
+        }
+      })
+    )
+
+    expect(screen.getByRole('article')).toHaveTextContent('Video one')
+    expect(
+      screen.queryByRole('region', { name: /Video & audio/ })
+    ).not.toBeInTheDocument()
   })
 })

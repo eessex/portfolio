@@ -1,0 +1,105 @@
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  // above the nav (2000), level with `Dialog`
+  z-index: 3000;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  color: var(--page-foreground-color);
+  background: rgba(var(--background), 0.96);
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: grids.space-rem(2, 4);
+  padding: grids.space-rem(4);
+}
+
+.close {
+  min-height: grids.space-rem(11);
+}
+
+.counter {
+  margin: 0;
+  font: inherit;
+}
+
+.download {
+  @include type.font-weight('bold');
+
+  color: inherit;
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns:
+    grids.space-rem(11) minmax(0, 1fr)
+    grids.space-rem(11);
+  column-gap: grids.space-rem(2);
+  // matches the bars, so the arrows line up with the counter and Close
+  padding-inline: grids.space-rem(4);
+  // a definite row, so the image's `max-height: 100%` resolves
+  grid-template-rows: minmax(0, 1fr);
+  align-items: center;
+  min-height: 0;
+
+  // round, with a 44px touch target
+  button {
+    justify-self: center;
+    justify-content: center;
+    width: grids.space-rem(11);
+    height: grids.space-rem(11);
+    padding: 0;
+    border-radius: 50%;
+
+    svg {
+      width: grids.space-rem(6);
+      height: grids.space-rem(6);
+    }
+  }
+
+  img {
+    justify-self: center;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: min(78vh, 100%);
+    object-fit: contain;
+    transition: opacity 0.2s ease-in-out;
+
+    &.loading {
+      opacity: 0;
+    }
+  }
+}
+
+// centred on the stage, which is also where the image is centred
+.spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: grids.space-rem(8);
+  height: grids.space-rem(8);
+  margin: calc(-1 * #{grids.space-rem(4)});
+  border: 2px solid var(--transparency-light);
+  border-top-color: var(--page-foreground-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation-duration: 2.4s;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

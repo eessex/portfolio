@@ -19,7 +19,12 @@ import { DraftBadge } from '@/ui/badges/draft-badge'
 import { TicketButton } from '@/ui/buttons/ticket-button'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
+import { EmbedCodesCarousel } from '@/ui/embed-codes/embed-codes-carousel'
 import { ImageFigure } from '@/ui/images/image-figure'
+import {
+  ImageInline,
+  ImagesCarousel
+} from '@/ui/images/images-carousel'
 import {
   FormattedItemDate,
   itemDisplayDateFormat
@@ -33,6 +38,8 @@ import {
   formatVenueInline
 } from '@/ui/util'
 
+const IMAGES_CAROUSEL_MIN = 3
+
 export default async function ItemLayout({
   item,
   children
@@ -44,6 +51,16 @@ export default async function ItemLayout({
   const { ticketLink, venue, project, isUpcoming } =
     item as EventClient
   const { contactInfo, isDefaultProject } = item as ProjectClient
+  const images =
+    item.path === PagePaths.projects ? (item.images ?? []) : []
+  const embedCodes = item.embedCodes ?? []
+
+  // 2+ embeds carousel below the article; `/about` carousels images
+  // once it has 3+ counting the cover (which `images` leaves out)
+  const isEmbedsCarousel = embedCodes.length > 1
+  const imageCount = images.length + (item.coverImage ? 1 : 0)
+  const isImagesCarousel =
+    !!isDefaultProject && imageCount >= IMAGES_CAROUSEL_MIN
 
   function category() {
     switch (item.path) {
@@ -168,12 +185,24 @@ export default async function ItemLayout({
         )}
 
         {item.links && <LinksList links={item.links} />}
-        {item.embedCodes && (
-          <EmbedCodes embedCodes={item.embedCodes} />
+        {!!embedCodes.length && !isEmbedsCarousel && (
+          <EmbedCodes embedCodes={embedCodes} />
         )}
+
+        {isDefaultProject &&
+          !isImagesCarousel &&
+          images.map((image) => (
+            <ImageInline key={image.id} image={image} />
+          ))}
       </article>
 
+      {isEmbedsCarousel && (
+        <EmbedCodesCarousel embedCodes={embedCodes} />
+      )}
+
       {children}
+
+      {isImagesCarousel && <ImagesCarousel images={images} />}
     </div>
   )
 }

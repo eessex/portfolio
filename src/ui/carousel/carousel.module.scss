@@ -1,0 +1,87 @@
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
+
+.carousel {
+  // the inline part of `--items-list-padding`
+  --gutter: #{grids.space-rem(4)};
+
+  container: carousel / inline-size;
+  padding-top: 4.5rem;
+
+  @include breakpoints.mobile {
+    --gutter: #{grids.space-rem(3)};
+  }
+
+  &:last-child {
+    padding-bottom: grids.space-rem(16);
+  }
+}
+
+// same as the `ItemsTable` rowgroup heading
+.header {
+  position: sticky;
+  top: calc(var(--header-height) - 1px);
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gutter);
+  height: grids.space-em(12);
+  margin-bottom: var(--gutter);
+  padding: var(--items-list-padding);
+  background-color: var(--page-background-color);
+  box-shadow: inset 0 -1px 0 var(--transparency-primary);
+  transition: all 0.25s ease-in-out;
+
+  h2 {
+    @include type.font-weight('bold');
+
+    display: flex;
+    align-items: baseline;
+    gap: grids.space-rem(2);
+    margin: 0;
+    font-size: inherit;
+    line-height: inherit;
+  }
+}
+
+.count {
+  @include type.font-weight('normal');
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--gutter);
+}
+
+.arrows {
+  display: flex;
+  gap: grids.space-rem(1);
+}
+
+// bleeds to the viewport edge; the first item aligns with the gutter
+.track {
+  // exposed so items can size to a number of columns
+  --track-gap: #{grids.space-rem(6)};
+
+  display: flex;
+  gap: var(--track-gap);
+  padding: 0 var(--gutter);
+  overflow-x: auto;
+  list-style: none;
+  scroll-padding: 0 var(--gutter);
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.item {
+  flex: 0 0 auto;
+  margin: 0;
+  scroll-snap-align: start;
+}

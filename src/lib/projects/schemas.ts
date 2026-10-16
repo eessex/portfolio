@@ -10,7 +10,7 @@ import {
   systemFields,
   taxonomyFields
 } from '@/lib/schemas/fields'
-import { date, uuid } from '@/lib/schemas/primitives'
+import { date } from '@/lib/schemas/primitives'
 
 export const projectTypes = [
   'band',
@@ -43,7 +43,6 @@ export const projectSchema = z.object({
   coverImageId: relationFields.coverImageId,
   embedCodeIds: relationFields.embedCodeIds,
   endDate: date.optional(),
-  featuredEmbedCodeId: uuid.optional(),
   imageIds: relationFields.imageIds,
   /**
    * The project rendered at `/about`; at most one (partial unique index).
@@ -63,7 +62,6 @@ export const projectSchema = z.object({
 export const projectClientSchema = projectSchema.extend({
   coverImage: z.lazy(() => imageSchema).optional(),
   embedCodes: z.lazy(() => embedCodeSchema.array()).optional(),
-  featuredEmbedCode: z.lazy(() => embedCodeSchema).optional(),
   hasAudio: z.boolean().optional(),
   hasVideo: z.boolean().optional(),
   images: z.lazy(() => imageSchema.array()).optional(),

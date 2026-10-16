@@ -69,4 +69,32 @@ describe('createTables', () => {
       expect(paramsOf('CREATE TRIGGER')).toContainEqual(expected)
     }
   })
+
+  it('no longer creates featured_embed_code_id on projects or events', () => {
+    for (const table of ['projects', 'events']) {
+      const { text } = findQuery(
+        `CREATE TABLE IF NOT EXISTS ${table}`
+      )
+      expect(text).not.toContain('featured_embed_code_id')
+    }
+  })
+
+  it('moves featured embed codes to the front, then drops the column', () => {
+    const calls = mockSql.mock.calls.filter(([strings]) =>
+      (strings as unknown as string[])
+        .join('?')
+        .includes('DROP COLUMN featured_embed_code_id')
+    )
+    expect(calls.map(([, ...values]) => values)).toEqual(
+      ['projects', 'events'].map((table) =>
+        Array(3).fill({ raw: table })
+      )
+    )
+    const text = (calls[0][0] as unknown as string[]).join('?')
+    expect(text).toContain("column_name = 'featured_embed_code_id'")
+    expect(text).toContain('array_prepend(')
+    expect(text.indexOf('array_prepend(')).toBeLessThan(
+      text.indexOf('DROP COLUMN')
+    )
+  })
 })

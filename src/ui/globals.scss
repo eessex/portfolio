@@ -1,4 +1,5 @@
 @use '@/ui/styles/breakpoints';
+@use '@/ui/styles/caption';
 @use '@/ui/styles/colors';
 @use '@/ui/styles/grids';
 @use '@/ui/styles/interactions';
@@ -180,14 +181,7 @@ footer {
 }
 
 :where(figcaption) {
-  @include type.size('sm');
-
-  // flush with the image's left edge
-  margin: grids.space-rem(1, 0);
-  text-align: end;
-  color: var(--transparency-dark);
-  max-width: 70%;
-  margin-left: auto;
+  @include caption.caption;
 }
 
 .category {

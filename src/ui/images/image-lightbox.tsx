@@ -11,6 +11,7 @@ import { createPortal } from 'react-dom'
 
 import { type Image, ImageTypes } from '@/lib/images/schemas/db'
 import styles from '@/ui/images/image-lightbox.module.scss'
+import { Spinner } from '@/ui/spinner/spinner'
 
 /** Minimum horizontal touch travel, in px, that counts as a swipe. */
 const SWIPE_THRESHOLD = 50
@@ -153,11 +154,7 @@ export function ImageLightbox({
           onLoad={() => setLoadedId(image.id)}
         />
 
-        {isLoading && (
-          <span className={styles.spinner} role='status'>
-            <span className='visually-hidden'>Loading image</span>
-          </span>
-        )}
+        {isLoading && <Spinner label='Loading image' isCentered />}
 
         {isMulti ? (
           <button
@@ -174,7 +171,7 @@ export function ImageLightbox({
       </div>
 
       <div className={styles.bar} data-backdrop>
-        <span>{image.caption}</span>
+        <span className={styles.caption}>{image.caption}</span>
         {isPressImage(image) && <DownloadImageLink image={image} />}
       </div>
     </div>,

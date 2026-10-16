@@ -1,3 +1,5 @@
+@use '@/ui/images/image-button';
+@use '@/ui/styles/breakpoints';
 @use '@/ui/styles/grids';
 @use '@/ui/styles/type';
 
@@ -31,22 +33,41 @@
       }
     }
 
-    > section {
+    > section,
+    > figure,
+    > .description,
+    > address {
       margin-bottom: grids.space-rem(6);
+    }
 
-      > figure {
+    > .description {
+      white-space: pre-line;
+    }
+
+    > address {
+      font-style: normal;
+    }
+
+    // the cover (in the article) and section images
+    > figure,
+    > section > figure {
+      @include image-button.image-button;
+
+      width: 100%;
+      margin-top: grids.space-rem(4);
+
+      button {
         width: 100%;
-        margin-top: grids.space-rem(4);
+      }
 
-        img,
-        iframe {
-          width: 100%;
-          background-color: var(--transparency-extra-light);
-        }
+      img,
+      iframe {
+        width: 100%;
+        background-color: var(--transparency-extra-light);
+      }
 
-        img {
-          height: auto;
-        }
+      img {
+        height: auto;
       }
     }
   }
@@ -71,5 +92,27 @@
   > :not(header) {
     max-width: var(--body-width);
     margin-inline: auto;
+  }
+
+  // wide: header in the left gutter, cover image level with it
+  @include breakpoints.xl-desktop {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, var(--body-width)) 1fr;
+    align-items: start;
+
+    > header {
+      grid-row: 1;
+      grid-column: 1;
+    }
+
+    > :not(header) {
+      grid-column: 2;
+      width: 100%;
+    }
+
+    > header + figure {
+      grid-row: 1;
+      margin-top: 0;
+    }
   }
 }

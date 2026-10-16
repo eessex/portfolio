@@ -1,9 +1,4 @@
-import {
-  SpeakerWaveIcon,
-  VideoCameraIcon
-} from '@heroicons/react/24/outline'
 import { clsx } from 'clsx'
-import NextImage from 'next/image'
 import NextLink from 'next/link'
 
 import type { WithCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
@@ -11,32 +6,35 @@ import {
   type EmbedCode,
   EmbedCodeTypes
 } from '@/lib/embed-codes/schemas/db'
-import type { EventClient } from '@/lib/events/types'
 import type { Image } from '@/lib/images/schemas/db'
 import type { Link } from '@/lib/links/schemas/db'
-import type { ProjectClient } from '@/lib/projects/types'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { Publisher } from '@/lib/publishers/schemas/db'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
   type EmbeddedItemType,
   EmbeddedItemTypes,
-  type PagePath,
-  PagePaths
+  type PagePath
 } from '@/lib/schemas'
 import { camelToSnake } from '@/lib/strings'
 import type { EmbeddedItem, PageItemClient } from '@/lib/types'
 import type { Venue } from '@/lib/venues/schemas/db'
-import { DraftBadge } from '@/ui/badges/draft-badge'
 import type { ThumbnailImage } from '@/ui/cover-image-thumbnail'
 import { formattedEmbedCodeTitle } from '@/ui/embed-codes/embed-code-details'
 import { coverImageAspectByHost } from '@/ui/embed-codes/util'
 import { FormattedItemDate } from '@/ui/items/item-date'
+import {
+  itemCategory,
+  ItemCoverImage,
+  ItemImageBadge,
+  itemMedia,
+  ItemMediaIcons,
+  ItemTitle
+} from '@/ui/items/item-parts'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import {
   formattedDateTime,
   formattedFilename,
-  formattedItemTitle,
   formattedItemType,
   formattedLinkUrl,
   formatVenueInline,
@@ -201,26 +199,30 @@ export function ItemsTableRow({
   const rowLabel = hasOwnPage(item)
     ? `${item.title}${artist ? ', by ' + artist : ''}`
     : undefined
-  const isPriorityImage = !!(isFeatured || (index || 0) < 12)
-  const imageWidth = 350
   const isAudioEmbedCode =
     itemType === EmbeddedItemTypes.embedCodes &&
     embedCode.type === EmbedCodeTypes.audio
   const isVideoEmbedCode =
     itemType === EmbeddedItemTypes.embedCodes &&
     embedCode.type === EmbedCodeTypes.video
-  const hasAudio =
-    (hasOwnPage(item) &&
-      item.path !== PagePaths.releases &&
-      !!item.hasAudio) ||
-    isAudioEmbedCode
-  const hasVideo =
-    (hasOwnPage(item) && !!item.hasVideo) || isVideoEmbedCode
+  const media = hasOwnPage(item) ? itemMedia(item) : undefined
+  const hasAudio = !!media?.hasAudio || isAudioEmbedCode
+  const hasVideo = !!media?.hasVideo || isVideoEmbedCode
   const isImageVisible = isImageColumnVisible(itemType)
 
   return (
     <tr
       data-index={index}
+      // sizes an expanded card in its justified row; a placeholder is
+      // square. The name morphs the card when drafts reflow the rows
+      style={
+        isExpanded
+          ? ({
+              '--aspect': rowCoverImage?.aspect ?? 1,
+              viewTransitionName: `item-${item.id}`
+            } as React.CSSProperties)
+          : undefined
+      }
       className={clsx(
         styles['table-row-link'],
         isExpanded && styles['table-row-link--expanded'],
@@ -248,22 +250,22 @@ export function ItemsTableRow({
       {isImageVisible && (
         <td className={styles['table-row-img']} aria-hidden='true'>
           {rowCoverImage && (
-            <NextImage
-              src={rowCoverImage.url}
-              alt={rowCoverImage.alt || ''}
-              title={rowCoverImage.caption || undefined}
-              width={imageWidth}
-              height={Math.round(imageWidth / rowCoverImage.aspect)}
+            <ItemCoverImage
+              image={rowCoverImage}
+              width={350}
               sizes={
                 isExpanded
-                  ? '(max-width: 768px) 50vw, 350px'
+                  ? '(max-width: 768px) 100vw, 50vw'
                   : '(max-width: 768px) 92px, 52px'
               }
-              loading={(index || 0) > 12 ? 'lazy' : undefined}
-              priority={isPriorityImage}
-              fetchPriority={isPriorityImage ? 'high' : 'auto'}
-              aria-hidden='true'
+              index={index}
+              isFeatured={isFeatured}
+              priorityBefore={12}
+              lazyAfter={12}
             />
+          )}
+          {isExpanded && hasOwnPage(item) && (
+            <ItemImageBadge item={item} />
           )}
         </td>
       )}
@@ -282,16 +284,14 @@ export function ItemsTableRow({
       >
         {hasOwnPage(item) ? (
           <NextLink href={linkTarget!}>
-            {isCategoryVisible &&
-              (item as ReleaseClient | ProjectClient).type && (
-                <span className={styles['item-type'] + ' category'}>
-                  {formattedItemType(
-                    (item as ReleaseClient | ProjectClient).type!
-                  )}
-                </span>
-              )}
-            {formattedItemTitle(item)}
-            {!item.isPublished && <DraftBadge />}
+            {isCategoryVisible && itemCategory(item) && (
+              <span className={styles['item-type'] + ' category'}>
+                {itemCategory(item)}
+              </span>
+            )}
+            <span className={styles['title-text']}>
+              <ItemTitle item={item} isBadgeOnImage={isExpanded} />
+            </span>
           </NextLink>
         ) : (
           <div className={styles['item-title-stack']}>
@@ -307,10 +307,7 @@ export function ItemsTableRow({
 
       <td>
         {hasOwnPage(item) ? (
-          <FormattedItemDate
-            item={item}
-            timezone={(item as EventClient).venue?.timezone}
-          />
+          <FormattedItemDate item={item} />
         ) : itemType === EmbeddedItemTypes.publishedEditions ? (
           <time
             dateTime={new Date(
@@ -329,18 +326,7 @@ export function ItemsTableRow({
 
       {children && <td>{children}</td>}
       <td className={styles['table-row-media']}>
-        {hasAudio && (
-          <SpeakerWaveIcon
-            className={styles['media-icon']}
-            aria-label='Contains audio'
-          />
-        )}
-        {hasVideo && (
-          <VideoCameraIcon
-            className={styles['media-icon']}
-            aria-label='Contains video'
-          />
-        )}
+        <ItemMediaIcons hasAudio={hasAudio} hasVideo={hasVideo} />
       </td>
     </tr>
   )

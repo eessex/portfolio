@@ -17,10 +17,12 @@ import type {
 } from '@/lib/types'
 import { DraftBadge } from '@/ui/badges/draft-badge'
 import { TicketButton } from '@/ui/buttons/ticket-button'
-import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { EmbedCodesCarousel } from '@/ui/embed-codes/embed-codes-carousel'
-import { ImageFigure } from '@/ui/images/image-figure'
+import {
+  GalleryImageFigure,
+  ImageGallery
+} from '@/ui/images/image-gallery'
 import {
   ImageInline,
   ImagesCarousel
@@ -51,16 +53,18 @@ export default async function ItemLayout({
   const { ticketLink, venue, project, isUpcoming } =
     item as EventClient
   const { contactInfo, isDefaultProject } = item as ProjectClient
-  const images =
-    item.path === PagePaths.projects ? (item.images ?? []) : []
+  const images = item.images ?? []
   const embedCodes = item.embedCodes ?? []
 
-  // 2+ embeds carousel below the article; `/about` carousels images
-  // once it has 3+ counting the cover (which `images` leaves out)
+  // carousels sit below the article: 2+ embeds, or 3+ images counting
+  // the cover (which `images` leaves out)
   const isEmbedsCarousel = embedCodes.length > 1
   const imageCount = images.length + (item.coverImage ? 1 : 0)
-  const isImagesCarousel =
-    !!isDefaultProject && imageCount >= IMAGES_CAROUSEL_MIN
+  const isImagesCarousel = imageCount >= IMAGES_CAROUSEL_MIN
+  // one lightbox in page order: the cover, then the rest
+  const galleryImages = item.coverImage
+    ? [item.coverImage, ...images]
+    : images
 
   function category() {
     switch (item.path) {
@@ -76,134 +80,127 @@ export default async function ItemLayout({
   }
 
   return (
-    <div
-      className={clsx(
-        styles['item-layout'],
-        isDefaultProject && styles['default-project']
-      )}
-    >
-      <article>
-        <header>
-          {isDefaultProject ? (
-            !item.isPublished && (
+    <ImageGallery images={galleryImages}>
+      <div
+        className={clsx(
+          styles['item-layout'],
+          isDefaultProject && styles['default-project']
+        )}
+      >
+        <article>
+          <header>
+            {isDefaultProject ? (
+              !item.isPublished && (
+                <p className='category'>
+                  <DraftBadge />
+                </p>
+              )
+            ) : (
               <p className='category'>
-                <DraftBadge />
+                <NextLink href={`/${item.path}`}>
+                  {category()}
+                </NextLink>
+                {!item.isPublished && <DraftBadge />}
               </p>
-            )
-          ) : (
-            <p className='category'>
-              <NextLink href={`/${item.path}`}>{category()}</NextLink>
-              {!item.isPublished && <DraftBadge />}
-            </p>
-          )}
+            )}
 
-          <h1>
-            {isDefaultProject ? 'About' : formattedItemTitle(item)}
-          </h1>
+            <h1>
+              {isDefaultProject ? 'About' : formattedItemTitle(item)}
+            </h1>
 
-          {publishedEditions ? (
-            <PublishedEditionsCombined
-              publishedEditions={publishedEditions}
-            />
-          ) : (
-            !isDefaultProject && (
-              <p>
-                <FormattedItemDate
-                  item={item}
-                  timezone={(item as EventClient).venue?.timezone}
-                />
+            {publishedEditions ? (
+              <PublishedEditionsCombined
+                publishedEditions={publishedEditions}
+              />
+            ) : (
+              !isDefaultProject && (
+                <p>
+                  <FormattedItemDate
+                    item={item}
+                    timezone={(item as EventClient).venue?.timezone}
+                  />
+                </p>
+              )
+            )}
+
+            {venue && (
+              <p className={styles.venue}>
+                {venue.url ? (
+                  <a
+                    href={venue.url}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  >
+                    {formatVenueInline({ venue })}
+                  </a>
+                ) : (
+                  formatVenueInline({ venue })
+                )}
               </p>
-            )
-          )}
+            )}
 
-          {venue && (
-            <p className={styles.venue}>
-              {venue.url ? (
-                <a
-                  href={venue.url}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                >
-                  {formatVenueInline({ venue })}
-                </a>
-              ) : (
-                formatVenueInline({ venue })
-              )}
-            </p>
-          )}
+            {ticketLink && isUpcoming && (
+              <p className={styles['ticket-link']}>
+                <TicketButton url={ticketLink} />
+              </p>
+            )}
+          </header>
 
-          {ticketLink && isUpcoming && (
-            <p className={styles['ticket-link']}>
-              <TicketButton url={ticketLink} />
-            </p>
-          )}
-        </header>
-
-        <section
-          id='featured-media'
-          className={styles['featured-media']}
-        >
-          <h2 className='visually-hidden'>Featured Media</h2>
-          {item.featuredEmbedCode && (
-            <EmbedCodeItem embedCode={item.featuredEmbedCode} />
-          )}
           {item.coverImage && (
-            <ImageFigure image={item.coverImage} isPriority />
+            <GalleryImageFigure image={item.coverImage} isPriority />
           )}
-        </section>
 
-        <section id='description'>
-          <h2 className='visually-hidden'>Description</h2>
           {item.description && (
-            <p style={{ whiteSpace: 'pre-line' }}>
-              {item.description}
+            <p className={styles.description}>{item.description}</p>
+          )}
+
+          {!!contactInfo?.length && (
+            <address>
+              {contactInfo.map(({ title, contact }, i) => (
+                <p key={i}>
+                  {title ? (
+                    <b>{title}: </b>
+                  ) : (
+                    // context for screen readers; <address> isn't announced
+                    <span className='visually-hidden'>Contact: </span>
+                  )}
+                  {contact}
+                </p>
+              ))}
+            </address>
+          )}
+
+          {project && (
+            <p>
+              <a
+                href={`/${project.path}/${project.slug}`}
+                className='button-outline button-sm'
+              >
+                <b>Project:</b> {project.title}
+              </a>
             </p>
           )}
-        </section>
 
-        {!!contactInfo?.length && (
-          <section id='contact-info'>
-            <h2 className='visually-hidden'>Contact</h2>
-            {contactInfo.map(({ title, contact }, i) => (
-              <p key={i}>
-                {title && <b>{title}: </b>}
-                {contact}
-              </p>
+          {item.links && <LinksList links={item.links} />}
+          {!!embedCodes.length && !isEmbedsCarousel && (
+            <EmbedCodes embedCodes={embedCodes} />
+          )}
+
+          {!isImagesCarousel &&
+            images.map((image) => (
+              <ImageInline key={image.id} image={image} />
             ))}
-          </section>
+        </article>
+
+        {isEmbedsCarousel && (
+          <EmbedCodesCarousel embedCodes={embedCodes} />
         )}
 
-        {project && (
-          <p>
-            <a
-              href={`/${project.path}/${project.slug}`}
-              className='category button-outline'
-            >
-              Project: {project.title}
-            </a>
-          </p>
-        )}
+        {isImagesCarousel && <ImagesCarousel images={images} />}
 
-        {item.links && <LinksList links={item.links} />}
-        {!!embedCodes.length && !isEmbedsCarousel && (
-          <EmbedCodes embedCodes={embedCodes} />
-        )}
-
-        {isDefaultProject &&
-          !isImagesCarousel &&
-          images.map((image) => (
-            <ImageInline key={image.id} image={image} />
-          ))}
-      </article>
-
-      {isEmbedsCarousel && (
-        <EmbedCodesCarousel embedCodes={embedCodes} />
-      )}
-
-      {children}
-
-      {isImagesCarousel && <ImagesCarousel images={images} />}
-    </div>
+        {children}
+      </div>
+    </ImageGallery>
   )
 }
 

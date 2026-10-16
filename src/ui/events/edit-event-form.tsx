@@ -119,10 +119,7 @@ function EventFormFields({
         coverImage={event?.coverImage}
         images={event?.images}
       />
-      <EmbedCodesPicker
-        featuredEmbedCode={event?.featuredEmbedCode}
-        embedCodes={event?.embedCodes}
-      />
+      <EmbedCodesPicker embedCodes={event?.embedCodes} />
       <PressLinksPicker links={event?.links} />
       <LinksPicker links={event?.links} />
       <ItemPicker<never, ProjectClient, FetchProjectsResult>

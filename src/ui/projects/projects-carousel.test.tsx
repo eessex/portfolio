@@ -1,4 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import {
+  render,
+  screen,
+  waitFor,
+  within
+} from '@testing-library/react'
 
 import { imageFixture } from '@/lib/images/fixtures'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
@@ -32,7 +37,7 @@ describe('ProjectsCarousel', () => {
     mockFetch([], false)
   })
 
-  it('links each project with its image, type and years', () => {
+  it('renders each project as an ItemCard with its image, type and years', () => {
     render(
       <ProjectsCarousel
         initialProjects={[
@@ -43,24 +48,88 @@ describe('ProjectsCarousel', () => {
 
     const link = screen.getByRole('link', { name: /Band 1/ })
     expect(link).toHaveAttribute('href', '/projects/band-1')
-    expect(link).toHaveTextContent('Band')
-    expect(link).toHaveTextContent('2025–present')
-    expect(link.querySelector('img')).toBeInTheDocument()
+    const card = link.closest('article')!
+    expect(
+      screen.getByRole('heading', { level: 3, name: /Band 1/ })
+    ).toContainElement(link)
+    expect(card).toHaveTextContent('Band')
+    expect(card).toHaveTextContent('2025–present')
+    const img = card.querySelector('img')!
+    expect(img).toHaveAttribute('loading', 'lazy')
+    // sized to the 300px row height, not the list card's 350px width
+    expect(img).toHaveAttribute('height', '300')
     expect(
       screen.getByRole('region', { name: 'Projects' })
     ).toBeInTheDocument()
   })
 
-  it('leaves out the years without a start date', () => {
+  it('shows the draft badge on the image, keeping it in the title for screen readers', () => {
     render(
       <ProjectsCarousel
         initialProjects={[
-          { ...projectFixtureBand, startDate: undefined }
+          { ...draftProject, coverImage: imageFixture }
         ]}
       />
     )
 
-    expect(screen.queryByText(/present/)).not.toBeInTheDocument()
+    const card = screen
+      .getByRole('link', { name: /Unpublished draft project/ })
+      .closest('article')!
+    const media = card.querySelector('a[aria-hidden="true"]')!
+    expect(media.querySelector('img')).toBeInTheDocument()
+    expect(media.querySelector('mark')).toHaveTextContent(
+      'Unpublished'
+    )
+    expect(card.querySelector('h3 mark')).toBeNull()
+    expect(card.querySelector('h3')).toHaveTextContent('Unpublished')
+  })
+
+  it('holds the badge in a placeholder when there is no cover', () => {
+    render(
+      <ProjectsCarousel
+        initialProjects={[{ ...draftProject, coverImage: undefined }]}
+      />
+    )
+
+    const media = document.querySelector('a[aria-hidden="true"]')!
+    expect(media.querySelector('img')).toBeNull()
+    expect(media.querySelector('mark')).toHaveTextContent(
+      'Unpublished'
+    )
+  })
+
+  it('shows the media icons beside the title', () => {
+    render(
+      <ProjectsCarousel
+        initialProjects={[
+          { ...projectFixtureBand, hasAudio: true, hasVideo: true }
+        ]}
+      />
+    )
+
+    const card = screen
+      .getByRole('link', { name: /Band 1/ })
+      .closest('article')!
+    expect(
+      within(card).getByLabelText('Contains audio')
+    ).toBeInTheDocument()
+    expect(
+      within(card).getByLabelText('Contains video')
+    ).toBeInTheDocument()
+  })
+
+  it('leaves out the media icons without media', () => {
+    render(
+      <ProjectsCarousel
+        initialProjects={[
+          { ...projectFixtureBand, hasAudio: false, hasVideo: false }
+        ]}
+      />
+    )
+
+    expect(
+      screen.queryByLabelText(/Contains (audio|video)/)
+    ).not.toBeInTheDocument()
   })
 
   it('renders nothing without projects', () => {

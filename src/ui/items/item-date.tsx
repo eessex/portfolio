@@ -49,8 +49,10 @@ export function FormattedItemDate({
 }: {
   item: PageItemClient
   format?: DateFormatSize
+  /** defaults to an event's venue timezone */
   timezone?: Intl.DateTimeFormatOptions['timeZone']
 }) {
+  timezone ??= (item as EventClient).venue?.timezone
   const date = new Date(itemSortDate(item))
   const isProject = item.path === PagePaths.projects
   const startTimezone =

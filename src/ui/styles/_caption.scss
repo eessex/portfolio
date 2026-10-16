@@ -1,0 +1,19 @@
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
+
+// shared by every caption: image/embed figures, carousels, lightbox
+
+// the caption's type alone, for one outside a figure (e.g. a bar);
+@mixin caption-text {
+  @include type.size('sm');
+}
+
+// a `figcaption` below its media, right-aligned
+@mixin caption {
+  @include caption-text;
+
+  margin: grids.space-rem(1, 0);
+  margin-left: auto;
+  max-width: 70%;
+  text-align: end;
+}

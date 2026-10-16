@@ -59,14 +59,10 @@ export function withCoverImageUrls<
 export function withEmbedCodeCoverImageUrls<
   T extends {
     embedCodes?: { coverImageId?: string }[]
-    featuredEmbedCode?: { coverImageId?: string }
   }
 >(item: T) {
   return {
     ...item,
-    embedCodes: item.embedCodes?.map(withCoverImageUrls),
-    featuredEmbedCode: item.featuredEmbedCode
-      ? withCoverImageUrls(item.featuredEmbedCode)
-      : undefined
+    embedCodes: item.embedCodes?.map(withCoverImageUrls)
   }
 }

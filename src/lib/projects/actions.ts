@@ -15,6 +15,7 @@ import {
 import type { CreateProject, Project } from '@/lib/projects/types'
 import type { Contact } from '@/lib/schemas/fields'
 import { generateUniqueSlug } from '@/lib/slug/data'
+import { slugCacheTag } from '@/lib/slug/util'
 import {
   extractIndexedGroups,
   formatDbResponseForClient
@@ -72,6 +73,7 @@ function invalidateProjectTags(id?: string) {
   updateTag('projects')
   updateTag('projects:authed')
   updateTag('projects:public')
+  updateTag(slugCacheTag('projects'))
   if (id) updateTag(`project:${id}`)
   updateTag('releases')
   updateTag('events')

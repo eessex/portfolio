@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { isAuthed } from '@/lib/auth/guard'
-import { fetchCachedProjectById } from '@/lib/projects/cached'
+import { fetchProjectById } from '@/lib/projects/data'
 import { PagePaths } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
@@ -31,8 +31,9 @@ async function EditProject({ params }: PageItemProps) {
   const { slug } = await params
   const resolved = await resolveSlug(PagePaths.projects, slug)
   const authed = await isAuthed()
+  // uncached: saving a stale form detaches child ids added since
   const project =
-    resolved && (await fetchCachedProjectById(resolved.id, authed))
+    resolved && (await fetchProjectById(resolved.id, authed))
 
   if (!project) return notFound()
 

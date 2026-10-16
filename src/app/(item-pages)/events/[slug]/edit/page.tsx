@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { isAuthed } from '@/lib/auth/guard'
-import { fetchCachedEventById } from '@/lib/events/cached'
+import { fetchEventById } from '@/lib/events/data'
 import { PagePaths } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
@@ -31,8 +31,9 @@ async function EditEvent({ params }: PageItemProps) {
   const { slug } = await params
   const resolved = await resolveSlug(PagePaths.events, slug)
   const authed = await isAuthed()
+  // uncached: saving a stale form drops child ids added since
   const event =
-    resolved && (await fetchCachedEventById(resolved.id, authed))
+    resolved && (await fetchEventById(resolved.id, authed))
 
   if (!event) return notFound()
 

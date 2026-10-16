@@ -95,6 +95,7 @@ function renderEventsTable(
     initialItems: ReturnType<typeof makeResponse>
     featuredKey: 'upcomingEvents'
     projectId: string
+    searchParams: { isDefaultExcluded: boolean }
   }> = {}
 ) {
   const { initialItems = publishedResponse, ...rest } = props
@@ -169,6 +170,20 @@ describe('ItemsTable', () => {
       expect(fetchedUrls()).toEqual([
         '/api/session',
         expect.stringContaining('projectId=proj-1')
+      ])
+    })
+
+    it('forwards searchParams to the refetch', async () => {
+      mockFetch(authedResponse)
+
+      renderEventsTable({ searchParams: { isDefaultExcluded: true } })
+
+      await waitFor(() => {
+        expect(screen.getByText(draftEvent.title)).toBeInTheDocument()
+      })
+      expect(fetchedUrls()).toEqual([
+        '/api/session',
+        expect.stringContaining('isDefaultExcluded=true')
       ])
     })
 

@@ -398,6 +398,8 @@ export type SearchParams = {
   type?: string
   /** Restrict links to press (`true`) or non-press (`false`) links */
   isPress?: boolean
+  /** Leave out the default project (the `/projects` index) */
+  isDefaultExcluded?: boolean
 }
 
 type UrlParams = {

@@ -18,22 +18,34 @@ import {
 const path = PagePaths.projects
 const pathSingular = pagePathSingulars[path]
 
+export type FetchProjectsOptions = {
+  /**
+   * Leave out the `is_default_project` project (rendered at `/about`),
+   * e.g. for the `/projects` index. Pickers and static params keep it.
+   */
+  isDefaultExcluded?: boolean
+}
+
 export async function fetchProjects(
   isAuthed: boolean = false,
   cursor?: string,
-  query?: string
+  query?: string,
+  { isDefaultExcluded = false }: FetchProjectsOptions = {}
 ) {
   if (!cursor && !query) {
-    return fetchCachedProjectsFirstPage(isAuthed)
+    return fetchCachedProjectsFirstPage(isAuthed, isDefaultExcluded)
   }
 
-  return fetchProjectsRaw(isAuthed, cursor, query)
+  return fetchProjectsRaw(isAuthed, cursor, query, {
+    isDefaultExcluded
+  })
 }
 
 export async function fetchProjectsRaw(
   isAuthed: boolean = false,
   cursor?: string,
-  query?: string
+  query?: string,
+  { isDefaultExcluded = false }: FetchProjectsOptions = {}
 ): Promise<
   PageItemResponseWithCursor<ProjectClient, FetchProjectsResult>
 > {
@@ -51,6 +63,7 @@ export async function fetchProjectsRaw(
       SELECT COUNT(*)::int AS count
       FROM projects AS p
       WHERE (${isAuthed} OR p.is_published = true)
+      AND (NOT ${isDefaultExcluded} OR NOT p.is_default_project)
       AND (
         ${like}::text IS NULL
         OR p.title ILIKE ${like}
@@ -92,6 +105,7 @@ export async function fetchProjectsRaw(
         FROM projects AS p
         WHERE
           (${isAuthed} OR p.is_published = true)
+          AND (NOT ${isDefaultExcluded} OR NOT p.is_default_project)
           AND (${like}::text IS NULL OR p.title ILIKE ${like} OR p.description ILIKE ${like})
           AND (${cursorHasEndDate}::text IS NULL
           OR (
@@ -201,4 +215,29 @@ export async function fetchProjectById(
       cause
     })
   }
+}
+
+/**
+ * The project flagged `is_default_project` (rendered at `/about`), or
+ * `undefined` when none exists yet. Looks up the id, then reuses
+ * `fetchProjectById` for the full row.
+ */
+export async function fetchDefaultProject(isAuthed: boolean = false) {
+  let rows
+  try {
+    rows = await sql`
+      SELECT id FROM projects
+      WHERE is_default_project
+        AND (${isAuthed} OR is_published = true)
+      LIMIT 1
+    `
+  } catch (cause) {
+    throw new Error(`Failed to fetch default ${pathSingular}.`, {
+      cause
+    })
+  }
+  if (rows.length === 0) {
+    return undefined
+  }
+  return fetchProjectById(rows[0].id, isAuthed)
 }

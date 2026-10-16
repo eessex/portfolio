@@ -3,17 +3,21 @@
 import { cacheTag } from 'next/cache'
 
 import {
+  fetchDefaultProject,
   fetchProjectById,
   fetchProjectsRaw
 } from '@/lib/projects/data'
 
 export async function fetchCachedProjectsFirstPage(
-  isAuthed: boolean
+  isAuthed: boolean,
+  isDefaultExcluded: boolean = false
 ) {
   cacheTag('projects')
   cacheTag(`projects:${isAuthed ? 'authed' : 'public'}`)
 
-  return await fetchProjectsRaw(isAuthed, undefined, undefined)
+  return await fetchProjectsRaw(isAuthed, undefined, undefined, {
+    isDefaultExcluded
+  })
 }
 
 export async function fetchCachedProjectById(
@@ -24,4 +28,15 @@ export async function fetchCachedProjectById(
   cacheTag(`project:${id}`)
 
   return fetchProjectById(id, isAuthed)
+}
+
+export async function fetchCachedDefaultProject(
+  isAuthed: boolean = false
+) {
+  cacheTag(`projects:${isAuthed ? 'authed' : 'public'}`)
+  cacheTag('projects:default')
+
+  const project = await fetchDefaultProject(isAuthed)
+  if (project) cacheTag(`project:${project.id}`)
+  return project
 }

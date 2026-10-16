@@ -10,6 +10,7 @@ import {
   newProjectFixtureAlpha,
   projectFixtureAlpha
 } from '@/lib/projects/fixtures'
+import { createProjectSchema } from '@/lib/projects/schemas'
 import type { CreateProject, Project } from '@/lib/projects/types'
 import { generateUniqueSlug } from '@/lib/slug/data'
 import { formDataFromObject } from '@/test/helpers'
@@ -47,6 +48,12 @@ const NEW_IMAGE_ID = '33333333-3333-4333-8333-333333333333'
 const EXISTING_EMBED_CODE_ID = '22222222-2222-4222-8222-222222222222'
 const NEW_EMBED_CODE_ID = '44444444-4444-4444-8444-444444444444'
 const EXISTING_LINK_ID = '55555555-5555-4555-8555-555555555555'
+
+/** Fields the form always submits, required for non-default projects. */
+const requiredFields = {
+  type: newProjectFixtureAlpha.type,
+  startDate: newProjectFixtureAlpha.startDate
+}
 
 describe('Project Actions', () => {
   beforeEach(() => {
@@ -161,7 +168,10 @@ describe('Project Actions', () => {
         .mockResolvedValueOnce([projectFixtureAlpha])
 
       await editProject(
-        formDataFromObject({ title: 'Updated Title' }),
+        formDataFromObject({
+          ...requiredFields,
+          title: 'Updated Title'
+        }),
         projectFixtureAlpha.id
       )
 
@@ -578,6 +588,97 @@ describe('Project Actions', () => {
       })
     })
 
+    describe('is_default_project', () => {
+      const defaultProject: Project = {
+        ...projectFixtureAlpha,
+        isDefaultProject: true
+      }
+
+      it('writes false on create, ignoring a submitted flag', async () => {
+        mockSql.mockResolvedValueOnce([projectFixtureAlpha])
+
+        await editProject(
+          formDataFromObject({
+            ...newProjectFixtureAlpha,
+            isPublished: 'on',
+            isDefaultProject: 'on'
+          })
+        )
+
+        const [strings, ...params] = mockSql.mock.calls[0]!
+        const columns = strings.join('?').split('VALUES')[0]!
+        expect(columns).toContain('is_default_project')
+        // 7th column: cover_image_id … image_ids, is_default_project
+        expect(params[6]).toBe(false)
+      })
+
+      it('never writes the column on update, so the stored flag is kept', async () => {
+        mockSql
+          .mockResolvedValueOnce([defaultProject]) // fetchProjectById
+          .mockResolvedValueOnce([defaultProject]) // UPDATE
+
+        const res = await editProject(
+          formDataFromObject({
+            ...requiredFields,
+            title: 'Updated Title',
+            isDefaultProject: ''
+          }),
+          defaultProject.id
+        )
+
+        expect(res?.ok).toBe(true)
+        expect((res?.res as Project).isDefaultProject).toBe(true)
+        const [strings] = mockSql.mock.calls[1]!
+        expect(strings.join('?')).toContain('UPDATE projects')
+        expect(strings.join('?')).not.toContain('is_default_project')
+      })
+
+      it('claims an unowned item with its own id, like any project', async () => {
+        mockSql
+          .mockResolvedValueOnce([defaultProject]) // fetchProjectById
+          .mockResolvedValueOnce([defaultProject]) // UPDATE
+        mockResolveOrderedImageIds.mockResolvedValueOnce({
+          coverImageId: NEW_IMAGE_ID,
+          imageIds: []
+        })
+
+        await editProject(
+          formDataFromObject({ ...requiredFields, title: 'About' }),
+          defaultProject.id
+        )
+
+        const [strings, ...params] = mockSql.mock.calls[2]!
+        expect(strings.join('?')).toContain('UPDATE images')
+        expect(strings.join('?')).toContain('AND project_id IS NULL')
+        expect(params).toEqual([defaultProject.id, [NEW_IMAGE_ID]])
+      })
+
+      it('requires type and startDate', async () => {
+        const res = await editProject(
+          formDataFromObject({ title: 'No Type', isPublished: 'on' })
+        )
+
+        expect(res!.message).toBe('Failed to validate project.')
+        expect(res!.errors).toEqual({
+          type: ['Required'],
+          startDate: ['Required']
+        })
+        expect(mockSql).not.toHaveBeenCalled()
+
+        const {
+          type: _t,
+          startDate: _s,
+          ...rest
+        } = newProjectFixtureAlpha
+        expect(
+          createProjectSchema.safeParse({
+            ...rest,
+            isDefaultProject: true
+          }).success
+        ).toBe(false)
+      })
+    })
+
     describe('contact info (CONTACT‑1)', () => {
       it('serializes submitted contact rows to a jsonb[] param on create', async () => {
         mockSql.mockResolvedValueOnce([projectFixtureAlpha])
@@ -594,7 +695,7 @@ describe('Project Actions', () => {
         )
 
         // last INSERT param (before current_timestamp) is contact_info
-        expect(mockSql.mock.calls[0]?.[15]).toEqual([
+        expect(mockSql.mock.calls[0]?.[16]).toEqual([
           '{"title":"Bookings","contact":"bookings@example.com"}',
           '{"contact":"press@example.com"}'
         ])
@@ -615,7 +716,7 @@ describe('Project Actions', () => {
           })
         )
 
-        expect(mockSql.mock.calls[0]?.[15]).toEqual([
+        expect(mockSql.mock.calls[0]?.[16]).toEqual([
           '{"title":"Bookings","contact":"bookings@example.com"}'
         ])
       })
@@ -651,7 +752,10 @@ describe('Project Actions', () => {
           .mockResolvedValueOnce([projectFixtureAlpha]) // UPDATE
 
         const res = await editProject(
-          formDataFromObject({ title: 'Updated Title' }),
+          formDataFromObject({
+            ...requiredFields,
+            title: 'Updated Title'
+          }),
           projectFixtureAlpha.id
         )
 
@@ -671,6 +775,7 @@ describe('Project Actions', () => {
 
         const res = await editProject(
           formDataFromObject({
+            ...requiredFields,
             title: 'Updated Title',
             'contactInfo[]': ''
           }),

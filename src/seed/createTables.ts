@@ -44,6 +44,10 @@ async function createProjectsTable() {
   // Additive per-project contacts (CONTACT‑1). ADD COLUMN IF NOT EXISTS
   // is idempotent, so this is safe to re-run against an existing table.
   await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS contact_info JSONB[];`
+  // The project rendered at /about. The partial unique index allows at
+  // most one row with is_default_project = true.
+  await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_default_project BOOLEAN NOT NULL DEFAULT false;`
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_projects_single_default ON projects (is_default_project) WHERE is_default_project;`
   await syncProjectTypeConstraint()
 }
 

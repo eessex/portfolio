@@ -185,14 +185,19 @@ export async function generateItemMetadata(
   ]
   const openGraph = images ? { images } : undefined
 
+  // the default project renders at /about; otherwise point crawlers
+  // at the canonical URL when reached via a historical slug
+  const canonical = (item as ProjectClient).isDefaultProject
+    ? '/about'
+    : resolved.isRedirect
+      ? `/${pagePath}/${resolved.slug}`
+      : undefined
+
   const meta: Metadata = {
     title: `${formattedItemType(path)} | ${formattedItemTitle(item)}`,
     description,
     openGraph,
-    // point crawlers at the canonical URL when reached via a historical slug
-    alternates: resolved.isRedirect
-      ? { canonical: `/${pagePath}/${resolved.slug}` }
-      : undefined
+    alternates: canonical ? { canonical } : undefined
   }
   return meta
 }

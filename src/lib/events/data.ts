@@ -190,7 +190,13 @@ export async function fetchEventById(
           END
         ) AS cover_image,
         (
-          SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
+          SELECT COALESCE(
+            jsonb_agg(
+              build_embed_code_json(ec)
+              ORDER BY array_position(e.embed_code_ids, ec.id)
+            ),
+            '[]'::jsonb
+          )
           FROM embed_codes ec
           WHERE ec.id = ANY(e.embed_code_ids)
         ) AS embed_codes,
@@ -205,7 +211,13 @@ export async function fetchEventById(
           END
         ) AS featured_embed_code,
         (
-          SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
+          SELECT COALESCE(
+            jsonb_agg(
+              build_image_json(i)
+              ORDER BY array_position(e.image_ids, i.id)
+            ),
+            '[]'::jsonb
+          )
           FROM images i
           WHERE i.id = ANY(e.image_ids)
             AND i.id != COALESCE(e.cover_image_id, e.image_ids[1])

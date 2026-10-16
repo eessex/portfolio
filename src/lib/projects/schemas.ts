@@ -17,7 +17,8 @@ export const projectTypes = [
   'collaborative',
   'eventSeries',
   'radioShow',
-  'recordLabel'
+  'recordLabel',
+  'solo'
 ] as const
 export const projectTypeSchema = z.enum(projectTypes)
 export const ProjectTypes = Object.fromEntries(

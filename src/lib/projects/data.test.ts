@@ -122,6 +122,20 @@ describe('fetchProjectById', () => {
     )
   })
 
+  it.each([
+    ['images', 'image_ids', 'i'],
+    ['embed codes', 'embed_code_ids', 'ec']
+  ])('orders %s by their position in %s', async (_, ids, alias) => {
+    mockSql.mockResolvedValue([projectFixtureBand])
+
+    await Projects.fetchProjectById(projectFixtureBand.id)
+
+    const [strings] = mockSql.mock.calls[0]
+    expect((strings as unknown as string[]).join('?')).toContain(
+      `ORDER BY array_position(p.${ids}, ${alias}.id)`
+    )
+  })
+
   it('returns undefined when not found', async () => {
     mockSql.mockResolvedValue([])
 

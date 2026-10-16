@@ -46,3 +46,13 @@ export const createLinkSchema = z.object({
   ...linkFields
 })
 export type CreateLink = z.infer<typeof createLinkSchema>
+
+/**
+ * A link created or edited from the Press picker, which requires the
+ * citation fields its layout shows.
+ */
+export const createPressLinkSchema = createLinkSchema.extend({
+  attribution: shortText,
+  publishDate: date,
+  title: shortText
+})

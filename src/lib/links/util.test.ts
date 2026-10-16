@@ -96,7 +96,7 @@ describe('compareLinksByDefaultOrder', () => {
 })
 
 describe('pressLinksFirst', () => {
-  it('moves press links ahead, keeping saved order within each group', () => {
+  it('orders quoted press, other press, then the rest, keeping saved order within each group', () => {
     expect(
       pressLinksFirst([
         { id: 'press-a', type: 'press', attribution: 'Wire' },
@@ -106,8 +106,8 @@ describe('pressLinksFirst', () => {
         { id: 'related-b' }
       ]).map(({ id }) => id)
     ).toEqual([
-      'press-a',
       'press-b',
+      'press-a',
       'related-a',
       'bare-press',
       'related-b'

@@ -1,8 +1,25 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { linkFixture, pressLinkFixture } from '@/lib/links/fixtures'
-import { LinksPicker } from '@/ui/links/links-picker'
+import {
+  LinksPicker,
+  PressLinksPicker
+} from '@/ui/links/links-picker'
+
+function submittedIds(name: string) {
+  return Array.from(
+    document.querySelectorAll<HTMLInputElement>(
+      `input[name^="${name}["][name$="].id"]`
+    )
+  )
+    .sort(
+      (a, b) =>
+        Number(a.name.match(/\d+/)?.[0]) -
+        Number(b.name.match(/\d+/)?.[0])
+    )
+    .map((input) => input.value)
+}
 
 function visibleUrlInputs() {
   return Array.from(
@@ -39,7 +56,11 @@ describe('LinksPicker', () => {
       )
     )('%s, on %s', async (value, action) => {
       const user = userEvent.setup()
-      render(<LinksPicker links={[linkFixture, pressLinkFixture]} />)
+      render(
+        <LinksPicker
+          links={[linkFixture, { ...linkFixture, id: 'link-2' }]}
+        />
+      )
 
       await user.click(
         screen.getAllByRole('button', { name: /^edit$/i })[0]
@@ -55,28 +76,107 @@ describe('LinksPicker', () => {
     })
   })
 
-  describe('default order', () => {
-    function submittedIds() {
-      return Array.from(
-        document.querySelectorAll<HTMLInputElement>(
-          'input[name^="links["][name$="].id"]'
-        )
-      )
-        .sort(
-          (a, b) =>
-            Number(a.name.match(/\d+/)?.[0]) -
-            Number(b.name.match(/\d+/)?.[0])
-        )
-        .map((input) => input.value)
-    }
+  it('shows only non-press links, searching non-press links', async () => {
+    render(<LinksPicker links={[linkFixture, pressLinkFixture]} />)
 
+    expect(submittedIds('links')).toEqual([linkFixture.id])
+    await waitFor(() =>
+      expect(fetchMock.mock.calls[0]?.[0]).toContain('isPress=false')
+    )
+  })
+
+  it('offers no press type for new links', async () => {
+    const user = userEvent.setup()
+    render(<LinksPicker />)
+
+    const [input] = visibleUrlInputs()
+    await user.type(input, 'https://example.com')
+    await user.tab()
+
+    expect(
+      screen.getByRole('option', { name: /social/i })
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('option', { name: /press/i })
+    ).not.toBeInTheDocument()
+  })
+})
+
+describe('PressLinksPicker', () => {
+  beforeEach(() => {
+    fetchMock.resetMocks()
+    fetchMock.mockResponse(
+      JSON.stringify({ res: [], nextCursor: null, totalCount: 0 })
+    )
+  })
+
+  it('shows only press links under its own field name, searching press links', async () => {
+    render(
+      <PressLinksPicker links={[linkFixture, pressLinkFixture]} />
+    )
+
+    expect(submittedIds('pressLinks')).toEqual([pressLinkFixture.id])
+    expect(submittedIds('links')).toEqual([])
+    await waitFor(() =>
+      expect(fetchMock.mock.calls[0]?.[0]).toContain('isPress=true')
+    )
+  })
+
+  it('shows the press fields without a type select', async () => {
+    const user = userEvent.setup()
+    render(<PressLinksPicker />)
+
+    const [input] = visibleUrlInputs()
+    await user.type(input, 'https://example.com')
+    await user.tab()
+
+    expect(screen.getByLabelText(/attribution/i)).toBeVisible()
+    expect(
+      document.querySelector('[name$=".type"]')
+    ).not.toBeInTheDocument()
+  })
+
+  it('requires display text, attribution and publish date once the url is filled', async () => {
+    const user = userEvent.setup()
+    render(<PressLinksPicker />)
+
+    const required = () =>
+      ['title', 'attribution', 'publishDate'].map(
+        (field) =>
+          document.querySelector<HTMLInputElement>(
+            `[name$=".${field}"]`
+          )?.required
+      )
+    expect(required()).toEqual([false, false, false])
+
+    const [input] = visibleUrlInputs()
+    await user.type(input, 'https://example.com')
+    await user.tab()
+
+    expect(required()).toEqual([true, true, true])
+  })
+
+  it('renders display text outside the two-column group', async () => {
+    const user = userEvent.setup()
+    render(<PressLinksPicker />)
+
+    const [input] = visibleUrlInputs()
+    await user.type(input, 'https://example.com')
+    await user.tab()
+
+    expect(
+      screen.getByLabelText(/display text/i).closest('.input-group')
+    ).toBeNull()
+  })
+
+  describe('default order', () => {
     const resetButton = () =>
       screen.queryByRole('button', {
         name: /sort press links by date/i
       })
 
     it('hides the reset button while links are in default order', () => {
-      render(<LinksPicker links={[pressLinkFixture, linkFixture]} />)
+      render(<PressLinksPicker links={[pressLinkFixture]} />)
 
       expect(resetButton()).toBeNull()
     })
@@ -87,10 +187,49 @@ describe('LinksPicker', () => {
       publishDate: new Date('2020-01-01')
     }
 
+    it('sorts and drags a new review as press, though it submits no type', async () => {
+      const user = userEvent.setup()
+      render(<PressLinksPicker links={[olderPress]} />)
+
+      const [input] = visibleUrlInputs()
+      await user.type(input, 'https://new-review.com')
+      await user.tab()
+      await user.type(
+        screen.getByLabelText(/display text/i),
+        'Review'
+      )
+      await user.type(screen.getByLabelText(/attribution/i), 'Wire')
+      await user.type(
+        screen.getByLabelText(/publish date/i),
+        '2024-01-01'
+      )
+      await user.type(screen.getByLabelText(/quotation/i), 'Great')
+      await user.click(
+        screen.getByRole('button', { name: /save link/i })
+      )
+
+      const indexOf = (value: string) =>
+        Number(
+          Array.from(
+            document.querySelectorAll<HTMLInputElement>(
+              'input[name^="pressLinks["]'
+            )
+          )
+            .find((input) => input.value === value)
+            ?.name.match(/\d+/)?.[0]
+        )
+      expect(indexOf('https://new-review.com')).toBeLessThan(
+        indexOf(olderPress.id)
+      )
+      expect(
+        screen.getAllByRole('button', { name: /drag to reorder/i })
+      ).toHaveLength(2)
+    })
+
     it('offers a reset once a press link is moved out of place', async () => {
       const user = userEvent.setup()
       render(
-        <LinksPicker
+        <PressLinksPicker
           links={[pressLinkFixture, olderPress, linkFixture]}
         />
       )
@@ -98,35 +237,18 @@ describe('LinksPicker', () => {
       await user.click(
         screen.getAllByRole('button', { name: /move down/i })[0]
       )
-      expect(submittedIds()).toEqual([
+      expect(submittedIds('pressLinks')).toEqual([
         olderPress.id,
-        pressLinkFixture.id,
-        linkFixture.id
+        pressLinkFixture.id
       ])
 
       await user.click(resetButton()!)
 
-      expect(submittedIds()).toEqual([
+      expect(submittedIds('pressLinks')).toEqual([
         pressLinkFixture.id,
-        olderPress.id,
-        linkFixture.id
+        olderPress.id
       ])
       expect(resetButton()).toBeNull()
-    })
-
-    it('keeps press links above other links, with nothing to drag', () => {
-      render(<LinksPicker links={[linkFixture, pressLinkFixture]} />)
-
-      expect(submittedIds()).toEqual([
-        pressLinkFixture.id,
-        linkFixture.id
-      ])
-      expect(
-        screen.queryByRole('button', { name: /move down/i })
-      ).not.toBeInTheDocument()
-      expect(
-        screen.queryByRole('button', { name: 'Drag to reorder' })
-      ).not.toBeInTheDocument()
     })
   })
 })

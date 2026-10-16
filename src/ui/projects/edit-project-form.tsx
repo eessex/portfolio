@@ -14,7 +14,10 @@ import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
 import { ImagesPicker } from '@/ui/images/images-picker'
 import { DeleteItemButton } from '@/ui/items/delete-item-button'
-import { LinksPicker } from '@/ui/links/links-picker'
+import {
+  LinksPicker,
+  PressLinksPicker
+} from '@/ui/links/links-picker'
 import { ContactInfoFields } from '@/ui/projects/contact-info-fields'
 import { toDateInputValue } from '@/ui/util'
 
@@ -82,6 +85,7 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         embedCodes={project?.embedCodes}
       />
       <ContactInfoFields contactInfo={project?.contactInfo} />
+      <PressLinksPicker links={project?.links} />
       <LinksPicker links={project?.links} />
       <Checkbox
         attributes={{ name: 'isPublished' }}

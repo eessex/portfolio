@@ -969,6 +969,27 @@ describe('useItemPickerEntries', () => {
         ])
       })
 
+      it('keeps an unquoted press link below quoted ones when dragged above them', () => {
+        const unquotedPress: Link = {
+          ...pressLinkFixture,
+          id: 'press-unquoted',
+          quotation: undefined
+        }
+        const { result } = setupGrouped([olderPress, unquotedPress])
+
+        act(() =>
+          result.current.reorderSortable([
+            result.current.entries[1],
+            result.current.entries[0]
+          ])
+        )
+
+        expect(chipIds(result.current.entries)).toEqual([
+          'press-older',
+          'press-unquoted'
+        ])
+      })
+
       it('adds to the top of its group in a custom order', () => {
         const { result } = setupGrouped([olderPress, newerPress])
         const otherRelated: Link = { ...linkFixture, id: 'other' }

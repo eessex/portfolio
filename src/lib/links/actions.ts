@@ -13,6 +13,7 @@ import { fetchLinksByIds } from '@/lib/links/data'
 import {
   type CreateLink,
   createLinkSchema,
+  createPressLinkSchema,
   type Link,
   linkSchema,
   LinkTypes
@@ -75,20 +76,43 @@ export async function saveLinkFromFields(
 }
 
 /**
- * Resolves a reorderable multi-link picker's submitted entries (mix of
- * existing selections, inline edits of attached links, and pending
+ * `saveLinkFromFields` for a Press picker entry: saved as press, with
+ * the press citation fields required.
+ */
+export async function savePressLinkFromFields(
+  fields: Record<string, unknown>,
+  id?: string
+): Promise<Link> {
+  return saveItemFromFields({
+    id,
+    fields: { ...fields, type: LinkTypes.press },
+    schema: createPressLinkSchema,
+    itemType: 'links',
+    create: createLink,
+    update: updateLink
+  })
+}
+
+/**
+ * Resolves the Press and Links pickers' submitted entries (each a mix
+ * of existing selections, inline edits of attached links, and pending
  * inline creations, in the user's chosen order — see
- * `extractIndexedGroups`) into an ordered list of link ids.
+ * `extractIndexedGroups`) into one ordered list of link ids: press
+ * links first, as they render. Press entries submit no `type`, so
+ * every one saved from that picker is saved as press (see
+ * `savePressLinkFromFields`).
  */
 export async function resolveOrderedLinkIds(
   data: Record<string, unknown>,
-  name = 'links'
+  name = 'links',
+  pressName = 'pressLinks'
 ): Promise<{ linkIds: string[] }> {
-  const linkIds = await resolveOrderedIds(
-    data,
-    name,
-    saveLinkFromFields
-  )
+  const [pressLinkIds, otherLinkIds] = await Promise.all([
+    resolveOrderedIds(data, pressName, savePressLinkFromFields),
+    resolveOrderedIds(data, name, saveLinkFromFields)
+  ])
+  // the same link picked in both keeps its first position
+  const linkIds = [...new Set([...pressLinkIds, ...otherLinkIds])]
   return { linkIds }
 }
 

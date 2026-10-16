@@ -1,5 +1,6 @@
 'use client'
 
+import { BarsArrowDownIcon } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
@@ -747,7 +748,7 @@ export function ItemPicker<
                 className={`button-sm ${itemPickerStyles['reset-order-button']}`}
                 onClick={resetToDefaultOrder}
               >
-                {defaultOrder.resetLabel}
+                <BarsArrowDownIcon /> {defaultOrder.resetLabel}
               </button>
             )}
           </>

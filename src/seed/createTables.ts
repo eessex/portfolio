@@ -1,6 +1,7 @@
 // Deliberately NOT a server action ('use server' would expose schema
 // creation as a public endpoint). Only run from scripts/setup.ts.
 import { sql } from '@/lib/db'
+import { projectTypes } from '@/lib/projects/schemas'
 import { pagePaths } from '@/lib/schemas'
 
 /**
@@ -36,14 +37,47 @@ async function createProjectsTable() {
       type VARCHAR(30),
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
-      CHECK (type IN ('band', 'collaborative', 'radioShow', 'eventSeries', 'recordLabel') OR type IS NULL)
+      CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')
     );
   `
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_projects_slug ON projects(slug);`
   // Additive per-project contacts (CONTACT‑1). ADD COLUMN IF NOT EXISTS
   // is idempotent, so this is safe to re-run against an existing table.
   await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS contact_info JSONB[];`
+  await syncProjectTypeConstraint()
+}
+
+/**
+ * (Re)creates the `type` CHECK from `projectTypes`, so adding a type in
+ * code reaches the DB on the next setup run. Drops every CHECK on the
+ * `type` column first, including the unnamed one older tables got from
+ * CREATE TABLE. One DO block, so it's atomic; re-validating the small
+ * projects table on each run is cheap.
+ */
+async function syncProjectTypeConstraint() {
+  // code constants, not user input, so safe to inline
+  const allowed = projectTypes.map((type) => `'${type}'`).join(', ')
+  await sql`
+    DO $$
+    DECLARE
+      c record;
+    BEGIN
+      FOR c IN
+        SELECT con.conname
+        FROM pg_constraint con
+        JOIN pg_attribute a
+          ON a.attrelid = con.conrelid AND a.attnum = ANY (con.conkey)
+        WHERE con.conrelid = 'projects'::regclass
+          AND con.contype = 'c'
+          AND a.attname = 'type'
+      LOOP
+        EXECUTE format('ALTER TABLE projects DROP CONSTRAINT %I', c.conname);
+      END LOOP;
+      ALTER TABLE projects ADD CONSTRAINT chk_projects_type
+      CHECK (type IN (${sql.unsafe(allowed)}) OR type IS NULL);
+    END
+    $$;
+  `
 }
 
 /**

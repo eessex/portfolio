@@ -9,6 +9,7 @@ import userEvent from '@testing-library/user-event'
 import { previewEmbedCodeMetadata } from '@/lib/embed-codes/preview-metadata'
 import { deleteEvent, editEvent } from '@/lib/events/actions'
 import { eventFixtureUpcoming } from '@/lib/events/fixtures'
+import { projectFixtureBand } from '@/lib/projects/fixtures'
 import { venueFixtureAlpha } from '@/lib/venues/fixtures'
 import { EditEventForm } from '@/ui/events/edit-event-form'
 import { ToastProvider } from '@/ui/toast/toast-context'
@@ -181,6 +182,59 @@ describe('EditEventForm', () => {
       expect(screen.getByLabelText(/city/i)).toHaveValue(
         venueFixtureAlpha.city
       )
+    })
+  })
+
+  describe('project field', () => {
+    const defaultProject = {
+      ...projectFixtureBand,
+      id: 'default-project-id',
+      title: 'Solo Work',
+      isDefaultProject: true
+    }
+
+    function projectIdValue(container: HTMLElement) {
+      return container
+        .querySelector<HTMLInputElement>('input[name="projectId"]')
+        ?.getAttribute('value')
+    }
+
+    it('preselects the default project for a new event', () => {
+      const { container } = renderComponent({ defaultProject })
+
+      expect(screen.getByText('Solo Work')).toBeInTheDocument()
+      expect(projectIdValue(container)).toBe('default-project-id')
+    })
+
+    it('preselects the default project for an event with none', () => {
+      const { container } = renderComponent({
+        event: eventFixtureUpcoming,
+        defaultProject
+      })
+
+      expect(projectIdValue(container)).toBe('default-project-id')
+    })
+
+    it("keeps the event's own project over the default", () => {
+      const { container } = renderComponent({
+        event: {
+          ...eventFixtureUpcoming,
+          project: projectFixtureBand
+        },
+        defaultProject
+      })
+
+      expect(
+        screen.getByText(projectFixtureBand.title)
+      ).toBeInTheDocument()
+      expect(screen.queryByText('Solo Work')).not.toBeInTheDocument()
+      expect(projectIdValue(container)).toBe(projectFixtureBand.id)
+    })
+
+    it('selects nothing without a default project', () => {
+      const { container } = renderComponent()
+
+      expect(projectIdValue(container)).toBeFalsy()
     })
   })
 

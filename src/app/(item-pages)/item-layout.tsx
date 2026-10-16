@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import NextLink from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next/types'
@@ -42,7 +43,7 @@ export default async function ItemLayout({
   const { publishedEditions } = item as ReleaseClient
   const { ticketLink, venue, project, isUpcoming } =
     item as EventClient
-  const { contactInfo } = item as ProjectClient
+  const { contactInfo, isDefaultProject } = item as ProjectClient
 
   function category() {
     switch (item.path) {
@@ -58,27 +59,44 @@ export default async function ItemLayout({
   }
 
   return (
-    <div className={styles['item-layout']}>
+    <div
+      className={clsx(
+        styles['item-layout'],
+        isDefaultProject && styles['default-project']
+      )}
+    >
       <article>
         <header>
-          <p className='category'>
-            <NextLink href={`/${item.path}`}>{category()}</NextLink>
-            {!item.isPublished && <DraftBadge />}
-          </p>
+          {isDefaultProject ? (
+            !item.isPublished && (
+              <p className='category'>
+                <DraftBadge />
+              </p>
+            )
+          ) : (
+            <p className='category'>
+              <NextLink href={`/${item.path}`}>{category()}</NextLink>
+              {!item.isPublished && <DraftBadge />}
+            </p>
+          )}
 
-          <h1>{formattedItemTitle(item)}</h1>
+          <h1>
+            {isDefaultProject ? 'About' : formattedItemTitle(item)}
+          </h1>
 
           {publishedEditions ? (
             <PublishedEditionsCombined
               publishedEditions={publishedEditions}
             />
           ) : (
-            <p>
-              <FormattedItemDate
-                item={item}
-                timezone={(item as EventClient).venue?.timezone}
-              />
-            </p>
+            !isDefaultProject && (
+              <p>
+                <FormattedItemDate
+                  item={item}
+                  timezone={(item as EventClient).venue?.timezone}
+                />
+              </p>
+            )
           )}
 
           {venue && (

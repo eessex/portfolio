@@ -8,7 +8,8 @@ import { ItemsList } from '@/ui/items/items-list'
 import { useIsAdmin } from '@/ui/useIsAdmin'
 
 /**
- * "More Projects" accordion with client-side draft augmentation:
+ * "More Projects" accordion on `/about`, leaving out the default
+ * project (the page itself), with client-side draft augmentation:
  * the page renders the published set statically; for signed-in
  * admins this refetches the full set (the API gates drafts on the
  * session cookie) and replaces the list.
@@ -30,7 +31,7 @@ export function MoreProjectsList({
 
     let cancelled = false
 
-    fetch('/api/projects')
+    fetch('/api/projects?isDefaultExcluded=true')
       .then((res) => res.json())
       .then((data: { res?: { allProjects?: ProjectClient[] } }) => {
         const allProjects = data?.res?.allProjects

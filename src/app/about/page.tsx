@@ -1,10 +1,13 @@
 import { Suspense } from 'react'
 
+import ItemLayout from '@/app/(item-pages)/item-layout'
 import styles from '@/app/about/about.module.scss'
 import { fetchCachedAboutPage } from '@/lib/about/cached'
 import type { AboutContact } from '@/lib/about/types'
+import { isAuthed } from '@/lib/auth/guard'
 import { fetchCachedPressImagesFirstPage } from '@/lib/images/cached'
 import { fetchCachedPressLinks } from '@/lib/links/cached'
+import { fetchCachedDefaultProject } from '@/lib/projects/cached'
 import { fetchProjects } from '@/lib/projects/data'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
@@ -16,31 +19,81 @@ import { MoreProjectsList } from '@/ui/projects/more-projects-list'
 const title = 'About'
 
 export async function generateMetadata() {
-  const [settings, about] = await Promise.all([
+  const [settings, project] = await Promise.all([
     fetchCachedSiteSettings(),
-    fetchCachedAboutPage()
+    fetchCachedDefaultProject(false)
   ])
 
+  if (project) {
+    const image = project.coverImage
+    return {
+      title,
+      description: project.shortDescription ?? settings?.description,
+      openGraph: { images: ogImages(image, image?.alt) }
+    }
+  }
+
+  const about = await fetchCachedAboutPage()
   const image = (about || settings)?.coverImage
-  const images = image
+
+  return {
+    title,
+    description: settings?.description,
+    openGraph: { images: ogImages(image, image?.caption) }
+  }
+}
+
+function ogImages(
+  image: { url: string; aspect: number } | undefined,
+  alt: string | undefined
+) {
+  return image
     ? [
         {
           url: image.url,
           width: 1200,
           height: Math.round(1200 * image.aspect),
-          alt: image.caption
+          alt: alt ?? ''
         }
       ]
     : []
-
-  return {
-    title,
-    description: settings?.description,
-    openGraph: { images }
-  }
 }
 
-export default function AboutPage() {
+/**
+ * Renders the default project when one exists, else the legacy
+ * `about` page (until the migration creates the default project).
+ */
+export default async function AboutPage() {
+  const project = await fetchDefaultProjectForViewer()
+
+  if (!project) return <LegacyAbout />
+
+  return (
+    <ItemLayout item={project}>
+      <Suspense>
+        <MoreProjects />
+      </Suspense>
+    </ItemLayout>
+  )
+}
+
+/**
+ * The published default project, else an unpublished one for a
+ * signed-in admin. Checks a draft exists before reading the session,
+ * so the page stays static for anonymous visitors whenever it can.
+ */
+async function fetchDefaultProjectForViewer() {
+  const published = await fetchCachedDefaultProject(false)
+  if (published) return published
+
+  const draft = await fetchCachedDefaultProject(true)
+  if (!draft) return undefined
+
+  return (await isAuthed()) ? draft : undefined
+}
+
+/** The `about` table's page, until the default project replaces it. */
+function LegacyAbout() {
   return (
     <article className={styles.about}>
       <header>
@@ -112,11 +165,13 @@ async function AboutIntro() {
   )
 }
 
-/** Collapsible list of related projects. */
+/** Collapsible list of other projects, leaving out the default. */
 async function MoreProjects() {
   const {
     res: { allProjects }
-  } = await fetchProjects(false)
+  } = await fetchProjects(false, undefined, undefined, {
+    isDefaultExcluded: true
+  })
 
   return (
     <MoreProjectsList

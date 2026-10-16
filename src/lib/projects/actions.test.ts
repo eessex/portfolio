@@ -5,7 +5,11 @@ import { sql } from '@/lib/db'
 import { resolveOrderedEmbedCodeIds } from '@/lib/embed-codes/actions'
 import { resolveOrderedImageIds } from '@/lib/images/actions'
 import { resolveOrderedLinkIds } from '@/lib/links/actions'
-import { deleteProject, editProject } from '@/lib/projects/actions'
+import {
+  deleteProject,
+  editDefaultProject,
+  editProject
+} from '@/lib/projects/actions'
 import {
   newProjectFixtureAlpha,
   projectFixtureAlpha
@@ -84,6 +88,9 @@ describe('Project Actions', () => {
 
   describe('#deleteProject', () => {
     it('can delete a project', async () => {
+      mockSql.mockResolvedValueOnce([
+        { is_default_project: false }
+      ] as never)
       const res = await deleteProject(projectFixtureAlpha)
 
       expect(res).toEqual({ ok: true })
@@ -99,6 +106,9 @@ describe('Project Actions', () => {
     })
 
     it('can handle errors', async () => {
+      mockSql.mockResolvedValueOnce([
+        { is_default_project: false }
+      ] as never)
       mockTransaction.mockRejectedValueOnce(new Error('DB error'))
       const res = await deleteProject(projectFixtureAlpha)
 
@@ -107,6 +117,9 @@ describe('Project Actions', () => {
     })
 
     it('hands off everything the project owns before deleting it, in one transaction', async () => {
+      mockSql.mockResolvedValueOnce([
+        { is_default_project: false }
+      ] as never)
       const queries = ['images', 'links', 'embedCodes', 'delete']
       queries.forEach((query) =>
         mockSql.mockReturnValueOnce(query as never)
@@ -116,16 +129,16 @@ describe('Project Actions', () => {
 
       expect(mockTransaction).toHaveBeenCalledTimes(1)
       expect(mockTransaction).toHaveBeenCalledWith(queries)
-      const texts = mockSql.mock.calls.map(([strings]) =>
-        strings.join('?')
-      )
+      const texts = mockSql.mock.calls
+        .slice(1)
+        .map(([strings]) => strings.join('?'))
       expect(texts).toHaveLength(4)
       expect(texts[0]).toContain('UPDATE images AS i')
       expect(texts[1]).toContain('UPDATE links AS l')
       expect(texts[2]).toContain('UPDATE embed_codes AS ec')
       expect(texts[3]).toContain('DELETE FROM projects')
       // no id filter: every item the project owns is handed off
-      for (const [, ...params] of mockSql.mock.calls.slice(0, 3)) {
+      for (const [, ...params] of mockSql.mock.calls.slice(1, 4)) {
         expect(params).toEqual([
           projectFixtureAlpha.id,
           projectFixtureAlpha.id,
@@ -133,6 +146,23 @@ describe('Project Actions', () => {
           null
         ])
       }
+    })
+
+    it('refuses to delete the default project, whatever the client sends', async () => {
+      mockSql.mockResolvedValueOnce([
+        { is_default_project: true }
+      ] as never)
+      const res = await deleteProject({
+        ...projectFixtureAlpha,
+        isDefaultProject: false
+      })
+
+      expect(res).toEqual({
+        ok: false,
+        message: 'The default project can’t be deleted.'
+      })
+      expect(mockTransaction).not.toHaveBeenCalled()
+      expect(updateTag).not.toHaveBeenCalled()
     })
   })
 
@@ -651,6 +681,82 @@ describe('Project Actions', () => {
         expect(strings.join('?')).toContain('UPDATE images')
         expect(strings.join('?')).toContain('AND project_id IS NULL')
         expect(params).toEqual([defaultProject.id, [NEW_IMAGE_ID]])
+      })
+
+      describe('editDefaultProject', () => {
+        it('writes true on create', async () => {
+          mockSql.mockResolvedValueOnce([defaultProject])
+
+          const res = await editDefaultProject(
+            formDataFromObject({
+              ...newProjectFixtureAlpha,
+              isPublished: 'on'
+            })
+          )
+
+          expect(res?.ok).toBe(true)
+          const [, ...params] = mockSql.mock.calls[0]!
+          expect(params[6]).toBe(true)
+        })
+
+        it('never writes the column on update', async () => {
+          mockSql
+            .mockResolvedValueOnce([defaultProject]) // fetchProjectById
+            .mockResolvedValueOnce([defaultProject]) // UPDATE
+
+          const res = await editDefaultProject(
+            formDataFromObject({ ...requiredFields, title: 'About' }),
+            defaultProject.id
+          )
+
+          expect(res?.ok).toBe(true)
+          const [strings] = mockSql.mock.calls[1]!
+          expect(strings.join('?')).toContain('UPDATE projects')
+          expect(strings.join('?')).not.toContain(
+            'is_default_project'
+          )
+        })
+
+        it('returns a form error when a default project already exists', async () => {
+          mockSql.mockRejectedValueOnce(
+            Object.assign(
+              new Error(
+                'duplicate key value violates unique constraint'
+              ),
+              { constraint: 'idx_projects_single_default' }
+            )
+          )
+
+          const res = await editDefaultProject(
+            formDataFromObject({
+              ...newProjectFixtureAlpha,
+              isPublished: 'on'
+            })
+          )
+
+          expect(res).toEqual({
+            ok: false,
+            message:
+              'Failed to save project: A default project already exists.'
+          })
+        })
+
+        it('passes other save errors through unchanged', async () => {
+          mockSql.mockRejectedValueOnce(
+            new Error('connection refused')
+          )
+
+          const res = await editDefaultProject(
+            formDataFromObject({
+              ...newProjectFixtureAlpha,
+              isPublished: 'on'
+            })
+          )
+
+          expect(res?.message).toBe(
+            'Failed to save project: connection refused.'
+          )
+        })
       })
 
       it('requires type and startDate', async () => {

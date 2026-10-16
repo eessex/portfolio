@@ -22,6 +22,27 @@ import {
 } from '@/lib/util'
 
 export async function editProject(formData: FormData, id?: string) {
+  return saveProjectForm(formData, id, false)
+}
+
+/**
+ * Saves the default project (rendered at `/about`) from `/about/edit`,
+ * the only way to set `is_default_project`: a create flags the new
+ * row, and updates keep the stored flag (`toDbRow`). The partial
+ * unique index rejects a second default, returned as a form error.
+ */
+export async function editDefaultProject(
+  formData: FormData,
+  id?: string
+) {
+  return saveProjectForm(formData, id, true)
+}
+
+function saveProjectForm(
+  formData: FormData,
+  id: string | undefined,
+  isDefaultProject: boolean
+) {
   return runFormAction({
     formData,
     schema: createProjectSchema,
@@ -36,9 +57,9 @@ export async function editProject(formData: FormData, id?: string) {
 
       return {
         ...data,
-        // never taken from the form: only the default-project action
-        // sets it, and updates keep the stored value (`toDbRow`)
-        isDefaultProject: undefined,
+        // never taken from the form: only `editDefaultProject` sets
+        // it, and updates keep the stored value (`toDbRow`)
+        isDefaultProject: isDefaultProject || undefined,
         // Omitted (not just undefined) when the editor wasn't submitted,
         // so a partial update keeps the existing contacts.
         ...(contactInfo && { contactInfo }),
@@ -57,9 +78,28 @@ export async function editProject(formData: FormData, id?: string) {
     },
     invalidate: (saved?: Project) =>
       invalidateProjectTags(saved?.id ?? id),
-    save: (project) =>
-      id ? updateProject(project, id) : createProject(project)
+    save: async (project) => {
+      try {
+        return id
+          ? await updateProject(project, id)
+          : await createProject(project)
+      } catch (err) {
+        if (isSecondDefaultError(err)) {
+          throw new Error('A default project already exists')
+        }
+        throw err
+      }
+    }
   })
+}
+
+/** Creating a second default project trips the partial unique index. */
+function isSecondDefaultError(err: unknown) {
+  const cause = err instanceof Error ? err.cause : undefined
+  return (
+    (cause as { constraint?: string } | undefined)?.constraint ===
+    'idx_projects_single_default'
+  )
 }
 
 /**
@@ -93,6 +133,17 @@ export async function deleteProject(project: Project) {
     // one transaction, so a failed DELETE doesn't leave the hand-offs
     // applied to a project that still exists
     del: async () => {
+      // stored flag, not the client-sent one: /about depends on it
+      const rows = await sql`
+        SELECT is_default_project FROM projects
+        WHERE id = ${project.id}
+      `
+      if (rows[0]?.is_default_project) {
+        return {
+          ok: false,
+          message: 'The default project can’t be deleted.'
+        }
+      }
       await sql.transaction([
         handOffImages(project.id),
         handOffLinks(project.id),

@@ -1,52 +1,37 @@
-import styles from '@/app/about/about.module.scss'
-import { fetchCachedAboutPage } from '@/lib/about/cached'
-import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
-import { EditAboutForm } from '@/ui/form/edit-about'
+import type { Metadata } from 'next'
+import { connection } from 'next/server'
+import { Suspense } from 'react'
+
+import { fetchDefaultProject } from '@/lib/projects/data'
+import { Loading } from '@/ui/loading'
+import { EditProjectForm } from '@/ui/projects/edit-project-form'
 
 const title = 'Edit: About'
+export const metadata: Metadata = { title }
 
-export async function generateMetadata() {
-  const about = await fetchCachedAboutPage()
-  const settings = await fetchCachedSiteSettings()
-  const image = (about || settings)?.coverImage
-  const images = image
-    ? [
-        {
-          url: image.url,
-          width: 1200,
-          height: Math.round(1200 * image.aspect),
-          alt: image.caption
-        }
-      ]
-    : []
-
-  return {
-    title,
-    description: settings?.description,
-    openGraph: { images }
-  }
-}
-
-export default async function AboutPage() {
-  const about = await fetchCachedAboutPage()
-
+export default function EditAboutPage() {
   return (
-    <article className={styles.about}>
+    <article>
       <header>
         <h1>{title}</h1>
       </header>
 
-      <section>
-        <EditAboutForm
-          about={
-            about && {
-              ...about,
-              coverImageId: about.coverImageId,
-              coverImage: about.coverImage
-            }
-          }
-        />
-      </section>
+      <Suspense fallback={<Loading />}>
+        <EditDefaultProject />
+      </Suspense>
     </article>
   )
+}
+
+/**
+ * Edits the default project, or creates it when none exists yet (a
+ * fresh instance). The route is admin-only (`auth.config.ts`), so the
+ * authed fetch includes an unpublished default. Uncached: a stale form
+ * would save stale child ids and detach anything added since.
+ */
+async function EditDefaultProject() {
+  await connection()
+  const project = await fetchDefaultProject(true)
+
+  return <EditProjectForm project={project} isDefaultProject />
 }

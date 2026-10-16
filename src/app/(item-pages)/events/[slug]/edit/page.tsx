@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 
 import { isAuthed } from '@/lib/auth/guard'
 import { fetchEventById } from '@/lib/events/data'
+import { fetchCachedDefaultProject } from '@/lib/projects/cached'
 import { PagePaths } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
@@ -32,10 +33,14 @@ async function EditEvent({ params }: PageItemProps) {
   const resolved = await resolveSlug(PagePaths.events, slug)
   const authed = await isAuthed()
   // uncached: saving a stale form drops child ids added since
-  const event =
-    resolved && (await fetchEventById(resolved.id, authed))
+  const [event, defaultProject] = await Promise.all([
+    resolved && fetchEventById(resolved.id, authed),
+    fetchCachedDefaultProject(true)
+  ])
 
   if (!event) return notFound()
 
-  return <EditEventForm event={event} />
+  return (
+    <EditEventForm event={event} defaultProject={defaultProject} />
+  )
 }

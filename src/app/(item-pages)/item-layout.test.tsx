@@ -1,4 +1,8 @@
-import { generateItemMetadata } from '@/app/(item-pages)/item-layout'
+import { render, screen } from '@testing-library/react'
+
+import ItemLayout, {
+  generateItemMetadata
+} from '@/app/(item-pages)/item-layout'
 import {
   eventFixturePast,
   eventFixtureUpcoming
@@ -61,12 +65,10 @@ describe('generateItemMetadata', () => {
       slug: projectFixtureBand.slug,
       isRedirect: true
     })
-    const fetchById = jest
-      .fn()
-      .mockResolvedValue({
-        ...projectFixtureBand,
-        isDefaultProject: true
-      })
+    const fetchById = jest.fn().mockResolvedValue({
+      ...projectFixtureBand,
+      isDefaultProject: true
+    })
 
     const meta = await generateItemMetadata(
       Promise.resolve({ slug: 'old-slug' }),
@@ -154,5 +156,69 @@ describe('generateItemMetadata', () => {
     )
 
     expect(meta.description).toBeUndefined()
+  })
+})
+
+describe('ItemLayout header', () => {
+  async function renderLayout(
+    item: Parameters<typeof ItemLayout>[0]['item']
+  ) {
+    render(await ItemLayout({ item }))
+  }
+
+  it('shows the category, title and date for a project', async () => {
+    await renderLayout(projectFixtureBand)
+
+    expect(
+      screen.getByRole('heading', { level: 1 })
+    ).toHaveTextContent(projectFixtureBand.title)
+    expect(
+      screen.getByRole('link', { name: /band/i })
+    ).toHaveAttribute('href', '/projects')
+    expect(screen.getByText(/2025/)).toBeInTheDocument()
+  })
+
+  it('shows "About" with no category or date for the default project', async () => {
+    await renderLayout({
+      ...projectFixtureBand,
+      isDefaultProject: true
+    })
+
+    expect(
+      screen.getByRole('heading', { level: 1 })
+    ).toHaveTextContent('About')
+    expect(
+      screen.queryByText(projectFixtureBand.title)
+    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    expect(screen.queryByText(/2025/)).not.toBeInTheDocument()
+  })
+
+  it('keeps the draft badge on an unpublished default project', async () => {
+    await renderLayout({
+      ...projectFixtureBand,
+      isDefaultProject: true,
+      isPublished: false
+    })
+
+    expect(screen.getByText('Unpublished')).toBeInTheDocument()
+  })
+
+  it('styles only the default project with the legacy About header', async () => {
+    await renderLayout({
+      ...projectFixtureBand,
+      isDefaultProject: true
+    })
+    expect(screen.getByRole('article').parentElement).toHaveClass(
+      'default-project'
+    )
+  })
+
+  it('keeps the centered header on other projects', async () => {
+    await renderLayout(projectFixtureBand)
+
+    expect(screen.getByRole('article').parentElement).not.toHaveClass(
+      'default-project'
+    )
   })
 })

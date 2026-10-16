@@ -9,7 +9,10 @@ import userEvent from '@testing-library/user-event'
 
 import { previewEmbedCodeMetadata } from '@/lib/embed-codes/preview-metadata'
 import { imageFixture } from '@/lib/images/fixtures'
-import { editProject } from '@/lib/projects/actions'
+import {
+  editDefaultProject,
+  editProject
+} from '@/lib/projects/actions'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
 import { embedCodeYoutubeFixture } from '@/ui/embed-codes/fixtures'
 import { EditProjectForm } from '@/ui/projects/edit-project-form'
@@ -23,9 +26,11 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('@/lib/projects/actions', () => ({
   editProject: jest.fn(),
+  editDefaultProject: jest.fn(),
   deleteProject: jest.fn()
 }))
 const mockEditProject = jest.mocked(editProject)
+const mockEditDefaultProject = jest.mocked(editDefaultProject)
 
 jest.mock('@/lib/embed-codes/preview-metadata', () => ({
   previewEmbedCodeMetadata: jest.fn()
@@ -342,6 +347,95 @@ describe('EditProjectForm', () => {
         'Failed to save project: connection refused.'
       )
       expect(pushMock).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('default project', () => {
+    const defaultProject = {
+      ...projectFixtureBand,
+      isDefaultProject: true
+    }
+
+    function fillAndSubmit() {
+      fireEvent.change(screen.getByLabelText(titleText), {
+        target: { value: 'Changed title' }
+      })
+      fireEvent.change(screen.getByLabelText(descriptionRegex), {
+        target: { value: 'A test description.' }
+      })
+      fireEvent.click(submitButton())
+    }
+
+    it('saves through editDefaultProject and returns to /about', async () => {
+      mockEditDefaultProject.mockResolvedValue({
+        ok: true,
+        res: defaultProject
+      })
+      renderComponent({
+        project: defaultProject,
+        isDefaultProject: true
+      })
+
+      fillAndSubmit()
+
+      await waitFor(() =>
+        expect(pushMock).toHaveBeenCalledWith('/about')
+      )
+      expect(mockEditDefaultProject).toHaveBeenCalledWith(
+        expect.any(FormData),
+        defaultProject.id
+      )
+      expect(mockEditProject).not.toHaveBeenCalled()
+    })
+
+    it('creates the default project when there is none yet', async () => {
+      mockEditDefaultProject.mockResolvedValue({
+        ok: true,
+        res: defaultProject
+      })
+      renderComponent({ isDefaultProject: true })
+
+      fireEvent.change(screen.getByLabelText(typeText), {
+        target: { value: 'solo' }
+      })
+      fireEvent.change(screen.getByLabelText(startDateRegex), {
+        target: { value: '2014-04-02' }
+      })
+      fillAndSubmit()
+
+      await waitFor(() =>
+        expect(mockEditDefaultProject).toHaveBeenCalledWith(
+          expect.any(FormData),
+          undefined
+        )
+      )
+    })
+
+    it('hides the Delete button', () => {
+      renderComponent({
+        project: defaultProject,
+        isDefaultProject: true
+      })
+
+      expect(
+        screen.queryByRole('button', { name: 'Delete project' })
+      ).not.toBeInTheDocument()
+    })
+
+    it('hides the Delete button on default /projects edit page', () => {
+      renderComponent({ project: defaultProject })
+
+      expect(
+        screen.queryByRole('button', { name: 'Delete project' })
+      ).not.toBeInTheDocument()
+    })
+
+    it('shows the Delete button for other projects', () => {
+      renderComponent({ project: projectFixtureBand })
+
+      expect(
+        screen.getByRole('button', { name: 'Delete project' })
+      ).toBeInTheDocument()
     })
   })
 })

@@ -25,7 +25,7 @@ export default async function ProjectsPage() {
 }
 
 async function ProjectsList() {
-  const projects = await fetchCachedProjectsFirstPage(false)
+  const projects = await fetchCachedProjectsFirstPage(false, true)
 
   return (
     <ItemsTable<ProjectClient, FetchProjectsResult>
@@ -33,6 +33,7 @@ async function ProjectsList() {
       initialItems={projects}
       isExpandedOnLoad
       isCategoryVisible
+      searchParams={{ isDefaultExcluded: true }}
     />
   )
 }

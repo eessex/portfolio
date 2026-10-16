@@ -36,6 +36,9 @@ export async function editProject(formData: FormData, id?: string) {
 
       return {
         ...data,
+        // never taken from the form: only the default-project action
+        // sets it, and updates keep the stored value (`toDbRow`)
+        isDefaultProject: undefined,
         // Omitted (not just undefined) when the editor wasn't submitted,
         // so a partial update keeps the existing contacts.
         ...(contactInfo && { contactInfo }),
@@ -74,6 +77,7 @@ function invalidateProjectTags(id?: string) {
   updateTag('projects:authed')
   updateTag('projects:public')
   updateTag(slugCacheTag('projects'))
+  updateTag('projects:default')
   if (id) updateTag(`project:${id}`)
   updateTag('releases')
   updateTag('events')
@@ -112,6 +116,7 @@ async function createProject(project: CreateProject) {
       endDate,
       featuredEmbedCodeId,
       imageIds,
+      isDefaultProject,
       isPublished,
       linkIds,
       shortDescription,
@@ -129,6 +134,7 @@ async function createProject(project: CreateProject) {
         end_date,
         featured_embed_code_id,
         image_ids,
+        is_default_project,
         is_published,
         link_ids,
         short_description,
@@ -146,6 +152,7 @@ async function createProject(project: CreateProject) {
         ${endDate},
         ${featuredEmbedCodeId},
         ${imageIds},
+        ${isDefaultProject},
         ${isPublished},
         ${linkIds},
         ${shortDescription},
@@ -457,6 +464,10 @@ function toDbRow(
     endDate: projectToSave.endDate ?? null,
     featuredEmbedCodeId: projectToSave.featuredEmbedCodeId ?? null,
     imageIds: projectToSave.imageIds ?? null,
+    // the stored flag wins: an update can neither set nor clear it, so
+    // UPDATE doesn't write the column at all
+    isDefaultProject:
+      existing?.isDefaultProject ?? project.isDefaultProject ?? false,
     isPublished: projectToSave.isPublished ?? null,
     linkIds: projectToSave.linkIds ?? null,
     shortDescription: projectToSave.shortDescription ?? null,

@@ -55,6 +55,47 @@ describe('generateItemMetadata', () => {
     expect(meta.description).toBe(projectFixtureBand.shortDescription)
   })
 
+  it('points the default project canonical at /about', async () => {
+    mockResolveSlug.mockResolvedValue({
+      id: projectFixtureBand.id,
+      slug: projectFixtureBand.slug,
+      isRedirect: true
+    })
+    const fetchById = jest
+      .fn()
+      .mockResolvedValue({
+        ...projectFixtureBand,
+        isDefaultProject: true
+      })
+
+    const meta = await generateItemMetadata(
+      Promise.resolve({ slug: 'old-slug' }),
+      PagePaths.projects,
+      fetchById
+    )
+
+    expect(meta.alternates).toEqual({ canonical: '/about' })
+  })
+
+  it('points a historical slug canonical at the current slug', async () => {
+    mockResolveSlug.mockResolvedValue({
+      id: projectFixtureBand.id,
+      slug: projectFixtureBand.slug,
+      isRedirect: true
+    })
+    const fetchById = jest.fn().mockResolvedValue(projectFixtureBand)
+
+    const meta = await generateItemMetadata(
+      Promise.resolve({ slug: 'old-slug' }),
+      PagePaths.projects,
+      fetchById
+    )
+
+    expect(meta.alternates).toEqual({
+      canonical: `/projects/${projectFixtureBand.slug}`
+    })
+  })
+
   it('prefers shortDescription over the generated event description', async () => {
     mockResolveSlug.mockResolvedValue({
       id: eventFixturePast.id,

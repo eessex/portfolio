@@ -6,12 +6,15 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const cursor = searchParams.get('cursor') || undefined
   const query = searchParams.get('query') || undefined
+  const isDefaultExcluded =
+    searchParams.get('isDefaultExcluded') === 'true'
 
   try {
     const result = await fetchProjects(
       await isAuthed(),
       cursor,
-      query
+      query,
+      { isDefaultExcluded }
     )
     return formatAuthedApiResponseJSON(result)
   } catch (cause) {

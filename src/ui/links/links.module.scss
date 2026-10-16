@@ -1,15 +1,7 @@
-.links-list {
-  a:not(.press-link) {
-    text-decoration: underline;
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
 
-    @media (hover: hover) {
-      &:hover {
-        text-decoration: none;
-      }
-    }
-  }
-}
-
+// Overrides the global `a:hover` underline; quotes are hovered as a block
 .press-link {
   text-decoration: none;
 
@@ -17,5 +9,84 @@
     &:hover {
       text-decoration: none;
     }
+  }
+}
+
+.quotes,
+.press-rows,
+.plain-links {
+  // reset the global `li` bottom margin; lists space with gap/borders
+  > li {
+    margin: 0;
+  }
+}
+
+.quotes {
+  display: flex;
+  flex-direction: column;
+  gap: grids.space-rem(6);
+}
+
+// Rows share one subgrid so the publication column fits the widest name
+.press-rows {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) auto;
+  column-gap: grids.space-rem(4);
+  border-top: 1px solid var(--transparency-primary);
+
+  .quotes + & {
+    margin-top: grids.space-rem(9);
+  }
+
+  > li {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+}
+
+.press-row {
+  display: grid;
+  grid-column: 1 / -1;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--transparency-extra-light);
+  text-decoration: none;
+  grid-template-columns: subgrid;
+  white-space: nowrap;
+
+  > span:first-of-type {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  > span:last-child {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  // title drops below publication and date
+  @include breakpoints.mobile {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-auto-flow: row dense;
+    row-gap: 2px;
+
+    > b {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    > span:first-of-type {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.plain-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: grids.space-rem(2);
+
+  &.after-press {
+    margin-top: grids.space-rem(8);
   }
 }

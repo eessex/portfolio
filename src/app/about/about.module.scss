@@ -8,10 +8,6 @@
 
     .links-list {
       margin: grids.space-rem(12, auto);
-
-      ul:has(blockquote) li {
-        margin-bottom: grids.space-rem(6);
-      }
     }
   }
 }

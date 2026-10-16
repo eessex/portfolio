@@ -22,24 +22,25 @@ describe('LinkItem', () => {
   describe('press link without a quotation', () => {
     const link = { ...pressLink, quotation: undefined }
 
-    it('shows the attribution before the date, undashed', () => {
+    it('renders publication, title and date cells', () => {
       const { container } = render(<LinkItem link={link} />)
 
-      expect(container.querySelector('b + div')).toHaveTextContent(
-        `Test Attribution, ${date}`,
-        { normalizeWhitespace: true }
-      )
+      const cells = container.querySelectorAll('a > *')
+      expect([...cells].map((cell) => cell.textContent)).toEqual([
+        'Test Attribution',
+        'Test Press Link',
+        `${date} ↗`
+      ])
       expect(container).not.toHaveTextContent('—')
     })
 
-    // regression: rendered a stray ", " before the date
-    it('shows just the date without an attribution', () => {
+    it('falls back to the url without a title', () => {
       const { container } = render(
-        <LinkItem link={{ ...link, attribution: undefined }} />
+        <LinkItem link={{ ...link, title: undefined }} />
       )
 
-      expect(container.querySelector('b + div')?.textContent).toBe(
-        date
+      expect(container.querySelector('a > span')).toHaveTextContent(
+        link.url
       )
     })
   })

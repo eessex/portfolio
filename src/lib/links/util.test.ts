@@ -24,6 +24,34 @@ describe('compareLinksByDefaultOrder', () => {
     ).toEqual(['press-new', 'press-old', 'related-a', 'related-b'])
   })
 
+  it('puts quoted press links ahead of unquoted ones, each newest first', () => {
+    expect(
+      sortIds([
+        { id: 'press-new', type: 'press', publishDate: '2024-01-01' },
+        {
+          id: 'quote-old',
+          type: 'press',
+          quotation: 'Great',
+          publishDate: '2019-01-01'
+        },
+        { id: 'related', type: 'default' },
+        { id: 'press-old', type: 'press', publishDate: '2020-01-01' },
+        {
+          id: 'quote-new',
+          type: 'press',
+          quotation: 'Superb',
+          publishDate: '2023-01-01'
+        }
+      ])
+    ).toEqual([
+      'quote-new',
+      'quote-old',
+      'press-new',
+      'press-old',
+      'related'
+    ])
+  })
+
   it('falls back to created date for press links with no publish date', () => {
     expect(
       sortIds([
@@ -47,7 +75,7 @@ describe('compareLinksByDefaultOrder', () => {
       sortIds([
         { id: 'dated', type: 'press', publishDate: '2024-01-01' },
         { id: 'draft-a', type: 'press', attribution: 'Wire' },
-        { id: 'draft-b', type: 'press', quotation: 'Great' }
+        { id: 'draft-b', type: 'press', attribution: 'Mag' }
       ])
     ).toEqual(['draft-a', 'draft-b', 'dated'])
   })

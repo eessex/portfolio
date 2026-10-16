@@ -105,6 +105,11 @@ a[href] {
     @include type.size('sm', 'normal', 'sm');
 
     padding: grids.space-em(1, 2);
+
+    svg {
+      width: grids.space-em(4);
+      height: grids.space-em(4);
+    }
   }
 
   &.button-lg {

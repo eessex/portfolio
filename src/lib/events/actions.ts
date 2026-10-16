@@ -15,6 +15,7 @@ import { runDeleteAction, runFormAction } from '@/lib/form-action'
 import { resolveOrderedImageIds } from '@/lib/images/actions'
 import { resolveOrderedLinkIds } from '@/lib/links/actions'
 import { generateUniqueSlug } from '@/lib/slug/data'
+import { slugCacheTag } from '@/lib/slug/util'
 import { formatDbResponseForClient } from '@/lib/util'
 import { resolveVenueId } from '@/lib/venues/actions'
 import { fetchVenueById } from '@/lib/venues/data'
@@ -82,6 +83,7 @@ function invalidateEventTags(id?: string) {
   updateTag('events')
   updateTag('events:authed')
   updateTag('events:public')
+  updateTag(slugCacheTag('events'))
   if (id) updateTag(`event:${id}`)
   updateTag('venues')
   updateTag('images')

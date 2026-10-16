@@ -2,7 +2,11 @@ import { cacheTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import type { PagePath } from '@/lib/schemas'
-import { getTableIdentifier, slugify } from '@/lib/slug/util'
+import {
+  getTableIdentifier,
+  slugCacheTag,
+  slugify
+} from '@/lib/slug/util'
 
 export async function generateUniqueSlug(
   title: string,
@@ -51,7 +55,7 @@ export async function resolveSlug(
   slug: string
 ): Promise<ResolveSlugResult | null> {
   'use cache'
-  cacheTag(`slug:${tableName}`)
+  cacheTag(slugCacheTag(tableName))
 
   const table = getTableIdentifier(tableName)
 

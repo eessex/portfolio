@@ -29,3 +29,7 @@ export function getTableIdentifier(table: PagePath) {
 
   return sql.unsafe(table)
 }
+
+export function slugCacheTag(table: PagePath) {
+  return `slug:${table}`
+}

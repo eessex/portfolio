@@ -8,10 +8,10 @@ import {
   fetchSocialLinksRaw
 } from '@/lib/links/data'
 
-export async function fetchCachedLinksFirstPage() {
+export async function fetchCachedLinksFirstPage(isPress?: boolean) {
   cacheTag('links')
 
-  return await fetchLinksRaw()
+  return await fetchLinksRaw(undefined, undefined, isPress)
 }
 
 /** Only the press links */

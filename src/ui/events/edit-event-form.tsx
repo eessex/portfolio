@@ -26,7 +26,10 @@ import { Input } from '@/ui/form/input'
 import { ImagesPicker } from '@/ui/images/images-picker'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { DeleteItemButton } from '@/ui/items/delete-item-button'
-import { LinksPicker } from '@/ui/links/links-picker'
+import {
+  LinksPicker,
+  PressLinksPicker
+} from '@/ui/links/links-picker'
 import { formatProjectResult } from '@/ui/projects/format-project-result'
 import { toDateTimeInputValue } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
@@ -111,6 +114,7 @@ function EventFormFields({ event }: { event?: EventClient }) {
         featuredEmbedCode={event?.featuredEmbedCode}
         embedCodes={event?.embedCodes}
       />
+      <PressLinksPicker links={event?.links} />
       <LinksPicker links={event?.links} />
       <ItemPicker<never, ProjectClient, FetchProjectsResult>
         itemType='projects'

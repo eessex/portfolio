@@ -20,10 +20,13 @@ export function LinksList({
   if (!links || links.length === 0) return null
 
   const sorted = pressLinksFirst(links)
-  const press = sorted.filter((link) => linkOrderGroup(link) === 0)
-  const quotes = press.filter((link) => link.quotation)
-  const pressRows = press.filter((link) => !link.quotation)
-  const plainLinks = sorted.slice(press.length)
+  const quotes = sorted.filter((link) => linkOrderGroup(link) === 0)
+  const pressRows = sorted.filter(
+    (link) => linkOrderGroup(link) === 1
+  )
+  const plainLinks = sorted.filter(
+    (link) => linkOrderGroup(link) === 2
+  )
 
   return (
     <section className={className} aria-labelledby={sectionId}>
@@ -55,7 +58,8 @@ export function LinksList({
         <ul
           className={clsx(
             styles['plain-links'],
-            press.length > 0 && styles['after-press']
+            quotes.length + pressRows.length > 0 &&
+              styles['after-press']
           )}
         >
           {plainLinks.map((link) => (

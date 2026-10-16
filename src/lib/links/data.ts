@@ -59,12 +59,20 @@ export async function fetchLinkByUrl(link: CreateLink) {
   }
 }
 
-export async function fetchLinks(cursor?: string, query?: string) {
+/**
+ * `isPress` restricts results to press links (`true`) or to every
+ * other link (`false`), for the separate Press/Links pickers.
+ */
+export async function fetchLinks(
+  cursor?: string,
+  query?: string,
+  isPress?: boolean
+) {
   if (!cursor && !query) {
-    return fetchCachedLinksFirstPage()
+    return fetchCachedLinksFirstPage(isPress)
   }
 
-  return fetchLinksRaw(cursor, query)
+  return fetchLinksRaw(cursor, query, isPress)
 }
 
 /** Only the press links */
@@ -135,8 +143,10 @@ export async function fetchSocialLinksRaw() {
  */
 export async function fetchLinksRaw(
   cursor?: string,
-  query?: string
+  query?: string,
+  isPress?: boolean
 ): Promise<ResponseWithCursor<DashboardLink>> {
+  const pressFilter = isPress ?? null
   return runListFetch({
     cursor,
     query,
@@ -151,6 +161,10 @@ export async function fetchLinksRaw(
         OR url ILIKE ${like}
         OR title ILIKE ${like}
         OR quotation ILIKE ${like}
+      )
+      AND (
+        ${pressFilter}::boolean IS NULL
+        OR (type IS NOT DISTINCT FROM 'press') = ${pressFilter}
       )
     `,
     list: ({ like, cursorName, cursorId }) => sql`
@@ -171,6 +185,10 @@ export async function fetchLinksRaw(
         OR url ILIKE ${like}
         OR title ILIKE ${like}
         OR quotation ILIKE ${like}
+      )
+      AND (
+        ${pressFilter}::boolean IS NULL
+        OR (type IS NOT DISTINCT FROM 'press') = ${pressFilter}
       )
       AND (
         ${cursorName}::text IS NULL

@@ -1,6 +1,6 @@
 import type { z } from 'zod'
 
-import { requireAuth } from '@/lib/auth/guard'
+import { assertAuthed, requireAuth } from '@/lib/auth/guard'
 import { itemFieldPrefix } from '@/lib/item-fields'
 import type { ItemType } from '@/lib/schemas'
 import { itemTypeToLabel } from '@/lib/schemas'
@@ -118,7 +118,9 @@ interface SaveItemFromFieldsOptions<S extends z.ZodTypeAny, T> {
 /**
  * normalize → validate → save pipeline for a single item embedded
  * via another domain's multi-item picker: accepts raw data (not FormData).
- * Creates when `id` is absent, updates when present.
+ * Creates when `id` is absent, updates when present. Session-checked
+ * here rather than relying on the parent action: each domain's
+ * `save*FromFields` wrapper is itself an exposed server action.
  */
 export async function saveItemFromFields<S extends z.ZodTypeAny, T>({
   id,
@@ -129,6 +131,7 @@ export async function saveItemFromFields<S extends z.ZodTypeAny, T>({
   create,
   update
 }: SaveItemFromFieldsOptions<S, T>): Promise<T> {
+  await assertAuthed()
   const prepared = prepare ? await prepare(fields, id) : fields
   const parsed = schema.safeParse(normalizeFormData(prepared))
   if (!parsed.success) {

@@ -275,6 +275,68 @@ describe('Link Actions', () => {
       })
     })
 
+    it('merges press links first, then other links', async () => {
+      const result = await resolveOrderedLinkIds({
+        'links[0].id': 'link-1',
+        'pressLinks[0].id': 'press-1',
+        'pressLinks[1].id': 'press-2'
+      })
+
+      expect(result).toEqual({
+        linkIds: ['press-1', 'press-2', 'link-1']
+      })
+    })
+
+    it('keeps one id for a link picked in both lists', async () => {
+      const result = await resolveOrderedLinkIds({
+        'links[0].id': 'link-1',
+        'pressLinks[0].id': 'link-1'
+      })
+
+      expect(result).toEqual({ linkIds: ['link-1'] })
+    })
+
+    it('saves new press-picker entries as press', async () => {
+      mockSql.mockResolvedValueOnce([pressLinkFixture])
+
+      await resolveOrderedLinkIds({
+        'pressLinks[0].url': newPressLinkFixture.url,
+        'pressLinks[0].title': 'Review',
+        'pressLinks[0].attribution': 'NYT',
+        'pressLinks[0].publishDate': '2024-01-01'
+      })
+
+      expect(mockSql.mock.calls[0]).toContain('press')
+    })
+
+    it.each(['title', 'attribution', 'publishDate'])(
+      'rejects a press-picker entry missing %s',
+      async (field) => {
+        const fields: Record<string, unknown> = {
+          'pressLinks[0].url': newPressLinkFixture.url,
+          'pressLinks[0].title': 'Review',
+          'pressLinks[0].attribution': 'NYT',
+          'pressLinks[0].publishDate': '2024-01-01'
+        }
+        delete fields[`pressLinks[0].${field}`]
+
+        await expect(resolveOrderedLinkIds(fields)).rejects.toThrow(
+          'Invalid link data'
+        )
+        expect(mockSql).not.toHaveBeenCalled()
+      }
+    )
+
+    it('ignores an untouched empty press slot', async () => {
+      const result = await resolveOrderedLinkIds({
+        'pressLinks[0].url': '',
+        'pressLinks[0].attribution': ''
+      })
+
+      expect(result).toEqual({ linkIds: [] })
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
     it('supports a custom field prefix', async () => {
       const result = await resolveOrderedLinkIds(
         { 'related[0].id': 'link-1' },

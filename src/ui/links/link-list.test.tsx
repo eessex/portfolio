@@ -94,6 +94,20 @@ describe('LinksList', () => {
     expect(screen.getAllByRole('list')).toHaveLength(1)
   })
 
+  it('renders quoted press links before unquoted ones, matching the picker’s groups', () => {
+    const unquoted = link(pressLinkFixture, 'press-unquoted', {
+      quotation: undefined
+    })
+    render(<LinksList links={[unquoted, pressOlder]} />)
+
+    expect(
+      renderedHrefs(screen.getByRole('region', { name: 'Links' }))
+    ).toEqual([
+      'https://press-older.com',
+      'https://press-unquoted.com'
+    ])
+  })
+
   it('shows every press link, without a reveal button', () => {
     const press = Array.from({ length: 9 }, (_, i) =>
       link(pressLinkFixture, `press-${i}`, { quotation: undefined })

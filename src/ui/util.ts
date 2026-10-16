@@ -396,6 +396,8 @@ export type SearchParams = {
   projectId?: string
   /** Restrict images to a type, e.g. 'press' for the press-photo pickers */
   type?: string
+  /** Restrict links to press (`true`) or non-press (`false`) links */
+  isPress?: boolean
 }
 
 type UrlParams = {

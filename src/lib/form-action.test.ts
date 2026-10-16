@@ -1,9 +1,11 @@
 import { z } from 'zod'
 
+import { auth } from '@/auth'
 import {
   resolveItemId,
   resolveOrderedIds,
-  runFormAction
+  runFormAction,
+  saveItemFromFields
 } from '@/lib/form-action'
 import { formDataFromObject } from '@/test/helpers'
 
@@ -58,6 +60,28 @@ describe('runFormAction', () => {
 
     expect(res).toEqual({ ok: true })
     expect(save).toHaveBeenCalledWith({ title: 'Prepared' })
+  })
+})
+
+describe('saveItemFromFields', () => {
+  it('rejects an unauthenticated caller before saving', async () => {
+    const mockAuth = auth as unknown as jest.Mock
+    mockAuth.mockResolvedValueOnce(null)
+    const create = jest.fn(async () => ({ id: 'new' }))
+    const update = jest.fn(async () => ({ id: 'existing' }))
+
+    await expect(
+      saveItemFromFields({
+        id: 'existing',
+        fields: { title: 'A project' },
+        schema,
+        itemType: 'projects',
+        create,
+        update
+      })
+    ).rejects.toThrow('Unauthorized')
+    expect(create).not.toHaveBeenCalled()
+    expect(update).not.toHaveBeenCalled()
   })
 })
 

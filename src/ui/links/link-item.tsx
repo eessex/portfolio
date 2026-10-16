@@ -1,5 +1,5 @@
 import type { Link } from '@/lib/links/schemas/db'
-import { formattedDateTime } from '@/ui/util'
+import { formattedDateOrTimestamp } from '@/ui/util'
 
 export function LinkItem({
   link,
@@ -30,8 +30,9 @@ export function LinkItem({
                   </>
                 )}
                 <span>
-                  {formattedDateTime(
-                    link.publishDate || link.createdAt!,
+                  {formattedDateOrTimestamp(
+                    link.publishDate,
+                    link.createdAt!,
                     'xs'
                   )}
                 </span>
@@ -44,8 +45,9 @@ export function LinkItem({
                 {link.attribution && (
                   <span>{link.attribution}, </span>
                 )}
-                {formattedDateTime(
-                  link.publishDate || link.createdAt!,
+                {formattedDateOrTimestamp(
+                  link.publishDate,
+                  link.createdAt!,
                   'xs'
                 )}
               </div>

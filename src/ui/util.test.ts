@@ -3,6 +3,8 @@ import {
   fromDateTimeInputValue
 } from '@/lib/dates'
 import {
+  formattedDateOrTimestamp,
+  formattedDateTime,
   formattedLinkUrl,
   toDateInputValue,
   toDateTimeInputValue
@@ -94,6 +96,35 @@ describe('toDateTimeInputValue', () => {
         DEFAULT_TIME_ZONE
       )
     ).toEqual(instant)
+  })
+})
+
+describe('formattedDateTime', () => {
+  it('keeps the calendar date of a DATE value in xs/xxs', () => {
+    // neon returns DATE 2025-01-01 as local (UTC) midnight
+    const date = new Date('2025-01-01T00:00:00Z')
+
+    expect(formattedDateTime(date, 'xxs')).toBe('2025')
+    expect(formattedDateTime(date, 'xs')).toBe('Jan 2025')
+  })
+})
+
+describe('formattedDateOrTimestamp', () => {
+  // 9pm Jan 31 in New York
+  const createdAt = new Date('2026-02-01T02:00:00Z')
+
+  it('formats the DATE when set', () => {
+    const publishDate = new Date('2025-03-01T00:00:00Z')
+
+    expect(
+      formattedDateOrTimestamp(publishDate, createdAt, 'xs')
+    ).toBe('Mar 2025')
+  })
+
+  it('formats a timestamp fallback in DEFAULT_TIME_ZONE', () => {
+    expect(formattedDateOrTimestamp(undefined, createdAt, 'xs')).toBe(
+      'Jan 2026'
+    )
   })
 })
 

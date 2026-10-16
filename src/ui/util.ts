@@ -89,17 +89,36 @@ export function formattedDateTime(
     }).format(date)
   }
 
+  if (format === 'xs' || format === 'xxs') {
+    return new Intl.DateTimeFormat('en-US', {
+      ...getTimeFormat(format),
+      timeZone: 'UTC'
+    }).format(date)
+  }
+
   const offsetMinutes = getUtcOffsetMinutes(date, DEFAULT_TIME_ZONE)
   const adjustedTime = date.getTime() - offsetMinutes * 60 * 1000
-  const localDate =
-    format === 'xs' || format === 'xxs'
-      ? new Date(date)
-      : new Date(adjustedTime)
 
   return new Intl.DateTimeFormat('en-US', {
     ...getTimeFormat(format),
     timeZone: DEFAULT_TIME_ZONE
-  }).format(localDate)
+  }).format(new Date(adjustedTime))
+}
+
+/**
+ * Formats a Postgres `DATE` (e.g. `publishDate`) or, when it's unset,
+ * the `TIMESTAMP` fallback (e.g. `createdAt`). xs/xxs assume a `DATE`
+ * and format in UTC, so a timestamp fallback is pinned to
+ * DEFAULT_TIME_ZONE instead.
+ */
+export function formattedDateOrTimestamp(
+  date: string | Date | undefined,
+  timestamp: string | Date,
+  format?: DateFormatSize
+) {
+  return date
+    ? formattedDateTime(date, format)
+    : formattedDateTime(timestamp, format, DEFAULT_TIME_ZONE)
 }
 
 /**

@@ -1,3 +1,4 @@
+import { DEFAULT_TIME_ZONE } from '@/lib/dates'
 import type { EventClient } from '@/lib/events/types'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
@@ -52,6 +53,10 @@ export function FormattedItemDate({
 }) {
   const date = new Date(itemSortDate(item))
   const isProject = item.path === PagePaths.projects
+  const startTimezone =
+    isProject && !(item as ProjectClient).startDate
+      ? (timezone ?? DEFAULT_TIME_ZONE)
+      : timezone
   const rawEndDate = (item as ProjectClient).endDate
   const endDate = rawEndDate ? new Date(rawEndDate) : undefined
   const isUpcomingEvent =
@@ -64,7 +69,7 @@ export function FormattedItemDate({
   return (
     <>
       <time dateTime={date?.toISOString()}>
-        {formattedDateTime(date, dateFormat, timezone)}
+        {formattedDateTime(date, dateFormat, startTimezone)}
       </time>
 
       {isProject && endDate ? (

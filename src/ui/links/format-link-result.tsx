@@ -2,7 +2,7 @@ import type { Link } from '@/lib/links/schemas/db'
 import { itemBadges } from '@/ui/badges/badges'
 import type { NewItemSummaryActions } from '@/ui/item-picker/item-picker'
 import { ItemResultLabel } from '@/ui/item-result-label'
-import { formattedDateTime, formattedLinkUrl } from '@/ui/util'
+import { formattedDateOrTimestamp, formattedLinkUrl } from '@/ui/util'
 
 /**
  * "attribution, date", em-dash prefixed after a quotation (as in
@@ -12,7 +12,7 @@ function pressLinkCitation(link: Link) {
   const rawDate = link.publishDate || link.createdAt
   const date =
     rawDate && !isNaN(new Date(rawDate).getTime())
-      ? formattedDateTime(rawDate, 'xs')
+      ? formattedDateOrTimestamp(link.publishDate, rawDate, 'xs')
       : undefined
   const citation = [link.attribution, date].filter(Boolean).join(', ')
   if (!citation) return undefined

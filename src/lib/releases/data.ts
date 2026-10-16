@@ -38,7 +38,13 @@ export async function fetchReleaseById(
           END
         ) AS cover_image,
         (
-          SELECT COALESCE(jsonb_agg(build_embed_code_json(ec)), '[]'::jsonb)
+          SELECT COALESCE(
+            jsonb_agg(
+              build_embed_code_json(ec)
+              ORDER BY array_position(r.embed_code_ids, ec.id)
+            ),
+            '[]'::jsonb
+          )
           FROM embed_codes ec
           WHERE ec.id = ANY(r.embed_code_ids)
             AND ec.id != r.embed_code_ids[1]
@@ -54,7 +60,13 @@ export async function fetchReleaseById(
           END
         ) AS featured_embed_code,
         (
-          SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
+          SELECT COALESCE(
+            jsonb_agg(
+              build_image_json(i)
+              ORDER BY array_position(r.image_ids, i.id)
+            ),
+            '[]'::jsonb
+          )
           FROM images i
           WHERE i.id = ANY(r.image_ids)
             AND i.id != COALESCE(r.cover_image_id, r.image_ids[1])

@@ -1,6 +1,7 @@
 // Deliberately NOT a server action ('use server' would expose schema
 // creation as a public endpoint). Only run from scripts/setup.ts.
 import { sql } from '@/lib/db'
+import { projectTypes } from '@/lib/projects/schemas'
 import { pagePaths } from '@/lib/schemas'
 
 /**
@@ -36,14 +37,47 @@ async function createProjectsTable() {
       type VARCHAR(30),
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
-      CHECK (type IN ('band', 'collaborative', 'radioShow', 'eventSeries', 'recordLabel') OR type IS NULL)
+      CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')
     );
   `
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_projects_slug ON projects(slug);`
   // Additive per-project contacts (CONTACT‑1). ADD COLUMN IF NOT EXISTS
   // is idempotent, so this is safe to re-run against an existing table.
   await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS contact_info JSONB[];`
+  await syncProjectTypeConstraint()
+}
+
+/**
+ * (Re)creates the `type` CHECK from `projectTypes`, so adding a type in
+ * code reaches the DB on the next setup run. Drops every CHECK on the
+ * `type` column first, including the unnamed one older tables got from
+ * CREATE TABLE. One DO block, so it's atomic; re-validating the small
+ * projects table on each run is cheap.
+ */
+async function syncProjectTypeConstraint() {
+  // code constants, not user input, so safe to inline
+  const allowed = projectTypes.map((type) => `'${type}'`).join(', ')
+  await sql`
+    DO $$
+    DECLARE
+      c record;
+    BEGIN
+      FOR c IN
+        SELECT con.conname
+        FROM pg_constraint con
+        JOIN pg_attribute a
+          ON a.attrelid = con.conrelid AND a.attnum = ANY (con.conkey)
+        WHERE con.conrelid = 'projects'::regclass
+          AND con.contype = 'c'
+          AND a.attname = 'type'
+      LOOP
+        EXECUTE format('ALTER TABLE projects DROP CONSTRAINT %I', c.conname);
+      END LOOP;
+      ALTER TABLE projects ADD CONSTRAINT chk_projects_type
+      CHECK (type IN (${sql.unsafe(allowed)}) OR type IS NULL);
+    END
+    $$;
+  `
 }
 
 /**
@@ -557,6 +591,8 @@ async function createEventsTable() {
 /**
  * Sets up slug history for tables with slugs.
  * Must be created before any slug update triggers are installed.
+ * CREATE OR REPLACE, so a re-run updates the function existing
+ * triggers already call.
  */
 async function setupSlugHistory() {
   await sql`
@@ -576,7 +612,11 @@ async function setupSlugHistory() {
     BEGIN
       IF NEW.slug IS DISTINCT FROM OLD.slug THEN
         INSERT INTO slug_history(table_name, row_id, old_slug, created_at)
-        VALUES (TG_TABLE_NAME, OLD.id, OLD.slug, CURRENT_TIMESTAMP);
+        VALUES (TG_TABLE_NAME, OLD.id, OLD.slug, CURRENT_TIMESTAMP)
+        -- a slug given up again (renamed back, or reused by another row)
+        -- redirects to whichever row gave it up last
+        ON CONFLICT (table_name, old_slug) DO UPDATE
+        SET row_id = EXCLUDED.row_id, created_at = EXCLUDED.created_at;
       END IF;
       RETURN NEW;
     END;
@@ -590,14 +630,15 @@ async function setupSlugHistory() {
  */
 async function setupSlugTriggers() {
   for (const table of pagePaths) {
-    const triggerName = `trg_${table}_slug`
+    const trigger = sql.unsafe(`trg_${table}_slug`)
+    const tableName = sql.unsafe(table)
 
-    await sql.unsafe(`
-      DROP TRIGGER IF EXISTS ${triggerName} ON ${table};
-      CREATE TRIGGER ${triggerName}
-      BEFORE UPDATE OF slug ON ${table}
+    await sql`DROP TRIGGER IF EXISTS ${trigger} ON ${tableName};`
+    await sql`
+      CREATE TRIGGER ${trigger}
+      BEFORE UPDATE OF slug ON ${tableName}
       FOR EACH ROW EXECUTE FUNCTION save_old_slug();
-    `)
+    `
   }
 }
 

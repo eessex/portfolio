@@ -7,14 +7,11 @@
   --gutter: #{grids.space-rem(4)};
 
   container: carousel / inline-size;
-  padding-top: 4.5rem;
+  padding-top: grids.space-rem(4);
+  padding-bottom: grids.space-rem(16);
 
   @include breakpoints.mobile {
     --gutter: #{grids.space-rem(3)};
-  }
-
-  &:last-child {
-    padding-bottom: grids.space-rem(16);
   }
 }
 
@@ -47,6 +44,7 @@
 }
 
 .count {
+  @include type.font-size('sm');
   @include type.font-weight('normal');
 }
 

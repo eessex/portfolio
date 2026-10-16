@@ -1,62 +1,55 @@
 @use '@/ui/carousel/carousel';
+@use '@/ui/items/item-card';
 @use '@/ui/styles/grids';
-@use '@/ui/styles/type';
 
-.project {
-  @include carousel.media-slide('img, .placeholder');
+// an `ItemCard` restyled as a carousel slide; `article` outranks the
+// card's own `.card a > img` / `.card h3` rules
+article.project {
+  @include carousel.media-slide('a > img');
 
-  display: flex;
-  flex-direction: column;
-  gap: grids.space-rem(2);
-  color: inherit;
-  text-decoration: none;
+  // the card's no-cover placeholder, at the row height
+  --card-placeholder-size: var(--carousel-media-height);
 
-  img,
-  .placeholder {
-    background-color: var(--transparency-extra-light);
-  }
-
-  &:hover .title {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-}
-
-.media {
   position: relative;
-  display: block;
+  gap: grids.space-rem(2);
+  padding: 0;
 
-  img {
+  a > img {
     display: block;
+    margin: 0;
+    background-color: var(--input-background-color);
   }
 
-  mark {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+  > div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  h3 {
+    @include item-card.title;
+  }
+
+  p {
     margin: 0;
   }
+
+  p:empty {
+    display: none;
+  }
+
+  @include carousel.narrow {
+    --card-placeholder-size: var(--carousel-media-height-narrow);
+  }
 }
 
-.placeholder {
-  display: block;
-  aspect-ratio: 1;
-}
+// the same text spacing as an expanded `ItemsTable` row; doubled to
+// outrank the card's `.card p.card-item-*` rules
+article.project.project {
+  p:global(.category) {
+    @include item-card.category;
+  }
 
-.text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.title {
-  @include type.heading('lg');
-}
-
-.type {
-  @include type.meta();
-}
-
-.years {
-  @include type.size('base', 'normal', 'sm');
+  p:has(> time) {
+    @include item-card.date;
+  }
 }

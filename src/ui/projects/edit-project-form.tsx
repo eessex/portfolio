@@ -84,10 +84,7 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         errors={errors?.description}
         label='Description'
       />
-      <EmbedCodesPicker
-        featuredEmbedCode={project?.featuredEmbedCode}
-        embedCodes={project?.embedCodes}
-      />
+      <EmbedCodesPicker embedCodes={project?.embedCodes} />
       <ContactInfoFields contactInfo={project?.contactInfo} />
       <PressLinksPicker links={project?.links} />
       <LinksPicker links={project?.links} />

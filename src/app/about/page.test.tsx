@@ -42,8 +42,7 @@ type DefaultProject = NonNullable<
 const defaultProject: DefaultProject = {
   ...projectFixtureBand,
   isDefaultProject: true,
-  embedCodes: undefined,
-  featuredEmbedCode: undefined
+  embedCodes: undefined
 }
 const draftDefault: DefaultProject = {
   ...defaultProject,

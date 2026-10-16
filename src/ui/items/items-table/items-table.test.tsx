@@ -384,6 +384,24 @@ describe('ItemsTable — embedded items (embed codes)', () => {
     })
   })
 
+  it('shows the search heading with the count', async () => {
+    renderEmbedCodesTable(
+      makeEmbedCodeResponse(
+        [usedEmbedCode, unusedEmbedCode],
+        30,
+        'cursor-1'
+      )
+    )
+
+    fireEvent.change(
+      screen.getByRole('searchbox', { name: /search/i }),
+      { target: { value: 'sound' } }
+    )
+
+    const heading = await screen.findByText(/matching “sound”/)
+    expect(heading.querySelector('span')).toHaveTextContent(/^\d+$/)
+  })
+
   describe('row-as-edit-link (admin-only, no own page/slug)', () => {
     it('is not clickable/focusable for anonymous visitors', async () => {
       renderEmbedCodesTable()

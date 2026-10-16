@@ -94,12 +94,12 @@ export async function fetchProjectsRaw(
           ) AS cover_image,
           EXISTS (
             SELECT 1 FROM embed_codes ec
-            WHERE (ec.id = ANY(p.embed_code_ids) OR ec.id = p.featured_embed_code_id)
+            WHERE ec.id = ANY(p.embed_code_ids)
               AND ec.type = ${EmbedCodeTypes.video}
           ) AS has_video,
           EXISTS (
             SELECT 1 FROM embed_codes ec
-            WHERE (ec.id = ANY(p.embed_code_ids) OR ec.id = p.featured_embed_code_id)
+            WHERE ec.id = ANY(p.embed_code_ids)
               AND ec.type = ${EmbedCodeTypes.audio}
           ) AS has_audio
         FROM projects AS p
@@ -160,16 +160,6 @@ export async function fetchProjectById(
           FROM embed_codes ec
           WHERE ec.id = ANY(p.embed_code_ids)
         ) AS embed_codes,
-        (
-          CASE
-            WHEN p.featured_embed_code_id IS NOT NULL
-            THEN (
-              SELECT build_embed_code_json(ec)
-              FROM embed_codes ec
-              WHERE ec.id = p.featured_embed_code_id
-            )
-          END
-        ) AS featured_embed_code,
         (
           SELECT COALESCE(
             jsonb_agg(

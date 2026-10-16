@@ -1,0 +1,27 @@
+// a hover overlay over an image, on the link/button wrapping it
+// on the wrapper; block, so the overlay covers just the image
+@mixin image-overlay {
+  position: relative;
+  display: block;
+
+  > img {
+    display: block;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--input-background-color);
+    opacity: 0;
+    transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+}
+
+// on the wrapper, inside whichever state should show it
+@mixin image-overlay-visible {
+  &::after {
+    opacity: 1;
+  }
+}

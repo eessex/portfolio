@@ -123,17 +123,13 @@ describe('fetchEventById', () => {
     mockSql.mockResolvedValue([
       {
         ...eventFixturePast,
-        embedCodes: [embedCodeFixture],
-        featuredEmbedCode: embedCodeFixture
+        embedCodes: [embedCodeFixture]
       }
     ])
 
     const result = await Events.fetchEventById(eventFixturePast.id)
 
     expect(result?.embedCodes?.[0].coverImageUrl).toContain(
-      embedCodeFixture.coverImageId
-    )
-    expect(result?.featuredEmbedCode?.coverImageUrl).toContain(
       embedCodeFixture.coverImageId
     )
   })

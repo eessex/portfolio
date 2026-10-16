@@ -1,4 +1,9 @@
-import { render, screen } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  within
+} from '@testing-library/react'
 
 import ItemLayout, {
   generateItemMetadata
@@ -225,7 +230,44 @@ describe('ItemLayout header', () => {
   })
 })
 
-describe('ItemLayout on the default project', () => {
+describe('ItemLayout contact info', () => {
+  it('labels untitled entries for screen readers', async () => {
+    render(
+      await ItemLayout({
+        item: {
+          ...projectFixtureBand,
+          contactInfo: [
+            { title: 'Bookings', contact: 'book@example.com' },
+            { contact: 'info@example.com' }
+          ]
+        }
+      })
+    )
+
+    const address = screen
+      .getByRole('article')
+      .querySelector('address')!
+    const [titled, untitled] =
+      within(address).getAllByText(/@example\.com/)
+    expect(titled).toHaveTextContent('Bookings: book@example.com')
+    expect(untitled).toHaveTextContent('Contact: info@example.com')
+    expect(within(address).getByText('Contact:')).toHaveClass(
+      'visually-hidden'
+    )
+  })
+})
+
+type LayoutItem = Parameters<typeof ItemLayout>[0]['item']
+
+describe.each([
+  ['an event', eventFixturePast],
+  ['a release', releaseFixtureAlbum],
+  ['a project', projectFixtureBand],
+  [
+    'the default project',
+    { ...projectFixtureBand, isDefaultProject: true }
+  ]
+] as [string, LayoutItem][])('ItemLayout media on %s', (_, base) => {
   const images = [
     { ...imageFixture, type: 'press' as const, caption: 'Photo one' },
     {
@@ -249,43 +291,36 @@ describe('ItemLayout on the default project', () => {
     }
   ]
 
-  async function renderDefault(
-    item: Partial<Parameters<typeof ItemLayout>[0]['item']>
-  ) {
+  async function renderItem(item: Partial<LayoutItem>) {
     render(
       await ItemLayout({
         item: {
-          ...projectFixtureBand,
-          isDefaultProject: true,
+          ...base,
+          coverImage: undefined,
+          images: undefined,
+          embedCodes: undefined,
           ...item
-        } as Parameters<typeof ItemLayout>[0]['item'],
-        children: <p>All projects</p>
+        } as LayoutItem,
+        children: <p>Children</p>
       })
     )
   }
 
-  function region(name: string) {
-    return screen.getByRole('region', {
-      name
-    })
+  function queryRegion(name: string) {
+    return screen.queryByRole('region', { name })
   }
 
-  it('orders embed and image carousels around the children, outside the article', async () => {
-    await renderDefault({ coverImage, images, embedCodes })
+  it('puts the cover image at the top of the article', async () => {
+    await renderItem({ coverImage })
 
-    const media = region('Video & audio')
-    const pressImages = region('Press images')
-    const projects = screen.getByText('All projects')
-
-    expect(screen.getByRole('article')).not.toContainElement(media)
-    expect(media.nextElementSibling).toBe(projects)
-    expect(projects.nextElementSibling).toBe(pressImages)
-    expect(pressImages).toHaveTextContent('Photo two')
-    expect(media).toHaveTextContent('Video two')
+    const cover = screen.getByText('Cover').closest('figure')!
+    const header = screen.getByRole('article').querySelector('header')
+    expect(header?.nextElementSibling).toBe(cover)
   })
 
-  it('keeps a lone embed and image inline in the article', async () => {
-    await renderDefault({
+  it('keeps a lone embed and cover + 1 image inline in the article', async () => {
+    await renderItem({
+      coverImage,
       images: images.slice(0, 1),
       embedCodes: embedCodes.slice(0, 1)
     })
@@ -293,86 +328,78 @@ describe('ItemLayout on the default project', () => {
     const article = screen.getByRole('article')
     expect(article).toHaveTextContent('Video one')
     expect(article).toHaveTextContent('Photo one')
+    expect(queryRegion('Video & audio')).not.toBeInTheDocument()
+    expect(queryRegion('Press images')).not.toBeInTheDocument()
+  })
+
+  it('carousels 2+ embeds and cover + 2 images, before the children', async () => {
+    await renderItem({ coverImage, images, embedCodes })
+
+    const media = queryRegion('Video & audio')!
+    const pressImages = queryRegion('Press images')!
+    const children = screen.getByText('Children')
+
+    expect(screen.getByRole('article')).not.toContainElement(media)
+    expect(media.nextElementSibling).toBe(pressImages)
+    expect(pressImages.nextElementSibling).toBe(children)
+    expect(media).toHaveTextContent('Video two')
+    expect(pressImages).toHaveTextContent('Photo two')
+    expect(pressImages).not.toHaveTextContent('Cover')
+  })
+
+  function openImage(caption: string) {
+    fireEvent.click(
+      screen
+        .getAllByText(caption)[0]
+        .closest('figure')!
+        .querySelector('button')!
+    )
+  }
+
+  it('opens the cover in one lightbox that continues into the carousel', async () => {
+    await renderItem({ coverImage, images })
+
+    openImage('Cover')
+
+    const dialog = screen.getByRole('dialog', { name: 'Image 1 / 3' })
+    expect(within(dialog).getByText('Cover')).toBeInTheDocument()
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Next image' })
+    )
+    expect(screen.getByRole('dialog')).toHaveAccessibleName(
+      'Image 2 / 3'
+    )
     expect(
-      screen.getByRole('link', { name: 'Download high-res ↓' })
+      within(screen.getByRole('dialog')).getByText('Photo one')
     ).toBeInTheDocument()
-    expect(
-      screen.queryByRole('region', { name: /Video & audio/ })
-    ).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole('region', { name: /Press images/ })
-    ).not.toBeInTheDocument()
   })
 
-  it('carousels images once there are 3, counting the cover', async () => {
-    await renderDefault({ coverImage, images })
+  it('opens a carousel image at its place among all the page images', async () => {
+    await renderItem({ coverImage, images })
 
-    const carousel = region('Press images')
-    expect(carousel).toHaveTextContent('Photo one')
-    expect(carousel).toHaveTextContent('Photo two')
-    expect(carousel).not.toHaveTextContent('Cover')
+    openImage('Photo two')
+
+    expect(
+      screen.getByRole('dialog', { name: 'Image 3 / 3' })
+    ).toBeInTheDocument()
   })
 
-  it('keeps fewer than 3 images inline in the article', async () => {
-    await renderDefault({ coverImage, images: images.slice(0, 1) })
+  it('includes an inline image after the cover', async () => {
+    await renderItem({ coverImage, images: images.slice(0, 1) })
 
-    expect(screen.getByRole('article')).toHaveTextContent('Photo one')
+    openImage('Photo one')
+
     expect(
-      screen.queryByRole('region', { name: /Press images/ })
-    ).not.toBeInTheDocument()
+      screen.getByRole('dialog', { name: 'Image 2 / 2' })
+    ).toBeInTheDocument()
   })
 
   it('keeps 2 images inline without a cover', async () => {
-    await renderDefault({ images })
+    await renderItem({ images })
 
     const article = screen.getByRole('article')
     expect(article).toHaveTextContent('Photo one')
     expect(article).toHaveTextContent('Photo two')
-    expect(
-      screen.queryByRole('region', { name: /Press images/ })
-    ).not.toBeInTheDocument()
-  })
-})
-
-describe('ItemLayout embed codes', () => {
-  const embedCodes = [
-    { ...embedCodeFixture, caption: 'Video one' },
-    {
-      ...embedCodeFixture,
-      id: 'd7c2e3f0-3333-4444-8555-b66677778888',
-      caption: 'Video two'
-    }
-  ]
-
-  it('carousels 2+ embeds below the article on any page', async () => {
-    render(
-      await ItemLayout({
-        item: { ...eventFixturePast, embedCodes },
-        children: <p>More events</p>
-      })
-    )
-
-    const media = screen.getByRole('region', {
-      name: 'Video & audio'
-    })
-    expect(screen.getByRole('article')).not.toContainElement(media)
-    expect(media).toHaveTextContent('Video two')
-    expect(media.nextElementSibling).toHaveTextContent('More events')
-  })
-
-  it('keeps a lone embed inline on any page', async () => {
-    render(
-      await ItemLayout({
-        item: {
-          ...eventFixturePast,
-          embedCodes: embedCodes.slice(0, 1)
-        }
-      })
-    )
-
-    expect(screen.getByRole('article')).toHaveTextContent('Video one')
-    expect(
-      screen.queryByRole('region', { name: /Video & audio/ })
-    ).not.toBeInTheDocument()
+    expect(queryRegion('Press images')).not.toBeInTheDocument()
   })
 })

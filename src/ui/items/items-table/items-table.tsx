@@ -26,6 +26,7 @@ import type { Venue } from '@/lib/venues/schemas/db'
 import { Badges, itemBadges } from '@/ui/badges/badges'
 import { FiltersWrapper } from '@/ui/filters/filters'
 import { ItemsList } from '@/ui/items/items-list'
+import { animateRowChanges } from '@/ui/items/items-table/animate-row-changes'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import { ItemsTableRow } from '@/ui/items/items-table/items-table-row'
 import { LinkDetails } from '@/ui/links/link-details'
@@ -119,7 +120,12 @@ export function ItemsTable<
     if (category) {
       const typeLabel = formattedItemType(category, false, true)
       if (query.length > 0) {
-        return `${itemTypeToLabel(itemType)} matching "${query}" (${itemCount})`
+        return (
+          <>
+            {itemTypeToLabel(itemType)} matching &ldquo;{query}&rdquo;
+            <span className={styles.count}>{itemCount}</span>
+          </>
+        )
       } else {
         return typeLabel
       }
@@ -228,6 +234,9 @@ export function ItemsTable<
                     isExpandedOnLoad && styles['table-body--expanded']
                   )}
                   key={`${index}-${key}`}
+                  ref={
+                    isExpandedOnLoad ? animateRowChanges : undefined
+                  }
                 >
                   <tr
                     className={

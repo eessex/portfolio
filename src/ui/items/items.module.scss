@@ -1,3 +1,4 @@
+@use '@/ui/items/item-card';
 @use '@/ui/styles/breakpoints';
 @use '@/ui/styles/grids';
 @use '@/ui/styles/type';
@@ -90,6 +91,51 @@
     margin-top: -#{grids.space-rem(1)};
     margin-bottom: grids.space-rem(2);
   }
+}
+
+// stretched title link: the whole card is clickable; hovering
+// anywhere darkens the image and underlines the title
+.card {
+  position: relative;
+
+  h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  @include item-card.hover('.card-media', 'h3 a');
+}
+
+// with `isBadgeOnImage`: the badge on the image, and a square
+// placeholder holding it when there's no cover
+.card-media {
+  @include item-card.image-badge;
+}
+
+// with `isMediaIconsVisible`: the icons beside the title
+.card-meta:has(> .card-media-icons) {
+  @include item-card.title-with-media-icons(
+    'h3',
+    '.card-media-icons'
+  );
+}
+
+.card-media-icons {
+  @include item-card.media-icons;
+}
+
+.card-placeholder {
+  @include item-card.media-placeholder(
+    var(--card-placeholder-size, #{item-card.$media-height})
+  );
+}
+
+// links/buttons inside the card's text (ticket button, published
+// editions) stay clickable above the stretched title link
+.card-meta > :not(h3) :is(a[href], button) {
+  position: relative;
+  z-index: 1;
 }
 
 .featured-card {

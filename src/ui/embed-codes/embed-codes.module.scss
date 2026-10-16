@@ -1,6 +1,4 @@
 @use '@/ui/carousel/carousel';
-@use '@/ui/styles/grids';
-@use '@/ui/styles/type';
 
 .embed-codes {
   display: flex;
@@ -54,11 +52,5 @@
 
   figure {
     margin: 0;
-  }
-
-  figcaption {
-    @include type.size('sm');
-
-    padding-top: grids.space-rem(2);
   }
 }

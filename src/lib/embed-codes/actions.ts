@@ -20,7 +20,6 @@ import {
   runFormAction,
   saveItemFromFields
 } from '@/lib/form-action'
-import { featuredFlagFieldName } from '@/lib/item-fields'
 import { EmbeddedItemTypes } from '@/lib/schemas'
 import { formatDbResponseForClient } from '@/lib/util'
 
@@ -96,41 +95,18 @@ export async function saveEmbedCodeFromFields(
  * Resolves a reorderable multi-embed-code picker's submitted entries
  * (mix of existing selections, inline edits of attached embed codes,
  * and pending inline creations, in the user's chosen order — see
- * `extractIndexedGroups`) into an ordered list of embed code ids, plus a
- * featured id split off the front.
- *
- * Unlike a cover image, a featured embed code is never inferred from
- * position alone: the picker only submits its `featuredFlagFieldName`
- * flag while an entry is explicitly pinned as featured, so a project
- * with no featured embed code chosen gets `featuredEmbedCodeId:
- * undefined` even though it has embed codes.
+ * `extractIndexedGroups`) into an ordered list of embed code ids.
  */
 export async function resolveOrderedEmbedCodeIds(
   data: Record<string, unknown>,
   name = 'embedCodes'
-): Promise<{
-  embedCodeIds: string[]
-  featuredEmbedCodeId: string | undefined
-}> {
-  const featuredFlag = featuredFlagFieldName(name)
-  const isFeatured = Boolean(data[featuredFlag])
-  delete data[featuredFlag]
-
-  const resolvedIds = await resolveOrderedIds(
+): Promise<{ embedCodeIds: string[] }> {
+  const embedCodeIds = await resolveOrderedIds(
     data,
     name,
     saveEmbedCodeFromFields
   )
-
-  if (!isFeatured) {
-    return {
-      embedCodeIds: resolvedIds,
-      featuredEmbedCodeId: undefined
-    }
-  }
-
-  const [featuredEmbedCodeId, ...embedCodeIds] = resolvedIds
-  return { embedCodeIds, featuredEmbedCodeId }
+  return { embedCodeIds }
 }
 
 /**

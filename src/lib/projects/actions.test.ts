@@ -68,8 +68,7 @@ describe('Project Actions', () => {
       imageIds: []
     })
     mockResolveOrderedEmbedCodeIds.mockResolvedValue({
-      embedCodeIds: [],
-      featuredEmbedCodeId: undefined
+      embedCodeIds: []
     })
     mockResolveOrderedLinkIds.mockResolvedValue({ linkIds: [] })
   })
@@ -205,7 +204,7 @@ describe('Project Actions', () => {
         projectFixtureAlpha.id
       )
 
-      const [, , , , , , , isPublished, , shortDescription] = mockSql
+      const [, , , , , , isPublished, , shortDescription] = mockSql
         .mock.calls[1] as unknown as string[]
       expect(isPublished).toBe(false)
       expect(shortDescription).toBe(
@@ -317,7 +316,7 @@ describe('Project Actions', () => {
         )
 
         expect(mockSql.mock.calls[1]?.[1]).toEqual(NEW_IMAGE_ID)
-        expect(mockSql.mock.calls[1]?.[6]).toEqual([
+        expect(mockSql.mock.calls[1]?.[5]).toEqual([
           EXISTING_IMAGE_ID_1
         ])
       })
@@ -340,11 +339,11 @@ describe('Project Actions', () => {
         )
 
         expect(mockSql.mock.calls[1]?.[1]).toBeNull()
-        expect(mockSql.mock.calls[1]?.[6]).toEqual([])
+        expect(mockSql.mock.calls[1]?.[5]).toEqual([])
       })
     })
 
-    describe('embed codes picker (featuredEmbedCodeId + embedCodeIds)', () => {
+    describe('embed codes picker', () => {
       it('passes the raw submitted data to resolveOrderedEmbedCodeIds', async () => {
         mockSql
           .mockResolvedValueOnce([projectFixtureAlpha]) // fetchProjectById
@@ -367,13 +366,12 @@ describe('Project Actions', () => {
         )
       })
 
-      it('writes the resolved featuredEmbedCodeId and embedCodeIds to the saved row', async () => {
+      it('writes the resolved embedCodeIds, in order, to the saved row', async () => {
         mockSql
           .mockResolvedValueOnce([projectFixtureAlpha])
           .mockResolvedValueOnce([projectFixtureAlpha])
         mockResolveOrderedEmbedCodeIds.mockResolvedValueOnce({
-          featuredEmbedCodeId: NEW_EMBED_CODE_ID,
-          embedCodeIds: [EXISTING_EMBED_CODE_ID]
+          embedCodeIds: [NEW_EMBED_CODE_ID, EXISTING_EMBED_CODE_ID]
         })
 
         await editProject(
@@ -385,33 +383,13 @@ describe('Project Actions', () => {
         )
 
         expect(mockSql.mock.calls[1]?.[3]).toEqual([
+          NEW_EMBED_CODE_ID,
           EXISTING_EMBED_CODE_ID
         ])
-        expect(mockSql.mock.calls[1]?.[5]).toEqual(NEW_EMBED_CODE_ID)
-      })
-
-      it('leaves featuredEmbedCodeId unset when no slot is marked featured', async () => {
-        mockSql
-          .mockResolvedValueOnce([projectFixtureAlpha])
-          .mockResolvedValueOnce([projectFixtureAlpha])
-        mockResolveOrderedEmbedCodeIds.mockResolvedValueOnce({
-          featuredEmbedCodeId: undefined,
-          embedCodeIds: [EXISTING_EMBED_CODE_ID]
-        })
-
-        await editProject(
-          formDataFromObject({
-            ...projectFixtureAlpha,
-            isPublished: 'on'
-          }),
-          projectFixtureAlpha.id
-        )
-
-        expect(mockSql.mock.calls[1]?.[5]).toBeNull()
       })
     })
 
-    describe('project_id sync (Plan B2 auto-populate)', () => {
+    describe('project_id sync (auto-populate)', () => {
       it('stamps newly attached images/embed codes with the project id on create', async () => {
         mockSql.mockResolvedValueOnce([projectFixtureAlpha]) // INSERT ... RETURNING
         mockResolveOrderedImageIds.mockResolvedValueOnce({
@@ -419,8 +397,7 @@ describe('Project Actions', () => {
           imageIds: []
         })
         mockResolveOrderedEmbedCodeIds.mockResolvedValueOnce({
-          featuredEmbedCodeId: NEW_EMBED_CODE_ID,
-          embedCodeIds: []
+          embedCodeIds: [NEW_EMBED_CODE_ID]
         })
 
         await editProject(
@@ -432,7 +409,7 @@ describe('Project Actions', () => {
 
         // call 0: INSERT ... RETURNING
         // call 1: attach the cover image
-        // call 2: attach the featured embed code
+        // call 2: attach the embed code
         expect(mockSql).toHaveBeenCalledTimes(3)
         expect(mockSql.mock.calls[1]?.[1]).toEqual(
           projectFixtureAlpha.id
@@ -507,8 +484,7 @@ describe('Project Actions', () => {
           linkIds: [EXISTING_LINK_ID]
         })
         mockResolveOrderedEmbedCodeIds.mockResolvedValueOnce({
-          embedCodeIds: [],
-          featuredEmbedCodeId: NEW_EMBED_CODE_ID
+          embedCodeIds: [NEW_EMBED_CODE_ID]
         })
 
         await editProject(
@@ -572,7 +548,7 @@ describe('Project Actions', () => {
           ],
           [
             'UPDATE embed_codes AS ec',
-            'p.featured_embed_code_id = ec.id',
+            'ec.id = ANY(p.embed_code_ids)',
             EXISTING_EMBED_CODE_ID
           ]
         ] as const
@@ -638,8 +614,8 @@ describe('Project Actions', () => {
         const [strings, ...params] = mockSql.mock.calls[0]!
         const columns = strings.join('?').split('VALUES')[0]!
         expect(columns).toContain('is_default_project')
-        // 7th column: cover_image_id … image_ids, is_default_project
-        expect(params[6]).toBe(false)
+        // 6th column: cover_image_id … image_ids, is_default_project
+        expect(params[5]).toBe(false)
       })
 
       it('never writes the column on update, so the stored flag is kept', async () => {
@@ -696,7 +672,7 @@ describe('Project Actions', () => {
 
           expect(res?.ok).toBe(true)
           const [, ...params] = mockSql.mock.calls[0]!
-          expect(params[6]).toBe(true)
+          expect(params[5]).toBe(true)
         })
 
         it('never writes the column on update', async () => {
@@ -801,7 +777,7 @@ describe('Project Actions', () => {
         )
 
         // last INSERT param (before current_timestamp) is contact_info
-        expect(mockSql.mock.calls[0]?.[16]).toEqual([
+        expect(mockSql.mock.calls[0]?.[15]).toEqual([
           '{"title":"Bookings","contact":"bookings@example.com"}',
           '{"contact":"press@example.com"}'
         ])
@@ -822,7 +798,7 @@ describe('Project Actions', () => {
           })
         )
 
-        expect(mockSql.mock.calls[0]?.[16]).toEqual([
+        expect(mockSql.mock.calls[0]?.[15]).toEqual([
           '{"title":"Bookings","contact":"bookings@example.com"}'
         ])
       })
@@ -867,7 +843,7 @@ describe('Project Actions', () => {
 
         expect(res?.ok).toBe(true)
         // last UPDATE SET param (before the WHERE id) is contact_info
-        expect(mockSql.mock.calls[1]?.[15]).toEqual([
+        expect(mockSql.mock.calls[1]?.[14]).toEqual([
           '{"title":"Bookings","contact":"bookings@example.com"}'
         ])
       })
@@ -889,7 +865,7 @@ describe('Project Actions', () => {
         )
 
         expect(res?.ok).toBe(true)
-        expect(mockSql.mock.calls[1]?.[15]).toBeNull()
+        expect(mockSql.mock.calls[1]?.[14]).toBeNull()
       })
     })
   })

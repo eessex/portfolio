@@ -51,8 +51,7 @@ function saveProjectForm(
       const { coverImageId, imageIds } =
         await resolveOrderedImageIds(data)
       const { linkIds } = await resolveOrderedLinkIds(data)
-      const { embedCodeIds, featuredEmbedCodeId } =
-        await resolveOrderedEmbedCodeIds(data)
+      const { embedCodeIds } = await resolveOrderedEmbedCodeIds(data)
       const contactInfo = resolveContactInfo(data)
 
       return {
@@ -65,7 +64,6 @@ function saveProjectForm(
         ...(contactInfo && { contactInfo }),
         coverImageId,
         embedCodeIds,
-        featuredEmbedCodeId,
         imageIds,
         linkIds,
         path: 'projects',
@@ -165,7 +163,6 @@ async function createProject(project: CreateProject) {
       description,
       embedCodeIds,
       endDate,
-      featuredEmbedCodeId,
       imageIds,
       isDefaultProject,
       isPublished,
@@ -183,7 +180,6 @@ async function createProject(project: CreateProject) {
         description,
         embed_code_ids,
         end_date,
-        featured_embed_code_id,
         image_ids,
         is_default_project,
         is_published,
@@ -201,7 +197,6 @@ async function createProject(project: CreateProject) {
         ${description},
         ${embedCodeIds},
         ${endDate},
-        ${featuredEmbedCodeId},
         ${imageIds},
         ${isDefaultProject},
         ${isPublished},
@@ -237,7 +232,6 @@ async function updateProject(project: CreateProject, id: string) {
       description,
       embedCodeIds,
       endDate,
-      featuredEmbedCodeId,
       imageIds,
       isPublished,
       linkIds,
@@ -256,7 +250,6 @@ async function updateProject(project: CreateProject, id: string) {
         description = ${description},
         embed_code_ids = ${embedCodeIds},
         end_date = ${endDate},
-        featured_embed_code_id = ${featuredEmbedCodeId},
         image_ids = ${imageIds},
         is_published = ${isPublished},
         link_ids = ${linkIds},
@@ -289,13 +282,11 @@ async function updateProject(project: CreateProject, id: string) {
 
 /**
  * The full set of image/link/embed-code ids a project owns, including
- * the cover image / featured embed code (which are stored in their own
- * columns rather than the `*Ids` arrays).
+ * the cover image (stored in its own column rather than `imageIds`).
  */
 function childIdsOf(project: {
   coverImageId?: string
   embedCodeIds?: string[]
-  featuredEmbedCodeId?: string
   imageIds?: string[]
   linkIds?: string[]
 }) {
@@ -304,9 +295,7 @@ function childIdsOf(project: {
       ? [project.coverImageId, ...(project.imageIds ?? [])]
       : (project.imageIds ?? []),
     linkIds: project.linkIds ?? [],
-    embedCodeIds: project.featuredEmbedCodeId
-      ? [project.featuredEmbedCodeId, ...(project.embedCodeIds ?? [])]
-      : (project.embedCodeIds ?? [])
+    embedCodeIds: project.embedCodeIds ?? []
   }
 }
 
@@ -407,20 +396,14 @@ function handOffLinks(projectId: string, ids?: string[]) {
   `
 }
 
-/**
- * `handOffImages` for embed codes, listed via `embed_code_ids` or
- * `featured_embed_code_id`.
- */
+/** `handOffImages` for embed codes, listed via `embed_code_ids`. */
 function handOffEmbedCodes(projectId: string, ids?: string[]) {
   return sql`
     UPDATE embed_codes AS ec
     SET project_id = (
       SELECT p.id FROM projects AS p
       WHERE p.id <> ${projectId}
-        AND (
-          ec.id = ANY(p.embed_code_ids)
-          OR p.featured_embed_code_id = ec.id
-        )
+        AND ec.id = ANY(p.embed_code_ids)
       ORDER BY p.created_at, p.id
       LIMIT 1
     )
@@ -513,7 +496,6 @@ function toDbRow(
     description: projectToSave.description ?? null,
     embedCodeIds: projectToSave.embedCodeIds ?? null,
     endDate: projectToSave.endDate ?? null,
-    featuredEmbedCodeId: projectToSave.featuredEmbedCodeId ?? null,
     imageIds: projectToSave.imageIds ?? null,
     // the stored flag wins: an update can neither set nor clear it, so
     // UPDATE doesn't write the column at all

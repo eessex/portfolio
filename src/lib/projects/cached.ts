@@ -24,6 +24,7 @@ export async function fetchCachedProjectById(
   id: string,
   isAuthed: boolean = false
 ) {
+  cacheTag('projects') // embedded-item actions invalidate this
   cacheTag(`projects:${isAuthed ? 'authed' : 'public'}`)
   cacheTag(`project:${id}`)
 
@@ -33,6 +34,7 @@ export async function fetchCachedProjectById(
 export async function fetchCachedDefaultProject(
   isAuthed: boolean = false
 ) {
+  cacheTag('projects') // embedded-item actions invalidate this
   cacheTag(`projects:${isAuthed ? 'authed' : 'public'}`)
   cacheTag('projects:default')
 

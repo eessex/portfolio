@@ -19,7 +19,6 @@ type ExistingEntryRowProps<
   itemType: EmbeddedItemType | PagePath
   idInputName: string
   dragHandle?: React.ReactNode
-  featuredButton?: React.ReactNode
   /** A single picker's label; wraps the row in a `<fieldset>`. */
   legend?: React.ReactNode
   /** Omitted when the picker has no edit form. */
@@ -38,7 +37,6 @@ export function ExistingEntryRow<
   itemType,
   idInputName,
   dragHandle,
-  featuredButton,
   legend,
   onEdit,
   onRemove,
@@ -57,13 +55,6 @@ export function ExistingEntryRow<
       Edit
     </button>
   )
-  const extraActions =
-    editButton || featuredButton ? (
-      <>
-        {editButton}
-        {featuredButton}
-      </>
-    ) : undefined
 
   return (
     <Wrapper className={itemPickerStyles['existing-item-wrapper']}>
@@ -78,7 +69,7 @@ export function ExistingEntryRow<
           entry.item,
           onRemove,
           removeLabel,
-          extraActions
+          editButton
         )}
       </SelectedResult>
     </Wrapper>

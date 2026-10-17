@@ -97,4 +97,18 @@ describe('createTables', () => {
       text.indexOf('DROP COLUMN')
     )
   })
+
+  it.each(['images', 'links'])(
+    'drops is_hidden_on_about_page from %s',
+    (table) => {
+      expect(
+        findQuery(
+          `ALTER TABLE ${table} DROP COLUMN IF EXISTS is_hidden_on_about_page`
+        )
+      ).toBeDefined()
+      expect(
+        findQuery(`CREATE TABLE IF NOT EXISTS ${table}`).text
+      ).not.toContain('is_hidden_on_about_page')
+    }
+  )
 })

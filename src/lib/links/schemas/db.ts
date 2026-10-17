@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { systemFields } from '@/lib/schemas/fields'
-import { bool, date, shortText, url } from '@/lib/schemas/primitives'
+import { date, shortText, url } from '@/lib/schemas/primitives'
 
 /**
  * The category of resource a link points to.
@@ -22,7 +22,6 @@ export type LinkType = z.infer<typeof linkTypeSchema>
 
 const linkFields = {
   attribution: shortText.optional(),
-  isHiddenOnAboutPage: bool.optional(),
   publishDate: date.optional(),
   quotation: shortText.optional(),
   title: shortText.optional(),

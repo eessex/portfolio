@@ -118,19 +118,11 @@ export async function resolveOrderedLinkIds(
 
 async function createLink(link: CreateLink) {
   try {
-    const {
-      attribution,
-      isHiddenOnAboutPage,
-      publishDate,
-      quotation,
-      title,
-      type,
-      url
-    } = toDbRow(link)
+    const { attribution, publishDate, quotation, title, type, url } =
+      toDbRow(link)
     const rows = await sql`
       INSERT INTO links (
         attribution,
-        is_hidden_on_about_page,
         publish_date,
         quotation,
         title,
@@ -139,7 +131,6 @@ async function createLink(link: CreateLink) {
         created_at
       ) VALUES (
         ${attribution},
-        ${isHiddenOnAboutPage},
         ${publishDate},
         ${quotation},
         ${title},
@@ -160,20 +151,12 @@ async function createLink(link: CreateLink) {
 async function updateLink(link: CreateLink, id: string) {
   const [existingLink] = await fetchLinksByIds([id])
   try {
-    const {
-      attribution,
-      isHiddenOnAboutPage,
-      publishDate,
-      quotation,
-      title,
-      type,
-      url
-    } = toDbRow(link, existingLink)
+    const { attribution, publishDate, quotation, title, type, url } =
+      toDbRow(link, existingLink)
     const rows = await sql`
       UPDATE links
       SET
         attribution = ${attribution},
-        is_hidden_on_about_page = ${isHiddenOnAboutPage},
         publish_date = ${publishDate},
         quotation = ${quotation},
         title = ${title},
@@ -201,9 +184,6 @@ function toDbRow(link: CreateLink, existing?: Link) {
 
   return {
     attribution: isPress ? (linkToSave.attribution ?? null) : null,
-    isHiddenOnAboutPage: isPress
-      ? (linkToSave.isHiddenOnAboutPage ?? null)
-      : null,
     publishDate: isPress ? (linkToSave.publishDate ?? null) : null,
     quotation: isPress ? (linkToSave.quotation ?? null) : null,
     title: linkToSave.title ?? null,

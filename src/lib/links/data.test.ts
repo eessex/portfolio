@@ -14,8 +14,7 @@ import {
   fetchLinkByUrl,
   fetchLinks,
   fetchLinksByIds,
-  fetchLinksRaw,
-  fetchProjectPressLinks
+  fetchLinksRaw
 } from '@/lib/links/data'
 
 const mockSql = jest.mocked(sql)
@@ -107,37 +106,6 @@ describe('fetchLinksByIds', () => {
     await expect(fetchLinksByIds([linkFixture.id])).rejects.toThrow(
       'Failed to fetch links.'
     )
-  })
-})
-
-describe('fetchProjectPressLinks', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it('returns formatted links', async () => {
-    mockSql.mockResolvedValue([linkFixture])
-
-    const result = await fetchProjectPressLinks('project-id')
-
-    expect(result).toEqual([linkFixture])
-    expect(mockSql.mock.calls[0]).toContain('project-id')
-  })
-
-  it('passes isDefault through to the query so unowned links are included', async () => {
-    mockSql.mockResolvedValue([linkFixture])
-
-    await fetchProjectPressLinks('project-id', true)
-
-    expect(mockSql.mock.calls[0]).toContain(true)
-  })
-
-  it('throws on DB error', async () => {
-    mockSql.mockRejectedValue(new Error('db exploded'))
-
-    await expect(
-      fetchProjectPressLinks('project-id')
-    ).rejects.toThrow('Failed to fetch project press links.')
   })
 })
 

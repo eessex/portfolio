@@ -8,7 +8,6 @@ import type { z } from 'zod'
 
 import {
   emptyListFieldName,
-  featuredFlagFieldName,
   indexedItemFieldPrefix,
   itemFieldPrefix,
   itemIdFieldName
@@ -29,7 +28,6 @@ import { InputLabel } from '@/ui/form/input-label'
 import { DraftChip } from '@/ui/item-picker/draft-chip'
 import { DraftFieldset } from '@/ui/item-picker/draft-fieldset'
 import { ExistingEntryRow } from '@/ui/item-picker/existing-entry-row'
-import { FeaturedToggleButton } from '@/ui/item-picker/featured-toggle-button'
 import itemPickerStyles from '@/ui/item-picker/item-picker.module.scss'
 import {
   type Draft,
@@ -101,7 +99,7 @@ type ItemPickerSharedProps<
   name?: string
   /**
    * Renders item content for both the `Combobox` dropdown row and
-   * `SelectedResult` chip. `extraActions` (e.g. the `featured` toggle)
+   * `SelectedResult` chip. `extraActions` (e.g. the Edit button)
    * is passed through only for the latter, rendered next to `onRemove`
    * button when the formatter supports it.
    */
@@ -151,21 +149,6 @@ export type ItemPickerProps<
     | {
         isMulti: true
         existingItems?: (TEmbeddedItem | TPage)[]
-        /**
-         * Enables an explicit "featured" toggle on an `isMulti` list: any
-         * entry can be pinned to the front (excluded from drag reordering)
-         * via a button, and un-pinned again, rather than position alone
-         * carrying that meaning (contrast `images`, where the first entry is
-         * always the cover). Submits a `${name}Featured` hidden flag only
-         * while an entry is pinned, so a list with no explicit featured choice
-         * round-trips with none — pair with a resolver that checks for that
-         * flag (e.g. `resolveOrderedEmbedCodeIds`) rather than assuming
-         * position 0.
-         */
-        featured?: {
-          isInitiallyFeatured: boolean
-          label?: string
-        }
         /**
          * Chips stay sorted by `compare` until dragged out of order;
          * then new chips join the top and a `resetLabel` button
@@ -226,7 +209,6 @@ export function ItemPicker<
     isSearchFirst: isSearchFirstProp
   } = props
 
-  const featured = props.isMulti ? props.featured : undefined
   const defaultOrder = props.isMulti ? props.defaultOrder : undefined
   const singleIdFieldName = itemIdFieldName(itemType, name)
   const listFieldName = name ?? itemType
@@ -256,11 +238,10 @@ export function ItemPicker<
   const {
     entries,
     busyEntries,
-    featuredEntry,
     openDraft,
     stableDrafts,
     sortableEntries,
-    restIndex,
+    entryIndex,
     hasOpenDraft,
     addExisting,
     addNew,
@@ -273,8 +254,6 @@ export function ItemPicker<
     editDraft,
     closeDraft,
     closeOpenDrafts,
-    setFeatured,
-    unsetFeatured,
     reorderSortable,
     isReorderable,
     isSameGroup,
@@ -288,7 +267,6 @@ export function ItemPicker<
         ? [props.existingItem]
         : [],
     isCreateFirst,
-    featured,
     compareDefaultOrder: defaultOrder?.compare,
     orderGroup: defaultOrder?.group,
     validation: {
@@ -315,7 +293,6 @@ export function ItemPicker<
   const newLabel = `New ${itemTypeToLabel(itemType, true, true)}`
   const saveLabel = `Save ${itemTypeToLabel(itemType, true, true)}`
   const removeLabel = `Remove ${itemTypeToLabel(itemType, true, true)}`
-  const featuredLabel = featured?.label || 'Featured'
 
   function setEditButtonRef(
     id: string,
@@ -413,24 +390,6 @@ export function ItemPicker<
         ? { kind: 'edit', id: entryId(openDraft) }
         : { kind: 'combobox' }
     return true
-  }
-
-  function featuredControl(
-    entry: ItemPickerEntry<TEmbeddedItem, TPage>,
-    isCurrentlyFeatured: boolean
-  ) {
-    if (!featured) return undefined
-    return (
-      <FeaturedToggleButton
-        isCurrentlyFeatured={isCurrentlyFeatured}
-        onToggle={
-          isCurrentlyFeatured
-            ? unsetFeatured
-            : () => setFeatured(entry)
-        }
-        featuredLabel={featuredLabel}
-      />
-    )
   }
 
   function renderDraftChip(
@@ -539,8 +498,7 @@ export function ItemPicker<
       { kind: 'existing' }
     >,
     index: number,
-    dragHandle?: React.ReactNode,
-    featuredButton?: React.ReactNode
+    dragHandle?: React.ReactNode
   ) {
     return (
       <ExistingEntryRow<TEmbeddedItem, TPage>
@@ -552,7 +510,6 @@ export function ItemPicker<
             : singleIdFieldName
         }
         dragHandle={dragHandle}
-        featuredButton={featuredButton}
         legend={
           isMulti ? undefined : (
             <InputLabel
@@ -579,11 +536,10 @@ export function ItemPicker<
   function renderEntry(
     entry: ItemPickerEntry<TEmbeddedItem, TPage>,
     index: number,
-    dragHandle?: React.ReactNode,
-    featuredButton?: React.ReactNode
+    dragHandle?: React.ReactNode
   ) {
     return entry.kind === 'existing' ? (
-      renderExistingEntry(entry, index, dragHandle, featuredButton)
+      renderExistingEntry(entry, index, dragHandle)
     ) : isMulti ? (
       <>
         {entry.isSaved && renderDraftChip(entry, dragHandle)}
@@ -615,14 +571,8 @@ export function ItemPicker<
     entry: ItemPickerEntry<TEmbeddedItem, TPage>,
     dragHandle?: React.ReactNode
   ) {
-    const index = restIndex(entry)
     return entry.kind === 'existing'
-      ? renderEntry(
-          entry,
-          index,
-          dragHandle,
-          featuredControl(entry, false)
-        )
+      ? renderEntry(entry, entryIndex(entry), dragHandle)
       : renderDraftChip(entry, dragHandle)
   }
 
@@ -643,15 +593,6 @@ export function ItemPicker<
           name={emptyListFieldName(listFieldName)}
           type='hidden'
           value=''
-          readOnly
-        />
-      )}
-
-      {isMulti && featuredEntry && (
-        <input
-          name={featuredFlagFieldName(listFieldName)}
-          type='hidden'
-          value='true'
           readOnly
         />
       )}
@@ -705,20 +646,9 @@ export function ItemPicker<
             key={entryId(entry)}
             className={itemPickerStyles['item-picker-multi-slot']}
           >
-            {renderDraftFieldset(entry, restIndex(entry))}
+            {renderDraftFieldset(entry, entryIndex(entry))}
           </div>
         ))}
-
-      {featuredEntry && (
-        <div className={itemPickerStyles['featured-slot']}>
-          {renderEntry(
-            featuredEntry,
-            0,
-            undefined,
-            featuredControl(featuredEntry, true)
-          )}
-        </div>
-      )}
 
       {/*
        * Existing items and saved drafts share one list so they reorder

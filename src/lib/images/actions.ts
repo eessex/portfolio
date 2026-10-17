@@ -149,21 +149,12 @@ export async function deleteImage(image: Image) {
 
 async function createImage(image: CreateImage) {
   try {
-    const {
-      alt,
-      aspect,
-      caption,
-      isHiddenOnAboutPage,
-      type,
-      title,
-      url
-    } = toDbRow(image)
+    const { alt, aspect, caption, type, title, url } = toDbRow(image)
     const rows = await sql`
       INSERT INTO images (
         alt,
         aspect,
         caption,
-        is_hidden_on_about_page,
         type,
         title,
         url,
@@ -172,7 +163,6 @@ async function createImage(image: CreateImage) {
         ${alt},
         ${aspect},
         ${caption},
-        ${isHiddenOnAboutPage},
         ${type},
         ${title},
         ${url},
@@ -191,22 +181,16 @@ async function createImage(image: CreateImage) {
 async function updateImage(image: CreateImage, id: string) {
   const [existingImage] = await fetchImagesByIds([id])
   try {
-    const {
-      alt,
-      aspect,
-      caption,
-      isHiddenOnAboutPage,
-      type,
-      title,
-      url
-    } = toDbRow(image, existingImage)
+    const { alt, aspect, caption, type, title, url } = toDbRow(
+      image,
+      existingImage
+    )
     const rows = await sql`
       UPDATE images
       SET
         alt = ${alt},
         aspect = ${aspect},
         caption = ${caption},
-        is_hidden_on_about_page = ${isHiddenOnAboutPage},
         type = ${type},
         title = ${title},
         updated_at = current_timestamp,
@@ -232,7 +216,6 @@ function toDbRow(image: CreateImage, existing?: Image) {
     alt: imageToSave.alt ?? null,
     aspect: imageToSave.aspect,
     caption: imageToSave.caption ?? null,
-    isHiddenOnAboutPage: imageToSave.isHiddenOnAboutPage ?? null,
     type: imageToSave.type ?? null,
     title: imageToSave.title ?? null,
     url: imageToSave.url

@@ -146,6 +146,9 @@ export async function deleteProject(project: Project) {
         handOffImages(project.id),
         handOffLinks(project.id),
         handOffEmbedCodes(project.id),
+        ...ownedPageItemTables.map((table) =>
+          handOffPageItems(table, project.id)
+        ),
         sql`
           DELETE FROM projects
           WHERE id = ${project.id}
@@ -358,9 +361,9 @@ async function syncChildProjectIds(
 
 /**
  * Hands images owned by `projectId` to the earliest-created other
- * project that still lists them (`image_ids` or `cover_image_id`), or
- * to NULL — the unassigned pool, which follows the current default
- * project — when none does. `ids` limits it to those images; omitted,
+ * project that still lists them (`image_ids` or `cover_image_id`), else
+ * to the default project (NULL only if none exists), so the default
+ * keeps what it detaches. `ids` limits it to those images; omitted,
  * it hands off everything the project owns (before a delete, whose
  * `ON DELETE SET NULL` would otherwise skip the hand-off). Returns the
  * unawaited query so `deleteProject` can batch it into a transaction.
@@ -368,12 +371,15 @@ async function syncChildProjectIds(
 function handOffImages(projectId: string, ids?: string[]) {
   return sql`
     UPDATE images AS i
-    SET project_id = (
-      SELECT p.id FROM projects AS p
-      WHERE p.id <> ${projectId}
-        AND (i.id = ANY(p.image_ids) OR p.cover_image_id = i.id)
-      ORDER BY p.created_at, p.id
-      LIMIT 1
+    SET project_id = COALESCE(
+      (
+        SELECT p.id FROM projects AS p
+        WHERE p.id <> ${projectId}
+          AND (i.id = ANY(p.image_ids) OR p.cover_image_id = i.id)
+        ORDER BY p.created_at, p.id
+        LIMIT 1
+      ),
+      (SELECT id FROM projects WHERE is_default_project)
     )
     WHERE i.project_id = ${projectId}
       AND (${ids ?? null}::uuid[] IS NULL OR i.id = ANY(${ids ?? null}::uuid[]))
@@ -384,12 +390,15 @@ function handOffImages(projectId: string, ids?: string[]) {
 function handOffLinks(projectId: string, ids?: string[]) {
   return sql`
     UPDATE links AS l
-    SET project_id = (
-      SELECT p.id FROM projects AS p
-      WHERE p.id <> ${projectId}
-        AND l.id = ANY(p.link_ids)
-      ORDER BY p.created_at, p.id
-      LIMIT 1
+    SET project_id = COALESCE(
+      (
+        SELECT p.id FROM projects AS p
+        WHERE p.id <> ${projectId}
+          AND l.id = ANY(p.link_ids)
+        ORDER BY p.created_at, p.id
+        LIMIT 1
+      ),
+      (SELECT id FROM projects WHERE is_default_project)
     )
     WHERE l.project_id = ${projectId}
       AND (${ids ?? null}::uuid[] IS NULL OR l.id = ANY(${ids ?? null}::uuid[]))
@@ -400,15 +409,41 @@ function handOffLinks(projectId: string, ids?: string[]) {
 function handOffEmbedCodes(projectId: string, ids?: string[]) {
   return sql`
     UPDATE embed_codes AS ec
-    SET project_id = (
-      SELECT p.id FROM projects AS p
-      WHERE p.id <> ${projectId}
-        AND ec.id = ANY(p.embed_code_ids)
-      ORDER BY p.created_at, p.id
-      LIMIT 1
+    SET project_id = COALESCE(
+      (
+        SELECT p.id FROM projects AS p
+        WHERE p.id <> ${projectId}
+          AND ec.id = ANY(p.embed_code_ids)
+        ORDER BY p.created_at, p.id
+        LIMIT 1
+      ),
+      (SELECT id FROM projects WHERE is_default_project)
     )
     WHERE ec.project_id = ${projectId}
       AND (${ids ?? null}::uuid[] IS NULL OR ec.id = ANY(${ids ?? null}::uuid[]))
+  `
+}
+
+const ownedPageItemTables = [
+  'releases',
+  'events',
+  'published_editions'
+] as const
+
+/**
+ * Moves a project's releases/events/published editions to the default
+ * project before it's deleted; their FKs' `ON DELETE SET NULL` would
+ * otherwise leave them unowned.
+ */
+function handOffPageItems(
+  table: (typeof ownedPageItemTables)[number],
+  projectId: string
+) {
+  // code constant, not user input, so safe to inline
+  return sql`
+    UPDATE ${sql.unsafe(table)}
+    SET project_id = (SELECT id FROM projects WHERE is_default_project)
+    WHERE project_id = ${projectId}
   `
 }
 

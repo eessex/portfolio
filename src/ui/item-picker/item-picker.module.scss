@@ -20,14 +20,6 @@
   margin-top: grids.space-em(3);
 }
 
-.featured-slot {
-  margin-top: grids.space-em(3);
-}
-
-.featured-button {
-  border-radius: 50%;
-}
-
 .item-picker-single fieldset:has(.create-form-actions-visible) {
   box-shadow: inset 0 0 0 2px var(--transparency-primary);
   padding: grids.space-em(4);

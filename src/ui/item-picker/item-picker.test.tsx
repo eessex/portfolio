@@ -21,8 +21,7 @@ import type {
 } from '@/lib/releases/types'
 import {
   venueFixtureAlpha,
-  venueFixtureBeta,
-  venueFixtureGamma
+  venueFixtureBeta
 } from '@/lib/venues/fixtures'
 import type { Venue } from '@/lib/venues/schemas/db'
 import {
@@ -719,10 +718,7 @@ describe('ItemPicker', () => {
     })
 
     describe('create-first default (multi)', () => {
-      function renderLinksPicker(featured?: {
-        isInitiallyFeatured: boolean
-        label?: string
-      }) {
+      function renderLinksPicker() {
         return render(
           <ItemPicker<Link>
             initialResults={{
@@ -748,7 +744,6 @@ describe('ItemPicker', () => {
               />
             )}
             renderEditItemForm={() => <div>New Link Form</div>}
-            featured={featured}
           />
         )
       }
@@ -794,28 +789,6 @@ describe('ItemPicker', () => {
         expect(
           screen.getByDisplayValue(pressLinkFixture.id)
         ).toHaveAttribute('name', 'links[1].id')
-      })
-
-      it('pins an initially-featured item as the closed head, with the blank form after it', () => {
-        renderLinksPicker({
-          isInitiallyFeatured: true,
-          label: 'Featured'
-        })
-
-        expect(
-          screen.getByDisplayValue(linkFixture.id)
-        ).toHaveAttribute('name', 'links[0].id')
-        expect(
-          document.querySelector('input[name="linksFeatured"]')
-        ).toHaveValue('true')
-
-        expect(screen.getByText('New Link Form')).toBeInTheDocument()
-        expect(
-          screen.getByRole('button', { name: 'Unset Featured' })
-        ).toBeInTheDocument()
-        expect(
-          screen.getAllByRole('button', { name: 'Set as Featured' })
-        ).toHaveLength(1)
       })
 
       it('keeps search as the default when isSearchFirst', () => {
@@ -1976,151 +1949,6 @@ describe('ItemPicker', () => {
         expect(
           screen.queryByText('Invalid url')
         ).not.toBeInTheDocument()
-      })
-    })
-
-    describe('featured toggle', () => {
-      it('renders no featured flag and a "Set as Featured" button on every item when nothing is featured initially', () => {
-        renderMultiPicker({
-          existingItems: [venueFixtureAlpha, venueFixtureBeta],
-          featured: { isInitiallyFeatured: false, label: 'Featured' }
-        })
-
-        expect(
-          document.querySelector('input[name="venueIdsFeatured"]')
-        ).not.toBeInTheDocument()
-        expect(
-          screen.getAllByRole('button', { name: 'Set as Featured' })
-        ).toHaveLength(2)
-      })
-
-      it('pins the initially-featured item first, excludes it from drag, and submits the flag', () => {
-        renderMultiPicker({
-          existingItems: [
-            venueFixtureAlpha,
-            venueFixtureBeta,
-            venueFixtureGamma
-          ],
-          featured: { isInitiallyFeatured: true, label: 'Featured' }
-        })
-
-        const flag = document.querySelector(
-          'input[name="venueIdsFeatured"]'
-        )
-        expect(flag).toHaveAttribute('type', 'hidden')
-        expect(flag).toHaveValue('true')
-
-        expect(
-          screen.getByDisplayValue(venueFixtureAlpha.id)
-        ).toHaveAttribute('name', 'venueIds[0].id')
-        expect(
-          screen.getByRole('button', { name: 'Unset Featured' })
-        ).toBeInTheDocument()
-        // only the two non-featured items are drag-reorderable
-        expect(
-          screen.getAllByRole('button', { name: 'Move down' })
-        ).toHaveLength(2)
-        expect(
-          screen.getAllByRole('button', { name: 'Set as Featured' })
-        ).toHaveLength(2)
-      })
-
-      it('promotes a non-featured item to the pinned front entry', async () => {
-        const user = userEvent.setup()
-        renderMultiPicker({
-          existingItems: [venueFixtureAlpha, venueFixtureBeta],
-          featured: { isInitiallyFeatured: false, label: 'Featured' }
-        })
-
-        const setFeaturedButtons = screen.getAllByRole('button', {
-          name: 'Set as Featured'
-        })
-        await user.click(setFeaturedButtons[1])
-
-        expect(
-          document.querySelector('input[name="venueIdsFeatured"]')
-        ).toHaveValue('true')
-        expect(
-          screen.getByDisplayValue(venueFixtureBeta.id)
-        ).toHaveAttribute('name', 'venueIds[0].id')
-        expect(
-          screen.getByDisplayValue(venueFixtureAlpha.id)
-        ).toHaveAttribute('name', 'venueIds[1].id')
-      })
-
-      it('unsets the featured item without removing it from the list', async () => {
-        const user = userEvent.setup()
-        renderMultiPicker({
-          existingItems: [venueFixtureAlpha, venueFixtureBeta],
-          featured: { isInitiallyFeatured: true, label: 'Featured' }
-        })
-
-        await user.click(
-          screen.getByRole('button', { name: 'Unset Featured' })
-        )
-
-        expect(
-          document.querySelector('input[name="venueIdsFeatured"]')
-        ).not.toBeInTheDocument()
-        expect(
-          screen.getByText('Test Venue Texas')
-        ).toBeInTheDocument()
-        expect(
-          screen.getByText('Test Venue New York')
-        ).toBeInTheDocument()
-        expect(
-          screen.getAllByRole('button', { name: 'Set as Featured' })
-        ).toHaveLength(2)
-      })
-
-      it('keeps the create form open (search hidden) when an existing chip is set featured', async () => {
-        const user = userEvent.setup()
-        renderMultiPicker({
-          existingItems: [venueFixtureAlpha],
-          featured: { isInitiallyFeatured: false, label: 'Featured' }
-        })
-
-        await user.click(
-          screen.getByRole('button', { name: /new venue/i })
-        )
-        expect(screen.getByText('New Venue Form')).toBeInTheDocument()
-        expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
-
-        const setFeaturedButtons = screen.getAllByRole('button', {
-          name: 'Set as Featured'
-        })
-        await user.click(setFeaturedButtons[0])
-
-        expect(screen.getByText('New Venue Form')).toBeInTheDocument()
-        expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
-      })
-
-      it('closes an unchanged edit of the featured item on back to search', async () => {
-        const user = userEvent.setup()
-        renderMultiPicker({
-          existingItems: [venueFixtureAlpha, venueFixtureBeta],
-          featured: { isInitiallyFeatured: true, label: 'Featured' }
-        })
-
-        await user.click(
-          screen.getAllByRole('button', { name: /^edit$/i })[0]
-        )
-        expect(screen.getByText('New Venue Form')).toBeInTheDocument()
-
-        await user.click(
-          screen.getByRole('button', { name: /search venue/i })
-        )
-
-        expect(
-          screen.queryByText('New Venue Form')
-        ).not.toBeInTheDocument()
-        expect(screen.getByRole('combobox')).toHaveFocus()
-        expect(
-          screen.getByDisplayValue(venueFixtureAlpha.id)
-        ).toHaveAttribute('name', 'venueIds[0].id')
-        expect(
-          document.querySelector('input[name="venueIdsFeatured"]')
-        ).toHaveValue('true')
       })
     })
   })

@@ -22,7 +22,6 @@ interface UseItemPickerEntriesOptions<TItem> {
   existingItems: TItem[]
   /** Open on a blank create form (see `ItemPicker`'s `isSearchFirst`). */
   isCreateFirst: boolean
-  featured?: { isInitiallyFeatured: boolean }
   /** See `ItemPicker`'s `defaultOrder.compare`. */
   compareDefaultOrder?: (
     a: Record<string, unknown>,
@@ -43,7 +42,6 @@ export function useItemPickerEntries<
   isMulti,
   existingItems,
   isCreateFirst,
-  featured,
   compareDefaultOrder,
   orderGroup,
   validation: {
@@ -64,25 +62,11 @@ export function useItemPickerEntries<
       kind: 'existing' as const,
       item
     }))
-    const head = featured?.isInitiallyFeatured
-      ? items.slice(0, 1)
-      : []
-    const existing = [
-      ...head,
-      ...keepGroups(items.slice(head.length))
-    ]
+    const existing = keepGroups(items)
     if (!startWithBlankEntry) return existing
     const blank = { kind: 'new' as const, tempId: 'new-0', seq: 0 }
-    // Keep an initially-featured item pinned at the head. The blank
-    // create form joins the rest just after it.
-    if (featured?.isInitiallyFeatured && existing.length > 0) {
-      return [existing[0], blank, ...existing.slice(1)]
-    }
     return [blank, ...existing]
   })
-  const [isFeatured, setIsFeatured] = useState(
-    featured?.isInitiallyFeatured ?? false
-  )
   // Per-draft-entry flag, keyed by tempId: true while the entry's edit
   // form has async work in flight (`renderEditItemForm`'s `onBusyChange`).
   const [busyEntries, setBusyEntries] = useState<
@@ -103,25 +87,19 @@ export function useItemPickerEntries<
     }
   }, [])
 
-  const featuredEntry =
-    featured && isFeatured ? entries[0] : undefined
-  const restEntries = featuredEntry ? entries.slice(1) : entries
   // Draft entries (new + edited-existing) both carry a mounted fieldset.
-  const restDrafts = restEntries.filter(isDraft)
+  const drafts = entries.filter(isDraft)
   // Draft fieldsets render in fixed creation order: moving one remounts
   // it and drops its `<input type=file>`. Chips (no fieldset) share
   // one sortable list (`sortableEntries`).
-  const stableDrafts = [...restDrafts].sort((a, b) => a.seq - b.seq)
-  const sortableEntries = restEntries.filter(
+  const stableDrafts = [...drafts].sort((a, b) => a.seq - b.seq)
+  const sortableEntries = entries.filter(
     (entry) => entry.kind === 'existing' || entry.isSaved
   )
-  // submit index = array slot (+1 past a featured head); reopened
-  // chips keep their slot, so order survives submit with editor open
-  const restIndex = (entry: Entry) =>
-    entry === featuredEntry
-      ? 0
-      : restEntries.indexOf(entry) + (featuredEntry ? 1 : 0)
-  // The one open editor, if any — including the featured entry's.
+  // submit index = array slot; reopened chips keep their slot, so
+  // order survives submit with editor open
+  const entryIndex = (entry: Entry) => entries.indexOf(entry)
+  // The one open editor, if any.
   const openDraft = entries.find(
     (entry): entry is Draft<TEmbeddedItem, TPage> =>
       isDraft(entry) && !entry.isSaved
@@ -149,14 +127,9 @@ export function useItemPickerEntries<
   }
 
   function splitEntries(list: Entry[]) {
-    const head =
-      featured && isFeatured && list.length > 0 ? [list[0]] : []
-    const rest = list.slice(head.length)
     return {
-      head,
-      rest,
-      chips: rest.filter(isChip),
-      positioned: rest.filter(hasChipPosition)
+      chips: list.filter(isChip),
+      positioned: list.filter(hasChipPosition)
     }
   }
 
@@ -174,12 +147,8 @@ export function useItemPickerEntries<
     ordered: Entry[],
     isSlot: (entry: Entry) => boolean
   ) {
-    const { head, rest } = splitEntries(list)
     let i = 0
-    return [
-      ...head,
-      ...rest.map((entry) => (isSlot(entry) ? ordered[i++] : entry))
-    ]
+    return list.map((entry) => (isSlot(entry) ? ordered[i++] : entry))
   }
 
   /** Item merged with saved draft values. */
@@ -250,18 +219,10 @@ export function useItemPickerEntries<
 
   function insertEntry(current: Entry[], entry: Entry) {
     if (!isMulti) return [entry]
-    // Keep a pinned featured entry at the front; new picks join the
-    // (reorderable) rest right after it instead of displacing it.
-    if (featured && isFeatured && current.length > 0) {
-      return [current[0], entry, ...current.slice(1)]
-    }
     return [entry, ...current]
   }
 
   function removeEntry(entry: Entry) {
-    if (featuredEntry && entryId(featuredEntry) === entryId(entry)) {
-      setIsFeatured(false)
-    }
     disposeEntry(entry)
     setEntries((current) =>
       current.filter((s) => entryId(s) !== entryId(entry))
@@ -429,13 +390,13 @@ export function useItemPickerEntries<
       return 'discarded'
     }
     if (entry.kind === 'editing' && !entry.isTouched) {
-      if (!validateEntryStrict(entry.tempId, restIndex(entry))) {
+      if (!validateEntryStrict(entry.tempId, entryIndex(entry))) {
         return undefined
       }
       revertEditingEntry(entry)
       return 'discarded'
     }
-    return saveDraft(entry, restIndex(entry)) ? 'saved' : undefined
+    return saveDraft(entry, entryIndex(entry)) ? 'saved' : undefined
   }
 
   /**
@@ -448,24 +409,6 @@ export function useItemPickerEntries<
       if (!closeDraft(entry)) return false
     }
     return true
-  }
-
-  function setFeatured(entry: Entry) {
-    setEntries((current) => {
-      const index = current.findIndex(
-        (s) => entryId(s) === entryId(entry)
-      )
-      if (index === -1) return current
-      return [
-        current[index],
-        ...current.filter((_, i) => i !== index)
-      ]
-    })
-    setIsFeatured(true)
-  }
-
-  function unsetFeatured() {
-    setIsFeatured(false)
   }
 
   /** Applies a drag reorder of `sortableEntries`. */
@@ -488,11 +431,10 @@ export function useItemPickerEntries<
   return {
     entries,
     busyEntries,
-    featuredEntry,
     openDraft,
     stableDrafts,
     sortableEntries,
-    restIndex,
+    entryIndex,
     hasOpenDraft,
     addExisting,
     addNew,
@@ -505,8 +447,6 @@ export function useItemPickerEntries<
     editDraft,
     closeDraft,
     closeOpenDrafts,
-    setFeatured,
-    unsetFeatured,
     reorderSortable,
     isReorderable,
     isSameGroup,

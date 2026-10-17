@@ -9,7 +9,6 @@ import type {
 } from '@/lib/images/schemas/db'
 import { imageTypes } from '@/lib/images/schemas/db'
 import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
-import { Checkbox } from '@/ui/form/checkbox'
 import { FileInputImage } from '@/ui/form/file-input-image'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
@@ -42,13 +41,6 @@ interface EditImageProps {
     typeof createImageSchema
   >['fieldErrors']
   image?: Partial<Image>
-  /**
-   * Hides the "Press Image Details" fieldset (the About-page
-   * visibility checkbox, shown only when type is 'press') for
-   * contexts where press-image semantics don't apply, e.g. images
-   * attached to a published edition.
-   */
-  isPressFieldsetHidden?: boolean
   isRequired?: boolean
   /**
    * Reports when a file goes from unparsed/absent to
@@ -60,7 +52,6 @@ interface EditImageProps {
 export const EditImage = ({
   errors,
   image,
-  isPressFieldsetHidden,
   isRequired = true,
   onReadyChange
 }: EditImageProps) => {
@@ -69,9 +60,6 @@ export const EditImage = ({
   )
   const [aspectRatio, setAspectRatio] = useState<number | undefined>(
     image?.aspect || undefined
-  )
-  const [isHiddenOnAboutPage, setIsHiddenOnAboutPage] = useState(
-    !!image?.isHiddenOnAboutPage
   )
   const [formImage, setFormImage] = useState<Partial<Image>>(
     image || {}
@@ -130,7 +118,6 @@ export const EditImage = ({
       }
     }
   }
-  const controlledCheckboxId = useId()
   const detailsFieldsetId = useId()
   const hasImage = !!aspectRatio
   const isExpanded = hasImage || detailsExpanded
@@ -237,9 +224,7 @@ export const EditImage = ({
           />
           <Select
             attributes={{
-              name: `${namePrefix}type`,
-              'aria-controls': controlledCheckboxId,
-              'aria-expanded': type === 'press'
+              name: `${namePrefix}type`
             }}
             label='Type'
             onChange={setType}
@@ -249,26 +234,6 @@ export const EditImage = ({
             value={type}
           />
         </div>
-        {!isPressFieldsetHidden && (
-          <fieldset hidden={type !== 'press'}>
-            <legend>Press Image Details</legend>
-            <p>
-              Press images are displayed on the about page by default.
-            </p>
-            <Checkbox
-              attributes={{
-                hidden: type !== 'press',
-                name: `${namePrefix}isHiddenOnAboutPage`
-              }}
-              controlledId={controlledCheckboxId}
-              isChecked={isHiddenOnAboutPage}
-              label='Hide this image on the About page.'
-              onChange={() =>
-                setIsHiddenOnAboutPage(!isHiddenOnAboutPage)
-              }
-            />
-          </fieldset>
-        )}
       </fieldset>
     </>
   )

@@ -36,7 +36,6 @@ export function ImagesPicker({
         <EditImage
           image={existingItem}
           errors={errors}
-          isPressFieldsetHidden
           isRequired={isRequired}
         />
       )}

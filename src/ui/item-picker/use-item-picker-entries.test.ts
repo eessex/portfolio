@@ -44,7 +44,6 @@ function setup(
     isMulti: boolean
     existingItems: Venue[]
     isCreateFirst: boolean
-    featured: { isInitiallyFeatured: boolean }
     validation: ReturnType<typeof makeValidation>
   }> = {}
 ) {
@@ -54,7 +53,6 @@ function setup(
       isMulti: options.isMulti ?? false,
       existingItems: options.existingItems ?? [],
       isCreateFirst: options.isCreateFirst ?? false,
-      featured: options.featured,
       validation
     })
   )
@@ -109,25 +107,6 @@ describe('useItemPickerEntries', () => {
         { kind: 'existing', item: venueFixtureBeta }
       ])
     })
-
-    it('keeps an initially-featured item pinned ahead of the blank draft', () => {
-      const { result } = setup({
-        isMulti: true,
-        isCreateFirst: true,
-        existingItems: [venueFixtureAlpha, venueFixtureBeta],
-        featured: { isInitiallyFeatured: true }
-      })
-
-      expect(result.current.entries).toEqual([
-        { kind: 'existing', item: venueFixtureAlpha },
-        { kind: 'new', tempId: 'new-0', seq: 0 },
-        { kind: 'existing', item: venueFixtureBeta }
-      ])
-      expect(result.current.featuredEntry).toEqual({
-        kind: 'existing',
-        item: venueFixtureAlpha
-      })
-    })
   })
 
   describe('addExisting', () => {
@@ -150,25 +129,6 @@ describe('useItemPickerEntries', () => {
       act(() => result.current.addExisting(venueFixtureAlpha))
 
       expect(result.current.entries).toHaveLength(1)
-    })
-
-    it('inserts after a pinned featured entry rather than displacing it', () => {
-      const { result } = setup({
-        isMulti: true,
-        existingItems: [venueFixtureAlpha],
-        featured: { isInitiallyFeatured: true }
-      })
-
-      act(() => result.current.addExisting(venueFixtureBeta))
-
-      expect(result.current.entries).toEqual([
-        { kind: 'existing', item: venueFixtureAlpha },
-        { kind: 'existing', item: venueFixtureBeta }
-      ])
-      expect(result.current.featuredEntry).toEqual({
-        kind: 'existing',
-        item: venueFixtureAlpha
-      })
     })
   })
 
@@ -610,73 +570,25 @@ describe('useItemPickerEntries', () => {
       ).toBe(false)
       expect(validation.clearErrors).toHaveBeenCalled()
     })
-
-    it('unsets featured when the featured entry is removed', () => {
-      const { result } = setup({
-        isMulti: true,
-        existingItems: [venueFixtureAlpha, venueFixtureBeta],
-        featured: { isInitiallyFeatured: true }
-      })
-
-      const featured = result.current.featuredEntry!
-      act(() => result.current.removeEntry(featured))
-
-      expect(result.current.featuredEntry).toBeUndefined()
-    })
-  })
-
-  describe('featured toggling', () => {
-    it('promotes an entry to the pinned front position', () => {
-      const { result } = setup({
-        isMulti: true,
-        existingItems: [venueFixtureAlpha, venueFixtureBeta],
-        featured: { isInitiallyFeatured: false }
-      })
-
-      const target = result.current.entries[1]
-      act(() => result.current.setFeatured(target))
-
-      expect(result.current.entries[0]).toEqual(target)
-      expect(result.current.featuredEntry).toEqual(target)
-    })
-
-    it('unsets featured without moving the entry out of place', () => {
-      const { result } = setup({
-        isMulti: true,
-        existingItems: [venueFixtureAlpha, venueFixtureBeta],
-        featured: { isInitiallyFeatured: true }
-      })
-
-      act(() => result.current.unsetFeatured())
-
-      expect(result.current.featuredEntry).toBeUndefined()
-      expect(result.current.entries[0]).toEqual({
-        kind: 'existing',
-        item: venueFixtureAlpha
-      })
-    })
   })
 
   describe('reorderSortable', () => {
-    it('applies a reorder while keeping the featured entry pinned ahead of it', () => {
+    it('applies a reorder', () => {
       const { result } = setup({
         isMulti: true,
         existingItems: [
           venueFixtureAlpha,
           venueFixtureBeta,
           venueFixtureGamma
-        ],
-        featured: { isInitiallyFeatured: true }
+        ]
       })
 
-      const [, second, third] = result.current.entries
-      act(() => result.current.reorderSortable([third, second]))
+      const [first, second, third] = result.current.entries
+      act(() =>
+        result.current.reorderSortable([third, first, second])
+      )
 
-      expect(result.current.entries).toEqual([
-        { kind: 'existing', item: venueFixtureAlpha },
-        third,
-        second
-      ])
+      expect(result.current.entries).toEqual([third, first, second])
     })
 
     it('keeps an open draft editor ahead of the reordered sortable entries', () => {
@@ -698,28 +610,16 @@ describe('useItemPickerEntries', () => {
     })
   })
 
-  describe('restIndex', () => {
-    it('is 0 for the pinned featured entry', () => {
+  describe('entryIndex', () => {
+    it("is the entry's slot in the list", () => {
       const { result } = setup({
         isMulti: true,
-        existingItems: [venueFixtureAlpha, venueFixtureBeta],
-        featured: { isInitiallyFeatured: true }
+        existingItems: [venueFixtureAlpha, venueFixtureBeta]
       })
 
-      expect(
-        result.current.restIndex(result.current.featuredEntry!)
-      ).toBe(0)
-    })
-
-    it('offsets non-featured entries past the pinned featured entry', () => {
-      const { result } = setup({
-        isMulti: true,
-        existingItems: [venueFixtureAlpha, venueFixtureBeta],
-        featured: { isInitiallyFeatured: true }
-      })
-
-      const rest = result.current.entries[1]
-      expect(result.current.restIndex(rest)).toBe(1)
+      const [first, second] = result.current.entries
+      expect(result.current.entryIndex(first)).toBe(0)
+      expect(result.current.entryIndex(second)).toBe(1)
     })
   })
 

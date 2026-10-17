@@ -75,36 +75,6 @@ export async function fetchLinks(
   return fetchLinksRaw(cursor, query, isPress)
 }
 
-/**
- * Press links owned by a single project, index-backed on `project_id`.
- * `isDefault` also includes unowned links (`project_id IS NULL`), per
- * the ownership rule that a NULL `project_id` belongs to the default
- * project.
- */
-export async function fetchProjectPressLinks(
-  projectId: string,
-  isDefault: boolean = false
-) {
-  try {
-    const data = await sql`
-      SELECT * FROM links
-      WHERE type = 'press'
-        AND (
-          project_id = ${projectId}
-          OR (${isDefault} AND project_id IS NULL)
-        )
-      ORDER BY publish_date DESC, created_at DESC
-    `
-    return data.map((row) =>
-      formatDbResponseForClient(row, linkSchema)
-    )
-  } catch (cause) {
-    throw new Error('Failed to fetch project press links.', {
-      cause
-    })
-  }
-}
-
 /** links to social media profiles */
 export async function fetchSocialLinksRaw() {
   try {

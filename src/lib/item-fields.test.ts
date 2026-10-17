@@ -1,6 +1,5 @@
 import {
   emptyListFieldName,
-  featuredFlagFieldName,
   indexedItemFieldPrefix,
   itemFieldPrefix,
   itemIdFieldName
@@ -41,14 +40,6 @@ describe('item field names', () => {
     it('indexes an entry under the array field name', () => {
       expect(indexedItemFieldPrefix('images', 0)).toBe('images[0].')
       expect(indexedItemFieldPrefix('images', 2)).toBe('images[2].')
-    })
-  })
-
-  describe('#featuredFlagFieldName', () => {
-    it('flags the array field it belongs to', () => {
-      expect(featuredFlagFieldName('embedCodes')).toBe(
-        'embedCodesFeatured'
-      )
     })
   })
 

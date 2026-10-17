@@ -25,7 +25,10 @@ jest.mock('@/lib/slug/data', () => ({
 const mockGenerateUniqueSlug = jest.mocked(generateUniqueSlug)
 
 jest.mock('@/lib/db', () => ({
-  sql: Object.assign(jest.fn(), { transaction: jest.fn() })
+  sql: Object.assign(jest.fn(), {
+    transaction: jest.fn(),
+    unsafe: jest.fn((raw: string) => ({ raw }))
+  })
 }))
 const mockSql = jest.mocked(sql)
 const mockTransaction = jest.mocked(sql.transaction)
@@ -119,7 +122,15 @@ describe('Project Actions', () => {
       mockSql.mockResolvedValueOnce([
         { is_default_project: false }
       ] as never)
-      const queries = ['images', 'links', 'embedCodes', 'delete']
+      const queries = [
+        'images',
+        'links',
+        'embedCodes',
+        'releases',
+        'events',
+        'publishedEditions',
+        'delete'
+      ]
       queries.forEach((query) =>
         mockSql.mockReturnValueOnce(query as never)
       )
@@ -131,11 +142,26 @@ describe('Project Actions', () => {
       const texts = mockSql.mock.calls
         .slice(1)
         .map(([strings]) => strings.join('?'))
-      expect(texts).toHaveLength(4)
+      expect(texts).toHaveLength(7)
       expect(texts[0]).toContain('UPDATE images AS i')
       expect(texts[1]).toContain('UPDATE links AS l')
       expect(texts[2]).toContain('UPDATE embed_codes AS ec')
-      expect(texts[3]).toContain('DELETE FROM projects')
+      expect(texts[6]).toContain('DELETE FROM projects')
+      // owned page items go to the default rather than the FK's NULL
+      for (const [i, table] of [
+        'releases',
+        'events',
+        'published_editions'
+      ].entries()) {
+        const [strings, ...params] = mockSql.mock.calls[4 + i]!
+        expect(strings.join('?')).toContain(
+          'SET project_id = (SELECT id FROM projects WHERE is_default_project)'
+        )
+        expect(params).toEqual([
+          { raw: table },
+          projectFixtureAlpha.id
+        ])
+      }
       // no id filter: every item the project owns is handed off
       for (const [, ...params] of mockSql.mock.calls.slice(1, 4)) {
         expect(params).toEqual([
@@ -559,6 +585,11 @@ describe('Project Actions', () => {
           expect(text).toContain(listedBy)
           expect(text).toContain('WHERE p.id <> ?')
           expect(text).toContain('ORDER BY p.created_at, p.id')
+          // nobody else lists it: falls back to the default project
+          expect(text).toContain('COALESCE(')
+          expect(text).toContain(
+            '(SELECT id FROM projects WHERE is_default_project)'
+          )
           expect(params).toEqual([
             projectFixtureAlpha.id,
             projectFixtureAlpha.id,

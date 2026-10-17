@@ -1,4 +1,5 @@
 @use '@/ui/styles/breakpoints';
+@use '@/ui/styles/caption';
 @use '@/ui/styles/colors';
 @use '@/ui/styles/grids';
 @use '@/ui/styles/interactions';
@@ -180,11 +181,7 @@ footer {
 }
 
 :where(figcaption) {
-  @include type.size('sm');
-
-  margin: grids.space-rem(1, 2);
-  text-align: center;
-  color: var(--transparency-dark);
+  @include caption.caption;
 }
 
 .category {
@@ -233,7 +230,5 @@ footer {
 
 // FIXME: move to filters.module.scss
 .open + table {
-  tr.heading {
-    top: calc(var(--header-height) + 39px);
-  }
+  --sticky-heading-top: calc(var(--header-height) + 39px);
 }

@@ -1,0 +1,32 @@
+// shared by `Carousel` slide styles; queries the `carousel` container
+
+@mixin narrow {
+  @container carousel (width < 640px) {
+    @content;
+  }
+}
+
+@mixin medium {
+  @container carousel (width < 1024px) {
+    @content;
+  }
+}
+
+// a slide sized by its media's height (from `Carousel`'s
+// `mediaHeights`), with text below wrapping to the media width
+@mixin media-slide($media: 'img') {
+  width: min-content;
+
+  // the reset's `max-width: 100%` lets min-content shrink the media
+  #{$media} {
+    width: auto;
+    max-width: none;
+    height: var(--carousel-media-height);
+  }
+
+  @include narrow {
+    #{$media} {
+      height: var(--carousel-media-height-narrow);
+    }
+  }
+}

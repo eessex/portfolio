@@ -1,3 +1,5 @@
+@use '@/ui/carousel/carousel';
+
 .embed-codes {
   display: flex;
   flex-direction: column;
@@ -8,5 +10,47 @@
 
   iframe {
     width: 100%;
+  }
+}
+
+.carousel-track {
+  --columns: 3;
+  // share of an item, and the extra gap before it, left to peek in
+  --peek: 0;
+  --peek-gap: 0;
+
+  align-items: flex-start;
+
+  // more items than columns: a sliver of the next one hints at the overflow
+  &:has(> li:nth-child(4)) {
+    --peek: 0.25;
+    --peek-gap: 1;
+  }
+
+  @include carousel.medium {
+    --columns: 2;
+
+    &:has(> li:nth-child(3)) {
+      --peek: 0.25;
+      --peek-gap: 1;
+    }
+  }
+}
+
+.carousel-item {
+  width: calc(
+    (
+        100% - (var(--columns) - 1 + var(--peek-gap)) *
+          var(--track-gap)
+      ) /
+      (var(--columns) + var(--peek))
+  );
+
+  @include carousel.narrow {
+    width: 85%;
+  }
+
+  figure {
+    margin: 0;
   }
 }

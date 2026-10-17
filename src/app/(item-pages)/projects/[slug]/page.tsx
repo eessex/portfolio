@@ -24,7 +24,12 @@ export async function generateMetadata({ params }: PageItemProps) {
 }
 
 export async function generateStaticParams() {
-  return generateItemStaticParams(fetchProjectsRaw)
+  // the default project only redirects to /about
+  return generateItemStaticParams(() =>
+    fetchProjectsRaw(false, undefined, undefined, {
+      isDefaultExcluded: true
+    })
+  )
 }
 
 export default async function ProjectPage({ params }: PageItemProps) {
@@ -41,6 +46,8 @@ export default async function ProjectPage({ params }: PageItemProps) {
 
   const project = await fetchCachedProjectById(resolved.id, false)
 
+  if (project?.isDefaultProject) redirect('/about')
+
   if (project) {
     return <ProjectDetail project={project} isAuthed={false} />
   }
@@ -51,6 +58,8 @@ export default async function ProjectPage({ params }: PageItemProps) {
   if (!draft) {
     redirect(`/${PagePaths.projects}`)
   }
+
+  if (draft.isDefaultProject) redirect('/about')
 
   return <ProjectDetail project={draft} isAuthed={authed} />
 }

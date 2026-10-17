@@ -47,18 +47,7 @@ export async function fetchReleaseById(
           )
           FROM embed_codes ec
           WHERE ec.id = ANY(r.embed_code_ids)
-            AND ec.id != r.embed_code_ids[1]
         ) AS embed_codes,
-        (
-          CASE
-            WHEN r.embed_code_ids[1] IS NOT NULL
-            THEN (
-              SELECT build_embed_code_json(ec)
-              FROM embed_codes ec
-              WHERE ec.id = r.embed_code_ids[1]
-            )
-          END
-        ) AS featured_embed_code,
         (
           SELECT COALESCE(
             jsonb_agg(

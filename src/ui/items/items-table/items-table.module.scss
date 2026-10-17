@@ -1,5 +1,7 @@
+@use '@/ui/items/item-card';
 @use '@/ui/styles/breakpoints';
 @use '@/ui/styles/grids';
+@use '@/ui/styles/sticky-heading';
 @use '@/ui/styles/type';
 
 .items-table {
@@ -7,31 +9,52 @@
 }
 
 .table-rowgroup-heading {
-  position: sticky;
-  text-align: left;
-  top: calc(var(--header-height) - 1px);
-  transition: all 0.25s ease-in-out;
-  height: grids.space-em(12);
-  z-index: 100;
-  background-color: var(--page-background-color);
-  box-shadow: inset 0 -1px 0 var(--transparency-primary);
+  @include sticky-heading.sticky-heading;
+
   grid-column: 1 / -1;
+  text-align: left;
 
   td {
+    @include sticky-heading.sticky-heading-title;
+
     padding: var(--items-list-padding);
-    font-weight: bold;
+  }
+
+  .count {
+    @include sticky-heading.sticky-heading-count;
+
+    margin-left: grids.space-rem(2);
   }
 }
 
 .table-body {
   max-width: 100%;
 
+  // justified rows: each card starts at its cover's width at
+  // `$row-media-height` and grows in proportion to its aspect, so every
+  // card in a row scales alike (one image height per row) and the row
+  // fills the width; the number of cards per row varies
   &.table-body--expanded {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
+    --row-media-height: #{item-card.$row-media-height};
+    --row-media-height-max: #{item-card.$media-height-max};
+
+    display: flex;
+    flex-wrap: wrap;
 
     @include breakpoints.sm-width {
-      grid-template-columns: 50% 50%;
+      --row-media-height: #{item-card.$media-height-narrow};
+      --row-media-height-max: #{item-card.$media-height-max-narrow};
+    }
+
+    // soaks up the last row's slack so it isn't stretched
+    &::after {
+      content: '';
+      flex-grow: 999999;
+    }
+
+    > .table-rowgroup-heading,
+    > .no-results {
+      flex: 0 0 100%;
     }
 
     td {
@@ -149,18 +172,13 @@
     }
 
     &.table-row-title--expanded {
-      @include type.heading('lg');
+      @include item-card.title;
 
       display: block;
-      margin: grids.space-rem(0, 0, 1, 0);
 
       a {
         display: flex;
         flex-direction: column-reverse;
-      }
-
-      @include breakpoints.sm-width {
-        @include type.size('base', 'normal', 'sm');
       }
     }
 
@@ -262,22 +280,78 @@
   &.table-row-link--expanded {
     --img-height-compact: unset;
 
-    display: flex;
-    flex-direction: column;
+    @include item-card.hover('.table-row-img', '.title-text');
+
+    &:hover,
+    &:focus-within {
+      background: none;
+    }
+
+    a:hover {
+      text-decoration: none;
+    }
+
+    // the image (row 1), then the title with the media icons beside it
+    @include item-card.title-with-media-icons(
+      '.table-row-title',
+      '.table-row-media',
+      2
+    );
+
+    grid-template-areas: none;
     box-shadow: none;
     height: fit-content;
     margin: grids.space-rem(2);
-    padding: grids.space-rem(2);
+    --card-padding-block: #{grids.space-rem(2)};
+
+    padding: var(--card-padding-block) var(--card-padding-inline);
 
     @include breakpoints.mobile {
-      padding: grids.space-rem(3, 2);
+      --card-padding-block: #{grids.space-rem(3)};
     }
 
     img {
-      margin-bottom: grids.space-rem(2);
       width: 100%;
       height: auto;
       max-height: unset;
+    }
+
+    // `--aspect` (set on the row) sizes the card; see `.table-body`.
+    // Basis and cap add the padding back, so the image itself is
+    // exactly `--aspect` × the height and every card in a row (each
+    // growing in proportion to `--aspect`) keeps one image height;
+    // the cap is a height too, so they all stop growing together
+    --card-padding-inline: #{grids.space-rem(2)};
+
+    flex: var(--aspect, 1) 1
+      calc(
+        var(--aspect, 1) * var(--row-media-height) + 2 *
+          var(--card-padding-inline)
+      );
+    min-width: 0;
+    max-width: calc(
+      var(--aspect, 1) * var(--row-media-height-max) + 2 *
+        var(--card-padding-inline)
+    );
+
+    // mobile: one full-width card per row
+    @include breakpoints.mobile {
+      flex: 1 1 100%;
+      max-width: none;
+    }
+
+    // the cover at its own aspect, a square placeholder without one,
+    // and the badge on its corner; spaced by margin on the cell so the
+    // hover overlay doesn't cover the gap
+    .table-row-img {
+      @include item-card.image-badge;
+
+      margin-bottom: grids.space-rem(2);
+
+      &:not(:has(img)) {
+        aspect-ratio: 1;
+        background-color: var(--input-background-color);
+      }
     }
 
     > * {
@@ -292,27 +366,19 @@
     > td {
       > a {
         .item-type {
+          @include item-card.category;
+
           display: block;
-          margin-top: grids.space-rem(1);
-          margin-bottom: unset;
         }
       }
     }
 
     > td:has(time) {
-      @include breakpoints.sm-width {
-        @include type.size('sm', 'normal', 'sm');
-      }
+      @include item-card.date;
     }
 
-    > td:last-child:not(.item-type) {
-      @include type.size('sm', 'normal', 'sm');
-
-      margin-top: grids.space-rem(1);
-
-      @include breakpoints.sm-width {
-        @include type.size('xs', 'normal', 'sm');
-      }
+    > .table-row-media {
+      @include item-card.media-icons;
     }
 
     ul {

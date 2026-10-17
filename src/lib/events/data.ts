@@ -71,12 +71,12 @@ export async function fetchEventsRaw(
         e.start_time > now() AS is_upcoming,
         EXISTS (
           SELECT 1 FROM embed_codes ec
-          WHERE (ec.id = ANY(e.embed_code_ids) OR ec.id = e.featured_embed_code_id)
+          WHERE ec.id = ANY(e.embed_code_ids)
             AND ec.type = ${EmbedCodeTypes.video}
         ) AS has_video,
         EXISTS (
           SELECT 1 FROM embed_codes ec
-          WHERE (ec.id = ANY(e.embed_code_ids) OR ec.id = e.featured_embed_code_id)
+          WHERE ec.id = ANY(e.embed_code_ids)
             AND ec.type = ${EmbedCodeTypes.audio}
         ) AS has_audio,
         (
@@ -133,12 +133,12 @@ export async function fetchUpcomingEventsRaw(
         e.start_time > now() AS is_upcoming,
         EXISTS (
           SELECT 1 FROM embed_codes ec
-          WHERE (ec.id = ANY(e.embed_code_ids) OR ec.id = e.featured_embed_code_id)
+          WHERE ec.id = ANY(e.embed_code_ids)
             AND ec.type = ${EmbedCodeTypes.video}
         ) AS has_video,
         EXISTS (
           SELECT 1 FROM embed_codes ec
-          WHERE (ec.id = ANY(e.embed_code_ids) OR ec.id = e.featured_embed_code_id)
+          WHERE ec.id = ANY(e.embed_code_ids)
             AND ec.type = ${EmbedCodeTypes.audio}
         ) AS has_audio,
         (
@@ -200,16 +200,6 @@ export async function fetchEventById(
           FROM embed_codes ec
           WHERE ec.id = ANY(e.embed_code_ids)
         ) AS embed_codes,
-        (
-          CASE
-            WHEN e.featured_embed_code_id IS NOT NULL
-            THEN (
-              SELECT build_embed_code_json(ec)
-              FROM embed_codes ec
-              WHERE ec.id = e.featured_embed_code_id
-            )
-          END
-        ) AS featured_embed_code,
         (
           SELECT COALESCE(
             jsonb_agg(

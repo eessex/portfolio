@@ -22,7 +22,6 @@ async function createProjectsTable() {
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
       contact_info JSONB[],
       cover_image_id UUID,
-      featured_embed_code_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
       title VARCHAR(255) NOT NULL,
       description VARCHAR(5000),
@@ -44,7 +43,45 @@ async function createProjectsTable() {
   // Additive per-project contacts (CONTACT‑1). ADD COLUMN IF NOT EXISTS
   // is idempotent, so this is safe to re-run against an existing table.
   await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS contact_info JSONB[];`
+  // The project rendered at /about. The partial unique index allows at
+  // most one row with is_default_project = true.
+  await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_default_project BOOLEAN NOT NULL DEFAULT false;`
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_projects_single_default ON projects (is_default_project) WHERE is_default_project;`
   await syncProjectTypeConstraint()
+  await dropFeaturedEmbedCode('projects')
+}
+
+/**
+ * Drops `featured_embed_code_id`, first moving each featured embed
+ * code to the front of `embed_code_ids` (de-duplicated) so it stays
+ * first on its page. Guarded on the column existing, so a re-run is a
+ * no-op; EXECUTE because the column may not exist at plan time.
+ */
+async function dropFeaturedEmbedCode(table: 'projects' | 'events') {
+  // code constant, not user input, so safe to inline
+  const t = sql.unsafe(table)
+  await sql`
+    DO $$
+    BEGIN
+      IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = '${t}'
+          AND column_name = 'featured_embed_code_id'
+      ) THEN
+        EXECUTE 'UPDATE ${t}
+          SET embed_code_ids = array_prepend(
+            featured_embed_code_id,
+            array_remove(
+              COALESCE(embed_code_ids, ARRAY[]::UUID[]),
+              featured_embed_code_id
+            )
+          )
+          WHERE featured_embed_code_id IS NOT NULL';
+        EXECUTE 'ALTER TABLE ${t} DROP COLUMN featured_embed_code_id';
+      END IF;
+    END
+    $$;
+  `
 }
 
 /**
@@ -570,7 +607,6 @@ async function createEventsTable() {
       end_time TIMESTAMP WITH TIME ZONE,
       is_published BOOLEAN,
       cover_image_id UUID,
-      featured_embed_code_id UUID,
       image_ids UUID[],
       embed_code_ids UUID[],
       link_ids UUID[],
@@ -586,6 +622,7 @@ async function createEventsTable() {
   await sql`CREATE INDEX IF NOT EXISTS idx_events_slug ON events(slug);`
   await sql`CREATE INDEX IF NOT EXISTS idx_events_venue ON events(venue_id);`
   await sql`CREATE INDEX IF NOT EXISTS idx_events_project_id ON events(project_id);`
+  await dropFeaturedEmbedCode('events')
 }
 
 /**
@@ -813,6 +850,7 @@ async function setupJsonbFunctions() {
           'startDate', p.start_date,
           'endDate', p.end_date,
           'path', 'projects',
+          'isDefaultProject', p.is_default_project,
           'coverImage', (
             SELECT build_image_json(i)
             FROM images i

@@ -2,10 +2,12 @@ import {
   DEFAULT_TIME_ZONE,
   fromDateTimeInputValue
 } from '@/lib/dates'
+import { projectFixtureBand } from '@/lib/projects/fixtures'
 import {
   formattedDateOrTimestamp,
   formattedDateTime,
   formattedLinkUrl,
+  itemUrl,
   toDateInputValue,
   toDateTimeInputValue
 } from '@/ui/util'
@@ -143,5 +145,19 @@ describe('formattedLinkUrl', () => {
 
   it('returns the input unchanged when it is not a valid URL', () => {
     expect(formattedLinkUrl('not a url')).toBe('not a url')
+  })
+})
+
+describe('itemUrl', () => {
+  it('links a page item to its slug', () => {
+    expect(itemUrl(projectFixtureBand)).toBe(
+      `/projects/${projectFixtureBand.slug}`
+    )
+  })
+
+  it('links the default project to /about', () => {
+    expect(
+      itemUrl({ ...projectFixtureBand, isDefaultProject: true })
+    ).toBe('/about')
   })
 })

@@ -1,0 +1,33 @@
+@use '@/ui/carousel/carousel';
+@use '@/ui/styles/grids';
+@use '@/ui/images/image-button';
+
+.carousel-image {
+  @include image-button.image-button;
+  @include carousel.media-slide;
+
+  margin: 0;
+}
+
+.inline {
+  padding-top: grids.space-rem(12);
+}
+
+.inline-image {
+  @include image-button.image-button;
+
+  margin: 0;
+
+  button {
+    width: 100%;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.download {
+  margin: 0;
+}

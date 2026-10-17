@@ -21,6 +21,7 @@ export const newProjectFixtureAlpha: CreateProject = {
   path: 'projects',
   title: 'Test Project',
   slug: 'test-project',
+  startDate: new Date('2025-01-01T00:00:00'),
   type: 'band',
   isPublished: true,
   shortDescription: 'A test project.'

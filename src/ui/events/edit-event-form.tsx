@@ -38,7 +38,16 @@ import {
   formatVenueResult
 } from '@/ui/venues/format-venue-result'
 
-function EventFormFields({ event }: { event?: EventClient }) {
+type EditEventFormProps = {
+  event?: EventClient
+  /** Preselected in the project picker when the event has none. */
+  defaultProject?: ProjectClient
+}
+
+function EventFormFields({
+  event,
+  defaultProject
+}: EditEventFormProps) {
   const errors = useFormErrors()
   const [isPublished, setIsPublished] = useState(!!event?.isPublished)
 
@@ -110,16 +119,16 @@ function EventFormFields({ event }: { event?: EventClient }) {
         coverImage={event?.coverImage}
         images={event?.images}
       />
-      <EmbedCodesPicker
-        featuredEmbedCode={event?.featuredEmbedCode}
-        embedCodes={event?.embedCodes}
-      />
+      <EmbedCodesPicker embedCodes={event?.embedCodes} />
       <PressLinksPicker links={event?.links} />
       <LinksPicker links={event?.links} />
       <ItemPicker<never, ProjectClient, FetchProjectsResult>
         itemType='projects'
         label='Project'
-        existingItem={event?.project as ProjectClient | undefined}
+        existingItem={
+          (event?.project as ProjectClient | undefined) ??
+          defaultProject
+        }
         renderExistingResult={formatProjectResult}
       />
       <Checkbox
@@ -132,7 +141,10 @@ function EventFormFields({ event }: { event?: EventClient }) {
   )
 }
 
-export function EditEventForm({ event }: { event?: EventClient }) {
+export function EditEventForm({
+  event,
+  defaultProject
+}: EditEventFormProps) {
   const router = useRouter()
 
   async function handleSubmit(formData: FormData) {
@@ -149,7 +161,10 @@ export function EditEventForm({ event }: { event?: EventClient }) {
         action={handleSubmit}
         submitButtonClassName='button-lg button-primary'
       >
-        <EventFormFields event={event} />
+        <EventFormFields
+          event={event}
+          defaultProject={defaultProject}
+        />
       </Form>
 
       {event && (

@@ -14,7 +14,12 @@ import {
   resetIntersectionObservers,
   triggerIntersection
 } from '@/test/__mocks__/browser/intersectionObserver'
+import { useIsAdmin } from '@/ui/useIsAdmin'
 import { useResultsList } from '@/ui/useResultsList'
+
+jest.mock('@/ui/useIsAdmin', () => ({
+  useIsAdmin: jest.fn(() => false)
+}))
 
 function makeResponse(
   res: Venue[],
@@ -554,6 +559,108 @@ describe('useResultsList', () => {
       await waitFor(() => {
         expect(result.current.items).toEqual([])
       })
+    })
+  })
+
+  describe('animated replace', () => {
+    let runTransition: () => void
+
+    beforeEach(() => {
+      jest.mocked(useIsAdmin).mockReturnValue(true)
+      window.matchMedia = jest
+        .fn()
+        .mockReturnValue({
+          matches: false
+        }) as typeof window.matchMedia
+      // defer the update callback, as the browser does
+      document.startViewTransition = jest.fn(
+        (callback: () => void) => {
+          let resolveDone!: () => void
+          const updateCallbackDone = new Promise<void>((resolve) => {
+            resolveDone = resolve
+          })
+          runTransition = () => {
+            callback()
+            resolveDone()
+          }
+          return {
+            ready: Promise.resolve(),
+            finished: updateCallbackDone,
+            updateCallbackDone,
+            skipTransition: jest.fn()
+          }
+        }
+      ) as unknown as typeof document.startViewTransition
+    })
+
+    afterEach(() => {
+      jest.mocked(useIsAdmin).mockReturnValue(false)
+      // @ts-expect-error jsdom doesn't provide startViewTransition
+      delete document.startViewTransition
+    })
+
+    it('holds the fetch guard until the transition applies, then loads the new cursor', async () => {
+      mockFetchOnce(
+        makeResponse(defaultVenues, {
+          nextCursor: 'cursor-new',
+          totalCount: 3
+        })
+      )
+
+      const { result } = renderHook(() =>
+        useResultsList<Venue>(
+          '/api/venues',
+          makeResponse(defaultVenues, {
+            nextCursor: 'cursor-old',
+            totalCount: 3
+          }),
+          { augmentOnMount: true }
+        )
+      )
+
+      await waitFor(() => {
+        expect(document.startViewTransition).toHaveBeenCalled()
+      })
+
+      act(() => {
+        result.current.loadMoreRef(
+          document.createElement('li') as HTMLLIElement
+        )
+      })
+      act(() => {
+        triggerIntersection()
+      })
+
+      expect(global.fetch).toHaveBeenCalledTimes(1)
+      expect(result.current.isLoading).toBe(true)
+
+      await act(async () => {
+        runTransition()
+      })
+
+      expect(result.current.nextCursor).toBe('cursor-new')
+      expect(result.current.isLoading).toBe(false)
+
+      mockFetchOnce(
+        makeResponse([venueFixtureGamma], { totalCount: 3 })
+      )
+      resetIntersectionObservers()
+      act(() => {
+        result.current.loadMoreRef(
+          document.createElement('li') as HTMLLIElement
+        )
+      })
+      act(() => {
+        triggerIntersection()
+      })
+
+      await waitFor(() => {
+        expect(result.current.items).toHaveLength(3)
+      })
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/venues?query=&cursor=cursor-new',
+        expect.anything()
+      )
     })
   })
 

@@ -276,7 +276,7 @@ describe('Embed Code Actions', () => {
   })
 
   describe('#resolveOrderedEmbedCodeIds', () => {
-    it('returns all entries as embedCodeIds and featuredEmbedCodeId as undefined when the featured flag is absent', async () => {
+    it('returns all entries as embedCodeIds, in order', async () => {
       const result = await resolveOrderedEmbedCodeIds({
         'embedCodes[0].id': 'embed-1',
         'embedCodes[1].id': 'embed-2',
@@ -284,28 +284,12 @@ describe('Embed Code Actions', () => {
       })
 
       expect(result).toEqual({
-        embedCodeIds: ['embed-1', 'embed-2', 'embed-3'],
-        featuredEmbedCodeId: undefined
+        embedCodeIds: ['embed-1', 'embed-2', 'embed-3']
       })
     })
 
-    it('splits the first entry into featuredEmbedCodeId when the featured flag is set', async () => {
-      const result = await resolveOrderedEmbedCodeIds({
-        embedCodesFeatured: 'true',
-        'embedCodes[0].id': 'embed-1',
-        'embedCodes[1].id': 'embed-2',
-        'embedCodes[2].id': 'embed-3'
-      })
-
-      expect(result).toEqual({
-        embedCodeIds: ['embed-2', 'embed-3'],
-        featuredEmbedCodeId: 'embed-1'
-      })
-    })
-
-    it('removes the featured flag and all indexed keys from the input data object', async () => {
+    it('removes all indexed keys from the input data object', async () => {
       const data: Record<string, unknown> = {
-        embedCodesFeatured: 'true',
         'embedCodes[0].id': 'embed-1'
       }
 
@@ -328,8 +312,7 @@ describe('Embed Code Actions', () => {
       })
 
       expect(result).toEqual({
-        embedCodeIds: [embedCodeFixture.id],
-        featuredEmbedCodeId: undefined
+        embedCodeIds: [embedCodeFixture.id]
       })
       expect(mockSql).toHaveBeenCalledTimes(2)
     })
@@ -354,8 +337,7 @@ describe('Embed Code Actions', () => {
         embedCodeIds: [
           'embed-1',
           '44444444-4444-4444-8444-444444444444'
-        ],
-        featuredEmbedCodeId: undefined
+        ]
       })
     })
 
@@ -368,14 +350,13 @@ describe('Embed Code Actions', () => {
       expect(mockSql).not.toHaveBeenCalled()
     })
 
-    it('returns an undefined featuredEmbedCodeId and empty embedCodeIds when nothing is selected', async () => {
+    it('returns empty embedCodeIds when nothing is selected', async () => {
       const result = await resolveOrderedEmbedCodeIds({
         'embedCodes[]': ''
       })
 
       expect(result).toEqual({
-        embedCodeIds: [],
-        featuredEmbedCodeId: undefined
+        embedCodeIds: []
       })
     })
 
@@ -388,8 +369,7 @@ describe('Embed Code Actions', () => {
       })
 
       expect(result).toEqual({
-        embedCodeIds: [],
-        featuredEmbedCodeId: undefined
+        embedCodeIds: []
       })
       expect(fetchEmbedCodeMetadataMock).not.toHaveBeenCalled()
       expect(mockSql).not.toHaveBeenCalled()
@@ -418,15 +398,13 @@ describe('Embed Code Actions', () => {
         embedCodeIds: [
           'embed-1',
           '44444444-4444-4444-8444-444444444444'
-        ],
-        featuredEmbedCodeId: undefined
+        ]
       })
     })
 
-    it('supports a custom field prefix, including its own featured flag', async () => {
+    it('supports a custom field prefix', async () => {
       const result = await resolveOrderedEmbedCodeIds(
         {
-          galleryFeatured: 'true',
           'gallery[0].id': 'embed-1',
           'gallery[1].id': 'embed-2'
         },
@@ -434,8 +412,7 @@ describe('Embed Code Actions', () => {
       )
 
       expect(result).toEqual({
-        embedCodeIds: ['embed-2'],
-        featuredEmbedCodeId: 'embed-1'
+        embedCodeIds: ['embed-1', 'embed-2']
       })
     })
   })

@@ -95,6 +95,7 @@ function renderEventsTable(
     initialItems: ReturnType<typeof makeResponse>
     featuredKey: 'upcomingEvents'
     projectId: string
+    searchParams: { isDefaultExcluded: boolean }
   }> = {}
 ) {
   const { initialItems = publishedResponse, ...rest } = props
@@ -169,6 +170,20 @@ describe('ItemsTable', () => {
       expect(fetchedUrls()).toEqual([
         '/api/session',
         expect.stringContaining('projectId=proj-1')
+      ])
+    })
+
+    it('forwards searchParams to the refetch', async () => {
+      mockFetch(authedResponse)
+
+      renderEventsTable({ searchParams: { isDefaultExcluded: true } })
+
+      await waitFor(() => {
+        expect(screen.getByText(draftEvent.title)).toBeInTheDocument()
+      })
+      expect(fetchedUrls()).toEqual([
+        '/api/session',
+        expect.stringContaining('isDefaultExcluded=true')
       ])
     })
 
@@ -367,6 +382,24 @@ describe('ItemsTable — embedded items (embed codes)', () => {
         fetchedUrls().some((url) => url.includes('/api/embed_codes'))
       ).toBe(true)
     })
+  })
+
+  it('shows the search heading with the count', async () => {
+    renderEmbedCodesTable(
+      makeEmbedCodeResponse(
+        [usedEmbedCode, unusedEmbedCode],
+        30,
+        'cursor-1'
+      )
+    )
+
+    fireEvent.change(
+      screen.getByRole('searchbox', { name: /search/i }),
+      { target: { value: 'sound' } }
+    )
+
+    const heading = await screen.findByText(/matching “sound”/)
+    expect(heading.querySelector('span')).toHaveTextContent(/^\d+$/)
   })
 
   describe('row-as-edit-link (admin-only, no own page/slug)', () => {

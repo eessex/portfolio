@@ -171,7 +171,7 @@ export default async function ItemLayout({
             </address>
           )}
 
-          {project && (
+          {project && !project.isDefaultProject && (
             <p>
               <a
                 href={itemUrl(project)}

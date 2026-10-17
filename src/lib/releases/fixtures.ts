@@ -1,4 +1,25 @@
-import type { ReleaseClient } from '@/lib/releases/types'
+import type {
+  CreateRelease,
+  Release,
+  ReleaseClient
+} from '@/lib/releases/types'
+
+export const newReleaseFixtureAlpha: CreateRelease = {
+  path: 'releases',
+  title: 'Test Release',
+  slug: 'test-release',
+  type: 'album',
+  releaseDate: new Date('2025-01-01'),
+  artist: 'Test Artist',
+  isPublished: true,
+  shortDescription: 'A test release.'
+}
+
+export const releaseFixtureAlpha: Release = {
+  ...newReleaseFixtureAlpha,
+  id: 'b2b2b2b2-2222-4222-8222-b2b2b2b2b2b2',
+  createdAt: new Date('2025-01-01')
+}
 
 export const releaseFixtureAlbum: ReleaseClient = {
   path: 'releases',

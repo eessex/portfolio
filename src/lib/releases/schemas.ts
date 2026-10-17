@@ -61,3 +61,9 @@ export const releaseClientSchema = releaseSchema.extend({
     .lazy(() => publishedEditionClientSchema.array())
     .optional()
 })
+
+export const createReleaseSchema = releaseSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+})

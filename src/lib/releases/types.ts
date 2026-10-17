@@ -1,12 +1,14 @@
 import type { z } from 'zod'
 
 import type {
+  createReleaseSchema,
   releaseClientSchema,
   releaseSchema
 } from '@/lib/releases/schemas'
 
 export type Release = z.infer<typeof releaseSchema>
 export type ReleaseClient = z.infer<typeof releaseClientSchema>
+export type CreateRelease = z.infer<typeof createReleaseSchema>
 
 export interface FetchReleasesResult {
   albums: ReleaseClient[]

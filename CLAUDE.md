@@ -71,7 +71,6 @@ An entry's fields are namespaced so the parent form's own fields can't collide w
 
 One area intentionally doesn't yet follow the full domain-module pattern — treat as a known TODO, not a bug, unless asked to build it out:
 
-- `releases` has no `actions.ts` — only reads (`data.ts`/`cached.ts`) exist, so this domain has no admin create/update/delete path yet (unlike `projects` and `events`, which do).
 - `tags` is scaffolded in the DB (table + `tag_ids` columns) and in Zod schemas, but has no `src/lib/tags/data.ts` or `actions.ts` — no read/write implementation exists yet.
 
 ### Auth

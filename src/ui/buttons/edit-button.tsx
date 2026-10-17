@@ -14,13 +14,10 @@ export function EditButton() {
   const lastPart = pathnameParts[pathnameParts.length - 1]
   if (lastPart === 'edit' || lastPart === 'new') return null
 
-  const firstPart = pathnameParts[1]
-  const isEditablePath = pagePaths.includes(firstPart as PagePath)
-  if (
-    !isEditablePath ||
-    (pathnameParts.length === 2 && firstPart !== 'about')
-  )
-    return null
+  const isItemPage =
+    pathnameParts.length > 2 &&
+    pagePaths.includes(pathnameParts[1] as PagePath)
+  if (!isItemPage && pathname !== '/about') return null
 
   return (
     <NextLink href={`${pathname}/edit`} className='button-primary'>

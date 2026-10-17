@@ -30,7 +30,7 @@ This is a Next.js 16 (App Router, `cacheComponents` enabled) CMS for a personal 
 
 ### Domain module layout
 
-Each content type (`releases`, `events`, `projects`, `venues`, `links`, `images`, `embed-codes`, `published-editions`, `publishers`, `about`, `site-settings`, `users`, `email-subscriptions`) lives under `src/lib/<domain>/` with a consistent file split:
+Each content type (`releases`, `events`, `projects`, `venues`, `links`, `images`, `embed-codes`, `published-editions`, `publishers`, `site-settings`, `users`, `email-subscriptions`) lives under `src/lib/<domain>/` with a consistent file split:
 
 - `data.ts` — raw read queries (`fetch*`), exported for direct use and wrapped by `cached.ts`
 - `cached.ts` — `'use cache'` wrappers around `data.ts` reads, applying `cacheTag(...)` (e.g. `releases`, `releases:authed`/`releases:public`, `project:<id>:releases`) so `updateTag` in `actions.ts` can invalidate precisely
@@ -40,7 +40,7 @@ Each content type (`releases`, `events`, `projects`, `venues`, `links`, `images`
 - `fixtures.ts` — test fixture builders
 - `util.ts` — domain-specific helpers (e.g. `sortReleasesByCategory`)
 
-`src/lib/schemas/index.ts` defines the two cross-cutting taxonomies: `pagePaths` (content types with their own public `/​{path}` and `/{path}/{slug}` pages: about, events, projects, releases) and `embeddedItemTypes` (items with no own page, embedded into pages and reusable across them: embed codes, images, links, published editions, publishers, venues).
+`src/lib/schemas/index.ts` defines the two cross-cutting taxonomies: `pagePaths` (content types with their own public `/​{path}` and `/{path}/{slug}` pages: events, projects, releases) and `embeddedItemTypes` (items with no own page, embedded into pages and reusable across them: embed codes, images, links, published editions, publishers, venues).
 
 ### Project ownership of embedded items
 
@@ -48,7 +48,7 @@ Each content type (`releases`, `events`, `projects`, `venues`, `links`, `images`
 
 ### Default project and `/about`
 
-One project row may carry `is_default_project = true` (a partial unique index allows at most one; a second insert is caught and returned as the form error "A default project already exists"). It is the site's own project: `/about` renders it through the shared `ItemLayout` (`fetchDefaultProject`/`fetchCachedDefaultProject`, tag `projects:default`), with a published-first lookup that only reads the session when an unpublished default exists, so the page stays static for anonymous visitors. `/about/edit` edits or creates it via `EditProjectForm isDefaultProject` → `editDefaultProject()`, the only action that sets the flag; updates never change it (`toDbRow` keeps the stored value). It can't be deleted: `deleteProject` checks the stored flag server-side and returns a form error, and the Delete button is hidden wherever it's edited. Project indexes leave it out via `isDefaultExcluded` (`fetchProjects` option, `/api/projects?isDefaultExcluded=true`, `ItemsTable` `searchParams`). On `/about` the layout differs only in its header ("About", no category/date) and its children: a `ProjectsCarousel` of the other projects, and no event/release tables. Until a default project exists, `/about` falls back to the legacy `about` table (`LegacyAbout` in `src/app/about/page.tsx`). New events preselect the default project in their Project picker, and editing an event with no project preselects it too, by design: every item is meant to belong to a project, with a not-yet-run backfill planned to attach existing unowned rows to the default.
+One project row may carry `is_default_project = true` (a partial unique index allows at most one; a second insert is caught and returned as the form error "A default project already exists"). It is the site's own project: `/about` renders it through the shared `ItemLayout` (`fetchDefaultProject`/`fetchCachedDefaultProject`, tag `projects:default`), with a published-first lookup that only reads the session when an unpublished default exists, so the page stays static for anonymous visitors. `/about/edit` edits or creates it via `EditProjectForm isDefaultProject` → `editDefaultProject()`, the only action that sets the flag; updates never change it (`toDbRow` keeps the stored value). It can't be deleted: `deleteProject` checks the stored flag server-side and returns a form error, and the Delete button is hidden wherever it's edited. Project indexes leave it out via `isDefaultExcluded` (`fetchProjects` option, `/api/projects?isDefaultExcluded=true`, `ItemsTable` `searchParams`). On `/about` the layout differs only in its header ("About", no category/date) and its children: a `ProjectsCarousel` of the other projects, and no event/release tables. `/about` isn't a `pagePaths` entry; it 404s until a default project exists (or, for anonymous visitors, while it's unpublished), the default project's own `/projects/<slug>` (and `/edit`) redirect to `/about` (and `/about/edit`), and `itemUrl()` links it there. The old `about` table may still exist in provisioned databases but nothing reads it and setup no longer creates it. New events preselect the default project in their Project picker, and editing an event with no project preselects it too, by design: every item is meant to belong to a project. Existing unowned rows were backfilled to the default once; `handOff*` and `ON DELETE SET NULL` can still leave new `NULL`s.
 
 ### Data flow conventions
 
@@ -72,7 +72,6 @@ An entry's fields are namespaced so the parent form's own fields can't collide w
 One area intentionally doesn't yet follow the full domain-module pattern — treat as a known TODO, not a bug, unless asked to build it out:
 
 - `releases` has no `actions.ts` — only reads (`data.ts`/`cached.ts`) exist, so this domain has no admin create/update/delete path yet (unlike `projects` and `events`, which do).
-- `about` is legacy: its table is read only as `/about`'s fallback before a default project exists. `src/lib/about/actions.ts` and `src/ui/form/edit-about.tsx` remain but no page renders the form any more (`/about/edit` edits the default project), and the table keeps its own `featured_embed_code_id`.
 - `tags` is scaffolded in the DB (table + `tag_ids` columns) and in Zod schemas, but has no `src/lib/tags/data.ts` or `actions.ts` — no read/write implementation exists yet.
 
 ### Auth

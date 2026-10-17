@@ -399,30 +399,6 @@ async function createSiteSettingsTable() {
 }
 
 /**
- * Creates the about table.
- * Must be created after images and embed_codes.
- */
-async function createAboutTable() {
-  await sql`
-    CREATE TABLE IF NOT EXISTS about (
-      id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-      cover_image_id UUID,
-      featured_embed_code_id UUID,
-      slug VARCHAR(255) NOT NULL,
-      description VARCHAR(5000),
-      contact_info JSONB[],
-      created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CONSTRAINT fk_about_cover_image FOREIGN KEY (cover_image_id) REFERENCES images(id) ON DELETE SET NULL,
-      CONSTRAINT fk_about_featured_embed FOREIGN KEY (featured_embed_code_id) REFERENCES embed_codes(id) ON DELETE SET NULL,
-      CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')
-    );
-  `
-  await sql`CREATE INDEX IF NOT EXISTS idx_about_cover_image ON about(cover_image_id);`
-  await sql`CREATE INDEX IF NOT EXISTS idx_about_featured_embed_code ON about(featured_embed_code_id);`
-}
-
-/**
  * Creates the email_subscriptions table.
  * Does not depend on other tables.
  */
@@ -879,7 +855,6 @@ export async function createTables() {
   await createEmbedCodesTable()
   await createLinksTable()
   await createSiteSettingsTable()
-  await createAboutTable()
   await createEmailSubscriptionsTable()
   await createVenuesTable()
   await createReleasesTable()

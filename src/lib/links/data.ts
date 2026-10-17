@@ -75,22 +75,6 @@ export async function fetchLinks(
   return fetchLinksRaw(cursor, query, isPress)
 }
 
-/** Only the press links */
-export async function fetchPressLinksRaw() {
-  try {
-    const data = await sql`
-      SELECT * FROM links
-      WHERE type = 'press'
-      ORDER BY publish_date DESC, created_at DESC
-    `
-    return data.map((row) =>
-      formatDbResponseForClient(row, linkSchema)
-    )
-  } catch (cause) {
-    throw new Error('Failed to fetch press links.', { cause })
-  }
-}
-
 /**
  * Press links owned by a single project, index-backed on `project_id`.
  * `isDefault` also includes unowned links (`project_id IS NULL`), per

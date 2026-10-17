@@ -5,9 +5,7 @@ import {
 } from '@/lib/dates'
 import type { DashboardEmbedCode } from '@/lib/embed-codes/schemas/client'
 import type { DashboardImage } from '@/lib/images/schemas/client'
-import type { Image } from '@/lib/images/schemas/db'
 import type { DashboardLink } from '@/lib/links/schemas/client'
-import type { Link } from '@/lib/links/schemas/db'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { PublishedEditionClient } from '@/lib/published-editions/schemas/client'
@@ -340,14 +338,7 @@ export function usedOnPages(item: Partial<DashboardItem>) {
     'releaseSlugs' in item && Array.isArray(item.releaseSlugs)
       ? item.releaseSlugs.map((i) => releaseUrl(i))
       : []
-  const about = []
-  if ((item as Link | Image).type === 'press') {
-    if (!(item as Link | Image).isHiddenOnAboutPage) {
-      about.push('/about')
-    }
-  }
-
-  return [...events, ...releases, ...projects, ...about]
+  return [...events, ...releases, ...projects]
 }
 
 export function formatVenueInline({

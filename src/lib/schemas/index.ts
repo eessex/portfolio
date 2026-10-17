@@ -8,12 +8,7 @@ import { camelToSentence, capitalizeFirstLetter } from '@/lib/strings'
  * These values correspond to a `/{path}` index page
  * as well as `/{path}/{slug}` pages for individual entries.
  */
-export const pagePaths = [
-  'about',
-  'events',
-  'projects',
-  'releases'
-] as const
+export const pagePaths = ['events', 'projects', 'releases'] as const
 
 export const PagePaths = Object.fromEntries(
   pagePaths.map((v) => [v, v])
@@ -28,7 +23,6 @@ export type PagePath = (typeof pagePaths)[number]
  * like `releaseId` from the `releases` path.
  */
 export const pagePathSingulars = {
-  about: 'about',
   events: 'event',
   projects: 'project',
   releases: 'release'

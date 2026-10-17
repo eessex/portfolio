@@ -30,7 +30,6 @@ function invalidateImageTags() {
   updateTag('releases')
   updateTag('events')
   updateTag('projects')
-  updateTag('about')
   updateTag('settings')
   updateTag('published-editions')
 }

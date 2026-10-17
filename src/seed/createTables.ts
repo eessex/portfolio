@@ -850,6 +850,7 @@ async function setupJsonbFunctions() {
           'startDate', p.start_date,
           'endDate', p.end_date,
           'path', 'projects',
+          'isDefaultProject', p.is_default_project,
           'coverImage', (
             SELECT build_image_json(i)
             FROM images i

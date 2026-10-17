@@ -8,6 +8,7 @@ import type { DashboardImage } from '@/lib/images/schemas/client'
 import type { Image } from '@/lib/images/schemas/db'
 import type { DashboardLink } from '@/lib/links/schemas/client'
 import type { Link } from '@/lib/links/schemas/db'
+import type { ProjectClient } from '@/lib/projects/types'
 import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { PublishedEditionClient } from '@/lib/published-editions/schemas/client'
 import type { DashboardPublisher } from '@/lib/publishers/schemas/client'
@@ -304,6 +305,7 @@ export function formattedItemTitle(item: PageItemClient) {
 }
 
 export function itemUrl(item: PageItemClient) {
+  if ((item as ProjectClient).isDefaultProject) return '/about'
   return `/${item.path}/${item.slug}`
 }
 

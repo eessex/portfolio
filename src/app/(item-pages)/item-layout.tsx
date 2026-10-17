@@ -37,7 +37,8 @@ import {
   formattedDateTime,
   formattedItemTitle,
   formattedItemType,
-  formatVenueInline
+  formatVenueInline,
+  itemUrl
 } from '@/ui/util'
 
 const IMAGES_CAROUSEL_MIN = 3
@@ -173,7 +174,7 @@ export default async function ItemLayout({
           {project && (
             <p>
               <a
-                href={`/${project.path}/${project.slug}`}
+                href={itemUrl(project)}
                 className='button-outline button-sm'
               >
                 <b>Project:</b> {project.title}
@@ -229,13 +230,10 @@ export async function generateItemMetadata(
   ]
   const openGraph = images ? { images } : undefined
 
-  // the default project renders at /about; otherwise point crawlers
-  // at the canonical URL when reached via a historical slug
-  const canonical = (item as ProjectClient).isDefaultProject
-    ? '/about'
-    : resolved.isRedirect
-      ? `/${pagePath}/${resolved.slug}`
-      : undefined
+  // point crawlers at the canonical URL when reached via a historical slug
+  const canonical = resolved.isRedirect
+    ? `/${pagePath}/${resolved.slug}`
+    : undefined
 
   const meta: Metadata = {
     title: `${formattedItemType(path)} | ${formattedItemTitle(item)}`,

@@ -43,8 +43,7 @@ type DraftFieldsetProps<
  * submits the fieldset's inputs on final form submit. The body is just
  * the create form: no visible legend (the combobox header carries the
  * label), and Cancel only for an edit of an existing item (a new draft
- * leaves via the "Search {item}" toggle). A `featured` picker's star
- * toggle is not surfaced here, only on closed chips.
+ * leaves via the "Search {item}" toggle).
  */
 export function DraftFieldset<
   TEmbeddedItem extends EmbeddedItem,

@@ -43,16 +43,6 @@ export function indexedItemFieldPrefix(
 }
 
 /**
- * Hidden flag a multi picker submits while one of its entries is pinned
- * as featured, and only then — so a list with no explicit choice
- * round-trips with none (contrast `images`, where position 0 always
- * means cover).
- */
-export function featuredFlagFieldName(name: string): string {
-  return `${name}Featured`
-}
-
-/**
  * Empty-list marker a multi picker always submits, so a list emptied
  * of every entry still reaches the server as a submitted-but-empty
  * field rather than an absent one. Matched (and discarded) by

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { systemFields } from '@/lib/schemas/fields'
-import { bool, shortText, url } from '@/lib/schemas/primitives'
+import { shortText, url } from '@/lib/schemas/primitives'
 
 /**
  * The category of an image.
@@ -33,7 +33,6 @@ const imageFields = {
     return val
   }, z.number().min(0.1).max(10)),
   caption: shortText.optional(),
-  isHiddenOnAboutPage: bool.optional(),
   type: imageTypeSchema.optional(),
   title: shortText.optional(),
   url

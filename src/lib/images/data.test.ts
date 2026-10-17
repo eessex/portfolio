@@ -23,8 +23,7 @@ import {
   fetchImageByUrl,
   fetchImages,
   fetchImagesByIds,
-  fetchImagesRaw,
-  fetchProjectPressImages
+  fetchImagesRaw
 } from '@/lib/images/data'
 
 const mockSql = jest.mocked(sql)
@@ -233,37 +232,6 @@ describe('fetchImageByUrl', () => {
     await expect(fetchImageByUrl(createImageFixture)).rejects.toThrow(
       'Failed to fetch image by URL.'
     )
-  })
-})
-
-describe('#fetchProjectPressImages', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it('returns formatted images', async () => {
-    mockSql.mockResolvedValue([imageFixture])
-
-    const result = await fetchProjectPressImages('project-id')
-
-    expect(result).toEqual([imageFixture])
-    expect(mockSql.mock.calls[0]).toContain('project-id')
-  })
-
-  it('passes isDefault through to the query so unowned images are included', async () => {
-    mockSql.mockResolvedValue([imageFixture])
-
-    await fetchProjectPressImages('project-id', true)
-
-    expect(mockSql.mock.calls[0]).toContain(true)
-  })
-
-  it('throws on DB error', async () => {
-    mockSql.mockRejectedValue(new Error('db exploded'))
-
-    await expect(
-      fetchProjectPressImages('project-id')
-    ).rejects.toThrow('Failed to fetch project press images.')
   })
 })
 

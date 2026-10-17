@@ -87,7 +87,7 @@ describe('Link Actions', () => {
         pressLinkFixture.id
       )
 
-      const [, attribution, , publishDate, quotation] = mockSql.mock
+      const [, attribution, publishDate, quotation] = mockSql.mock
         .calls[1] as unknown as string[]
       expect(attribution).toBe(pressLinkFixture.attribution)
       expect(publishDate).toEqual(pressLinkFixture.publishDate)

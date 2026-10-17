@@ -190,7 +190,7 @@ describe('Image Actions', () => {
       expect(mockSql).toHaveBeenCalledTimes(1)
     })
 
-    it('normalizes raw checkbox/empty-string fields before validating', async () => {
+    it('normalizes empty-string fields before validating', async () => {
       mockSql.mockResolvedValueOnce([imageFixture])
 
       await saveImageFromFields({
@@ -200,9 +200,9 @@ describe('Image Actions', () => {
       })
 
       const rows = mockSql.mock.calls[0] as unknown as string[]
-      const [, , , , isHiddenOnAboutPage, type] = rows
+      const [, alt, , , type] = rows
       expect(type).toBe('press')
-      expect(isHiddenOnAboutPage).toBe(null)
+      expect(alt).toBe(null)
     })
 
     it('throws a descriptive error on invalid fields', async () => {

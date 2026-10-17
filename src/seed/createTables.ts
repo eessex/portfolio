@@ -148,7 +148,6 @@ async function createImagesTable() {
       aspect DOUBLE PRECISION NOT NULL,
       caption VARCHAR(255),
       type VARCHAR(30),
-      is_hidden_on_about_page BOOLEAN,
       title VARCHAR(255),
       url VARCHAR(255) NOT NULL UNIQUE,
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -173,6 +172,8 @@ async function createImagesTable() {
   `
 
   await sql`CREATE INDEX IF NOT EXISTS idx_images_project_id ON images(project_id);`
+  // destructive: deploy code that stops writing it before running setup
+  await sql`ALTER TABLE images DROP COLUMN IF EXISTS is_hidden_on_about_page;`
 }
 
 /**
@@ -317,7 +318,6 @@ async function createLinksTable() {
       quotation VARCHAR(255),
       title VARCHAR(255),
       type VARCHAR(30),
-      is_hidden_on_about_page BOOLEAN,
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       CONSTRAINT fk_link_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
@@ -326,6 +326,8 @@ async function createLinksTable() {
   `
   await sql`CREATE INDEX IF NOT EXISTS idx_links_url ON links(url);`
   await sql`CREATE INDEX IF NOT EXISTS idx_links_project_id ON links(project_id);`
+  // destructive: deploy code that stops writing it before running setup
+  await sql`ALTER TABLE links DROP COLUMN IF EXISTS is_hidden_on_about_page;`
 }
 
 /**
@@ -700,8 +702,7 @@ async function setupJsonbFunctions() {
         'aspect', i.aspect,
         'alt', i.alt,
         'title', i.title,
-        'type', i.type,
-        'isHiddenOnAboutPage', i.is_hidden_on_about_page
+        'type', i.type
       ) || build_write_dates_json(i.created_at, i.updated_at);
     $$ LANGUAGE sql IMMUTABLE;
   `
@@ -718,8 +719,7 @@ async function setupJsonbFunctions() {
           'publishDate', to_char(l.publish_date, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ'),
           'quotation', l.quotation,
           'title', l.title,
-          'type', l.type,
-          'isHiddenOnAboutPage', l.is_hidden_on_about_page
+          'type', l.type
         ) 
         || COALESCE(build_write_dates_json(l.created_at, l.updated_at), '{}'::jsonb)
       );

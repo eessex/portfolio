@@ -1,6 +1,6 @@
 @use '@/ui/styles/breakpoints';
 @use '@/ui/styles/grids';
-@use '@/ui/styles/type';
+@use '@/ui/styles/sticky-heading';
 
 .carousel {
   // the inline part of `--items-list-padding`
@@ -15,24 +15,18 @@
   }
 }
 
-// same as the `ItemsTable` rowgroup heading
 .header {
-  position: sticky;
-  top: calc(var(--header-height) - 1px);
-  z-index: 100;
+  @include sticky-heading.sticky-heading;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: var(--gutter);
-  height: grids.space-em(12);
   margin-bottom: var(--gutter);
   padding: var(--items-list-padding);
-  background-color: var(--page-background-color);
-  box-shadow: inset 0 -1px 0 var(--transparency-primary);
-  transition: all 0.25s ease-in-out;
 
   h2 {
-    @include type.font-weight('bold');
+    @include sticky-heading.sticky-heading-title;
 
     display: flex;
     align-items: baseline;
@@ -44,8 +38,7 @@
 }
 
 .count {
-  @include type.font-size('sm');
-  @include type.font-weight('normal');
+  @include sticky-heading.sticky-heading-count;
 }
 
 .controls {
@@ -80,6 +73,7 @@
 
 .item {
   flex: 0 0 auto;
+  max-width: none;
   margin: 0;
   scroll-snap-align: start;
 }

@@ -1,6 +1,7 @@
 @use '@/ui/items/item-card';
 @use '@/ui/styles/breakpoints';
 @use '@/ui/styles/grids';
+@use '@/ui/styles/sticky-heading';
 @use '@/ui/styles/type';
 
 .items-table {
@@ -8,24 +9,19 @@
 }
 
 .table-rowgroup-heading {
-  position: sticky;
-  text-align: left;
-  top: calc(var(--header-height) - 1px);
-  transition: all 0.25s ease-in-out;
-  height: grids.space-em(12);
-  z-index: 100;
-  background-color: var(--page-background-color);
-  box-shadow: inset 0 -1px 0 var(--transparency-primary);
+  @include sticky-heading.sticky-heading;
+
   grid-column: 1 / -1;
+  text-align: left;
 
   td {
+    @include sticky-heading.sticky-heading-title;
+
     padding: var(--items-list-padding);
-    font-weight: bold;
   }
 
   .count {
-    @include type.font-size('sm');
-    @include type.font-weight('normal');
+    @include sticky-heading.sticky-heading-count;
 
     margin-left: grids.space-rem(2);
   }

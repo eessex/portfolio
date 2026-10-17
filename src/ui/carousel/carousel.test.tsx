@@ -11,6 +11,12 @@ function mockTrackWidths(scrollWidth: number, clientWidth: number) {
     .mockReturnValue(clientWidth)
 }
 
+function mockReducedMotion(isReduced: boolean) {
+  window.matchMedia = jest.fn().mockReturnValue({
+    matches: isReduced
+  }) as typeof window.matchMedia
+}
+
 function renderCarousel() {
   render(
     <Carousel title='Projects' count={2}>
@@ -58,6 +64,7 @@ describe('Carousel', () => {
 
   it('scrolls 80% of the track width per arrow click when it overflows', () => {
     mockTrackWidths(1200, 500)
+    mockReducedMotion(false)
     const scrollBy = jest.fn()
     HTMLElement.prototype.scrollBy = scrollBy
     renderCarousel()
@@ -69,5 +76,23 @@ describe('Carousel', () => {
       [{ left: 400, behavior: 'smooth' }],
       [{ left: -400, behavior: 'smooth' }]
     ])
+  })
+
+  it('scrolls without animation when reduced motion is preferred', () => {
+    mockTrackWidths(1200, 500)
+    mockReducedMotion(true)
+    const scrollBy = jest.fn()
+    HTMLElement.prototype.scrollBy = scrollBy
+    renderCarousel()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }))
+
+    expect(window.matchMedia).toHaveBeenCalledWith(
+      '(prefers-reduced-motion: reduce)'
+    )
+    expect(scrollBy).toHaveBeenCalledWith({
+      left: 400,
+      behavior: 'instant'
+    })
   })
 })

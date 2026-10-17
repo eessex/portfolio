@@ -4,9 +4,12 @@ import { flushSync } from 'react-dom'
  * Commits a React state update inside a view transition, so the
  * reflow it causes animates instead of jumping. Elements need a
  * `view-transition-name` to morph individually; without support, or
- * with reduced motion, the update applies directly.
+ * with reduced motion, the update applies directly. Resolves once the
+ * update has been committed.
  */
-export function withViewTransition(update: () => void) {
+export async function withViewTransition(
+  update: () => void
+): Promise<void> {
   if (
     typeof document === 'undefined' ||
     !('startViewTransition' in document) ||
@@ -24,4 +27,5 @@ export function withViewTransition(update: () => void) {
   // a newer transition (e.g. another table's) skips this one; the
   // update still applies, so the rejection is expected
   transition.ready.catch(() => {})
+  await transition.updateCallbackDone
 }

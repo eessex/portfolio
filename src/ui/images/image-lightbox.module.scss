@@ -1,16 +1,26 @@
 @use '@/ui/styles/caption';
 @use '@/ui/styles/grids';
-@use '@/ui/styles/type';
 
+// a full-viewport `<dialog>` paints its own backdrop (see `Dialog`)
 .lightbox {
-  position: fixed;
-  inset: 0;
-  // above the nav (2000), level with `Dialog`
-  z-index: 3000;
-  display: grid;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  padding: 0;
   grid-template-rows: auto minmax(0, 1fr) auto;
   color: var(--page-foreground-color);
   background: rgba(var(--background), 0.96);
+
+  &[open] {
+    display: grid;
+  }
+
+  &::backdrop {
+    background: transparent;
+  }
 }
 
 .bar {
@@ -33,12 +43,6 @@
 .counter {
   margin: 0;
   font: inherit;
-}
-
-.download {
-  @include type.font-weight('bold');
-
-  color: inherit;
 }
 
 .stage {

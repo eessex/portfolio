@@ -68,7 +68,10 @@ describe('MoreProjectsList', () => {
     await waitFor(() => {
       expect(screen.getByText(draftProject.title)).toBeInTheDocument()
     })
-    expect(fetchedUrls()).toEqual(['/api/session', '/api/projects'])
+    expect(fetchedUrls()).toEqual([
+      '/api/session',
+      '/api/projects?isDefaultExcluded=true'
+    ])
     expect(
       screen.getByText(projectFixtureBand.title)
     ).toBeInTheDocument()
@@ -106,7 +109,9 @@ describe('MoreProjectsList', () => {
     )
 
     await waitFor(() => {
-      expect(fetchedUrls()).toContain('/api/projects')
+      expect(fetchedUrls()).toContain(
+        '/api/projects?isDefaultExcluded=true'
+      )
     })
     expect(
       screen.getByText(projectFixtureBand.title)

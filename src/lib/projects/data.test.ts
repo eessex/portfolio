@@ -32,7 +32,7 @@ describe('fetchProjects', () => {
 
     const result = await Projects.fetchProjects(false)
 
-    expect(mockCached).toHaveBeenCalledWith(false)
+    expect(mockCached).toHaveBeenCalledWith(false, false)
     expect(result).toEqual({
       res: {
         allProjects: [projectFixtureBand]
@@ -49,7 +49,46 @@ describe('fetchProjects', () => {
 
     expect(result).toBeDefined()
   })
+
+  it('threads isDefaultExcluded to the cached first page', async () => {
+    mockCached.mockResolvedValue({
+      res: { allProjects: [] },
+      nextCursor: null,
+      totalCount: 0
+    })
+
+    await Projects.fetchProjects(false, undefined, undefined, {
+      isDefaultExcluded: true
+    })
+
+    expect(mockCached).toHaveBeenCalledWith(false, true)
+  })
+
+  it('threads isDefaultExcluded to the raw fetch', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 0 }])
+      .mockResolvedValueOnce([])
+
+    await Projects.fetchProjects(false, undefined, 'band', {
+      isDefaultExcluded: true
+    })
+
+    expect(defaultExcludedParams()).toEqual([true, true])
+  })
 })
+
+/**
+ * The value bound to `NOT ${isDefaultExcluded}` in each `sql` call
+ * (count, then list).
+ */
+function defaultExcludedParams() {
+  return mockSql.mock.calls.map(([strings, ...values]) => {
+    const index = (strings as unknown as string[]).findIndex((part) =>
+      part.trimEnd().endsWith('AND (NOT')
+    )
+    return values[index]
+  })
+}
 
 describe('fetchProjectsRaw', () => {
   beforeEach(() => {
@@ -73,6 +112,33 @@ describe('fetchProjectsRaw', () => {
       },
       nextCursor: null,
       totalCount: 1
+    })
+  })
+
+  it('keeps the default project unless isDefaultExcluded', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([projectFixtureBand])
+
+    await Projects.fetchProjectsRaw(false)
+
+    expect(defaultExcludedParams()).toEqual([false, false])
+  })
+
+  it('filters the default project from count and list when isDefaultExcluded', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([projectFixtureBand])
+
+    await Projects.fetchProjectsRaw(false, undefined, undefined, {
+      isDefaultExcluded: true
+    })
+
+    expect(defaultExcludedParams()).toEqual([true, true])
+    mockSql.mock.calls.forEach(([strings]) => {
+      expect((strings as unknown as string[]).join('?')).toContain(
+        'OR NOT p.is_default_project'
+      )
     })
   })
 
@@ -105,8 +171,7 @@ describe('fetchProjectById', () => {
     mockSql.mockResolvedValue([
       {
         ...projectFixtureBand,
-        embedCodes: [embedCodeFixture],
-        featuredEmbedCode: embedCodeFixture
+        embedCodes: [embedCodeFixture]
       }
     ])
 
@@ -115,9 +180,6 @@ describe('fetchProjectById', () => {
     )
 
     expect(result?.embedCodes?.[0].coverImageUrl).toContain(
-      embedCodeFixture.coverImageId
-    )
-    expect(result?.featuredEmbedCode?.coverImageUrl).toContain(
       embedCodeFixture.coverImageId
     )
   })
@@ -151,6 +213,60 @@ describe('fetchProjectById', () => {
       Projects.fetchProjectById(projectFixtureBand.id)
     ).rejects.toThrow(
       `Failed to fetch project: ${projectFixtureBand.id}.`
+    )
+  })
+})
+
+describe('fetchDefaultProject', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('looks up the flagged project, then fetches it by id', async () => {
+    const defaultProject = {
+      ...projectFixtureBand,
+      isDefaultProject: true
+    }
+    mockSql
+      .mockResolvedValueOnce([{ id: projectFixtureBand.id }])
+      .mockResolvedValueOnce([defaultProject])
+
+    const result = await Projects.fetchDefaultProject(true)
+
+    expect(result).toEqual(defaultProject)
+    const [[lookup, isAuthed], [, byId]] = mockSql.mock.calls
+    expect(lookup.join('?')).toContain('WHERE is_default_project')
+    expect(lookup.join('?')).toContain('OR is_published = true')
+    expect(isAuthed).toBe(true)
+    expect(byId).toBe(projectFixtureBand.id)
+  })
+
+  it('passes isAuthed through to both queries', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ id: projectFixtureBand.id }])
+      .mockResolvedValueOnce([projectFixtureBand])
+
+    await Projects.fetchDefaultProject()
+
+    const [[, lookupAuthed], [, , byIdAuthed]] = mockSql.mock.calls
+    expect(lookupAuthed).toBe(false)
+    expect(byIdAuthed).toBe(false)
+  })
+
+  it('returns undefined when there is no default project', async () => {
+    mockSql.mockResolvedValueOnce([])
+
+    const result = await Projects.fetchDefaultProject()
+
+    expect(result).toBeUndefined()
+    expect(mockSql).toHaveBeenCalledTimes(1)
+  })
+
+  it('throws on DB error', async () => {
+    mockSql.mockRejectedValueOnce(new Error('db exploded'))
+
+    await expect(Projects.fetchDefaultProject()).rejects.toThrow(
+      'Failed to fetch default project.'
     )
   })
 })

@@ -1,0 +1,126 @@
+@use '@/ui/styles/grids';
+@use '@/ui/styles/overlay';
+@use '@/ui/styles/type';
+
+// shared by the card-shaped item layouts: the expanded `ItemsTable`
+// row (/projects) and the projects carousel's `ItemCard`
+
+$text-gap: grids.space-rem(1);
+
+// cover height; keep in sync with `ProjectsCarousel`'s `MEDIA_HEIGHTS`
+$media-height: 300px;
+$media-height-narrow: 220px;
+
+// a justified row's (/projects) shortest image height, its cards'
+// starting size; rows grow from here to fill the width
+$row-media-height: 320px;
+
+// the tallest a justified row's images grow (/projects); 360px makes
+// a 4:3 cover 480px wide
+$media-height-max: 360px;
+$media-height-max-narrow: 264px;
+
+// a square stand-in for a missing cover; an explicit width, since a
+// stretched flex item would ignore `aspect-ratio`
+@mixin media-placeholder($height) {
+  display: block;
+  width: $height;
+  height: $height;
+  background-color: var(--input-background-color);
+}
+
+// the title; the type and date follow it by `$text-gap`
+@mixin title {
+  @include type.heading('lg');
+
+  margin: 0;
+}
+
+// the release/project type, below the title
+@mixin category {
+  @include type.meta();
+
+  margin: $text-gap 0 0;
+}
+
+// the date, below the title (and type)
+@mixin date {
+  @include type.font-size('base');
+  @include type.font-weight('normal');
+
+  margin: $text-gap 0 0;
+  line-height: inherit;
+}
+
+// the "Unpublished" badge on the image's bottom-left corner, above
+// the hover overlay; on the image's (positioned) wrapper
+@mixin image-badge {
+  mark {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    margin: 0;
+  }
+}
+
+// hovering anywhere darkens the image under an overlay and underlines
+// only the title text
+@mixin hover($image-wrapper, $title-text) {
+  #{$image-wrapper} {
+    @include overlay.image-overlay;
+  }
+
+  &:hover,
+  &:focus-within {
+    #{$image-wrapper} {
+      @include overlay.image-overlay-visible;
+    }
+  }
+
+  @media (hover: hover) {
+    &:hover #{$title-text} {
+      text-decoration: underline;
+    }
+  }
+}
+
+// audio/video icons beside the title: one title line tall (the
+// title's type, so `1lh` matches it) with the icons centered in it
+@mixin media-icons {
+  @include title;
+
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  align-self: start;
+  height: 1lh;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// on the card's text container: `$title` and `$icons` share grid row
+// `$row` (the icons in a right-hand column), every other child spans
+// both columns
+@mixin title-with-media-icons($title, $icons, $row: 1) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: grids.space-rem(2);
+
+  > * {
+    grid-row: auto;
+    grid-column: 1 / -1;
+  }
+
+  > #{$title} {
+    grid-column: 1;
+  }
+
+  > #{$icons} {
+    grid-row: $row;
+    grid-column: 2;
+  }
+}

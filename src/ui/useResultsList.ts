@@ -9,6 +9,7 @@ import type {
 import type { ResponseWithCursor } from '@/lib/util'
 import { useIsAdmin } from '@/ui/useIsAdmin'
 import { buildApiUrl, type SearchParams } from '@/ui/util'
+import { withViewTransition } from '@/ui/view-transition'
 
 type SortDirection = 'asc' | 'desc'
 
@@ -187,7 +188,14 @@ export function useResultsList<
   )
 
   const fetchPage = useCallback(
-    async (options: { cursor?: string; replace?: boolean } = {}) => {
+    async (
+      options: {
+        cursor?: string
+        replace?: boolean
+        /** animate the resulting reflow, see `withViewTransition` */
+        isAnimated?: boolean
+      } = {}
+    ) => {
       if (isFetchingRef.current) return
 
       abortControllerRef.current?.abort()
@@ -209,62 +217,66 @@ export function useResultsList<
         )
         const data: ResultsResponse<TEmbeddedItem, TPage, S> =
           await res.json()
-        const isGrouped = !Array.isArray(data.res)
-        if (isGrouped) {
-          const res = data.res as Record<
-            string,
-            (TEmbeddedItem | TPage)[]
-          >
+        const apply = () => {
+          const isGrouped = !Array.isArray(data.res)
+          if (isGrouped) {
+            const res = data.res as Record<
+              string,
+              (TEmbeddedItem | TPage)[]
+            >
 
-          if (options.replace) {
-            groupedCache.current = res
-          } else {
-            for (const key of Object.keys(res)) {
-              const existing = groupedCache.current[key] || []
-              const incoming = res[key]
+            if (options.replace) {
+              groupedCache.current = res
+            } else {
+              for (const key of Object.keys(res)) {
+                const existing = groupedCache.current[key] || []
+                const incoming = res[key]
 
-              const deduped = incoming.filter(
-                (newItem) =>
-                  !existing.some((i) => i.id === newItem.id)
-              )
+                const deduped = incoming.filter(
+                  (newItem) =>
+                    !existing.some((i) => i.id === newItem.id)
+                )
 
-              groupedCache.current[key] = [...existing, ...deduped]
+                groupedCache.current[key] = [...existing, ...deduped]
+              }
             }
-          }
 
-          // Flatten for filtering/search
-          const flat = Object.values(groupedCache.current).flat()
+            // Flatten for filtering/search
+            const flat = Object.values(groupedCache.current).flat()
 
-          fullResultsCache.current = flat
-          setGroupedItems(groupedCache.current)
-          setItems(applyFilter(flat, currentQuery, currentSort))
-        } else {
-          const normalized = normalizeItems<TEmbeddedItem | TPage>(
-            data.res
-          )
-
-          const newItems = options.replace
-            ? normalized
-            : normalized.filter(
-                (newItem) =>
-                  !fullResultsCache.current.some(
-                    (i) => i.id === newItem.id
-                  )
-              )
-
-          fullResultsCache.current = options.replace
-            ? newItems
-            : [...fullResultsCache.current, ...newItems]
-          setItems(
-            applyFilter(
-              fullResultsCache.current,
-              currentQuery,
-              currentSort
+            fullResultsCache.current = flat
+            setGroupedItems(groupedCache.current)
+            setItems(applyFilter(flat, currentQuery, currentSort))
+          } else {
+            const normalized = normalizeItems<TEmbeddedItem | TPage>(
+              data.res
             )
-          )
+
+            const newItems = options.replace
+              ? normalized
+              : normalized.filter(
+                  (newItem) =>
+                    !fullResultsCache.current.some(
+                      (i) => i.id === newItem.id
+                    )
+                )
+
+            fullResultsCache.current = options.replace
+              ? newItems
+              : [...fullResultsCache.current, ...newItems]
+            setItems(
+              applyFilter(
+                fullResultsCache.current,
+                currentQuery,
+                currentSort
+              )
+            )
+          }
+          setNextCursor(data.nextCursor)
+          setCount(data.totalCount)
         }
-        setNextCursor(data.nextCursor)
-        setCount(data.totalCount)
+        if (options.isAnimated) await withViewTransition(apply)
+        else apply()
         if (options.replace) {
           hasLoadedInitialRef.current = true
         }
@@ -380,7 +392,7 @@ export function useResultsList<
   useEffect(() => {
     if (!augmentOnMount || !isAdmin || didAugmentRef.current) return
     didAugmentRef.current = true
-    fetchPage({ replace: true })
+    fetchPage({ replace: true, isAnimated: true })
   }, [augmentOnMount, isAdmin, fetchPage])
 
   // If no initial results are passed from the server, fetch the first page on mount

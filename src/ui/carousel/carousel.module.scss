@@ -1,0 +1,79 @@
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
+@use '@/ui/styles/sticky-heading';
+
+.carousel {
+  // the inline part of `--items-list-padding`
+  --gutter: #{grids.space-rem(4)};
+
+  container: carousel / inline-size;
+  padding-top: grids.space-rem(4);
+  padding-bottom: grids.space-rem(16);
+
+  @include breakpoints.mobile {
+    --gutter: #{grids.space-rem(3)};
+  }
+}
+
+.header {
+  @include sticky-heading.sticky-heading;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gutter);
+  margin-bottom: var(--gutter);
+  padding: var(--items-list-padding);
+
+  h2 {
+    @include sticky-heading.sticky-heading-title;
+
+    display: flex;
+    align-items: baseline;
+    gap: grids.space-rem(2);
+    margin: 0;
+    font-size: inherit;
+    line-height: inherit;
+  }
+}
+
+.count {
+  @include sticky-heading.sticky-heading-count;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--gutter);
+}
+
+.arrows {
+  display: flex;
+  gap: grids.space-rem(1);
+}
+
+// bleeds to the viewport edge; the first item aligns with the gutter
+.track {
+  // exposed so items can size to a number of columns
+  --track-gap: #{grids.space-rem(6)};
+
+  display: flex;
+  gap: var(--track-gap);
+  padding: 0 var(--gutter);
+  overflow-x: auto;
+  list-style: none;
+  scroll-padding: 0 var(--gutter);
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.item {
+  flex: 0 0 auto;
+  max-width: none;
+  margin: 0;
+  scroll-snap-align: start;
+}

@@ -146,8 +146,7 @@ describe('fetchReleaseById', () => {
     mockSql.mockResolvedValue([
       {
         ...releaseFixtureAlbum,
-        embedCodes: [embedCodeFixture],
-        featuredEmbedCode: embedCodeFixture
+        embedCodes: [embedCodeFixture]
       }
     ])
 
@@ -159,9 +158,6 @@ describe('fetchReleaseById', () => {
       embedCodeFixture.coverImageId
     )
     expect(result?.embedCodes?.[0].coverImageThumbnailUrl).toContain(
-      embedCodeFixture.coverImageId
-    )
-    expect(result?.featuredEmbedCode?.coverImageUrl).toContain(
       embedCodeFixture.coverImageId
     )
   })

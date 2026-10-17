@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { isAuthed } from '@/lib/auth/guard'
@@ -36,6 +36,7 @@ async function EditProject({ params }: PageItemProps) {
     resolved && (await fetchProjectById(resolved.id, authed))
 
   if (!project) return notFound()
+  if (project.isDefaultProject) redirect('/about/edit')
 
   return <EditProjectForm project={project} />
 }

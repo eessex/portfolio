@@ -22,6 +22,27 @@ import {
 } from '@/lib/util'
 
 export async function editProject(formData: FormData, id?: string) {
+  return saveProjectForm(formData, id, false)
+}
+
+/**
+ * Saves the default project (rendered at `/about`) from `/about/edit`,
+ * the only way to set `is_default_project`: a create flags the new
+ * row, and updates keep the stored flag (`toDbRow`). The partial
+ * unique index rejects a second default, returned as a form error.
+ */
+export async function editDefaultProject(
+  formData: FormData,
+  id?: string
+) {
+  return saveProjectForm(formData, id, true)
+}
+
+function saveProjectForm(
+  formData: FormData,
+  id: string | undefined,
+  isDefaultProject: boolean
+) {
   return runFormAction({
     formData,
     schema: createProjectSchema,
@@ -30,18 +51,19 @@ export async function editProject(formData: FormData, id?: string) {
       const { coverImageId, imageIds } =
         await resolveOrderedImageIds(data)
       const { linkIds } = await resolveOrderedLinkIds(data)
-      const { embedCodeIds, featuredEmbedCodeId } =
-        await resolveOrderedEmbedCodeIds(data)
+      const { embedCodeIds } = await resolveOrderedEmbedCodeIds(data)
       const contactInfo = resolveContactInfo(data)
 
       return {
         ...data,
+        // never taken from the form: only `editDefaultProject` sets
+        // it, and updates keep the stored value (`toDbRow`)
+        isDefaultProject: isDefaultProject || undefined,
         // Omitted (not just undefined) when the editor wasn't submitted,
         // so a partial update keeps the existing contacts.
         ...(contactInfo && { contactInfo }),
         coverImageId,
         embedCodeIds,
-        featuredEmbedCodeId,
         imageIds,
         linkIds,
         path: 'projects',
@@ -54,9 +76,28 @@ export async function editProject(formData: FormData, id?: string) {
     },
     invalidate: (saved?: Project) =>
       invalidateProjectTags(saved?.id ?? id),
-    save: (project) =>
-      id ? updateProject(project, id) : createProject(project)
+    save: async (project) => {
+      try {
+        return id
+          ? await updateProject(project, id)
+          : await createProject(project)
+      } catch (err) {
+        if (isSecondDefaultError(err)) {
+          throw new Error('A default project already exists')
+        }
+        throw err
+      }
+    }
   })
+}
+
+/** Creating a second default project trips the partial unique index. */
+function isSecondDefaultError(err: unknown) {
+  const cause = err instanceof Error ? err.cause : undefined
+  return (
+    (cause as { constraint?: string } | undefined)?.constraint ===
+    'idx_projects_single_default'
+  )
 }
 
 /**
@@ -74,6 +115,7 @@ function invalidateProjectTags(id?: string) {
   updateTag('projects:authed')
   updateTag('projects:public')
   updateTag(slugCacheTag('projects'))
+  updateTag('projects:default')
   if (id) updateTag(`project:${id}`)
   updateTag('releases')
   updateTag('events')
@@ -89,6 +131,17 @@ export async function deleteProject(project: Project) {
     // one transaction, so a failed DELETE doesn't leave the hand-offs
     // applied to a project that still exists
     del: async () => {
+      // stored flag, not the client-sent one: /about depends on it
+      const rows = await sql`
+        SELECT is_default_project FROM projects
+        WHERE id = ${project.id}
+      `
+      if (rows[0]?.is_default_project) {
+        return {
+          ok: false,
+          message: 'The default project can’t be deleted.'
+        }
+      }
       await sql.transaction([
         handOffImages(project.id),
         handOffLinks(project.id),
@@ -110,8 +163,8 @@ async function createProject(project: CreateProject) {
       description,
       embedCodeIds,
       endDate,
-      featuredEmbedCodeId,
       imageIds,
+      isDefaultProject,
       isPublished,
       linkIds,
       shortDescription,
@@ -127,8 +180,8 @@ async function createProject(project: CreateProject) {
         description,
         embed_code_ids,
         end_date,
-        featured_embed_code_id,
         image_ids,
+        is_default_project,
         is_published,
         link_ids,
         short_description,
@@ -144,8 +197,8 @@ async function createProject(project: CreateProject) {
         ${description},
         ${embedCodeIds},
         ${endDate},
-        ${featuredEmbedCodeId},
         ${imageIds},
+        ${isDefaultProject},
         ${isPublished},
         ${linkIds},
         ${shortDescription},
@@ -179,7 +232,6 @@ async function updateProject(project: CreateProject, id: string) {
       description,
       embedCodeIds,
       endDate,
-      featuredEmbedCodeId,
       imageIds,
       isPublished,
       linkIds,
@@ -198,7 +250,6 @@ async function updateProject(project: CreateProject, id: string) {
         description = ${description},
         embed_code_ids = ${embedCodeIds},
         end_date = ${endDate},
-        featured_embed_code_id = ${featuredEmbedCodeId},
         image_ids = ${imageIds},
         is_published = ${isPublished},
         link_ids = ${linkIds},
@@ -231,13 +282,11 @@ async function updateProject(project: CreateProject, id: string) {
 
 /**
  * The full set of image/link/embed-code ids a project owns, including
- * the cover image / featured embed code (which are stored in their own
- * columns rather than the `*Ids` arrays).
+ * the cover image (stored in its own column rather than `imageIds`).
  */
 function childIdsOf(project: {
   coverImageId?: string
   embedCodeIds?: string[]
-  featuredEmbedCodeId?: string
   imageIds?: string[]
   linkIds?: string[]
 }) {
@@ -246,9 +295,7 @@ function childIdsOf(project: {
       ? [project.coverImageId, ...(project.imageIds ?? [])]
       : (project.imageIds ?? []),
     linkIds: project.linkIds ?? [],
-    embedCodeIds: project.featuredEmbedCodeId
-      ? [project.featuredEmbedCodeId, ...(project.embedCodeIds ?? [])]
-      : (project.embedCodeIds ?? [])
+    embedCodeIds: project.embedCodeIds ?? []
   }
 }
 
@@ -349,20 +396,14 @@ function handOffLinks(projectId: string, ids?: string[]) {
   `
 }
 
-/**
- * `handOffImages` for embed codes, listed via `embed_code_ids` or
- * `featured_embed_code_id`.
- */
+/** `handOffImages` for embed codes, listed via `embed_code_ids`. */
 function handOffEmbedCodes(projectId: string, ids?: string[]) {
   return sql`
     UPDATE embed_codes AS ec
     SET project_id = (
       SELECT p.id FROM projects AS p
       WHERE p.id <> ${projectId}
-        AND (
-          ec.id = ANY(p.embed_code_ids)
-          OR p.featured_embed_code_id = ec.id
-        )
+        AND ec.id = ANY(p.embed_code_ids)
       ORDER BY p.created_at, p.id
       LIMIT 1
     )
@@ -455,8 +496,11 @@ function toDbRow(
     description: projectToSave.description ?? null,
     embedCodeIds: projectToSave.embedCodeIds ?? null,
     endDate: projectToSave.endDate ?? null,
-    featuredEmbedCodeId: projectToSave.featuredEmbedCodeId ?? null,
     imageIds: projectToSave.imageIds ?? null,
+    // the stored flag wins: an update can neither set nor clear it, so
+    // UPDATE doesn't write the column at all
+    isDefaultProject:
+      existing?.isDefaultProject ?? project.isDefaultProject ?? false,
     isPublished: projectToSave.isPublished ?? null,
     linkIds: projectToSave.linkIds ?? null,
     shortDescription: projectToSave.shortDescription ?? null,

@@ -26,6 +26,7 @@ import type { Venue } from '@/lib/venues/schemas/db'
 import { Badges, itemBadges } from '@/ui/badges/badges'
 import { FiltersWrapper } from '@/ui/filters/filters'
 import { ItemsList } from '@/ui/items/items-list'
+import { animateRowChanges } from '@/ui/items/items-table/animate-row-changes'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import { ItemsTableRow } from '@/ui/items/items-table/items-table-row'
 import { LinkDetails } from '@/ui/links/link-details'
@@ -42,7 +43,8 @@ import {
   formatVenueInline,
   isEmbeddedDetailColumnVisible,
   isEmbeddedItemType,
-  isImageColumnVisible
+  isImageColumnVisible,
+  type SearchParams
 } from '@/ui/util'
 import { VenueDetails } from '@/ui/venues/venue-details'
 
@@ -58,7 +60,8 @@ export function ItemsTable<
   isExpandedOnLoad,
   isPathTypeVisible,
   featuredKey,
-  projectId
+  projectId,
+  searchParams
 }: {
   initialItems: ResultsResponse<TEmbeddedItem, T, S>
   itemType: PagePath | EmbeddedItemType
@@ -76,6 +79,8 @@ export function ItemsTable<
   featuredKey?: Extract<keyof S, string>
   /** Scope API fetches to a parent project (e.g. on project pages) */
   projectId?: string
+  /** Extra params forwarded to every API fetch, so pages match the first */
+  searchParams?: SearchParams
 }) {
   const {
     count,
@@ -97,7 +102,7 @@ export function ItemsTable<
       // Embedded items have no publish state, so there's nothing to
       // reveal and the refetch is skipped entirely.
       augmentOnMount: !isEmbeddedItemType(itemType),
-      searchParams: { projectId }
+      searchParams: { projectId, ...searchParams }
     }
   )
 
@@ -115,7 +120,12 @@ export function ItemsTable<
     if (category) {
       const typeLabel = formattedItemType(category, false, true)
       if (query.length > 0) {
-        return `${itemTypeToLabel(itemType)} matching "${query}" (${itemCount})`
+        return (
+          <>
+            {itemTypeToLabel(itemType)} matching &ldquo;{query}&rdquo;
+            <span className={styles.count}>{itemCount}</span>
+          </>
+        )
       } else {
         return typeLabel
       }
@@ -224,6 +234,9 @@ export function ItemsTable<
                     isExpandedOnLoad && styles['table-body--expanded']
                   )}
                   key={`${index}-${key}`}
+                  ref={
+                    isExpandedOnLoad ? animateRowChanges : undefined
+                  }
                 >
                   <tr
                     className={

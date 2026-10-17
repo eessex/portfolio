@@ -1,0 +1,90 @@
+@use '@/ui/styles/caption';
+@use '@/ui/styles/grids';
+
+// a full-viewport `<dialog>` paints its own backdrop (see `Dialog`)
+.lightbox {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  color: var(--page-foreground-color);
+  background: rgba(var(--background), 0.96);
+
+  &[open] {
+    display: grid;
+  }
+
+  &::backdrop {
+    background: transparent;
+  }
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: grids.space-rem(2, 4);
+  padding: grids.space-rem(4);
+}
+
+.caption {
+  @include caption.caption-text;
+}
+
+.close {
+  min-height: grids.space-rem(11);
+}
+
+.counter {
+  margin: 0;
+  font: inherit;
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns:
+    grids.space-rem(11) minmax(0, 1fr)
+    grids.space-rem(11);
+  column-gap: grids.space-rem(2);
+  // matches the bars, so the arrows line up with the counter and Close
+  padding-inline: grids.space-rem(4);
+  // a definite row, so the image's `max-height: 100%` resolves
+  grid-template-rows: minmax(0, 1fr);
+  align-items: center;
+  min-height: 0;
+
+  // round, with a 44px touch target
+  button {
+    justify-self: center;
+    justify-content: center;
+    width: grids.space-rem(11);
+    height: grids.space-rem(11);
+    padding: 0;
+    border-radius: 50%;
+
+    svg {
+      width: grids.space-rem(6);
+      height: grids.space-rem(6);
+    }
+  }
+
+  img {
+    justify-self: center;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: min(78vh, 100%);
+    object-fit: contain;
+    transition: opacity 0.2s ease-in-out;
+
+    &.loading {
+      opacity: 0;
+    }
+  }
+}

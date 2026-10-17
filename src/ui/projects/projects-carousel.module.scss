@@ -1,0 +1,55 @@
+@use '@/ui/carousel/carousel';
+@use '@/ui/items/item-card';
+@use '@/ui/styles/grids';
+
+// an `ItemCard` restyled as a carousel slide; `article` outranks the
+// card's own `.card a > img` / `.card h3` rules
+article.project {
+  @include carousel.media-slide('a > img');
+
+  // the card's no-cover placeholder, at the row height
+  --card-placeholder-size: var(--carousel-media-height);
+
+  position: relative;
+  gap: grids.space-rem(2);
+  padding: 0;
+
+  a > img {
+    display: block;
+    margin: 0;
+    background-color: var(--input-background-color);
+  }
+
+  > div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  h3 {
+    @include item-card.title;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  p:empty {
+    display: none;
+  }
+
+  @include carousel.narrow {
+    --card-placeholder-size: var(--carousel-media-height-narrow);
+  }
+}
+
+// the same text spacing as an expanded `ItemsTable` row; doubled to
+// outrank the card's `.card p.card-item-*` rules
+article.project.project {
+  p:global(.category) {
+    @include item-card.category;
+  }
+
+  p:has(> time) {
+    @include item-card.date;
+  }
+}

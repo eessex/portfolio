@@ -1,0 +1,29 @@
+@use '@/ui/styles/overlay';
+
+// an `ImageFigure` with `onClick`: the image is a plain zoom target,
+// not a styled button; it darkens under an overlay on hover, like an
+// item card's image
+@mixin image-button {
+  button {
+    @include overlay.image-overlay;
+
+    padding: 0;
+    background: none;
+    cursor: zoom-in;
+
+    &:hover,
+    &:active {
+      background: none;
+    }
+
+    &:hover,
+    &:focus-visible {
+      @include overlay.image-overlay-visible;
+    }
+  }
+
+  img {
+    display: block;
+    background-color: var(--transparency-extra-light);
+  }
+}

@@ -9,27 +9,17 @@ import {
 } from '@/ui/embed-codes/format-embed-code-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 
-/**
- * Reorderable embed codes picker.
- * Featured embed code is pinned to top.
- */
+/** Reorderable embed codes picker. */
 export function EmbedCodesPicker({
-  featuredEmbedCode,
   embedCodes
 }: {
-  featuredEmbedCode?: EmbedCode
   embedCodes?: EmbedCode[]
 }) {
-  const existingItems = [
-    featuredEmbedCode,
-    ...(embedCodes ?? [])
-  ].filter((embedCode): embedCode is EmbedCode => !!embedCode)
-
   return (
     <ItemPicker<EmbedCode>
       isMulti
       itemType='embedCodes'
-      existingItems={existingItems}
+      existingItems={embedCodes ?? []}
       renderExistingResult={formatEmbedCodeResult}
       renderNewItemSummary={formatNewEmbedCodeSummary}
       schema={createEmbedCodeSchema}
@@ -46,10 +36,6 @@ export function EmbedCodesPicker({
           onBusyChange={onBusyChange}
         />
       )}
-      featured={{
-        isInitiallyFeatured: !!featuredEmbedCode,
-        label: 'Featured'
-      }}
     />
   )
 }

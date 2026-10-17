@@ -1,8 +1,9 @@
 'use client'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { useEffect, useId } from 'react'
+import { useId, useRef } from 'react'
 
 import styles from '@/ui/dialog/dialog.module.scss'
+import { useModalDialog } from '@/ui/dialog/use-modal-dialog'
 
 export const Dialog = ({
   cancelButtonText,
@@ -21,30 +22,20 @@ export const Dialog = ({
   onClose: () => void
   onConfirm: () => void
 }) => {
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose()
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [onClose])
-
   const dialogTitleId = useId()
+  const cancelRef = useRef<HTMLButtonElement>(null)
+  const dialogRef = useModalDialog({
+    onClose,
+    initialFocusRef: cancelRef
+  })
 
   return (
-    <div className={`dialog-container ${styles['dialog-container']}`}>
-      <div
-        aria-labelledby={dialogTitleId}
-        className={`dialog ${styles['dialog']}`}
-        aria-modal='true'
-        role='dialog'
-        tabIndex={-1}
-      >
+    <dialog
+      ref={dialogRef}
+      aria-labelledby={dialogTitleId}
+      className={styles['dialog-container']}
+    >
+      <div className={`dialog ${styles['dialog']}`}>
         <header className='dialog-header'>
           <h2 id={dialogTitleId}>{title}</h2>
           <button
@@ -72,6 +63,7 @@ export const Dialog = ({
           )}
           {cancelButtonText && (
             <button
+              ref={cancelRef}
               type='button'
               className='button-sm'
               onClick={onClose}
@@ -81,6 +73,6 @@ export const Dialog = ({
           )}
         </footer>
       </div>
-    </div>
+    </dialog>
   )
 }

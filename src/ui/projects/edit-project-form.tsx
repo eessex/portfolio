@@ -3,7 +3,11 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-import { deleteProject, editProject } from '@/lib/projects/actions'
+import {
+  deleteProject,
+  editDefaultProject,
+  editProject
+} from '@/lib/projects/actions'
 import { projectTypes } from '@/lib/projects/schemas'
 import type { ProjectClient } from '@/lib/projects/types'
 import { EmbedCodesPicker } from '@/ui/embed-codes/embed-codes-picker'
@@ -80,10 +84,7 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         errors={errors?.description}
         label='Description'
       />
-      <EmbedCodesPicker
-        featuredEmbedCode={project?.featuredEmbedCode}
-        embedCodes={project?.embedCodes}
-      />
+      <EmbedCodesPicker embedCodes={project?.embedCodes} />
       <ContactInfoFields contactInfo={project?.contactInfo} />
       <PressLinksPicker links={project?.links} />
       <LinksPicker links={project?.links} />
@@ -98,16 +99,26 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
 }
 
 export function EditProjectForm({
-  project
+  project,
+  isDefaultProject = false
 }: {
   project?: ProjectClient
+  /**
+   * The default project, edited from `/about/edit`: saves through
+   * `editDefaultProject` (which creates it when `project` is absent),
+   * returns to `/about`, and can't be deleted.
+   */
+  isDefaultProject?: boolean
 }) {
   const router = useRouter()
 
   async function handleSubmit(formData: FormData) {
-    const res = await editProject(formData, project?.id)
+    const save = isDefaultProject ? editDefaultProject : editProject
+    const res = await save(formData, project?.id)
     if (res?.ok && res.res) {
-      router.push(`/projects/${res.res.slug}`)
+      router.push(
+        isDefaultProject ? '/about' : `/projects/${res.res.slug}`
+      )
     }
     return res
   }
@@ -121,7 +132,7 @@ export function EditProjectForm({
         <ProjectFormFields project={project} />
       </Form>
 
-      {project && (
+      {project && !isDefaultProject && !project.isDefaultProject && (
         <div className={styles['delete-button-container']}>
           <DeleteItemButton
             deleteItem={() => deleteProject(project)}

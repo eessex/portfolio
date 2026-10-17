@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
 import {
-  ownershipFields,
   relationFields,
   systemFields,
   taxonomyFields
@@ -29,16 +28,29 @@ export type PublishedEditionType = z.infer<
   typeof publishedEditionTypeSchema
 >
 
-const publishedEditionFields = {
-  buyLinkId: uuid.optional(),
+/** What the release form's inline edition editor submits. */
+const editableFields = {
   catalogNumber: shortText.optional(),
-  coverImageId: relationFields.coverImageId,
-  editionSize: z.number().int().optional(),
+  // form inputs submit strings
+  editionSize: z.coerce.number().int().min(1).optional(),
   format: publishedEditionTypeSchema,
-  imageIds: relationFields.imageIds,
-  publishDate: date,
+  publishDate: date
+}
+
+const publishedEditionFields = {
+  ...editableFields,
   publisherId: uuid,
   releaseId: uuid
+}
+
+/**
+ * Read-only: still stored and returned, but no longer edited (hidden
+ * from the form until they're needed).
+ */
+const legacyFields = {
+  buyLinkId: uuid.optional(),
+  coverImageId: relationFields.coverImageId,
+  imageIds: relationFields.imageIds
 }
 
 /**
@@ -46,12 +58,13 @@ const publishedEditionFields = {
  * This is separate from the Release itself, which represents the overall work.
  * A release may have multiple editions, each with its own format, publish date, and publisher.
  * This allows for tracking different versions of a release, such as a first pressing and a reissue.
+ * Editions belong to exactly one release and are edited only from its form.
  */
 export const publishedEditionSchema = z.object({
   ...systemFields,
-  ...ownershipFields,
   ...taxonomyFields,
-  ...publishedEditionFields
+  ...publishedEditionFields,
+  ...legacyFields
 })
 export type PublishedEdition = z.infer<typeof publishedEditionSchema>
 
@@ -61,6 +74,24 @@ export type PublishedEdition = z.infer<typeof publishedEditionSchema>
 export const createPublishedEditionSchema = z.object({
   ...publishedEditionFields
 })
+
+/**
+ * An inline edition draft, before its release is known: its publisher
+ * is either picked (`publisherId`) or created inline (`publisher.name`).
+ */
+export const publishedEditionDraftSchema = z
+  .object({
+    ...editableFields,
+    publisherId: uuid.optional(),
+    'publisher.name': shortText.optional()
+  })
+  .refine(
+    (draft) => draft.publisherId || draft['publisher.name']?.trim(),
+    {
+      message: 'Choose or create a publisher',
+      path: ['publisherId']
+    }
+  )
 export type CreatePublishedEdition = z.infer<
   typeof createPublishedEditionSchema
 >

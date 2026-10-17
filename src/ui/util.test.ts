@@ -3,9 +3,11 @@ import {
   fromDateTimeInputValue
 } from '@/lib/dates'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
+import { releaseFixtureAlbum } from '@/lib/releases/fixtures'
 import {
   formattedDateOrTimestamp,
   formattedDateTime,
+  formattedItemTitle,
   formattedLinkUrl,
   itemUrl,
   toDateInputValue,
@@ -36,6 +38,48 @@ describe('toDateInputValue', () => {
     expect(toDateInputValue('2024-06-30T00:00:00.000Z')).toBe(
       toDateInputValue(new Date('2024-06-30T00:00:00.000Z'))
     )
+  })
+
+  describe('west of UTC', () => {
+    const originalTz = process.env.TZ
+    beforeAll(() => {
+      process.env.TZ = 'America/Los_Angeles'
+    })
+    afterAll(() => {
+      process.env.TZ = originalTz
+    })
+
+    it('does not shift a parsed date-only value back a day', () => {
+      expect(toDateInputValue(new Date('2020-01-15'))).toBe(
+        '2020-01-15'
+      )
+      expect(toDateInputValue('2020-01-15')).toBe('2020-01-15')
+    })
+
+    it('still reads a local-midnight Date as local', () => {
+      expect(toDateInputValue(new Date(2020, 0, 15))).toBe(
+        '2020-01-15'
+      )
+    })
+  })
+
+  describe('east of UTC', () => {
+    const originalTz = process.env.TZ
+    beforeAll(() => {
+      process.env.TZ = 'Asia/Tokyo'
+    })
+    afterAll(() => {
+      process.env.TZ = originalTz
+    })
+
+    it('reads both UTC- and local-midnight Dates as the same day', () => {
+      expect(toDateInputValue(new Date('2020-01-15'))).toBe(
+        '2020-01-15'
+      )
+      expect(toDateInputValue(new Date(2020, 0, 15))).toBe(
+        '2020-01-15'
+      )
+    })
   })
 })
 
@@ -159,5 +203,32 @@ describe('itemUrl', () => {
     expect(
       itemUrl({ ...projectFixtureBand, isDefaultProject: true })
     ).toBe('/about')
+  })
+})
+
+describe('formattedItemTitle', () => {
+  it("prefers a release's display artist (its override or project name)", () => {
+    expect(
+      formattedItemTitle({
+        ...releaseFixtureAlbum,
+        artist: undefined,
+        displayArtist: 'Joe Smith'
+      })
+    ).toBe(`Joe Smith: ${releaseFixtureAlbum.title}`)
+  })
+
+  it('falls back to the stored artist', () => {
+    expect(formattedItemTitle(releaseFixtureAlbum)).toBe(
+      `${releaseFixtureAlbum.artist}: ${releaseFixtureAlbum.title}`
+    )
+  })
+
+  it('is just the title without an artist', () => {
+    expect(
+      formattedItemTitle({
+        ...releaseFixtureAlbum,
+        artist: undefined
+      })
+    ).toBe(releaseFixtureAlbum.title)
   })
 })

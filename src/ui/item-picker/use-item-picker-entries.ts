@@ -29,6 +29,8 @@ interface UseItemPickerEntriesOptions<TItem> {
   ) => number
   /** See `ItemPicker`'s `defaultOrder.group`. */
   orderGroup?: (values: Record<string, unknown>) => number
+  /** `ItemPicker`'s `sortBy`: existing items are sorted on load too. */
+  isOrderFixed?: boolean
   validation: EntryValidation
 }
 
@@ -44,6 +46,7 @@ export function useItemPickerEntries<
   isCreateFirst,
   compareDefaultOrder,
   orderGroup,
+  isOrderFixed,
   validation: {
     validateEntryStrict,
     clearErrors,
@@ -62,7 +65,9 @@ export function useItemPickerEntries<
       kind: 'existing' as const,
       item
     }))
-    const existing = keepGroups(items)
+    const existing = isOrderFixed
+      ? sortByDefaultOrder(items)
+      : keepGroups(items)
     if (!startWithBlankEntry) return existing
     const blank = { kind: 'new' as const, tempId: 'new-0', seq: 0 }
     return [blank, ...existing]

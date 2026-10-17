@@ -51,7 +51,7 @@ body {
 }
 
 :where(blockquote) {
-  @include type.heading('xl');
+  @include type.heading('lg');
 
   position: relative;
   margin: unset;
@@ -68,8 +68,9 @@ body {
     margin-left: 0.15em;
   }
 
-  + cite span {
+  + cite {
     font-style: normal;
+    @include type.size('sm');
   }
 
   @include breakpoints.mobile {

@@ -24,7 +24,8 @@ export function formatLinkResult(
   link: Link,
   onRemove?: () => void,
   removeLabel?: string,
-  extraActions?: React.ReactNode
+  extraActions?: React.ReactNode,
+  isTypeBadgeHidden = false
 ) {
   const isPress = link.type === 'press'
   const display = link.title || formattedLinkUrl(link.url)
@@ -36,7 +37,7 @@ export function formatLinkResult(
       subtitle={
         (isQuoted || link.title) && formattedLinkUrl(link.url)
       }
-      badges={itemBadges(link)}
+      badges={isTypeBadgeHidden ? undefined : itemBadges(link)}
       extraActions={extraActions}
       onRemove={onRemove}
       removeLabel={removeLabel}
@@ -54,6 +55,35 @@ export function formatNewLinkSummary(
   { editButton, onRemove, removeLabel }: NewItemSummaryActions
 ) {
   return formatLinkResult(
+    data as Link,
+    onRemove,
+    removeLabel,
+    editButton
+  )
+}
+
+/** For the Press picker, where every link is press: no type badge. */
+export function formatPressLinkResult(
+  link: Link,
+  onRemove?: () => void,
+  removeLabel?: string,
+  extraActions?: React.ReactNode
+) {
+  return formatLinkResult(
+    link,
+    onRemove,
+    removeLabel,
+    extraActions,
+    true
+  )
+}
+
+export function formatNewPressLinkSummary(
+  data: Record<string, unknown>,
+  _previewUrl: string | undefined,
+  { editButton, onRemove, removeLabel }: NewItemSummaryActions
+) {
+  return formatPressLinkResult(
     data as Link,
     onRemove,
     removeLabel,

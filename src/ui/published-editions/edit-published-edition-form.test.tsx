@@ -1,33 +1,39 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 
-import { imageFixture } from '@/lib/images/fixtures'
-import { linkFixture } from '@/lib/links/fixtures'
 import { publishedEditionFixtureAlpha } from '@/lib/published-editions/fixtures'
 import { publisherFixtureAlpha } from '@/lib/publishers/fixtures'
-import { ReleaseTypes } from '@/lib/releases/schemas'
+import { NamePrefixProvider } from '@/ui/item-picker/name-prefix'
 import { EditPublishedEdition } from '@/ui/published-editions/edit-published-edition-form'
 
 jest.mock('@/lib/db', () => ({ sql: jest.fn() }))
 
-function renderComponent(props = {}) {
+const edition = {
+  ...publishedEditionFixtureAlpha,
+  editionSize: 500,
+  publisher: publisherFixtureAlpha
+}
+
+function renderComponent(
+  props = {},
+  prefix = 'publishedEditions[0].'
+) {
   return render(
-    <EditPublishedEdition
-      publishedEdition={publishedEditionFixtureAlpha}
-      {...props}
-    />
+    <NamePrefixProvider prefix={prefix}>
+      <EditPublishedEdition publishedEdition={edition} {...props} />
+    </NamePrefixProvider>
   )
 }
 
 describe('EditPublishedEdition', () => {
   describe('initial render', () => {
-    it('renders publisher, format, publish date, edition size, and catalog number inputs', () => {
+    it('renders format, publish date, publisher, edition size, and catalog number', () => {
       renderComponent()
 
-      expect(screen.getByText('Publisher')).toBeInTheDocument()
       expect(screen.getByLabelText(/format/i)).toBeInTheDocument()
       expect(
         screen.getByLabelText(/publish date/i)
       ).toBeInTheDocument()
+      expect(screen.getByText('Publisher')).toBeInTheDocument()
       expect(
         screen.getByLabelText(/edition size/i)
       ).toBeInTheDocument()
@@ -36,122 +42,143 @@ describe('EditPublishedEdition', () => {
       ).toBeInTheDocument()
     })
 
-    it('renders a release search input when no release is attached', () => {
+    it('has no release, images, or buy link fields', () => {
       renderComponent({ publishedEdition: {} })
 
-      expect(screen.getByLabelText('Release')).toBeInTheDocument()
+      expect(screen.queryByText(/^release/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/^images/i)).not.toBeInTheDocument()
+      expect(
+        screen.queryByLabelText(/purchase link/i)
+      ).not.toBeInTheDocument()
     })
 
-    it('renders search inputs for images and buy link when none is attached', () => {
+    it('searches publishers, offering to create one from the query', () => {
       renderComponent({ publishedEdition: {} })
 
-      // No images attached, so the picker's create form is open and "Images" is a heading, not a control label.
-      expect(screen.getByText(/^images/i)).toBeInTheDocument()
       expect(
-        screen.getByLabelText(/purchase link/i)
+        screen.getByPlaceholderText('Search or create by name')
       ).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: /new publisher/i })
+      ).not.toBeInTheDocument()
     })
   })
 
-  describe('default values', () => {
-    it('sets defaultValue for each input from the edition prop', () => {
+  describe('errors', () => {
+    it('shows a missing publisher under the publisher picker', () => {
+      renderComponent({
+        publishedEdition: {},
+        errors: { publisherId: ['Choose or create a publisher'] }
+      })
+
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Choose or create a publisher.'
+      )
+    })
+  })
+
+  describe('field names', () => {
+    it("prefixes every field with its picker entry's namespace", () => {
+      renderComponent()
+
+      expect(screen.getByLabelText(/format/i)).toHaveAttribute(
+        'name',
+        'publishedEditions[0].format'
+      )
+      expect(screen.getByLabelText(/publish date/i)).toHaveAttribute(
+        'name',
+        'publishedEditions[0].publishDate'
+      )
+      expect(screen.getByLabelText(/edition size/i)).toHaveAttribute(
+        'name',
+        'publishedEditions[0].editionSize'
+      )
+      expect(
+        document.querySelector(
+          'input[name="publishedEditions[0].publisherId"]'
+        )
+      ).toHaveValue(publisherFixtureAlpha.id)
+    })
+  })
+
+  describe('publisher name', () => {
+    it("carries the selected publisher's name for the edition chip", () => {
       renderComponent()
 
       expect(
-        (screen.getByLabelText(/publish date/i) as HTMLInputElement)
-          .value
-      ).toBe('2020-01-01')
-      expect(screen.getByLabelText(/catalog number/i)).toHaveValue(
-        publishedEditionFixtureAlpha.catalogNumber
-      )
+        document.querySelector(
+          'input[name="publishedEditions[0].publisherName"]'
+        )
+      ).toHaveValue(publisherFixtureAlpha.name)
     })
+  })
 
-    it('shows the currently attached publisher when provided', () => {
-      renderComponent({
-        publishedEdition: {
-          ...publishedEditionFixtureAlpha,
-          publisher: publisherFixtureAlpha
-        }
-      })
+  describe('publisher editor', () => {
+    it("shows the publisher's name and full website when opened", () => {
+      renderComponent()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
 
       expect(
-        screen.getByText(publisherFixtureAlpha.name)
-      ).toBeInTheDocument()
+        screen.getByLabelText(/publisher website/i)
+      ).toHaveAttribute('name', 'publishedEditions[0].publisher.url')
+      expect(screen.getByLabelText(/publisher website/i)).toHaveValue(
+        publisherFixtureAlpha.url
+      )
+      expect(screen.getByLabelText(/^name/i)).toHaveValue(
+        publisherFixtureAlpha.name
+      )
+      expect(
+        screen.queryByLabelText(/^type/i)
+      ).not.toBeInTheDocument()
     })
+  })
 
-    it('shows the currently attached release when release is provided', () => {
+  describe('built-in publisher', () => {
+    it('offers no Edit on the Self-released chip', () => {
       renderComponent({
         publishedEdition: {
-          ...publishedEditionFixtureAlpha,
-          release: {
-            id: publishedEditionFixtureAlpha.releaseId,
-            title: 'Test Release',
-            type: ReleaseTypes.album
+          ...edition,
+          publisher: {
+            ...publisherFixtureAlpha,
+            name: 'Self-released',
+            isBuiltIn: true
           }
         }
       })
 
-      expect(screen.getByText('Test Release')).toBeInTheDocument()
+      expect(screen.getByText('Self-released')).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Edit' })
+      ).not.toBeInTheDocument()
     })
+  })
 
-    it('shows the currently attached publisher when publisher is provided', () => {
-      renderComponent({
-        publishedEdition: {
-          ...publishedEditionFixtureAlpha,
-          publisher: publisherFixtureAlpha
-        }
-      })
+  describe('default values', () => {
+    it('sets each input from the edition', () => {
+      renderComponent()
 
+      expect(screen.getByLabelText(/format/i)).toHaveValue('LP')
+      expect(screen.getByLabelText(/publish date/i)).toHaveValue(
+        '2020-01-01'
+      )
+      expect(screen.getByLabelText(/edition size/i)).toHaveValue(500)
+      expect(screen.getByLabelText(/catalog number/i)).toHaveValue(
+        'SL021'
+      )
       expect(
         screen.getByText(publisherFixtureAlpha.name)
       ).toBeInTheDocument()
     })
 
-    it('shows the currently attached cover image and buy link', () => {
-      renderComponent({
-        publishedEdition: {
-          ...publishedEditionFixtureAlpha,
-          coverImage: imageFixture,
-          buyLink: linkFixture
-        }
-      })
+    it('marks format and publish date required', () => {
+      renderComponent({ publishedEdition: {} })
 
+      expect(screen.getByLabelText(/format/i)).toBeRequired()
+      expect(screen.getByLabelText(/publish date/i)).toBeRequired()
       expect(
-        screen.getByText(imageFixture.title!)
-      ).toBeInTheDocument()
-      expect(screen.getByText(linkFixture.title!)).toBeInTheDocument()
-    })
-
-    it('seeds the images field with the cover image first, then the gallery images', () => {
-      renderComponent({
-        publishedEdition: {
-          ...publishedEditionFixtureAlpha,
-          coverImage: { ...imageFixture, id: 'cover-image' },
-          images: [{ ...imageFixture, id: 'image-1' }]
-        }
-      })
-
-      expect(screen.getByDisplayValue('cover-image')).toHaveAttribute(
-        'name',
-        'images[1].id'
-      )
-      expect(screen.getByDisplayValue('image-1')).toHaveAttribute(
-        'name',
-        'images[2].id'
-      )
-    })
-  })
-
-  describe('error display', () => {
-    it('handles errors passed via the errors prop', () => {
-      const errors = {
-        catalogNumber: ['Catalog number is invalid']
-      }
-      renderComponent({ errors })
-
-      expect(
-        screen.getByText(/catalog number is invalid/i)
-      ).toBeInTheDocument()
+        screen.getByLabelText(/edition size/i)
+      ).not.toBeRequired()
     })
   })
 })

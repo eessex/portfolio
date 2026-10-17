@@ -4,8 +4,8 @@ import { PlusIcon } from '@heroicons/react/24/outline'
 import { usePathname } from 'next/navigation'
 
 import {
+  dashboardItemTypes,
   type EmbeddedItemType,
-  embeddedItemTypes,
   itemTypeToLabel,
   type PagePath,
   pagePaths
@@ -17,15 +17,18 @@ export function CreateItemButton({
   itemType,
   onClick,
   href,
+  label,
   ref
 }: {
   className?: string
   itemType: EmbeddedItemType | PagePath
   onClick: () => void
   href?: string
+  /** Replaces the default "New {item}" text. */
+  label?: string
   ref?: React.Ref<HTMLButtonElement>
 }) {
-  const formattedItemType = itemTypeToLabel(itemType, true, true)
+  const text = label ?? `New ${itemTypeToLabel(itemType, true, true)}`
 
   if (href) {
     return (
@@ -34,7 +37,7 @@ export function CreateItemButton({
         href={href}
         ref={ref as React.Ref<HTMLAnchorElement>}
       >
-        <PlusIcon /> New {formattedItemType}
+        <PlusIcon /> {text}
       </a>
     )
   } else {
@@ -45,7 +48,7 @@ export function CreateItemButton({
         onClick={onClick}
         ref={ref}
       >
-        <PlusIcon /> New {formattedItemType}
+        <PlusIcon /> {text}
       </button>
     )
   }
@@ -71,7 +74,7 @@ function itemTypeFromPathname(
     const itemPart = pathnameParts[2]
       ? (snakeToCamel(pathnameParts[2]) as EmbeddedItemType)
       : undefined
-    const itemType = embeddedItemTypes.find(
+    const itemType = dashboardItemTypes.find(
       (type) => type === itemPart
     )
     return (

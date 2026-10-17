@@ -186,55 +186,38 @@ describe('EditEventForm', () => {
   })
 
   describe('project field', () => {
-    const defaultProject = {
-      ...projectFixtureBand,
-      id: 'default-project-id',
-      title: 'Solo Work',
-      isDefaultProject: true
-    }
-
     function projectIdValue(container: HTMLElement) {
       return container
         .querySelector<HTMLInputElement>('input[name="projectId"]')
         ?.getAttribute('value')
     }
 
-    it('preselects the default project for a new event', () => {
-      const { container } = renderComponent({ defaultProject })
+    it('starts with no project for a new event', () => {
+      const { container } = renderComponent()
 
-      expect(screen.getByText('Solo Work')).toBeInTheDocument()
-      expect(projectIdValue(container)).toBe('default-project-id')
+      expect(projectIdValue(container)).toBeFalsy()
     })
 
-    it('preselects the default project for an event with none', () => {
+    it('starts with no project for a event with none', () => {
       const { container } = renderComponent({
-        event: eventFixtureUpcoming,
-        defaultProject
+        event: { ...eventFixtureUpcoming, project: undefined }
       })
 
-      expect(projectIdValue(container)).toBe('default-project-id')
+      expect(projectIdValue(container)).toBeFalsy()
     })
 
-    it("keeps the event's own project over the default", () => {
+    it("shows the event's own project", () => {
       const { container } = renderComponent({
         event: {
           ...eventFixtureUpcoming,
           project: projectFixtureBand
-        },
-        defaultProject
+        }
       })
 
       expect(
         screen.getByText(projectFixtureBand.title)
       ).toBeInTheDocument()
-      expect(screen.queryByText('Solo Work')).not.toBeInTheDocument()
       expect(projectIdValue(container)).toBe(projectFixtureBand.id)
-    })
-
-    it('selects nothing without a default project', () => {
-      const { container } = renderComponent()
-
-      expect(projectIdValue(container)).toBeFalsy()
     })
   })
 

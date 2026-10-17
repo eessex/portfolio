@@ -8,7 +8,6 @@ import {
 } from '@/lib/embed-codes/schemas/db'
 import type { Image } from '@/lib/images/schemas/db'
 import type { Link } from '@/lib/links/schemas/db'
-import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { Publisher } from '@/lib/publishers/schemas/db'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
@@ -33,7 +32,6 @@ import {
 } from '@/ui/items/item-parts'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import {
-  formattedDateTime,
   formattedFilename,
   formattedItemType,
   formattedLinkUrl,
@@ -47,13 +45,6 @@ function embeddedItemTitle(
   item: EmbeddedItem,
   itemType: PagePath | EmbeddedItemType
 ) {
-  if (itemType === EmbeddedItemTypes.publishedEditions) {
-    const { release } = item as DashboardPublishedEdition
-    return release?.artist
-      ? `${release.artist}: ${release.title}`
-      : release?.title
-  }
-
   if (itemType === EmbeddedItemTypes.venues) {
     return (item as Venue).name || 'Untitled venue'
   }
@@ -106,10 +97,6 @@ function embeddedItemCoverImage(
   item: EmbeddedItem,
   itemType: PagePath | EmbeddedItemType
 ): ThumbnailImage | undefined {
-  if (itemType === EmbeddedItemTypes.publishedEditions) {
-    return (item as DashboardPublishedEdition).release?.coverImage
-  }
-
   if (itemType === EmbeddedItemTypes.embedCodes) {
     const embedCode = item as EmbedCode & WithCoverImageUrls
     const embedCodeImageUrl =
@@ -182,7 +169,11 @@ export function ItemsTableRow({
 }) {
   if (!item) return null
 
-  const { artist, coverImage } = item as ReleaseClient
+  const {
+    artist,
+    displayArtist = artist,
+    coverImage
+  } = item as ReleaseClient
   const itemSubtitle = embeddedItemSubtitle(
     item as EmbeddedItem,
     itemType
@@ -197,7 +188,7 @@ export function ItemsTableRow({
       ? `/dashboard/${camelToSnake(itemType)}/${item.id}/edit`
       : undefined
   const rowLabel = hasOwnPage(item)
-    ? `${item.title}${artist ? ', by ' + artist : ''}`
+    ? `${item.title}${displayArtist ? ', by ' + displayArtist : ''}`
     : undefined
   const isAudioEmbedCode =
     itemType === EmbeddedItemTypes.embedCodes &&
@@ -308,17 +299,6 @@ export function ItemsTableRow({
       <td>
         {hasOwnPage(item) ? (
           <FormattedItemDate item={item} />
-        ) : itemType === EmbeddedItemTypes.publishedEditions ? (
-          <time
-            dateTime={new Date(
-              (item as DashboardPublishedEdition).publishDate
-            ).toISOString()}
-          >
-            {formattedDateTime(
-              (item as DashboardPublishedEdition).publishDate,
-              'xxs'
-            )}
-          </time>
         ) : (
           <UsedOnPagesLabel item={item} />
         )}

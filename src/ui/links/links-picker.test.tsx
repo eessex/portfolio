@@ -110,6 +110,29 @@ describe('PressLinksPicker', () => {
     )
   })
 
+  it('names its New button "New press link"', async () => {
+    const user = userEvent.setup()
+    render(<PressLinksPicker links={[pressLinkFixture]} />)
+    await user.click(
+      screen.getByRole('button', { name: /^search press links$/i })
+    )
+
+    expect(
+      screen.getByRole('button', { name: /^new press link$/i })
+    ).toBeInTheDocument()
+  })
+
+  it('labels its search toggle "Search press links"', () => {
+    render(<PressLinksPicker />)
+
+    expect(
+      screen.getByRole('button', { name: /^search press links$/i })
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /search links/i })
+    ).not.toBeInTheDocument()
+  })
+
   it('shows only press links under its own field name, searching press links', async () => {
     render(
       <PressLinksPicker links={[linkFixture, pressLinkFixture]} />
@@ -205,7 +228,7 @@ describe('PressLinksPicker', () => {
       )
       await user.type(screen.getByLabelText(/quotation/i), 'Great')
       await user.click(
-        screen.getByRole('button', { name: /save link/i })
+        screen.getByRole('button', { name: /save press link/i })
       )
 
       const indexOf = (value: string) =>

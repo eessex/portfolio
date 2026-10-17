@@ -2,7 +2,7 @@ import NextLink from 'next/link'
 import { connection } from 'next/server'
 
 import { auth } from '@/auth'
-import { embeddedItemTypes } from '@/lib/schemas'
+import { dashboardItemTypes } from '@/lib/schemas'
 import {
   camelToSentence,
   camelToSnake,
@@ -13,7 +13,7 @@ import { CreateItemFromPathnameButton } from '@/ui/buttons/create-item-button'
 import { EditButton } from '@/ui/buttons/edit-button'
 import { LogoutButton } from '@/ui/buttons/logout-button'
 
-const links = ['dashboard', ...embeddedItemTypes]
+const links = ['dashboard', ...dashboardItemTypes]
 
 export async function AdminSidebar() {
   // opt out of prerender

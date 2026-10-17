@@ -50,6 +50,14 @@ export const EmbeddedItemTypes = Object.fromEntries(
 }
 export type EmbeddedItemType = (typeof embeddedItemTypes)[number]
 
+/**
+ * Embedded items with their own `/dashboard/*` pages. Published
+ * editions are edited only inline, from their release's form.
+ */
+export const dashboardItemTypes = embeddedItemTypes.filter(
+  (type) => type !== 'publishedEditions'
+)
+
 export const itemType = [
   ...pagePaths,
   ...embeddedItemTypes,

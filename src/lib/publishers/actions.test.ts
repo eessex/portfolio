@@ -64,6 +64,40 @@ describe('Publisher Actions', () => {
         'Failed to delete publisher: DB error.'
       )
     })
+
+    it('refuses to delete the built-in publisher, whatever the client sends', async () => {
+      mockSql.mockResolvedValueOnce([{ is_built_in: true }])
+      const res = await deletePublisher({
+        ...publisherFixtureAlpha,
+        isBuiltIn: false
+      })
+
+      expect(res).toEqual({
+        ok: false,
+        message:
+          'The Self-released publisher is built in and can’t be changed.'
+      })
+      // only the flag lookup, no DELETE
+      expect(mockSql).toHaveBeenCalledTimes(1)
+      expect(updateTag).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('built-in publisher', () => {
+    it('refuses to update it', async () => {
+      mockSql.mockResolvedValueOnce([
+        { ...existingPublisherRow, is_built_in: true }
+      ]) // fetchPublisherById
+
+      const res = await editPublisher(
+        formDataFromObject({ name: 'Renamed' }),
+        publisherFixtureAlpha.id
+      )
+
+      expect(res?.ok).toBe(false)
+      expect(res?.message).toMatch(/built in and can’t be changed/)
+      expect(mockSql).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('#editPublisher', () => {
@@ -152,7 +186,9 @@ describe('Publisher Actions', () => {
 
   describe('#savePublisherFromFields', () => {
     it('creates a publisher from raw field data', async () => {
-      mockSql.mockResolvedValueOnce([publisherFixtureAlpha])
+      mockSql
+        .mockResolvedValueOnce([]) // name lookup
+        .mockResolvedValueOnce([publisherFixtureAlpha]) // INSERT
 
       const publisher = await savePublisherFromFields({
         name: newPublisherFixtureAlpha.name,
@@ -161,7 +197,36 @@ describe('Publisher Actions', () => {
       })
 
       expect(publisher.name).toBe('Soap Library')
+      expect(mockSql).toHaveBeenCalledTimes(2)
+    })
+
+    it('reuses an existing publisher with the same name', async () => {
+      mockSql.mockResolvedValueOnce([publisherFixtureAlpha])
+
+      const publisher = await savePublisherFromFields({
+        name: 'soap library'
+      })
+
+      expect(publisher.id).toBe(publisherFixtureAlpha.id)
       expect(mockSql).toHaveBeenCalledTimes(1)
+      expect(mockSql.mock.calls[0]?.[1]).toBe('soap library')
+    })
+
+    it('creates a publisher from just a name, with no type', async () => {
+      mockSql
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([
+          { ...publisherFixtureAlpha, type: null, url: null }
+        ])
+
+      const publisher = await savePublisherFromFields({
+        name: 'Test Label'
+      })
+
+      // INSERT params: name, type, url
+      expect(mockSql.mock.calls[1]?.[1]).toBe('Test Label')
+      expect(mockSql.mock.calls[1]?.[2]).toBeNull()
+      expect(publisher.type).toBeUndefined()
     })
 
     it('updates an existing publisher when given an id', async () => {
@@ -223,7 +288,9 @@ describe('Publisher Actions', () => {
     })
 
     it('creates a new publisher from inline fields when no publisherId is submitted', async () => {
-      mockSql.mockResolvedValueOnce([publisherFixtureAlpha])
+      mockSql
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([publisherFixtureAlpha])
       const data: Record<string, unknown> = {
         'publisher.name': newPublisherFixtureAlpha.name,
         'publisher.type': newPublisherFixtureAlpha.type,
@@ -233,11 +300,13 @@ describe('Publisher Actions', () => {
       const id = await resolvePublisherId(data)
 
       expect(id).toBe(publisherFixtureAlpha.id)
-      expect(mockSql).toHaveBeenCalledTimes(1)
+      expect(mockSql).toHaveBeenCalledTimes(2)
     })
 
     it('strips the inline-creation fields from data so they do not leak into the parent schema', async () => {
-      mockSql.mockResolvedValueOnce([publisherFixtureAlpha])
+      mockSql
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([publisherFixtureAlpha])
       const data: Record<string, unknown> = {
         'publisher.name': newPublisherFixtureAlpha.name,
         'publisher.type': newPublisherFixtureAlpha.type,

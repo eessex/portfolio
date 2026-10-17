@@ -53,9 +53,24 @@ export async function savePublisherFromFields(
     fields,
     schema: createPublisherSchema,
     itemType: 'publishers',
-    create: createPublisher,
+    create: findOrCreatePublisher,
     update: updatePublisher
   })
+}
+
+/**
+ * An inline "Create “{name}”" can race the search results, so an
+ * existing publisher with that name (any case) is reused.
+ */
+async function findOrCreatePublisher(publisher: CreatePublisher) {
+  const rows = await sql`
+    SELECT * FROM publishers
+    WHERE lower(name) = lower(${publisher.name})
+    LIMIT 1
+  `
+  if (rows[0])
+    return formatDbResponseForClient(rows[0], publisherSchema)
+  return createPublisher(publisher)
 }
 
 /**
@@ -69,11 +84,22 @@ export async function resolvePublisherId(
   return resolveItemId(data, idField, savePublisherFromFields)
 }
 
+const BUILT_IN_MESSAGE =
+  'The Self-released publisher is built in and can’t be changed.'
+
 export async function deletePublisher(publisher: Publisher) {
   return runDeleteAction<Publisher>({
     itemType: 'publishers',
     invalidate: invalidatePublisherTags,
     del: async () => {
+      // stored flag, not the client-sent one
+      const rows = await sql`
+        SELECT is_built_in FROM publishers
+        WHERE id = ${publisher.id}
+      `
+      if (rows[0]?.is_built_in) {
+        return { ok: false, message: BUILT_IN_MESSAGE }
+      }
       await sql`
         DELETE FROM publishers
         WHERE id = ${publisher.id}
@@ -112,6 +138,7 @@ async function updatePublisher(
   id: string
 ) {
   const existingPublisher = await fetchPublisherById(id)
+  if (existingPublisher?.isBuiltIn) throw new Error(BUILT_IN_MESSAGE)
   try {
     const { name, type, url } = toDbRow(
       publisher,
@@ -144,7 +171,7 @@ function toDbRow(publisher: CreatePublisher, existing?: Publisher) {
 
   return {
     name: publisherToSave.name,
-    type: publisherToSave.type,
+    type: publisherToSave.type ?? null,
     url: publisherToSave.url ?? null
   }
 }

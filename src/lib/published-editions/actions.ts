@@ -1,11 +1,8 @@
 'use server'
 
-import { updateTag } from 'next/cache'
-
+import { assertAuthed } from '@/lib/auth/guard'
 import { sql } from '@/lib/db'
-import { runDeleteAction, runFormAction } from '@/lib/form-action'
-import { resolveOrderedImageIds } from '@/lib/images/actions'
-import { fetchPublishedEditionById } from '@/lib/published-editions/data'
+import { saveItemFromFields } from '@/lib/form-action'
 import {
   type CreatePublishedEdition,
   createPublishedEditionSchema,
@@ -13,71 +10,81 @@ import {
   publishedEditionSchema
 } from '@/lib/published-editions/schemas/db'
 import { resolvePublisherId } from '@/lib/publishers/actions'
-import { formatDbResponseForClient } from '@/lib/util'
+import {
+  formatDbResponseForClient,
+  type IndexedGroupEntry
+} from '@/lib/util'
 
-export async function editPublishedEdition(
-  formData: FormData,
+/**
+ * Creates or updates one of a release's editions from its inline
+ * picker fields, resolving its publisher (`publisherId` or an inline
+ * `publisher.name`) first. Updates are scoped to `releaseId`, so an id
+ * from another release can't be edited through this one.
+ */
+export async function savePublishedEditionFromFields(
+  releaseId: string,
+  fields: Record<string, unknown>,
   id?: string
-) {
-  return runFormAction({
-    formData,
+): Promise<PublishedEdition> {
+  return saveItemFromFields({
+    id,
+    fields,
     schema: createPublishedEditionSchema,
     itemType: 'publishedEditions',
-    prepare: async (data) => {
-      const sized = await coerceEditionSize(data)
-      const { coverImageId, imageIds } =
-        await resolveOrderedImageIds(sized)
-      const publisherId = await resolvePublisherId(sized)
-      return { ...sized, coverImageId, imageIds, publisherId }
-    },
-    invalidate: (saved?: PublishedEdition) => {
-      if (saved) invalidatePublishedEditionTags(saved.releaseId)
-    },
-    save: (edition) =>
-      id
-        ? updatePublishedEdition(edition, id)
-        : createPublishedEdition(edition)
-  })
-}
-
-async function coerceEditionSize(data: Record<string, unknown>) {
-  if (typeof data.editionSize === 'string' && data.editionSize) {
-    data.editionSize = Number(data.editionSize)
-  }
-  return data
-}
-
-export async function deletePublishedEdition(
-  edition: PublishedEdition
-) {
-  return runDeleteAction<PublishedEdition>({
-    itemType: 'publishedEditions',
-    invalidate: () =>
-      invalidatePublishedEditionTags(edition.releaseId),
-    del: async () => {
-      await sql`
-        DELETE FROM published_editions
-        WHERE id = ${edition.id}
-      `
-    }
+    prepare: async (raw) => ({
+      ...raw,
+      publisherId: await resolvePublisherId(raw),
+      releaseId
+    }),
+    create: createPublishedEdition,
+    update: updatePublishedEdition
   })
 }
 
 /**
- * An edition's data is embedded directly into its parent release's
- * cached fetch (`build_published_edition_json`), so saving/deleting one
- * must also invalidate that release's own cache, not just the
- * published-editions list. Saving can also create new images or a new
- * publisher inline (via the `images`/`publishers` pickers' create-new
- * flows), bypassing `editImage`/`editPublisher`'s own cache
- * invalidation, so those tags are invalidated here too.
+ * Reconciles a release's editions with its submitted picker entries:
+ * new ones are created, edited ones updated, and any of the release's
+ * editions no longer listed are deleted. Run after the release itself
+ * is saved, since a new release's id isn't known until then.
  */
-function invalidatePublishedEditionTags(releaseId: string) {
-  updateTag('published-editions')
-  updateTag('releases')
-  updateTag(`release:${releaseId}`)
-  updateTag('images')
-  updateTag('publishers')
+export async function syncReleasePublishedEditions(
+  releaseId: string,
+  entries: IndexedGroupEntry[]
+) {
+  await assertAuthed()
+  const keptIds: string[] = []
+  const createdIds: string[] = []
+  try {
+    // sequential: inline publishers created by two editions would race
+    for (const entry of entries) {
+      if (entry.kind === 'existing') {
+        keptIds.push(entry.id)
+        continue
+      }
+      const saved = await savePublishedEditionFromFields(
+        releaseId,
+        entry.fields,
+        entry.kind === 'edited' ? entry.id : undefined
+      )
+      keptIds.push(saved.id)
+      if (entry.kind === 'new') createdIds.push(saved.id)
+    }
+    await sql`
+      DELETE FROM published_editions
+      WHERE release_id = ${releaseId}
+        AND NOT (id = ANY(${keptIds}::uuid[]))
+    `
+  } catch (err) {
+    // else resubmitting the form would create them again
+    if (createdIds.length) {
+      await sql`
+        DELETE FROM published_editions
+        WHERE release_id = ${releaseId}
+          AND id = ANY(${createdIds}::uuid[])
+      `
+    }
+    throw err
+  }
 }
 
 async function createPublishedEdition(
@@ -85,36 +92,27 @@ async function createPublishedEdition(
 ) {
   try {
     const {
-      buyLinkId,
       catalogNumber,
-      coverImageId,
       editionSize,
       format,
-      imageIds,
       publishDate,
       publisherId,
       releaseId
     } = toDbRow(edition)
     const rows = await sql`
       INSERT INTO published_editions (
-        buy_link_id,
         catalog_number,
-        cover_image_id,
         edition_size,
         format,
-        image_ids,
         publish_date,
         publisher_id,
         release_id,
         created_at
       )
       VALUES (
-        ${buyLinkId},
         ${catalogNumber},
-        ${coverImageId},
         ${editionSize},
         ${format},
-        ${imageIds},
         ${publishDate},
         ${publisherId},
         ${releaseId},
@@ -138,36 +136,28 @@ async function updatePublishedEdition(
   edition: CreatePublishedEdition,
   id: string
 ) {
-  const existingEdition = await fetchPublishedEditionById(id)
   try {
     const {
-      buyLinkId,
       catalogNumber,
-      coverImageId,
       editionSize,
       format,
-      imageIds,
       publishDate,
       publisherId,
       releaseId
-    } = toDbRow(edition, existingEdition ?? undefined)
+    } = toDbRow(edition)
+    // the inline editor submits every editable field, so no merge
     const rows = await sql`
       UPDATE published_editions
       SET
-        buy_link_id = ${buyLinkId},
         catalog_number = ${catalogNumber},
-        cover_image_id = ${coverImageId},
         edition_size = ${editionSize},
         format = ${format},
-        image_ids = ${imageIds},
         publish_date = ${publishDate},
         publisher_id = ${publisherId},
-        release_id = ${releaseId},
         updated_at = current_timestamp
-      WHERE id = ${id}
+      WHERE id = ${id} AND release_id = ${releaseId}
       RETURNING *
     `
-
     const row = rows[0]
     if (!row) {
       throw new Error('Failed to update published edition.')
@@ -180,24 +170,14 @@ async function updatePublishedEdition(
   }
 }
 
-function toDbRow(
-  publishedEdition: CreatePublishedEdition,
-  existing?: PublishedEdition
-) {
-  const editionToSave = {
-    ...existing,
-    ...publishedEdition
-  }
-
+/** Only editable columns: hidden ones (buy link, images) are kept. */
+function toDbRow(edition: CreatePublishedEdition) {
   return {
-    buyLinkId: editionToSave.buyLinkId ?? null,
-    catalogNumber: editionToSave.catalogNumber ?? null,
-    coverImageId: editionToSave.coverImageId ?? null,
-    editionSize: editionToSave.editionSize ?? null,
-    format: editionToSave.format,
-    imageIds: editionToSave.imageIds ?? null,
-    publishDate: editionToSave.publishDate,
-    publisherId: editionToSave.publisherId,
-    releaseId: editionToSave.releaseId
+    catalogNumber: edition.catalogNumber ?? null,
+    editionSize: edition.editionSize ?? null,
+    format: edition.format,
+    publishDate: edition.publishDate,
+    publisherId: edition.publisherId,
+    releaseId: edition.releaseId
   }
 }

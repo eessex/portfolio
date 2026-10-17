@@ -88,12 +88,20 @@ export async function fetchPublishersRaw(
         ${like}::text IS NULL
         OR publishers.name ILIKE ${like}
       )
+      -- the built-in publisher leads the first page, so later pages
+      -- (after a cursor) skip it and continue by name
       AND (
         ${cursorName}::text IS NULL
-        OR LOWER(publishers.name) > LOWER(${cursorName})
-        OR (LOWER(publishers.name) = LOWER(${cursorName}) AND publishers.id > ${cursorId})
+        OR (
+          NOT publishers.is_built_in
+          AND (
+            LOWER(publishers.name) > LOWER(${cursorName})
+            OR (LOWER(publishers.name) = LOWER(${cursorName}) AND publishers.id > ${cursorId})
+          )
+        )
       )
       ORDER BY
+        publishers.is_built_in DESC,
         LOWER(publishers.name) ASC,
         publishers.id ASC
       LIMIT ${DEFAULT_PAGE_SIZE}

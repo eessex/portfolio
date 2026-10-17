@@ -52,4 +52,11 @@ describe('CreateItemFromPathnameButton', () => {
 
     expect(screen.queryByRole('link')).not.toBeInTheDocument()
   })
+
+  it('renders nothing for published editions (edited inline on releases)', () => {
+    mockUsePathname.mockReturnValue('/dashboard/published_editions')
+    render(<CreateItemFromPathnameButton />)
+
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+  })
 })

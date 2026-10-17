@@ -84,7 +84,6 @@ function itemTypeFromPathname(
 
   if (
     pathnameParts.length === 2 &&
-    pathnameParts[1] !== 'about' &&
     pagePaths.includes(pathnameParts[1] as PagePath)
   ) {
     const itemType = pathnameParts[1] as PagePath

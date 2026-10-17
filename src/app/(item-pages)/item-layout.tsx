@@ -171,6 +171,8 @@ export default async function ItemLayout({
             </address>
           )}
 
+          {item.links && <LinksList links={item.links} />}
+
           {project && !project.isDefaultProject && (
             <p>
               <a
@@ -182,7 +184,6 @@ export default async function ItemLayout({
             </p>
           )}
 
-          {item.links && <LinksList links={item.links} />}
           {!!embedCodes.length && !isEmbedsCarousel && (
             <EmbedCodes embedCodes={embedCodes} />
           )}

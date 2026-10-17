@@ -4,18 +4,16 @@ jest.mock('@/lib/projects/cached', () => ({
   fetchCachedDefaultProject: jest.fn(),
   fetchCachedProjectsFirstPage: jest.fn()
 }))
-jest.mock('@/lib/about/cached', () => ({
-  fetchCachedAboutPage: jest.fn()
-}))
+jest.mock('next/navigation', () => ({ notFound: jest.fn() }))
 jest.mock('@/lib/site-settings/cached', () => ({
   fetchCachedSiteSettings: jest.fn()
 }))
 
+import { notFound } from 'next/navigation'
 import type { ReactElement } from 'react'
 
 import ItemLayout from '@/app/(item-pages)/item-layout'
 import AboutPage, { generateMetadata } from '@/app/about/page'
-import { fetchCachedAboutPage } from '@/lib/about/cached'
 import { isAuthed } from '@/lib/auth/guard'
 import { imageFixture } from '@/lib/images/fixtures'
 import {
@@ -32,7 +30,6 @@ const mockProjectsFirstPage = jest.mocked(
   fetchCachedProjectsFirstPage
 )
 const mockIsAuthed = jest.mocked(isAuthed)
-const mockAbout = jest.mocked(fetchCachedAboutPage)
 const mockSettings = jest.mocked(fetchCachedSiteSettings)
 
 type DefaultProject = NonNullable<
@@ -69,6 +66,9 @@ function componentName(el: ReactElement) {
 describe('AboutPage', () => {
   beforeEach(() => {
     jest.resetAllMocks()
+    jest.mocked(notFound).mockImplementation(() => {
+      throw new Error('notFound')
+    })
   })
 
   it('renders the published default project without reading the session', async () => {
@@ -109,12 +109,10 @@ describe('AboutPage', () => {
     expect(carousel.props).toEqual({ initialProjects: allProjects })
   })
 
-  it('falls back to the legacy page, without reading the session, when no default exists', async () => {
+  it('404s, without reading the session, when no default exists', async () => {
     mockDefaults({})
 
-    const el = (await AboutPage()) as ReactElement
-
-    expect(componentName(el)).toBe('LegacyAbout')
+    await expect(AboutPage()).rejects.toThrow('notFound')
     expect(mockIsAuthed).not.toHaveBeenCalled()
   })
 
@@ -130,13 +128,11 @@ describe('AboutPage', () => {
     expect(el.props.item).toBe(draftDefault)
   })
 
-  it('shows anonymous visitors the legacy page while the default is a draft', async () => {
+  it('404s for anonymous visitors while the default is a draft', async () => {
     mockDefaults({ any: draftDefault })
     mockIsAuthed.mockResolvedValue(false)
 
-    const el = (await AboutPage()) as ReactElement
-
-    expect(componentName(el)).toBe('LegacyAbout')
+    await expect(AboutPage()).rejects.toThrow('notFound')
   })
 })
 
@@ -163,7 +159,6 @@ describe('generateMetadata', () => {
         alt: imageFixture.alt ?? ''
       })
     ])
-    expect(mockAbout).not.toHaveBeenCalled()
   })
 
   it('falls back to the site description when the project has none', async () => {
@@ -177,11 +172,12 @@ describe('generateMetadata', () => {
     expect(meta.openGraph.images).toEqual([])
   })
 
-  it('uses the legacy about row when no default project exists', async () => {
+  it('uses the site settings when no default project exists', async () => {
     mockDefaults({})
-    mockAbout.mockResolvedValue({
+    mockSettings.mockResolvedValue({
+      description: 'Site description',
       coverImage: imageFixture
-    } as Awaited<ReturnType<typeof fetchCachedAboutPage>>)
+    } as Awaited<ReturnType<typeof fetchCachedSiteSettings>>)
 
     const meta = await generateMetadata()
 

@@ -40,14 +40,9 @@ import {
 
 type EditEventFormProps = {
   event?: EventClient
-  /** Preselected in the project picker when the event has none. */
-  defaultProject?: ProjectClient
 }
 
-function EventFormFields({
-  event,
-  defaultProject
-}: EditEventFormProps) {
+function EventFormFields({ event }: EditEventFormProps) {
   const errors = useFormErrors()
   const [isPublished, setIsPublished] = useState(!!event?.isPublished)
 
@@ -125,10 +120,7 @@ function EventFormFields({
       <ItemPicker<never, ProjectClient, FetchProjectsResult>
         itemType='projects'
         label='Project'
-        existingItem={
-          (event?.project as ProjectClient | undefined) ??
-          defaultProject
-        }
+        existingItem={event?.project as ProjectClient | undefined}
         renderExistingResult={formatProjectResult}
       />
       <Checkbox
@@ -141,10 +133,7 @@ function EventFormFields({
   )
 }
 
-export function EditEventForm({
-  event,
-  defaultProject
-}: EditEventFormProps) {
+export function EditEventForm({ event }: EditEventFormProps) {
   const router = useRouter()
 
   async function handleSubmit(formData: FormData) {
@@ -161,10 +150,7 @@ export function EditEventForm({
         action={handleSubmit}
         submitButtonClassName='button-lg button-primary'
       >
-        <EventFormFields
-          event={event}
-          defaultProject={defaultProject}
-        />
+        <EventFormFields event={event} />
       </Form>
 
       {event && (

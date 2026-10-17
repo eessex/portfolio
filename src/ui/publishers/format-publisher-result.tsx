@@ -5,14 +5,20 @@ import { formattedItemType } from '@/ui/util'
 export function formatPublisherResult(
   publisher: Publisher,
   onRemove?: () => void,
-  removeLabel?: string
+  removeLabel?: string,
+  extraActions?: React.ReactNode
 ) {
   return (
     <ItemResultLabel
       title={publisher.name}
-      badges={[{ text: formattedItemType(publisher.type) }]}
+      badges={
+        publisher.type
+          ? [{ text: formattedItemType(publisher.type) }]
+          : undefined
+      }
       onRemove={onRemove}
       removeLabel={removeLabel}
+      extraActions={extraActions}
     />
   )
 }

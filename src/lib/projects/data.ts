@@ -107,21 +107,27 @@ export async function fetchProjectsRaw(
           (${isAuthed} OR p.is_published = true)
           AND (NOT ${isDefaultExcluded} OR NOT p.is_default_project)
           AND (${like}::text IS NULL OR p.title ILIKE ${like} OR p.description ILIKE ${like})
+          -- the default project leads the first page, so later pages
+          -- (after a cursor) skip it
           AND (${cursorHasEndDate}::text IS NULL
           OR (
-            (p.end_date IS NOT NULL)::text < ${cursorHasEndDate}::text
-            OR (
-              (p.end_date IS NOT NULL)::text = ${cursorHasEndDate}::text
-              AND p.start_date < ${cursorStartDate}::timestamptz
-            )
-            OR (
-              (p.end_date IS NOT NULL)::text = ${cursorHasEndDate}::text
-              AND p.start_date = ${cursorStartDate}::timestamptz
-              AND p.id > ${cursorId}::uuid
+            NOT p.is_default_project
+            AND (
+              (p.end_date IS NOT NULL)::text < ${cursorHasEndDate}::text
+              OR (
+                (p.end_date IS NOT NULL)::text = ${cursorHasEndDate}::text
+                AND p.start_date < ${cursorStartDate}::timestamptz
+              )
+              OR (
+                (p.end_date IS NOT NULL)::text = ${cursorHasEndDate}::text
+                AND p.start_date = ${cursorStartDate}::timestamptz
+                AND p.id > ${cursorId}::uuid
+              )
             )
           )
         )
         ORDER BY
+          p.is_default_project DESC,
           (p.end_date IS NOT NULL),
           p.start_date DESC,
           p.id ASC

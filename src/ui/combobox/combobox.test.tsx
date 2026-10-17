@@ -367,4 +367,103 @@ describe('Combobox', () => {
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     })
   })
+
+  describe('create option (createOptionLabel)', () => {
+    function mockResults(query: string, items: Venue[] = []) {
+      ;(useResultsList as jest.Mock).mockReturnValue({
+        query,
+        setQuery: jest.fn(),
+        items,
+        isLoading: false,
+        nextCursor: null,
+        loadMoreRef: { current: null },
+        ensureFirstPage: jest.fn()
+      })
+    }
+
+    const createOptionLabel = (q: string) => `Create “${q}”`
+
+    it('offers the typed query after the results', () => {
+      mockResults('Test', defaultVenues)
+      renderCombobox({ createOptionLabel })
+      fireEvent.focus(screen.getByRole('combobox'))
+
+      const options = screen.getAllByRole('option')
+      expect(options).toHaveLength(3)
+      expect(options[2]).toHaveTextContent('Create “Test”')
+    })
+
+    it('replaces the New button', () => {
+      mockResults('Test')
+      renderCombobox({ createOptionLabel })
+
+      expect(
+        screen.queryByRole('button', { name: /new venue/i })
+      ).not.toBeInTheDocument()
+    })
+
+    it('hides when a result matches the query exactly', () => {
+      mockResults('test venue texas', defaultVenues)
+      renderCombobox({ createOptionLabel })
+      fireEvent.focus(screen.getByRole('combobox'))
+
+      expect(screen.queryByText(/create “/i)).not.toBeInTheDocument()
+    })
+
+    it('hides for a blank query', () => {
+      mockResults('   ')
+      renderCombobox({ createOptionLabel })
+      fireEvent.focus(screen.getByRole('combobox'))
+
+      expect(screen.queryByRole('option')).not.toBeInTheDocument()
+    })
+
+    it('creates on click with the trimmed query', () => {
+      mockResults(' Soap Library ')
+      renderCombobox({ createOptionLabel })
+      fireEvent.focus(screen.getByRole('combobox'))
+
+      fireEvent.mouseDown(screen.getByRole('option'))
+
+      expect(onCreateNewMock).toHaveBeenCalledWith('Soap Library')
+      expect(onSelectMock).not.toHaveBeenCalled()
+    })
+
+    it('is reachable from the keyboard', () => {
+      mockResults('Soap', [venueFixtureAlpha])
+      renderCombobox({ createOptionLabel })
+      const input = screen.getByRole('combobox')
+      fireEvent.focus(input)
+
+      fireEvent.keyDown(input, { key: 'ArrowDown' })
+      fireEvent.keyDown(input, { key: 'ArrowDown' })
+      expect(input.getAttribute('aria-activedescendant')).toMatch(
+        /-create$/
+      )
+
+      fireEvent.keyDown(input, { key: 'Enter' })
+      expect(onCreateNewMock).toHaveBeenCalledWith('Soap')
+    })
+
+    it('stays on the create option when more results load', () => {
+      mockResults('Soap', [venueFixtureAlpha])
+      const { rerender } = renderCombobox({ createOptionLabel })
+      const input = screen.getByRole('combobox')
+      fireEvent.focus(input)
+      fireEvent.keyDown(input, { key: 'ArrowDown' })
+      fireEvent.keyDown(input, { key: 'ArrowDown' })
+
+      mockResults('Soap', defaultVenues)
+      rerender(
+        <Combobox<Venue, never, undefined>
+          {...defaultProps}
+          createOptionLabel={createOptionLabel}
+        />
+      )
+      fireEvent.keyDown(input, { key: 'Enter' })
+
+      expect(onCreateNewMock).toHaveBeenCalledWith('Soap')
+      expect(onSelectMock).not.toHaveBeenCalled()
+    })
+  })
 })

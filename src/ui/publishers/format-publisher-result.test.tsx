@@ -17,4 +17,16 @@ describe('formatPublisherResult', () => {
 
     expect(screen.getByText('Record Label')).toBeInTheDocument()
   })
+
+  it('renders no badge without a type', () => {
+    const { container } = render(
+      formatPublisherResult({
+        ...publisherFixtureAlpha,
+        type: undefined
+      })
+    )
+
+    expect(screen.queryByText('Record Label')).not.toBeInTheDocument()
+    expect(container).toHaveTextContent(publisherFixtureAlpha.name)
+  })
 })

@@ -424,16 +424,13 @@ function handOffEmbedCodes(projectId: string, ids?: string[]) {
   `
 }
 
-const ownedPageItemTables = [
-  'releases',
-  'events',
-  'published_editions'
-] as const
+// published editions follow their release's project
+const ownedPageItemTables = ['releases', 'events'] as const
 
 /**
- * Moves a project's releases/events/published editions to the default
- * project before it's deleted; their FKs' `ON DELETE SET NULL` would
- * otherwise leave them unowned.
+ * Moves a project's releases/events to the default project before it's
+ * deleted; their FKs' `ON DELETE SET NULL` would otherwise leave them
+ * unowned.
  */
 function handOffPageItems(
   table: (typeof ownedPageItemTables)[number],

@@ -30,14 +30,21 @@ export default async function EditPublisherPage({
         <h1>{title}</h1>
       </header>
 
-      <Suspense fallback={<Loading />}>
-        <EditEmbeddedItemForm<Publisher>
-          item={publisher}
-          itemType={EmbeddedItemTypes.publishers}
-          editItem={editPublisher}
-          deleteItem={deletePublisher}
-        />
-      </Suspense>
+      {publisher.isBuiltIn ? (
+        <p>
+          {publisher.name} is built in, so it can’t be edited or
+          deleted.
+        </p>
+      ) : (
+        <Suspense fallback={<Loading />}>
+          <EditEmbeddedItemForm<Publisher>
+            item={publisher}
+            itemType={EmbeddedItemTypes.publishers}
+            editItem={editPublisher}
+            deleteItem={deletePublisher}
+          />
+        </Suspense>
+      )}
     </article>
   )
 }

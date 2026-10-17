@@ -1,6 +1,9 @@
 'use client'
 
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import {
+  MagnifyingGlassIcon,
+  PlusIcon
+} from '@heroicons/react/24/outline'
 import { useEffect, useId, useRef, useState } from 'react'
 
 import {
@@ -40,6 +43,13 @@ export interface ComboboxProps<
   label?: string
   placeholder?: string
   /**
+   * The "Search {items}" toggle's text, and the default placeholder;
+   * distinguishes two pickers of one item type.
+   */
+  searchLabel?: string
+  /** The "New {item}" button's text. */
+  newLabel?: string
+  /**
    * Multi pickers keep the combobox mounted while an inline-create
    * editor is open, but hide the search body and swap the "New {item}"
    * button for a "Search {item}" toggle so the two modes are never
@@ -51,6 +61,12 @@ export interface ComboboxProps<
     item: TEmbeddedItem | TPage
   ) => React.ReactNode
   onCreateNew?: (query?: string) => void
+  /**
+   * Offers a "Create …" option for the typed query at the end of the
+   * results (unless one matches it exactly), replacing the "New {item}"
+   * button.
+   */
+  createOptionLabel?: (query: string) => string
   onSelect: (item: TEmbeddedItem | TPage) => void
 }
 
@@ -67,10 +83,13 @@ export function Combobox<
   isRequired,
   label,
   placeholder,
+  searchLabel = `Search ${itemTypeToLabel(itemType, false, true)}`,
+  newLabel,
   isCreating,
   onBackToSearch,
   renderExistingResult,
   onCreateNew,
+  createOptionLabel,
   onSelect
 }: ComboboxProps<TEmbeddedItem, TPage, S>) {
   const {
@@ -87,10 +106,30 @@ export function Combobox<
     { defaultQuery, searchParams }
   )
 
+  const trimmedQuery = query.trim()
+  const createQuery =
+    createOptionLabel &&
+    onCreateNew &&
+    trimmedQuery &&
+    !items.some((item) => isExactMatch(item, trimmedQuery))
+      ? trimmedQuery
+      : undefined
+  // the create option sits after the results
+  const optionCount = items.length + (createQuery ? 1 : 0)
+
   const listId = useId()
   const loadMoreId = useId()
 
-  const [highlightedIndex, setHighlightedIndex] = useState<number>(-1)
+  // tracked by option id so it follows its option as results change
+  const [highlightedId, setHighlightedId] = useState<string>()
+  const createOptionId = `${listId}-create`
+  const optionIds = [
+    ...items.map(optionId),
+    ...(createQuery ? [createOptionId] : [])
+  ]
+  const highlightedIndex = highlightedId
+    ? optionIds.indexOf(highlightedId)
+    : -1
   const [isOpen, setIsOpen] = useState(false)
 
   const rootRef = useRef<HTMLDivElement>(null)
@@ -101,10 +140,7 @@ export function Combobox<
   }
 
   function placeholderText() {
-    return (
-      placeholder ||
-      `Search ${itemTypeToLabel(itemType, false, true)}`
-    )
+    return placeholder || searchLabel
   }
 
   function isTargetInsideComponent(target: EventTarget | null) {
@@ -118,7 +154,7 @@ export function Combobox<
       if (!rootRef.current) return
       if (!isTargetInsideComponent(e.target as Node)) {
         setIsOpen(false)
-        setHighlightedIndex(-1)
+        setHighlightedId(undefined)
       }
     }
 
@@ -132,21 +168,30 @@ export function Combobox<
   }
 
   function changeHighlightedIndex(index: number) {
-    setHighlightedIndex(index)
-    const selector = optionId(items[index])
-    document
-      .getElementById(selector)
-      ?.scrollIntoView({ block: 'nearest' })
+    const id = optionIds[index]
+    setHighlightedId(id)
+    if (id) {
+      document
+        .getElementById(id)
+        ?.scrollIntoView({ block: 'nearest' })
+    }
   }
 
   function handleSelect(item: TEmbeddedItem | TPage) {
     onSelect(item)
     setIsOpen(false)
-    setHighlightedIndex(-1)
+    setHighlightedId(undefined)
+  }
+
+  function handleCreate(newQuery: string) {
+    onCreateNew?.(newQuery)
+    setIsOpen(false)
+    setHighlightedId(undefined)
   }
 
   function handleQueryChange(newQuery: string) {
     setQuery(newQuery)
+    setHighlightedId(undefined)
     setIsOpen(true)
     ensureFirstPage()
   }
@@ -159,12 +204,12 @@ export function Combobox<
       return
     }
 
-    if (!items.length) return
+    if (!optionCount) return
 
     const nextIndex =
-      highlightedIndex < items.length - 1 ? highlightedIndex + 1 : 0
+      highlightedIndex < optionCount - 1 ? highlightedIndex + 1 : 0
     const prevIndex =
-      highlightedIndex > 0 ? highlightedIndex - 1 : items.length - 1
+      highlightedIndex > 0 ? highlightedIndex - 1 : optionCount - 1
 
     switch (e.key) {
       case 'ArrowDown':
@@ -178,7 +223,11 @@ export function Combobox<
         break
 
       case 'Enter':
-        if (highlightedIndex >= 0) {
+        if (highlightedId === createOptionId && createQuery) {
+          // don't submit the parent form
+          e.preventDefault()
+          handleCreate(createQuery)
+        } else if (items[highlightedIndex]) {
           handleSelect(items[highlightedIndex])
         }
         break
@@ -199,7 +248,7 @@ export function Combobox<
     // If focus is moving *outside* the combobox entirely
     if (!isTargetInsideComponent(e.relatedTarget)) {
       setIsOpen(false)
-      setHighlightedIndex(-1)
+      setHighlightedId(undefined)
     }
   }
 
@@ -220,9 +269,7 @@ export function Combobox<
         role='combobox'
         ariaControls={listId}
         ariaActivedescendant={
-          highlightedIndex >= 0
-            ? optionId(items[highlightedIndex])
-            : undefined
+          highlightedIndex >= 0 ? highlightedId : undefined
         }
         isBodyHidden={isCreating}
         beforeInputChildren={
@@ -233,16 +280,17 @@ export function Combobox<
                   className='button-sm'
                   onClick={onBackToSearch}
                 >
-                  <MagnifyingGlassIcon /> Search{' '}
-                  {itemTypeToLabel(itemType, false, true)}
+                  <MagnifyingGlassIcon /> {searchLabel}
                 </button>
               )
             : onCreateNew &&
+              !createOptionLabel &&
               isEmbeddedItemType(itemType) && (
                 <CreateItemButton
                   className='button-sm'
                   ref={createButtonRef}
                   itemType={itemType}
+                  label={newLabel}
                   onClick={() => onCreateNew(query || undefined)}
                 />
               )
@@ -271,6 +319,20 @@ export function Combobox<
               {renderExistingResult(item)}
             </li>
           ))}
+          {createQuery && (
+            <li
+              id={createOptionId}
+              onMouseDown={(e) => {
+                e.preventDefault()
+                handleCreate(createQuery)
+              }}
+              className={`${styles['option']} ${styles['create-option']}`}
+              role='option'
+              aria-selected={highlightedId === createOptionId}
+            >
+              <PlusIcon /> {createOptionLabel?.(createQuery)}
+            </li>
+          )}
           {nextCursor && (
             <>
               <li
@@ -292,4 +354,15 @@ export function Combobox<
       )}
     </div>
   )
+}
+
+/** Case-insensitive match on an item's name (or title). */
+function isExactMatch(item: object, query: string) {
+  const label =
+    'name' in item && typeof item.name === 'string'
+      ? item.name
+      : 'title' in item && typeof item.title === 'string'
+        ? item.title
+        : undefined
+  return label?.trim().toLowerCase() === query.toLowerCase()
 }

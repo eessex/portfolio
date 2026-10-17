@@ -22,6 +22,7 @@ import type {
   PageDataResponse,
   PageItemClient
 } from '@/lib/types'
+import { CreateItemButton } from '@/ui/buttons/create-item-button'
 import { Combobox } from '@/ui/combobox/combobox'
 import { SortableList } from '@/ui/drag-and-drop/sortable-list'
 import { InputLabel } from '@/ui/form/input-label'
@@ -34,6 +35,7 @@ import {
   entryId,
   type ItemPickerEntry
 } from '@/ui/item-picker/item-picker-entry'
+import { useNamePrefix } from '@/ui/item-picker/name-prefix'
 import {
   type FieldErrors,
   useEntryValidation
@@ -86,6 +88,15 @@ type ItemPickerSharedProps<
   initialResults?: ResultsResponse<TEmbeddedItem, TPage, S>
   label?: string
   description?: string
+  /** The search input's placeholder (default `searchLabel`). */
+  placeholder?: string
+  /** The "Search {items}" toggle's text (default "Search {items}"). */
+  searchLabel?: string
+  /**
+   * The item's singular name in New/Save/Remove text (default the item
+   * type's, e.g. "link"); distinguishes two pickers of one item type.
+   */
+  itemName?: string
   searchParams?: SearchParams
   isRequired?: boolean
   itemType: EmbeddedItemType | PagePath
@@ -120,6 +131,15 @@ type ItemPickerSharedProps<
    */
   isSearchFirst?: boolean
   /**
+   * With `isSearchFirst`: a "Create “{query}”" result creates the item
+   * from the typed query alone, collapsing it straight to its chip
+   * (`publisher.name`). The edit form must seed its main field from
+   * `query`.
+   */
+  isCreatedFromQuery?: boolean
+  /** Whether a selected item offers Edit (default: all do). */
+  isItemEditable?: (item: TEmbeddedItem | TPage) => boolean
+  /**
    * currently only omitted in tests
    */
   schema?: z.ZodTypeAny
@@ -145,10 +165,28 @@ export type ItemPickerProps<
   S extends PageDataResponse | undefined = undefined
 > = ItemPickerSharedProps<TEmbeddedItem, TPage, S> &
   (
-    | { isMulti?: false; existingItem?: TEmbeddedItem | TPage }
+    | {
+        isMulti?: false
+        existingItem?: TEmbeddedItem | TPage
+        /** Called when the selected item changes (not on mount). */
+        onSelectionChange?: (item?: TEmbeddedItem | TPage) => void
+      }
     | {
         isMulti: true
         existingItems?: (TEmbeddedItem | TPage)[]
+        /**
+         * Create-only: no search, just an Add button, for child items
+         * no other form can share (a release's published editions).
+         */
+        isSearchHidden?: boolean
+        /**
+         * Chips are always sorted by this, with no drag controls (a
+         * release's editions, by date). Use instead of `defaultOrder`.
+         */
+        sortBy?: (
+          a: Record<string, unknown>,
+          b: Record<string, unknown>
+        ) => number
         /**
          * Chips stay sorted by `compare` until dragged out of order;
          * then new chips join the top and a `resetLabel` button
@@ -200,21 +238,37 @@ export function ItemPicker<
     itemType,
     label,
     description,
+    placeholder,
+    searchLabel,
+    itemName = itemTypeToLabel(props.itemType, true, true),
     name,
     renderExistingResult,
     renderEditItemForm,
     isMulti,
     schema,
     renderNewItemSummary,
-    isSearchFirst: isSearchFirstProp
+    isSearchFirst: isSearchFirstProp,
+    isCreatedFromQuery,
+    isItemEditable
   } = props
 
   const defaultOrder = props.isMulti ? props.defaultOrder : undefined
-  const singleIdFieldName = itemIdFieldName(itemType, name)
-  const listFieldName = name ?? itemType
+  const sortBy = props.isMulti ? props.sortBy : undefined
+  const compareOrder = sortBy ?? defaultOrder?.compare
+  const isSearchHidden =
+    !!props.isMulti && !!renderEditItemForm && !!props.isSearchHidden
+  // non-empty when nested in another picker's entry
+  const outerPrefix = useNamePrefix()
+  const singleIdFieldName = `${outerPrefix}${itemIdFieldName(itemType, name)}`
+  const listFieldName = `${outerPrefix}${name ?? itemType}`
 
   const isSearchFirst = !!renderEditItemForm && !!isSearchFirstProp
   const isCreateFirst = !!renderEditItemForm && !isSearchFirst
+  const existingItems = isMulti
+    ? (props.existingItems ?? [])
+    : props.existingItem
+      ? [props.existingItem]
+      : []
 
   // Create vs search for a multi picker's next entry; single pickers
   // don't use it (see `setMultiMode`).
@@ -261,13 +315,13 @@ export function ItemPicker<
     resetToDefaultOrder
   } = useItemPickerEntries<TEmbeddedItem, TPage>({
     isMulti: !!isMulti,
-    existingItems: isMulti
-      ? (props.existingItems ?? [])
-      : props.existingItem
-        ? [props.existingItem]
-        : [],
-    isCreateFirst,
-    compareDefaultOrder: defaultOrder?.compare,
+    existingItems,
+    // create-only lists open a blank editor only when empty
+    isCreateFirst:
+      isCreateFirst &&
+      (!isSearchHidden || existingItems.length === 0),
+    compareDefaultOrder: compareOrder,
+    isOrderFixed: !!sortBy,
     orderGroup: defaultOrder?.group,
     validation: {
       validateEntryStrict,
@@ -285,14 +339,16 @@ export function ItemPicker<
   const editButtons = useRef(new Map<string, HTMLButtonElement>())
   // The picker's root, so the combobox can refocus.
   const rootRef = useRef<HTMLDivElement>(null)
+  // A create-from-query draft to save once its fieldset has mounted.
+  const autoSaveId = useRef<string | null>(null)
   // Entry count as of the last commit, so the focus effect can detect a
   // single-item picker emptying (1 → 0).
   const prevEntryCount = useRef(entries.length)
 
   const itemLabel = label || itemTypeToLabel(itemType, true)
-  const newLabel = `New ${itemTypeToLabel(itemType, true, true)}`
-  const saveLabel = `Save ${itemTypeToLabel(itemType, true, true)}`
-  const removeLabel = `Remove ${itemTypeToLabel(itemType, true, true)}`
+  const newLabel = `New ${itemName}`
+  const saveLabel = `Save ${itemName}`
+  const removeLabel = `Remove ${itemName}`
 
   function setEditButtonRef(
     id: string,
@@ -333,10 +389,48 @@ export function ItemPicker<
     }
   }, [entries, getFieldset, isMulti])
 
+  const selectedItem =
+    !isMulti && entries[0] && entries[0].kind !== 'new'
+      ? entries[0].item
+      : undefined
+  const onSelectionChange = useEffectEvent(
+    (item?: TEmbeddedItem | TPage) => {
+      if (!props.isMulti) props.onSelectionChange?.(item)
+    }
+  )
+  const prevSelectedId = useRef(selectedItem?.id)
+  useEffect(() => {
+    if (selectedItem?.id === prevSelectedId.current) return
+    prevSelectedId.current = selectedItem?.id
+    onSelectionChange(selectedItem)
+  }, [selectedItem])
+
+  // saveDraft reads the fieldset, so it waits for the draft's commit
+  useEffect(() => {
+    const tempId = autoSaveId.current
+    if (!tempId) return
+    const entry = entries.find(
+      (s): s is Draft<TEmbeddedItem, TPage> =>
+        s.kind !== 'existing' && s.tempId === tempId
+    )
+    if (!entry) return
+    autoSaveId.current = null
+    if (saveDraft(entry, entryIndex(entry))) {
+      pendingFocus.current = { kind: 'edit', id: entryId(entry) }
+    } else {
+      // invalid: leave the editor open on its first field
+      getFieldset(tempId)
+        ?.querySelector<HTMLElement>(
+          'input:not([type="hidden"]), select, textarea'
+        )
+        ?.focus()
+    }
+  }, [entries, entryIndex, getFieldset, saveDraft])
+
   // save the open editor before parent submit so it's sorted;
   // block if invalid, skip if busy
   const onParentSubmit = useEffectEvent((event: SubmitEvent) => {
-    if (!defaultOrder || !openDraft) return
+    if (!compareOrder || !openDraft) return
     if (busyEntries[openDraft.tempId]) return
     let closed: ReturnType<typeof closeDraft>
     flushSync(() => {
@@ -419,9 +513,13 @@ export function ItemPicker<
   ) {
     if (!saveDraft(entry, submitIndex)) return
     // Multi: reopen an empty editor for the next item after a new one,
-    // or after an edit in create mode. Otherwise the saved entry
-    // collapses to its chip.
-    if (isMulti && (entry.kind === 'new' || mode === 'create')) {
+    // or after an edit in create mode. Otherwise (and always when
+    // create-only) the saved entry collapses to its chip.
+    if (
+      isMulti &&
+      !isSearchHidden &&
+      (entry.kind === 'new' || mode === 'create')
+    ) {
       pendingFocus.current = { kind: 'create', tempId: addNew() }
     } else {
       pendingFocus.current = { kind: 'edit', id: entryId(entry) }
@@ -435,7 +533,7 @@ export function ItemPicker<
     >
   ) {
     revertEditingEntry(entry)
-    if (!isMulti) {
+    if (!isMulti || isSearchHidden) {
       // The reverted row replaces the editor; focus its Edit button.
       pendingFocus.current = { kind: 'edit', id: entry.item.id }
     } else if (mode === 'create') {
@@ -443,6 +541,11 @@ export function ItemPicker<
     } else {
       pendingFocus.current = { kind: 'combobox' }
     }
+  }
+
+  function handleAddNew() {
+    if (!closeOpenDrafts()) return
+    pendingFocus.current = { kind: 'create', tempId: addNew() }
   }
 
   function renderDraftFieldset(
@@ -461,11 +564,12 @@ export function ItemPicker<
         errors={draftErrors[entry.tempId]}
         isBusy={busyEntries[entry.tempId]}
         isRequired={isRequired ?? false}
-        isSearchFirst={isSearchFirst}
+        isActionsVisible={isSearchFirst || isSearchHidden}
         legend={entry.kind === 'editing' ? itemLabel : newLabel}
         saveLabel={saveLabel}
         onSave={() => handleSave(entry, submitIndex)}
-        onCancelEdit={
+        // a new draft has no saved version to go back to
+        onCancel={
           entry.kind === 'editing'
             ? () => handleCancelEdit(entry)
             : undefined
@@ -521,7 +625,7 @@ export function ItemPicker<
           )
         }
         onEdit={
-          renderEditItemForm
+          renderEditItemForm && (isItemEditable?.(entry.item) ?? true)
             ? () => handleEditExisting(entry.item.id)
             : undefined
         }
@@ -584,7 +688,8 @@ export function ItemPicker<
     <div
       className={clsx(
         itemPickerStyles['item-picker'],
-        !isMulti && itemPickerStyles['item-picker-single']
+        !isMulti && itemPickerStyles['item-picker-single'],
+        isSearchHidden && itemPickerStyles['item-picker-create-only']
       )}
       ref={rootRef}
     >
@@ -597,40 +702,71 @@ export function ItemPicker<
         />
       )}
 
-      {showCombobox && (
-        <Combobox<TEmbeddedItem, TPage, S>
-          label={label || itemTypeToLabel(itemType, !isMulti)}
-          description={description}
-          isRequired={isRequired}
-          initialResults={initialResults}
-          searchParams={searchParams}
-          itemType={itemType}
-          isCreating={hasOpenDraft}
-          // Hidden if single-picker & open entry's main field is valid,
-          // so the toggle can't discard entered content.
-          onBackToSearch={
-            !isMulti && isMainFieldReady
-              ? undefined
-              : () => {
-                  if (returnToSearch()) setMultiMode('search')
-                }
-          }
-          renderExistingResult={renderExistingResult}
-          onCreateNew={
-            renderEditItemForm
-              ? (q) => {
-                  // Collapse open drafts before adding another.
-                  if (!closeOpenDrafts()) return
-                  setMultiMode('create')
-                  pendingFocus.current = {
-                    kind: 'create',
-                    tempId: addNew(q || undefined)
+      {isSearchHidden ? (
+        <div className={itemPickerStyles['create-only-header']}>
+          <InputLabel
+            isRequired={isRequired}
+            label={label || itemTypeToLabel(itemType, false)}
+            description={description}
+          />
+          {!hasOpenDraft && (
+            <CreateItemButton
+              className='button-sm'
+              itemType={itemType}
+              label={newLabel}
+              onClick={handleAddNew}
+            />
+          )}
+        </div>
+      ) : (
+        showCombobox && (
+          <Combobox<TEmbeddedItem, TPage, S>
+            label={label || itemTypeToLabel(itemType, !isMulti)}
+            description={description}
+            placeholder={placeholder}
+            searchLabel={searchLabel}
+            newLabel={newLabel}
+            isRequired={isRequired}
+            initialResults={initialResults}
+            searchParams={searchParams}
+            itemType={itemType}
+            isCreating={hasOpenDraft}
+            // Hidden if single-picker & open entry's main field is valid,
+            // so the toggle can't discard entered content.
+            onBackToSearch={
+              !isMulti && isMainFieldReady
+                ? undefined
+                : () => {
+                    if (returnToSearch()) setMultiMode('search')
                   }
-                }
-              : undefined
-          }
-          onSelect={addExisting}
-        />
+            }
+            renderExistingResult={renderExistingResult}
+            createOptionLabel={
+              isCreatedFromQuery && isSearchFirst
+                ? (q) => `Create “${q}”`
+                : undefined
+            }
+            onCreateNew={
+              renderEditItemForm
+                ? (q) => {
+                    // Collapse open drafts before adding another.
+                    if (!closeOpenDrafts()) return
+                    setMultiMode('create')
+                    const tempId = addNew(q || undefined)
+                    if (isCreatedFromQuery && q) {
+                      autoSaveId.current = tempId
+                    } else {
+                      pendingFocus.current = {
+                        kind: 'create',
+                        tempId
+                      }
+                    }
+                  }
+                : undefined
+            }
+            onSelect={addExisting}
+          />
+        )
       )}
 
       {/*
@@ -656,7 +792,7 @@ export function ItemPicker<
        * neighbour (`isSameGroup`).
        */}
       {isMulti ? (
-        sortableEntries.some(isReorderable) ? (
+        !sortBy && sortableEntries.some(isReorderable) ? (
           <>
             <SortableList
               className={itemPickerStyles['item-list']}

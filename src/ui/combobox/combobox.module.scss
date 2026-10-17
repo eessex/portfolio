@@ -40,6 +40,18 @@
   }
 }
 
+.create-option {
+  display: flex;
+  align-items: center;
+  gap: grids.space-em(1);
+
+  svg {
+    width: grids.space-em(5);
+    height: grids.space-em(5);
+    flex-shrink: 0;
+  }
+}
+
 .loading {
   margin: 0;
   padding: grids.space-em(2) grids.space-em(2);

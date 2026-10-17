@@ -5,7 +5,6 @@ import { useId } from 'react'
 
 import type { EventClient } from '@/lib/events/types'
 import type { Link } from '@/lib/links/schemas/db'
-import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { Publisher } from '@/lib/publishers/schemas/db'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
@@ -31,7 +30,6 @@ import styles from '@/ui/items/items-table/items-table.module.scss'
 import { ItemsTableRow } from '@/ui/items/items-table/items-table-row'
 import { LinkDetails } from '@/ui/links/link-details'
 import { Loading } from '@/ui/loading'
-import { PublishedEditionDetails } from '@/ui/published-editions/published-edition-details'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import { PublisherDetails } from '@/ui/publishers/publisher-details'
 import { SearchInput } from '@/ui/search-input/search-input'
@@ -325,11 +323,6 @@ function ItemsTableItem({
       {(itemType === EmbeddedItemTypes.embedCodes ||
         itemType === EmbeddedItemTypes.images) && (
         <Badges badges={itemBadges(item)} />
-      )}
-      {itemType === EmbeddedItemTypes.publishedEditions && (
-        <PublishedEditionDetails
-          edition={item as DashboardPublishedEdition}
-        />
       )}
       {itemType === EmbeddedItemTypes.venues && (
         <VenueDetails venue={item as Venue} />

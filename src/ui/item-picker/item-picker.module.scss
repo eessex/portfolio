@@ -25,6 +25,35 @@
   padding: grids.space-em(4);
 }
 
+// New button top-right of the label, like the search pickers' header
+.create-only-header {
+  position: relative;
+
+  > button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translateY(-#{grids.space-em(1)});
+  }
+
+  // as in the search header, the description's margin (or this one)
+  // spaces the label from the chips
+  &:not(:has(p)) {
+    margin-bottom: grids.space-em(1);
+  }
+
+  + .item-list {
+    margin-top: 0;
+  }
+}
+
+// direct child, so a nested picker's own draft doesn't box this one
+.item-picker-create-only
+  fieldset:has(> .create-form-actions-visible) {
+  box-shadow: inset 0 0 0 2px var(--transparency-primary);
+  padding: grids.space-em(4);
+}
+
 .item-picker-single-slot {
   --row-gap: #{grids.space-em(1)};
 }

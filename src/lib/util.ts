@@ -192,7 +192,8 @@ export function extractIndexedGroups(
   prefix: string
 ): IndexedGroupEntry[] {
   const groupPattern = new RegExp(
-    `^${prefix}\\[(\\d*)\\](?:\\.(\\w+))?$`
+    // field may be a nested path (`publisher.name`, `images[0].id`)
+    `^${prefix}\\[(\\d*)\\](?:\\.(.+))?$`
   )
   const groups: Record<number, Record<string, unknown>> = {}
 

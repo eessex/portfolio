@@ -13,7 +13,9 @@ import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { EditLink } from '@/ui/links/edit-link-form'
 import {
   formatLinkResult,
-  formatNewLinkSummary
+  formatNewLinkSummary,
+  formatNewPressLinkSummary,
+  formatPressLinkResult
 } from '@/ui/links/format-link-result'
 
 /**
@@ -70,6 +72,8 @@ export function PressLinksPicker({ links }: { links?: Link[] }) {
       itemType='links'
       name='pressLinks'
       label='Press'
+      searchLabel='Search press links'
+      itemName='press link'
       searchParams={{ isPress: true }}
       existingItems={(links ?? []).filter(isPressLink)}
       defaultOrder={{
@@ -78,9 +82,9 @@ export function PressLinksPicker({ links }: { links?: Link[] }) {
         group: (item) => linkOrderGroup(asPress(item)),
         resetLabel: 'Sort press links by date'
       }}
-      renderExistingResult={formatLinkResult}
+      renderExistingResult={formatPressLinkResult}
       renderNewItemSummary={(data, previewUrl, actions) =>
-        formatNewLinkSummary(asPress(data), previewUrl, actions)
+        formatNewPressLinkSummary(asPress(data), previewUrl, actions)
       }
       schema={createPressLinkSchema}
       renderEditItemForm={({ errors, isRequired, existingItem }) => (

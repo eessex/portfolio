@@ -142,6 +142,22 @@ describe('fetchProjectsRaw', () => {
     })
   })
 
+  it('lists the default project first, and only on the first page', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([projectFixtureBand])
+
+    await Projects.fetchProjectsRaw(false)
+
+    const listText = (
+      mockSql.mock.calls[1]?.[0] as unknown as string[]
+    ).join('?')
+    expect(listText).toMatch(/ORDER BY\s+p\.is_default_project DESC/)
+    expect(listText).toMatch(
+      /IS NULL\s+OR \(\s+NOT p\.is_default_project\s+AND/
+    )
+  })
+
   it('handles DB errors', async () => {
     mockSql.mockResolvedValueOnce([{ count: 1 }])
     mockSql.mockRejectedValue(new Error('db failed'))

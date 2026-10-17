@@ -27,6 +27,12 @@ export async function fetchReleaseById(
     const data = await sql`
       SELECT
         r.*,
+        -- artist is saved on the release; the project's name only
+        -- covers older rows without one (published or not)
+        COALESCE(
+          r.artist,
+          (SELECT title FROM projects WHERE id = r.project_id)
+        ) AS display_artist,
         (
           CASE
             WHEN COALESCE(r.cover_image_id, r.image_ids[1]) IS NOT NULL
@@ -78,7 +84,7 @@ export async function fetchReleaseById(
             AND (${isAuthed} OR p.is_published = true)
         ) AS project,
         (
-          SELECT COALESCE(jsonb_agg(build_published_edition_json(pe)), '[]'::jsonb)
+          SELECT COALESCE(jsonb_agg(build_published_edition_json(pe) ORDER BY pe.publish_date, pe.created_at), '[]'::jsonb)
           FROM published_editions pe
           WHERE pe.release_id = r.id
         ) AS published_editions
@@ -150,6 +156,7 @@ export async function fetchReleasesRaw(
       return sql`
         SELECT
           r.*,
+          COALESCE(r.artist, p.title) AS display_artist,
           ${path} AS path,
           (
             CASE
@@ -170,7 +177,7 @@ export async function fetchReleasesRaw(
             WHERE ec.id = ANY(r.embed_code_ids) AND ec.type = ${EmbedCodeTypes.audio}
           ) AS has_audio,
           (
-            SELECT COALESCE(jsonb_agg(build_published_edition_json(pe)), '[]'::jsonb)
+            SELECT COALESCE(jsonb_agg(build_published_edition_json(pe) ORDER BY pe.publish_date, pe.created_at), '[]'::jsonb)
             FROM published_editions pe
             WHERE pe.release_id = r.id
           ) AS published_editions

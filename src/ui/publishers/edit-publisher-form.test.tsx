@@ -106,8 +106,9 @@ describe('EditPublisher', () => {
       expect(nameInput).toHaveAttribute('placeholder', 'Soap Library')
       expect(nameInput).toBeRequired()
 
+      // type is optional, so a publisher can be created from a name
       const typeSelect = screen.getByLabelText(/type/i)
-      expect(typeSelect).toBeRequired()
+      expect(typeSelect).not.toBeRequired()
 
       const urlInput = screen.getByLabelText(/publisher website/i)
       expect(urlInput).toHaveAttribute('maxlength', '255')
@@ -116,6 +117,18 @@ describe('EditPublisher', () => {
         'https://example.com'
       )
       expect(urlInput).toHaveAttribute('type', 'url')
+    })
+  })
+
+  describe('isTypeHidden', () => {
+    it('renders the name and website, but no type', () => {
+      render(<EditPublisher isTypeHidden />)
+
+      expect(screen.getByLabelText(/name/i)).toBeInTheDocument()
+      expect(
+        screen.getByLabelText(/publisher website/i)
+      ).toBeInTheDocument()
+      expect(screen.queryByLabelText(/type/i)).not.toBeInTheDocument()
     })
   })
 })

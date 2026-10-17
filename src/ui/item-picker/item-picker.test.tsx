@@ -7,6 +7,7 @@ import {
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
+import { z } from 'zod'
 
 import { linkFixture, pressLinkFixture } from '@/lib/links/fixtures'
 import { createLinkSchema, type Link } from '@/lib/links/schemas/db'
@@ -118,6 +119,309 @@ describe('ItemPicker', () => {
           )
         }
       )
+    })
+
+    describe('create-only (isSearchHidden)', () => {
+      function renderCreateOnly(props = {}) {
+        return renderComponent({
+          itemType: 'publishedEditions',
+          isMulti: true,
+          isSearchHidden: true,
+          name: 'editions',
+          label: 'Editions',
+          renderEditItemForm: () => (
+            <PrefixedInput field='format' aria-label='Format' />
+          ),
+          ...props
+        })
+      }
+
+      it('renders no search box', () => {
+        renderCreateOnly()
+
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+        expect(screen.getByText('Editions')).toBeInTheDocument()
+      })
+
+      it('opens a blank editor when the list is empty', () => {
+        renderCreateOnly()
+
+        expect(screen.getByLabelText('Format')).toHaveAttribute(
+          'name',
+          'editions[0].format'
+        )
+        expect(
+          screen.queryByRole('button', {
+            name: /new published edition/i
+          })
+        ).not.toBeInTheDocument()
+      })
+
+      it('opens no editor when items exist, just the New button', () => {
+        renderCreateOnly({ existingItems: [venueFixtureAlpha] })
+
+        expect(
+          screen.queryByLabelText('Format')
+        ).not.toBeInTheDocument()
+        expect(
+          screen.getByRole('button', {
+            name: /new published edition/i
+          })
+        ).toBeInTheDocument()
+      })
+
+      it('offers no Cancel on a new draft', () => {
+        renderCreateOnly()
+
+        expect(
+          screen.queryByRole('button', { name: /^cancel$/i })
+        ).not.toBeInTheDocument()
+      })
+
+      it('collapses a saved draft instead of opening another', async () => {
+        renderCreateOnly()
+
+        fireEvent.change(screen.getByLabelText('Format'), {
+          target: { value: 'LP' }
+        })
+        fireEvent.click(
+          screen.getByRole('button', {
+            name: /save published edition/i
+          })
+        )
+
+        await waitFor(() =>
+          expect(screen.getByLabelText('Format')).not.toBeVisible()
+        )
+        expect(screen.getAllByLabelText('Format')).toHaveLength(1)
+        expect(
+          screen.getByRole('button', {
+            name: /new published edition/i
+          })
+        ).toBeInTheDocument()
+      })
+
+      it('opens a new editor from the New button', () => {
+        renderCreateOnly({ existingItems: [venueFixtureAlpha] })
+
+        fireEvent.click(
+          screen.getByRole('button', {
+            name: /new published edition/i
+          })
+        )
+
+        // new entries join the top of a multi list
+        expect(screen.getByLabelText('Format')).toHaveAttribute(
+          'name',
+          'editions[0].format'
+        )
+      })
+    })
+
+    describe('create from query (isCreatedFromQuery)', () => {
+      function renderCreateFromQuery(props = {}) {
+        return renderComponent({
+          isSearchFirst: true,
+          isCreatedFromQuery: true,
+          schema: z.object({ name: z.string().min(1) }),
+          renderEditItemForm: ({
+            query
+          }: RenderEditItemFormArgs<Venue, never>) => (
+            <PrefixedInput
+              field='name'
+              aria-label='Name'
+              defaultValue={query}
+            />
+          ),
+          ...props
+        })
+      }
+
+      function typeAndCreate(query: string) {
+        const combobox = screen.getByRole('combobox')
+        fireEvent.focus(combobox)
+        fireEvent.change(combobox, { target: { value: query } })
+        fireEvent.mouseDown(
+          screen.getByRole('option', { name: `Create “${query}”` })
+        )
+      }
+
+      it('replaces the New button with a Create option', () => {
+        renderCreateFromQuery()
+
+        expect(
+          screen.queryByRole('button', { name: /new venue/i })
+        ).not.toBeInTheDocument()
+      })
+
+      it('collapses straight to a chip holding the query', async () => {
+        const { container } = renderCreateFromQuery()
+
+        typeAndCreate('Soap Library')
+
+        await waitFor(() =>
+          expect(screen.getByLabelText('Name')).not.toBeVisible()
+        )
+        expect(
+          container.querySelector('input[name="venue.name"]')
+        ).toHaveValue('Soap Library')
+        expect(
+          screen.getByRole('button', { name: 'Edit' })
+        ).toHaveFocus()
+      })
+
+      it('stays open when the draft fails validation', async () => {
+        renderCreateFromQuery({
+          schema: z.object({
+            name: z.string().min(1),
+            city: z.string().min(1)
+          })
+        })
+
+        typeAndCreate('Soap Library')
+
+        await waitFor(() =>
+          expect(screen.getByLabelText('Name')).toHaveFocus()
+        )
+        expect(screen.getByLabelText('Name')).toBeVisible()
+      })
+    })
+
+    describe('fixed order (sortBy)', () => {
+      const byName = (
+        a: Record<string, unknown>,
+        b: Record<string, unknown>
+      ) => String(a.name).localeCompare(String(b.name))
+
+      function renderSorted(props = {}) {
+        return renderComponent({
+          itemType: 'publishedEditions',
+          isMulti: true,
+          isSearchHidden: true,
+          name: 'editions',
+          sortBy: byName,
+          // alpha is "…Texas", beta "…New York": out of order
+          existingItems: [venueFixtureAlpha, venueFixtureBeta],
+          renderEditItemForm: () => (
+            <PrefixedInput field='name' aria-label='Name' />
+          ),
+          ...props
+        })
+      }
+
+      it('sorts existing items on load, with no drag controls', () => {
+        renderSorted()
+
+        expect(
+          screen.queryByRole('button', { name: 'Drag to reorder' })
+        ).not.toBeInTheDocument()
+        expect(
+          screen.getByDisplayValue(venueFixtureBeta.id)
+        ).toHaveAttribute('name', 'editions[0].id')
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'editions[1].id')
+      })
+
+      it('sorts a saved new item into place', async () => {
+        renderSorted()
+
+        fireEvent.click(
+          screen.getByRole('button', {
+            name: /new published edition/i
+          })
+        )
+        fireEvent.change(screen.getByLabelText('Name'), {
+          target: { value: 'Test Venue Boston' }
+        })
+        fireEvent.click(
+          screen.getByRole('button', {
+            name: /save published edition/i
+          })
+        )
+
+        await waitFor(() =>
+          expect(screen.getByLabelText('Name')).toHaveAttribute(
+            'name',
+            'editions[0].name'
+          )
+        )
+        expect(
+          screen.getByDisplayValue(venueFixtureAlpha.id)
+        ).toHaveAttribute('name', 'editions[2].id')
+      })
+    })
+
+    describe('isItemEditable', () => {
+      it('offers no Edit for an item it rejects', () => {
+        renderComponent({
+          existingItem: venueFixtureAlpha,
+          isItemEditable: () => false
+        })
+
+        expect(
+          screen.queryByRole('button', { name: 'Edit' })
+        ).not.toBeInTheDocument()
+        expect(
+          screen.getByRole('button', { name: /remove venue/i })
+        ).toBeInTheDocument()
+      })
+
+      it('offers Edit by default', () => {
+        renderComponent({ existingItem: venueFixtureAlpha })
+
+        expect(
+          screen.getByRole('button', { name: 'Edit' })
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('nested pickers', () => {
+      it("prefixes a nested picker's fields with its parent entry", () => {
+        renderComponent({
+          itemType: 'publishedEditions',
+          isMulti: true,
+          isSearchHidden: true,
+          name: 'editions',
+          renderEditItemForm: () => (
+            <ItemPicker<Venue>
+              {...defaultProps}
+              isSearchFirst
+              renderEditItemForm={() => (
+                <PrefixedInput field='name' aria-label='Venue name' />
+              )}
+            />
+          )
+        })
+
+        fireEvent.click(
+          screen.getByRole('button', { name: /new venue/i })
+        )
+
+        expect(screen.getByLabelText('Venue name')).toHaveAttribute(
+          'name',
+          'editions[0].venue.name'
+        )
+      })
+
+      it('submits a nested selection under the parent entry', () => {
+        const { container } = renderComponent({
+          itemType: 'publishedEditions',
+          isMulti: true,
+          isSearchHidden: true,
+          name: 'editions',
+          renderEditItemForm: () => (
+            <ItemPicker<Venue>
+              {...defaultProps}
+              existingItem={venueFixtureAlpha}
+            />
+          )
+        })
+
+        expect(
+          container.querySelector('input[name="editions[0].venueId"]')
+        ).toHaveValue(venueFixtureAlpha.id)
+      })
     })
 
     describe('initial render', () => {

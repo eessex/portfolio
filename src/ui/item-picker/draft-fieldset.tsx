@@ -21,12 +21,13 @@ type DraftFieldsetProps<
   errors?: FieldErrors
   isBusy?: boolean
   isRequired: boolean
-  isSearchFirst: boolean
+  /** Save/Cancel always shown, not just once the form expands. */
+  isActionsVisible: boolean
   legend: string
   saveLabel: string
   onSave: () => void
-  /** Only for an `editing` entry, which alone can revert. */
-  onCancelEdit?: () => void
+  /** Reverts an `editing` entry, or discards a create-only draft. */
+  onCancel?: () => void
   onTouched: () => void
   /** Validates when focus leaves the fieldset; omitted for multi. */
   onBlurValidate?: () => void
@@ -42,8 +43,8 @@ type DraftFieldsetProps<
  * live DOM node must survive a save→edit round-trip; `hidden` still
  * submits the fieldset's inputs on final form submit. The body is just
  * the create form: no visible legend (the combobox header carries the
- * label), and Cancel only for an edit of an existing item (a new draft
- * leaves via the "Search {item}" toggle).
+ * label), and Cancel only for an edit of an existing item (new
+ * drafts leave via Save, or the "Search {item}" toggle).
  */
 export function DraftFieldset<
   TEmbeddedItem extends EmbeddedItem,
@@ -55,11 +56,11 @@ export function DraftFieldset<
   errors,
   isBusy,
   isRequired,
-  isSearchFirst,
+  isActionsVisible,
   legend,
   saveLabel,
   onSave,
-  onCancelEdit,
+  onCancel,
   onTouched,
   onBlurValidate,
   onReadyChange,
@@ -113,7 +114,7 @@ export function DraftFieldset<
       <div
         className={clsx(
           itemPickerStyles['create-form-actions'],
-          isSearchFirst &&
+          isActionsVisible &&
             itemPickerStyles['create-form-actions-visible']
         )}
       >
@@ -125,11 +126,11 @@ export function DraftFieldset<
         >
           {saveLabel}
         </button>
-        {onCancelEdit && (
+        {onCancel && (
           <button
             type='button'
             className='button-sm'
-            onClick={onCancelEdit}
+            onClick={onCancel}
           >
             Cancel
           </button>

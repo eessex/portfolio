@@ -2,6 +2,7 @@
 // creation as a public endpoint). Only run from scripts/setup.ts.
 import { sql } from '@/lib/db'
 import { projectTypes } from '@/lib/projects/schemas'
+import { SELF_RELEASED_PUBLISHER_NAME } from '@/lib/publishers/schemas/db'
 import { pagePaths } from '@/lib/schemas'
 
 /**
@@ -427,14 +428,46 @@ async function createPublishersTable() {
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
       name VARCHAR(255) NOT NULL,
       url VARCHAR(255),
-      type VARCHAR(30) NOT NULL,
+      type VARCHAR(30),
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       CONSTRAINT chk_publishers_type
         CHECK (type IN ('recordLabel', 'publishingHouse', 'museum'))
     );
   `
+  // optional, so an inline publisher can be created from a name alone
+  await sql`ALTER TABLE publishers ALTER COLUMN type DROP NOT NULL;`
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_publishers_name ON publishers(name);`
+  await seedBuiltInPublisher()
+}
+
+/**
+ * The built-in "Self-released" publisher, listed first in every
+ * publisher search and protected from edits/deletes. Flagged rather
+ * than matched by name: an existing row of that name is adopted (its
+ * editions keep pointing at it), else one is created. A partial unique
+ * index allows at most one built-in row.
+ */
+async function seedBuiltInPublisher() {
+  await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS is_built_in BOOLEAN NOT NULL DEFAULT false;`
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_publishers_single_built_in ON publishers (is_built_in) WHERE is_built_in;`
+  await sql`
+    UPDATE publishers
+    SET is_built_in = true
+    WHERE id = (
+      -- names are unique only case-sensitively; adopt one row
+      SELECT id FROM publishers
+      WHERE lower(name) = lower(${SELF_RELEASED_PUBLISHER_NAME})
+      ORDER BY name = ${SELF_RELEASED_PUBLISHER_NAME} DESC, created_at
+      LIMIT 1
+    )
+      AND NOT EXISTS (SELECT 1 FROM publishers WHERE is_built_in)
+  `
+  await sql`
+    INSERT INTO publishers (name, is_built_in)
+    SELECT ${SELF_RELEASED_PUBLISHER_NAME}, true
+    WHERE NOT EXISTS (SELECT 1 FROM publishers WHERE is_built_in)
+  `
 }
 
 /**
@@ -518,14 +551,13 @@ async function createReleasesTable() {
 
 /**
  * Creates the published_editions table.
- * Must be created after releases, projects, and publishers.
+ * Must be created after releases and publishers.
  */
 async function createPublishedEditionTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS published_editions (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
       release_id UUID NOT NULL,
-      project_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
       publisher_id UUID NOT NULL,
       format VARCHAR(30) NOT NULL,
@@ -538,7 +570,6 @@ async function createPublishedEditionTable() {
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       CONSTRAINT fk_published_release FOREIGN KEY (release_id) REFERENCES releases(id) ON DELETE CASCADE,
-      CONSTRAINT fk_published_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
       CHECK (format IN ('LP','2xLP','Cassette','2xCassette','Digital','iOSApp','CD'))
     );
   `
@@ -559,7 +590,8 @@ async function createPublishedEditionTable() {
     $$;
   `
   await sql`CREATE INDEX IF NOT EXISTS idx_published_editions_publisher ON published_editions(publisher_id);`
-  await sql`CREATE INDEX IF NOT EXISTS idx_published_editions_project_id ON published_editions(project_id);`
+  // an edition's project is its release's; also drops its FK + index
+  // await sql`ALTER TABLE published_editions DROP COLUMN IF EXISTS project_id;`
 }
 
 /**
@@ -751,7 +783,8 @@ async function setupJsonbFunctions() {
         'id', p.id,
         'name', p.name,
         'url', p.url,
-        'type', p.type
+        'type', p.type,
+        'isBuiltIn', p.is_built_in
       ) || build_write_dates_json(p.created_at, p.updated_at);
     $$ LANGUAGE sql IMMUTABLE;
   `
@@ -764,7 +797,6 @@ async function setupJsonbFunctions() {
         jsonb_build_object(
           'id', pe.id,
           'releaseId', pe.release_id,
-          'projectId', pe.project_id,
           'tagIds', pe.tag_ids,
           'publisherId', pe.publisher_id,
           'publisherName', (

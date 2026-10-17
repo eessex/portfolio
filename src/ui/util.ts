@@ -7,7 +7,6 @@ import type { DashboardEmbedCode } from '@/lib/embed-codes/schemas/client'
 import type { DashboardImage } from '@/lib/images/schemas/client'
 import type { DashboardLink } from '@/lib/links/schemas/client'
 import type { ProjectClient } from '@/lib/projects/types'
-import type { DashboardPublishedEdition } from '@/lib/published-editions/schemas/client'
 import type { PublishedEditionClient } from '@/lib/published-editions/schemas/client'
 import type { DashboardPublisher } from '@/lib/publishers/schemas/client'
 import type { ReleaseClient } from '@/lib/releases/types'
@@ -32,7 +31,6 @@ export type DashboardItem =
   | DashboardEmbedCode
   | DashboardImage
   | DashboardLink
-  | DashboardPublishedEdition
   | DashboardPublisher
   | DashboardVenue
 
@@ -121,16 +119,23 @@ export function formattedDateOrTimestamp(
 }
 
 /**
- * Format a date for a `type='date'` input from local calendar parts.
- * The neon driver returns Postgres `DATE` as a local-midnight `Date`.
+ * Format a date-only value for a `type='date'` input.
+ * UTC midnight (a parsed `'YYYY-MM-DD'`, or the neon driver on a UTC
+ * server) reads as UTC; anything else (neon's local-midnight `DATE`
+ * on a non-UTC server) reads as local.
  */
 export function toDateInputValue(date?: Date | string) {
   if (!date) return ''
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return date
+  }
   const d = new Date(date)
   if (isNaN(d.getTime())) return ''
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${d.getFullYear()}-${m}-${day}`
+  const isUtcMidnight = d.getTime() % 86_400_000 === 0
+  const year = isUtcMidnight ? d.getUTCFullYear() : d.getFullYear()
+  const month = isUtcMidnight ? d.getUTCMonth() : d.getMonth()
+  const day = isUtcMidnight ? d.getUTCDate() : d.getDate()
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 }
 
 /**
@@ -298,8 +303,10 @@ export const formattedItemType = (
 }
 
 export function formattedItemTitle(item: PageItemClient) {
-  const { artist } = item as ReleaseClient
-  return artist ? `${artist}: ${item.title}` : item.title
+  const { artist, displayArtist = artist } = item as ReleaseClient
+  return displayArtist
+    ? `${displayArtist}: ${item.title}`
+    : item.title
 }
 
 export function itemUrl(item: PageItemClient) {

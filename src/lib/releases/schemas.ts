@@ -51,6 +51,8 @@ export const releaseSchema = z.object({
 
 export const releaseClientSchema = releaseSchema.extend({
   coverImage: z.lazy(() => imageSchema).optional(),
+  /** `artist`, else the project's name for rows saved without one */
+  displayArtist: shortText.optional(),
   embedCodes: z.lazy(() => embedCodeSchema.array()).optional(),
   hasAudio: z.boolean().optional(),
   hasVideo: z.boolean().optional(),

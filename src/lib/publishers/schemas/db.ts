@@ -1,7 +1,10 @@
 import { z } from 'zod'
 
 import { systemFields } from '@/lib/schemas/fields'
-import { shortText, url } from '@/lib/schemas/primitives'
+import { bool, shortText, url } from '@/lib/schemas/primitives'
+
+/** The built-in publisher `pnpm run setup` creates (or adopts). */
+export const SELF_RELEASED_PUBLISHER_NAME = 'Self-released'
 
 export const publisherTypes = [
   'recordLabel',
@@ -19,7 +22,7 @@ export type PublisherType = z.infer<typeof publisherTypeSchema>
 const publisherFields = {
   name: shortText,
   url: url.optional(),
-  type: publisherTypeSchema
+  type: publisherTypeSchema.optional()
 }
 
 /**
@@ -28,7 +31,9 @@ const publisherFields = {
  */
 export const publisherSchema = z.object({
   ...systemFields,
-  ...publisherFields
+  ...publisherFields,
+  // set only by setup; read-only and listed first
+  isBuiltIn: bool.optional()
 })
 export type Publisher = z.infer<typeof publisherSchema>
 

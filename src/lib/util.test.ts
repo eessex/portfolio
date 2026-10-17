@@ -190,6 +190,43 @@ describe('#extractIndexedGroups', () => {
     expect(data).toEqual({ title: 'My Project' })
   })
 
+  it('keeps nested field paths whole', () => {
+    const data = {
+      'publishedEditions[]': '',
+      'publishedEditions[0].format': 'LP',
+      'publishedEditions[0].publisherId': 'publisher-1',
+      'publishedEditions[1].publisher.name': 'Soap Library'
+    }
+
+    const result = extractIndexedGroups(data, 'publishedEditions')
+
+    expect(result).toEqual([
+      {
+        kind: 'new',
+        fields: { format: 'LP', publisherId: 'publisher-1' }
+      },
+      {
+        kind: 'new',
+        fields: { 'publisher.name': 'Soap Library' }
+      }
+    ])
+    expect(data).toEqual({})
+  })
+
+  it("doesn't match a list nested under another prefix", () => {
+    const data = {
+      'images[0].id': 'image-1',
+      'publishedEditions[0].images[0].id': 'image-2'
+    }
+
+    const result = extractIndexedGroups(data, 'images')
+
+    expect(result).toEqual([{ kind: 'existing', id: 'image-1' }])
+    expect(data).toEqual({
+      'publishedEditions[0].images[0].id': 'image-2'
+    })
+  })
+
   it('ignores keys that do not match the prefix', () => {
     const data = { 'links[0].id': 'link-1', title: 'My Project' }
 

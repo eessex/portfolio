@@ -3,7 +3,8 @@ import { render, screen } from '@testing-library/react'
 import { linkFixture, pressLinkFixture } from '@/lib/links/fixtures'
 import {
   formatLinkResult,
-  formatNewLinkSummary
+  formatNewLinkSummary,
+  formatPressLinkResult
 } from '@/ui/links/format-link-result'
 
 describe('formatLinkResult', () => {
@@ -35,6 +36,19 @@ describe('formatLinkResult', () => {
     render(formatLinkResult(pressLinkFixture))
 
     expect(screen.getByText('Press')).toBeInTheDocument()
+  })
+})
+
+describe('formatPressLinkResult', () => {
+  it('renders the press link without a Press badge', () => {
+    render(formatPressLinkResult(pressLinkFixture))
+
+    expect(screen.queryByText('Press')).not.toBeInTheDocument()
+    expect(
+      screen.getByText(pressLinkFixture.attribution!, {
+        exact: false
+      })
+    ).toBeInTheDocument()
   })
 })
 

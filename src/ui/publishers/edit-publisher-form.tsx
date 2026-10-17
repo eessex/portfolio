@@ -16,11 +16,14 @@ interface EditPublisherProps {
     typeof createPublisherSchema
   >['fieldErrors']
   publisher?: Partial<Publisher>
+  /** Inline on a published edition: name and website only. */
+  isTypeHidden?: boolean
 }
 
 export const EditPublisher = ({
   errors,
-  publisher
+  publisher,
+  isTypeHidden
 }: EditPublisherProps) => {
   const namePrefix = useNamePrefix()
 
@@ -31,24 +34,26 @@ export const EditPublisher = ({
           maxLength: 255,
           name: `${namePrefix}name`,
           placeholder: 'Soap Library',
-          required: true
+          required: true,
+          autoComplete: 'off'
         }}
         defaultValue={publisher?.name}
         errors={errors?.name}
         label='Name'
       />
 
-      <Select
-        attributes={{
-          name: `${namePrefix}type`,
-          required: true
-        }}
-        label='Type'
-        onChange={() => {}}
-        options={publisherTypeOptions}
-        placeholder='Select publisher type'
-        value={publisher?.type}
-      />
+      {!isTypeHidden && (
+        <Select
+          attributes={{
+            name: `${namePrefix}type`
+          }}
+          label='Type'
+          onChange={() => {}}
+          options={publisherTypeOptions}
+          placeholder='Select publisher type'
+          value={publisher?.type}
+        />
+      )}
 
       <Input
         attributes={{

@@ -128,7 +128,6 @@ describe('Project Actions', () => {
         'embedCodes',
         'releases',
         'events',
-        'publishedEditions',
         'delete'
       ]
       queries.forEach((query) =>
@@ -142,17 +141,14 @@ describe('Project Actions', () => {
       const texts = mockSql.mock.calls
         .slice(1)
         .map(([strings]) => strings.join('?'))
-      expect(texts).toHaveLength(7)
+      expect(texts).toHaveLength(6)
       expect(texts[0]).toContain('UPDATE images AS i')
       expect(texts[1]).toContain('UPDATE links AS l')
       expect(texts[2]).toContain('UPDATE embed_codes AS ec')
-      expect(texts[6]).toContain('DELETE FROM projects')
-      // owned page items go to the default rather than the FK's NULL
-      for (const [i, table] of [
-        'releases',
-        'events',
-        'published_editions'
-      ].entries()) {
+      expect(texts[5]).toContain('DELETE FROM projects')
+      // owned page items go to the default rather than the FK's NULL;
+      // published editions follow their release
+      for (const [i, table] of ['releases', 'events'].entries()) {
         const [strings, ...params] = mockSql.mock.calls[4 + i]!
         expect(strings.join('?')).toContain(
           'SET project_id = (SELECT id FROM projects WHERE is_default_project)'

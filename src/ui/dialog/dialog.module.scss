@@ -1,14 +1,27 @@
 @use '@/ui/styles/grids';
 
+// a full-viewport `<dialog>` paints the dim layer itself, since
+// `::backdrop` can't read custom properties before Safari 17.4
 .dialog-container {
-  position: fixed;
-  inset: 0;
-  z-index: 3000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  border: 0;
   padding: grids.space-em(4);
+  color: inherit;
   background: var(--transparency-dark-inverted);
+
+  &[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &::backdrop {
+    background: transparent;
+  }
 }
 
 .dialog {

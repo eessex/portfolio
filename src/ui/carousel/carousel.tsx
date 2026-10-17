@@ -88,9 +88,12 @@ export function Carousel({
 
   function scroll(direction: 1 | -1) {
     const track = trackRef.current
+    const isReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches
     track?.scrollBy({
       left: direction * track.clientWidth * SCROLL_STEP,
-      behavior: 'smooth'
+      behavior: isReducedMotion ? 'instant' : 'smooth'
     })
   }
 

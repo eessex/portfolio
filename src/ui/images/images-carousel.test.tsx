@@ -58,14 +58,14 @@ describe('ImagesCarousel', () => {
 
     openAt('Photo by two')
     expect(
-      screen.queryByRole('link', { name: 'Download high-res ↓' })
+      screen.queryByRole('link', { name: 'Download high-res' })
     ).not.toBeInTheDocument()
 
     fireEvent.click(
       screen.getByRole('button', { name: 'Previous image' })
     )
     expect(
-      screen.getByRole('link', { name: 'Download high-res ↓' })
+      screen.getByRole('link', { name: 'Download high-res' })
     ).toHaveAttribute('href', images[0].url)
   })
 
@@ -77,7 +77,7 @@ describe('ImagesCarousel', () => {
     const dialog = screen.getByRole('dialog', { name: 'Image 2 / 3' })
     expect(dialog).toHaveTextContent('Photo by two')
     expect(
-      screen.getByRole('link', { name: 'Download high-res ↓' })
+      screen.getByRole('link', { name: 'Download high-res' })
     ).toHaveAttribute('href', images[1].url)
     expect(
       screen.getByRole('button', { name: 'Close' })
@@ -95,7 +95,9 @@ describe('ImagesCarousel', () => {
       'Image 1 / 3'
     )
 
-    fireEvent.keyDown(document, { key: 'ArrowLeft' })
+    fireEvent.keyDown(screen.getByRole('dialog'), {
+      key: 'ArrowLeft'
+    })
     expect(screen.getByRole('dialog')).toHaveAccessibleName(
       'Image 3 / 3'
     )
@@ -150,7 +152,7 @@ describe('ImageInline', () => {
     render(<ImageInline image={mixed[1]} />)
 
     expect(
-      screen.queryByRole('link', { name: 'Download high-res ↓' })
+      screen.queryByRole('link', { name: 'Download high-res' })
     ).not.toBeInTheDocument()
     expect(
       screen.getByRole('heading', { name: 'Images' })
@@ -161,7 +163,7 @@ describe('ImageInline', () => {
     render(<ImageInline image={images[0]} />)
 
     expect(
-      screen.getByRole('link', { name: 'Download high-res ↓' })
+      screen.getByRole('link', { name: 'Download high-res' })
     ).toHaveAttribute('href', images[0].url)
 
     fireEvent.click(screen.getByRole('button'))

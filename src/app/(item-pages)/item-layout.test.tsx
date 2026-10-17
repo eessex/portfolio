@@ -308,14 +308,14 @@ describe.each([
     const article = screen.getByRole('article')
     expect(article).toHaveTextContent('Video one')
     expect(article).toHaveTextContent('Photo one')
-    expect(queryRegion('Video & audio')).not.toBeInTheDocument()
+    expect(queryRegion('Video')).not.toBeInTheDocument()
     expect(queryRegion('Press images')).not.toBeInTheDocument()
   })
 
   it('carousels 2+ embeds and cover + 2 images, before the children', async () => {
     await renderItem({ coverImage, images, embedCodes })
 
-    const media = queryRegion('Video & audio')!
+    const media = queryRegion('Video')!
     const pressImages = queryRegion('Press images')!
     const children = screen.getByText('Children')
 

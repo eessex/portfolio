@@ -1,15 +1,17 @@
 'use client'
 
 import {
+  ArrowDownTrayIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
 import NextImage from 'next/image'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { type Image, ImageTypes } from '@/lib/images/schemas/db'
+import { useModalDialog } from '@/ui/dialog/use-modal-dialog'
 import styles from '@/ui/images/image-lightbox.module.scss'
 import { Spinner } from '@/ui/spinner/spinner'
 
@@ -18,8 +20,8 @@ const SWIPE_THRESHOLD = 50
 
 /**
  * Full-screen viewer for `images`, opened at `index`. Navigation
- * wraps; Esc closes and ←/→ step. Focus is trapped inside and
- * returned to the opener on close.
+ * wraps; Esc closes and ←/→ step. A modal `<dialog>`, so focus is
+ * trapped inside and returned to the opener on close.
  */
 export function ImageLightbox({
   images,
@@ -33,8 +35,11 @@ export function ImageLightbox({
   onClose: () => void
 }) {
   const titleId = useId()
-  const dialogRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
+  const dialogRef = useModalDialog({
+    onClose,
+    initialFocusRef: closeRef
+  })
   const touchStartXRef = useRef<number | null>(null)
   const [loadedId, setLoadedId] = useState<string>()
   const image = images[index]
@@ -44,58 +49,23 @@ export function ImageLightbox({
     onIndexChange((index + direction + total) % total)
   }
 
-  // latest handlers for the document listener, without resubscribing
-  const stepRef = useRef(step)
-  const onCloseRef = useRef(onClose)
-  useEffect(() => {
-    stepRef.current = step
-    onCloseRef.current = onClose
-  })
-
-  useEffect(() => {
-    const opener = document.activeElement as HTMLElement | null
-    const { overflow } = document.body.style
-    document.body.style.overflow = 'hidden'
-    closeRef.current?.focus()
-
-    function handleKeyDown(event: KeyboardEvent) {
-      switch (event.key) {
-        case 'Escape':
-          onCloseRef.current()
-          break
-        case 'ArrowRight':
-          stepRef.current(1)
-          break
-        case 'ArrowLeft':
-          stepRef.current(-1)
-          break
-        case 'Tab':
-          trapFocus(event, dialogRef.current)
-          break
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = overflow
-      opener?.focus()
-    }
-  }, [])
-
   if (!image) return null
 
   const isMulti = total > 1
   const isLoading = loadedId !== image.id
 
   return createPortal(
-    <div
+    <dialog
       ref={dialogRef}
       className={styles.lightbox}
-      role='dialog'
-      aria-modal='true'
       aria-labelledby={titleId}
+      // clicking the image focuses the dialog, so ←/→ still land here
+      tabIndex={-1}
       data-backdrop
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowRight') step(1)
+        if (e.key === 'ArrowLeft') step(-1)
+      }}
       onClick={(e) => {
         if ((e.target as HTMLElement).hasAttribute('data-backdrop')) {
           onClose()
@@ -152,6 +122,7 @@ export function ImageLightbox({
           style={{ aspectRatio: image.aspect }}
           className={isLoading ? styles.loading : undefined}
           onLoad={() => setLoadedId(image.id)}
+          onError={() => setLoadedId(image.id)}
         />
 
         {isLoading && <Spinner label='Loading image' isCentered />}
@@ -174,7 +145,7 @@ export function ImageLightbox({
         <span className={styles.caption}>{image.caption}</span>
         {isPressImage(image) && <DownloadImageLink image={image} />}
       </div>
-    </div>,
+    </dialog>,
     document.body
   )
 }
@@ -192,32 +163,10 @@ export function DownloadImageLink({ image }: { image: Image }) {
       download
       target='_blank'
       rel='noopener noreferrer'
-      className={styles.download}
+      className='button'
     >
-      Download high-res ↓
+      Download high-res
+      <ArrowDownTrayIcon aria-hidden='true' />
     </a>
   )
-}
-
-function trapFocus(
-  event: KeyboardEvent,
-  container: HTMLElement | null
-) {
-  if (!container) return
-  const focusable =
-    container.querySelectorAll<HTMLElement>('button, [href]')
-  const first = focusable[0]
-  const last = focusable[focusable.length - 1]
-  if (!first) return
-
-  if (event.shiftKey && document.activeElement === first) {
-    event.preventDefault()
-    last.focus()
-  } else if (!event.shiftKey && document.activeElement === last) {
-    event.preventDefault()
-    first.focus()
-  } else if (!container.contains(document.activeElement)) {
-    event.preventDefault()
-    first.focus()
-  }
 }

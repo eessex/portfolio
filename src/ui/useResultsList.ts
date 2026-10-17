@@ -275,7 +275,7 @@ export function useResultsList<
           setNextCursor(data.nextCursor)
           setCount(data.totalCount)
         }
-        if (options.isAnimated) withViewTransition(apply)
+        if (options.isAnimated) await withViewTransition(apply)
         else apply()
         if (options.replace) {
           hasLoadedInitialRef.current = true

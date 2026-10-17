@@ -3,6 +3,7 @@ import '@testing-library/jest-dom'
 import fetchMock from 'jest-fetch-mock'
 
 import { installAbortControllerMock } from '@/test/__mocks__/browser/abortController'
+import { installDialogMock } from '@/test/__mocks__/browser/dialog'
 import { installIntersectionObserverMock } from '@/test/__mocks__/browser/intersectionObserver'
 
 fetchMock.enableMocks()
@@ -21,6 +22,7 @@ jest.mock('@/auth', () => ({
 }))
 
 installAbortControllerMock()
+installDialogMock()
 installIntersectionObserverMock()
 
 Object.defineProperty(Element.prototype, 'scrollIntoView', {

@@ -103,7 +103,9 @@ export async function editRelease(
         await syncReleasePublishedEditions(saved.id, editions)
       } catch (err) {
         if (id) {
-          // the release row itself was saved
+          // the release row itself was saved, dated by editions the
+          // failed sync may have rolled back
+          await resetReleaseDate(id).catch(() => {})
           invalidateReleaseTags(id)
         } else {
           // else resubmitting creates a duplicate release
@@ -132,6 +134,21 @@ async function resolveArtist(
     SELECT title FROM projects WHERE id = ${id.data}
   `
   return rows[0]?.title?.trim() || undefined
+}
+
+/** Re-derives a release's date from the editions it has now. */
+async function resetReleaseDate(id: string) {
+  await sql`
+    UPDATE releases
+    SET release_date = COALESCE(
+      (
+        SELECT MIN(publish_date) FROM published_editions
+        WHERE release_id = ${id}
+      ),
+      release_date
+    )
+    WHERE id = ${id}
+  `
 }
 
 function publishedEditionsError(editions: IndexedGroupEntry[]) {

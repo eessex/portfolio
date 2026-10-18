@@ -240,6 +240,28 @@ describe('EditReleaseForm', () => {
       expect(projectIdValue(container)).toBe(projectFixtureBand.id)
     })
 
+    it('submits an empty project id once the project is removed', async () => {
+      mockEditRelease.mockResolvedValue({
+        ok: false,
+        message: 'Failed to save release.'
+      })
+      renderComponent({ release: releaseWithEdition })
+
+      fireEvent.click(
+        screen.getByRole('button', { name: /remove project/i })
+      )
+      fireEvent.change(screen.getByLabelText(artistRegex), {
+        target: { value: 'Joe Smith & Friends' }
+      })
+      fireEvent.click(
+        screen.getByRole('button', { name: saveButtonText })
+      )
+
+      await waitFor(() => expect(mockEditRelease).toHaveBeenCalled())
+      const formData = mockEditRelease.mock.calls[0]?.[0]
+      expect(formData?.get('projectId')).toBe('')
+    })
+
     it('marks the project picker required', () => {
       renderComponent()
 

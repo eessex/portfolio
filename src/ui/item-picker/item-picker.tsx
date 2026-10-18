@@ -27,7 +27,10 @@ import { Combobox } from '@/ui/combobox/combobox'
 import { SortableList } from '@/ui/drag-and-drop/sortable-list'
 import { InputLabel } from '@/ui/form/input-label'
 import { DraftChip } from '@/ui/item-picker/draft-chip'
-import { DraftFieldset } from '@/ui/item-picker/draft-fieldset'
+import {
+  DraftFieldset,
+  useMarkEntryTouched
+} from '@/ui/item-picker/draft-fieldset'
 import { ExistingEntryRow } from '@/ui/item-picker/existing-entry-row'
 import itemPickerStyles from '@/ui/item-picker/item-picker.module.scss'
 import {
@@ -404,6 +407,18 @@ export function ItemPicker<
     prevSelectedId.current = selectedItem?.id
     onSelectionChange(selectedItem)
   }, [selectedItem])
+
+  // nested in another picker's entry: any change here edits that entry
+  const markOuterEntryTouched = useMarkEntryTouched()
+  const onEntriesChange = useEffectEvent(() =>
+    markOuterEntryTouched?.()
+  )
+  const prevEntries = useRef(entries)
+  useEffect(() => {
+    if (entries === prevEntries.current) return
+    prevEntries.current = entries
+    onEntriesChange()
+  }, [entries])
 
   // saveDraft reads the fieldset, so it waits for the draft's commit
   useEffect(() => {

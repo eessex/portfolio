@@ -208,6 +208,11 @@ describe('Project Actions', () => {
         projectFixtureAlpha.id
       )
       expect(updateTag).toHaveBeenCalledWith('projects')
+      // release/event detail caches depend on it (embedded project,
+      // fallback artist)
+      expect(updateTag).toHaveBeenCalledWith(
+        `project:${projectFixtureAlpha.id}`
+      )
 
       // second sql call is the UPDATE, scoped to the given id
       expect(mockSql).toHaveBeenCalledTimes(2)

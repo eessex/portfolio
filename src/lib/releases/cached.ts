@@ -33,5 +33,8 @@ export async function fetchCachedReleaseById(
   cacheTag(`releases:${isAuthed ? 'authed' : 'public'}`)
   cacheTag(`release:${id}`)
 
-  return fetchReleaseById(id, isAuthed)
+  const release = await fetchReleaseById(id, isAuthed)
+  // embeds its project (and its name as a fallback artist)
+  if (release?.projectId) cacheTag(`project:${release.projectId}`)
+  return release
 }

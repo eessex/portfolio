@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import { createContext, useContext } from 'react'
 
 import type { EmbeddedItem, PageItemClient } from '@/lib/types'
 import type { ItemPickerProps } from '@/ui/item-picker/item-picker'
@@ -6,6 +7,19 @@ import itemPickerStyles from '@/ui/item-picker/item-picker.module.scss'
 import type { Draft } from '@/ui/item-picker/item-picker-entry'
 import { NamePrefixProvider } from '@/ui/item-picker/name-prefix'
 import type { FieldErrors } from '@/ui/item-picker/use-entry-validation'
+
+/**
+ * Marks the enclosing draft touched. A nested picker's selection
+ * changes only state and hidden inputs, which never fire the
+ * fieldset's `onChange`. Undefined outside a draft, or once touched.
+ */
+const MarkEntryTouchedContext = createContext<
+  (() => void) | undefined
+>(undefined)
+
+export function useMarkEntryTouched() {
+  return useContext(MarkEntryTouchedContext)
+}
 
 type DraftFieldsetProps<
   TEmbeddedItem extends EmbeddedItem,
@@ -100,17 +114,21 @@ export function DraftFieldset<
           readOnly
         />
       )}
-      <NamePrefixProvider prefix={fieldPrefix}>
-        {renderEditItemForm?.({
-          query: entry.kind === 'new' ? entry.query : undefined,
-          errors,
-          isRequired,
-          onReadyChange,
-          existingItem:
-            entry.kind === 'editing' ? entry.item : undefined,
-          onBusyChange
-        })}
-      </NamePrefixProvider>
+      <MarkEntryTouchedContext.Provider
+        value={entry.isTouched ? undefined : onTouched}
+      >
+        <NamePrefixProvider prefix={fieldPrefix}>
+          {renderEditItemForm?.({
+            query: entry.kind === 'new' ? entry.query : undefined,
+            errors,
+            isRequired,
+            onReadyChange,
+            existingItem:
+              entry.kind === 'editing' ? entry.item : undefined,
+            onBusyChange
+          })}
+        </NamePrefixProvider>
+      </MarkEntryTouchedContext.Provider>
       <div
         className={clsx(
           itemPickerStyles['create-form-actions'],

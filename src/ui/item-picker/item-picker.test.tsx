@@ -422,6 +422,50 @@ describe('ItemPicker', () => {
           container.querySelector('input[name="editions[0].venueId"]')
         ).toHaveValue(venueFixtureAlpha.id)
       })
+
+      it('keeps an edit that only changes a nested selection', async () => {
+        const user = userEvent.setup()
+        const { container } = renderComponent({
+          itemType: 'publishedEditions',
+          isMulti: true,
+          isSearchHidden: true,
+          name: 'editions',
+          existingItems: [venueFixtureAlpha, venueFixtureBeta],
+          renderEditItemForm: () => (
+            <ItemPicker<Venue>
+              {...defaultProps}
+              itemType='publishers'
+              isSearchFirst
+              existingItem={venueFixtureAlpha}
+              initialResults={{
+                res: [venueFixtureBeta],
+                nextCursor: null,
+                totalCount: 1
+              }}
+            />
+          )
+        })
+
+        await user.click(
+          screen.getAllByRole('button', { name: 'Edit' })[0]
+        )
+        await user.click(
+          screen.getByRole('button', { name: /remove publisher/i })
+        )
+        // no typing: that alone fires the outer fieldset's onChange
+        await user.click(screen.getByRole('combobox'))
+        await user.click(
+          screen.getByRole('option', { name: /new york/i })
+        )
+        // opening the other entry closes this one
+        await user.click(
+          screen.getAllByRole('button', { name: 'Edit' }).at(-1)!
+        )
+
+        expect(
+          container.querySelector('input[name="editions[0].venueId"]')
+        ).toHaveValue(venueFixtureBeta.id)
+      })
     })
 
     describe('initial render', () => {

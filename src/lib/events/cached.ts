@@ -42,5 +42,8 @@ export async function fetchCachedEventById(
   cacheTag(`events:${isAuthed ? 'authed' : 'public'}`)
   cacheTag(`event:${id}`)
 
-  return fetchEventById(id, isAuthed)
+  const event = await fetchEventById(id, isAuthed)
+  // embeds its project
+  if (event?.projectId) cacheTag(`project:${event.projectId}`)
+  return event
 }

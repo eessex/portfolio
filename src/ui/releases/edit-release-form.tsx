@@ -50,19 +50,17 @@ function ReleaseFormFields({ release }: EditReleaseFormProps) {
     !!release?.isPublished
   )
   const initialProject = release?.project as ProjectClient | undefined
-  const [projectTitle, setProjectTitle] = useState(
-    initialProject?.title
-  )
+  const [project, setProject] = useState(initialProject)
   const [artist, setArtist] = useState(
     release?.artist || initialProject?.title || ''
   )
 
-  function handleProjectChange(project?: ProjectClient) {
+  function handleProjectChange(next?: ProjectClient) {
     // only replace a blank or auto-filled name, never a typed one
-    if (!artist.trim() || artist === projectTitle) {
-      setArtist(project?.title ?? '')
+    if (!artist.trim() || artist === project?.title) {
+      setArtist(next?.title ?? '')
     }
-    setProjectTitle(project?.title)
+    setProject(next)
   }
 
   return (
@@ -86,6 +84,8 @@ function ReleaseFormFields({ release }: EditReleaseFormProps) {
         onSelectionChange={handleProjectChange}
         isRequired
       />
+      {/* an omitted id keeps the stored project; '' clears it */}
+      {!project && <input type='hidden' name='projectId' value='' />}
       <Input
         attributes={{
           maxLength: MAX_STRING_LENGTH_SHORT,

@@ -453,6 +453,56 @@ describe('Release Actions', () => {
         )
       })
 
+      it("re-derives an updated release's date when its editions fail to save", async () => {
+        mockSql.mockResolvedValue([releaseFixtureAlpha])
+        mockSyncEditions.mockRejectedValueOnce(new Error('db down'))
+
+        await editRelease(
+          releaseFormData({
+            'publishedEditions[0].format': 'LP',
+            'publishedEditions[0].publishDate': '2019-06-15',
+            'publishedEditions[0].publisher.name': 'Soap Library'
+          }),
+          releaseFixtureAlpha.id
+        )
+
+        const lastCall = mockSql.mock.calls.at(-1)
+        const text = (lastCall?.[0] as unknown as string[]).join('')
+        expect(text).toMatch(/UPDATE releases\s+SET release_date/)
+        expect(text).toMatch(/MIN\(publish_date\)/)
+        expect(lastCall?.slice(1)).toEqual([
+          releaseFixtureAlpha.id,
+          releaseFixtureAlpha.id
+        ])
+      })
+
+      it('returns the sync error even if re-dating the release fails', async () => {
+        mockSyncEditions.mockRejectedValueOnce(new Error('db down'))
+        mockSql.mockImplementation(((
+          strings: TemplateStringsArray
+        ) =>
+          strings.join('').includes('MIN(publish_date)')
+            ? Promise.reject(new Error('still down'))
+            : Promise.resolve([
+                releaseFixtureAlpha
+              ])) as unknown as typeof mockSql)
+
+        const res = await editRelease(
+          releaseFormData({
+            'publishedEditions[0].format': 'LP',
+            'publishedEditions[0].publishDate': '2019-06-15',
+            'publishedEditions[0].publisher.name': 'Soap Library'
+          }),
+          releaseFixtureAlpha.id
+        )
+
+        expect(res).toMatchObject({ ok: false })
+        expect(JSON.stringify(res)).not.toMatch(/still down/)
+        expect(updateTag).toHaveBeenCalledWith(
+          `release:${releaseFixtureAlpha.id}`
+        )
+      })
+
       it('leaves editions alone when the picker is not submitted', async () => {
         mockSql.mockResolvedValueOnce([releaseFixtureAlpha])
 

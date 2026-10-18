@@ -5,7 +5,17 @@ jest.mock('@/lib/db', () => ({
 }))
 
 import { sql } from '@/lib/db'
+import {
+  embedCodeContentTypes,
+  embedCodeHosts,
+  embedCodeTypes
+} from '@/lib/embed-codes/schemas/db'
+import { imageTypes } from '@/lib/images/schemas/db'
+import { linkTypes } from '@/lib/links/schemas/db'
 import { projectTypes } from '@/lib/projects/schemas'
+import { publishedEditionTypes } from '@/lib/published-editions/schemas/db'
+import { publisherTypes } from '@/lib/publishers/schemas/db'
+import { releaseTypes } from '@/lib/releases/schemas'
 import { pagePaths } from '@/lib/schemas'
 import { createTables } from '@/seed/createTables'
 
@@ -26,20 +36,60 @@ describe('createTables', () => {
     await createTables()
   })
 
-  it('no longer creates the projects type CHECK inline', () => {
-    const { text } = findQuery('CREATE TABLE IF NOT EXISTS projects')
-    expect(text).not.toContain('type IN')
+  it.each([
+    ['projects', 'type', projectTypes],
+    ['images', 'type', imageTypes],
+    ['embed_codes', 'type', embedCodeTypes],
+    ['embed_codes', 'host', embedCodeHosts],
+    ['embed_codes', 'content_type', embedCodeContentTypes],
+    ['links', 'type', linkTypes],
+    ['publishers', 'type', publisherTypes],
+    ['releases', 'type', releaseTypes],
+    ['published_editions', 'format', publishedEditionTypes]
+  ])(
+    'rebuilds the %s.%s CHECK from its constant',
+    (table, column, values) => {
+      const call = mockSql.mock.calls.find(
+        ([strings, ...params]) =>
+          (strings as unknown as string[])
+            .join('?')
+            .includes('ADD CONSTRAINT') &&
+          params.some(
+            (p) =>
+              (p as { raw?: string }).raw === `chk_${table}_${column}`
+          )
+      )
+      expect(call).toBeDefined()
+      const [strings, ...params] = call!
+      expect((strings as unknown as string[]).join('?')).toContain(
+        'DROP CONSTRAINT %I'
+      )
+      expect(params).toContainEqual({
+        raw: values.map((v) => `'${v}'`).join(', ')
+      })
+    }
+  )
+
+  it('leaves value lists out of CREATE TABLE', () => {
+    const creates = mockSql.mock.calls
+      .map(([strings]) => (strings as unknown as string[]).join('?'))
+      .filter((text) => text.includes('CREATE TABLE'))
+    for (const text of creates) expect(text).not.toMatch(/\bIN \(/)
   })
 
-  it('rebuilds the projects type CHECK from projectTypes', () => {
-    const { text, values } = findQuery('chk_projects_type')
+  it('marks the edition JSON builder STABLE, since it reads other tables', () => {
+    expect(
+      findQuery('FUNCTION build_published_edition_json').text
+    ).toContain('LANGUAGE plpgsql STABLE')
+  })
 
-    expect(text).toContain("a.attname = 'type'")
-    expect(text).toContain('DROP CONSTRAINT')
-    expect(values).toEqual([
-      { raw: projectTypes.map((type) => `'${type}'`).join(', ') }
-    ])
-    expect(projectTypes).toContain('solo')
+  it('requires an event venue to exist and its slug to be unique', () => {
+    expect(
+      findQuery('CREATE TABLE IF NOT EXISTS events').text
+    ).toContain('FOREIGN KEY (venue_id) REFERENCES venues(id)')
+    expect(
+      findQuery('CREATE UNIQUE INDEX IF NOT EXISTS idx_events_slug')
+    ).toBeDefined()
   })
 
   it('upserts slug history so a slug can be given up twice', () => {
@@ -70,104 +120,24 @@ describe('createTables', () => {
     }
   })
 
-  it('no longer creates featured_embed_code_id on projects or events', () => {
-    for (const table of ['projects', 'events']) {
-      const { text } = findQuery(
-        `CREATE TABLE IF NOT EXISTS ${table}`
-      )
-      expect(text).not.toContain('featured_embed_code_id')
-    }
-  })
-
-  it('moves featured embed codes to the front, then drops the column', () => {
-    const calls = mockSql.mock.calls.filter(([strings]) =>
-      (strings as unknown as string[])
-        .join('?')
-        .includes('DROP COLUMN featured_embed_code_id')
-    )
-    expect(calls.map(([, ...values]) => values)).toEqual(
-      ['projects', 'events'].map((table) =>
-        Array(3).fill({ raw: table })
-      )
-    )
-    const text = (calls[0][0] as unknown as string[]).join('?')
-    expect(text).toContain("column_name = 'featured_embed_code_id'")
-    expect(text).toContain('array_prepend(')
-    expect(text.indexOf('array_prepend(')).toBeLessThan(
-      text.indexOf('DROP COLUMN')
-    )
-  })
-
-  it.each(['images', 'links'])(
-    'drops is_hidden_on_about_page from %s',
-    (table) => {
-      expect(
-        findQuery(
-          `ALTER TABLE ${table} DROP COLUMN IF EXISTS is_hidden_on_about_page`
-        )
-      ).toBeDefined()
-      expect(
-        findQuery(`CREATE TABLE IF NOT EXISTS ${table}`).text
-      ).not.toContain('is_hidden_on_about_page')
-    }
-  )
-
-  it('drops published_editions.project_id: editions use their release', () => {
-    const { text } = findQuery(
-      'CREATE TABLE IF NOT EXISTS published_editions'
-    )
-    expect(text).not.toContain('project_id')
-    expect(
-      findQuery('ALTER TABLE published_editions DROP COLUMN').text
-    ).toContain('DROP COLUMN IF EXISTS project_id')
-    expect(
-      findQuery('FUNCTION build_published_edition_json').text
-    ).not.toContain('project_id')
-  })
-
-  it('makes publishers.type optional', () => {
-    const { text } = findQuery(
-      'CREATE TABLE IF NOT EXISTS publishers'
-    )
-    expect(text).not.toContain('type VARCHAR(30) NOT NULL')
-    expect(
-      findQuery('ALTER TABLE publishers ALTER COLUMN type').text
-    ).toContain('DROP NOT NULL')
-  })
-
   describe('built-in Self-released publisher', () => {
     it('flags at most one publisher as built in', () => {
       expect(
-        findQuery('ADD COLUMN IF NOT EXISTS is_built_in').text
-      ).toContain('NOT NULL DEFAULT false')
+        findQuery('CREATE TABLE IF NOT EXISTS publishers').text
+      ).toContain('is_built_in BOOLEAN NOT NULL DEFAULT false')
       expect(
         findQuery('idx_publishers_single_built_in').text
       ).toContain('WHERE is_built_in')
     })
 
-    it('adopts an existing Self-released row before creating one', () => {
-      const adopt = findQuery('SET is_built_in = true')
+    it('creates the Self-released record label unless one exists', () => {
       const create = findQuery(
-        'INSERT INTO publishers (name, is_built_in)'
+        'INSERT INTO publishers (name, type, is_built_in)'
       )
 
-      expect(adopt.values).toEqual(['Self-released', 'Self-released'])
-      expect(adopt.text).toContain('LIMIT 1')
-      expect(create.values).toEqual(['Self-released'])
-      for (const { text } of [adopt, create]) {
-        expect(text).toContain(
-          'NOT EXISTS (SELECT 1 FROM publishers WHERE is_built_in)'
-        )
-      }
-      const texts = mockSql.mock.calls.map(([strings]) =>
-        (strings as unknown as string[]).join('?')
-      )
-      expect(
-        texts.findIndex((t) => t.includes('SET is_built_in = true'))
-      ).toBeLessThan(
-        texts.findIndex((t) =>
-          t.includes('INSERT INTO publishers (name, is_built_in)')
-        )
+      expect(create.values).toEqual(['Self-released', 'recordLabel'])
+      expect(create.text).toContain(
+        'NOT EXISTS (SELECT 1 FROM publishers WHERE is_built_in)'
       )
     })
 

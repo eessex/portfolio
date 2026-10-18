@@ -4,7 +4,6 @@ import { imageSchema } from '@/lib/images/schemas/db'
 import { linkSchema } from '@/lib/links/schemas/db'
 import { publishedEditionSchema } from '@/lib/published-editions/schemas/db'
 import { publisherSchema } from '@/lib/publishers/schemas/db'
-import { shortText } from '@/lib/schemas/primitives'
 
 /**
  * Extends `publishedEditionSchema` with the related items hydrated
@@ -15,8 +14,7 @@ export const publishedEditionClientSchema =
     buyLink: linkSchema.optional(),
     coverImage: imageSchema.optional(),
     images: imageSchema.array().optional(),
-    publisher: publisherSchema.optional(),
-    publisherName: shortText.optional()
+    publisher: publisherSchema.optional()
   })
 export type PublishedEditionClient = z.infer<
   typeof publishedEditionClientSchema

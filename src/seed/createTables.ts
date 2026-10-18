@@ -1,8 +1,21 @@
 // Deliberately NOT a server action ('use server' would expose schema
 // creation as a public endpoint). Only run from scripts/setup.ts.
 import { sql } from '@/lib/db'
+import {
+  embedCodeContentTypes,
+  embedCodeHosts,
+  embedCodeTypes
+} from '@/lib/embed-codes/schemas/db'
+import { imageTypes } from '@/lib/images/schemas/db'
+import { linkTypes } from '@/lib/links/schemas/db'
 import { projectTypes } from '@/lib/projects/schemas'
-import { SELF_RELEASED_PUBLISHER_NAME } from '@/lib/publishers/schemas/db'
+import { publishedEditionTypes } from '@/lib/published-editions/schemas/db'
+import {
+  PublisherTypes,
+  publisherTypes,
+  SELF_RELEASED_PUBLISHER_NAME
+} from '@/lib/publishers/schemas/db'
+import { releaseTypes } from '@/lib/releases/schemas'
 import { pagePaths } from '@/lib/schemas'
 
 /**
@@ -35,87 +48,15 @@ async function createProjectsTable() {
       start_date DATE,
       end_date DATE,
       type VARCHAR(30),
+      -- the project rendered at /about; at most one (partial index below)
+      is_default_project BOOLEAN NOT NULL DEFAULT false,
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')
     );
   `
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_projects_slug ON projects(slug);`
-  // Additive per-project contacts (CONTACT‑1). ADD COLUMN IF NOT EXISTS
-  // is idempotent, so this is safe to re-run against an existing table.
-  await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS contact_info JSONB[];`
-  // The project rendered at /about. The partial unique index allows at
-  // most one row with is_default_project = true.
-  await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_default_project BOOLEAN NOT NULL DEFAULT false;`
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_projects_single_default ON projects (is_default_project) WHERE is_default_project;`
-  await syncProjectTypeConstraint()
-  await dropFeaturedEmbedCode('projects')
-}
-
-/**
- * Drops `featured_embed_code_id`, first moving each featured embed
- * code to the front of `embed_code_ids` (de-duplicated) so it stays
- * first on its page. Guarded on the column existing, so a re-run is a
- * no-op; EXECUTE because the column may not exist at plan time.
- */
-async function dropFeaturedEmbedCode(table: 'projects' | 'events') {
-  // code constant, not user input, so safe to inline
-  const t = sql.unsafe(table)
-  await sql`
-    DO $$
-    BEGIN
-      IF EXISTS (
-        SELECT 1 FROM information_schema.columns
-        WHERE table_name = '${t}'
-          AND column_name = 'featured_embed_code_id'
-      ) THEN
-        EXECUTE 'UPDATE ${t}
-          SET embed_code_ids = array_prepend(
-            featured_embed_code_id,
-            array_remove(
-              COALESCE(embed_code_ids, ARRAY[]::UUID[]),
-              featured_embed_code_id
-            )
-          )
-          WHERE featured_embed_code_id IS NOT NULL';
-        EXECUTE 'ALTER TABLE ${t} DROP COLUMN featured_embed_code_id';
-      END IF;
-    END
-    $$;
-  `
-}
-
-/**
- * (Re)creates the `type` CHECK from `projectTypes`, so adding a type in
- * code reaches the DB on the next setup run. Drops every CHECK on the
- * `type` column first, including the unnamed one older tables got from
- * CREATE TABLE. One DO block, so it's atomic; re-validating the small
- * projects table on each run is cheap.
- */
-async function syncProjectTypeConstraint() {
-  // code constants, not user input, so safe to inline
-  const allowed = projectTypes.map((type) => `'${type}'`).join(', ')
-  await sql`
-    DO $$
-    DECLARE
-      c record;
-    BEGIN
-      FOR c IN
-        SELECT con.conname
-        FROM pg_constraint con
-        JOIN pg_attribute a
-          ON a.attrelid = con.conrelid AND a.attnum = ANY (con.conkey)
-        WHERE con.conrelid = 'projects'::regclass
-          AND con.contype = 'c'
-          AND a.attname = 'type'
-      LOOP
-        EXECUTE format('ALTER TABLE projects DROP CONSTRAINT %I', c.conname);
-      END LOOP;
-      ALTER TABLE projects ADD CONSTRAINT chk_projects_type
-      CHECK (type IN (${sql.unsafe(allowed)}) OR type IS NULL);
-    END
-    $$;
-  `
 }
 
 /**
@@ -137,7 +78,7 @@ async function createTagsTable() {
 
 /**
  * Creates the images table.
- * Must be created after projects and tags to set up foreign keys.
+ * Must be created after projects (foreign key).
  */
 async function createImagesTable() {
   await sql`
@@ -153,33 +94,15 @@ async function createImagesTable() {
       url VARCHAR(255) NOT NULL UNIQUE,
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CONSTRAINT fk_image_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
-      CHECK (type IN ('press', 'documentation', 'flyer', 'artwork') OR type IS NULL)
+      CONSTRAINT fk_image_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
     );
   `
-
-  await sql`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints
-        WHERE table_name = 'images' AND constraint_name = 'chk_images_type'
-      ) THEN
-        ALTER TABLE images ADD CONSTRAINT chk_images_type
-        CHECK (type IN ('press', 'documentation', 'flyer', 'artwork') OR type IS NULL);
-      END IF;
-    END
-    $$;
-  `
-
   await sql`CREATE INDEX IF NOT EXISTS idx_images_project_id ON images(project_id);`
-  // destructive: deploy code that stops writing it before running setup
-  await sql`ALTER TABLE images DROP COLUMN IF EXISTS is_hidden_on_about_page;`
 }
 
 /**
  * Creates the embed_codes table.
- * Must be created after projects and tags to set up foreign keys.
+ * Must be created after projects (foreign key).
  */
 async function createEmbedCodesTable() {
   await sql`
@@ -199,7 +122,9 @@ async function createEmbedCodesTable() {
         NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE
         DEFAULT CURRENT_TIMESTAMP
-        NOT NULL
+        NOT NULL,
+      CONSTRAINT fk_embed_code_project
+        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
     );
   `
 
@@ -207,105 +132,16 @@ async function createEmbedCodesTable() {
     CREATE UNIQUE INDEX IF NOT EXISTS embed_codes_src_type_unique
     ON embed_codes (src, type);
   `
-  await sql`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints
-        WHERE table_name = 'embed_codes'
-          AND constraint_name = 'fk_embed_code_project'
-      ) THEN
-        ALTER TABLE embed_codes
-        ADD CONSTRAINT fk_embed_code_project
-        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
-      END IF;
-    END
-    $$;
-  `
-
   await sql`CREATE INDEX IF NOT EXISTS idx_embed_codes_project_id ON embed_codes(project_id);`
   await sql`
     CREATE UNIQUE INDEX IF NOT EXISTS embed_codes_cover_image_id_unique
     ON embed_codes (cover_image_id);
   `
-
-  await sql`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints
-        WHERE table_name='embed_codes'
-          AND constraint_name='chk_embed_codes_type'
-      ) THEN
-        ALTER TABLE embed_codes
-        ADD CONSTRAINT chk_embed_codes_type
-        CHECK (type IN ('video', 'audio'));
-      END IF;
-    END
-    $$;
-  `
-
-  await sql`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints
-        WHERE table_name='embed_codes'
-          AND constraint_name='chk_embed_codes_host'
-      ) THEN
-        ALTER TABLE embed_codes
-        ADD CONSTRAINT chk_embed_codes_host
-        CHECK (
-          host IN (
-            'bandcamp',
-            'mixcloud',
-            'soundcloud',
-            'spotify',
-            'vimeo',
-            'youtube',
-            'unknown'
-          )
-        );
-      END IF;
-    END
-    $$;
-  `
-
-  await sql`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints
-        WHERE table_name='embed_codes'
-          AND constraint_name='chk_embed_codes_content_type'
-      ) THEN
-        ALTER TABLE embed_codes
-        ADD CONSTRAINT chk_embed_codes_content_type
-        CHECK (
-          content_type IN (
-            'dj_set',
-            'documentation',
-            'interview',
-            'film',
-            'live_performance',
-            'official_audio',
-            'official_music_video',
-            'other',
-            'podcast',
-            'radio_show',
-            'trailer'
-          )
-          OR content_type IS NULL
-        );
-      END IF;
-    END
-    $$;
-  `
 }
 
 /**
  * Creates the links table.
- * Must be created after projects and tags to set up foreign keys.
+ * Must be created after projects (foreign key).
  */
 async function createLinksTable() {
   await sql`
@@ -321,14 +157,11 @@ async function createLinksTable() {
       type VARCHAR(30),
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CONSTRAINT fk_link_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
-      CHECK (type IN ('press','social','buy_link','stream_link') OR type IS NULL)
+      CONSTRAINT fk_link_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
     );
   `
   await sql`CREATE INDEX IF NOT EXISTS idx_links_url ON links(url);`
   await sql`CREATE INDEX IF NOT EXISTS idx_links_project_id ON links(project_id);`
-  // destructive: deploy code that stops writing it before running setup
-  await sql`ALTER TABLE links DROP COLUMN IF EXISTS is_hidden_on_about_page;`
 }
 
 /**
@@ -428,44 +261,27 @@ async function createPublishersTable() {
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
       name VARCHAR(255) NOT NULL,
       url VARCHAR(255),
+      -- optional, so an inline publisher can be created from a name alone
       type VARCHAR(30),
+      is_built_in BOOLEAN NOT NULL DEFAULT false,
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CONSTRAINT chk_publishers_type
-        CHECK (type IN ('recordLabel', 'publishingHouse', 'museum'))
+      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
     );
   `
-  // optional, so an inline publisher can be created from a name alone
-  await sql`ALTER TABLE publishers ALTER COLUMN type DROP NOT NULL;`
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_publishers_name ON publishers(name);`
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_publishers_single_built_in ON publishers (is_built_in) WHERE is_built_in;`
   await seedBuiltInPublisher()
 }
 
 /**
  * The built-in "Self-released" publisher, listed first in every
- * publisher search and protected from edits/deletes. Flagged rather
- * than matched by name: an existing row of that name is adopted (its
- * editions keep pointing at it), else one is created. A partial unique
+ * publisher search and protected from edits/deletes. A partial unique
  * index allows at most one built-in row.
  */
 async function seedBuiltInPublisher() {
-  await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS is_built_in BOOLEAN NOT NULL DEFAULT false;`
-  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_publishers_single_built_in ON publishers (is_built_in) WHERE is_built_in;`
   await sql`
-    UPDATE publishers
-    SET is_built_in = true
-    WHERE id = (
-      -- names are unique only case-sensitively; adopt one row
-      SELECT id FROM publishers
-      WHERE lower(name) = lower(${SELF_RELEASED_PUBLISHER_NAME})
-      ORDER BY name = ${SELF_RELEASED_PUBLISHER_NAME} DESC, created_at
-      LIMIT 1
-    )
-      AND NOT EXISTS (SELECT 1 FROM publishers WHERE is_built_in)
-  `
-  await sql`
-    INSERT INTO publishers (name, is_built_in)
-    SELECT ${SELF_RELEASED_PUBLISHER_NAME}, true
+    INSERT INTO publishers (name, type, is_built_in)
+    SELECT ${SELF_RELEASED_PUBLISHER_NAME}, ${PublisherTypes.recordLabel}, true
     WHERE NOT EXISTS (SELECT 1 FROM publishers WHERE is_built_in)
   `
 }
@@ -487,28 +303,12 @@ async function createVenuesTable() {
       timezone TEXT NOT NULL DEFAULT 'America/New_York', -- IANA timezone, e.g. 'America/New_York'
       primary_venue_id UUID,
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      CONSTRAINT fk_primary_venue FOREIGN KEY (primary_venue_id)
+        REFERENCES venues(id) ON DELETE SET NULL
     );
   `
 
-  // Add the self-referential foreign key separately
-  await sql`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints
-        WHERE table_name='venues' AND constraint_name='fk_primary_venue'
-      ) THEN
-        ALTER TABLE venues
-        ADD CONSTRAINT fk_primary_venue FOREIGN KEY (primary_venue_id)
-        REFERENCES venues(id)
-        ON DELETE SET NULL;
-      END IF;
-    END
-    $$;
-  `
-
-  // Indexes
   await sql`CREATE INDEX IF NOT EXISTS idx_venues_name ON venues(name);`
   await sql`CREATE INDEX IF NOT EXISTS idx_venues_url ON venues(url);`
   await sql`CREATE INDEX IF NOT EXISTS idx_venues_primary ON venues(primary_venue_id);`
@@ -517,7 +317,7 @@ async function createVenuesTable() {
 
 /**
  * Creates the releases table.
- * Must be created after projects and tags.
+ * Must be created after projects (foreign key).
  */
 async function createReleasesTable() {
   await sql`
@@ -540,7 +340,6 @@ async function createReleasesTable() {
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       CONSTRAINT fk_release_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
-      CHECK (type IN ('album','ep','soundtrack','feature','compilation','collaborative_release','single') OR type IS NULL),
       CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')
     );
   `
@@ -570,24 +369,8 @@ async function createPublishedEditionTable() {
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       CONSTRAINT fk_published_release FOREIGN KEY (release_id) REFERENCES releases(id) ON DELETE CASCADE,
-      CHECK (format IN ('LP','2xLP','Cassette','2xCassette','Digital','iOSApp','CD'))
+      CONSTRAINT fk_published_edition_publisher FOREIGN KEY (publisher_id) REFERENCES publishers(id)
     );
-  `
-
-  await sql`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints
-        WHERE table_name='published_editions'
-          AND constraint_name='fk_published_edition_publisher'
-      ) THEN
-        ALTER TABLE published_editions
-        ADD CONSTRAINT fk_published_edition_publisher FOREIGN KEY (publisher_id)
-        REFERENCES publishers(id);
-      END IF;
-    END
-    $$;
   `
   await sql`CREATE INDEX IF NOT EXISTS idx_published_editions_publisher ON published_editions(publisher_id);`
   // an edition's project is its release's; also drops its FK + index
@@ -596,7 +379,7 @@ async function createPublishedEditionTable() {
 
 /**
  * Creates the events table.
- * Must be created after projects, venues, tags, images, embed_codes, links.
+ * Must be created after projects and venues (foreign keys).
  */
 async function createEventsTable() {
   await sql`
@@ -624,15 +407,87 @@ async function createEventsTable() {
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       CONSTRAINT fk_event_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
+      CONSTRAINT fk_event_venue FOREIGN KEY (venue_id) REFERENCES venues(id),
       CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')
     );
   `
-
-  // Indexes
-  await sql`CREATE INDEX IF NOT EXISTS idx_events_slug ON events(slug);`
+  // one-time: prod's events predate these two; delete once run
+  await sql`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'fk_event_venue'
+      ) THEN
+        ALTER TABLE events ADD CONSTRAINT fk_event_venue
+        FOREIGN KEY (venue_id) REFERENCES venues(id);
+      END IF;
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_indexes
+        WHERE indexname = 'idx_events_slug' AND indexdef LIKE 'CREATE UNIQUE%'
+      ) THEN
+        DROP INDEX IF EXISTS idx_events_slug;
+      END IF;
+    END
+    $$;
+  `
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_events_slug ON events(slug);`
   await sql`CREATE INDEX IF NOT EXISTS idx_events_venue ON events(venue_id);`
   await sql`CREATE INDEX IF NOT EXISTS idx_events_project_id ON events(project_id);`
-  await dropFeaturedEmbedCode('events')
+}
+
+/** Columns limited to a code constant's values. */
+const checkedColumns: [
+  table: string,
+  column: string,
+  values: readonly string[]
+][] = [
+  ['projects', 'type', projectTypes],
+  ['images', 'type', imageTypes],
+  ['embed_codes', 'type', embedCodeTypes],
+  ['embed_codes', 'host', embedCodeHosts],
+  ['embed_codes', 'content_type', embedCodeContentTypes],
+  ['links', 'type', linkTypes],
+  ['publishers', 'type', publisherTypes],
+  ['releases', 'type', releaseTypes],
+  ['published_editions', 'format', publishedEditionTypes]
+]
+
+/**
+ * (Re)creates each checked column's CHECK from its constant, so adding
+ * a value in code reaches the DB on the next setup run. Drops every
+ * CHECK on the column first, whatever it's named (older tables' are
+ * unnamed or duplicated). One DO block per column, so it's atomic.
+ * NULL passes a CHECK, so nullability is left to the column.
+ */
+async function syncCheckConstraints() {
+  for (const [table, column, values] of checkedColumns) {
+    // code constants, not user input, so safe to inline
+    const t = sql.unsafe(table)
+    const c = sql.unsafe(column)
+    const name = sql.unsafe(`chk_${table}_${column}`)
+    const allowed = sql.unsafe(values.map((v) => `'${v}'`).join(', '))
+    await sql`
+      DO $$
+      DECLARE
+        con record;
+      BEGIN
+        FOR con IN
+          SELECT pc.conname
+          FROM pg_constraint pc
+          JOIN pg_attribute a
+            ON a.attrelid = pc.conrelid AND a.attnum = ANY (pc.conkey)
+          WHERE pc.conrelid = '${t}'::regclass
+            AND pc.contype = 'c'
+            AND a.attname = '${c}'
+        LOOP
+          EXECUTE format('ALTER TABLE ${t} DROP CONSTRAINT %I', con.conname);
+        END LOOP;
+        ALTER TABLE ${t} ADD CONSTRAINT ${name} CHECK (${c} IN (${allowed}));
+      END
+      $$;
+    `
+  }
 }
 
 /**
@@ -691,8 +546,8 @@ async function setupSlugTriggers() {
 
 /**
  * Sets up JSONB builder functions for complex nested structures
- * Must be called after all relevant tables are created.
- * includes: dates, embed codes, images, links, venues, published editions
+ * (dates, embed codes, images, links, venues, publishers, published
+ * editions, projects). Must be called after all tables are created.
  */
 async function setupJsonbFunctions() {
   await sql`
@@ -752,7 +607,7 @@ async function setupJsonbFunctions() {
           'quotation', l.quotation,
           'title', l.title,
           'type', l.type
-        ) 
+        )
         || COALESCE(build_write_dates_json(l.created_at, l.updated_at), '{}'::jsonb)
       );
     END;
@@ -799,10 +654,6 @@ async function setupJsonbFunctions() {
           'releaseId', pe.release_id,
           'tagIds', pe.tag_ids,
           'publisherId', pe.publisher_id,
-          'publisherName', (
-            SELECT p.name FROM publishers p
-            WHERE p.id = pe.publisher_id
-          ),
           'publisher', (
             SELECT build_publisher_json(p)
             FROM publishers p
@@ -842,7 +693,8 @@ async function setupJsonbFunctions() {
         || COALESCE(build_write_dates_json(pe.created_at, pe.updated_at), '{}'::jsonb)
       );
     END;
-    $$ LANGUAGE plpgsql IMMUTABLE;
+    -- STABLE, not IMMUTABLE: it reads publishers, images and links
+    $$ LANGUAGE plpgsql STABLE;
   `
 
   await sql`
@@ -896,7 +748,10 @@ export async function createTables() {
   console.log('✅ All tables created successfully.')
 
   // post-creation setup
+  await syncCheckConstraints()
   await setupSlugTriggers()
   await setupJsonbFunctions()
-  console.log('✅ Triggers and JSONB functions set up successfully.')
+  console.log(
+    '✅ Check constraints, triggers and JSONB functions set up successfully.'
+  )
 }

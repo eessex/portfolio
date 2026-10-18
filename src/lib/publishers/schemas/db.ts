@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { systemFields } from '@/lib/schemas/fields'
 import { bool, shortText, url } from '@/lib/schemas/primitives'
 
-/** The built-in publisher `pnpm run setup` creates (or adopts). */
+/** The built-in publisher `pnpm run setup` creates. */
 export const SELF_RELEASED_PUBLISHER_NAME = 'Self-released'
 
 export const publisherTypes = [

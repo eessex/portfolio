@@ -70,6 +70,18 @@ export async function deleteVenue(venue: Venue) {
     itemType: 'venues',
     invalidate: invalidateVenueTags,
     del: async () => {
+      // the events FK would refuse it anyway, with a raw DB message
+      const rows = await sql`
+        SELECT COUNT(*)::int AS count FROM events
+        WHERE venue_id = ${venue.id}
+      `
+      const count = rows[0]?.count ?? 0
+      if (count > 0) {
+        return {
+          ok: false,
+          message: `This venue is used by ${count} ${count === 1 ? 'event' : 'events'}; move them to another venue first.`
+        }
+      }
       await sql`
         DELETE FROM venues
         WHERE id = ${venue.id}

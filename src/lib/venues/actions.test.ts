@@ -44,13 +44,28 @@ describe('Venue Actions', () => {
 
   describe('#deleteVenue', () => {
     it('can delete a venue', async () => {
-      mockSql.mockResolvedValueOnce([venueFixtureAlpha])
+      mockSql
+        .mockResolvedValueOnce([{ count: 0 }]) // events using it
+        .mockResolvedValueOnce([venueFixtureAlpha]) // DELETE
       const res = await deleteVenue(venueFixtureAlpha)
 
       expect(res).toEqual({ ok: true })
       expect(updateTag).toHaveBeenCalledWith('venues')
       // venues are embedded into cached event pages
       expect(updateTag).toHaveBeenCalledWith('events')
+    })
+
+    it('refuses a venue that events still use', async () => {
+      mockSql.mockResolvedValueOnce([{ count: 2 }])
+      const res = await deleteVenue(venueFixtureAlpha)
+
+      expect(res).toEqual({
+        ok: false,
+        message:
+          'This venue is used by 2 events; move them to another venue first.'
+      })
+      expect(mockSql).toHaveBeenCalledTimes(1)
+      expect(updateTag).not.toHaveBeenCalled()
     })
 
     it('can handle errors', async () => {

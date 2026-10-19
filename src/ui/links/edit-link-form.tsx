@@ -163,6 +163,7 @@ export const EditLink = ({
                 'aria-controls': pressControlsId,
                 'aria-expanded': type === 'press'
               }}
+              errors={errors?.type}
               label='Type'
               onChange={setType}
               options={

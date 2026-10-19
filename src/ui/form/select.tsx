@@ -8,6 +8,7 @@ export function Select({
   ariaControls,
   attributes,
   description,
+  errors,
   formatOptionLabel = (option) =>
     camelToSentence(snakeToCamel(option)),
   isLabelHidden,
@@ -20,17 +21,21 @@ export function Select({
   ariaControls?: string
   attributes?: React.SelectHTMLAttributes<HTMLSelectElement>
   description?: string
+  errors?: string[]
   formatOptionLabel?: (option: string) => string
   isLabelHidden?: boolean
   label: string
+  /** Optional: the select is uncontrolled (`value` is its default). */
   onChange?: (term: string | undefined) => void | undefined
   options: Array<string> | undefined
   placeholder?: string
   value?: string | undefined
 }) {
   const id = useId()
+  const errorId = useId()
+  const hasErrors = !!errors?.length
 
-  if (!options || options.length === 0 || !onChange) return null
+  if (!options || options.length === 0) return null
 
   return (
     <div
@@ -48,9 +53,11 @@ export function Select({
       <div className={styles['select']}>
         <select
           aria-controls={ariaControls}
+          aria-describedby={hasErrors ? errorId : undefined}
+          aria-invalid={hasErrors || undefined}
           defaultValue={value}
           id={id}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => onChange?.(e.target.value)}
           {...attributes}
         >
           {placeholder && <option value=''>{placeholder}</option>}
@@ -62,6 +69,15 @@ export function Select({
           ))}
         </select>
       </div>
+      {hasErrors && (
+        <p
+          id={errorId}
+          role='alert'
+          className={styles['error-message']}
+        >
+          {errors.join(', ')}.
+        </p>
+      )}
     </div>
   )
 }

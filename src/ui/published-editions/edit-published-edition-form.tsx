@@ -46,7 +46,7 @@ export const EditPublishedEdition = ({
       <div className={styles['input-group']}>
         <Select
           options={[...publishedEditionTypes]}
-          onChange={() => {}}
+          errors={errors?.format}
           formatOptionLabel={(option) => option}
           label='Format'
           placeholder='Select a format'

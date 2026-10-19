@@ -286,6 +286,7 @@ export const EditEmbedCode = ({
                 (v || EmbedCodeTypes.audio) as EmbedCode['type']
               )
             }
+            errors={errors?.type}
             label='Media type'
             placeholder='Select a media type'
             value={embedCodeIframe?.type}
@@ -307,6 +308,7 @@ export const EditEmbedCode = ({
                 (v || undefined) as EmbedCode['contentType']
               )
             }
+            errors={errors?.contentType}
             label='Content type'
             placeholder='Select a content type'
             value={contentType}

@@ -22,6 +22,7 @@ describe('fetchCachedEventById', () => {
 
     await fetchCachedEventById('event-1', false)
 
+    expect(cacheTag).toHaveBeenCalledWith('events')
     expect(cacheTag).toHaveBeenCalledWith('events:public')
     expect(cacheTag).toHaveBeenCalledWith('event:event-1')
     expect(cacheTag).toHaveBeenCalledWith('project:project-1')

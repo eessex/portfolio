@@ -39,6 +39,7 @@ export async function fetchCachedEventById(
   id: string,
   isAuthed: boolean = false
 ) {
+  cacheTag('events')
   cacheTag(`events:${isAuthed ? 'authed' : 'public'}`)
   cacheTag(`event:${id}`)
 

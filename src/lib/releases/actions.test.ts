@@ -93,7 +93,7 @@ describe('Release Actions', () => {
       expect(updateTag).toHaveBeenCalledWith(
         `release:${releaseFixtureAlpha.id}`
       )
-      expect(updateTag).toHaveBeenCalledWith('published-editions')
+      expect(updateTag).not.toHaveBeenCalledWith('published-editions')
     })
 
     it('invalidates other caches embedding inline-edited items', async () => {
@@ -103,8 +103,6 @@ describe('Release Actions', () => {
       for (const tag of [
         'projects',
         'events',
-        'events:authed',
-        'events:public',
         'settings'
       ]) {
         expect(updateTag).toHaveBeenCalledWith(tag)

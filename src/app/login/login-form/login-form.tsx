@@ -1,10 +1,18 @@
 'use client'
 
+import { useSearchParams } from 'next/navigation'
+
+import { safeRedirectPath } from '@/lib/auth/redirect'
 import { authenticate } from '@/lib/users/actions'
 import { Form } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
 
 export function LoginForm() {
+  // set by next-auth when it bounces a logged-out visitor to /login
+  const redirectTo = safeRedirectPath(
+    useSearchParams().get('callbackUrl')
+  )
+
   return (
     <Form
       action={authenticate}
@@ -28,7 +36,7 @@ export function LoginForm() {
           required: true
         }}
       />
-      <input type='hidden' name='redirectTo' value='/' />
+      <input type='hidden' name='redirectTo' value={redirectTo} />
     </Form>
   )
 }

@@ -6,8 +6,10 @@ import type { FormResponse } from '@/lib/types'
 import { authenticate } from '@/lib/users/actions'
 import { useToast } from '@/ui/toast/toast-context'
 
+let mockSearchParams = new URLSearchParams()
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({ push: jest.fn() })
+  useRouter: () => ({ push: jest.fn() }),
+  useSearchParams: () => mockSearchParams
 }))
 
 jest.mock('@/lib/users/actions', () => ({ authenticate: jest.fn() }))
@@ -34,7 +36,34 @@ function renderComponent() {
 }
 
 describe('LoginForm', () => {
-  beforeEach(() => jest.clearAllMocks())
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockSearchParams = new URLSearchParams()
+  })
+
+  describe('redirect target', () => {
+    it('returns to the page that bounced to login', () => {
+      mockSearchParams = new URLSearchParams({
+        callbackUrl: 'http://localhost:3000/events/new'
+      })
+      const { container } = renderComponent()
+
+      expect(
+        container.querySelector('input[name="redirectTo"]')
+      ).toHaveValue('/events/new')
+    })
+
+    it('never redirects offsite', () => {
+      mockSearchParams = new URLSearchParams({
+        callbackUrl: '//evil.example'
+      })
+      const { container } = renderComponent()
+
+      expect(
+        container.querySelector('input[name="redirectTo"]')
+      ).toHaveValue('/')
+    })
+  })
 
   describe('rendering', () => {
     it('renders email, password, and hidden redirect fields', () => {

@@ -4,6 +4,7 @@ import { unstable_rethrow } from 'next/navigation'
 
 import { signIn } from '@/auth'
 import { LOGIN_THROTTLED_CODE } from '@/lib/auth/rate-limit'
+import { safeRedirectPath } from '@/lib/auth/redirect'
 import type { FormResponse } from '@/lib/types'
 
 function signInErrorMessage(error: unknown): string | undefined {
@@ -30,6 +31,11 @@ function signInErrorMessage(error: unknown): string | undefined {
 export async function authenticate(
   formData: FormData
 ): Promise<FormResponse<Record<string, never>>> {
+  formData.set(
+    'redirectTo',
+    safeRedirectPath(formData.get('redirectTo')?.toString())
+  )
+
   try {
     await signIn('credentials', formData)
     return { ok: true }

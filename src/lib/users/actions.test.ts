@@ -33,6 +33,26 @@ describe('authenticate', () => {
     expect(mockSignIn).toHaveBeenCalledWith('credentials', formData)
   })
 
+  it('keeps a same-origin redirectTo', async () => {
+    const formData = formDataFromObject({
+      ...credentials,
+      redirectTo: '/events/new'
+    })
+    await authenticate(formData)
+
+    expect(formData.get('redirectTo')).toBe('/events/new')
+  })
+
+  it('reduces an offsite redirectTo to a same-origin path', async () => {
+    const formData = formDataFromObject({
+      ...credentials,
+      redirectTo: 'https://evil.example/steal'
+    })
+    await authenticate(formData)
+
+    expect(formData.get('redirectTo')).toBe('/steal')
+  })
+
   it('maps credential errors to a form response', async () => {
     mockSignIn.mockRejectedValueOnce(new FakeCredentialsSignin())
 

@@ -21,6 +21,7 @@ describe('fetchCachedReleaseById', () => {
 
     await fetchCachedReleaseById('release-1', false)
 
+    expect(cacheTag).toHaveBeenCalledWith('releases')
     expect(cacheTag).toHaveBeenCalledWith('releases:public')
     expect(cacheTag).toHaveBeenCalledWith('release:release-1')
     expect(cacheTag).toHaveBeenCalledWith('project:project-1')

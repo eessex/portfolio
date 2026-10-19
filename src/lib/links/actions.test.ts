@@ -35,6 +35,17 @@ describe('Link Actions', () => {
       expect(updateTag).toHaveBeenCalledWith('releases')
     })
 
+    it('deletes by id only, not other links sharing its url', async () => {
+      mockSql.mockResolvedValueOnce([])
+      await deleteLink(linkFixture)
+
+      const [strings, ...params] = mockSql.mock.calls[0]!
+      expect(params).toEqual([linkFixture.id])
+      expect((strings as TemplateStringsArray).join('')).not.toMatch(
+        /url/
+      )
+    })
+
     it('can handle errors', async () => {
       mockSql.mockRejectedValueOnce(new Error('DB error'))
       const res = await deleteLink(linkFixture)

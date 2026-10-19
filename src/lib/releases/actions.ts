@@ -199,16 +199,12 @@ function invalidateReleaseTags(id?: string) {
   updateTag('releases:public')
   updateTag(slugCacheTag('releases'))
   if (id) updateTag(`release:${id}`)
-  updateTag('published-editions')
   updateTag('publishers')
   updateTag('images')
   updateTag('links')
   updateTag('embed-codes')
   updateTag('projects')
   updateTag('events')
-  // event details carry only these, not `events`
-  updateTag('events:authed')
-  updateTag('events:public')
   updateTag('settings')
 }
 

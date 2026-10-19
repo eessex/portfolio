@@ -31,7 +31,6 @@ function invalidateImageTags() {
   updateTag('events')
   updateTag('projects')
   updateTag('settings')
-  updateTag('published-editions')
 }
 
 export async function editImage(formData: FormData, id?: string) {

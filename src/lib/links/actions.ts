@@ -40,7 +40,6 @@ function invalidateLinkTags() {
   updateTag('releases')
   updateTag('events')
   updateTag('projects')
-  updateTag('published-editions')
 }
 
 export async function deleteLink(link: Link) {
@@ -51,7 +50,6 @@ export async function deleteLink(link: Link) {
       await sql`
         DELETE FROM links
         WHERE id = ${link.id}
-          OR url = ${link.url}
       `
     }
   })

@@ -31,13 +31,13 @@ export async function editPublisher(formData: FormData, id?: string) {
 }
 
 /**
- * Publishers are embedded directly into published editions' cached
- * fetches via build_publisher_json, so saving/deleting one must
+ * Publishers are embedded into releases' cached fetches (via their
+ * published editions' build_publisher_json), so saving/deleting one must
  * invalidate that cache too, not just the publishers list.
  */
 function invalidatePublisherTags() {
   updateTag('publishers')
-  updateTag('published-editions')
+  updateTag('releases')
 }
 
 /**

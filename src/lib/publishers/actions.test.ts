@@ -52,8 +52,8 @@ describe('Publisher Actions', () => {
 
       expect(res).toEqual({ ok: true })
       expect(updateTag).toHaveBeenCalledWith('publishers')
-      // publishers are embedded into cached published edition fetches
-      expect(updateTag).toHaveBeenCalledWith('published-editions')
+      // publishers are embedded into cached release fetches
+      expect(updateTag).toHaveBeenCalledWith('releases')
     })
 
     it('can handle errors', async () => {
@@ -149,7 +149,7 @@ describe('Publisher Actions', () => {
       expect(res?.ok).toBe(true)
       expect((res?.res as Publisher)?.name).toEqual('Soap Library')
       expect(updateTag).toHaveBeenCalledWith('publishers')
-      expect(updateTag).toHaveBeenCalledWith('published-editions')
+      expect(updateTag).toHaveBeenCalledWith('releases')
       expect(mockSql).toHaveBeenCalledTimes(1)
     })
 

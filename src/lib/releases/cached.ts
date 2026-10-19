@@ -30,6 +30,7 @@ export async function fetchCachedReleaseById(
   id: string,
   isAuthed: boolean = false
 ) {
+  cacheTag('releases')
   cacheTag(`releases:${isAuthed ? 'authed' : 'public'}`)
   cacheTag(`release:${id}`)
 

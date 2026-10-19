@@ -101,7 +101,7 @@ function ReleaseFormFields({ release }: EditReleaseFormProps) {
       />
       <Select
         options={[...releaseTypes]}
-        onChange={() => {}}
+        errors={errors?.type}
         label='Type'
         placeholder='Select a type'
         value={release?.type}

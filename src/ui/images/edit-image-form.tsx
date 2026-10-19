@@ -226,6 +226,7 @@ export const EditImage = ({
             attributes={{
               name: `${namePrefix}type`
             }}
+            errors={errors?.type}
             label='Type'
             onChange={setType}
             options={imageTypeOptions}

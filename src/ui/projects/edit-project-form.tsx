@@ -45,7 +45,7 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
       />
       <Select
         options={[...projectTypes]}
-        onChange={() => {}}
+        errors={errors?.type}
         label='Type'
         placeholder='Select a type'
         value={project?.type}

@@ -47,8 +47,8 @@ export const EditPublisher = ({
           attributes={{
             name: `${namePrefix}type`
           }}
+          errors={errors?.type}
           label='Type'
-          onChange={() => {}}
           options={publisherTypeOptions}
           placeholder='Select publisher type'
           value={publisher?.type}

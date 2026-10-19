@@ -83,7 +83,7 @@ export const EditVenue = ({ errors, venue }: EditVenueProps) => {
         <Select
           options={[...venueTimezones]}
           formatOptionLabel={(tz) => tz.replace(/_/g, ' ')}
-          onChange={() => {}}
+          errors={errors?.timezone}
           label='Timezone'
           placeholder='Select a timezone'
           value={venue?.timezone}

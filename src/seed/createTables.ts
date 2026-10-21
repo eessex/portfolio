@@ -625,39 +625,13 @@ async function setupJsonbFunctions() {
           ),
           'format', pe.format,
           'publishDate', pe.publish_date,
-          'coverImage', (
-            CASE
-              WHEN COALESCE(pe.cover_image_id, pe.image_ids[1]) IS NOT NULL
-              THEN (
-                SELECT build_image_json(i)
-                FROM images i
-                WHERE i.id = COALESCE(pe.cover_image_id, pe.image_ids[1])
-              )
-            END
-          ),
-          'images', (
-            SELECT COALESCE(jsonb_agg(build_image_json(i)), '[]'::jsonb)
-            FROM images i
-            WHERE i.id = ANY(pe.image_ids)
-              AND i.id != COALESCE(pe.cover_image_id, pe.image_ids[1])
-          ),
           'editionSize', pe.edition_size,
-          'buyLink', (
-            CASE
-              WHEN pe.buy_link_id IS NOT NULL
-              THEN (
-                SELECT build_link_json(l)
-                FROM links l
-                WHERE l.id = pe.buy_link_id
-              )
-            END
-          ),
           'catalogNumber', pe.catalog_number
         )
         || COALESCE(build_write_dates_json(pe.created_at, pe.updated_at), '{}'::jsonb)
       );
     END;
-    -- STABLE, not IMMUTABLE: it reads publishers, images and links
+    -- STABLE, not IMMUTABLE: it reads publishers
     $$ LANGUAGE plpgsql STABLE;
   `
 

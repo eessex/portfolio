@@ -80,8 +80,6 @@ export async function editEvent(formData: FormData, id?: string) {
 
 function invalidateEventTags(id?: string) {
   updateTag('events')
-  updateTag('events:authed')
-  updateTag('events:public')
   updateTag(slugCacheTag('events'))
   if (id) updateTag(`event:${id}`)
   updateTag('venues')

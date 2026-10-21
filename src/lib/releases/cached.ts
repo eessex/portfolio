@@ -12,11 +12,6 @@ export async function fetchCachedReleasesFirstPage(
   projectId?: string
 ) {
   cacheTag('releases')
-  cacheTag(`releases:${isAuthed ? 'authed' : 'public'}`)
-
-  if (projectId) {
-    cacheTag(`project:${projectId}:releases`)
-  }
 
   return await fetchReleasesRaw(
     isAuthed,
@@ -31,7 +26,6 @@ export async function fetchCachedReleaseById(
   isAuthed: boolean = false
 ) {
   cacheTag('releases')
-  cacheTag(`releases:${isAuthed ? 'authed' : 'public'}`)
   cacheTag(`release:${id}`)
 
   const release = await fetchReleaseById(id, isAuthed)

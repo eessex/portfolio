@@ -112,10 +112,7 @@ function isSecondDefaultError(err: unknown) {
  */
 function invalidateProjectTags(id?: string) {
   updateTag('projects')
-  updateTag('projects:authed')
-  updateTag('projects:public')
   updateTag(slugCacheTag('projects'))
-  updateTag('projects:default')
   if (id) updateTag(`project:${id}`)
   updateTag('releases')
   updateTag('events')

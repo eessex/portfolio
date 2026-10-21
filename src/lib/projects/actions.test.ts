@@ -97,8 +97,6 @@ describe('Project Actions', () => {
 
       expect(res).toEqual({ ok: true })
       expect(updateTag).toHaveBeenCalledWith('projects')
-      expect(updateTag).toHaveBeenCalledWith('projects:authed')
-      expect(updateTag).toHaveBeenCalledWith('projects:public')
       expect(updateTag).toHaveBeenCalledWith(
         `project:${projectFixtureAlpha.id}`
       )

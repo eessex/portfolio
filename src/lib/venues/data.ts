@@ -12,7 +12,6 @@ import {
   type DashboardVenue,
   dashboardVenueSchema
 } from '@/lib/venues/schemas/client'
-import type { CreateVenue } from '@/lib/venues/schemas/db'
 
 export async function fetchVenueById(id: string) {
   try {
@@ -97,38 +96,4 @@ export async function fetchVenuesRaw(
       LIMIT ${DEFAULT_PAGE_SIZE}
     `
   })
-}
-
-export async function fetchSimilarVenue(venue: CreateVenue) {
-  try {
-    const data = await sql`
-      SELECT
-        venues.*,
-        ARRAY(
-          SELECT slug FROM events e
-          WHERE e.venue_id = venues.id
-        ) AS event_slugs
-      FROM venues
-      WHERE (
-        (
-          venues.name = ${venue.name}
-          AND (venues.state = ${venue.state} OR venues.city = ${venue.city})
-        )
-      ) OR (
-        venues.address = ${venue.address}
-        AND (venues.city = ${venue.city} OR venues.state = ${venue.state})
-      )
-      LIMIT 1
-    `
-    if (data.length === 0) {
-      return null
-    } else {
-      return {
-        res: formatDbResponseForClient(data[0], dashboardVenueSchema),
-        fieldName: 'similar' as keyof CreateVenue
-      }
-    }
-  } catch (cause) {
-    throw new Error('Failed to fetch similar venues.', { cause })
-  }
 }

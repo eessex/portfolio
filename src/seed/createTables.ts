@@ -373,8 +373,6 @@ async function createPublishedEditionTable() {
     );
   `
   await sql`CREATE INDEX IF NOT EXISTS idx_published_editions_publisher ON published_editions(publisher_id);`
-  // an edition's project is its release's; also drops its FK + index
-  // await sql`ALTER TABLE published_editions DROP COLUMN IF EXISTS project_id;`
 }
 
 /**
@@ -410,26 +408,6 @@ async function createEventsTable() {
       CONSTRAINT fk_event_venue FOREIGN KEY (venue_id) REFERENCES venues(id),
       CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')
     );
-  `
-  // one-time: prod's events predate these two; delete once run
-  await sql`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (
-        SELECT 1 FROM pg_constraint
-        WHERE conname = 'fk_event_venue'
-      ) THEN
-        ALTER TABLE events ADD CONSTRAINT fk_event_venue
-        FOREIGN KEY (venue_id) REFERENCES venues(id);
-      END IF;
-      IF NOT EXISTS (
-        SELECT 1 FROM pg_indexes
-        WHERE indexname = 'idx_events_slug' AND indexdef LIKE 'CREATE UNIQUE%'
-      ) THEN
-        DROP INDEX IF EXISTS idx_events_slug;
-      END IF;
-    END
-    $$;
   `
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_events_slug ON events(slug);`
   await sql`CREATE INDEX IF NOT EXISTS idx_events_venue ON events(venue_id);`

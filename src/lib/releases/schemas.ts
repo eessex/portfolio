@@ -12,11 +12,7 @@ import {
   systemFields,
   taxonomyFields
 } from '@/lib/schemas/fields'
-import {
-  date,
-  shortText,
-  withLegacySnakeCase
-} from '@/lib/schemas/primitives'
+import { date, shortText } from '@/lib/schemas/primitives'
 
 export const releaseTypes = [
   'album',
@@ -27,9 +23,7 @@ export const releaseTypes = [
   'collaborativeRelease',
   'single'
 ] as const
-export const releaseTypeSchema = withLegacySnakeCase(
-  z.enum(releaseTypes)
-)
+export const releaseTypeSchema = z.enum(releaseTypes)
 export const ReleaseTypes = Object.fromEntries(
   releaseTypes.map((v) => [v, v])
 ) as {

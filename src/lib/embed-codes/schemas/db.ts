@@ -1,11 +1,7 @@
 import { z } from 'zod'
 
 import { systemFields } from '@/lib/schemas/fields'
-import {
-  shortText,
-  uuid,
-  withLegacySnakeCase
-} from '@/lib/schemas/primitives'
+import { shortText, uuid } from '@/lib/schemas/primitives'
 
 /**
  * The variety of media displayed in an iframe embed.
@@ -41,8 +37,8 @@ export const embedCodeContentTypes = [
   ...EmbedCodeContentTypesByType.video,
   ...EmbedCodeContentTypesByType.shared
 ] as const
-export const embedCodeContentTypeSchema = withLegacySnakeCase(
-  z.enum(embedCodeContentTypes)
+export const embedCodeContentTypeSchema = z.enum(
+  embedCodeContentTypes
 )
 export const EmbedCodeContentTypes = Object.fromEntries(
   embedCodeContentTypes.map((v) => [v, v])

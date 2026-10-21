@@ -1,6 +1,6 @@
 import { useId } from 'react'
 
-import { camelToSentence, snakeToCamel } from '@/lib/strings'
+import { camelToSentence } from '@/lib/strings'
 import styles from '@/ui/form/form.module.scss'
 import { InputLabel } from '@/ui/form/input-label'
 
@@ -9,8 +9,7 @@ export function Select({
   attributes,
   description,
   errors,
-  formatOptionLabel = (option) =>
-    camelToSentence(snakeToCamel(option)),
+  formatOptionLabel = (option) => camelToSentence(option),
   isLabelHidden,
   label,
   onChange,

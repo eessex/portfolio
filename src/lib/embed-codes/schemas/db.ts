@@ -1,7 +1,11 @@
 import { z } from 'zod'
 
 import { systemFields } from '@/lib/schemas/fields'
-import { shortText, uuid } from '@/lib/schemas/primitives'
+import {
+  shortText,
+  uuid,
+  withLegacySnakeCase
+} from '@/lib/schemas/primitives'
 
 /**
  * The variety of media displayed in an iframe embed.
@@ -21,24 +25,24 @@ export type EmbedCodeType = z.infer<typeof embedCodeTypesSchema>
  * `audio`) or applicable regardless of `type`.
  */
 export const EmbedCodeContentTypesByType = {
-  video: ['film', 'official_music_video', 'trailer'],
+  video: ['film', 'officialMusicVideo', 'trailer'],
   shared: [
-    'dj_set',
+    'djSet',
     'documentation',
     'interview',
-    'live_performance',
-    'official_audio',
+    'livePerformance',
+    'officialAudio',
     'other',
     'podcast',
-    'radio_show'
+    'radioShow'
   ]
 } as const
 export const embedCodeContentTypes = [
   ...EmbedCodeContentTypesByType.video,
   ...EmbedCodeContentTypesByType.shared
 ] as const
-export const embedCodeContentTypeSchema = z.enum(
-  embedCodeContentTypes
+export const embedCodeContentTypeSchema = withLegacySnakeCase(
+  z.enum(embedCodeContentTypes)
 )
 export const EmbedCodeContentTypes = Object.fromEntries(
   embedCodeContentTypes.map((v) => [v, v])

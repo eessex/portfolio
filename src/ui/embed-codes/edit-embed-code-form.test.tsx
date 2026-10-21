@@ -339,7 +339,7 @@ describe('EditEmbedCode', () => {
         embedCode: {
           ...embedCodeSoundcloud,
           caption: 'Saved caption',
-          contentType: 'radio_show'
+          contentType: 'radioShow'
         }
       })
 
@@ -348,7 +348,7 @@ describe('EditEmbedCode', () => {
       )
 
       expect(screen.getByLabelText(contentTypeLabel)).toHaveValue(
-        'radio_show'
+        'radioShow'
       )
       expect(screen.getByLabelText(captionRegex)).toBeVisible()
     })
@@ -432,11 +432,11 @@ describe('EditEmbedCode', () => {
       pasteIframe(embedCodeYoutubeFixture)
 
       fireEvent.change(screen.getByLabelText(contentTypeLabel), {
-        target: { value: 'official_music_video' }
+        target: { value: 'officialMusicVideo' }
       })
 
       expect(screen.getByLabelText(contentTypeLabel)).toHaveValue(
-        'official_music_video'
+        'officialMusicVideo'
       )
     })
 

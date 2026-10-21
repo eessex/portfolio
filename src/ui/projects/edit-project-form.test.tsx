@@ -182,7 +182,7 @@ describe('EditProjectForm', () => {
 
       // Content type is required before the slot can collapse.
       fireEvent.change(screen.getByLabelText('Content type'), {
-        target: { value: 'official_music_video' }
+        target: { value: 'officialMusicVideo' }
       })
       fireEvent.click(
         screen.getByRole('button', { name: 'Save embed code' })

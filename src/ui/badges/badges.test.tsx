@@ -24,7 +24,7 @@ describe('itemBadges', () => {
 
   it('labels the badge with the sentence-cased type', () => {
     expect(
-      itemBadges({ type: 'buy_link' } as Partial<EmbeddedItem>)
+      itemBadges({ type: 'buyLink' } as Partial<EmbeddedItem>)
     ).toEqual([{ text: 'Buy link', color: expect.any(String) }])
   })
 

@@ -1,11 +1,11 @@
 import {
   camelizeKeys,
   camelToSentence,
+  camelToSentenceCase,
   camelToSnake,
   capitalizeFirstLetter,
   escapeHtml,
-  snakeToCamel,
-  snakeToSentence
+  snakeToCamel
 } from '@/lib/strings'
 
 describe('#camelToSentence', () => {
@@ -26,13 +26,15 @@ describe('#camelToSnake', () => {
   })
 })
 
-describe('#snakeToSentence', () => {
-  it('converts snake_case to a sentence, capitalizing only the first letter', () => {
-    expect(snakeToSentence('buy_link')).toBe('Buy link')
+describe('#camelToSentenceCase', () => {
+  it('converts camelCase to a sentence, capitalizing only the first letter', () => {
+    expect(camelToSentenceCase('officialMusicVideo')).toBe(
+      'Official music video'
+    )
   })
 
   it('leaves single-word values capitalized', () => {
-    expect(snakeToSentence('documentation')).toBe('Documentation')
+    expect(camelToSentenceCase('documentation')).toBe('Documentation')
   })
 })
 

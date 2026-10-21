@@ -440,16 +440,39 @@ async function createEventsTable() {
 const checkedColumns: [
   table: string,
   column: string,
-  values: readonly string[]
+  values: readonly string[],
+  // TODO: temporary snake_case → camelCase migration; delete once run
+  renames?: Record<string, string>
 ][] = [
   ['projects', 'type', projectTypes],
   ['images', 'type', imageTypes],
   ['embed_codes', 'type', embedCodeTypes],
   ['embed_codes', 'host', embedCodeHosts],
-  ['embed_codes', 'content_type', embedCodeContentTypes],
-  ['links', 'type', linkTypes],
+  [
+    'embed_codes',
+    'content_type',
+    embedCodeContentTypes,
+    {
+      dj_set: 'djSet',
+      live_performance: 'livePerformance',
+      official_audio: 'officialAudio',
+      official_music_video: 'officialMusicVideo',
+      radio_show: 'radioShow'
+    }
+  ],
+  [
+    'links',
+    'type',
+    linkTypes,
+    { buy_link: 'buyLink', stream_link: 'streamLink' }
+  ],
   ['publishers', 'type', publisherTypes],
-  ['releases', 'type', releaseTypes],
+  [
+    'releases',
+    'type',
+    releaseTypes,
+    { collaborative_release: 'collaborativeRelease' }
+  ],
   ['published_editions', 'format', publishedEditionTypes]
 ]
 
@@ -461,12 +484,23 @@ const checkedColumns: [
  * NULL passes a CHECK, so nullability is left to the column.
  */
 async function syncCheckConstraints() {
-  for (const [table, column, values] of checkedColumns) {
+  for (const [table, column, values, renames] of checkedColumns) {
     // code constants, not user input, so safe to inline
     const t = sql.unsafe(table)
     const c = sql.unsafe(column)
     const name = sql.unsafe(`chk_${table}_${column}`)
     const allowed = sql.unsafe(values.map((v) => `'${v}'`).join(', '))
+    const renameEntries = Object.entries(renames ?? {})
+    // between the drop and the add, so neither check rejects a row
+    const renameRows = sql.unsafe(
+      renameEntries.length
+        ? `UPDATE ${table} SET ${column} = CASE ${column} ${renameEntries
+            .map(([from, to]) => `WHEN '${from}' THEN '${to}'`)
+            .join(' ')} END WHERE ${column} IN (${renameEntries
+            .map(([from]) => `'${from}'`)
+            .join(', ')});`
+        : ''
+    )
     await sql`
       DO $$
       DECLARE
@@ -483,6 +517,7 @@ async function syncCheckConstraints() {
         LOOP
           EXECUTE format('ALTER TABLE ${t} DROP CONSTRAINT %I', con.conname);
         END LOOP;
+        ${renameRows}
         ALTER TABLE ${t} ADD CONSTRAINT ${name} CHECK (${c} IN (${allowed}));
       END
       $$;

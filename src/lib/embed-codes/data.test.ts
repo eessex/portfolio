@@ -84,6 +84,20 @@ describe('fetchEmbedCodesRaw', () => {
       'Failed to fetch embed codes.'
     )
   })
+
+  it('lists every project that uses it as project_slugs, not just its owner', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([dashboardEmbedCodeRow])
+
+    await EmbedCodes.fetchEmbedCodesRaw()
+
+    const text = mockSql.mock.calls[1]![0].join('?')
+    expect(text).toContain(
+      'p.embed_code_ids @> ARRAY[embed_codes.id]'
+    )
+    expect(text).not.toContain('embed_codes.project_id')
+  })
 })
 
 describe('fetchEmbedCodesByIds', () => {

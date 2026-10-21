@@ -62,7 +62,7 @@ export async function fetchImageByUrl(image: CreateImage) {
           WHERE (e.image_ids @> ARRAY[images.id] OR e.cover_image_id = images.id)
         ) AS event_slugs,
         ARRAY(
-          SELECT slug FROM projects AS p WHERE p.id = images.project_id
+          SELECT slug FROM projects AS p WHERE (p.image_ids @> ARRAY[images.id] OR p.cover_image_id = images.id)
         ) AS project_slugs,
         ARRAY(
           SELECT slug FROM releases AS r 
@@ -164,7 +164,7 @@ export async function fetchImagesRaw(
           WHERE (e.image_ids @> ARRAY[images.id] OR e.cover_image_id = images.id)
         ) AS event_slugs,
         ARRAY(
-          SELECT slug FROM projects AS p WHERE p.id = images.project_id
+          SELECT slug FROM projects AS p WHERE (p.image_ids @> ARRAY[images.id] OR p.cover_image_id = images.id)
         ) AS project_slugs,
         ARRAY(
           SELECT slug FROM releases AS r

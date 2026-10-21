@@ -37,7 +37,7 @@ export async function fetchLinkByUrl(link: CreateLink) {
           SELECT slug FROM events AS e WHERE e.link_ids @> ARRAY[links.id]
         ) AS event_slugs,
         ARRAY(
-          SELECT slug FROM projects AS p WHERE p.id = links.project_id
+          SELECT slug FROM projects AS p WHERE p.link_ids @> ARRAY[links.id]
         ) AS project_slugs,
         ARRAY(
           SELECT slug FROM releases AS r WHERE r.link_ids @> ARRAY[links.id]
@@ -128,7 +128,7 @@ export async function fetchLinksRaw(
           SELECT slug FROM events AS e WHERE e.link_ids @> ARRAY[links.id]
         ) AS event_slugs,
         ARRAY(
-          SELECT slug FROM projects AS p WHERE p.id = links.project_id
+          SELECT slug FROM projects AS p WHERE p.link_ids @> ARRAY[links.id]
         ) AS project_slugs,
         ARRAY(
           SELECT slug FROM releases AS r WHERE r.link_ids @> ARRAY[links.id]

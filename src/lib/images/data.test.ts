@@ -126,6 +126,19 @@ describe('fetchImagesRaw', () => {
     )
   })
 
+  it('lists every project that uses it as project_slugs, not just its owner', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([dashboardImageRow])
+
+    await fetchImagesRaw()
+
+    const text = mockSql.mock.calls[1]![0].join('?')
+    expect(text).toContain('p.image_ids @> ARRAY[images.id]')
+    expect(text).toContain('p.cover_image_id = images.id')
+    expect(text).not.toContain('images.project_id')
+  })
+
   it('restricts to a type when one is set', async () => {
     mockSql
       .mockResolvedValueOnce([{ count: 1 }])

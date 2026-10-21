@@ -46,7 +46,7 @@ Each content type (`releases`, `events`, `projects`, `venues`, `links`, `images`
 
 `releases` and `events` each carry a nullable `project_id` FK (indexed) to the project they belong to (a published edition's project is its release's); it's a real filter (`/api/releases?projectId=`, a project page's release/event tables). `NULL` means the row belongs to no specific project. `deleteProject` hands the project's releases/events to the default project (`handOffPageItems`) before deleting, in one transaction, since the FKs' `ON DELETE SET NULL` would otherwise leave them unowned.
 
-Images, links and embed codes have no owner: a project lists them through its own `image_ids`/`cover_image_id`/`link_ids`/`embed_code_ids`, and the dashboard's "Used on" `project_slugs` is derived from those arrays, like `event_slugs`/`release_slugs`. Their legacy `project_id` columns are no longer read or written, pending a drop. Because saving a project changes which projects list an item, and can also create images/links/embed codes inline (via their item pickers' create-new flows), `invalidateProjectTags()` invalidates the `images`/`links`/`embed-codes` cache tags too, not just `projects`.
+Images, links and embed codes have no owner: a project lists them through its own `image_ids`/`cover_image_id`/`link_ids`/`embed_code_ids`, and the dashboard's "Used on" `project_slugs` is derived from those arrays, like `event_slugs`/`release_slugs`. They have no `project_id` column. Because saving a project changes which projects list an item, and can also create images/links/embed codes inline (via their item pickers' create-new flows), `invalidateProjectTags()` invalidates the `images`/`links`/`embed-codes` cache tags too, not just `projects`.
 
 ### Default project and `/about`
 

@@ -21,10 +21,6 @@ export type PageDataResponse =
   | FetchEventsResult
   | FetchProjectsResult
   | FetchReleasesResult
-export type PageDataResponseKey =
-  | keyof FetchEventsResult
-  | keyof FetchProjectsResult
-  | keyof FetchReleasesResult
 
 export type PageItemClient =
   | EventClient

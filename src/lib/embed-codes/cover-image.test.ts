@@ -1,8 +1,8 @@
 import { fetchEmbedCodeMetadata } from '@/lib/embed-codes/cover-image'
 import { EmbedCodeHosts } from '@/lib/embed-codes/schemas/db'
-import { uploadBufferToS3 } from '@/lib/images/s3'
+import { uploadBufferToS3 } from '@/lib/images/s3-client'
 
-jest.mock('@/lib/images/s3', () => ({
+jest.mock('@/lib/images/s3-client', () => ({
   uploadBufferToS3: jest.fn()
 }))
 const uploadBufferToS3Mock = jest.mocked(uploadBufferToS3)

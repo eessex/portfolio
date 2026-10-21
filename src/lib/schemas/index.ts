@@ -1,5 +1,3 @@
-import { z } from 'zod'
-
 import { camelToSentence, capitalizeFirstLetter } from '@/lib/strings'
 
 /**
@@ -15,7 +13,6 @@ export const PagePaths = Object.fromEntries(
 ) as {
   [K in (typeof pagePaths)[number]]: K
 }
-export const pagePathSchema = z.enum(pagePaths)
 export type PagePath = (typeof pagePaths)[number]
 
 /**

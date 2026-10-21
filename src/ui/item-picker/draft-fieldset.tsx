@@ -47,6 +47,8 @@ type DraftFieldsetProps<
   onBlurValidate?: () => void
   onReadyChange?: (isReady: boolean) => void
   onBusyChange: (isBusy: boolean) => void
+  /** Offered to a `new` draft's form only. */
+  onExistingMatch?: (item: TEmbeddedItem | TPage) => void
   setFieldsetRef: (el: HTMLFieldSetElement | null) => void
 }
 
@@ -79,6 +81,7 @@ export function DraftFieldset<
   onBlurValidate,
   onReadyChange,
   onBusyChange,
+  onExistingMatch,
   setFieldsetRef,
   renderEditItemForm
 }: DraftFieldsetProps<TEmbeddedItem, TPage>) {
@@ -125,7 +128,9 @@ export function DraftFieldset<
             onReadyChange,
             existingItem:
               entry.kind === 'editing' ? entry.item : undefined,
-            onBusyChange
+            onBusyChange,
+            onExistingMatch:
+              entry.kind === 'new' ? onExistingMatch : undefined
           })}
         </NamePrefixProvider>
       </MarkEntryTouchedContext.Provider>

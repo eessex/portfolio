@@ -218,6 +218,327 @@ describe('ItemPicker', () => {
       })
     })
 
+    describe('maxItems', () => {
+      function renderCapped(props = {}) {
+        return renderComponent({
+          itemType: 'publishedEditions',
+          isMulti: true,
+          isSearchHidden: true,
+          maxItems: 2,
+          name: 'editions',
+          renderEditItemForm: () => (
+            <PrefixedInput field='format' aria-label='Format' />
+          ),
+          ...props
+        })
+      }
+
+      it('hides New at the cap and shows it again after a remove', () => {
+        renderCapped({
+          existingItems: [venueFixtureAlpha, venueFixtureBeta]
+        })
+
+        expect(
+          screen.queryByRole('button', {
+            name: /new published edition/i
+          })
+        ).not.toBeInTheDocument()
+
+        fireEvent.click(
+          screen.getAllByRole('button', {
+            name: /remove published edition/i
+          })[0]!
+        )
+
+        expect(
+          screen.getByRole('button', {
+            name: /new published edition/i
+          })
+        ).toBeInTheDocument()
+      })
+
+      it('shows an "N of max" hint once any item is listed', () => {
+        renderCapped({
+          existingItems: [venueFixtureAlpha, venueFixtureBeta]
+        })
+
+        const hint = () =>
+          screen
+            .getAllByRole('status')
+            .find((el) => el.classList.contains('max-items-hint'))
+        expect(hint()).toHaveTextContent('2 of 2, the most allowed')
+
+        fireEvent.click(
+          screen.getAllByRole('button', {
+            name: /remove published edition/i
+          })[0]!
+        )
+
+        expect(hint()).toHaveTextContent(/^1 of 2$/)
+
+        fireEvent.click(
+          screen.getByRole('button', {
+            name: /remove published edition/i
+          })
+        )
+
+        expect(hint()).toBeEmptyDOMElement()
+      })
+
+      it("doesn't count an open blank draft", () => {
+        renderCapped({ existingItems: [venueFixtureAlpha] })
+
+        fireEvent.click(
+          screen.getByRole('button', {
+            name: /new published edition/i
+          })
+        )
+
+        expect(
+          screen
+            .getAllByRole('status')
+            .find((el) => el.classList.contains('max-items-hint'))
+        ).toHaveTextContent(/^1 of 2$/)
+      })
+
+      it('shows no hint for a cap of 1', () => {
+        renderCapped({
+          maxItems: 1,
+          existingItems: [venueFixtureAlpha]
+        })
+
+        expect(
+          screen
+            .queryAllByRole('status')
+            .find((el) => el.classList.contains('max-items-hint'))
+        ).toBeUndefined()
+      })
+
+      it('shows New below the cap', () => {
+        renderCapped({ existingItems: [venueFixtureAlpha] })
+
+        expect(
+          screen.getByRole('button', {
+            name: /new published edition/i
+          })
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('isCreateFormAlwaysOpen', () => {
+      function renderAlwaysOpen(props = {}) {
+        return renderComponent({
+          itemType: 'publishedEditions',
+          isMulti: true,
+          isSearchHidden: true,
+          isCreateFormAlwaysOpen: true,
+          maxItems: 2,
+          name: 'editions',
+          renderEditItemForm: () => (
+            <PrefixedInput field='format' aria-label='Format' />
+          ),
+          ...props
+        })
+      }
+
+      it('opens a blank form below the cap, with no New button', () => {
+        renderAlwaysOpen({ existingItems: [venueFixtureAlpha] })
+
+        expect(screen.getByLabelText('Format')).toBeVisible()
+        expect(
+          screen.queryByRole('button', {
+            name: /new published edition/i
+          })
+        ).not.toBeInTheDocument()
+      })
+
+      it('opens no form at the cap, and reopens it after a remove', () => {
+        renderAlwaysOpen({
+          existingItems: [venueFixtureAlpha, venueFixtureBeta]
+        })
+
+        expect(
+          screen.queryByLabelText('Format')
+        ).not.toBeInTheDocument()
+
+        fireEvent.click(
+          screen.getAllByRole('button', {
+            name: /remove published edition/i
+          })[0]!
+        )
+
+        expect(screen.getByLabelText('Format')).toBeVisible()
+      })
+
+      it('reopens a blank form after a save below the cap', async () => {
+        renderAlwaysOpen()
+
+        fireEvent.change(screen.getByLabelText('Format'), {
+          target: { value: 'LP' }
+        })
+        fireEvent.click(
+          screen.getByRole('button', {
+            name: /save published edition/i
+          })
+        )
+
+        await waitFor(() =>
+          expect(screen.getAllByLabelText('Format')).toHaveLength(2)
+        )
+        // fieldsets render in creation order: the saved one first
+        expect(screen.getAllByLabelText('Format')[1]).toBeVisible()
+      })
+
+      it('reopens a blank form after an existing match, never showing New', () => {
+        renderAlwaysOpen({
+          renderEditItemForm: ({
+            onExistingMatch
+          }: RenderEditItemFormArgs<Venue, never>) => (
+            <>
+              <PrefixedInput field='format' aria-label='Format' />
+              <button
+                type='button'
+                onClick={() => onExistingMatch?.(venueFixtureBeta)}
+              >
+                Match
+              </button>
+            </>
+          )
+        })
+
+        fireEvent.click(screen.getByRole('button', { name: 'Match' }))
+
+        expect(
+          screen.getByText(venueFixtureBeta.name!)
+        ).toBeInTheDocument()
+        expect(screen.getByLabelText('Format')).toBeVisible()
+        expect(
+          screen.queryByRole('button', {
+            name: /new published edition/i
+          })
+        ).not.toBeInTheDocument()
+      })
+
+      it('closes the form once a save reaches the cap', async () => {
+        renderAlwaysOpen({ existingItems: [venueFixtureAlpha] })
+
+        fireEvent.change(screen.getByLabelText('Format'), {
+          target: { value: 'LP' }
+        })
+        fireEvent.click(
+          screen.getByRole('button', {
+            name: /save published edition/i
+          })
+        )
+
+        await waitFor(() =>
+          expect(screen.getByLabelText('Format')).not.toBeVisible()
+        )
+        expect(screen.getAllByLabelText('Format')).toHaveLength(1)
+      })
+    })
+
+    describe('onExistingMatch', () => {
+      function renderMatching(
+        match: Venue,
+        props: Partial<ItemPickerProps<Venue>> = {}
+      ) {
+        return renderComponent({
+          isMulti: true,
+          isSearchHidden: true,
+          name: 'venues',
+          renderEditItemForm: ({
+            onExistingMatch
+          }: RenderEditItemFormArgs<Venue, never>) => (
+            <>
+              <PrefixedInput field='name' aria-label='Name' />
+              {onExistingMatch ? (
+                <button
+                  type='button'
+                  onClick={() => onExistingMatch(match)}
+                >
+                  Match
+                </button>
+              ) : (
+                <span>No match offered</span>
+              )}
+            </>
+          ),
+          ...props
+        })
+      }
+
+      it('replaces a new draft with the existing item and focuses its Edit', async () => {
+        renderMatching(venueFixtureBeta)
+
+        fireEvent.click(screen.getByRole('button', { name: 'Match' }))
+
+        await waitFor(() =>
+          expect(
+            screen.getByRole('button', { name: 'Edit' })
+          ).toHaveFocus()
+        )
+        expect(
+          screen.getByText(venueFixtureBeta.name!)
+        ).toBeInTheDocument()
+        expect(
+          screen.queryByLabelText('Name')
+        ).not.toBeInTheDocument()
+        expect(
+          document.querySelector('input[name="venues[0].id"]')
+        ).toHaveValue(venueFixtureBeta.id)
+      })
+
+      it('keeps the draft position among existing chips', () => {
+        renderMatching(venueFixtureBeta, {
+          existingItems: [venueFixtureAlpha]
+        })
+
+        fireEvent.click(
+          screen.getByRole('button', { name: /new venue/i })
+        )
+        fireEvent.click(screen.getByRole('button', { name: 'Match' }))
+
+        // new entries join the top of a multi list
+        expect(
+          document.querySelector('input[name="venues[0].id"]')
+        ).toHaveValue(venueFixtureBeta.id)
+        expect(
+          document.querySelector('input[name="venues[1].id"]')
+        ).toHaveValue(venueFixtureAlpha.id)
+      })
+
+      it('just drops the draft when the item is already listed', () => {
+        renderMatching(venueFixtureAlpha, {
+          existingItems: [venueFixtureAlpha]
+        })
+
+        fireEvent.click(
+          screen.getByRole('button', { name: /new venue/i })
+        )
+        fireEvent.click(screen.getByRole('button', { name: 'Match' }))
+
+        expect(
+          screen.getAllByText(venueFixtureAlpha.name!)
+        ).toHaveLength(1)
+        expect(
+          screen.queryByLabelText('Name')
+        ).not.toBeInTheDocument()
+      })
+
+      it('is not offered when editing an existing item', () => {
+        renderMatching(venueFixtureBeta, {
+          existingItems: [venueFixtureAlpha]
+        })
+
+        fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+
+        expect(
+          screen.getByText('No match offered')
+        ).toBeInTheDocument()
+      })
+    })
+
     describe('create from query (isCreatedFromQuery)', () => {
       function renderCreateFromQuery(props = {}) {
         return renderComponent({

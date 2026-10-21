@@ -36,6 +36,21 @@
     transform: translateY(-#{grids.space-em(1)});
   }
 
+  // description left, "N of N" hint right once the list is full
+  > .description-row {
+    display: flex;
+    align-items: baseline;
+    gap: grids.space-em(2);
+  }
+
+  .max-items-hint {
+    color: var(--secondary-text-color);
+    margin-left: auto;
+    white-space: nowrap;
+
+    @include type.size('sm', 'normal', 'xs');
+  }
+
   // as in the search header, the description's margin (or this one)
   // spaces the label from the chips
   &:not(:has(p)) {

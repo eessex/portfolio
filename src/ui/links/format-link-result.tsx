@@ -62,8 +62,11 @@ export function formatNewLinkSummary(
   )
 }
 
-/** For the Press picker, where every link is press: no type badge. */
-export function formatPressLinkResult(
+/**
+ * For a picker whose links all share one type (Press, Social links):
+ * no type badge.
+ */
+export function formatLinkResultWithoutBadge(
   link: Link,
   onRemove?: () => void,
   removeLabel?: string,
@@ -83,7 +86,7 @@ export function formatNewPressLinkSummary(
   _previewUrl: string | undefined,
   { editButton, onRemove, removeLabel }: NewItemSummaryActions
 ) {
-  return formatPressLinkResult(
+  return formatLinkResultWithoutBadge(
     data as Link,
     onRemove,
     removeLabel,

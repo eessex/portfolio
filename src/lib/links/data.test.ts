@@ -114,30 +114,60 @@ describe('fetchLinkByUrl', () => {
     jest.clearAllMocks()
   })
 
-  it('returns formatted link when found', async () => {
+  it('returns the formatted link when found', async () => {
     mockSql.mockResolvedValue([linkFixture])
 
-    const result = await fetchLinkByUrl(linkFixture)
+    const result = await fetchLinkByUrl(linkFixture.url, 'social')
 
-    expect(result).toEqual({
-      res: linkFixture,
-      fieldName: 'url'
-    })
+    expect(result).toEqual(linkFixture)
   })
 
-  it('returns null when not found', async () => {
+  it('returns undefined when not found', async () => {
     mockSql.mockResolvedValue([])
 
-    const result = await fetchLinkByUrl(linkFixture)
+    const result = await fetchLinkByUrl(linkFixture.url, 'social')
 
-    expect(result).toBeNull()
+    expect(result).toBeUndefined()
+  })
+
+  it('matches the trimmed url and the given type only', async () => {
+    mockSql.mockResolvedValue([])
+
+    await fetchLinkByUrl(`  ${linkFixture.url} `, 'social')
+
+    const [strings, ...params] = mockSql.mock.calls[0]!
+    expect(params[0]).toBe(linkFixture.url)
+    expect(params[1]).toBe('social')
+    expect((strings as TemplateStringsArray).join('?')).toMatch(
+      /WHERE url = \?\s+AND type = \?/
+    )
+  })
+
+  it('matches the title case-insensitively when given', async () => {
+    mockSql.mockResolvedValue([])
+
+    await fetchLinkByUrl(linkFixture.url, 'social', 'Bandcamp')
+
+    const [strings, ...params] = mockSql.mock.calls[0]!
+    expect(params.slice(2)).toEqual(['Bandcamp', 'Bandcamp'])
+    expect((strings as TemplateStringsArray).join('?')).toMatch(
+      /lower\(title\) = lower\(\?\)/
+    )
+  })
+
+  it('ignores the title when not given', async () => {
+    mockSql.mockResolvedValue([])
+
+    await fetchLinkByUrl(linkFixture.url, 'social')
+
+    expect(mockSql.mock.calls[0]!.slice(3)).toEqual([null, null])
   })
 
   it('throws on DB error', async () => {
     mockSql.mockRejectedValue(new Error('db exploded'))
 
-    await expect(fetchLinkByUrl(linkFixture)).rejects.toThrow(
-      'Failed to fetch link.'
-    )
+    await expect(
+      fetchLinkByUrl(linkFixture.url, 'social')
+    ).rejects.toThrow('Failed to fetch link.')
   })
 })

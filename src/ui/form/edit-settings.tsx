@@ -9,6 +9,7 @@ import {
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
 import { Form, useFormErrors } from '@/ui/form/form'
+import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { EditImage } from '@/ui/images/edit-image-form'
 import {
@@ -16,6 +17,7 @@ import {
   formatNewImageSummary
 } from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
+import { SocialLinksPicker } from '@/ui/links/links-picker'
 
 function SettingsFormFields({
   settings
@@ -76,6 +78,15 @@ function SettingsFormFields({
         )}
         isRequired
       />
+
+      <div>
+        <SocialLinksPicker links={settings?.socialLinks} />
+        {errors?.socialLinks && (
+          <p role='alert' className={styles['error-message']}>
+            {errors.socialLinks.join(' ')}
+          </p>
+        )}
+      </div>
     </>
   )
 }

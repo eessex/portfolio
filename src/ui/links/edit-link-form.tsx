@@ -1,12 +1,21 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import type { z } from 'zod'
 
+import { EmbedCodeHosts } from '@/lib/embed-codes/schemas/db'
+import { fetchLinkByUrl } from '@/lib/links/data'
 import {
   type createLinkSchema,
   type Link,
   LinkTypes,
   linkTypes
 } from '@/lib/links/schemas/db'
+import {
+  httpsUrlMessage,
+  httpsUrlPattern,
+  isHttpsUrl
+} from '@/lib/schemas/primitives'
+import { embedCodeHostLabel } from '@/ui/embed-codes/embed-code-details'
+import { extractHostFromUrl } from '@/ui/embed-codes/util'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
@@ -30,14 +39,12 @@ const bulkInputTypes = new Set([
   'insertReplacementText'
 ])
 
-function isValidHttpUrl(value: string): boolean {
-  let parsed: URL
-  try {
-    parsed = new URL(value)
-  } catch {
-    return false
-  }
-  return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+/** A social link's name from its url's embed code host, if supported. */
+function inferredSocialLinkName(url: string) {
+  const host = extractHostFromUrl(url)
+  return host === EmbedCodeHosts.unknown
+    ? undefined
+    : embedCodeHostLabel(host)
 }
 
 interface LinkProps {
@@ -54,10 +61,23 @@ interface LinkProps {
    */
   isPress?: boolean
   /**
+   * A footer link: just the url and a required name, with no type
+   * select (the parent saves the link as social).
+   */
+  isSocial?: boolean
+  /**
    * Reports when a link goes from unparsed/absent to
    * successfully parsed or back.
    */
   onReadyChange?: (isReady: boolean) => void
+  /** Reports the existing-url lookup in flight. */
+  onBusyChange?: (isBusy: boolean) => void
+  /**
+   * Called with a saved social link that has the url entered and is
+   * named for its host (e.g. "Bandcamp"); a custom-named one isn't
+   * matched, so the draft creates a new link.
+   */
+  onExistingMatch?: (link: Link) => void
 }
 
 export const EditLink = ({
@@ -65,7 +85,10 @@ export const EditLink = ({
   isRequired = true,
   link,
   isPress,
-  onReadyChange
+  isSocial,
+  onReadyChange,
+  onBusyChange,
+  onExistingMatch
 }: LinkProps) => {
   const [type, setType] = useState<string | undefined>(
     link?.type || undefined
@@ -83,12 +106,92 @@ export const EditLink = ({
   // single-character deltas (regular typing) to the blur handler.
   const prevUrlLengthRef = useRef((link?.url ?? '').length)
 
+  // only the latest lookup may report; bumped on unmount too
+  const lookupSeq = useRef(0)
+  // the url last checked: skips repeat checks, and tells Enter
+  // whether the form is current
+  const checkedUrl = useRef(link?.url)
+
+  const titleRef = useRef<HTMLInputElement | null>(null)
+  // a typed name is kept; only a blank or still auto-filled one changes
+  const autoFilledTitle = useRef<string | undefined>(undefined)
+
+  function fillSocialLinkName(url: string) {
+    const input = titleRef.current
+    if (!input) return
+    if (input.value && input.value !== autoFilledTitle.current) return
+    const name = inferredSocialLinkName(url) ?? ''
+    input.value = name
+    autoFilledTitle.current = name
+  }
+
   useEffect(() => {
     onReadyChange?.(isUrlFilled)
   }, [isUrlFilled, onReadyChange])
 
+  useEffect(() => {
+    const seq = lookupSeq
+    return () => {
+      seq.current++
+    }
+  }, [])
+
+  function onUrlValidity(value: string) {
+    if (value === checkedUrl.current) return
+    checkedUrl.current = value
+    if (onExistingMatch) {
+      // drop a lookup for an earlier url
+      lookupSeq.current++
+      onBusyChange?.(false)
+    }
+    const isValid = isHttpsUrl(value)
+    if (isSocial && isValid) fillSocialLinkName(value)
+    // only a host-named link can match, so other hosts skip the lookup
+    const hostName =
+      onExistingMatch && isValid
+        ? inferredSocialLinkName(value)
+        : undefined
+    if (!hostName) {
+      setIsUrlFilled(isValid)
+      return
+    }
+    // the lookup expands the form on no match
+    void lookUpExistingUrl(value, hostName, lookupSeq.current)
+  }
+
+  async function lookUpExistingUrl(
+    value: string,
+    hostName: string,
+    seq: number
+  ) {
+    onBusyChange?.(true)
+    let match: Link | undefined
+    try {
+      match = await fetchLinkByUrl(value, LinkTypes.social, hostName)
+    } catch {
+      // no match: the draft just creates a new link
+    }
+    if (seq !== lookupSeq.current) return
+    onBusyChange?.(false)
+    // expanded only on no match, so a matched draft doesn't flash open
+    if (match) onExistingMatch?.(match)
+    else setIsUrlFilled(true)
+  }
+
   function onUrlBlur(event: React.FocusEvent<HTMLInputElement>) {
-    setIsUrlFilled(isValidHttpUrl(event.target.value))
+    onUrlValidity(event.target.value)
+  }
+
+  // Typing reveals the form only on blur, so Enter on a typed url
+  // reveals it instead of submitting the parent form without it.
+  function onUrlKeyDown(
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) {
+    if (event.key !== 'Enter') return
+    const { value } = event.currentTarget
+    if (value === checkedUrl.current || !isHttpsUrl(value)) return
+    event.preventDefault()
+    onUrlValidity(value)
   }
 
   function onUrlChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -100,7 +203,7 @@ export const EditLink = ({
     const isBulkChange = delta > 1 || bulkInputTypes.has(inputType)
     if (!isBulkChange) return
 
-    setIsUrlFilled(isValidHttpUrl(event.target.value))
+    onUrlValidity(event.target.value)
   }
 
   // Press-picker links require their citation fields, once the url
@@ -112,12 +215,15 @@ export const EditLink = ({
       attributes={{
         maxLength: 255,
         name: `${namePrefix}title`,
-        placeholder: 'Title',
-        required: isCitationRequired
+        placeholder: isSocial ? 'Instagram' : 'Title',
+        required: isCitationRequired || (!!isSocial && isUrlFilled)
       }}
       defaultValue={link?.title}
       errors={errors?.title}
-      label='Display text'
+      label={isSocial ? 'Name' : 'Display text'}
+      ref={(el) => {
+        titleRef.current = el
+      }}
     />
   )
 
@@ -129,10 +235,10 @@ export const EditLink = ({
           'aria-expanded': isUrlFilled,
           maxLength: 255,
           name: `${namePrefix}url`,
-          // `type=url` alone accepts any scheme; match `isValidHttpUrl`.
-          pattern: 'https?://.+',
+          // `type=url` alone accepts any scheme
+          pattern: httpsUrlPattern,
           placeholder: 'https://example.com',
-          title: 'A URL starting with http:// or https://',
+          title: httpsUrlMessage,
           // Required when isRequired, or once the form is touched.
           // Meta fields can't be saved without a url.
           required: isRequired || isUrlFilled,
@@ -143,6 +249,7 @@ export const EditLink = ({
         label='URL'
         onBlur={onUrlBlur}
         onChange={onUrlChange}
+        onKeyDown={onUrlKeyDown}
         isLabelHidden={!isUrlFilled}
       />
 
@@ -153,7 +260,7 @@ export const EditLink = ({
       >
         <legend className='visually-hidden'>Link details</legend>
 
-        {isPress ? (
+        {isPress || isSocial ? (
           titleInput
         ) : (
           <div className={styles['input-group']}>
@@ -177,54 +284,56 @@ export const EditLink = ({
             {titleInput}
           </div>
         )}
-        <fieldset
-          className={styles['checkbox-group']}
-          hidden={!isPress && type !== 'press'}
-          id={pressControlsId}
-        >
-          <legend className='visually-hidden'>
-            Press link details
-          </legend>
-          <div className={styles['input-group']}>
+        {!isSocial && (
+          <fieldset
+            className={styles['checkbox-group']}
+            hidden={!isPress && type !== 'press'}
+            id={pressControlsId}
+          >
+            <legend className='visually-hidden'>
+              Press link details
+            </legend>
+            <div className={styles['input-group']}>
+              <Input
+                attributes={{
+                  maxLength: 255,
+                  name: `${namePrefix}attribution`,
+                  placeholder: 'New York Times',
+                  required: isCitationRequired
+                }}
+                defaultValue={link?.attribution}
+                description='The publication title or link source.'
+                errors={errors?.attribution}
+                label='Attribution'
+              />
+              <Input
+                attributes={{
+                  name: `${namePrefix}publishDate`,
+                  placeholder: 'YYYY-MM-DD',
+                  required: isCitationRequired,
+                  type: 'date'
+                }}
+                defaultValue={toDateInputValue(link?.publishDate)}
+                errors={errors?.publishDate}
+                label='Publish date'
+                description='Press links are sorted by publish date.'
+              />
+            </div>
             <Input
+              as='textarea'
               attributes={{
                 maxLength: 255,
-                name: `${namePrefix}attribution`,
-                placeholder: 'New York Times',
-                required: isCitationRequired
+                name: `${namePrefix}quotation`,
+                placeholder:
+                  'One of New York’s most influential artists'
               }}
-              defaultValue={link?.attribution}
-              description='The publication title or link source.'
-              errors={errors?.attribution}
-              label='Attribution'
+              description='A short quote from the link, if applicable.'
+              defaultValue={link?.quotation}
+              errors={errors?.quotation}
+              label='Quotation'
             />
-            <Input
-              attributes={{
-                name: `${namePrefix}publishDate`,
-                placeholder: 'YYYY-MM-DD',
-                required: isCitationRequired,
-                type: 'date'
-              }}
-              defaultValue={toDateInputValue(link?.publishDate)}
-              errors={errors?.publishDate}
-              label='Publish date'
-              description='Press links are sorted by publish date.'
-            />
-          </div>
-          <Input
-            as='textarea'
-            attributes={{
-              maxLength: 255,
-              name: `${namePrefix}quotation`,
-              placeholder:
-                'One of New York’s most influential artists'
-            }}
-            description='A short quote from the link, if applicable.'
-            defaultValue={link?.quotation}
-            errors={errors?.quotation}
-            label='Quotation'
-          />
-        </fieldset>
+          </fieldset>
+        )}
       </fieldset>
     </>
   )

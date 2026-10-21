@@ -1,8 +1,13 @@
 import { z } from 'zod'
 
 import { imageSchema } from '@/lib/images/schemas/db'
+import { linkSchema } from '@/lib/links/schemas/db'
 import { relationFields, systemFields } from '@/lib/schemas/fields'
-import { shortText } from '@/lib/schemas/primitives'
+import { shortText, uuid } from '@/lib/schemas/primitives'
+
+/** Most social links the footer shows. */
+export const MAX_SOCIAL_LINKS = 6
+export const maxSocialLinksMessage = `Add up to ${MAX_SOCIAL_LINKS} social links.`
 
 /**
  * Site settings represent global settings for the site.
@@ -12,6 +17,11 @@ import { shortText } from '@/lib/schemas/primitives'
 const siteSettingsFields = {
   coverImageId: relationFields.coverImageId,
   description: shortText.optional(),
+  /** the footer's links, in footer order */
+  socialLinkIds: z
+    .array(uuid)
+    .max(MAX_SOCIAL_LINKS, maxSocialLinksMessage)
+    .optional(),
   title: shortText.optional()
 }
 
@@ -31,5 +41,6 @@ export type CreateSiteSettings = z.infer<
 >
 
 export const siteSettingsClientSchema = siteSettingsSchema.extend({
-  coverImage: z.lazy(() => imageSchema).optional()
+  coverImage: z.lazy(() => imageSchema).optional(),
+  socialLinks: z.array(linkSchema).optional()
 })

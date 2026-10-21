@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 
+import { linkFixture } from '@/lib/links/fixtures'
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import { EditSettings } from '@/ui/form/edit-settings'
 import { ToastProvider } from '@/ui/toast/toast-context'
@@ -45,5 +46,52 @@ describe('EditSettings', () => {
       screen.getByLabelText(/upload new image/i)
     ).toBeInTheDocument()
     expect(mockEditSiteSettings).not.toHaveBeenCalled()
+  })
+
+  it('renders the social links picker with existing links in order', () => {
+    const socialLinks = [
+      { ...linkFixture, id: 'link-b', title: 'Zine' },
+      { ...linkFixture, id: 'link-a', title: 'Album' }
+    ]
+    renderComponent({
+      settings: { id: 'settings-1', socialLinks }
+    })
+
+    expect(screen.getByText('Social links')).toBeInTheDocument()
+    const ids = Array.from(
+      document.querySelectorAll<HTMLInputElement>(
+        'input[name^="socialLinks["][name$="].id"]'
+      )
+    ).map((input) => [input.name, input.value])
+    // the blank url form takes slot 0
+    expect(ids).toEqual([
+      ['socialLinks[1].id', 'link-b'],
+      ['socialLinks[2].id', 'link-a']
+    ])
+    expect(
+      document.querySelector('input[name="socialLinks[0].url"]')
+    ).toBeVisible()
+    expect(
+      document.querySelector('input[name="socialLinks[]"]')
+    ).toBeInTheDocument()
+  })
+
+  it('shows a list error from the action under the picker', async () => {
+    mockEditSiteSettings.mockResolvedValue({
+      ok: false,
+      message: 'Failed to validate site settings.',
+      errors: { socialLinks: ['Add up to 6 social links.'] }
+    })
+    renderComponent({ settings: { id: 'settings-1' } })
+
+    // unchanged forms skip submitting
+    fireEvent.change(screen.getByLabelText(/site title/i), {
+      target: { value: 'New title' }
+    })
+    fireEvent.submit(document.querySelector('form')!)
+
+    expect(
+      await screen.findByText('Add up to 6 social links.')
+    ).toBeInTheDocument()
   })
 })

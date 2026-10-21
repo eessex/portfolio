@@ -5,7 +5,9 @@ import {
   deleteLink,
   editLink,
   resolveOrderedLinkIds,
-  saveLinkFromFields
+  resolveSocialLinkIds,
+  saveLinkFromFields,
+  saveSocialLinkFromFields
 } from '@/lib/links/actions'
 import {
   linkFixture,
@@ -33,6 +35,8 @@ describe('Link Actions', () => {
       expect(updateTag).toHaveBeenCalledWith('links')
       // links are embedded into cached release/event/project/edition pages
       expect(updateTag).toHaveBeenCalledWith('releases')
+      // and the footer, through site settings
+      expect(updateTag).toHaveBeenCalledWith('settings')
     })
 
     it('deletes by id only, not other links sharing its url', async () => {
@@ -188,6 +192,86 @@ describe('Link Actions', () => {
         'Invalid link data: Required'
       )
       expect(mockSql).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('#saveSocialLinkFromFields', () => {
+    it('saves the link as social', async () => {
+      mockSql.mockResolvedValueOnce([linkFixture])
+
+      await saveSocialLinkFromFields({
+        url: newLinkFixture.url,
+        title: 'Instagram',
+        type: 'press'
+      })
+
+      const params = mockSql.mock.calls[0]!.slice(1)
+      expect(params).toContain('social')
+      expect(params).not.toContain('press')
+    })
+
+    it('requires a name', async () => {
+      await expect(
+        saveSocialLinkFromFields({
+          url: newLinkFixture.url,
+          title: ''
+        })
+      ).rejects.toThrow('Invalid link data')
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('rejects an http url', async () => {
+      await expect(
+        saveSocialLinkFromFields({
+          url: 'http://example.com',
+          title: 'Example'
+        })
+      ).rejects.toThrow('Invalid link data')
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('#resolveSocialLinkIds', () => {
+    it('returns undefined when the picker was not submitted', async () => {
+      const result = await resolveSocialLinkIds({ title: 'Site' })
+
+      expect(result).toBeUndefined()
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('returns an empty list for an emptied picker', async () => {
+      const result = await resolveSocialLinkIds({
+        'socialLinks[]': ''
+      })
+
+      expect(result).toEqual([])
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('dedupes ids in submitted order, leaving existing links as they are', async () => {
+      const result = await resolveSocialLinkIds({
+        'socialLinks[]': '',
+        'socialLinks[0].id': 'link-2',
+        'socialLinks[1].id': 'link-1',
+        'socialLinks[2].id': 'link-2'
+      })
+
+      expect(result).toEqual(['link-2', 'link-1'])
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('creates new entries as social links in place', async () => {
+      mockSql.mockResolvedValueOnce([linkFixture]) // INSERT
+
+      const result = await resolveSocialLinkIds({
+        'socialLinks[]': '',
+        'socialLinks[0].id': 'link-1',
+        'socialLinks[1].url': newLinkFixture.url,
+        'socialLinks[1].title': 'Instagram'
+      })
+
+      expect(result).toEqual(['link-1', linkFixture.id])
+      expect(mockSql.mock.calls[0]!.slice(1)).toContain('social')
     })
   })
 

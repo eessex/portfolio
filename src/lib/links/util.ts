@@ -77,3 +77,29 @@ export function pressLinksFirst<T extends LinkOrderFields>(
 export function isPressLink(link: { type?: unknown }) {
   return link.type === LinkTypes.press
 }
+
+/** A link's display name: its title, else its url's hostname. */
+export function linkName(link: { title?: unknown; url?: unknown }) {
+  if (typeof link.title === 'string' && link.title.trim()) {
+    return link.title.trim()
+  }
+  if (typeof link.url !== 'string') return ''
+  try {
+    return new URL(link.url).hostname
+  } catch {
+    return link.url
+  }
+}
+
+/** Alphabetical by `linkName`, case-insensitive; nameless links last. */
+export function compareLinksByName(
+  a: { title?: unknown; url?: unknown },
+  b: { title?: unknown; url?: unknown }
+) {
+  const nameA = linkName(a)
+  const nameB = linkName(b)
+  if (!nameA || !nameB) return nameA ? -1 : nameB ? 1 : 0
+  return nameA.localeCompare(nameB, undefined, {
+    sensitivity: 'base'
+  })
+}

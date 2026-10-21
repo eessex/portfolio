@@ -252,6 +252,36 @@ export function useItemPickerEntries<
     })
   }
 
+  /**
+   * Swaps a `new` draft for `item`'s existing chip in the draft's slot
+   * (e.g. its typed URL matched a saved item), or just drops the draft
+   * if `item` is already listed.
+   */
+  function replaceDraftWithExisting(
+    entry: Draft<TEmbeddedItem, TPage>,
+    item: TEmbeddedItem | TPage
+  ) {
+    disposeEntry(entry)
+    setEntries((current) => {
+      if (!current.some((s) => entryId(s) === entryId(entry))) {
+        return current
+      }
+      const isListed = current.some(
+        (s) =>
+          (s.kind === 'existing' || s.kind === 'editing') &&
+          s.item.id === item.id
+      )
+      const next = isListed
+        ? current.filter((s) => entryId(s) !== entryId(entry))
+        : current.map((s) =>
+            entryId(s) === entryId(entry)
+              ? { kind: 'existing' as const, item }
+              : s
+          )
+      return keepDefaultOrder(current, next)
+    })
+  }
+
   /** Opens a blank create editor, returning its tempId. */
   function addNew(query?: string) {
     const ids = mintTempId()
@@ -445,6 +475,7 @@ export function useItemPickerEntries<
     addNew,
     editExisting,
     removeEntry,
+    replaceDraftWithExisting,
     revertEditingEntry,
     markEntryTouched,
     setBusyEntry,

@@ -17,7 +17,18 @@ export async function fetchSiteSettings() {
               WHERE i.id = s.cover_image_id
             )
           END
-        ) AS cover_image
+        ) AS cover_image,
+        (
+          SELECT COALESCE(
+            jsonb_agg(
+              build_link_json(l)
+              ORDER BY array_position(s.social_link_ids, l.id)
+            ),
+            '[]'::jsonb
+          )
+          FROM links l
+          WHERE l.id = ANY(s.social_link_ids)
+        ) AS social_links
       FROM site_settings s
     `
     if (data.length === 0) {

@@ -1,10 +1,6 @@
 import { z } from 'zod'
 
-import {
-  relationFields,
-  systemFields,
-  taxonomyFields
-} from '@/lib/schemas/fields'
+import { systemFields, taxonomyFields } from '@/lib/schemas/fields'
 import { date, shortText, uuid } from '@/lib/schemas/primitives'
 
 export const publishedEditionTypes = [
@@ -44,16 +40,6 @@ const publishedEditionFields = {
 }
 
 /**
- * Read-only: still stored and returned, but no longer edited (hidden
- * from the form until they're needed).
- */
-const legacyFields = {
-  buyLinkId: uuid.optional(),
-  coverImageId: relationFields.coverImageId,
-  imageIds: relationFields.imageIds
-}
-
-/**
  * Represents a published edition of a release, such as a vinyl pressing, cassette or digital edition.
  * This is separate from the Release itself, which represents the overall work.
  * A release may have multiple editions, each with its own format, publish date, and publisher.
@@ -63,8 +49,7 @@ const legacyFields = {
 export const publishedEditionSchema = z.object({
   ...systemFields,
   ...taxonomyFields,
-  ...publishedEditionFields,
-  ...legacyFields
+  ...publishedEditionFields
 })
 export type PublishedEdition = z.infer<typeof publishedEditionSchema>
 

@@ -1,7 +1,12 @@
 import { z } from 'zod'
 
 import { systemFields } from '@/lib/schemas/fields'
-import { date, shortText, url } from '@/lib/schemas/primitives'
+import {
+  date,
+  shortText,
+  url,
+  withLegacySnakeCase
+} from '@/lib/schemas/primitives'
 
 /**
  * The category of resource a link points to.
@@ -9,10 +14,10 @@ import { date, shortText, url } from '@/lib/schemas/primitives'
 export const linkTypes = [
   'press',
   'social',
-  'buy_link',
-  'stream_link'
+  'buyLink',
+  'streamLink'
 ] as const
-export const linkTypeSchema = z.enum(linkTypes)
+export const linkTypeSchema = withLegacySnakeCase(z.enum(linkTypes))
 export const LinkTypes = Object.fromEntries(
   linkTypes.map((v) => [v, v])
 ) as {

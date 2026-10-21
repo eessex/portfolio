@@ -38,7 +38,7 @@ export const sortReleasesByCategory = (
       case 'soundtrack':
         result.soundtracks.push(release)
         break
-      case 'collaborative_release':
+      case 'collaborativeRelease':
         result.collaborativeReleases.push(release)
         break
       case 'feature':

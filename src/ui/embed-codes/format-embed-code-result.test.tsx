@@ -83,7 +83,7 @@ describe('formatEmbedCodeResult', () => {
     render(
       formatEmbedCodeResult({
         ...embedCodeWithCoverImage,
-        contentType: 'live_performance'
+        contentType: 'livePerformance'
       })
     )
 
@@ -136,7 +136,7 @@ describe('formatNewEmbedCodeSummary', () => {
   it('renders a badge for the collected contentType', () => {
     render(
       formatNewEmbedCodeSummary(
-        { ...data, contentType: 'live_performance' },
+        { ...data, contentType: 'livePerformance' },
         undefined,
         actions
       )

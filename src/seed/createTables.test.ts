@@ -70,6 +70,63 @@ describe('createTables', () => {
     }
   )
 
+  it.each([
+    [
+      'embed_codes',
+      'content_type',
+      {
+        dj_set: 'djSet',
+        live_performance: 'livePerformance',
+        official_audio: 'officialAudio',
+        official_music_video: 'officialMusicVideo',
+        radio_show: 'radioShow'
+      }
+    ],
+    [
+      'links',
+      'type',
+      { buy_link: 'buyLink', stream_link: 'streamLink' }
+    ],
+    [
+      'releases',
+      'type',
+      { collaborative_release: 'collaborativeRelease' }
+    ]
+  ])(
+    'renames old %s.%s values between dropping and adding the CHECK',
+    (table, column, renames) => {
+      const call = mockSql.mock.calls.find(([, ...params]) =>
+        params.some(
+          (p) =>
+            (p as { raw?: string }).raw === `chk_${table}_${column}`
+        )
+      )!
+      const [strings, ...params] = call
+      const update = params.find((p) =>
+        (p as { raw?: string }).raw?.startsWith(`UPDATE ${table} `)
+      ) as { raw: string }
+      for (const [from, to] of Object.entries(renames)) {
+        expect(update.raw).toContain(`WHEN '${from}' THEN '${to}'`)
+      }
+      expect(update.raw).toContain(
+        `WHERE ${column} IN (${Object.keys(renames)
+          .map((v) => `'${v}'`)
+          .join(', ')})`
+      )
+      const text = (strings as unknown as string[]).join('?')
+      const updateAt = params.indexOf(update)
+      const placeholderAt = (i: number) =>
+        (strings as unknown as string[]).slice(0, i + 1).join('?')
+          .length
+      expect(placeholderAt(updateAt)).toBeGreaterThan(
+        text.indexOf('END LOOP')
+      )
+      expect(placeholderAt(updateAt)).toBeLessThan(
+        text.indexOf('ADD CONSTRAINT')
+      )
+    }
+  )
+
   it('leaves value lists out of CREATE TABLE', () => {
     const creates = mockSql.mock.calls
       .map(([strings]) => (strings as unknown as string[]).join('?'))

@@ -27,11 +27,13 @@ export function snakeToCamel(str: string) {
 }
 
 /**
- * Converts snake_case to a sentence, e.g. `buy_link` -> `Buy link`.
+ * Converts camelCase to a sentence, e.g. `buyLink` -> `Buy link`.
  * Unlike `camelToSentence`, only the first letter is capitalized.
  */
-export function snakeToSentence(str: string) {
-  return capitalizeFirstLetter(str.replace(/_/g, ' '))
+export function camelToSentenceCase(str: string) {
+  return capitalizeFirstLetter(
+    str.replace(/([A-Z])/g, (letter) => ` ${letter.toLowerCase()}`)
+  )
 }
 
 export function camelToSnake(str: string) {

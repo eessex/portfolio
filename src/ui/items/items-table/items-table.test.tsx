@@ -248,7 +248,7 @@ describe('ItemsTable', () => {
 describe('ItemsTable — embedded items (embed codes)', () => {
   const usedEmbedCode: DashboardEmbedCode = {
     ...embedCodeFixture,
-    contentType: EmbedCodeContentTypes.official_music_video,
+    contentType: EmbedCodeContentTypes.officialMusicVideo,
     eventSlugs: [],
     projectSlugs: [],
     releaseSlugs: ['some-release']

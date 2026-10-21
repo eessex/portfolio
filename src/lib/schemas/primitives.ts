@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { camelToSentence } from '@/lib/strings'
+import { camelToSentence, snakeToCamel } from '@/lib/strings'
 
 /**
  * Zod's default `invalid_enum_value` message dumps every allowed option into
@@ -26,6 +26,18 @@ z.setErrorMap((issue, ctx) => {
   }
   return { message: ctx.defaultError }
 })
+
+/**
+ * Reads a pre-migration snake_case enum value as its camelCase
+ * spelling. TODO: remove once prod rows are migrated.
+ */
+export const withLegacySnakeCase = <T extends z.ZodTypeAny>(
+  schema: T
+) =>
+  z.preprocess(
+    (v) => (typeof v === 'string' ? snakeToCamel(v) : v),
+    schema
+  )
 
 export const MAX_STRING_LENGTH_LONG = 5000
 export const MAX_STRING_LENGTH_SHORT = 255

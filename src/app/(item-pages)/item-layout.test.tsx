@@ -8,6 +8,7 @@ import {
 import ItemLayout, {
   generateItemMetadata
 } from '@/app/(item-pages)/item-layout'
+import { isAuthed } from '@/lib/auth/guard'
 import { embedCodeFixture } from '@/lib/embed-codes/fixtures'
 import {
   eventFixturePast,
@@ -22,8 +23,15 @@ import { resolveSlug } from '@/lib/slug/data'
 jest.mock('@/lib/slug/data', () => ({
   resolveSlug: jest.fn()
 }))
+jest.mock('@/lib/auth/guard', () => ({ isAuthed: jest.fn() }))
+jest.mock('next/navigation', () => ({
+  redirect: jest.fn((url: string) => {
+    throw new Error(`redirect:${url}`)
+  })
+}))
 
 const mockResolveSlug = jest.mocked(resolveSlug)
+const mockIsAuthed = jest.mocked(isAuthed)
 
 describe('generateItemMetadata', () => {
   beforeEach(() => {
@@ -66,7 +74,7 @@ describe('generateItemMetadata', () => {
     expect(meta.description).toBe(projectFixtureBand.shortDescription)
   })
 
-  it('points a historical slug canonical at the current slug', async () => {
+  it('redirects a historical slug to the current slug', async () => {
     mockResolveSlug.mockResolvedValue({
       id: projectFixtureBand.id,
       slug: projectFixtureBand.slug,
@@ -74,14 +82,65 @@ describe('generateItemMetadata', () => {
     })
     const fetchById = jest.fn().mockResolvedValue(projectFixtureBand)
 
-    const meta = await generateItemMetadata(
-      Promise.resolve({ slug: 'old-slug' }),
-      PagePaths.projects,
-      fetchById
+    await expect(
+      generateItemMetadata(
+        Promise.resolve({ slug: 'old-slug' }),
+        PagePaths.projects,
+        fetchById
+      )
+    ).rejects.toThrow(`redirect:/projects/${projectFixtureBand.slug}`)
+  })
+
+  it('redirects a missing slug to the index, like the page', async () => {
+    mockResolveSlug.mockResolvedValue(null)
+
+    await expect(
+      generateItemMetadata(
+        Promise.resolve({ slug: 'missing' }),
+        PagePaths.releases,
+        jest.fn()
+      )
+    ).rejects.toThrow('redirect:/releases')
+  })
+
+  describe('unpublished items', () => {
+    const draft = { ...releaseFixtureAlbum, isPublished: false }
+    // mirrors the real query: drafts only when unpublished rows are included
+    const fetchById = jest.fn(
+      async (_id: string, isIncludingUnpublished: boolean) =>
+        isIncludingUnpublished ? draft : undefined
     )
 
-    expect(meta.alternates).toEqual({
-      canonical: `/projects/${projectFixtureBand.slug}`
+    beforeEach(() => {
+      mockResolveSlug.mockResolvedValue({
+        id: draft.id,
+        slug: draft.slug,
+        isRedirect: false
+      })
+    })
+
+    it('resolves no draft metadata for a logged-out visitor', async () => {
+      mockIsAuthed.mockResolvedValue(false)
+
+      await expect(
+        generateItemMetadata(
+          Promise.resolve({ slug: draft.slug }),
+          PagePaths.releases,
+          fetchById
+        )
+      ).rejects.toThrow('redirect:/releases')
+    })
+
+    it('resolves the draft metadata for an authed visitor', async () => {
+      mockIsAuthed.mockResolvedValue(true)
+
+      const meta = await generateItemMetadata(
+        Promise.resolve({ slug: draft.slug }),
+        PagePaths.releases,
+        fetchById
+      )
+
+      expect(meta.description).toBe(draft.shortDescription)
     })
   })
 

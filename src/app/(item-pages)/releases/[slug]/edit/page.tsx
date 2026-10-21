@@ -2,10 +2,9 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
-import { isAuthed } from '@/lib/auth/guard'
+import { resolveEditItemId } from '@/app/(item-pages)/resolve-page-item'
 import { fetchReleaseById } from '@/lib/releases/data'
 import { PagePaths } from '@/lib/schemas'
-import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
 import { Loading } from '@/ui/loading'
 import { EditReleaseForm } from '@/ui/releases/edit-release-form'
@@ -29,11 +28,9 @@ export default function EditReleasePage({ params }: PageItemProps) {
 
 async function EditRelease({ params }: PageItemProps) {
   const { slug } = await params
-  const resolved = await resolveSlug(PagePaths.releases, slug)
-  const authed = await isAuthed()
+  const id = await resolveEditItemId(PagePaths.releases, slug)
   // uncached: saving a stale form drops child ids added since
-  const release =
-    resolved && (await fetchReleaseById(resolved.id, authed))
+  const release = await fetchReleaseById(id, true)
 
   if (!release) return notFound()
 

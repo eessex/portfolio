@@ -4,7 +4,11 @@ import { sql } from '@/lib/db'
 import { fetchCachedLinksFirstPage } from '@/lib/links/cached'
 import type { DashboardLink } from '@/lib/links/schemas/client'
 import { dashboardLinkSchema } from '@/lib/links/schemas/client'
-import { type CreateLink, linkSchema } from '@/lib/links/schemas/db'
+import {
+  type Link,
+  linkSchema,
+  type LinkType
+} from '@/lib/links/schemas/db'
 import { runListFetch } from '@/lib/list-fetch'
 import {
   DEFAULT_PAGE_SIZE,
@@ -28,32 +32,29 @@ export async function fetchLinksByIds(ids: string[]) {
   }
 }
 
-export async function fetchLinkByUrl(link: CreateLink) {
+/**
+ * The `type` link already saved with `url`, if any; the most recently
+ * updated wins, since `url` isn't unique. A link of another type with
+ * the same url doesn't match, so the caller creates a separate link.
+ * `title`, if given, must match too (case-insensitively).
+ */
+export async function fetchLinkByUrl(
+  url: string,
+  type: LinkType,
+  title?: string
+): Promise<Link | undefined> {
   try {
-    const data = await sql`
-      SELECT
-        links.*,
-        ARRAY(
-          SELECT slug FROM events AS e WHERE e.link_ids @> ARRAY[links.id]
-        ) AS event_slugs,
-        ARRAY(
-          SELECT slug FROM projects AS p WHERE p.id = links.project_id
-        ) AS project_slugs,
-        ARRAY(
-          SELECT slug FROM releases AS r WHERE r.link_ids @> ARRAY[links.id]
-        ) AS release_slugs
-      FROM links
-      WHERE url = ${link.url}
+    const [row] = await sql`
+      SELECT * FROM links
+      WHERE url = ${url.trim()}
+      AND type = ${type}
+      AND (${title ?? null}::text IS NULL OR lower(title) = lower(${title ?? null}))
+      ORDER BY updated_at DESC
       LIMIT 1
     `
-    if (data.length === 0) {
-      return null
-    } else {
-      return {
-        res: formatDbResponseForClient(data[0], linkSchema),
-        fieldName: 'url' as keyof CreateLink
-      }
-    }
+    return row
+      ? formatDbResponseForClient(row, linkSchema)
+      : undefined
   } catch (cause) {
     throw new Error('Failed to fetch link.', { cause })
   }
@@ -73,23 +74,6 @@ export async function fetchLinks(
   }
 
   return fetchLinksRaw(cursor, query, isPress)
-}
-
-/** links to social media profiles */
-export async function fetchSocialLinksRaw() {
-  try {
-    const data = await sql`
-      SELECT * FROM links
-      WHERE type = 'social'
-      AND title IS NOT NULL
-      ORDER BY title ASC
-    `
-    return data.map((row) =>
-      formatDbResponseForClient(row, linkSchema)
-    )
-  } catch (cause) {
-    throw new Error('Failed to fetch social links.', { cause })
-  }
 }
 
 /**

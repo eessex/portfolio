@@ -9,11 +9,13 @@ import {
   runFormAction,
   saveItemFromFields
 } from '@/lib/form-action'
+import { emptyListFieldName } from '@/lib/item-fields'
 import { fetchLinksByIds } from '@/lib/links/data'
 import {
   type CreateLink,
   createLinkSchema,
   createPressLinkSchema,
+  createSocialLinkSchema,
   type Link,
   linkSchema,
   LinkTypes
@@ -40,6 +42,8 @@ function invalidateLinkTags() {
   updateTag('releases')
   updateTag('events')
   updateTag('projects')
+  // the footer social links are read through site settings
+  updateTag('settings')
 }
 
 export async function deleteLink(link: Link) {
@@ -112,6 +116,42 @@ export async function resolveOrderedLinkIds(
   // the same link picked in both keeps its first position
   const linkIds = [...new Set([...pressLinkIds, ...otherLinkIds])]
   return { linkIds }
+}
+
+/**
+ * `saveLinkFromFields` for a Social links picker entry:
+ * saved as social, with a name required.
+ */
+export async function saveSocialLinkFromFields(
+  fields: Record<string, unknown>,
+  id?: string
+): Promise<Link> {
+  return saveItemFromFields({
+    id,
+    fields: { ...fields, type: LinkTypes.social },
+    schema: createSocialLinkSchema,
+    itemType: 'links',
+    create: createLink,
+    update: updateLink
+  })
+}
+
+/**
+ * Resolves the site settings' Social links picker into ordered,
+ * deduped link ids; new and edited ones are saved as social. `undefined`
+ * when the picker wasn't submitted, so the stored list is left alone.
+ */
+export async function resolveSocialLinkIds(
+  data: Record<string, unknown>,
+  name = 'socialLinks'
+): Promise<string[] | undefined> {
+  if (!(emptyListFieldName(name) in data)) return undefined
+
+  return [
+    ...new Set(
+      await resolveOrderedIds(data, name, saveSocialLinkFromFields)
+    )
+  ]
 }
 
 async function createLink(link: CreateLink) {

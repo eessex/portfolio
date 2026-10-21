@@ -2,7 +2,13 @@
 
 import { BarsArrowDownIcon } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
-import { useEffect, useEffectEvent, useRef, useState } from 'react'
+import {
+  useEffect,
+  useEffectEvent,
+  useLayoutEffect,
+  useRef,
+  useState
+} from 'react'
 import { flushSync } from 'react-dom'
 import type { z } from 'zod'
 
@@ -68,6 +74,11 @@ export type RenderEditItemFormArgs<
    * that must resolve before a new item is saved.
    */
   onBusyChange?: (isBusy: boolean) => void
+  /**
+   * New drafts only: swaps the draft for an already-saved item (e.g.
+   * one with the URL just typed), so it isn't created twice.
+   */
+  onExistingMatch?: (item: TEmbeddedItem | TPage) => void
 }
 
 /** Actions passed to a picker's `renderNewItemSummary` callback. */
@@ -183,6 +194,16 @@ export type ItemPickerProps<
          */
         isSearchHidden?: boolean
         /**
+         * With `isSearchHidden`: no New button once this many are
+         * listed. Above 1, an "N of max" hint shows the count.
+         */
+        maxItems?: number
+        /**
+         * With `isSearchHidden`: a blank create form stays open in place
+         * of the New button, until `maxItems` are listed.
+         */
+        isCreateFormAlwaysOpen?: boolean
+        /**
          * Chips are always sorted by this, with no drag controls (a
          * release's editions, by date). Use instead of `defaultOrder`.
          */
@@ -260,6 +281,11 @@ export function ItemPicker<
   const compareOrder = sortBy ?? defaultOrder?.compare
   const isSearchHidden =
     !!props.isMulti && !!renderEditItemForm && !!props.isSearchHidden
+  const maxItems = props.isMulti ? props.maxItems : undefined
+  const isCreateFormAlwaysOpen =
+    isSearchHidden &&
+    !!props.isMulti &&
+    !!props.isCreateFormAlwaysOpen
   // non-empty when nested in another picker's entry
   const outerPrefix = useNamePrefix()
   const singleIdFieldName = `${outerPrefix}${itemIdFieldName(itemType, name)}`
@@ -304,6 +330,7 @@ export function ItemPicker<
     addNew,
     editExisting,
     removeEntry,
+    replaceDraftWithExisting,
     revertEditingEntry,
     markEntryTouched,
     setBusyEntry,
@@ -319,10 +346,14 @@ export function ItemPicker<
   } = useItemPickerEntries<TEmbeddedItem, TPage>({
     isMulti: !!isMulti,
     existingItems,
-    // create-only lists open a blank editor only when empty
+    // create-only lists open a blank editor only when empty, unless
+    // it's always open
     isCreateFirst:
       isCreateFirst &&
-      (!isSearchHidden || existingItems.length === 0),
+      (!isSearchHidden ||
+        existingItems.length === 0 ||
+        (isCreateFormAlwaysOpen &&
+          existingItems.length < (maxItems ?? Infinity))),
     compareDefaultOrder: compareOrder,
     isOrderFixed: !!sortBy,
     orderGroup: defaultOrder?.group,
@@ -419,6 +450,24 @@ export function ItemPicker<
     prevEntries.current = entries
     onEntriesChange()
   }, [entries])
+
+  // an open draft counts only once it's been saved (a reopened chip)
+  const itemCount =
+    openDraft?.kind === 'new' && !openDraft.summaryData
+      ? entries.length - 1
+      : entries.length
+  const isBelowMax = itemCount < (maxItems ?? Infinity)
+  // "1 of 1" says nothing
+  const isMaxHintShown = maxItems !== undefined && maxItems > 1
+  // reopen the blank form whenever the last editor closes (save,
+  // cancel, an existing match, a remove below the cap); before paint,
+  // so the gap between closing and reopening never shows
+  const openBlankForm = useEffectEvent(() => addNew())
+  useLayoutEffect(() => {
+    if (isCreateFormAlwaysOpen && !hasOpenDraft && isBelowMax) {
+      openBlankForm()
+    }
+  }, [isCreateFormAlwaysOpen, hasOpenDraft, isBelowMax])
 
   // saveDraft reads the fieldset, so it waits for the draft's commit
   useEffect(() => {
@@ -558,6 +607,16 @@ export function ItemPicker<
     }
   }
 
+  function handleExistingMatch(
+    entry: Draft<TEmbeddedItem, TPage>,
+    item: TEmbeddedItem | TPage
+  ) {
+    replaceDraftWithExisting(entry, item)
+    // the draft's form unmounts without reporting
+    setIsMainFieldReady(false)
+    pendingFocus.current = { kind: 'edit', id: item.id }
+  }
+
   function handleAddNew() {
     if (!closeOpenDrafts()) return
     pendingFocus.current = { kind: 'create', tempId: addNew() }
@@ -579,7 +638,10 @@ export function ItemPicker<
         errors={draftErrors[entry.tempId]}
         isBusy={busyEntries[entry.tempId]}
         isRequired={isRequired ?? false}
-        isActionsVisible={isSearchFirst || isSearchHidden}
+        // an always-open form shows Save once expanded, like LinksPicker
+        isActionsVisible={
+          isSearchFirst || (isSearchHidden && !isCreateFormAlwaysOpen)
+        }
         legend={entry.kind === 'editing' ? itemLabel : newLabel}
         saveLabel={saveLabel}
         onSave={() => handleSave(entry, submitIndex)}
@@ -600,6 +662,7 @@ export function ItemPicker<
         }
         onReadyChange={isMulti ? undefined : setIsMainFieldReady}
         onBusyChange={(isBusy) => setBusyEntry(entry.tempId, isBusy)}
+        onExistingMatch={(item) => handleExistingMatch(entry, item)}
         setFieldsetRef={(el) => setFieldsetRef(entry.tempId, el)}
         renderEditItemForm={renderEditItemForm}
       />
@@ -722,15 +785,37 @@ export function ItemPicker<
           <InputLabel
             isRequired={isRequired}
             label={label || itemTypeToLabel(itemType, false)}
-            description={description}
+            // with a cap, the description shares a row with its hint
+            description={isMaxHintShown ? undefined : description}
           />
-          {!hasOpenDraft && (
+          {!isCreateFormAlwaysOpen && !hasOpenDraft && isBelowMax && (
             <CreateItemButton
               className='button-sm'
               itemType={itemType}
               label={newLabel}
               onClick={handleAddNew}
             />
+          )}
+          {isMaxHintShown && (
+            <div className={itemPickerStyles['description-row']}>
+              {description && <p>{description}</p>}
+              {/* always mounted, so the live region announces the cap */}
+              <span
+                className={itemPickerStyles['max-items-hint']}
+                role='status'
+              >
+                {itemCount > 0 && (
+                  <>
+                    {itemCount} of {maxItems}
+                    {!isBelowMax && (
+                      <span className='visually-hidden'>
+                        , the most allowed
+                      </span>
+                    )}
+                  </>
+                )}
+              </span>
+            </div>
           )}
         </div>
       ) : (

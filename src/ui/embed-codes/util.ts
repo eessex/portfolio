@@ -8,6 +8,7 @@ import {
   EmbedCodeHostsByType,
   EmbedCodeTypes
 } from '@/lib/embed-codes/schemas/db'
+import { isHttpsUrl } from '@/lib/schemas/primitives'
 
 export function defaultEmbedSizeByHost(
   host?: EmbedCodeHost
@@ -46,17 +47,10 @@ export function extractHostnameType(hostname: EmbedCodeHost) {
 
 export function extractHostFromUrl(url: string): EmbedCodeHost {
   const parsed = new URL(url)
-  const host = embedCodeHosts.find((h) => parsed.hostname.includes(h))
+  // dotless, so short domains match too (youtu.be → youtube)
+  const hostname = parsed.hostname.replaceAll('.', '')
+  const host = embedCodeHosts.find((h) => hostname.includes(h))
   return host ?? EmbedCodeHosts.unknown
-}
-
-function isSafeIframeUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url)
-    return parsed.protocol === 'https:'
-  } catch {
-    return false
-  }
 }
 
 interface EmbedCodeDimensions {
@@ -139,7 +133,7 @@ export function extractIframeParams(
     const iframeEl = doc.querySelector('iframe')
 
     const src = iframeEl?.getAttribute('src')
-    if (!src || !isSafeIframeUrl(src) || !iframeEl) {
+    if (!src || !isHttpsUrl(src) || !iframeEl) {
       if (isThrowOnError) {
         throw new Error('Invalid iframe code.')
       }

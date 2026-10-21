@@ -1,19 +1,21 @@
-import { fetchCachedSocialLinks } from '@/lib/links/cached'
+import { linkName } from '@/lib/links/util'
+import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { EmailSubscribe } from '@/ui/email-subscribe/email-subscribe'
 import styles from '@/ui/footer/footer.module.scss'
 
 export async function Footer() {
-  const socialLinks = await fetchCachedSocialLinks()
+  const settings = await fetchCachedSiteSettings()
+  const socialLinks = settings?.socialLinks ?? []
 
   return (
     <footer className={styles.footer}>
       {socialLinks.length > 0 && (
         <nav>
           <ul>
-            {socialLinks.map((link, index) => (
-              <li key={index}>
+            {socialLinks.map((link) => (
+              <li key={link.id}>
                 <a href={link.url} target='_blank' rel='noreferrer'>
-                  {link.title}
+                  {linkName(link)}
                 </a>
               </li>
             ))}

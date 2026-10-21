@@ -1,5 +1,7 @@
 import {
   compareLinksByDefaultOrder,
+  compareLinksByName,
+  linkName,
   pressLinksFirst
 } from '@/lib/links/util'
 
@@ -112,5 +114,32 @@ describe('pressLinksFirst', () => {
       'bare-press',
       'related-b'
     ])
+  })
+})
+
+describe('linkName', () => {
+  it('prefers the title, else the hostname', () => {
+    expect(
+      linkName({ title: ' Bandcamp ', url: 'https://a.bandcamp.com' })
+    ).toBe('Bandcamp')
+    expect(linkName({ url: 'https://a.bandcamp.com/x' })).toBe(
+      'a.bandcamp.com'
+    )
+    expect(linkName({})).toBe('')
+  })
+})
+
+describe('compareLinksByName', () => {
+  it('sorts by name case-insensitively, nameless links last', () => {
+    const links = [
+      {},
+      { title: 'youTube' },
+      { url: 'https://instagram.com/me' },
+      { title: 'Bandcamp' }
+    ]
+
+    expect([...links].sort(compareLinksByName).map(linkName)).toEqual(
+      ['Bandcamp', 'instagram.com', 'youTube', '']
+    )
   })
 })

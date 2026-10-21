@@ -43,6 +43,29 @@ export const bool = z.boolean()
 
 export const url = z.string().url().max(MAX_STRING_LENGTH_SHORT)
 
+function urlProtocol(value: string) {
+  try {
+    return new URL(value).protocol
+  } catch {
+    return undefined
+  }
+}
+
+export function isHttpsUrl(value: string) {
+  return urlProtocol(value) === 'https:'
+}
+
+export const httpsUrlMessage =
+  'Use a secure URL starting with https://.'
+/** An `<input pattern>` matching `httpsUrl`; patterns are case-sensitive. */
+export const httpsUrlPattern = '[Hh][Tt][Tt][Pp][Ss]://.+'
+
+// a non-url is left to `url`'s message alone
+export const httpsUrl = url.refine(
+  (value) => urlProtocol(value) === undefined || isHttpsUrl(value),
+  httpsUrlMessage
+)
+
 export const slug = shortText.regex(
   /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
   'Can only contain lowercase letters, numbers, and hyphens.'

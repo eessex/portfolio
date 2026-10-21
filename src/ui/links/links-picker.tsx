@@ -1,21 +1,24 @@
 import {
   createLinkSchema,
   createPressLinkSchema,
+  createSocialLinkSchema,
   type Link,
   LinkTypes
 } from '@/lib/links/schemas/db'
 import {
   compareLinksByDefaultOrder,
+  compareLinksByName,
   isPressLink,
   linkOrderGroup
 } from '@/lib/links/util'
+import { MAX_SOCIAL_LINKS } from '@/lib/site-settings/schemas'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { EditLink } from '@/ui/links/edit-link-form'
 import {
   formatLinkResult,
+  formatLinkResultWithoutBadge,
   formatNewLinkSummary,
-  formatNewPressLinkSummary,
-  formatPressLinkResult
+  formatNewPressLinkSummary
 } from '@/ui/links/format-link-result'
 
 /**
@@ -82,7 +85,7 @@ export function PressLinksPicker({ links }: { links?: Link[] }) {
         group: (item) => linkOrderGroup(asPress(item)),
         resetLabel: 'Sort press links by date'
       }}
-      renderExistingResult={formatPressLinkResult}
+      renderExistingResult={formatLinkResultWithoutBadge}
       renderNewItemSummary={(data, previewUrl, actions) =>
         formatNewPressLinkSummary(asPress(data), previewUrl, actions)
       }
@@ -93,6 +96,53 @@ export function PressLinksPicker({ links }: { links?: Link[] }) {
           errors={errors}
           isRequired={isRequired}
           isPress
+        />
+      )}
+    />
+  )
+}
+
+/**
+ * The footer's social links, in footer order: by name until dragged,
+ * with a button to restore that. Create-only, with a
+ * blank url input open until the cap: a pasted url that's already
+ * saved swaps the draft for that link's chip. The
+ * server saves every picked link as social (`resolveSocialLinkIds`).
+ */
+export function SocialLinksPicker({ links }: { links?: Link[] }) {
+  return (
+    <ItemPicker<Link>
+      isMulti
+      isSearchHidden
+      isCreateFormAlwaysOpen
+      maxItems={MAX_SOCIAL_LINKS}
+      itemType='links'
+      name='socialLinks'
+      defaultOrder={{
+        compare: compareLinksByName,
+        resetLabel: 'Sort social links by name'
+      }}
+      label='Social links'
+      itemName='social link'
+      description={`Up to ${MAX_SOCIAL_LINKS} links to social media profiles, shown in the footer on every page.`}
+      existingItems={links}
+      renderExistingResult={formatLinkResultWithoutBadge}
+      renderNewItemSummary={formatNewLinkSummary}
+      schema={createSocialLinkSchema}
+      renderEditItemForm={({
+        errors,
+        isRequired,
+        existingItem,
+        onBusyChange,
+        onExistingMatch
+      }) => (
+        <EditLink
+          link={existingItem}
+          errors={errors}
+          isRequired={isRequired}
+          isSocial
+          onBusyChange={onBusyChange}
+          onExistingMatch={onExistingMatch}
         />
       )}
     />

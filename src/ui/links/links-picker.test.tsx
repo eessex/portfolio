@@ -4,8 +4,11 @@ import userEvent from '@testing-library/user-event'
 import { linkFixture, pressLinkFixture } from '@/lib/links/fixtures'
 import {
   LinksPicker,
-  PressLinksPicker
+  PressLinksPicker,
+  SocialLinksPicker
 } from '@/ui/links/links-picker'
+
+jest.mock('@/lib/links/data', () => ({ fetchLinkByUrl: jest.fn() }))
 
 function submittedIds(name: string) {
   return Array.from(
@@ -273,5 +276,56 @@ describe('PressLinksPicker', () => {
       ])
       expect(resetButton()).toBeNull()
     })
+  })
+})
+
+describe('SocialLinksPicker', () => {
+  const resetButton = () =>
+    screen.queryByRole('button', {
+      name: /sort social links by name/i
+    })
+  const bandcamp = {
+    ...linkFixture,
+    id: 'bandcamp',
+    title: 'Bandcamp'
+  }
+  const youtube = { ...linkFixture, id: 'youtube', title: 'YouTube' }
+
+  it('hides the reset button while links are sorted by name', () => {
+    render(<SocialLinksPicker links={[bandcamp, youtube]} />)
+
+    expect(resetButton()).toBeNull()
+  })
+
+  it('keeps a stored custom order, offering a reset to name order', async () => {
+    const user = userEvent.setup()
+    render(<SocialLinksPicker links={[youtube, bandcamp]} />)
+    expect(submittedIds('socialLinks')).toEqual([
+      'youtube',
+      'bandcamp'
+    ])
+
+    await user.click(resetButton()!)
+
+    expect(submittedIds('socialLinks')).toEqual([
+      'bandcamp',
+      'youtube'
+    ])
+    expect(resetButton()).toBeNull()
+  })
+
+  it('offers a reset once a link is moved out of name order', async () => {
+    const user = userEvent.setup()
+    render(<SocialLinksPicker links={[bandcamp, youtube]} />)
+
+    await user.click(
+      screen.getAllByRole('button', { name: /move down/i })[0]!
+    )
+
+    expect(submittedIds('socialLinks')).toEqual([
+      'youtube',
+      'bandcamp'
+    ])
+    expect(resetButton()).not.toBeNull()
   })
 })

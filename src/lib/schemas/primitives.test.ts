@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { slug } from '@/lib/schemas/primitives'
+import { httpsUrl, slug } from '@/lib/schemas/primitives'
 
 describe('shared zod error map', () => {
   it('replaces the default enum-value dump with a friendly, field-named message', () => {
@@ -63,5 +63,29 @@ describe('shared zod error map', () => {
         slug: ['Required']
       })
     }
+  })
+})
+
+describe('httpsUrl', () => {
+  it.each(['https://example.com', 'HTTPS://example.com/a'])(
+    'accepts %s',
+    (value) => {
+      expect(httpsUrl.safeParse(value).success).toBe(true)
+    }
+  )
+
+  it.each(['http://example.com', 'ftp://example.com', 'example.com'])(
+    'rejects %s',
+    (value) => {
+      expect(httpsUrl.safeParse(value).success).toBe(false)
+    }
+  )
+
+  it('explains an http url', () => {
+    const result = httpsUrl.safeParse('http://example.com')
+
+    expect(result.error?.issues[0]?.message).toBe(
+      'Use a secure URL starting with https://.'
+    )
   })
 })

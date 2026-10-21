@@ -75,4 +75,125 @@ describe('editSiteSettings', () => {
       message: 'Failed to save site settings: connection refused.'
     })
   })
+
+  describe('social links', () => {
+    const linkIds = [
+      'a1b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a',
+      'a2b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a'
+    ]
+
+    /** the site_settings write, as text + params */
+    function settingsWrite() {
+      const call = mockSql.mock.calls.find(([strings]) =>
+        (strings as TemplateStringsArray)
+          .join('?')
+          .includes('site_settings')
+      )
+      const [strings, ...params] = call!
+      return {
+        text: (strings as TemplateStringsArray).join('?'),
+        params
+      }
+    }
+
+    it('saves social_link_ids in submitted order', async () => {
+      mockSql.mockResolvedValue([])
+
+      const res = await editSiteSettings(
+        formDataFromObject({
+          ...validFields,
+          'socialLinks[]': '',
+          'socialLinks[0].id': linkIds[1],
+          'socialLinks[1].id': linkIds[0]
+        }),
+        validFields.id
+      )
+
+      expect(res).toEqual({ ok: true })
+      const { text, params } = settingsWrite()
+      expect(text).toContain('social_link_ids = COALESCE(')
+      expect(params).toContainEqual([linkIds[1], linkIds[0]])
+    })
+
+    it('leaves the stored list alone when the picker was not submitted', async () => {
+      mockSql.mockResolvedValue([])
+
+      await editSiteSettings(
+        formDataFromObject(validFields),
+        validFields.id
+      )
+
+      const { params } = settingsWrite()
+      expect(params[3]).toBeNull()
+    })
+
+    it('creates settings with an empty list when none are picked', async () => {
+      mockSql.mockResolvedValue([])
+
+      await editSiteSettings(formDataFromObject(validFields))
+
+      const { text, params } = settingsWrite()
+      expect(text).toContain('INSERT INTO site_settings')
+      expect(params[3]).toEqual([])
+    })
+
+    it('rejects more than 6 before writing anything', async () => {
+      const entries = Object.fromEntries(
+        Array.from({ length: 7 }, (_, i) => [
+          `socialLinks[${i}].url`,
+          `https://example.com/${i}`
+        ])
+      )
+
+      const res = await editSiteSettings(
+        formDataFromObject({
+          ...validFields,
+          'socialLinks[]': '',
+          ...entries
+        }),
+        validFields.id
+      )
+
+      expect(res).toEqual({
+        ok: false,
+        message: 'Failed to validate site settings.',
+        errors: { socialLinks: ['Add up to 6 social links.'] }
+      })
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('rejects an invalid inline link before saving the cover image', async () => {
+      const res = await editSiteSettings(
+        formDataFromObject({
+          ...validFields,
+          'coverImage.url': 'https://example.com/cover.jpg',
+          'coverImage.altText': 'Cover',
+          'socialLinks[]': '',
+          'socialLinks[0].url': 'not a url',
+          'socialLinks[0].title': 'Instagram'
+        }),
+        validFields.id
+      )
+
+      expect(res).toMatchObject({
+        ok: false,
+        errors: {
+          socialLinks: ['Social link 1 has an invalid url.']
+        }
+      })
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('invalidates links as well as settings', async () => {
+      mockSql.mockResolvedValue([])
+
+      await editSiteSettings(
+        formDataFromObject(validFields),
+        validFields.id
+      )
+
+      expect(updateTag).toHaveBeenCalledWith('settings')
+      expect(updateTag).toHaveBeenCalledWith('links')
+    })
+  })
 })

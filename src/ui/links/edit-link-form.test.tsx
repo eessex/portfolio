@@ -1,9 +1,22 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { fetchLinkByUrl } from '@/lib/links/data'
 import { linkFixture, newLinkFixture } from '@/lib/links/fixtures'
+import type { Link } from '@/lib/links/schemas/db'
 import { NamePrefixProvider } from '@/ui/item-picker/name-prefix'
 import { EditLink } from '@/ui/links/edit-link-form'
+
+jest.mock('@/lib/links/data', () => ({
+  fetchLinkByUrl: jest.fn()
+}))
+const mockFetchLinkByUrl = jest.mocked(fetchLinkByUrl)
 
 function renderComponent(props = {}, namePrefix = '') {
   return render(
@@ -299,6 +312,62 @@ describe('EditLink', () => {
       expect(urlInput).toHaveAttribute('aria-expanded', 'true')
     })
 
+    describe('Enter on a typed url', () => {
+      function type(urlInput: HTMLElement, url: string) {
+        for (let i = 1; i <= url.length; i++) {
+          fireEvent.change(urlInput, {
+            target: { value: url.slice(0, i) }
+          })
+        }
+      }
+
+      it('reveals the form instead of submitting', () => {
+        renderComponent({ link: undefined })
+        const urlInput = screen.getByLabelText(urlRegex)
+        type(urlInput, 'https://a.co')
+        expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
+
+        const isNotPrevented = fireEvent.keyDown(urlInput, {
+          key: 'Enter'
+        })
+
+        expect(isNotPrevented).toBe(false)
+        expect(screen.getByLabelText(titleRegex)).toBeVisible()
+      })
+
+      it('submits once the form is revealed for that url', () => {
+        renderComponent({ link: undefined })
+        const urlInput = screen.getByLabelText(urlRegex)
+        type(urlInput, 'https://a.co')
+        fireEvent.keyDown(urlInput, { key: 'Enter' })
+
+        expect(fireEvent.keyDown(urlInput, { key: 'Enter' })).toBe(
+          true
+        )
+      })
+
+      it('submits as usual for an invalid url', () => {
+        renderComponent({ link: undefined })
+        const urlInput = screen.getByLabelText(urlRegex)
+        type(urlInput, 'nope')
+
+        expect(fireEvent.keyDown(urlInput, { key: 'Enter' })).toBe(
+          true
+        )
+        expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
+      })
+
+      it('fills a social link’s name', () => {
+        renderComponent({ link: undefined, isSocial: true })
+        const urlInput = screen.getByLabelText(urlRegex)
+        type(urlInput, 'https://youtu.be/a')
+
+        fireEvent.keyDown(urlInput, { key: 'Enter' })
+
+        expect(screen.getByLabelText(/^name/i)).toHaveValue('YouTube')
+      })
+    })
+
     it('does not reveal secondary fields when a bulk-inserted value is invalid', () => {
       renderComponent({ link: undefined })
       const urlInput = screen.getByLabelText(urlRegex)
@@ -324,6 +393,22 @@ describe('EditLink', () => {
       fireEvent.blur(urlInput)
       expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
       expect(urlInput).toHaveAttribute('aria-expanded', 'false')
+    })
+
+    it('keeps secondary fields hidden for an http url', () => {
+      renderComponent({ link: undefined })
+      const urlInput = screen.getByLabelText(urlRegex)
+
+      fireEvent.change(urlInput, {
+        target: { value: 'http://example.com' }
+      })
+      fireEvent.blur(urlInput)
+
+      expect(screen.getByLabelText(titleRegex)).not.toBeVisible()
+      expect(urlInput).toHaveAttribute(
+        'pattern',
+        '[Hh][Tt][Tt][Pp][Ss]://.+'
+      )
     })
 
     it('re-hides secondary fields without clearing their values when the url is cleared', () => {
@@ -378,6 +463,286 @@ describe('EditLink', () => {
       })
 
       expect(onReadyChange).toHaveBeenLastCalledWith(false)
+    })
+  })
+
+  describe('isSocial', () => {
+    it('shows just the url and a name, hiding type and press fields', () => {
+      renderComponent({ link: linkFixture, isSocial: true })
+
+      expect(screen.getByLabelText(/^name/i)).toHaveAttribute(
+        'name',
+        'title'
+      )
+      expect(
+        screen.queryByLabelText(typeRegex)
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByLabelText(/attribution/i)
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByLabelText(/quotation/i)
+      ).not.toBeInTheDocument()
+    })
+
+    it('requires the name once the url is filled', () => {
+      renderComponent({ link: undefined, isSocial: true })
+      const nameInput = screen.getByLabelText(/^name/i)
+      expect(nameInput).not.toBeRequired()
+
+      fireEvent.change(screen.getByLabelText(urlRegex), {
+        target: { value: 'https://instagram.com/me' }
+      })
+
+      expect(nameInput).toBeRequired()
+    })
+
+    describe('name from the url', () => {
+      function paste(value: string) {
+        fireEvent.change(screen.getByLabelText(urlRegex), {
+          target: { value }
+        })
+      }
+
+      it.each([
+        ['https://artist.bandcamp.com', 'Bandcamp'],
+        ['https://www.youtube.com/@artist', 'YouTube'],
+        ['https://youtu.be/abc', 'YouTube'],
+        ['https://soundcloud.com/artist', 'Soundcloud']
+      ])('names %s %s', (url, name) => {
+        renderComponent({ link: undefined, isSocial: true })
+
+        paste(url)
+
+        expect(screen.getByLabelText(/^name/i)).toHaveValue(name)
+      })
+
+      it('leaves the name blank for an unsupported host', () => {
+        renderComponent({ link: undefined, isSocial: true })
+
+        paste('https://instagram.com/me')
+
+        expect(screen.getByLabelText(/^name/i)).toHaveValue('')
+      })
+
+      it('follows the url while the name is still auto-filled', () => {
+        renderComponent({ link: undefined, isSocial: true })
+
+        paste('https://artist.bandcamp.com')
+        paste('https://vimeo.com/artist')
+        expect(screen.getByLabelText(/^name/i)).toHaveValue('Vimeo')
+
+        // a different length, so it reads as a paste
+        paste('https://instagram.com/artist')
+        expect(screen.getByLabelText(/^name/i)).toHaveValue('')
+      })
+
+      it('keeps a typed name', () => {
+        renderComponent({ link: undefined, isSocial: true })
+        paste('https://artist.bandcamp.com')
+        fireEvent.change(screen.getByLabelText(/^name/i), {
+          target: { value: 'My label' }
+        })
+
+        paste('https://www.youtube.com/@artist')
+
+        expect(screen.getByLabelText(/^name/i)).toHaveValue(
+          'My label'
+        )
+      })
+
+      it('keeps an existing link’s name', () => {
+        renderComponent({
+          link: { ...linkFixture, title: 'Shop' },
+          isSocial: true
+        })
+
+        paste('https://artist.bandcamp.com')
+
+        expect(screen.getByLabelText(/^name/i)).toHaveValue('Shop')
+      })
+
+      it('only names social links', () => {
+        renderComponent({ link: undefined })
+
+        paste('https://artist.bandcamp.com')
+
+        expect(screen.getByLabelText(/display text/i)).toHaveValue('')
+      })
+    })
+  })
+
+  describe('onExistingMatch', () => {
+    const match: Link = {
+      ...linkFixture,
+      type: 'social',
+      url: 'https://artist.bandcamp.com',
+      title: 'Bandcamp'
+    }
+
+    beforeEach(() => mockFetchLinkByUrl.mockReset())
+
+    function paste(value: string) {
+      fireEvent.change(screen.getByLabelText(urlRegex), {
+        target: { value }
+      })
+    }
+
+    it('calls onExistingMatch when a pasted url is already saved', async () => {
+      mockFetchLinkByUrl.mockResolvedValue(match)
+      const onExistingMatch = jest.fn()
+      const onBusyChange = jest.fn()
+      renderComponent({
+        link: undefined,
+        onExistingMatch,
+        onBusyChange
+      })
+
+      paste(match.url)
+
+      await waitFor(() =>
+        expect(onExistingMatch).toHaveBeenCalledWith(match)
+      )
+      // only a link named for its host can match
+      expect(mockFetchLinkByUrl).toHaveBeenCalledWith(
+        match.url,
+        'social',
+        'Bandcamp'
+      )
+      expect(onBusyChange).toHaveBeenCalledWith(true)
+      expect(onBusyChange).toHaveBeenLastCalledWith(false)
+    })
+
+    it('does nothing on no match', async () => {
+      mockFetchLinkByUrl.mockResolvedValue(undefined)
+      const onExistingMatch = jest.fn()
+      const onBusyChange = jest.fn()
+      renderComponent({
+        link: undefined,
+        onExistingMatch,
+        onBusyChange
+      })
+
+      paste('https://new.bandcamp.com')
+
+      await waitFor(() =>
+        expect(onBusyChange).toHaveBeenLastCalledWith(false)
+      )
+      expect(onExistingMatch).not.toHaveBeenCalled()
+    })
+
+    it('looks up a typed url on Enter', async () => {
+      mockFetchLinkByUrl.mockResolvedValue(match)
+      const onExistingMatch = jest.fn()
+      renderComponent({ link: undefined, onExistingMatch })
+      const urlInput = screen.getByLabelText(urlRegex)
+      for (let i = 1; i <= match.url.length; i++) {
+        fireEvent.change(urlInput, {
+          target: { value: match.url.slice(0, i) }
+        })
+      }
+      expect(mockFetchLinkByUrl).not.toHaveBeenCalled()
+
+      fireEvent.keyDown(urlInput, { key: 'Enter' })
+
+      await waitFor(() =>
+        expect(onExistingMatch).toHaveBeenCalledWith(match)
+      )
+    })
+
+    it('stays collapsed while looking up, and on a match', async () => {
+      let resolveLookup: (link: Link | undefined) => void = () => {}
+      mockFetchLinkByUrl.mockImplementationOnce(
+        () => new Promise((resolve) => (resolveLookup = resolve))
+      )
+      const onExistingMatch = jest.fn()
+      renderComponent({ link: undefined, onExistingMatch })
+      const urlInput = screen.getByLabelText(urlRegex)
+
+      paste(match.url)
+      fireEvent.blur(urlInput)
+      expect(urlInput).toHaveAttribute('aria-expanded', 'false')
+
+      resolveLookup(match)
+      await waitFor(() =>
+        expect(onExistingMatch).toHaveBeenCalledWith(match)
+      )
+      expect(urlInput).toHaveAttribute('aria-expanded', 'false')
+    })
+
+    it('expands once the lookup finds no match', async () => {
+      mockFetchLinkByUrl.mockResolvedValue(undefined)
+      renderComponent({ link: undefined, onExistingMatch: jest.fn() })
+      const urlInput = screen.getByLabelText(urlRegex)
+
+      paste('https://new.bandcamp.com')
+
+      await waitFor(() =>
+        expect(urlInput).toHaveAttribute('aria-expanded', 'true')
+      )
+    })
+
+    it('ignores a stale response once the url has changed', async () => {
+      let resolveFirst: (link: Link | undefined) => void = () => {}
+      mockFetchLinkByUrl
+        .mockImplementationOnce(
+          () => new Promise((resolve) => (resolveFirst = resolve))
+        )
+        .mockResolvedValueOnce(undefined)
+      const onExistingMatch = jest.fn()
+      renderComponent({ link: undefined, onExistingMatch })
+
+      paste(match.url)
+      paste('https://example.com/other')
+      await act(async () => resolveFirst(match))
+
+      expect(onExistingMatch).not.toHaveBeenCalled()
+    })
+
+    it('skips the lookup for a host with no inferred name, expanding at once', () => {
+      const onBusyChange = jest.fn()
+      renderComponent({
+        link: undefined,
+        onExistingMatch: jest.fn(),
+        onBusyChange
+      })
+
+      paste('https://instagram.com/me')
+
+      expect(mockFetchLinkByUrl).not.toHaveBeenCalled()
+      expect(onBusyChange).not.toHaveBeenCalledWith(true)
+      expect(screen.getByLabelText(urlRegex)).toHaveAttribute(
+        'aria-expanded',
+        'true'
+      )
+    })
+
+    it('skips the lookup for an invalid url', () => {
+      renderComponent({ link: undefined, onExistingMatch: jest.fn() })
+
+      paste('not a url')
+
+      expect(mockFetchLinkByUrl).not.toHaveBeenCalled()
+    })
+
+    it('does not look up again on blur for the same url', async () => {
+      mockFetchLinkByUrl.mockResolvedValue(undefined)
+      renderComponent({ link: undefined, onExistingMatch: jest.fn() })
+
+      paste('https://new.bandcamp.com')
+      fireEvent.blur(screen.getByLabelText(urlRegex))
+
+      await waitFor(() =>
+        expect(mockFetchLinkByUrl).toHaveBeenCalledTimes(1)
+      )
+    })
+
+    it('makes no lookup without onExistingMatch', () => {
+      renderComponent({ link: undefined })
+
+      paste('https://new.bandcamp.com')
+
+      expect(mockFetchLinkByUrl).not.toHaveBeenCalled()
     })
   })
 })

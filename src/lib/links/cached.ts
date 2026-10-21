@@ -13,7 +13,6 @@ export async function fetchCachedLinksFirstPage(isPress?: boolean) {
 /** links to social media profiles */
 export async function fetchCachedSocialLinks() {
   cacheTag('links')
-  cacheTag('links:social')
 
   return await fetchSocialLinksRaw()
 }

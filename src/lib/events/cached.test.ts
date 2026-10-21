@@ -23,7 +23,6 @@ describe('fetchCachedEventById', () => {
     await fetchCachedEventById('event-1', false)
 
     expect(cacheTag).toHaveBeenCalledWith('events')
-    expect(cacheTag).toHaveBeenCalledWith('events:public')
     expect(cacheTag).toHaveBeenCalledWith('event:event-1')
     expect(cacheTag).toHaveBeenCalledWith('project:project-1')
   })
@@ -33,7 +32,6 @@ describe('fetchCachedEventById', () => {
 
     await fetchCachedEventById('event-1', true)
 
-    expect(cacheTag).toHaveBeenCalledWith('events:authed')
     expect(cacheTag).not.toHaveBeenCalledWith(
       expect.stringMatching(/^project:/)
     )

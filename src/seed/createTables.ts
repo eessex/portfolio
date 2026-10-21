@@ -78,13 +78,11 @@ async function createTagsTable() {
 
 /**
  * Creates the images table.
- * Must be created after projects (foreign key).
  */
 async function createImagesTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS images (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-      project_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
       alt VARCHAR(255),
       aspect DOUBLE PRECISION NOT NULL,
@@ -93,22 +91,18 @@ async function createImagesTable() {
       title VARCHAR(255),
       url VARCHAR(255) NOT NULL UNIQUE,
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CONSTRAINT fk_image_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
     );
   `
-  await sql`CREATE INDEX IF NOT EXISTS idx_images_project_id ON images(project_id);`
 }
 
 /**
  * Creates the embed_codes table.
- * Must be created after projects (foreign key).
  */
 async function createEmbedCodesTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS embed_codes (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-      project_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
       caption VARCHAR(255),
       title VARCHAR(255),
@@ -122,17 +116,13 @@ async function createEmbedCodesTable() {
         NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE
         DEFAULT CURRENT_TIMESTAMP
-        NOT NULL,
-      CONSTRAINT fk_embed_code_project
-        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+        NOT NULL
     );
   `
-
   await sql`
     CREATE UNIQUE INDEX IF NOT EXISTS embed_codes_src_type_unique
     ON embed_codes (src, type);
   `
-  await sql`CREATE INDEX IF NOT EXISTS idx_embed_codes_project_id ON embed_codes(project_id);`
   await sql`
     CREATE UNIQUE INDEX IF NOT EXISTS embed_codes_cover_image_id_unique
     ON embed_codes (cover_image_id);
@@ -141,13 +131,11 @@ async function createEmbedCodesTable() {
 
 /**
  * Creates the links table.
- * Must be created after projects (foreign key).
  */
 async function createLinksTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS links (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-      project_id UUID,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
       url VARCHAR(255) NOT NULL,
       attribution VARCHAR(255),
@@ -156,12 +144,10 @@ async function createLinksTable() {
       title VARCHAR(255),
       type VARCHAR(30),
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CONSTRAINT fk_link_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+      updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
     );
   `
   await sql`CREATE INDEX IF NOT EXISTS idx_links_url ON links(url);`
-  await sql`CREATE INDEX IF NOT EXISTS idx_links_project_id ON links(project_id);`
 }
 
 /**

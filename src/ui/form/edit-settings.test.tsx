@@ -1,4 +1,9 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor
+} from '@testing-library/react'
 
 import { linkFixture } from '@/lib/links/fixtures'
 import { editSiteSettings } from '@/lib/site-settings/actions'
@@ -74,6 +79,36 @@ describe('EditSettings', () => {
     expect(
       document.querySelector('input[name="socialLinks[]"]')
     ).toBeInTheDocument()
+  })
+
+  it('refreshes after a save and remounts on the saved settings', async () => {
+    mockEditSiteSettings.mockResolvedValue({ ok: true })
+    const settings = {
+      id: 'settings-1',
+      createdAt: new Date('2026-01-01'),
+      updatedAt: new Date('2026-01-01T12:00:00.100Z')
+    }
+    const { rerender } = renderComponent({ settings })
+
+    fireEvent.change(screen.getByLabelText(/site title/i), {
+      target: { value: 'New title' }
+    })
+    fireEvent.submit(document.querySelector('form')!)
+    await waitFor(() => expect(refreshMock).toHaveBeenCalled())
+
+    const form = document.querySelector('form')
+    rerender(
+      <ToastProvider>
+        <EditSettings
+          settings={{
+            ...settings,
+            // same second: the key needs milliseconds
+            updatedAt: new Date('2026-01-01T12:00:00.200Z')
+          }}
+        />
+      </ToastProvider>
+    )
+    expect(document.querySelector('form')).not.toBe(form)
   })
 
   it('shows a list error from the action under the picker', async () => {

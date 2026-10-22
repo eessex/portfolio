@@ -33,7 +33,8 @@ export type ProjectType = z.infer<typeof projectTypeSchema>
  * Can represent a band, collaborative, or other entities like an ongoing radio show or event series.
  * It may be used to suggest content on pages, similar to a tag, but with a broader scope.
  *
- * Site settings is essentially the "default" project, a project should represent a subset of work from overall site.
+ * At most one project is the site's default (`isDefaultProject`),
+ * rendered at /about; the rest each represent a subset of the site's work.
  */
 export const projectSchema = z.object({
   ...systemFields,

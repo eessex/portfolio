@@ -107,15 +107,12 @@ function isSecondDefaultError(err: unknown) {
  * also create new images/links/embed codes inline (via the
  * `images`/`links`/`embedCodes` pickers' create-new flows), bypassing
  * `editImage`'s/`editLink`'s/`editEmbedCode`'s own cache invalidation,
- * so those tags are invalidated here too rather than only on direct
- * image/link/embed code edits.
+ * and changes which projects list them (their `project_slugs`), so
+ * those tags are invalidated here too.
  */
 function invalidateProjectTags(id?: string) {
   updateTag('projects')
-  updateTag('projects:authed')
-  updateTag('projects:public')
   updateTag(slugCacheTag('projects'))
-  updateTag('projects:default')
   if (id) updateTag(`project:${id}`)
   updateTag('releases')
   updateTag('events')
@@ -143,9 +140,6 @@ export async function deleteProject(project: Project) {
         }
       }
       await sql.transaction([
-        handOffImages(project.id),
-        handOffLinks(project.id),
-        handOffEmbedCodes(project.id),
         ...ownedPageItemTables.map((table) =>
           handOffPageItems(table, project.id)
         ),
@@ -217,7 +211,6 @@ async function createProject(project: CreateProject) {
     `
     const row = rows[0]
     if (!row) throw new Error('Failed to create project.')
-    await syncChildProjectIds(row.id, childIdsOf(project))
     return formatDbResponseForClient(
       { ...row, path: 'projects' },
       projectSchema
@@ -269,11 +262,6 @@ async function updateProject(project: CreateProject, id: string) {
     `
     const row = rows[0]
     if (!row) throw new Error('Failed to update project.')
-    await syncChildProjectIds(
-      id,
-      childIdsOf(project),
-      existingProject && childIdsOf(existingProject)
-    )
     return formatDbResponseForClient(
       { ...row, path: 'projects' },
       projectSchema
@@ -281,147 +269,6 @@ async function updateProject(project: CreateProject, id: string) {
   } catch (cause) {
     throw new Error('Failed to update project.', { cause })
   }
-}
-
-/**
- * The full set of image/link/embed-code ids a project owns, including
- * the cover image (stored in its own column rather than `imageIds`).
- */
-function childIdsOf(project: {
-  coverImageId?: string
-  embedCodeIds?: string[]
-  imageIds?: string[]
-  linkIds?: string[]
-}) {
-  return {
-    imageIds: project.coverImageId
-      ? [project.coverImageId, ...(project.imageIds ?? [])]
-      : (project.imageIds ?? []),
-    linkIds: project.linkIds ?? [],
-    embedCodeIds: project.embedCodeIds ?? []
-  }
-}
-
-type ChildIds = ReturnType<typeof childIdsOf>
-
-/**
- * Keeps the canonical, indexed `project_id` owner on
- * images/links/embed_codes in sync with a project's `*Ids` arrays. An
- * item can be listed by many projects but has one owner: the first
- * project to attach it. Newly attached ids are claimed only if
- * unowned; a project reusing another's item shows it (via its own
- * arrays) without taking it over. Newly detached ids this project owns
- * are handed off (see `handOffImages`).
- */
-async function syncChildProjectIds(
-  projectId: string,
-  next: ChildIds,
-  previous?: ChildIds
-) {
-  const images = diffedIds(next.imageIds, previous?.imageIds)
-  const links = diffedIds(next.linkIds, previous?.linkIds)
-  const embedCodes = diffedIds(
-    next.embedCodeIds,
-    previous?.embedCodeIds
-  )
-
-  if (images.attached.length) {
-    await sql`
-      UPDATE images
-      SET project_id = ${projectId}
-      WHERE id = ANY(${images.attached}) AND project_id IS NULL
-    `
-  }
-  if (images.detached.length) {
-    await handOffImages(projectId, images.detached)
-  }
-
-  if (links.attached.length) {
-    await sql`
-      UPDATE links
-      SET project_id = ${projectId}
-      WHERE id = ANY(${links.attached}) AND project_id IS NULL
-    `
-  }
-  if (links.detached.length) {
-    await handOffLinks(projectId, links.detached)
-  }
-
-  if (embedCodes.attached.length) {
-    await sql`
-      UPDATE embed_codes
-      SET project_id = ${projectId}
-      WHERE id = ANY(${embedCodes.attached}) AND project_id IS NULL
-    `
-  }
-  if (embedCodes.detached.length) {
-    await handOffEmbedCodes(projectId, embedCodes.detached)
-  }
-}
-
-/**
- * Hands images owned by `projectId` to the earliest-created other
- * project that still lists them (`image_ids` or `cover_image_id`), else
- * to the default project (NULL only if none exists), so the default
- * keeps what it detaches. `ids` limits it to those images; omitted,
- * it hands off everything the project owns (before a delete, whose
- * `ON DELETE SET NULL` would otherwise skip the hand-off). Returns the
- * unawaited query so `deleteProject` can batch it into a transaction.
- */
-function handOffImages(projectId: string, ids?: string[]) {
-  return sql`
-    UPDATE images AS i
-    SET project_id = COALESCE(
-      (
-        SELECT p.id FROM projects AS p
-        WHERE p.id <> ${projectId}
-          AND (i.id = ANY(p.image_ids) OR p.cover_image_id = i.id)
-        ORDER BY p.created_at, p.id
-        LIMIT 1
-      ),
-      (SELECT id FROM projects WHERE is_default_project)
-    )
-    WHERE i.project_id = ${projectId}
-      AND (${ids ?? null}::uuid[] IS NULL OR i.id = ANY(${ids ?? null}::uuid[]))
-  `
-}
-
-/** `handOffImages` for links, listed via `link_ids`. */
-function handOffLinks(projectId: string, ids?: string[]) {
-  return sql`
-    UPDATE links AS l
-    SET project_id = COALESCE(
-      (
-        SELECT p.id FROM projects AS p
-        WHERE p.id <> ${projectId}
-          AND l.id = ANY(p.link_ids)
-        ORDER BY p.created_at, p.id
-        LIMIT 1
-      ),
-      (SELECT id FROM projects WHERE is_default_project)
-    )
-    WHERE l.project_id = ${projectId}
-      AND (${ids ?? null}::uuid[] IS NULL OR l.id = ANY(${ids ?? null}::uuid[]))
-  `
-}
-
-/** `handOffImages` for embed codes, listed via `embed_code_ids`. */
-function handOffEmbedCodes(projectId: string, ids?: string[]) {
-  return sql`
-    UPDATE embed_codes AS ec
-    SET project_id = COALESCE(
-      (
-        SELECT p.id FROM projects AS p
-        WHERE p.id <> ${projectId}
-          AND ec.id = ANY(p.embed_code_ids)
-        ORDER BY p.created_at, p.id
-        LIMIT 1
-      ),
-      (SELECT id FROM projects WHERE is_default_project)
-    )
-    WHERE ec.project_id = ${projectId}
-      AND (${ids ?? null}::uuid[] IS NULL OR ec.id = ANY(${ids ?? null}::uuid[]))
-  `
 }
 
 // published editions follow their release's project
@@ -442,19 +289,6 @@ function handOffPageItems(
     SET project_id = (SELECT id FROM projects WHERE is_default_project)
     WHERE project_id = ${projectId}
   `
-}
-
-function diffedIds(next: string[], previous: string[] = []) {
-  return {
-    attached: diffIds(next, previous),
-    detached: diffIds(previous, next)
-  }
-}
-
-/** Ids present in `next` but not in `previous`. */
-function diffIds(next: string[], previous: string[]) {
-  const previousSet = new Set(previous)
-  return next.filter((id) => !previousSet.has(id))
 }
 
 /**

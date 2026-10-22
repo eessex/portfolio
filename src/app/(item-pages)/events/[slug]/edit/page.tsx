@@ -2,10 +2,9 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
-import { isAuthed } from '@/lib/auth/guard'
+import { resolveEditItemId } from '@/app/(item-pages)/resolve-page-item'
 import { fetchEventById } from '@/lib/events/data'
 import { PagePaths } from '@/lib/schemas'
-import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
 import { EditEventForm } from '@/ui/events/edit-event-form'
 import { Loading } from '@/ui/loading'
@@ -29,11 +28,9 @@ export default function EditEventPage({ params }: PageItemProps) {
 
 async function EditEvent({ params }: PageItemProps) {
   const { slug } = await params
-  const resolved = await resolveSlug(PagePaths.events, slug)
-  const authed = await isAuthed()
+  const id = await resolveEditItemId(PagePaths.events, slug)
   // uncached: saving a stale form drops child ids added since
-  const event =
-    resolved && (await fetchEventById(resolved.id, authed))
+  const event = await fetchEventById(id, true)
 
   if (!event) return notFound()
 

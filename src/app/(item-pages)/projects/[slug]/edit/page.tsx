@@ -2,10 +2,9 @@ import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 import { Suspense } from 'react'
 
-import { isAuthed } from '@/lib/auth/guard'
+import { resolveEditItemId } from '@/app/(item-pages)/resolve-page-item'
 import { fetchProjectById } from '@/lib/projects/data'
 import { PagePaths } from '@/lib/schemas'
-import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
 import { Loading } from '@/ui/loading'
 import { EditProjectForm } from '@/ui/projects/edit-project-form'
@@ -29,11 +28,9 @@ export default function EditProjectPage({ params }: PageItemProps) {
 
 async function EditProject({ params }: PageItemProps) {
   const { slug } = await params
-  const resolved = await resolveSlug(PagePaths.projects, slug)
-  const authed = await isAuthed()
+  const id = await resolveEditItemId(PagePaths.projects, slug)
   // uncached: saving a stale form detaches child ids added since
-  const project =
-    resolved && (await fetchProjectById(resolved.id, authed))
+  const project = await fetchProjectById(id, true)
 
   if (!project) return notFound()
   if (project.isDefaultProject) redirect('/about/edit')

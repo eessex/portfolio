@@ -97,8 +97,6 @@ describe('Project Actions', () => {
 
       expect(res).toEqual({ ok: true })
       expect(updateTag).toHaveBeenCalledWith('projects')
-      expect(updateTag).toHaveBeenCalledWith('projects:authed')
-      expect(updateTag).toHaveBeenCalledWith('projects:public')
       expect(updateTag).toHaveBeenCalledWith(
         `project:${projectFixtureAlpha.id}`
       )
@@ -118,18 +116,11 @@ describe('Project Actions', () => {
       expect(updateTag).not.toHaveBeenCalled()
     })
 
-    it('hands off everything the project owns before deleting it, in one transaction', async () => {
+    it('hands its releases and events to the default project before deleting it, in one transaction', async () => {
       mockSql.mockResolvedValueOnce([
         { is_default_project: false }
       ] as never)
-      const queries = [
-        'images',
-        'links',
-        'embedCodes',
-        'releases',
-        'events',
-        'delete'
-      ]
+      const queries = ['releases', 'events', 'delete']
       queries.forEach((query) =>
         mockSql.mockReturnValueOnce(query as never)
       )
@@ -141,30 +132,18 @@ describe('Project Actions', () => {
       const texts = mockSql.mock.calls
         .slice(1)
         .map(([strings]) => strings.join('?'))
-      expect(texts).toHaveLength(6)
-      expect(texts[0]).toContain('UPDATE images AS i')
-      expect(texts[1]).toContain('UPDATE links AS l')
-      expect(texts[2]).toContain('UPDATE embed_codes AS ec')
-      expect(texts[5]).toContain('DELETE FROM projects')
+      expect(texts).toHaveLength(3)
+      expect(texts[2]).toContain('DELETE FROM projects')
       // owned page items go to the default rather than the FK's NULL;
       // published editions follow their release
       for (const [i, table] of ['releases', 'events'].entries()) {
-        const [strings, ...params] = mockSql.mock.calls[4 + i]!
+        const [strings, ...params] = mockSql.mock.calls[1 + i]!
         expect(strings.join('?')).toContain(
           'SET project_id = (SELECT id FROM projects WHERE is_default_project)'
         )
         expect(params).toEqual([
           { raw: table },
           projectFixtureAlpha.id
-        ])
-      }
-      // no id filter: every item the project owns is handed off
-      for (const [, ...params] of mockSql.mock.calls.slice(1, 4)) {
-        expect(params).toEqual([
-          projectFixtureAlpha.id,
-          projectFixtureAlpha.id,
-          null,
-          null
         ])
       }
     })
@@ -416,214 +395,37 @@ describe('Project Actions', () => {
       })
     })
 
-    describe('project_id sync (auto-populate)', () => {
-      it('stamps newly attached images/embed codes with the project id on create', async () => {
-        mockSql.mockResolvedValueOnce([projectFixtureAlpha]) // INSERT ... RETURNING
-        mockResolveOrderedImageIds.mockResolvedValueOnce({
-          coverImageId: NEW_IMAGE_ID,
-          imageIds: []
-        })
-        mockResolveOrderedEmbedCodeIds.mockResolvedValueOnce({
-          embedCodeIds: [NEW_EMBED_CODE_ID]
-        })
-
-        await editProject(
-          formDataFromObject({
-            ...newProjectFixtureAlpha,
-            isPublished: 'on'
-          })
-        )
-
-        // call 0: INSERT ... RETURNING
-        // call 1: attach the cover image
-        // call 2: attach the embed code
-        expect(mockSql).toHaveBeenCalledTimes(3)
-        expect(mockSql.mock.calls[1]?.[1]).toEqual(
-          projectFixtureAlpha.id
-        )
-        expect(mockSql.mock.calls[1]?.[2]).toEqual([NEW_IMAGE_ID])
-        expect(mockSql.mock.calls[2]?.[1]).toEqual(
-          projectFixtureAlpha.id
-        )
-        expect(mockSql.mock.calls[2]?.[2]).toEqual([
-          NEW_EMBED_CODE_ID
-        ])
-      })
-
-      it('does not touch images/links/embed_codes when nothing is attached', async () => {
-        mockSql.mockResolvedValueOnce([projectFixtureAlpha]) // INSERT ... RETURNING
-
-        await editProject(
-          formDataFromObject({
-            ...newProjectFixtureAlpha,
-            isPublished: 'on'
-          })
-        )
-
-        expect(mockSql).toHaveBeenCalledTimes(1)
-      })
-
-      it('attaches newly added images and clears project_id from removed images on update', async () => {
-        const existingProjectWithImages = {
-          ...projectFixtureAlpha,
-          imageIds: [EXISTING_IMAGE_ID_1]
-        }
-        mockSql
-          .mockResolvedValueOnce([existingProjectWithImages]) // fetchProjectById
-          .mockResolvedValueOnce([projectFixtureAlpha]) // UPDATE ... RETURNING
-        mockResolveOrderedImageIds.mockResolvedValueOnce({
-          coverImageId: NEW_IMAGE_ID,
-          imageIds: []
-        })
-
-        await editProject(
-          formDataFromObject({
+    it('writes only the project row when its images/links/embed codes change', async () => {
+      mockSql
+        .mockResolvedValueOnce([
+          {
             ...projectFixtureAlpha,
-            isPublished: 'on'
-          }),
-          projectFixtureAlpha.id
-        )
-
-        // call 2: attach NEW_IMAGE_ID
-        expect(mockSql.mock.calls[2]?.[1]).toEqual(
-          projectFixtureAlpha.id
-        )
-        expect(mockSql.mock.calls[2]?.[2]).toEqual([NEW_IMAGE_ID])
-
-        // call 3: hand off the removed EXISTING_IMAGE_ID_1
-        const [strings, ...params] = mockSql.mock.calls[3]!
-        expect(strings.join('?')).toContain('UPDATE images AS i')
-        expect(params).toEqual([
-          projectFixtureAlpha.id, // other projects only
-          projectFixtureAlpha.id, // owned by this project
-          [EXISTING_IMAGE_ID_1],
-          [EXISTING_IMAGE_ID_1]
-        ])
+            imageIds: [EXISTING_IMAGE_ID_1],
+            linkIds: [EXISTING_LINK_ID],
+            embedCodeIds: [EXISTING_EMBED_CODE_ID]
+          }
+        ]) // fetchProjectById
+        .mockResolvedValueOnce([projectFixtureAlpha]) // UPDATE ... RETURNING
+      mockResolveOrderedImageIds.mockResolvedValueOnce({
+        coverImageId: NEW_IMAGE_ID,
+        imageIds: []
+      })
+      mockResolveOrderedEmbedCodeIds.mockResolvedValueOnce({
+        embedCodeIds: [NEW_EMBED_CODE_ID]
       })
 
-      it('only claims unowned items on attach', async () => {
-        mockSql.mockResolvedValueOnce([projectFixtureAlpha])
-        mockResolveOrderedImageIds.mockResolvedValueOnce({
-          coverImageId: NEW_IMAGE_ID,
-          imageIds: []
-        })
-        mockResolveOrderedLinkIds.mockResolvedValueOnce({
-          linkIds: [EXISTING_LINK_ID]
-        })
-        mockResolveOrderedEmbedCodeIds.mockResolvedValueOnce({
-          embedCodeIds: [NEW_EMBED_CODE_ID]
-        })
-
-        await editProject(
-          formDataFromObject({
-            ...newProjectFixtureAlpha,
-            isPublished: 'on'
-          })
-        )
-
-        // calls 1–3: one attach per table, images → links → embed codes
-        expect(mockSql).toHaveBeenCalledTimes(4)
-        const attaches = mockSql.mock.calls.slice(1)
-        const expected = [
-          ['UPDATE images', NEW_IMAGE_ID],
-          ['UPDATE links', EXISTING_LINK_ID],
-          ['UPDATE embed_codes', NEW_EMBED_CODE_ID]
-        ] as const
-        attaches.forEach(([strings, ...params], i) => {
-          const [table, id] = expected[i]!
-          const text = strings.join('?')
-          expect(text).toContain(table)
-          expect(text).toContain('SET project_id = ?')
-          expect(text).toContain('AND project_id IS NULL')
-          expect(params).toEqual([projectFixtureAlpha.id, [id]])
-        })
-      })
-
-      it('hands detached items to another project still listing them, else NULL', async () => {
-        const existingProject = {
+      await editProject(
+        formDataFromObject({
           ...projectFixtureAlpha,
-          imageIds: [EXISTING_IMAGE_ID_1],
-          linkIds: [EXISTING_LINK_ID],
-          embedCodeIds: [EXISTING_EMBED_CODE_ID]
-        }
-        mockSql
-          .mockResolvedValueOnce([existingProject]) // fetchProjectById
-          .mockResolvedValueOnce([projectFixtureAlpha]) // UPDATE ... RETURNING
+          isPublished: 'on'
+        }),
+        projectFixtureAlpha.id
+      )
 
-        await editProject(
-          formDataFromObject({
-            ...projectFixtureAlpha,
-            isPublished: 'on'
-          }),
-          projectFixtureAlpha.id
-        )
-
-        // calls 2–4: one hand-off per table, in images → links →
-        // embed codes order, each limited to the detached ids
-        expect(mockSql).toHaveBeenCalledTimes(5)
-        const handOffs = mockSql.mock.calls.slice(2)
-        const expected = [
-          [
-            'UPDATE images AS i',
-            'p.cover_image_id = i.id',
-            EXISTING_IMAGE_ID_1
-          ],
-          [
-            'UPDATE links AS l',
-            'l.id = ANY(p.link_ids)',
-            EXISTING_LINK_ID
-          ],
-          [
-            'UPDATE embed_codes AS ec',
-            'ec.id = ANY(p.embed_code_ids)',
-            EXISTING_EMBED_CODE_ID
-          ]
-        ] as const
-        handOffs.forEach(([strings, ...params], i) => {
-          const [table, listedBy, id] = expected[i]!
-          const text = strings.join('?')
-          expect(text).toContain(table)
-          expect(text).toContain(listedBy)
-          expect(text).toContain('WHERE p.id <> ?')
-          expect(text).toContain('ORDER BY p.created_at, p.id')
-          // nobody else lists it: falls back to the default project
-          expect(text).toContain('COALESCE(')
-          expect(text).toContain(
-            '(SELECT id FROM projects WHERE is_default_project)'
-          )
-          expect(params).toEqual([
-            projectFixtureAlpha.id,
-            projectFixtureAlpha.id,
-            [id],
-            [id]
-          ])
-        })
-      })
-
-      it('does not detach an image still present in the resolved list', async () => {
-        const existingProjectWithImages = {
-          ...projectFixtureAlpha,
-          imageIds: [EXISTING_IMAGE_ID_1]
-        }
-        mockSql
-          .mockResolvedValueOnce([existingProjectWithImages])
-          .mockResolvedValueOnce([projectFixtureAlpha])
-        mockResolveOrderedImageIds.mockResolvedValueOnce({
-          coverImageId: undefined,
-          imageIds: [EXISTING_IMAGE_ID_1]
-        })
-
-        await editProject(
-          formDataFromObject({
-            ...projectFixtureAlpha,
-            isPublished: 'on'
-          }),
-          projectFixtureAlpha.id
-        )
-
-        // no attach/detach calls needed: the set is unchanged
-        expect(mockSql).toHaveBeenCalledTimes(2)
-      })
+      expect(mockSql).toHaveBeenCalledTimes(2)
+      expect(mockSql.mock.calls[1]![0].join('?')).toContain(
+        'UPDATE projects'
+      )
     })
 
     describe('is_default_project', () => {
@@ -669,26 +471,6 @@ describe('Project Actions', () => {
         const [strings] = mockSql.mock.calls[1]!
         expect(strings.join('?')).toContain('UPDATE projects')
         expect(strings.join('?')).not.toContain('is_default_project')
-      })
-
-      it('claims an unowned item with its own id, like any project', async () => {
-        mockSql
-          .mockResolvedValueOnce([defaultProject]) // fetchProjectById
-          .mockResolvedValueOnce([defaultProject]) // UPDATE
-        mockResolveOrderedImageIds.mockResolvedValueOnce({
-          coverImageId: NEW_IMAGE_ID,
-          imageIds: []
-        })
-
-        await editProject(
-          formDataFromObject({ ...requiredFields, title: 'About' }),
-          defaultProject.id
-        )
-
-        const [strings, ...params] = mockSql.mock.calls[2]!
-        expect(strings.join('?')).toContain('UPDATE images')
-        expect(strings.join('?')).toContain('AND project_id IS NULL')
-        expect(params).toEqual([defaultProject.id, [NEW_IMAGE_ID]])
       })
 
       describe('editDefaultProject', () => {

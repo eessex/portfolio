@@ -341,6 +341,53 @@ describe('ItemPicker', () => {
         })
       }
 
+      it('drops a cleared form to edit an existing item', () => {
+        renderAlwaysOpen({ existingItems: [venueFixtureAlpha] })
+
+        const format = screen.getByLabelText('Format')
+        fireEvent.change(format, { target: { value: 'x' } })
+        fireEvent.change(format, { target: { value: '' } })
+        fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+
+        expect(
+          screen.queryByRole('button', { name: 'Edit' })
+        ).not.toBeInTheDocument()
+        expect(screen.getAllByLabelText('Format')).toHaveLength(1)
+      })
+
+      it('lets a parent submit past a cleared form', () => {
+        const onSubmit = jest.fn()
+        render(
+          <form
+            onSubmit={(event) => {
+              event.preventDefault()
+              onSubmit()
+            }}
+          >
+            <ItemPicker<Venue>
+              {...defaultProps}
+              itemType='publishedEditions'
+              isMulti
+              isSearchHidden
+              isCreateFormAlwaysOpen
+              maxItems={2}
+              name='editions'
+              defaultOrder={{ compare: () => 0, resetLabel: 'Sort' }}
+              renderEditItemForm={() => (
+                <PrefixedInput field='format' aria-label='Format' />
+              )}
+            />
+          </form>
+        )
+
+        const format = screen.getByLabelText('Format')
+        fireEvent.change(format, { target: { value: 'x' } })
+        fireEvent.change(format, { target: { value: '' } })
+        fireEvent.submit(format.closest('form')!)
+
+        expect(onSubmit).toHaveBeenCalled()
+      })
+
       it('opens a blank form below the cap, with no New button', () => {
         renderAlwaysOpen({ existingItems: [venueFixtureAlpha] })
 

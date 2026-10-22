@@ -184,7 +184,7 @@ describe('editSiteSettings', () => {
       expect(mockSql).not.toHaveBeenCalled()
     })
 
-    it('invalidates links as well as settings', async () => {
+    it('invalidates links and the pages embedding them', async () => {
       mockSql.mockResolvedValue([])
 
       await editSiteSettings(
@@ -192,8 +192,15 @@ describe('editSiteSettings', () => {
         validFields.id
       )
 
-      expect(updateTag).toHaveBeenCalledWith('settings')
-      expect(updateTag).toHaveBeenCalledWith('links')
+      for (const tag of [
+        'settings',
+        'links',
+        'releases',
+        'events',
+        'projects'
+      ]) {
+        expect(updateTag).toHaveBeenCalledWith(tag)
+      }
     })
   })
 })

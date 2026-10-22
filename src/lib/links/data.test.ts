@@ -85,6 +85,18 @@ describe('fetchLinksRaw', () => {
       'Failed to fetch links.'
     )
   })
+
+  it('lists every project that uses it as project_slugs, not just its owner', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([dashboardLinkRow])
+
+    await fetchLinksRaw()
+
+    const text = mockSql.mock.calls[1]![0].join('?')
+    expect(text).toContain('p.link_ids @> ARRAY[links.id]')
+    expect(text).not.toContain('links.project_id')
+  })
 })
 
 describe('fetchLinksByIds', () => {

@@ -91,8 +91,6 @@ describe('Event Actions', () => {
 
       expect(res).toEqual({ ok: true })
       expect(updateTag).toHaveBeenCalledWith('events')
-      expect(updateTag).toHaveBeenCalledWith('events:authed')
-      expect(updateTag).toHaveBeenCalledWith('events:public')
       expect(updateTag).toHaveBeenCalledWith(
         `event:${eventFixtureAlpha.id}`
       )

@@ -1,7 +1,7 @@
 /** Fallback zone when an event has no venue timezone yet. */
 export const DEFAULT_TIME_ZONE = 'America/New_York'
 
-export interface WallClockParts {
+interface WallClockParts {
   year: number
   month: number
   day: number

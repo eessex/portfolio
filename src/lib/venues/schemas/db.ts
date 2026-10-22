@@ -48,11 +48,6 @@ export const venueTimezones = [
   'Pacific/Auckland'
 ] as const
 export const venueTimezoneSchema = z.enum(venueTimezones)
-export const VenueTimezones = Object.fromEntries(
-  venueTimezones.map((v) => [v, v])
-) as {
-  [K in (typeof venueTimezones)[number]]: K
-}
 export type VenueTimezone = z.infer<typeof venueTimezoneSchema>
 
 const venueFields = {

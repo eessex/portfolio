@@ -195,8 +195,6 @@ async function earliestEditionDate(
  */
 function invalidateReleaseTags(id?: string) {
   updateTag('releases')
-  updateTag('releases:authed')
-  updateTag('releases:public')
   updateTag(slugCacheTag('releases'))
   if (id) updateTag(`release:${id}`)
   updateTag('publishers')

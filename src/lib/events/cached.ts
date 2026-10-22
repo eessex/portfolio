@@ -13,11 +13,6 @@ export async function fetchCachedEventsFirstPage(
   projectId?: string
 ) {
   cacheTag('events')
-  cacheTag(`events:${isAuthed ? 'authed' : 'public'}`)
-
-  if (projectId) {
-    cacheTag(`project:${projectId}:events`)
-  }
 
   return await fetchEventsRaw(
     isAuthed,
@@ -31,7 +26,6 @@ export async function fetchCachedUpcomingEvents(
   isAuthed: boolean = false
 ) {
   cacheTag('events')
-  cacheTag(`events:${isAuthed ? 'authed' : 'public'}`)
   return fetchUpcomingEventsRaw(isAuthed)
 }
 
@@ -40,7 +34,6 @@ export async function fetchCachedEventById(
   isAuthed: boolean = false
 ) {
   cacheTag('events')
-  cacheTag(`events:${isAuthed ? 'authed' : 'public'}`)
   cacheTag(`event:${id}`)
 
   const event = await fetchEventById(id, isAuthed)

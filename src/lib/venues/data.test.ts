@@ -1,7 +1,4 @@
-import {
-  newVenueFixtureAlpha,
-  venueFixtureAlpha
-} from '@/lib/venues/fixtures'
+import { venueFixtureAlpha } from '@/lib/venues/fixtures'
 
 jest.mock('@/lib/venues/cached', () => ({
   fetchCachedVenuesFirstPage: jest.fn()
@@ -110,42 +107,5 @@ describe('fetchVenueById', () => {
     await expect(
       Venues.fetchVenueById(venueFixtureAlpha.id)
     ).rejects.toThrow('Failed to fetch venue.')
-  })
-})
-
-describe('fetchSimilarVenue', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it('returns formatted venue when a similar match is found', async () => {
-    mockSql.mockResolvedValue([dashboardVenueRow])
-
-    const result = await Venues.fetchSimilarVenue(
-      newVenueFixtureAlpha
-    )
-
-    expect(result).toEqual({
-      res: dashboardVenueRow,
-      fieldName: 'similar'
-    })
-  })
-
-  it('returns null when no similar venue is found', async () => {
-    mockSql.mockResolvedValue([])
-
-    const result = await Venues.fetchSimilarVenue(
-      newVenueFixtureAlpha
-    )
-
-    expect(result).toBeNull()
-  })
-
-  it('throws on DB error', async () => {
-    mockSql.mockRejectedValue(new Error('db exploded'))
-
-    await expect(
-      Venues.fetchSimilarVenue(newVenueFixtureAlpha)
-    ).rejects.toThrow('Failed to fetch similar venues.')
   })
 })

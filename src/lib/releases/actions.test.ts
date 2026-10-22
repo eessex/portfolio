@@ -88,8 +88,6 @@ describe('Release Actions', () => {
 
       expect(res).toEqual({ ok: true })
       expect(updateTag).toHaveBeenCalledWith('releases')
-      expect(updateTag).toHaveBeenCalledWith('releases:authed')
-      expect(updateTag).toHaveBeenCalledWith('releases:public')
       expect(updateTag).toHaveBeenCalledWith(
         `release:${releaseFixtureAlpha.id}`
       )

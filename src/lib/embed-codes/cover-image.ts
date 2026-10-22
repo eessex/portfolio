@@ -13,7 +13,7 @@ import {
   type EmbedCodeHost,
   EmbedCodeHosts
 } from '@/lib/embed-codes/schemas/db'
-import { uploadBufferToS3 } from '@/lib/images/s3'
+import { uploadBufferToS3 } from '@/lib/images/s3-client'
 
 function warnNonOkResponse(
   label: string,

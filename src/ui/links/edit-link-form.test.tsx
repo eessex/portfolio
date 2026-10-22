@@ -537,6 +537,27 @@ describe('EditLink', () => {
         expect(screen.getByLabelText(/^name/i)).toHaveValue('')
       })
 
+      it('clears an auto-filled name with the url', () => {
+        renderComponent({ link: undefined, isSocial: true })
+
+        paste('https://artist.bandcamp.com')
+        paste('')
+
+        expect(screen.getByLabelText(/^name/i)).toHaveValue('')
+      })
+
+      it('clears a typed name with the url', () => {
+        renderComponent({ link: undefined, isSocial: true })
+        paste('https://instagram.com/me')
+        fireEvent.change(screen.getByLabelText(/^name/i), {
+          target: { value: 'Store' }
+        })
+
+        paste('')
+
+        expect(screen.getByLabelText(/^name/i)).toHaveValue('')
+      })
+
       it('keeps a typed name', () => {
         renderComponent({ link: undefined, isSocial: true })
         paste('https://artist.bandcamp.com')
@@ -694,6 +715,51 @@ describe('EditLink', () => {
 
       paste(match.url)
       paste('https://example.com/other')
+      await act(async () => resolveFirst(match))
+
+      expect(onExistingMatch).not.toHaveBeenCalled()
+    })
+
+    it('keeps the draft when its name was changed while looking up', async () => {
+      let resolveLookup: (link: Link | undefined) => void = () => {}
+      mockFetchLinkByUrl.mockImplementationOnce(
+        () => new Promise((resolve) => (resolveLookup = resolve))
+      )
+      const onExistingMatch = jest.fn()
+      renderComponent({
+        link: undefined,
+        isSocial: true,
+        onExistingMatch
+      })
+
+      paste(match.url)
+      fireEvent.change(screen.getByLabelText(/^name/i), {
+        target: { value: 'Store' }
+      })
+      await act(async () => resolveLookup(match))
+
+      expect(onExistingMatch).not.toHaveBeenCalled()
+      expect(screen.getByLabelText(/^name/i)).toBeVisible()
+    })
+
+    it('ignores a pending lookup once a character is typed', async () => {
+      let resolveFirst: (link: Link | undefined) => void = () => {}
+      mockFetchLinkByUrl.mockImplementationOnce(
+        () => new Promise((resolve) => (resolveFirst = resolve))
+      )
+      const onExistingMatch = jest.fn()
+      const onBusyChange = jest.fn()
+      renderComponent({
+        link: undefined,
+        onExistingMatch,
+        onBusyChange
+      })
+
+      paste(match.url)
+      fireEvent.change(screen.getByLabelText(urlRegex), {
+        target: { value: `${match.url}x` }
+      })
+      expect(onBusyChange).toHaveBeenLastCalledWith(false)
       await act(async () => resolveFirst(match))
 
       expect(onExistingMatch).not.toHaveBeenCalled()

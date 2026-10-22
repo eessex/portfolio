@@ -4,14 +4,13 @@ import ItemLayout, {
   generateItemMetadata,
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
-import { isAuthed } from '@/lib/auth/guard'
+import { resolvePageItem } from '@/app/(item-pages)/resolve-page-item'
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import { fetchCachedProjectById } from '@/lib/projects/cached'
 import { fetchProjectsRaw } from '@/lib/projects/data'
 import type { ProjectClient } from '@/lib/projects/types'
 import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import { PagePaths } from '@/lib/schemas'
-import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 
@@ -34,34 +33,15 @@ export async function generateStaticParams() {
 
 export default async function ProjectPage({ params }: PageItemProps) {
   const { slug } = await params
-  const resolved = await resolveSlug(PagePaths.projects, slug)
+  const { item, isAuthed } = await resolvePageItem(
+    PagePaths.projects,
+    slug,
+    fetchCachedProjectById
+  )
 
-  if (!resolved) {
-    redirect(`/${PagePaths.projects}`)
-  }
+  if (item.isDefaultProject) redirect('/about')
 
-  if (resolved.isRedirect) {
-    redirect(`/${PagePaths.projects}/${resolved.slug}`)
-  }
-
-  const project = await fetchCachedProjectById(resolved.id, false)
-
-  if (project?.isDefaultProject) redirect('/about')
-
-  if (project) {
-    return <ProjectDetail project={project} isAuthed={false} />
-  }
-
-  const authed = await isAuthed()
-  const draft = await fetchCachedProjectById(resolved.id, authed)
-
-  if (!draft) {
-    redirect(`/${PagePaths.projects}`)
-  }
-
-  if (draft.isDefaultProject) redirect('/about')
-
-  return <ProjectDetail project={draft} isAuthed={authed} />
+  return <ProjectDetail project={item} isAuthed={isAuthed} />
 }
 
 async function ProjectDetail({

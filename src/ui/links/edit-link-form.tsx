@@ -111,6 +111,7 @@ export const EditLink = ({
   // the url last checked: skips repeat checks, and tells Enter
   // whether the form is current
   const checkedUrl = useRef(link?.url)
+  const isLookingUp = useRef(false)
 
   const titleRef = useRef<HTMLInputElement | null>(null)
   // a typed name is kept; only a blank or still auto-filled one changes
@@ -119,8 +120,16 @@ export const EditLink = ({
   function fillSocialLinkName(url: string) {
     const input = titleRef.current
     if (!input) return
+    // a cleared new draft reads as blank, its hidden name included
+    if (!link && !url.trim()) {
+      input.value = ''
+      autoFilledTitle.current = ''
+      return
+    }
     if (input.value && input.value !== autoFilledTitle.current) return
-    const name = inferredSocialLinkName(url) ?? ''
+    const name = isHttpsUrl(url)
+      ? (inferredSocialLinkName(url) ?? '')
+      : ''
     input.value = name
     autoFilledTitle.current = name
   }
@@ -136,16 +145,20 @@ export const EditLink = ({
     }
   }, [])
 
+  // drops a lookup for an earlier url
+  function cancelLookup() {
+    lookupSeq.current++
+    if (!isLookingUp.current) return
+    isLookingUp.current = false
+    onBusyChange?.(false)
+  }
+
   function onUrlValidity(value: string) {
     if (value === checkedUrl.current) return
     checkedUrl.current = value
-    if (onExistingMatch) {
-      // drop a lookup for an earlier url
-      lookupSeq.current++
-      onBusyChange?.(false)
-    }
+    cancelLookup()
     const isValid = isHttpsUrl(value)
-    if (isSocial && isValid) fillSocialLinkName(value)
+    if (isSocial) fillSocialLinkName(value)
     // only a host-named link can match, so other hosts skip the lookup
     const hostName =
       onExistingMatch && isValid
@@ -164,6 +177,7 @@ export const EditLink = ({
     hostName: string,
     seq: number
   ) {
+    isLookingUp.current = true
     onBusyChange?.(true)
     let match: Link | undefined
     try {
@@ -172,9 +186,13 @@ export const EditLink = ({
       // no match: the draft just creates a new link
     }
     if (seq !== lookupSeq.current) return
+    isLookingUp.current = false
     onBusyChange?.(false)
+    // read now: the name may have changed while pending
+    const name = titleRef.current?.value.trim().toLowerCase()
+    const isCustomNamed = !!name && name !== hostName.toLowerCase()
     // expanded only on no match, so a matched draft doesn't flash open
-    if (match) onExistingMatch?.(match)
+    if (match && !isCustomNamed) onExistingMatch?.(match)
     else setIsUrlFilled(true)
   }
 
@@ -201,7 +219,15 @@ export const EditLink = ({
 
     const inputType = (event.nativeEvent as InputEvent).inputType
     const isBulkChange = delta > 1 || bulkInputTypes.has(inputType)
-    if (!isBulkChange) return
+    if (!isBulkChange) {
+      // typing past a looked-up url: its answer no longer applies,
+      // blur or Enter checks the new one
+      if (checkedUrl.current !== undefined) {
+        checkedUrl.current = undefined
+        cancelLookup()
+      }
+      return
+    }
 
     onUrlValidity(event.target.value)
   }

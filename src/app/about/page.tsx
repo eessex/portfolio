@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import ItemLayout from '@/app/(item-pages)/item-layout'
-import { isAuthed } from '@/lib/auth/guard'
+import { fetchPublishedFirst } from '@/app/(item-pages)/resolve-page-item'
 import {
   fetchCachedDefaultProject,
   fetchCachedProjectsFirstPage
@@ -54,32 +54,19 @@ function ogImages(
 
 /** Renders the default project; 404 until one exists. */
 export default async function AboutPage() {
-  const project = await fetchDefaultProjectForViewer()
+  const pageItem = await fetchPublishedFirst(
+    fetchCachedDefaultProject
+  )
 
-  if (!project) notFound()
+  if (!pageItem) notFound()
 
   return (
-    <ItemLayout item={project}>
+    <ItemLayout item={pageItem.item}>
       <Suspense>
         <AboutProjects />
       </Suspense>
     </ItemLayout>
   )
-}
-
-/**
- * The published default project, else an unpublished one for a
- * signed-in admin. Checks a draft exists before reading the session,
- * so the page stays static for anonymous visitors whenever it can.
- */
-async function fetchDefaultProjectForViewer() {
-  const published = await fetchCachedDefaultProject(false)
-  if (published) return published
-
-  const draft = await fetchCachedDefaultProject(true)
-  if (!draft) return undefined
-
-  return (await isAuthed()) ? draft : undefined
 }
 
 /** The other projects, as a carousel. */

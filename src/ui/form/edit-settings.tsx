@@ -100,12 +100,15 @@ export function EditSettings({
 
   async function handleSubmit(formData: FormData) {
     const res = await editSiteSettings(formData, settings?.id)
-    if (res?.ok && !settings) router.refresh()
+    if (res?.ok) router.refresh()
     return res
   }
 
   return (
+    // remounted per save, so pickers drop their submitted drafts for
+    // the saved items and the form's clean baseline matches them
     <Form
+      key={settings?.updatedAt?.getTime()}
       action={handleSubmit}
       submitButtonClassName='button-primary button-lg'
     >

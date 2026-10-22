@@ -1,10 +1,8 @@
-import { redirect } from 'next/navigation'
-
 import ItemLayout, {
   generateItemMetadata,
   generateItemStaticParams
 } from '@/app/(item-pages)/item-layout'
-import { isAuthed } from '@/lib/auth/guard'
+import { resolvePageItem } from '@/app/(item-pages)/resolve-page-item'
 import {
   fetchCachedEventById,
   fetchCachedUpcomingEvents
@@ -12,7 +10,6 @@ import {
 import { fetchEventsRaw } from '@/lib/events/data'
 import type { EventClient } from '@/lib/events/types'
 import { PagePaths } from '@/lib/schemas'
-import { resolveSlug } from '@/lib/slug/data'
 import type { PageItemProps } from '@/lib/types'
 import { UpcomingEventsList } from '@/ui/events/upcoming-events-list'
 import { formattedItemType } from '@/ui/util'
@@ -31,30 +28,13 @@ export async function generateStaticParams() {
 
 export default async function EventPage({ params }: PageItemProps) {
   const { slug } = await params
-  const resolved = await resolveSlug(PagePaths.events, slug)
+  const { item, isAuthed } = await resolvePageItem(
+    PagePaths.events,
+    slug,
+    fetchCachedEventById
+  )
 
-  if (!resolved) {
-    redirect(`/${PagePaths.events}`)
-  }
-
-  if (resolved.isRedirect) {
-    redirect(`/${PagePaths.events}/${resolved.slug}`)
-  }
-
-  const event = await fetchCachedEventById(resolved.id, false)
-
-  if (event) {
-    return <EventDetail event={event} isAuthed={false} />
-  }
-
-  const authed = await isAuthed()
-  const draft = await fetchCachedEventById(resolved.id, authed)
-
-  if (!draft) {
-    redirect(`/${PagePaths.events}`)
-  }
-
-  return <EventDetail event={draft} isAuthed={authed} />
+  return <EventDetail event={item} isAuthed={isAuthed} />
 }
 
 async function EventDetail({

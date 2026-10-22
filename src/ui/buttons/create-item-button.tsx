@@ -22,7 +22,7 @@ export function CreateItemButton({
 }: {
   className?: string
   itemType: EmbeddedItemType | PagePath
-  onClick: () => void
+  onClick?: () => void
   href?: string
   /** Replaces the default "New {item}" text. */
   label?: string
@@ -52,10 +52,6 @@ export function CreateItemButton({
       </button>
     )
   }
-}
-
-export type CreateItemDetail = {
-  itemType: EmbeddedItemType | PagePath
 }
 
 /**
@@ -103,21 +99,10 @@ export function CreateItemFromPathnameButton() {
   if (!found) return null
   const { itemType, href } = found
 
-  function onClick() {
-    const event = new CustomEvent<CreateItemDetail>(
-      'openNewItemForm',
-      {
-        detail: { itemType }
-      }
-    )
-    document.dispatchEvent(event)
-  }
-
   return (
     <CreateItemButton
       className='button-primary'
       itemType={itemType}
-      onClick={onClick}
       href={href}
     />
   )

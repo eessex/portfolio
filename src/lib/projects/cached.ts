@@ -13,7 +13,6 @@ export async function fetchCachedProjectsFirstPage(
   isDefaultExcluded: boolean = false
 ) {
   cacheTag('projects')
-  cacheTag(`projects:${isAuthed ? 'authed' : 'public'}`)
 
   return await fetchProjectsRaw(isAuthed, undefined, undefined, {
     isDefaultExcluded
@@ -25,7 +24,6 @@ export async function fetchCachedProjectById(
   isAuthed: boolean = false
 ) {
   cacheTag('projects') // embedded-item actions invalidate this
-  cacheTag(`projects:${isAuthed ? 'authed' : 'public'}`)
   cacheTag(`project:${id}`)
 
   return fetchProjectById(id, isAuthed)
@@ -35,8 +33,6 @@ export async function fetchCachedDefaultProject(
   isAuthed: boolean = false
 ) {
   cacheTag('projects') // embedded-item actions invalidate this
-  cacheTag(`projects:${isAuthed ? 'authed' : 'public'}`)
-  cacheTag('projects:default')
 
   const project = await fetchDefaultProject(isAuthed)
   if (project) cacheTag(`project:${project.id}`)

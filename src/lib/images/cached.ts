@@ -13,7 +13,6 @@ export async function fetchCachedImagesFirstPage() {
 /** Only the press photos */
 export async function fetchCachedPressImagesFirstPage() {
   cacheTag('images')
-  cacheTag('images:press')
 
   return await fetchImagesRaw(undefined, undefined, 'press')
 }

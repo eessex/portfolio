@@ -66,8 +66,11 @@ export async function editSiteSettings(
     invalidate: () => {
       updateTag('settings')
       updateTag('images')
-      // inline creates/edits from the social links picker
+      // inline link edits change rows these pages embed too
       updateTag('links')
+      updateTag('releases')
+      updateTag('events')
+      updateTag('projects')
     },
     save: (settings) =>
       id

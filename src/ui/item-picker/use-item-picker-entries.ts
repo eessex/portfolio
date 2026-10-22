@@ -31,6 +31,11 @@ interface UseItemPickerEntriesOptions<TItem> {
   orderGroup?: (values: Record<string, unknown>) => number
   /** `ItemPicker`'s `sortBy`: existing items are sorted on load too. */
   isOrderFixed?: boolean
+  /**
+   * A never-saved new draft is dropped on close once blank, even if
+   * touched: an always-open form has no Cancel.
+   */
+  isBlankDraftDiscarded?: boolean
   validation: EntryValidation
 }
 
@@ -47,6 +52,7 @@ export function useItemPickerEntries<
   compareDefaultOrder,
   orderGroup,
   isOrderFixed,
+  isBlankDraftDiscarded,
   validation: {
     validateEntryStrict,
     clearErrors,
@@ -418,7 +424,8 @@ export function useItemPickerEntries<
   ): 'discarded' | 'saved' | undefined {
     if (
       entry.kind === 'new' &&
-      !entry.isTouched &&
+      (!entry.isTouched ||
+        (isBlankDraftDiscarded && !entry.summaryData)) &&
       !hasEntryContent(entry.tempId)
     ) {
       removeEntry(entry)

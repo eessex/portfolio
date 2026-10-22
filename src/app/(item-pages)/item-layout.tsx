@@ -1,14 +1,13 @@
 import clsx from 'clsx'
 import NextLink from 'next/link'
-import { notFound } from 'next/navigation'
 import type { Metadata } from 'next/types'
 
 import styles from '@/app/(item-pages)/item-layout.module.scss'
+import { resolvePageItem } from '@/app/(item-pages)/resolve-page-item'
 import type { EventClient } from '@/lib/events/types'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import { type PagePath, PagePaths } from '@/lib/schemas'
-import { resolveSlug } from '@/lib/slug/data'
 import type {
   PageDataResponse,
   PageItemClient,
@@ -211,13 +210,11 @@ export async function generateItemMetadata(
   pagePath: PagePath,
   fetchById: (
     id: string,
-    includeUnpublished?: boolean
+    isIncludingUnpublished: boolean
   ) => Promise<PageItemClient | undefined>
 ): Promise<Metadata> {
   const { slug } = await params
-  const resolved = slug ? await resolveSlug(pagePath, slug) : null
-  const item = resolved && (await fetchById(resolved.id, true))
-  if (!resolved || !item) return notFound()
+  const { item } = await resolvePageItem(pagePath, slug, fetchById)
 
   const description = generateItemDescription(item)
   const { coverImage, path } = item
@@ -231,18 +228,11 @@ export async function generateItemMetadata(
   ]
   const openGraph = images ? { images } : undefined
 
-  // point crawlers at the canonical URL when reached via a historical slug
-  const canonical = resolved.isRedirect
-    ? `/${pagePath}/${resolved.slug}`
-    : undefined
-
-  const meta: Metadata = {
+  return {
     title: `${formattedItemType(path)} | ${formattedItemTitle(item)}`,
     description,
-    openGraph,
-    alternates: canonical ? { canonical } : undefined
+    openGraph
   }
-  return meta
 }
 
 function generateEventDescription(item: PageItemClient) {

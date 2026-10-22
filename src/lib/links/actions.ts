@@ -10,7 +10,7 @@ import {
   saveItemFromFields
 } from '@/lib/form-action'
 import { emptyListFieldName } from '@/lib/item-fields'
-import { fetchLinksByIds } from '@/lib/links/data'
+import { fetchLinkByUrl, fetchLinksByIds } from '@/lib/links/data'
 import {
   type CreateLink,
   createLinkSchema,
@@ -120,7 +120,8 @@ export async function resolveOrderedLinkIds(
 
 /**
  * `saveLinkFromFields` for a Social links picker entry:
- * saved as social, with a name required.
+ * saved as social, with a name required. A new one reuses
+ * the social link with the same url and name, if saved.
  */
 export async function saveSocialLinkFromFields(
   fields: Record<string, unknown>,
@@ -131,7 +132,13 @@ export async function saveSocialLinkFromFields(
     fields: { ...fields, type: LinkTypes.social },
     schema: createSocialLinkSchema,
     itemType: 'links',
-    create: createLink,
+    // a draft submitted before its lookup settled can still match
+    create: async (link) =>
+      (await fetchLinkByUrl(
+        link.url,
+        LinkTypes.social,
+        link.title
+      )) ?? createLink(link),
     update: updateLink
   })
 }
@@ -147,11 +154,26 @@ export async function resolveSocialLinkIds(
 ): Promise<string[] | undefined> {
   if (!(emptyListFieldName(name) in data)) return undefined
 
-  return [
-    ...new Set(
-      await resolveOrderedIds(data, name, saveSocialLinkFromFields)
-    )
-  ]
+  // saves run in parallel, so identical new drafts share one save
+  // rather than each finding no match and inserting
+  const pendingCreates = new Map<string, Promise<Link>>()
+  function save(fields: Record<string, unknown>, id?: string) {
+    if (id) return saveSocialLinkFromFields(fields, id)
+    const key = JSON.stringify([
+      String(fields.url ?? '').trim(),
+      String(fields.title ?? '')
+        .trim()
+        .toLowerCase()
+    ])
+    let pending = pendingCreates.get(key)
+    if (!pending) {
+      pending = saveSocialLinkFromFields(fields)
+      pendingCreates.set(key, pending)
+    }
+    return pending
+  }
+
+  return [...new Set(await resolveOrderedIds(data, name, save))]
 }
 
 async function createLink(link: CreateLink) {

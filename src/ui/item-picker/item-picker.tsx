@@ -357,6 +357,7 @@ export function ItemPicker<
     compareDefaultOrder: compareOrder,
     isOrderFixed: !!sortBy,
     orderGroup: defaultOrder?.group,
+    isBlankDraftDiscarded: isCreateFormAlwaysOpen,
     validation: {
       validateEntryStrict,
       clearErrors,

@@ -65,5 +65,5 @@ export const createPressLinkSchema = createLinkSchema.extend({
 
 /** A footer link from the site settings, which needs a name. */
 export const createSocialLinkSchema = createLinkSchema.extend({
-  title: shortText
+  title: shortText.trim().min(1, 'Enter a name.')
 })

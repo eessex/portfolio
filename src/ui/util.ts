@@ -17,7 +17,6 @@ import {
   PagePaths,
   singularizePath
 } from '@/lib/schemas'
-import type { DashboardUsedOnPagesKeys } from '@/lib/schemas/fields'
 import { camelToSentence, snakeToCamel } from '@/lib/strings'
 import type { PageItemClient } from '@/lib/types'
 import type { DashboardVenue } from '@/lib/venues/schemas/client'
@@ -252,20 +251,20 @@ export function isEmbeddedItemType(
 }
 
 /**
- * Per-embedded-item-type table column visibility, so items-table
- * can hide a column rather than leave it blank for types with no
- * cover image or Details-column content of their own.
+ * Per-embedded-item-type image column visibility, so items-table
+ * can hide the column rather than leave it blank for types with no
+ * cover image of their own.
  */
 const embeddedItemColumns: Record<
   EmbeddedItemType,
-  { hasImage: boolean; hasDetail: boolean }
+  { hasImage: boolean }
 > = {
-  embedCodes: { hasImage: true, hasDetail: true },
-  images: { hasImage: true, hasDetail: true },
-  links: { hasImage: false, hasDetail: true },
-  publishedEditions: { hasImage: true, hasDetail: true },
-  publishers: { hasImage: false, hasDetail: true },
-  venues: { hasImage: false, hasDetail: true }
+  embedCodes: { hasImage: true },
+  images: { hasImage: true },
+  links: { hasImage: false },
+  publishedEditions: { hasImage: true },
+  publishers: { hasImage: false },
+  venues: { hasImage: false }
 }
 
 export function isImageColumnVisible(
@@ -280,10 +279,7 @@ export function isImageColumnVisible(
 export function isEmbeddedDetailColumnVisible(
   itemType: EmbeddedItemType | PagePath
 ) {
-  return (
-    isEmbeddedItemType(itemType) &&
-    embeddedItemColumns[itemType].hasDetail
-  )
+  return isEmbeddedItemType(itemType)
 }
 
 export const formattedItemType = (
@@ -312,24 +308,6 @@ export function formattedItemTitle(item: PageItemClient) {
 export function itemUrl(item: PageItemClient) {
   if ((item as ProjectClient).isDefaultProject) return '/about'
   return `/${item.path}/${item.slug}`
-}
-
-// queried on page fetch, but not returned in save actions,
-// extract these keys so we can store them when editing items
-export function usedOnSlugKeys({
-  eventSlugs,
-  projectSlugs,
-  releaseSlugs
-}: {
-  eventSlugs?: string[]
-  projectSlugs?: string[]
-  releaseSlugs?: string[]
-}): Record<DashboardUsedOnPagesKeys, string[]> {
-  return {
-    eventSlugs: eventSlugs ?? [],
-    projectSlugs: projectSlugs ?? [],
-    releaseSlugs: releaseSlugs ?? []
-  }
 }
 
 export function usedOnPages(item: Partial<DashboardItem>) {

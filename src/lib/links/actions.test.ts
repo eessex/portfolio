@@ -197,7 +197,9 @@ describe('Link Actions', () => {
 
   describe('#saveSocialLinkFromFields', () => {
     it('saves the link as social', async () => {
-      mockSql.mockResolvedValueOnce([linkFixture])
+      mockSql
+        .mockResolvedValueOnce([]) // no saved match
+        .mockResolvedValueOnce([linkFixture]) // INSERT
 
       await saveSocialLinkFromFields({
         url: newLinkFixture.url,
@@ -205,9 +207,25 @@ describe('Link Actions', () => {
         type: 'press'
       })
 
-      const params = mockSql.mock.calls[0]!.slice(1)
+      const params = mockSql.mock.calls[1]!.slice(1)
       expect(params).toContain('social')
       expect(params).not.toContain('press')
+    })
+
+    it('reuses a saved link with the same url and name', async () => {
+      const saved = { ...linkFixture, type: 'social' as const }
+      mockSql.mockResolvedValueOnce([saved])
+
+      const link = await saveSocialLinkFromFields({
+        url: saved.url,
+        title: 'Instagram'
+      })
+
+      expect(link.id).toBe(saved.id)
+      expect(mockSql).toHaveBeenCalledTimes(1)
+      expect(mockSql.mock.calls[0]!.slice(1)).toEqual(
+        expect.arrayContaining([saved.url, 'social', 'Instagram'])
+      )
     })
 
     it('requires a name', async () => {
@@ -227,6 +245,16 @@ describe('Link Actions', () => {
           title: 'Example'
         })
       ).rejects.toThrow('Invalid link data')
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('rejects a whitespace-only name', async () => {
+      await expect(
+        saveSocialLinkFromFields({
+          url: 'https://example.com',
+          title: '   '
+        })
+      ).rejects.toThrow('Enter a name.')
       expect(mockSql).not.toHaveBeenCalled()
     })
   })
@@ -260,8 +288,27 @@ describe('Link Actions', () => {
       expect(mockSql).not.toHaveBeenCalled()
     })
 
+    it('saves identical new drafts once', async () => {
+      mockSql
+        .mockResolvedValueOnce([]) // no saved match
+        .mockResolvedValueOnce([linkFixture]) // INSERT
+
+      const result = await resolveSocialLinkIds({
+        'socialLinks[]': '',
+        'socialLinks[0].url': newLinkFixture.url,
+        'socialLinks[0].title': 'Instagram',
+        'socialLinks[1].url': ` ${newLinkFixture.url}`,
+        'socialLinks[1].title': 'instagram'
+      })
+
+      expect(result).toEqual([linkFixture.id])
+      expect(mockSql).toHaveBeenCalledTimes(2)
+    })
+
     it('creates new entries as social links in place', async () => {
-      mockSql.mockResolvedValueOnce([linkFixture]) // INSERT
+      mockSql
+        .mockResolvedValueOnce([]) // no saved match
+        .mockResolvedValueOnce([linkFixture]) // INSERT
 
       const result = await resolveSocialLinkIds({
         'socialLinks[]': '',
@@ -271,7 +318,7 @@ describe('Link Actions', () => {
       })
 
       expect(result).toEqual(['link-1', linkFixture.id])
-      expect(mockSql.mock.calls[0]!.slice(1)).toContain('social')
+      expect(mockSql.mock.calls[1]!.slice(1)).toContain('social')
     })
   })
 

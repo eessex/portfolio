@@ -12,6 +12,7 @@ export const newReleaseFixtureAlpha: CreateRelease = {
   releaseDate: new Date('2025-01-01'),
   artist: 'Test Artist',
   isPublished: true,
+  projectId: 'c3c3c3c3-3333-4333-8333-c3c3c3c3c3c3',
   shortDescription: 'A test release.'
 }
 

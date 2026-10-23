@@ -65,8 +65,15 @@ export const releaseClientSchema = releaseSchema.extend({
     .optional()
 })
 
-export const createReleaseSchema = releaseSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-})
+export const createReleaseSchema = releaseSchema
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true
+  })
+  // writes only: older rows may still have no project
+  .extend({
+    projectId: z
+      .string({ required_error: 'Select a project.' })
+      .uuid()
+  })

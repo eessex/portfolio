@@ -424,6 +424,20 @@ export function ItemPicker<
     }
   }, [entries, getFieldset, isMulti])
 
+  // the id input is hidden, so the browser can't validate it: flag the
+  // search box instead, so Save stops and focuses here like a native field
+  const isMissingRequired =
+    !isMulti && !!isRequired && !entries.length
+  useEffect(() => {
+    // a multi picker's query could hit a nested picker's combobox
+    if (isMulti) return
+    rootRef.current
+      ?.querySelector<HTMLInputElement>('[role="combobox"]')
+      ?.setCustomValidity(
+        isMissingRequired ? `Select a ${itemName}.` : ''
+      )
+  }, [isMulti, isMissingRequired, itemName])
+
   const selectedItem =
     !isMulti && entries[0] && entries[0].kind !== 'new'
       ? entries[0].item
@@ -780,6 +794,17 @@ export function ItemPicker<
           readOnly
         />
       )}
+      {/* an absent id keeps the stored relation on update; '' clears it */}
+      {!isMulti &&
+        entries[0]?.kind !== 'existing' &&
+        entries[0]?.kind !== 'editing' && (
+          <input
+            name={singleIdFieldName}
+            type='hidden'
+            value=''
+            readOnly
+          />
+        )}
 
       {isSearchHidden ? (
         <div className={itemPickerStyles['create-only-header']}>

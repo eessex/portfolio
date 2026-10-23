@@ -77,16 +77,21 @@ function ReleaseFormFields({ release }: EditReleaseFormProps) {
         errors={errors?.title}
         label='Title'
       />
-      <ItemPicker<never, ProjectClient, FetchProjectsResult>
-        itemType={PagePaths.projects}
-        label='Project'
-        existingItem={initialProject}
-        renderExistingResult={formatProjectResult}
-        onSelectionChange={handleProjectChange}
-        isRequired
-      />
-      {/* an omitted id keeps the stored project; '' clears it */}
-      {!project && <input type='hidden' name='projectId' value='' />}
+      <div>
+        <ItemPicker<never, ProjectClient, FetchProjectsResult>
+          itemType={PagePaths.projects}
+          label='Project'
+          existingItem={initialProject}
+          renderExistingResult={formatProjectResult}
+          onSelectionChange={handleProjectChange}
+          isRequired
+        />
+        {errors?.projectId && (
+          <p role='alert' className={styles['error-message']}>
+            {errors.projectId.join(' ')}
+          </p>
+        )}
+      </div>
       <Input
         attributes={{
           maxLength: MAX_STRING_LENGTH_SHORT,

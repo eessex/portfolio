@@ -720,6 +720,124 @@ describe('ItemPicker', () => {
       })
     })
 
+    describe('single id field', () => {
+      function idInputs(container: HTMLElement) {
+        return container.querySelectorAll<HTMLInputElement>(
+          'input[name="venueId"]'
+        )
+      }
+
+      it('submits an empty id when nothing is selected', () => {
+        const { container } = renderComponent()
+
+        const inputs = idInputs(container)
+        expect(inputs).toHaveLength(1)
+        expect(inputs[0]).toHaveAttribute('type', 'hidden')
+        expect(inputs[0]).toHaveValue('')
+      })
+
+      it("submits only the selected item's id", () => {
+        const { container } = renderComponent({
+          existingItem: venueFixtureAlpha
+        })
+
+        const inputs = idInputs(container)
+        expect(inputs).toHaveLength(1)
+        expect(inputs[0]).toHaveValue(venueFixtureAlpha.id)
+      })
+
+      it('submits an empty id once the selection is removed', () => {
+        const { container } = renderComponent({
+          existingItem: venueFixtureAlpha
+        })
+
+        fireEvent.click(
+          screen.getByRole('button', { name: /remove venue/i })
+        )
+
+        const inputs = idInputs(container)
+        expect(inputs).toHaveLength(1)
+        expect(inputs[0]).toHaveValue('')
+      })
+
+      it('submits an empty id alongside a new draft', () => {
+        const { container } = renderComponent({
+          renderEditItemForm: () => (
+            <PrefixedInput field='name' aria-label='Venue name' />
+          )
+        })
+
+        expect(
+          screen.getByLabelText('Venue name')
+        ).toBeInTheDocument()
+        const inputs = idInputs(container)
+        expect(inputs).toHaveLength(1)
+        expect(inputs[0]).toHaveValue('')
+      })
+
+      it("submits only the item's id while editing it inline", () => {
+        const { container } = renderComponent({
+          existingItem: venueFixtureAlpha
+        })
+
+        fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+
+        const inputs = idInputs(container)
+        expect(inputs).toHaveLength(1)
+        expect(inputs[0]).toHaveValue(venueFixtureAlpha.id)
+      })
+    })
+
+    describe('required single picker', () => {
+      it('flags its empty search box as invalid', () => {
+        renderComponent({ isRequired: true, isSearchFirst: true })
+
+        const search = screen.getByRole('combobox')
+        expect(search).toBeInvalid()
+        expect((search as HTMLInputElement).validationMessage).toBe(
+          'Select a venue.'
+        )
+      })
+
+      it('flags the search box again once the item is removed', () => {
+        renderComponent({
+          isRequired: true,
+          isSearchFirst: true,
+          existingItem: venueFixtureAlpha
+        })
+
+        fireEvent.click(
+          screen.getByRole('button', { name: /remove venue/i })
+        )
+
+        expect(screen.getByRole('combobox')).toBeInvalid()
+      })
+
+      it('leaves an optional picker valid', () => {
+        renderComponent({ isSearchFirst: true })
+
+        expect(screen.getByRole('combobox')).toBeValid()
+      })
+
+      it('stays invalid nested in a create-only multi picker', () => {
+        renderComponent({
+          itemType: 'publishedEditions',
+          isMulti: true,
+          isSearchHidden: true,
+          name: 'editions',
+          renderEditItemForm: () => (
+            <ItemPicker<Venue>
+              {...defaultProps}
+              isRequired
+              isSearchFirst
+            />
+          )
+        })
+
+        expect(screen.getByRole('combobox')).toBeInvalid()
+      })
+    })
+
     describe('isItemEditable', () => {
       it('offers no Edit for an item it rejects', () => {
         renderComponent({

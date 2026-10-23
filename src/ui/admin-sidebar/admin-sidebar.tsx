@@ -12,6 +12,7 @@ import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
 import { CreateItemFromPathnameButton } from '@/ui/buttons/create-item-button'
 import { EditButton } from '@/ui/buttons/edit-button'
 import { LogoutButton } from '@/ui/buttons/logout-button'
+import { IsAdminSync } from '@/ui/is-admin-sync'
 
 const links = ['dashboard', ...dashboardItemTypes]
 
@@ -19,10 +20,12 @@ export async function AdminSidebar() {
   // opt out of prerender
   await connection()
   const session = await auth()
-  if (!session?.user) return null
+  // re-rendered on login/logout, so it keeps useIsAdmin current
+  if (!session?.user) return <IsAdminSync isAdmin={false} />
 
   return (
     <section className={`admin-sidebar ${styles['admin-sidebar']}`}>
+      <IsAdminSync isAdmin />
       <nav>
         <ul>
           <li>

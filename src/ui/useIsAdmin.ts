@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 
 /** Shared across callers: one session request per page load */
 let isAdminPromise: Promise<boolean> | null = null
+const listeners = new Set<(isAdmin: boolean) => void>()
 
 function fetchIsAdmin() {
   isAdminPromise ??= fetch('/api/session')
@@ -19,8 +20,19 @@ function fetchIsAdmin() {
 }
 
 /**
+ * Pushes the server's session answer to every caller. Login and
+ * logout re-render the layout without a full page load, so mounted
+ * callers would otherwise keep the answer from before.
+ */
+export function syncIsAdmin(isAdmin: boolean) {
+  isAdminPromise = Promise.resolve(isAdmin)
+  listeners.forEach((listener) => listener(isAdmin))
+}
+
+/**
  * Whether the current visitor has an admin session, resolved via
- * /api/session and shared across callers. False while resolving and
+ * /api/session, shared across callers and updated by `syncIsAdmin`
+ * when the session changes. False while resolving and
  * for anonymous visitors. UX only — never a security boundary: the
  * data API routes gate drafts on the session cookie server-side.
  */
@@ -31,17 +43,21 @@ export function useIsAdmin(enabled = true) {
     if (!enabled) return
 
     let cancelled = false
+    const promise = fetchIsAdmin()
 
-    fetchIsAdmin().then((value) => {
-      if (!cancelled && value) setIsAdmin(true)
+    promise.then((value) => {
+      // a later sync supersedes this answer
+      if (!cancelled && promise === isAdminPromise) setIsAdmin(value)
     })
+    listeners.add(setIsAdmin)
 
     return () => {
       cancelled = true
+      listeners.delete(setIsAdmin)
     }
   }, [enabled])
 
-  return isAdmin
+  return enabled && isAdmin
 }
 
 /** Test-only: clear the shared session result between tests */

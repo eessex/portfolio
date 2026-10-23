@@ -1,5 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 
+import type { PageDataResponse, PageItemClient } from '@/lib/types'
 import {
   venueFixtureAlpha,
   venueFixtureBeta,
@@ -14,8 +15,11 @@ import {
   resetIntersectionObservers,
   triggerIntersection
 } from '@/test/__mocks__/browser/intersectionObserver'
+import {
+  SEARCH_DEBOUNCE_MS,
+  useResultsList
+} from '@/ui/use-results-list'
 import { useIsAdmin } from '@/ui/useIsAdmin'
-import { useResultsList } from '@/ui/useResultsList'
 
 jest.mock('@/ui/useIsAdmin', () => ({
   useIsAdmin: jest.fn(() => false)
@@ -73,9 +77,10 @@ function setup(
 }
 
 function mockFetchOnce(data: unknown) {
-  global.fetch = jest
-    .fn()
-    .mockResolvedValue({ json: async () => data } as Response)
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => data
+  } as Response)
 }
 
 describe('useResultsList', () => {
@@ -99,7 +104,6 @@ describe('useResultsList', () => {
       expect(result.current.nextCursor).toBe('cursor-1')
       expect(result.current.isLoading).toBe(false)
       expect(result.current.query).toBe('')
-      expect(result.current.sortDirection).toBe('desc')
     })
 
     it('initializes query from defaultQuery parameter', () => {
@@ -196,6 +200,7 @@ describe('useResultsList', () => {
       // Resolve fetch to clean up
       await act(async () => {
         resolveFetch({
+          ok: true,
           json: async () => ({
             res: [],
             nextCursor: null,
@@ -206,87 +211,273 @@ describe('useResultsList', () => {
     })
   })
 
-  describe('search and filtering', () => {
-    it('filters items when query changes', async () => {
-      global.fetch = jest.fn()
+  describe('server-side search', () => {
+    it('refetches the first page for a changed query', async () => {
+      mockFetchOnce(makeResponse([venueFixtureAlpha]))
 
-      const { result } = setup({
-        initialVenues: [venueFixtureAlpha, venueFixtureBeta]
-      })
+      const { result } = setup({ nextCursor: 'cursor-1' })
 
-      expect(result.current.items).toHaveLength(2)
-
-      await act(async () => {
+      act(() => {
         result.current.setQuery('austin')
       })
 
       await waitFor(() => {
         expect(result.current.items).toEqual([venueFixtureAlpha])
       })
-
-      expect(global.fetch).not.toHaveBeenCalled()
+      expect(global.fetch).toHaveBeenCalledTimes(1)
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/venues?query=austin',
+        expect.anything()
+      )
+      expect(result.current.count).toBe(1)
+      expect(result.current.totalCount).toBe(2)
+      expect(result.current.nextCursor).toBeNull()
     })
 
-    it('fetches additional pages when a query is active and more pages exist', async () => {
-      const nextPageVenues = [venueFixtureGamma]
-
-      mockFetchOnce({
-        res: nextPageVenues,
-        nextCursor: null,
-        totalCount: 3
-      })
+    it('searches even while another page is loading', async () => {
+      global.fetch = jest
+        .fn()
+        .mockReturnValueOnce(new Promise(() => {}))
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => makeResponse([venueFixtureAlpha])
+        } as Response)
 
       const { result } = setup({ nextCursor: 'cursor-1' })
 
-      await act(async () => {
-        result.current.setQuery('chicago')
+      act(() => {
+        result.current.loadMoreRef(
+          document.createElement('li') as HTMLLIElement
+        )
       })
+      act(() => {
+        triggerIntersection()
+      })
+      act(() => result.current.setQuery('austin'))
 
+      await waitFor(() => {
+        expect(result.current.items).toEqual([venueFixtureAlpha])
+      })
+      expect(global.fetch).toHaveBeenLastCalledWith(
+        '/api/venues?query=austin',
+        expect.anything()
+      )
+      // the load-more fetch, aborted by the search
+      expect(getAbortControllers().at(-2)?.abort).toHaveBeenCalled()
+      expect(result.current.isLoading).toBe(false)
+    })
+
+    it('sends only the query typing paused on', async () => {
+      mockFetchOnce(makeResponse([venueFixtureAlpha]))
+
+      const { result } = setup()
+
+      act(() => result.current.setQuery('a'))
+      act(() => result.current.setQuery('au'))
+      act(() => result.current.setQuery('austin'))
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual([venueFixtureAlpha])
+      })
+      expect(global.fetch).toHaveBeenCalledTimes(1)
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/venues?query=austin',
+        expect.anything()
+      )
+    })
+
+    it('does not fetch when the query returns to the loaded one', async () => {
+      const { result } = setup()
+
+      act(() => result.current.setQuery('a'))
+      act(() => result.current.setQuery(''))
+
+      await new Promise((resolve) =>
+        setTimeout(resolve, SEARCH_DEBOUNCE_MS + 50)
+      )
+      expect(global.fetch).not.toHaveBeenCalled()
+      expect(result.current.items).toEqual(defaultVenues)
+    })
+
+    it('cancels an in-flight search when the query returns to the loaded one', async () => {
+      let resolveSearch: (res: Response) => void = () => {}
+      global.fetch = jest.fn().mockReturnValueOnce(
+        new Promise<Response>((resolve) => {
+          resolveSearch = resolve
+        })
+      )
+
+      const { result } = setup({ nextCursor: 'cursor-1' })
+
+      act(() => result.current.setQuery('ab'))
       await waitFor(() => {
         expect(global.fetch).toHaveBeenCalledTimes(1)
       })
+      expect(result.current.isLoading).toBe(true)
 
-      await waitFor(() => {
-        expect(result.current.items).toEqual(nextPageVenues)
-      })
-    })
-  })
-
-  describe('sorting', () => {
-    it('reverses item order when sortDirection changes', async () => {
-      const { result, initialVenues } = setup({
-        initialVenues: [venueFixtureAlpha, venueFixtureBeta]
-      })
-
-      // Default sortDirection
-      expect(result.current.sortDirection).toBe('desc')
-      expect(result.current.items).toEqual(initialVenues)
+      act(() => result.current.setQuery(''))
+      expect(getAbortControllers().at(-1)?.abort).toHaveBeenCalled()
+      expect(result.current.isLoading).toBe(false)
 
       await act(async () => {
-        result.current.setSortDirection('asc')
+        resolveSearch({
+          ok: true,
+          json: async () => makeResponse([venueFixtureAlpha])
+        } as Response)
+      })
+      expect(result.current.items).toEqual(defaultVenues)
+      expect(result.current.resultsQuery).toBe('')
+      expect(result.current.nextCursor).toBe('cursor-1')
+      expect(global.fetch).toHaveBeenCalledTimes(1)
+    })
+
+    it('keeps the loaded query’s results and cursor when a search fails', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {})
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        json: async () => {
+          throw new SyntaxError('Unexpected token <')
+        }
+      } as unknown as Response)
+
+      const { result } = setup({ nextCursor: 'cursor-1' })
+
+      act(() => result.current.setQuery('austin'))
+
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledTimes(1)
+        expect(result.current.isLoading).toBe(false)
+      })
+      expect(result.current.items).toEqual(defaultVenues)
+      expect(result.current.resultsQuery).toBe('')
+
+      // loading more continues the shown (unsearched) results
+      act(() => {
+        result.current.loadMoreRef(
+          document.createElement('li') as HTMLLIElement
+        )
+      })
+      act(() => triggerIntersection())
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenLastCalledWith(
+          '/api/venues?query=&cursor=cursor-1',
+          expect.anything()
+        )
+      })
+    })
+
+    it('retries a failed search via ensureFirstPage', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {})
+      global.fetch = jest
+        .fn()
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+          statusText: 'Internal Server Error'
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => makeResponse([venueFixtureAlpha])
+        } as Response)
+
+      const { result } = setup()
+
+      act(() => result.current.setQuery('austin'))
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledTimes(1)
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      act(() => result.current.ensureFirstPage())
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual([venueFixtureAlpha])
+      })
+      expect(result.current.resultsQuery).toBe('austin')
+      expect(global.fetch).toHaveBeenLastCalledWith(
+        '/api/venues?query=austin',
+        expect.anything()
+      )
+    })
+
+    it('continues the searched query’s cursor when loading more', async () => {
+      mockFetchOnce(
+        makeResponse([venueFixtureAlpha], {
+          nextCursor: 'cursor-austin',
+          totalCount: 2
+        })
+      )
+
+      const { result } = setup({ nextCursor: 'cursor-1' })
+
+      act(() => result.current.setQuery('austin'))
+      await waitFor(() => {
+        expect(result.current.nextCursor).toBe('cursor-austin')
+      })
+
+      mockFetchOnce(makeResponse([venueFixtureGamma]))
+      act(() => {
+        result.current.loadMoreRef(
+          document.createElement('li') as HTMLLIElement
+        )
+      })
+      act(() => {
+        triggerIntersection()
       })
 
       await waitFor(() => {
         expect(result.current.items).toEqual([
-          venueFixtureBeta,
-          venueFixtureAlpha
+          venueFixtureAlpha,
+          venueFixtureGamma
         ])
       })
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/venues?query=austin&cursor=cursor-austin',
+        expect.anything()
+      )
     })
-  })
 
-  describe('item mutations', () => {
-    it('removes an item and updates items and count', () => {
-      const { result } = setup()
-
-      const initialCount = result.current.count
-
-      act(() => {
-        result.current.onRemoveItem(venueFixtureAlpha.id)
+    it('merges a grouped page into its groups', async () => {
+      mockFetchOnce({
+        res: { a: [venueFixtureBeta, venueFixtureGamma], b: [] },
+        nextCursor: null,
+        totalCount: 3
       })
 
-      expect(result.current.items).toEqual([venueFixtureBeta])
-      expect(result.current.count).toBe(initialCount - 1)
+      const { result } = renderHook(() =>
+        useResultsList<
+          never,
+          Venue & PageItemClient,
+          PageDataResponse
+        >('/api/venues', {
+          res: { a: [venueFixtureAlpha, venueFixtureBeta] },
+          nextCursor: 'cursor-1',
+          totalCount: 3
+        } as never)
+      )
+
+      act(() => {
+        result.current.loadMoreRef(
+          document.createElement('li') as HTMLLIElement
+        )
+      })
+      act(() => {
+        triggerIntersection()
+      })
+
+      await waitFor(() => {
+        expect(result.current.groupedItems).toEqual({
+          a: [venueFixtureAlpha, venueFixtureBeta, venueFixtureGamma],
+          b: []
+        })
+      })
+      expect(result.current.items).toEqual([
+        venueFixtureAlpha,
+        venueFixtureBeta,
+        venueFixtureGamma
+      ])
     })
   })
 
@@ -317,6 +508,7 @@ describe('useResultsList', () => {
 
       await act(async () => {
         resolveFetch({
+          ok: true,
           json: async () => ({
             res: [],
             nextCursor: null,
@@ -367,27 +559,11 @@ describe('useResultsList', () => {
     })
   })
 
-  describe('query and sort effects', () => {
+  describe('query effect', () => {
     it('does not refetch on initial mount', () => {
       global.fetch = jest.fn()
 
       setup({ nextCursor: 'cursor-1' })
-
-      expect(global.fetch).not.toHaveBeenCalled()
-    })
-
-    it('filters locally when no more pages exist', async () => {
-      global.fetch = jest.fn()
-
-      const { result } = setup({ nextCursor: null })
-
-      await act(async () => {
-        result.current.setQuery('austin')
-      })
-
-      await waitFor(() => {
-        expect(result.current.items).toEqual([venueFixtureAlpha])
-      })
 
       expect(global.fetch).not.toHaveBeenCalled()
     })
@@ -428,6 +604,7 @@ describe('useResultsList', () => {
         .fn()
         .mockRejectedValueOnce(abortError)
         .mockResolvedValueOnce({
+          ok: true,
           json: async () => makeResponse(defaultVenues)
         } as Response)
 
@@ -460,6 +637,7 @@ describe('useResultsList', () => {
         .fn()
         .mockReturnValueOnce(new Promise(() => {}))
         .mockResolvedValueOnce({
+          ok: true,
           json: async () => makeResponse(defaultVenues)
         } as Response)
 
@@ -522,44 +700,6 @@ describe('useResultsList', () => {
       expect(controllers).toHaveLength(1)
       expect(controllers[0].abort).toHaveBeenCalled()
     })
-
-    it.skip('reuses cached search text between searches', async () => {
-      const { result } = setup()
-
-      await act(async () => {
-        result.current.setQuery('austin')
-      })
-
-      await waitFor(() => {
-        expect(result.current.items).toEqual([venueFixtureAlpha])
-      })
-
-      // (should hit cache)
-      await act(async () => {
-        result.current.setQuery('')
-        result.current.setQuery('austin')
-      })
-
-      await waitFor(() => {
-        expect(result.current.items).toEqual([venueFixtureAlpha])
-      })
-
-      // // invalidate cached search text
-      // act(() => {
-      //   result.current.onEditItem(
-      //     {
-      //       ...venueFixtureAlpha,
-      //       city: 'Dallas'
-      //     },
-      //     {}
-      //   )
-      // })
-
-      // query should no longer match
-      await waitFor(() => {
-        expect(result.current.items).toEqual([])
-      })
-    })
   })
 
   describe('animated replace', () => {
@@ -567,11 +707,9 @@ describe('useResultsList', () => {
 
     beforeEach(() => {
       jest.mocked(useIsAdmin).mockReturnValue(true)
-      window.matchMedia = jest
-        .fn()
-        .mockReturnValue({
-          matches: false
-        }) as typeof window.matchMedia
+      window.matchMedia = jest.fn().mockReturnValue({
+        matches: false
+      }) as typeof window.matchMedia
       // defer the update callback, as the browser does
       document.startViewTransition = jest.fn(
         (callback: () => void) => {
@@ -661,6 +799,55 @@ describe('useResultsList', () => {
         '/api/venues?query=&cursor=cursor-new',
         expect.anything()
       )
+    })
+  })
+
+  describe('admin augment', () => {
+    afterEach(() => {
+      jest.mocked(useIsAdmin).mockReturnValue(false)
+    })
+
+    it('refetches the published first page on logout', async () => {
+      jest.mocked(useIsAdmin).mockReturnValue(true)
+      mockFetchOnce(
+        makeResponse([...defaultVenues, venueFixtureGamma])
+      )
+
+      const { result, rerender } = renderHook(() =>
+        useResultsList<Venue>(
+          '/api/venues',
+          makeResponse(defaultVenues),
+          { augmentOnMount: true }
+        )
+      )
+
+      await waitFor(() => {
+        expect(result.current.items).toHaveLength(3)
+      })
+
+      jest.mocked(useIsAdmin).mockReturnValue(false)
+      mockFetchOnce(makeResponse(defaultVenues))
+      rerender()
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual(defaultVenues)
+      })
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/venues?query=',
+        expect.anything()
+      )
+    })
+
+    it('does not refetch for an anonymous visitor', () => {
+      renderHook(() =>
+        useResultsList<Venue>(
+          '/api/venues',
+          makeResponse(defaultVenues),
+          { augmentOnMount: true }
+        )
+      )
+
+      expect(global.fetch).not.toHaveBeenCalled()
     })
   })
 

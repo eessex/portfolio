@@ -6,9 +6,9 @@ import {
 } from '@/lib/venues/fixtures'
 import type { Venue } from '@/lib/venues/schemas/db'
 import { Combobox, type ComboboxProps } from '@/ui/combobox/combobox'
-import { useResultsList } from '@/ui/useResultsList'
+import { useResultsList } from '@/ui/use-results-list'
 
-jest.mock('@/ui/useResultsList')
+jest.mock('@/ui/use-results-list')
 
 const onCreateNewMock = jest.fn()
 const onSelectMock = jest.fn()
@@ -50,7 +50,7 @@ describe('Combobox', () => {
 
   describe('Initial state', () => {
     beforeEach(() => {
-      const actual = jest.requireActual('@/ui/useResultsList')
+      const actual = jest.requireActual('@/ui/use-results-list')
 
       ;(useResultsList as jest.Mock).mockImplementation(
         actual.useResultsList

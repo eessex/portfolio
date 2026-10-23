@@ -32,9 +32,9 @@ import {
 } from '@/ui/item-picker/item-picker'
 import { useNamePrefix } from '@/ui/item-picker/name-prefix'
 import { ItemResultLabel } from '@/ui/item-result-label'
-import { useResultsList } from '@/ui/useResultsList'
+import { useResultsList } from '@/ui/use-results-list'
 
-jest.mock('@/ui/useResultsList')
+jest.mock('@/ui/use-results-list')
 
 /**
  * An entry's edit form reads its namespace from context, so these stand
@@ -96,7 +96,7 @@ describe('ItemPicker', () => {
 
     beforeEach(() => {
       jest.clearAllMocks()
-      const actual = jest.requireActual('@/ui/useResultsList')
+      const actual = jest.requireActual('@/ui/use-results-list')
       ;(useResultsList as jest.Mock).mockImplementation(
         actual.useResultsList
       )
@@ -2819,13 +2819,14 @@ describe('ItemPicker', () => {
 
     beforeEach(() => {
       jest.clearAllMocks()
-      const actual = jest.requireActual('@/ui/useResultsList')
+      const actual = jest.requireActual('@/ui/use-results-list')
       ;(useResultsList as jest.Mock).mockImplementation(
         actual.useResultsList
       )
       // With no seeded `initialResults`, the combobox fetches its first
       // (grouped) page on mount; resolve it so the update lands in act().
       global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
         json: async () => ({
           res: {},
           nextCursor: null,

@@ -46,6 +46,8 @@ export const releaseSchema = z.object({
   imageIds: relationFields.imageIds,
   linkIds: relationFields.linkIds,
   path: z.literal(PagePaths.releases),
+  // required here, unlike events' `ownershipFields`
+  projectId: z.string({ required_error: 'Select a project.' }).uuid(),
   releaseDate: date,
   type: releaseTypeSchema
 })

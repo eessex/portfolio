@@ -98,11 +98,7 @@ describe('Release Actions', () => {
       mockSql.mockResolvedValueOnce([releaseFixtureAlpha])
       await deleteRelease(releaseFixtureAlpha)
 
-      for (const tag of [
-        'projects',
-        'events',
-        'settings'
-      ]) {
+      for (const tag of ['projects', 'events', 'settings']) {
         expect(updateTag).toHaveBeenCalledWith(tag)
       }
     })
@@ -171,6 +167,7 @@ describe('Release Actions', () => {
       await editRelease(
         formDataFromObject({
           title: 'Updated Title',
+          projectId: releaseFixtureAlpha.projectId,
           type: releaseFixtureAlpha.type,
           releaseDate: releaseFixtureAlpha.releaseDate
         }),
@@ -270,6 +267,36 @@ describe('Release Actions', () => {
 
       expect(res!.message).toBe('Failed to validate release.')
       expect(res!.errors).toEqual({ type: ['Required'] })
+    })
+
+    it('requires a project on create', async () => {
+      const { projectId: _omit, ...invalid } = newReleaseFixtureAlpha
+      const res = await editRelease(
+        formDataFromObject({ ...invalid, isPublished: 'on' })
+      )
+
+      expect(res!.message).toBe('Failed to validate release.')
+      expect(res!.errors).toEqual({
+        projectId: ['Select a project.']
+      })
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
+    it('rejects removing the project on update', async () => {
+      // an emptied single picker submits its id field as ''
+      const res = await editRelease(
+        formDataFromObject({
+          ...newReleaseFixtureAlpha,
+          isPublished: 'on',
+          projectId: ''
+        }),
+        releaseFixtureAlpha.id
+      )
+
+      expect(res!.errors).toEqual({
+        projectId: ['Select a project.']
+      })
+      expect(mockSql).not.toHaveBeenCalled()
     })
 
     it('passes the raw submitted data to the ordered id resolvers', async () => {

@@ -131,13 +131,30 @@ export async function deleteProject(project: Project) {
     del: async () => {
       // stored flag, not the client-sent one: /about depends on it
       const rows = await sql`
-        SELECT is_default_project FROM projects
+        SELECT
+          is_default_project,
+          EXISTS (
+            SELECT 1 FROM releases WHERE project_id = ${project.id}
+          ) AS has_releases,
+          EXISTS (
+            SELECT 1 FROM projects WHERE is_default_project
+          ) AS has_default_project
+        FROM projects
         WHERE id = ${project.id}
       `
-      if (rows[0]?.is_default_project) {
+      const row = rows[0]
+      if (row?.is_default_project) {
         return {
           ok: false,
           message: 'The default project can’t be deleted.'
+        }
+      }
+      // releases.project_id is NOT NULL: no default to hand them to
+      if (row?.has_releases && !row.has_default_project) {
+        return {
+          ok: false,
+          message:
+            'Create a default project before deleting a project with releases.'
         }
       }
       await sql.transaction([
@@ -277,8 +294,8 @@ const ownedPageItemTables = ['releases', 'events'] as const
 
 /**
  * Moves a project's releases/events to the default project before it's
- * deleted; their FKs' `ON DELETE SET NULL` would otherwise leave them
- * unowned.
+ * deleted: the releases FK is `ON DELETE RESTRICT`, and the events FK's
+ * `ON DELETE SET NULL` would otherwise leave them unowned.
  */
 function handOffPageItems(
   table: (typeof ownedPageItemTables)[number],

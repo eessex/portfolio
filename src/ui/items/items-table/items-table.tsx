@@ -33,9 +33,9 @@ import { Loading } from '@/ui/loading'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import { PublisherDetails } from '@/ui/publishers/publisher-details'
 import { SearchInput } from '@/ui/search-input/search-input'
+import type { ResultsResponse } from '@/ui/use-results-list'
+import { useResultsList } from '@/ui/use-results-list'
 import { useIsAdmin } from '@/ui/useIsAdmin'
-import type { ResultsResponse } from '@/ui/useResultsList'
-import { useResultsList } from '@/ui/useResultsList'
 import {
   formattedItemType,
   formatVenueInline,
@@ -87,6 +87,7 @@ export function ItemsTable<
     groupedItems,
     loadMoreRef,
     query,
+    resultsQuery,
     setQuery,
     nextCursor
   } = useResultsList<TEmbeddedItem, T, S>(
@@ -117,10 +118,11 @@ export function ItemsTable<
   function tableSectionTitle(category?: string, itemCount?: number) {
     if (category) {
       const typeLabel = formattedItemType(category, false, true)
-      if (query.length > 0) {
+      if (resultsQuery.length > 0) {
         return (
           <>
-            {itemTypeToLabel(itemType)} matching &ldquo;{query}&rdquo;
+            {itemTypeToLabel(itemType)} matching &ldquo;{resultsQuery}
+            &rdquo;
             <span className={styles.count}>{itemCount}</span>
           </>
         )
@@ -213,7 +215,7 @@ export function ItemsTable<
                 }
               >
                 <td id={`${tbodyId}-search`} colSpan={colSpan}>
-                  Search results for “{query}”
+                  Search results for “{resultsQuery}”
                 </td>
               </tr>
               <tr className={styles['no-results']}>
@@ -252,7 +254,9 @@ export function ItemsTable<
                       index={idx}
                       isExpanded={!!isExpandedOnLoad}
                       isCategoryVisible={
-                        !!(isCategoryVisible || query.length > 0)
+                        !!(
+                          isCategoryVisible || resultsQuery.length > 0
+                        )
                       }
                       isPathTypeVisible={!!isPathTypeVisible}
                       itemType={itemType}

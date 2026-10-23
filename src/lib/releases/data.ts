@@ -143,13 +143,28 @@ export async function fetchReleasesRaw(
     count: (like) => sql`
       SELECT COUNT(*)::int AS count
       FROM releases AS r
+      LEFT JOIN projects p ON r.project_id = p.id
       WHERE
         (${projectId}::uuid IS NULL OR r.project_id = ${projectId}::uuid)
         AND (${isAuthed}::boolean OR r.is_published = true)
         AND (
           ${like}::text IS NULL
           OR r.title ILIKE ${like}
+          OR r.short_description ILIKE ${like}
           OR r.description ILIKE ${like}
+          OR r.type ILIKE ${like}
+          OR COALESCE(r.artist, p.title) ILIKE ${like}
+          OR EXISTS (
+            SELECT 1
+            FROM published_editions pe
+            JOIN publishers pub ON pub.id = pe.publisher_id
+            WHERE pe.release_id = r.id
+              AND (
+                pub.name ILIKE ${like}
+                OR pe.catalog_number ILIKE ${like}
+                OR pe.format ILIKE ${like}
+              )
+          )
         );
     `,
     list: ({ like, cursorName: cursorReleaseDate, cursorId }) => {
@@ -186,7 +201,25 @@ export async function fetchReleasesRaw(
         WHERE
           (${projectId}::uuid IS NULL OR r.project_id = ${projectId}::uuid)
           AND (${isAuthed}::boolean OR r.is_published = true)
-          AND (${like}::text IS NULL OR r.title ILIKE ${like} OR r.description ILIKE ${like})
+          AND (
+            ${like}::text IS NULL
+            OR r.title ILIKE ${like}
+            OR r.short_description ILIKE ${like}
+            OR r.description ILIKE ${like}
+            OR r.type ILIKE ${like}
+            OR COALESCE(r.artist, p.title) ILIKE ${like}
+            OR EXISTS (
+              SELECT 1
+              FROM published_editions pe
+              JOIN publishers pub ON pub.id = pe.publisher_id
+              WHERE pe.release_id = r.id
+                AND (
+                  pub.name ILIKE ${like}
+                  OR pe.catalog_number ILIKE ${like}
+                  OR pe.format ILIKE ${like}
+                )
+            )
+          )
           AND (
             ${cursorReleaseDate}::timestamptz IS NULL
             OR (

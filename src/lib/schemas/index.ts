@@ -16,6 +16,12 @@ export const PagePaths = Object.fromEntries(
 export type PagePath = (typeof pagePaths)[number]
 
 /**
+ * Path of the default project's page. Not a `PagePath`: it has no
+ * `/{path}/{slug}` pages.
+ */
+export const ABOUT_PATH = 'about'
+
+/**
  * Singular form of each `PagePath`, e.g. for deriving a form field name
  * like `releaseId` from the `releases` path.
  */

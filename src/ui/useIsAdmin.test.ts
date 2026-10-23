@@ -1,6 +1,10 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 
-import { resetIsAdminCache, useIsAdmin } from '@/ui/useIsAdmin'
+import {
+  resetIsAdminCache,
+  syncIsAdmin,
+  useIsAdmin
+} from '@/ui/useIsAdmin'
 
 function mockSession(isAuthed: boolean) {
   global.fetch = jest.fn().mockResolvedValue({
@@ -67,5 +71,56 @@ describe('useIsAdmin', () => {
     mockSession(true)
     const retry = renderHook(() => useIsAdmin())
     await waitFor(() => expect(retry.result.current).toBe(true))
+  })
+
+  it('follows a sync after login and logout', async () => {
+    mockSession(false)
+
+    const { result } = renderHook(() => useIsAdmin())
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
+    expect(result.current).toBe(false)
+
+    act(() => syncIsAdmin(true))
+    expect(result.current).toBe(true)
+
+    act(() => syncIsAdmin(false))
+    expect(result.current).toBe(false)
+  })
+
+  it('serves a synced answer to later callers without a request', async () => {
+    syncIsAdmin(true)
+
+    const { result } = renderHook(() => useIsAdmin())
+
+    await waitFor(() => expect(result.current).toBe(true))
+    expect(global.fetch).not.toHaveBeenCalled()
+  })
+
+  it('ignores a session response that a sync supersedes', async () => {
+    let resolveSession: (value: Response) => void = () => {}
+    global.fetch = jest.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          resolveSession = resolve
+        })
+    )
+
+    const { result } = renderHook(() => useIsAdmin())
+    act(() => syncIsAdmin(true))
+    await act(async () =>
+      resolveSession({
+        json: async () => ({ isAuthed: false })
+      } as Response)
+    )
+
+    expect(result.current).toBe(true)
+  })
+
+  it('ignores a sync while disabled', () => {
+    const { result } = renderHook(() => useIsAdmin(false))
+
+    act(() => syncIsAdmin(true))
+
+    expect(result.current).toBe(false)
   })
 })

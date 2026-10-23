@@ -12,6 +12,7 @@ export const newReleaseFixtureAlpha: CreateRelease = {
   releaseDate: new Date('2025-01-01'),
   artist: 'Test Artist',
   isPublished: true,
+  projectId: 'c3c3c3c3-3333-4333-8333-c3c3c3c3c3c3',
   shortDescription: 'A test release.'
 }
 
@@ -31,6 +32,7 @@ export const releaseFixtureAlbum: ReleaseClient = {
   updatedAt: new Date('2025-01-01'),
   releaseDate: new Date('2025-01-01'),
   artist: 'Test Artist Album',
+  projectId: 'c3c3c3c3-3333-4333-8333-c3c3c3c3c3c3',
   shortDescription: 'A test album for SEO metadata.',
   isPublished: true
 }
@@ -45,5 +47,6 @@ export const releaseFixtureSingle: ReleaseClient = {
   updatedAt: new Date('2026-01-01'),
   releaseDate: new Date('2026-01-01'),
   artist: 'Test Artist Single',
+  projectId: 'c3c3c3c3-3333-4333-8333-c3c3c3c3c3c3',
   isPublished: true
 }

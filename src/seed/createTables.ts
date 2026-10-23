@@ -310,7 +310,7 @@ async function createReleasesTable() {
   await sql`
     CREATE TABLE IF NOT EXISTS releases (
       id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-      project_id UUID,
+      project_id UUID NOT NULL,
       tag_ids UUID[] DEFAULT ARRAY[]::UUID[],
       title VARCHAR(255) NOT NULL,
       slug VARCHAR(255) NOT NULL,
@@ -326,7 +326,7 @@ async function createReleasesTable() {
       link_ids UUID[],
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      CONSTRAINT fk_release_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL,
+      CONSTRAINT fk_release_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE RESTRICT,
       CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')
     );
   `

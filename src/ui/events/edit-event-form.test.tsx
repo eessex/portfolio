@@ -219,6 +219,30 @@ describe('EditEventForm', () => {
       ).toBeInTheDocument()
       expect(projectIdValue(container)).toBe(projectFixtureBand.id)
     })
+
+    it('submits an empty project id once the project is removed', async () => {
+      mockEditEvent.mockResolvedValue({
+        ok: true,
+        res: eventFixtureUpcoming
+      })
+      renderComponent({
+        event: {
+          ...eventFixtureUpcoming,
+          project: projectFixtureBand
+        }
+      })
+
+      fireEvent.click(
+        screen.getByRole('button', { name: /remove project/i })
+      )
+      fireEvent.click(
+        screen.getByRole('button', { name: saveButtonText })
+      )
+
+      await waitFor(() => expect(mockEditEvent).toHaveBeenCalled())
+      const formData = mockEditEvent.mock.calls[0]?.[0]
+      expect(formData?.get('projectId')).toBe('')
+    })
   })
 
   describe('published field', () => {

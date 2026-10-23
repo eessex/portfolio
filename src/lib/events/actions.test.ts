@@ -173,6 +173,41 @@ describe('Event Actions', () => {
       )
     })
 
+    describe('project', () => {
+      const projectId = '44444444-4444-4444-8444-444444444444'
+      const existingEvent = { ...eventFixtureAlpha, projectId }
+      const submitted = {
+        title: eventFixtureAlpha.title,
+        venueId: eventFixtureAlpha.venueId,
+        startTime: eventFixtureAlpha.startTime
+      }
+
+      beforeEach(() => {
+        mockSql
+          .mockResolvedValueOnce([existingEvent])
+          .mockResolvedValueOnce([eventFixtureAlpha])
+      })
+
+      it('clears project_id when the project is removed', async () => {
+        // an emptied single picker submits its id field as ''
+        await editEvent(
+          formDataFromObject({ ...submitted, projectId: '' }),
+          eventFixtureAlpha.id
+        )
+
+        expect(mockSql.mock.calls[1]?.[8]).toBeNull()
+      })
+
+      it('keeps the stored project_id when the field is absent', async () => {
+        await editEvent(
+          formDataFromObject(submitted),
+          eventFixtureAlpha.id
+        )
+
+        expect(mockSql.mock.calls[1]?.[8]).toBe(projectId)
+      })
+    })
+
     it('can create a new event', async () => {
       mockSql.mockResolvedValueOnce([eventFixtureAlpha])
       mockResolveOrderedEmbedCodeIds.mockResolvedValueOnce({

@@ -240,11 +240,7 @@ describe('EditReleaseForm', () => {
       expect(projectIdValue(container)).toBe(projectFixtureBand.id)
     })
 
-    it('submits an empty project id once the project is removed', async () => {
-      mockEditRelease.mockResolvedValue({
-        ok: false,
-        message: 'Failed to save release.'
-      })
+    it("won't save once the project is removed", async () => {
       renderComponent({ release: releaseWithEdition })
 
       fireEvent.click(
@@ -257,9 +253,14 @@ describe('EditReleaseForm', () => {
         screen.getByRole('button', { name: saveButtonText })
       )
 
-      await waitFor(() => expect(mockEditRelease).toHaveBeenCalled())
-      const formData = mockEditRelease.mock.calls[0]?.[0]
-      expect(formData?.get('projectId')).toBe('')
+      const search = screen.getByRole('combobox', {
+        name: /project/i
+      })
+      expect(search).toBeInvalid()
+      expect((search as HTMLInputElement).validationMessage).toBe(
+        'Select a project.'
+      )
+      expect(mockEditRelease).not.toHaveBeenCalled()
     })
 
     it('marks the project picker required', () => {
@@ -268,6 +269,32 @@ describe('EditReleaseForm', () => {
       expect(screen.getByText('Project').textContent).not.toMatch(
         /optional/
       )
+    })
+
+    it('shows a missing project error', async () => {
+      mockEditRelease.mockResolvedValue({
+        ok: false,
+        message: 'Failed to validate release.',
+        errors: { projectId: ['Select a project.'] }
+      })
+      renderComponent({ release: releaseWithEdition })
+
+      fireEvent.click(
+        screen.getByRole('button', { name: /remove project/i })
+      )
+      fireEvent.change(screen.getByLabelText(artistRegex), {
+        target: { value: 'Joe Smith & Friends' }
+      })
+      // past the browser's own required check, e.g. a stale client
+      fireEvent.submit(
+        screen
+          .getByRole('button', { name: saveButtonText })
+          .closest('form')!
+      )
+
+      expect(
+        await screen.findByText('Select a project.')
+      ).toHaveAttribute('role', 'alert')
     })
   })
 

@@ -3,18 +3,15 @@ import { connection } from 'next/server'
 
 import { auth } from '@/auth'
 import { dashboardItemTypes } from '@/lib/schemas'
-import {
-  camelToSentence,
-  camelToSnake,
-  snakeToCamel
-} from '@/lib/strings'
+import { camelToSentence, snakeToCamel } from '@/lib/strings'
 import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
 import { CreateItemFromPathnameButton } from '@/ui/buttons/create-item-button'
 import { EditButton } from '@/ui/buttons/edit-button'
 import { LogoutButton } from '@/ui/buttons/logout-button'
 import { IsAdminSync } from '@/ui/is-admin-sync'
+import { dashboardUrl } from '@/ui/util'
 
-const links = ['dashboard', ...dashboardItemTypes]
+const links = ['dashboard' as const, ...dashboardItemTypes]
 
 export async function AdminSidebar() {
   // opt out of prerender
@@ -37,7 +34,11 @@ export async function AdminSidebar() {
           {links.map((link) => (
             <li key={link}>
               <NextLink
-                href={`/dashboard${link === 'dashboard' ? '' : `/${camelToSnake(link)}`}`}
+                href={
+                  link === 'dashboard'
+                    ? '/dashboard'
+                    : dashboardUrl(link)
+                }
                 className='button'
               >
                 {camelToSentence(snakeToCamel(link))}

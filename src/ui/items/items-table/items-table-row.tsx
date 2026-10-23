@@ -15,7 +15,6 @@ import {
   EmbeddedItemTypes,
   type PagePath
 } from '@/lib/schemas'
-import { camelToSnake } from '@/lib/strings'
 import type { EmbeddedItem, PageItemClient } from '@/lib/types'
 import type { Venue } from '@/lib/venues/schemas/db'
 import type { ThumbnailImage } from '@/ui/cover-image-thumbnail'
@@ -32,6 +31,7 @@ import {
 } from '@/ui/items/item-parts'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import {
+  dashboardItemEditUrl,
   formattedFilename,
   formattedItemType,
   formattedLinkUrl,
@@ -185,7 +185,7 @@ export function ItemsTableRow({
   const linkTarget = hasOwnPage(item)
     ? itemUrl(item)
     : isAdmin
-      ? `/dashboard/${camelToSnake(itemType)}/${item.id}/edit`
+      ? dashboardItemEditUrl(itemType as EmbeddedItemType, item.id)
       : undefined
   const rowLabel = hasOwnPage(item)
     ? `${item.title}${displayArtist ? ', by ' + displayArtist : ''}`

@@ -10,7 +10,8 @@ import {
   type PagePath,
   pagePaths
 } from '@/lib/schemas'
-import { camelToSnake, snakeToCamel } from '@/lib/strings'
+import { snakeToCamel } from '@/lib/strings'
+import { dashboardUrl, newUrl } from '@/ui/util'
 
 export function CreateItemButton({
   className,
@@ -76,7 +77,7 @@ function itemTypeFromPathname(
     return (
       itemType && {
         itemType,
-        href: `/dashboard/${camelToSnake(itemType)}/new`
+        href: newUrl(dashboardUrl(itemType))
       }
     )
   }
@@ -86,7 +87,7 @@ function itemTypeFromPathname(
     pagePaths.includes(pathnameParts[1] as PagePath)
   ) {
     const itemType = pathnameParts[1] as PagePath
-    return { itemType, href: `/${itemType}/new` }
+    return { itemType, href: newUrl(`/${itemType}`) }
   }
 
   return undefined

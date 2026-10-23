@@ -46,6 +46,8 @@ export const releaseSchema = z.object({
   imageIds: relationFields.imageIds,
   linkIds: relationFields.linkIds,
   path: z.literal(PagePaths.releases),
+  // required here, unlike events' `ownershipFields`
+  projectId: z.string({ required_error: 'Select a project.' }).uuid(),
   releaseDate: date,
   type: releaseTypeSchema
 })
@@ -65,15 +67,8 @@ export const releaseClientSchema = releaseSchema.extend({
     .optional()
 })
 
-export const createReleaseSchema = releaseSchema
-  .omit({
-    id: true,
-    createdAt: true,
-    updatedAt: true
-  })
-  // writes only: older rows may still have no project
-  .extend({
-    projectId: z
-      .string({ required_error: 'Select a project.' })
-      .uuid()
-  })
+export const createReleaseSchema = releaseSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+})

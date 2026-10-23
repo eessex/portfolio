@@ -164,6 +164,39 @@ describe('Project Actions', () => {
       expect(mockTransaction).not.toHaveBeenCalled()
       expect(updateTag).not.toHaveBeenCalled()
     })
+
+    it('refuses to delete a project with releases when no default project exists', async () => {
+      mockSql.mockResolvedValueOnce([
+        {
+          is_default_project: false,
+          has_releases: true,
+          has_default_project: false
+        }
+      ] as never)
+      const res = await deleteProject(projectFixtureAlpha)
+
+      expect(res).toEqual({
+        ok: false,
+        message:
+          'Create a default project before deleting a project with releases.'
+      })
+      expect(mockTransaction).not.toHaveBeenCalled()
+      expect(updateTag).not.toHaveBeenCalled()
+    })
+
+    it('deletes a project without releases when no default project exists', async () => {
+      mockSql.mockResolvedValueOnce([
+        {
+          is_default_project: false,
+          has_releases: false,
+          has_default_project: false
+        }
+      ] as never)
+      const res = await deleteProject(projectFixtureAlpha)
+
+      expect(res).toEqual({ ok: true })
+      expect(mockTransaction).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('#editProject', () => {

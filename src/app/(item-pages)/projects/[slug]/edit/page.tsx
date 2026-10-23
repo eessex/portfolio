@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 
 import { resolveEditItemId } from '@/app/(item-pages)/resolve-page-item'
 import { fetchProjectById } from '@/lib/projects/data'
-import { PagePaths } from '@/lib/schemas'
+import { ABOUT_PATH, PagePaths } from '@/lib/schemas'
 import type { PageItemProps } from '@/lib/types'
 import { Loading } from '@/ui/loading'
 import { EditProjectForm } from '@/ui/projects/edit-project-form'
@@ -33,7 +33,7 @@ async function EditProject({ params }: PageItemProps) {
   const project = await fetchProjectById(id, true)
 
   if (!project) return notFound()
-  if (project.isDefaultProject) redirect('/about/edit')
+  if (project.isDefaultProject) redirect(`/${ABOUT_PATH}/edit`)
 
   return <EditProjectForm project={project} />
 }

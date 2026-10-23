@@ -3,6 +3,7 @@ import NextLink from 'next/link'
 
 import styles from '@/app/home.module.scss'
 import { fetchCachedUpcomingEvents } from '@/lib/events/cached'
+import { ABOUT_PATH } from '@/lib/schemas'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { UpcomingEventsList } from '@/ui/events/upcoming-events-list'
 
@@ -43,7 +44,7 @@ export default async function Home() {
 
         {siteSettings?.description && (
           <NextLink
-            href='/about'
+            href={`/${ABOUT_PATH}`}
             className={'button ' + styles.description}
           >
             {siteSettings.description}

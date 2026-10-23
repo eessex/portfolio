@@ -14,6 +14,7 @@ import type { CreateEvent, Event } from '@/lib/events/types'
 import { runDeleteAction, runFormAction } from '@/lib/form-action'
 import { resolveOrderedImageIds } from '@/lib/images/actions'
 import { resolveOrderedLinkIds } from '@/lib/links/actions'
+import { PagePaths } from '@/lib/schemas'
 import { generateUniqueSlug } from '@/lib/slug/data'
 import { slugCacheTag } from '@/lib/slug/util'
 import { formatDbResponseForClient } from '@/lib/util'
@@ -35,7 +36,7 @@ async function prepareEventData(
     resolveOrderedLinkIds(data),
     resolveOrderedEmbedCodeIds(data),
     resolveVenueId(data),
-    generateUniqueSlug(String(data.title || ''), 'events', id)
+    generateUniqueSlug(String(data.title || ''), PagePaths.events, id)
   ])
   const timeZone = await resolveVenueTimeZone(venueId)
 
@@ -48,7 +49,7 @@ async function prepareEventData(
     venueId,
     startTime: toEventInstant(data.startTime, timeZone),
     endTime: toEventInstant(data.endTime, timeZone),
-    path: 'events',
+    path: PagePaths.events,
     slug
   }
 }
@@ -69,7 +70,7 @@ export async function editEvent(formData: FormData, id?: string) {
   return runFormAction({
     formData,
     schema: createEventSchema,
-    itemType: 'events',
+    itemType: PagePaths.events,
     prepare: async (data) => await prepareEventData(data, id),
     invalidate: (saved?: Event) =>
       invalidateEventTags(saved?.id ?? id),
@@ -80,7 +81,7 @@ export async function editEvent(formData: FormData, id?: string) {
 
 function invalidateEventTags(id?: string) {
   updateTag('events')
-  updateTag(slugCacheTag('events'))
+  updateTag(slugCacheTag(PagePaths.events))
   if (id) updateTag(`event:${id}`)
   updateTag('venues')
   updateTag('images')
@@ -90,7 +91,7 @@ function invalidateEventTags(id?: string) {
 
 export async function deleteEvent(event: Event) {
   return runDeleteAction<Event>({
-    itemType: 'events',
+    itemType: PagePaths.events,
     invalidate: () => invalidateEventTags(event.id),
     del: async () => {
       await sql`
@@ -161,7 +162,7 @@ async function createEvent(event: CreateEvent) {
     const row = rows[0]
     if (!row) throw new Error('Failed to create event.')
     return formatDbResponseForClient(
-      { ...row, path: 'events' },
+      { ...row, path: PagePaths.events },
       eventSchema
     )
   } catch (cause) {
@@ -214,7 +215,7 @@ async function updateEvent(event: CreateEvent, id: string) {
     const row = rows[0]
     if (!row) throw new Error('Failed to update event.')
     return formatDbResponseForClient(
-      { ...row, path: 'events' },
+      { ...row, path: PagePaths.events },
       eventSchema
     )
   } catch (cause) {

@@ -16,6 +16,7 @@ import {
 import { deleteRelease, editRelease } from '@/lib/releases/actions'
 import { releaseTypes } from '@/lib/releases/schemas'
 import type { ReleaseClient } from '@/lib/releases/types'
+import { PagePaths, pagePathSingulars } from '@/lib/schemas'
 import {
   MAX_STRING_LENGTH_LONG,
   MAX_STRING_LENGTH_SHORT
@@ -77,7 +78,7 @@ function ReleaseFormFields({ release }: EditReleaseFormProps) {
         label='Title'
       />
       <ItemPicker<never, ProjectClient, FetchProjectsResult>
-        itemType='projects'
+        itemType={PagePaths.projects}
         label='Project'
         existingItem={initialProject}
         renderExistingResult={formatProjectResult}
@@ -166,7 +167,7 @@ export function EditReleaseForm({ release }: EditReleaseFormProps) {
   async function handleSubmit(formData: FormData) {
     const res = await editRelease(formData, release?.id)
     if (res?.ok && res.res) {
-      router.push(`/releases/${res.res.slug}`)
+      router.push(`/${PagePaths.releases}/${res.res.slug}`)
     }
     return res
   }
@@ -184,8 +185,8 @@ export function EditReleaseForm({ release }: EditReleaseFormProps) {
         <div className={styles['delete-button-container']}>
           <DeleteItemButton
             deleteItem={() => deleteRelease(release)}
-            itemLabel='release'
-            redirectTo='/releases'
+            itemLabel={pagePathSingulars[PagePaths.releases]}
+            redirectTo={`/${PagePaths.releases}`}
           />
         </div>
       )}

@@ -20,6 +20,7 @@ import {
   releaseSchema
 } from '@/lib/releases/schemas'
 import type { CreateRelease, Release } from '@/lib/releases/types'
+import { PagePaths } from '@/lib/schemas'
 import { date, uuid } from '@/lib/schemas/primitives'
 import { generateUniqueSlug } from '@/lib/slug/data'
 import { slugCacheTag } from '@/lib/slug/util'
@@ -44,7 +45,11 @@ async function prepareReleaseData(
     resolveOrderedImageIds(data),
     resolveOrderedLinkIds(data),
     resolveOrderedEmbedCodeIds(data),
-    generateUniqueSlug(String(data.title || ''), 'releases', id)
+    generateUniqueSlug(
+      String(data.title || ''),
+      PagePaths.releases,
+      id
+    )
   ])
 
   return {
@@ -53,7 +58,7 @@ async function prepareReleaseData(
     embedCodeIds,
     imageIds,
     linkIds,
-    path: 'releases',
+    path: PagePaths.releases,
     ...('artist' in data && {
       artist: await resolveArtist(data.artist, data.projectId)
     }),
@@ -87,7 +92,7 @@ export async function editRelease(
   return runFormAction({
     formData,
     schema: createReleaseSchema,
-    itemType: 'releases',
+    itemType: PagePaths.releases,
     prepare: async (data) =>
       await prepareReleaseData(data, id, editions),
     invalidate: (saved?: Release) =>
@@ -195,7 +200,7 @@ async function earliestEditionDate(
  */
 function invalidateReleaseTags(id?: string) {
   updateTag('releases')
-  updateTag(slugCacheTag('releases'))
+  updateTag(slugCacheTag(PagePaths.releases))
   if (id) updateTag(`release:${id}`)
   updateTag('publishers')
   updateTag('images')
@@ -208,7 +213,7 @@ function invalidateReleaseTags(id?: string) {
 
 export async function deleteRelease(release: Release) {
   return runDeleteAction<Release>({
-    itemType: 'releases',
+    itemType: PagePaths.releases,
     invalidate: () => invalidateReleaseTags(release.id),
     del: async () => {
       await sql`
@@ -276,7 +281,7 @@ async function createRelease(release: CreateRelease) {
     const row = rows[0]
     if (!row) throw new Error('Failed to create release.')
     return formatDbResponseForClient(
-      { ...row, path: 'releases' },
+      { ...row, path: PagePaths.releases },
       releaseSchema
     )
   } catch (cause) {
@@ -327,7 +332,7 @@ async function updateRelease(release: CreateRelease, id: string) {
     const row = rows[0]
     if (!row) throw new Error('Failed to update release.')
     return formatDbResponseForClient(
-      { ...row, path: 'releases' },
+      { ...row, path: PagePaths.releases },
       releaseSchema
     )
   } catch (cause) {

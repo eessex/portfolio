@@ -4,6 +4,7 @@ import { embedCodeSchema } from '@/lib/embed-codes/schemas/db'
 import { imageSchema } from '@/lib/images/schemas/db'
 import { linkSchema } from '@/lib/links/schemas/db'
 import { projectSchema } from '@/lib/projects/schemas'
+import { PagePaths } from '@/lib/schemas'
 import {
   contentFields,
   ownershipFields,
@@ -27,7 +28,7 @@ export const eventSchema = z.object({
   endTime: date.optional(),
   imageIds: relationFields.imageIds,
   linkIds: relationFields.linkIds,
-  path: z.literal('events'),
+  path: z.literal(PagePaths.events),
   startTime: date,
   ticketLink: url.optional(),
   venueId: uuid

@@ -1,6 +1,6 @@
 import type { NextAuthConfig } from 'next-auth'
 
-import { pagePaths } from '@/lib/schemas'
+import { ABOUT_PATH, pagePaths } from '@/lib/schemas'
 import { hasSiteSettings } from '@/lib/site-settings/data'
 
 const authedPathPatterns = [
@@ -10,7 +10,7 @@ const authedPathPatterns = [
   ...pagePaths.map(
     (type) => new RegExp(`^/${type}/new$`) // /events/new
   ),
-  /^\/about\/edit$/,
+  new RegExp(`^/${ABOUT_PATH}/edit$`),
   /^\/dashboard(?:\/.*)?$/
 ]
 

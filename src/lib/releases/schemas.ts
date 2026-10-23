@@ -5,6 +5,7 @@ import { imageSchema } from '@/lib/images/schemas/db'
 import { linkSchema } from '@/lib/links/schemas/db'
 import { projectSchema } from '@/lib/projects/schemas'
 import { publishedEditionClientSchema } from '@/lib/published-editions/schemas/client'
+import { PagePaths } from '@/lib/schemas'
 import {
   contentFields,
   ownershipFields,
@@ -44,7 +45,7 @@ export const releaseSchema = z.object({
   embedCodeIds: relationFields.embedCodeIds,
   imageIds: relationFields.imageIds,
   linkIds: relationFields.linkIds,
-  path: z.literal('releases'),
+  path: z.literal(PagePaths.releases),
   releaseDate: date,
   type: releaseTypeSchema
 })

@@ -1,16 +1,13 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-
 import type { EventClient } from '@/lib/events/types'
 import { ItemsList } from '@/ui/items/items-list'
-import { useIsAdmin } from '@/ui/useIsAdmin'
+import { useAdminRefetch } from '@/ui/use-admin-refetch'
 
 /**
- * Upcoming events as an ItemsList with client-side draft
- * augmentation: pages render the published set statically; for
- * signed-in admins this refetches the full set (the API gates
- * drafts on the session cookie) and replaces the list.
+ * Upcoming events as an ItemsList: pages render the published set
+ * statically, and signed-in admins also see drafts
+ * (`useAdminRefetch`).
  */
 export function UpcomingEventsList({
   initialEvents,
@@ -24,29 +21,11 @@ export function UpcomingEventsList({
   title?: string
   isTextOnly?: boolean
 }) {
-  const [events, setEvents] = useState(initialEvents)
-  const isAdmin = useIsAdmin()
-  const didAugmentRef = useRef(false)
-
-  useEffect(() => {
-    if (!isAdmin || didAugmentRef.current) return
-    didAugmentRef.current = true
-
-    let cancelled = false
-
-    fetch('/api/events/upcoming')
-      .then((res) => res.json())
-      .then((data: EventClient[]) => {
-        if (!cancelled && Array.isArray(data)) setEvents(data)
-      })
-      .catch(() => {
-        // static published list stands
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [isAdmin])
+  const events = useAdminRefetch(
+    initialEvents,
+    '/api/events/upcoming',
+    pickEvents
+  )
 
   const displayedEvents = excludeId
     ? events.filter((event) => event.id !== excludeId)
@@ -59,4 +38,8 @@ export function UpcomingEventsList({
       title={title}
     />
   )
+}
+
+function pickEvents(data: unknown) {
+  return Array.isArray(data) ? (data as EventClient[]) : undefined
 }

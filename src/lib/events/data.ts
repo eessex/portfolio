@@ -58,6 +58,7 @@ export async function fetchEventsRaw(
         AND (
           ${like}::text IS NULL
           OR e.title ILIKE ${like}
+          OR e.short_description ILIKE ${like}
           OR e.description ILIKE ${like}
           OR COALESCE(v.name, '') ILIKE ${like}
           OR COALESCE(v.city, '') ILIKE ${like}
@@ -103,6 +104,7 @@ export async function fetchEventsRaw(
         AND (
           ${like}::text IS NULL
           OR e.title ILIKE ${like}
+          OR e.short_description ILIKE ${like}
           OR e.description ILIKE ${like}
           OR COALESCE(v.name, '') ILIKE ${like}
           OR COALESCE(v.city, '') ILIKE ${like}

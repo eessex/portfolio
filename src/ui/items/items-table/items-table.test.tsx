@@ -76,6 +76,7 @@ function mockFetch(data: unknown, isAdmin = true) {
   global.fetch = jest.fn().mockImplementation(
     async (url: unknown) =>
       ({
+        ok: true,
         json: async () =>
           String(url).includes('/api/session')
             ? { isAuthed: isAdmin }
@@ -392,14 +393,17 @@ describe('ItemsTable — embedded items (embed codes)', () => {
         'cursor-1'
       )
     )
+    mockFetch(makeEmbedCodeResponse([usedEmbedCode], 1), false)
 
     fireEvent.change(
       screen.getByRole('searchbox', { name: /search/i }),
       { target: { value: 'sound' } }
     )
 
+    // the heading follows the results, not the typed query
+    expect(screen.queryByText(/matching “sound”/)).toBeNull()
     const heading = await screen.findByText(/matching “sound”/)
-    expect(heading.querySelector('span')).toHaveTextContent(/^\d+$/)
+    expect(heading.querySelector('span')).toHaveTextContent('1')
   })
 
   describe('row-as-edit-link (admin-only, no own page/slug)', () => {

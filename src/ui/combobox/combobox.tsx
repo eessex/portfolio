@@ -24,7 +24,7 @@ import { SearchInput } from '@/ui/search-input/search-input'
 import {
   type ResultsResponse,
   useResultsList
-} from '@/ui/useResultsList'
+} from '@/ui/use-results-list'
 import { isEmbeddedItemType, type SearchParams } from '@/ui/util'
 
 export interface ComboboxProps<

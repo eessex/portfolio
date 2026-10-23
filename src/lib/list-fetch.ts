@@ -26,6 +26,11 @@ export interface ListSqlParams {
 
 type Row = Record<string, unknown>
 
+/** Escapes LIKE metacharacters; backslash is the default ESCAPE */
+export function escapeLike(value: string) {
+  return value.replace(/[\\%_]/g, '\\$&')
+}
+
 interface RunListFetchOptions<S extends z.ZodTypeAny, R> {
   cursor?: string
   query?: string
@@ -62,7 +67,7 @@ export async function runListFetch<
   nextCursor: string | null
   totalCount: number
 }> {
-  const like = query ? `%${query}%` : null
+  const like = query ? `%${escapeLike(query)}%` : null
 
   let totalCount: number
   try {

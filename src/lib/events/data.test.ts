@@ -96,6 +96,21 @@ describe('fetchEventsRaw', () => {
     })
   })
 
+  it('searches by venue country on both count and page queries', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([eventFixturePast])
+
+    await Events.fetchEventsRaw(false, undefined, undefined, 'Japan')
+
+    for (const call of mockSql.mock.calls.slice(0, 2)) {
+      expect((call[0] as unknown as string[]).join('?')).toContain(
+        "OR COALESCE(v.country, '') ILIKE ?"
+      )
+      expect(call).toContain('%Japan%')
+    }
+  })
+
   it('handles DB errors', async () => {
     mockSql.mockResolvedValueOnce([{ count: 2 }])
     mockSql.mockRejectedValue(new Error('db failed'))

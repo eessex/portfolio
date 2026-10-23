@@ -73,6 +73,8 @@ export async function fetchPublishersRaw(
       WHERE (
         ${like}::text IS NULL
         OR publishers.name ILIKE ${like}
+        OR publishers.type ILIKE ${like}
+        OR publishers.url ILIKE ${like}
       )
     `,
     list: ({ like, cursorName, cursorId }) => sql`
@@ -87,6 +89,8 @@ export async function fetchPublishersRaw(
       WHERE (
         ${like}::text IS NULL
         OR publishers.name ILIKE ${like}
+        OR publishers.type ILIKE ${like}
+        OR publishers.url ILIKE ${like}
       )
       -- the built-in publisher leads the first page, so later pages
       -- (after a cursor) skip it and continue by name

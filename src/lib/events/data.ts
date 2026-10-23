@@ -58,10 +58,12 @@ export async function fetchEventsRaw(
         AND (
           ${like}::text IS NULL
           OR e.title ILIKE ${like}
+          OR e.short_description ILIKE ${like}
           OR e.description ILIKE ${like}
           OR COALESCE(v.name, '') ILIKE ${like}
           OR COALESCE(v.city, '') ILIKE ${like}
           OR COALESCE(v.state, '') ILIKE ${like}
+          OR COALESCE(v.country, '') ILIKE ${like}
         );
     `,
     list: ({ like, cursorName: cursorStartTime, cursorId }) => sql`
@@ -103,10 +105,12 @@ export async function fetchEventsRaw(
         AND (
           ${like}::text IS NULL
           OR e.title ILIKE ${like}
+          OR e.short_description ILIKE ${like}
           OR e.description ILIKE ${like}
           OR COALESCE(v.name, '') ILIKE ${like}
           OR COALESCE(v.city, '') ILIKE ${like}
           OR COALESCE(v.state, '') ILIKE ${like}
+          OR COALESCE(v.country, '') ILIKE ${like}
         )
         AND (
           ${cursorStartTime}::timestamptz IS NULL

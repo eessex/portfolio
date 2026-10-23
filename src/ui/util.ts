@@ -18,7 +18,11 @@ import {
   PagePaths,
   singularizePath
 } from '@/lib/schemas'
-import { camelToSentence, snakeToCamel } from '@/lib/strings'
+import {
+  camelToSentence,
+  camelToSnake,
+  snakeToCamel
+} from '@/lib/strings'
 import type { PageItemClient } from '@/lib/types'
 import type { DashboardVenue } from '@/lib/venues/schemas/client'
 import type { Venue } from '@/lib/venues/schemas/db'
@@ -168,15 +172,15 @@ export function toDateTimeInputValue(
 }
 
 export function eventUrl(slug: string) {
-  return `/${PagePaths.events}/${slug}`
+  return pageItemUrl(PagePaths.events, slug)
 }
 
 export function releaseUrl(slug: string) {
-  return `/${PagePaths.releases}/${slug}`
+  return pageItemUrl(PagePaths.releases, slug)
 }
 
 export function projectUrl(slug: string) {
-  return `/${PagePaths.projects}/${slug}`
+  return pageItemUrl(PagePaths.projects, slug)
 }
 
 /** Just the filename, e.g. an S3 url's key basename. */
@@ -306,10 +310,44 @@ export function formattedItemTitle(item: PageItemClient) {
     : item.title
 }
 
+export function pageItemUrl(pagePath: PagePath, slug: string) {
+  return `/${pagePath}/${slug}`
+}
+
 export function itemUrl(item: PageItemClient) {
   if ((item as ProjectClient).isDefaultProject)
     return `/${ABOUT_PATH}`
-  return `/${item.path}/${item.slug}`
+  return pageItemUrl(item.path, item.slug)
+}
+
+export function itemEditUrl(item: PageItemClient) {
+  return editUrl(itemUrl(item))
+}
+
+/** An embedded item type's dashboard list, e.g. `/dashboard/embed_codes` */
+export function dashboardUrl(itemType: EmbeddedItemType) {
+  return `/dashboard/${camelToSnake(itemType)}`
+}
+
+export function dashboardItemEditUrl(
+  itemType: EmbeddedItemType,
+  id: string
+) {
+  return editUrl(`${dashboardUrl(itemType)}/${id}`)
+}
+
+/** An item page's or dashboard item's edit form */
+export function editUrl(url: string) {
+  return `${url}/edit`
+}
+
+/** A page type's or dashboard list's create form */
+export function newUrl(url: string) {
+  return `${url}/new`
+}
+
+export function isEditOrNewUrl(pathname: string) {
+  return /\/(edit|new)$/.test(pathname)
 }
 
 export function usedOnPages(item: Partial<DashboardItem>) {

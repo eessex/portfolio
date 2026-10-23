@@ -9,7 +9,6 @@ import {
   itemTypeToLabel,
   singularizePath
 } from '@/lib/schemas'
-import { camelToSnake } from '@/lib/strings'
 import type { EmbeddedItem, FormResponse } from '@/lib/types'
 import { EditEmbedCode } from '@/ui/embed-codes/edit-embed-code-form'
 import { Form, useFormErrors } from '@/ui/form/form'
@@ -18,6 +17,7 @@ import { EditImage } from '@/ui/images/edit-image-form'
 import { DeleteItemButton } from '@/ui/items/delete-item-button'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { EditPublisher } from '@/ui/publishers/edit-publisher-form'
+import { dashboardUrl } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 
 function getEditFormComponent(itemType: EmbeddedItemType) {
@@ -69,7 +69,7 @@ export function EditEmbeddedItemForm<
   deleteItem?: (item: T) => Promise<FormResponse<T>>
 }) {
   const router = useRouter()
-  const redirectTo = `/dashboard/${camelToSnake(itemType)}`
+  const redirectTo = dashboardUrl(itemType)
 
   async function handleSubmit(formData: FormData) {
     const res = await editItem(formData, item?.id)

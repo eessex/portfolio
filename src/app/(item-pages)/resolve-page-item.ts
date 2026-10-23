@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import { isAuthed } from '@/lib/auth/guard'
 import type { PagePath } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
+import { editUrl, pageItemUrl } from '@/ui/util'
 
 type PageItem<T> = {
   item: T
@@ -71,7 +72,7 @@ export async function resolveEditItemId(
   const resolved = await resolveSlug(pagePath, slug)
   if (!resolved) notFound()
   if (resolved.isRedirect) {
-    redirect(`/${pagePath}/${resolved.slug}/edit`)
+    redirect(editUrl(pageItemUrl(pagePath, resolved.slug)))
   }
 
   return resolved.id

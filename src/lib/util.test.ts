@@ -1,8 +1,11 @@
+/** @jest-environment node */
+
 import { z } from 'zod'
 
 import {
   extractIndexedGroups,
   extractPrefixedGroup,
+  formatAuthedApiResponseJSON,
   formatErrorResponse,
   formatValidationResponse,
   normalizeFormData
@@ -388,5 +391,14 @@ describe('#formatValidationResponse', () => {
       errors: { url: ['Required'] },
       message: 'Failed to validate embed code.'
     })
+  })
+})
+
+describe('#formatAuthedApiResponseJSON', () => {
+  it('returns the body with a private, no-store header', async () => {
+    const res = formatAuthedApiResponseJSON({ isAuthed: true })
+
+    expect(await res.json()).toEqual({ isAuthed: true })
+    expect(res.headers.get('Cache-Control')).toBe('private, no-store')
   })
 })

@@ -1,5 +1,7 @@
 /** testing-only helper functions */
 
+import { auth } from '@/auth'
+
 export function mockFile(
   name = 'test.jpg',
   size = 1024,
@@ -32,4 +34,24 @@ export const formDataFromObject = (v: Record<string, unknown>) => {
   })
 
   return fd
+}
+
+export function apiRequest(
+  path: string,
+  params: Record<string, string> = {}
+) {
+  const search = new URLSearchParams(params).toString()
+  return new Request(
+    `http://localhost${path}${search ? `?${search}` : ''}`
+  )
+}
+
+/** Sets the next `auth()` call's session (see jest.setup.ts) */
+export function mockSession(isAuthed: boolean) {
+  const mockAuth = auth as unknown as jest.Mock
+  mockAuth.mockResolvedValueOnce(
+    isAuthed
+      ? { user: { name: 'Test User', email: 'test@example.com' } }
+      : null
+  )
 }

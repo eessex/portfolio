@@ -1,10 +1,12 @@
 import '@testing-library/jest-dom'
+import '@/test/native-fetch'
 
 import fetchMock from 'jest-fetch-mock'
 
 import { installAbortControllerMock } from '@/test/__mocks__/browser/abortController'
 import { installDialogMock } from '@/test/__mocks__/browser/dialog'
 import { installIntersectionObserverMock } from '@/test/__mocks__/browser/intersectionObserver'
+import { restoreNativeFetchClasses } from '@/test/native-fetch'
 
 fetchMock.enableMocks()
 
@@ -22,10 +24,17 @@ jest.mock('@/auth', () => ({
 }))
 
 installAbortControllerMock()
-installDialogMock()
-installIntersectionObserverMock()
 
-Object.defineProperty(Element.prototype, 'scrollIntoView', {
-  value: jest.fn(),
-  writable: true
-})
+// Route handler tests run in the node environment (no DOM) and
+// need native Response for NextResponse.json
+if (typeof window === 'undefined') {
+  restoreNativeFetchClasses()
+} else {
+  installDialogMock()
+  installIntersectionObserverMock()
+
+  Object.defineProperty(Element.prototype, 'scrollIntoView', {
+    value: jest.fn(),
+    writable: true
+  })
+}

@@ -10,7 +10,7 @@ import { fetchCachedProjectById } from '@/lib/projects/cached'
 import { fetchProjectsRaw } from '@/lib/projects/data'
 import type { ProjectClient } from '@/lib/projects/types'
 import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
-import { PagePaths } from '@/lib/schemas'
+import { ABOUT_PATH, PagePaths } from '@/lib/schemas'
 import type { PageItemProps } from '@/lib/types'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 
@@ -39,7 +39,7 @@ export default async function ProjectPage({ params }: PageItemProps) {
     fetchCachedProjectById
   )
 
-  if (item.isDefaultProject) redirect('/about')
+  if (item.isDefaultProject) redirect(`/${ABOUT_PATH}`)
 
   return <ProjectDetail project={item} isAuthed={isAuthed} />
 }

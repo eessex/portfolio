@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { embedCodeSchema } from '@/lib/embed-codes/schemas/db'
 import { imageSchema } from '@/lib/images/schemas/db'
 import { linkSchema } from '@/lib/links/schemas/db'
+import { PagePaths } from '@/lib/schemas'
 import {
   contactFields,
   contentFields,
@@ -52,7 +53,7 @@ export const projectSchema = z.object({
    */
   isDefaultProject: z.boolean().optional(),
   linkIds: relationFields.linkIds,
-  path: z.literal('projects'),
+  path: z.literal(PagePaths.projects),
   startDate: date.optional(),
   type: projectTypeSchema.optional()
 })

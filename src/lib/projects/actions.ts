@@ -13,6 +13,7 @@ import {
   projectSchema
 } from '@/lib/projects/schemas'
 import type { CreateProject, Project } from '@/lib/projects/types'
+import { PagePaths } from '@/lib/schemas'
 import type { Contact } from '@/lib/schemas/fields'
 import { generateUniqueSlug } from '@/lib/slug/data'
 import { slugCacheTag } from '@/lib/slug/util'
@@ -46,7 +47,7 @@ function saveProjectForm(
   return runFormAction({
     formData,
     schema: createProjectSchema,
-    itemType: 'projects',
+    itemType: PagePaths.projects,
     prepare: async (data) => {
       const { coverImageId, imageIds } =
         await resolveOrderedImageIds(data)
@@ -66,10 +67,10 @@ function saveProjectForm(
         embedCodeIds,
         imageIds,
         linkIds,
-        path: 'projects',
+        path: PagePaths.projects,
         slug: await generateUniqueSlug(
           String(data.title || ''),
-          'projects',
+          PagePaths.projects,
           id
         )
       }
@@ -112,7 +113,7 @@ function isSecondDefaultError(err: unknown) {
  */
 function invalidateProjectTags(id?: string) {
   updateTag('projects')
-  updateTag(slugCacheTag('projects'))
+  updateTag(slugCacheTag(PagePaths.projects))
   if (id) updateTag(`project:${id}`)
   updateTag('releases')
   updateTag('events')
@@ -123,7 +124,7 @@ function invalidateProjectTags(id?: string) {
 
 export async function deleteProject(project: Project) {
   return runDeleteAction<Project>({
-    itemType: 'projects',
+    itemType: PagePaths.projects,
     invalidate: () => invalidateProjectTags(project.id),
     // one transaction, so a failed DELETE doesn't leave the hand-offs
     // applied to a project that still exists
@@ -212,7 +213,7 @@ async function createProject(project: CreateProject) {
     const row = rows[0]
     if (!row) throw new Error('Failed to create project.')
     return formatDbResponseForClient(
-      { ...row, path: 'projects' },
+      { ...row, path: PagePaths.projects },
       projectSchema
     )
   } catch (cause) {
@@ -263,7 +264,7 @@ async function updateProject(project: CreateProject, id: string) {
     const row = rows[0]
     if (!row) throw new Error('Failed to update project.')
     return formatDbResponseForClient(
-      { ...row, path: 'projects' },
+      { ...row, path: PagePaths.projects },
       projectSchema
     )
   } catch (cause) {

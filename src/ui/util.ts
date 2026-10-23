@@ -11,6 +11,7 @@ import type { PublishedEditionClient } from '@/lib/published-editions/schemas/cl
 import type { DashboardPublisher } from '@/lib/publishers/schemas/client'
 import type { ReleaseClient } from '@/lib/releases/types'
 import {
+  ABOUT_PATH,
   type EmbeddedItemType,
   EmbeddedItemTypes,
   type PagePath,
@@ -306,7 +307,8 @@ export function formattedItemTitle(item: PageItemClient) {
 }
 
 export function itemUrl(item: PageItemClient) {
-  if ((item as ProjectClient).isDefaultProject) return '/about'
+  if ((item as ProjectClient).isDefaultProject)
+    return `/${ABOUT_PATH}`
   return `/${item.path}/${item.slug}`
 }
 

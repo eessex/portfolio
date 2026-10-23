@@ -10,6 +10,11 @@ import {
 } from '@/lib/projects/actions'
 import { projectTypes } from '@/lib/projects/schemas'
 import type { ProjectClient } from '@/lib/projects/types'
+import {
+  ABOUT_PATH,
+  PagePaths,
+  pagePathSingulars
+} from '@/lib/schemas'
 import { EmbedCodesPicker } from '@/ui/embed-codes/embed-codes-picker'
 import { Checkbox } from '@/ui/form/checkbox'
 import { Form, useFormErrors } from '@/ui/form/form'
@@ -117,7 +122,9 @@ export function EditProjectForm({
     const res = await save(formData, project?.id)
     if (res?.ok && res.res) {
       router.push(
-        isDefaultProject ? '/about' : `/projects/${res.res.slug}`
+        isDefaultProject
+          ? `/${ABOUT_PATH}`
+          : `/${PagePaths.projects}/${res.res.slug}`
       )
     }
     return res
@@ -136,8 +143,8 @@ export function EditProjectForm({
         <div className={styles['delete-button-container']}>
           <DeleteItemButton
             deleteItem={() => deleteProject(project)}
-            itemLabel='project'
-            redirectTo='/projects'
+            itemLabel={pagePathSingulars[PagePaths.projects]}
+            redirectTo={`/${PagePaths.projects}`}
           />
         </div>
       )}

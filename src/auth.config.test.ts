@@ -41,6 +41,14 @@ describe('authConfig.callbacks.authorized', () => {
     expect(hasSiteSettings).not.toHaveBeenCalled()
   })
 
+  it('denies unauthenticated users on /about/edit but not /about', async () => {
+    const { authorized, hasSiteSettings } = await load()
+    hasSiteSettings.mockResolvedValue(true)
+
+    expect(await authorized(args('/about/edit', false))).toBe(false)
+    expect(await authorized(args('/about', false))).toBe(true)
+  })
+
   it('allows authenticated users on authed paths', async () => {
     const { authorized } = await load()
 

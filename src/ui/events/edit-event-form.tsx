@@ -10,6 +10,7 @@ import type {
   FetchProjectsResult,
   ProjectClient
 } from '@/lib/projects/types'
+import { PagePaths, pagePathSingulars } from '@/lib/schemas'
 import {
   MAX_STRING_LENGTH_LONG,
   MAX_STRING_LENGTH_SHORT
@@ -118,7 +119,7 @@ function EventFormFields({ event }: EditEventFormProps) {
       <PressLinksPicker links={event?.links} />
       <LinksPicker links={event?.links} />
       <ItemPicker<never, ProjectClient, FetchProjectsResult>
-        itemType='projects'
+        itemType={PagePaths.projects}
         label='Project'
         existingItem={event?.project as ProjectClient | undefined}
         renderExistingResult={formatProjectResult}
@@ -139,7 +140,7 @@ export function EditEventForm({ event }: EditEventFormProps) {
   async function handleSubmit(formData: FormData) {
     const res = await editEvent(formData, event?.id)
     if (res?.ok && res.res) {
-      router.push(`/events/${res.res.slug}`)
+      router.push(`/${PagePaths.events}/${res.res.slug}`)
     }
     return res
   }
@@ -157,8 +158,8 @@ export function EditEventForm({ event }: EditEventFormProps) {
         <div className={styles['delete-button-container']}>
           <DeleteItemButton
             deleteItem={() => deleteEvent(event)}
-            itemLabel='event'
-            redirectTo='/events'
+            itemLabel={pagePathSingulars[PagePaths.events]}
+            redirectTo={`/${PagePaths.events}`}
           />
         </div>
       )}

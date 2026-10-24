@@ -41,7 +41,7 @@ export function Form<T>({
   confirmUnsavedChanges = true,
   onSuccess,
   submitButtonText,
-  submitButtonClassName
+  submitButtonClassName = 'button-lg button-primary'
 }: {
   action: (formData: FormData) => Promise<FormResponse<T>>
   children: React.ReactNode
@@ -55,6 +55,7 @@ export function Form<T>({
   confirmUnsavedChanges?: boolean
   onSuccess?: () => void
   submitButtonText?: string
+  /** Defaults to the large primary button; pass `''` for none. */
   submitButtonClassName?: string
 }) {
   const [initialState, setInitialState] = useState<FormData | null>(
@@ -194,7 +195,9 @@ export function Form<T>({
       const message =
         (error as Error)?.message ||
         'An error occurred, please try again.'
-      // Handle case where error is thrown to trigger redirect in Next.js action
+      // A server action that redirects (e.g. a successful login)
+      // rejects with Next's redirect error after navigating, so it's
+      // a success here, not a failure to report
       if (message === 'NEXT_REDIRECT') {
         addSuccessMessage('Success! Redirecting...')
       } else {
@@ -218,7 +221,7 @@ export function Form<T>({
         </FormErrorsContext.Provider>
 
         <button
-          className={submitButtonClassName || ''}
+          className={submitButtonClassName || undefined}
           type='submit'
           disabled={isPending}
         >

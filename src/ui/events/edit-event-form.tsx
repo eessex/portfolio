@@ -1,8 +1,5 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-
 import { DEFAULT_TIME_ZONE } from '@/lib/dates'
 import { deleteEvent, editEvent } from '@/lib/events/actions'
 import type { EventClient } from '@/lib/events/types'
@@ -10,7 +7,7 @@ import type {
   FetchProjectsResult,
   ProjectClient
 } from '@/lib/projects/types'
-import { PagePaths, pagePathSingulars } from '@/lib/schemas'
+import { PagePaths } from '@/lib/schemas'
 import {
   MAX_STRING_LENGTH_LONG,
   MAX_STRING_LENGTH_SHORT
@@ -21,12 +18,12 @@ import {
 } from '@/lib/venues/schemas/db'
 import { EmbedCodesPicker } from '@/ui/embed-codes/embed-codes-picker'
 import { Checkbox } from '@/ui/form/checkbox'
-import { Form, useFormErrors } from '@/ui/form/form'
+import { useFormErrors } from '@/ui/form/form'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
+import { ItemEditForm } from '@/ui/form/item-edit-form'
 import { ImagesPicker } from '@/ui/images/images-picker'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
-import { DeleteItemButton } from '@/ui/items/delete-item-button'
 import {
   LinksPicker,
   PressLinksPicker
@@ -45,7 +42,6 @@ type EditEventFormProps = {
 
 function EventFormFields({ event }: EditEventFormProps) {
   const errors = useFormErrors()
-  const [isPublished, setIsPublished] = useState(!!event?.isPublished)
 
   return (
     <>
@@ -126,43 +122,21 @@ function EventFormFields({ event }: EditEventFormProps) {
       />
       <Checkbox
         attributes={{ name: 'isPublished' }}
-        isChecked={isPublished}
+        isDefaultChecked={!!event?.isPublished}
         label='Published'
-        onChange={() => setIsPublished(!isPublished)}
       />
     </>
   )
 }
 
 export function EditEventForm({ event }: EditEventFormProps) {
-  const router = useRouter()
-
-  async function handleSubmit(formData: FormData) {
-    const res = await editEvent(formData, event?.id)
-    if (res?.ok && res.res) {
-      router.push(`/${PagePaths.events}/${res.res.slug}`)
-    }
-    return res
-  }
-
   return (
-    <>
-      <Form
-        action={handleSubmit}
-        submitButtonClassName='button-lg button-primary'
-      >
-        <EventFormFields event={event} />
-      </Form>
-
-      {event && (
-        <div className={styles['delete-button-container']}>
-          <DeleteItemButton
-            deleteItem={() => deleteEvent(event)}
-            itemLabel={pagePathSingulars[PagePaths.events]}
-            redirectTo={`/${PagePaths.events}`}
-          />
-        </div>
-      )}
-    </>
+    <ItemEditForm
+      path={PagePaths.events}
+      action={(formData) => editEvent(formData, event?.id)}
+      deleteItem={event && (() => deleteEvent(event))}
+    >
+      <EventFormFields event={event} />
+    </ItemEditForm>
   )
 }

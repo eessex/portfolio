@@ -81,10 +81,7 @@ export function EditEmbeddedItemForm<
 
   return (
     <>
-      <Form
-        action={handleSubmit}
-        submitButtonClassName='button-lg button-primary'
-      >
+      <Form action={handleSubmit}>
         <EmbeddedItemFormFields item={item} itemType={itemType} />
       </Form>
 

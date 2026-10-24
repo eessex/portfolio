@@ -1,8 +1,5 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-
 import {
   deleteProject,
   editDefaultProject,
@@ -10,19 +7,15 @@ import {
 } from '@/lib/projects/actions'
 import { projectTypes } from '@/lib/projects/schemas'
 import type { ProjectClient } from '@/lib/projects/types'
-import {
-  ABOUT_PATH,
-  PagePaths,
-  pagePathSingulars
-} from '@/lib/schemas'
+import { ABOUT_PATH, PagePaths } from '@/lib/schemas'
 import { EmbedCodesPicker } from '@/ui/embed-codes/embed-codes-picker'
 import { Checkbox } from '@/ui/form/checkbox'
-import { Form, useFormErrors } from '@/ui/form/form'
+import { useFormErrors } from '@/ui/form/form'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
+import { ItemEditForm } from '@/ui/form/item-edit-form'
 import { Select } from '@/ui/form/select'
 import { ImagesPicker } from '@/ui/images/images-picker'
-import { DeleteItemButton } from '@/ui/items/delete-item-button'
 import {
   LinksPicker,
   PressLinksPicker
@@ -32,9 +25,6 @@ import { toDateInputValue } from '@/ui/util'
 
 function ProjectFormFields({ project }: { project?: ProjectClient }) {
   const errors = useFormErrors()
-  const [isPublished, setIsPublished] = useState(
-    !!project?.isPublished
-  )
 
   return (
     <>
@@ -95,9 +85,8 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
       <LinksPicker links={project?.links} />
       <Checkbox
         attributes={{ name: 'isPublished' }}
-        isChecked={isPublished}
+        isDefaultChecked={!!project?.isPublished}
         label='Published'
-        onChange={() => setIsPublished(!isPublished)}
       />
     </>
   )
@@ -115,39 +104,22 @@ export function EditProjectForm({
    */
   isDefaultProject?: boolean
 }) {
-  const router = useRouter()
-
-  async function handleSubmit(formData: FormData) {
-    const save = isDefaultProject ? editDefaultProject : editProject
-    const res = await save(formData, project?.id)
-    if (res?.ok && res.res) {
-      router.push(
-        isDefaultProject
-          ? `/${ABOUT_PATH}`
-          : `/${PagePaths.projects}/${res.res.slug}`
-      )
-    }
-    return res
-  }
+  const save = isDefaultProject ? editDefaultProject : editProject
+  const isDeletable =
+    project && !isDefaultProject && !project.isDefaultProject
 
   return (
-    <>
-      <Form
-        action={handleSubmit}
-        submitButtonClassName='button-lg button-primary'
-      >
-        <ProjectFormFields project={project} />
-      </Form>
-
-      {project && !isDefaultProject && !project.isDefaultProject && (
-        <div className={styles['delete-button-container']}>
-          <DeleteItemButton
-            deleteItem={() => deleteProject(project)}
-            itemLabel={pagePathSingulars[PagePaths.projects]}
-            redirectTo={`/${PagePaths.projects}`}
-          />
-        </div>
-      )}
-    </>
+    <ItemEditForm
+      path={PagePaths.projects}
+      action={(formData) => save(formData, project?.id)}
+      savedHref={
+        isDefaultProject ? () => `/${ABOUT_PATH}` : undefined
+      }
+      deleteItem={
+        isDeletable ? () => deleteProject(project) : undefined
+      }
+    >
+      <ProjectFormFields project={project} />
+    </ItemEditForm>
   )
 }

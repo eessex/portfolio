@@ -146,8 +146,9 @@ export const EditImage = ({
           'aria-controls': detailsFieldsetId,
           'aria-expanded': isExpanded
         }}
-        validationText='1MB size limit'
+        validationText='4MB size limit' // FIXME: use const
         image={formImage}
+        isReplaceable={!id}
         label='Upload new image'
         onChange={onFileChange}
         isLabelHidden={!isExpanded}
@@ -172,7 +173,7 @@ export const EditImage = ({
             value={aspectRatio}
           />
         )}
-        {/* keep a record of existing image files so we can delete them from s3 */}
+        {/* an existing image's url, which validation requires; its file never changes */}
         {url?.length > 0 && id && (
           <Input
             attributes={{
@@ -184,7 +185,7 @@ export const EditImage = ({
               type: 'hidden'
             }}
             defaultValue={url}
-            description='The url of AWS S3 image location.'
+            description='Where the image file is stored.'
             errors={errors?.url}
             label='Image url'
           />

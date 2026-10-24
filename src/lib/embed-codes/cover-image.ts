@@ -13,7 +13,7 @@ import {
   type EmbedCodeHost,
   EmbedCodeHosts
 } from '@/lib/embed-codes/schemas/db'
-import { uploadBufferToS3 } from '@/lib/images/s3-client'
+import { storageAdapter } from '@/lib/storage'
 
 function warnNonOkResponse(
   label: string,
@@ -102,17 +102,18 @@ export async function fetchEmbedCodeMetadata(
       toJpegBuffer(buffer, true)
     ])
 
+    const storage = storageAdapter()
     await Promise.all([
-      uploadBufferToS3({
-        buffer: fullBuffer,
-        contentType: 'image/jpeg',
-        key: `${key}.${COVER_IMAGE_EXTENSION}`
-      }),
-      uploadBufferToS3({
-        buffer: thumbnailBuffer,
-        contentType: 'image/jpeg',
-        key: `${key}_${COVER_IMAGE_THUMBNAIL_SIZE}.${COVER_IMAGE_EXTENSION}`
-      })
+      storage.put(
+        `${key}.${COVER_IMAGE_EXTENSION}`,
+        fullBuffer,
+        'image/jpeg'
+      ),
+      storage.put(
+        `${key}_${COVER_IMAGE_THUMBNAIL_SIZE}.${COVER_IMAGE_EXTENSION}`,
+        thumbnailBuffer,
+        'image/jpeg'
+      )
     ])
 
     return { coverImageId: id, title: resolved.title }

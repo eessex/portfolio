@@ -32,7 +32,7 @@ interface RunFormActionOptions<S extends z.ZodTypeAny, T> {
   isNormalized?: boolean
   /**
    * Runs after the auth check, before validation; may replace
-   * entries (e.g. swapping an uploaded file for its S3 url). Thrown
+   * entries (e.g. swapping an uploaded file for its stored url). Thrown
    * errors are logged and returned as a `{ ok: false }` response (same
    * as a failed `save`), so a failed upload surfaces as a form error
    * rather than a masked server-action rejection.
@@ -104,7 +104,7 @@ interface SaveItemFromFieldsOptions<S extends z.ZodTypeAny, T> {
   /** names the item in the thrown `Invalid <item> data` message */
   itemType: ItemType
   /**
-   * Optional pre-validation work (e.g. S3 upload, metadata fetch),
+   * Optional pre-validation work (e.g. file upload, metadata fetch),
    * receiving the `id` so edit-time behavior can differ from create.
    */
   prepare?: (

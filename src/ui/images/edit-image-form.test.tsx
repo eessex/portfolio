@@ -57,19 +57,21 @@ describe('EditImage', () => {
       )
     })
 
-    it('wires aria-expanded/aria-controls on the remove button once an image is present', () => {
+    it("shows a saved image's preview with its details, but no way to replace or remove the file", () => {
       render(<EditImage image={existingImage} />)
 
-      const removeButton = screen.getByRole('button', {
-        name: /remove image/i
-      })
-      expect(removeButton).toHaveAttribute('aria-expanded', 'true')
-
-      const controlsId = removeButton.getAttribute('aria-controls')
-      expect(controlsId).toBeTruthy()
-
-      const fieldset = document.getElementById(controlsId!)
-      expect(fieldset).not.toHaveAttribute('hidden')
+      expect(
+        screen.getByRole('img', { name: /saved image preview/i })
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: /remove image/i })
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByLabelText(/upload new image/i)
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByRole('group', { name: /image details/i })
+      ).not.toHaveAttribute('hidden')
     })
 
     it('keeps the remove button aria-expanded false during the mid-upload window before dimensions load', () => {

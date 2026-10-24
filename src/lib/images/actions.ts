@@ -11,13 +11,14 @@ import {
   saveItemFromFields
 } from '@/lib/form-action'
 import { fetchImagesByIds } from '@/lib/images/data'
-import { deleteFromS3, uploadFile } from '@/lib/images/s3'
 import {
   type CreateImage,
   createImageSchema,
   type Image,
-  imageSchema
+  imageSchema,
+  storedFileFieldNames
 } from '@/lib/images/schemas/db'
+import { deleteImageFile, uploadFile } from '@/lib/images/upload'
 import { formatDbResponseForClient } from '@/lib/util'
 
 /**
@@ -38,43 +39,50 @@ export async function editImage(formData: FormData, id?: string) {
     formData,
     schema: createImageSchema,
     itemType: 'images',
-    prepare: uploadNewFile,
+    prepare: (data) => uploadNewFile(data, id),
     invalidate: invalidateImageTags,
     save: (image) =>
       id ? updateImage(image, id) : createImage(image)
   })
 }
 
+const REPLACE_FILE_MESSAGE =
+  'To change the picture, remove this image and add a new one.'
+
 /**
- * Uploads a newly selected file to S3 before validation, replacing
- * the form's `file` entry with the uploaded `url` (and removing the
- * previous S3 object when one is being replaced).
+ * Uploads a newly selected file before validation, replacing the
+ * form's `file` entry with the stored file's id, url, format and size.
+ * Those fields only ever come from an upload, never from the form. An
+ * existing image's file never changes, so a file submitted with an
+ * `id` is refused.
  */
-async function uploadNewFile(data: Record<string, unknown>) {
+async function uploadNewFile(
+  data: Record<string, unknown>,
+  id?: string
+) {
+  delete data.id
+  for (const field of storedFileFieldNames) delete data[field]
+
   const clientFile = data.file as File | undefined
+  delete data.file
+  if (!clientFile?.name || clientFile.size === 0) return data
 
-  if (clientFile?.name && clientFile.size > 0) {
-    try {
-      const uploadedUrl = await uploadFile(clientFile)
-      if (((data.url as string) || '').length > 0) {
-        await deleteFromS3(data.url as string)
-      }
-      data.url = uploadedUrl
-      delete data.file
-    } catch (cause) {
-      throw new Error('Failed to upload file.', { cause })
-    }
+  if (id) throw new Error(REPLACE_FILE_MESSAGE)
+
+  let uploaded: Awaited<ReturnType<typeof uploadFile>>
+  try {
+    uploaded = await uploadFile(clientFile)
+  } catch (cause) {
+    throw new Error('Failed to upload file.', { cause })
   }
-
-  return data
+  return { ...data, ...uploaded }
 }
 
 /**
  * Creates or updates from raw (unnormalized) field data, ie an
  * indexed group pulled out of another domain's form submission. A
- * replaced file (if any) is uploaded by `uploadNewFile`, which also
- * removes the previous S3 object; a metadata-only edit keeps the
- * existing `url`.
+ * new image's file is uploaded by `uploadNewFile`; an existing image
+ * only changes its details.
  */
 export async function saveImageFromFields(
   fields: Record<string, unknown>,
@@ -85,7 +93,7 @@ export async function saveImageFromFields(
     fields,
     schema: createImageSchema,
     itemType: 'images',
-    prepare: uploadNewFile,
+    prepare: (data) => uploadNewFile(data, id),
     create: createImage,
     update: updateImage
   })
@@ -132,8 +140,7 @@ export async function deleteImage(image: Image) {
       const [res] = await sql`
         DELETE FROM images as i
         WHERE id = ${image.id}
-          AND url = ${image.url}
-        RETURNING i.url
+        RETURNING i.id, i.url, i.format
       `
       if (!res?.url) {
         return {
@@ -141,30 +148,46 @@ export async function deleteImage(image: Image) {
           message: 'Failed to delete image: Image not found.'
         }
       }
-      await deleteFromS3(res.url)
+      await deleteImageFile({
+        id: res.id,
+        url: res.url,
+        format: res.format
+      })
     }
   })
 }
 
 async function createImage(image: CreateImage) {
   try {
-    const { alt, aspect, caption, type, title, url } = toDbRow(image)
+    const { alt, aspect, caption, type, title } = toDbRow(image)
     const rows = await sql`
       INSERT INTO images (
+        id,
         alt,
         aspect,
         caption,
         type,
         title,
         url,
+        format,
+        width,
+        height,
+        original_filename,
+        content_hash,
         created_at
       ) VALUES (
+        COALESCE(${image.id ?? null}::uuid, uuid_generate_v4()),
         ${alt},
         ${aspect},
         ${caption},
         ${type},
         ${title},
-        ${url},
+        ${image.url},
+        ${image.format ?? null},
+        ${image.width ?? null},
+        ${image.height ?? null},
+        ${image.originalFilename ?? null},
+        ${image.contentHash ?? null},
         current_timestamp
       )
       RETURNING *
@@ -180,7 +203,8 @@ async function createImage(image: CreateImage) {
 async function updateImage(image: CreateImage, id: string) {
   const [existingImage] = await fetchImagesByIds([id])
   try {
-    const { alt, aspect, caption, type, title, url } = toDbRow(
+    // the file, and so url and format, never change after upload
+    const { alt, aspect, caption, type, title } = toDbRow(
       image,
       existingImage
     )
@@ -192,8 +216,7 @@ async function updateImage(image: CreateImage, id: string) {
         caption = ${caption},
         type = ${type},
         title = ${title},
-        updated_at = current_timestamp,
-        url = ${url}
+        updated_at = current_timestamp
       WHERE id = ${id}
       RETURNING *
     `
@@ -216,7 +239,6 @@ function toDbRow(image: CreateImage, existing?: Image) {
     aspect: imageToSave.aspect,
     caption: imageToSave.caption ?? null,
     type: imageToSave.type ?? null,
-    title: imageToSave.title ?? null,
-    url: imageToSave.url
+    title: imageToSave.title ?? null
   }
 }

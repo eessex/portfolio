@@ -54,8 +54,8 @@ export async function editSiteSettings(
     schema: createSiteSettingsSchema,
     itemType: 'siteSettings',
     prepare: async (data) => {
-      // sequential: links are pre-validated, so the cover image (S3
-      // upload) is the likelier failure and runs first
+      // sequential: links are pre-validated, so the cover image
+      // (storage upload) is the likelier failure and runs first
       const coverImageId = await resolveCoverImageId(data)
       const socialLinkIds = await resolveSocialLinkIds(
         data,

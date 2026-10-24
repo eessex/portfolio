@@ -2,14 +2,14 @@
 
 A Next.js CMS for managing and serving a personal portfolio site: releases, events, projects, venues, publishers, press links, embeds, images, and site-wide "about"/settings content. The same app serves both the public site and the admin editing UI.
 
-Built on Next.js 16 (App Router, `cacheComponents`), Postgres ([Neon](https://neon.tech) serverless, no ORM), next-auth v5 for admin login, and S3 for image storage.
+Built on Next.js 16 (App Router, `cacheComponents`), Postgres ([Neon](https://neon.tech) serverless, no ORM), next-auth v5 for admin login, and Vercel Blob or S3 for image storage.
 
 ## Prerequisites
 
 - Node 22.x
 - pnpm 11 (`packageManager` is pinned in `package.json`)
 - A Postgres database (this project targets Neon)
-- An S3 bucket plus an IAM key that can read/write it, for image uploads
+- A Vercel Blob store, or an S3 bucket plus an IAM key that can read/write it, for image uploads
 
 ## Getting started
 
@@ -51,6 +51,8 @@ All variables are listed and commented in `.env.example`.
 | `AWS_SECRET_ACCESS_KEY` | for uploads |                                                                                                              |
 | `AWS_S3_BUCKET_NAME`    | for uploads |                                                                                                              |
 | `AWS_S3_REGION`         | for uploads |                                                                                                              |
+| `BLOB_READ_WRITE_TOKEN` | for uploads | Vercel Blob store token. Set automatically when a Blob store is connected to the Vercel project.             |
+| `STORAGE_PROVIDER`      | no          | `blob` or `s3`. Defaults to `blob` when `BLOB_READ_WRITE_TOKEN` is set, else `s3`.                           |
 | `AUTH_URL`              | no          | Auto-detected on Vercel. Set it only if you hit login callback-URL issues.                                   |
 | `REMOTE_IMAGE_HOSTNAME` | no          | Overrides the `next/image` allowed host, which is otherwise derived as `<bucket>.s3.<region>.amazonaws.com`. |
 
@@ -68,6 +70,8 @@ pnpm test:watch    # jest --watch
 pnpm test:quiet    # jest --silent --noStackTrace (summary only)
 pnpm check         # typecheck, lint, tests, then build (what CI runs)
 pnpm run setup     # interactive first-run setup; safe to re-run
+pnpm run copy-storage --to blob [--dry-run]  # copy stored files to another provider
+pnpm run copy-storage --rename-only [--dry-run]  # move older images (e.g. an old bucket's) to images/{id}.{ext} on the current provider
 ```
 
 To run a single test file: `NODE_OPTIONS=--no-deprecation npx jest src/lib/util.test.ts` (add `-t "name"` to filter by test name).
@@ -119,9 +123,9 @@ DB rows are `snake_case`. Everything that reaches the client is converted to `ca
 
 **Auth.** next-auth v5 with a credentials provider (email plus a bcrypt-hashed password; see `src/auth.ts`). Page protection is centralized in `src/auth.config.ts`. Middleware only guards page navigation, so every server action also checks the session itself: the shared action pipeline does this, and custom actions call `requireAuth()` / `assertAuthed()` from `src/lib/auth/guard.ts`. Reads are intentionally public. The only public mutations are login and email subscription.
 
-**Images.** Uploads go straight from the browser to S3 via presigned URLs (`src/lib/images/s3.ts`), capped at 1MB. `next.config.ts` limits `next/image` to the configured S3 host and serves avif/webp.
+**Images.** The save action reads each upload with `sharp`, issues the image's id and stores the original at `images/{id}.{ext}` (`src/lib/images/upload.ts`), capped at 4 MB. Storage sits behind one interface (`src/lib/storage/`) with Blob and S3 adapters; `publicUrl` is the only code that knows a storage host, so image URLs are derived from the id and format rather than stored. An image's file never changes after upload. Switching provider is `pnpm run copy-storage --to <provider>`, then setting `STORAGE_PROVIDER` and redeploying.
 
-**Embed codes.** When you paste an embed (SoundCloud, Mixcloud, YouTube, and so on), the server resolves its oEmbed metadata (`src/lib/embed-codes/oembed.ts`). It then generates a cover image with `sharp` and uploads it to S3. The embed's title is always derived by the system and can't be edited.
+**Embed codes.** When you paste an embed (SoundCloud, Mixcloud, YouTube, and so on), the server resolves its oEmbed metadata (`src/lib/embed-codes/oembed.ts`). It then generates a cover image with `sharp` and stores it. The embed's title is always derived by the system and can't be edited.
 
 **Testing.** Jest with `next/jest` and jsdom. Tests sit next to their source as `*.test.ts(x)`. `src/test/` has the shared mocks (fetch, `AbortController`, `IntersectionObserver`, `'use cache'`/`cacheTag`) and helpers. Tests get an authenticated session by default.
 

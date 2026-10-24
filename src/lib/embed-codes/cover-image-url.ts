@@ -1,3 +1,5 @@
+import { publicUrl } from '@/lib/storage/keys'
+
 export const COVER_IMAGE_PATH_PREFIX = 'embedCodeCoverImages'
 export const COVER_IMAGE_EXTENSION = 'jpg'
 
@@ -38,13 +40,15 @@ export function coverImageUrlFromId(
   size?: number
 ): string {
   const suffix = size ? `_${size}` : ''
-  return `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${COVER_IMAGE_PATH_PREFIX}/${id}${suffix}.${COVER_IMAGE_EXTENSION}`
+  return publicUrl(
+    `${COVER_IMAGE_PATH_PREFIX}/${id}${suffix}.${COVER_IMAGE_EXTENSION}`
+  )
 }
 
 /**
  * Attaches derived `coverImageUrl`/`coverImageThumbnailUrl` fields to a
  * fetched embed code, computed from its stored `coverImageId`. Must run
- * server-side (reads `AWS_S3_*` env vars) — called from `data.ts` so the
+ * server-side (reads the storage env vars) — called from `data.ts` so the
  * URLs are already resolved by the time an embed code reaches the client,
  * e.g. as JSON from `/api/embed_codes`.
  */

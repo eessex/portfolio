@@ -39,7 +39,7 @@ export async function editEmbedCode(formData: FormData, id?: string) {
  * Title is always system-derived, never user-editable, so this always
  * (re)fetches it from the current `host`/`src` — on create AND edit — so
  * it can't go stale if `src` changes later. The cover image is different:
- * it's only fetched (and uploaded to S3) on create, since re-uploading a
+ * it's only fetched (and stored) on create, since re-uploading a
  * new one on every edit would be wasteful. On edit, a failed title
  * resolution leaves `data.title` untouched rather than clearing it —
  * `toDbRow`'s merge with the existing row then keeps the prior title.

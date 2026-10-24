@@ -273,7 +273,7 @@ async function bandcampMeta(
 /**
  * Resolves a host's oEmbed (or oEmbed-like scrape) response. Kept in its
  * own sharp-free module so it can be imported from both
- * `cover-image.ts` (the S3/sharp cover-image pipeline, at create time)
+ * `cover-image.ts` (the sharp cover-image pipeline, at create time)
  * and `preview-metadata.ts` (a lightweight client-callable preview, at
  * paste time) without either one pulling in the other's dependencies.
  */

@@ -39,4 +39,16 @@ describe('fetchPublishersRaw', () => {
 
     expect(listQueryText()).toContain('NOT publishers.is_built_in')
   })
+
+  it('searches by name, type and url on both count and page queries', async () => {
+    await fetchPublishersRaw(undefined, 'record')
+
+    for (const call of mockSql.mock.calls.slice(0, 2)) {
+      const text = (call[0] as unknown as string[]).join('?')
+      expect(text).toContain('OR publishers.name ILIKE ?')
+      expect(text).toContain('OR publishers.type ILIKE ?')
+      expect(text).toContain('OR publishers.url ILIKE ?')
+      expect(call).toContain('%record%')
+    }
+  })
 })

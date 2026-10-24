@@ -139,6 +139,35 @@ describe('fetchImagesRaw', () => {
     expect(text).not.toContain('images.project_id')
   })
 
+  it('searches by type on both count and page queries', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([dashboardImageRow])
+
+    await fetchImagesRaw(undefined, 'flyer')
+
+    expect(mockSql.mock.calls[0]![0].join('?')).toContain(
+      'OR type ILIKE ?'
+    )
+    expect(mockSql.mock.calls[1]![0].join('?')).toContain(
+      'OR images.type ILIKE ?'
+    )
+    expect(mockSql.mock.calls[0]).toContain('%flyer%')
+  })
+
+  it('searches by alt text on both count and page queries', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([dashboardImageRow])
+
+    await fetchImagesRaw(undefined, 'sunset')
+
+    for (const call of mockSql.mock.calls.slice(0, 2)) {
+      expect(call[0].join('?')).toContain('OR alt ILIKE ?')
+      expect(call).toContain('%sunset%')
+    }
+  })
+
   it('restricts to a type when one is set', async () => {
     mockSql
       .mockResolvedValueOnce([{ count: 1 }])

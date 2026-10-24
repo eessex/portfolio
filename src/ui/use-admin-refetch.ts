@@ -38,6 +38,7 @@ export function useAdminRefetch<T>(
 
     return () => {
       cancelled = true
+      setAdminData(undefined)
     }
   }, [isAdmin, url, pick])
 

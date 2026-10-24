@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useReducer,
   useRef,
   useState
 } from 'react'
@@ -92,9 +93,25 @@ export function useResultsList<
   const controllerRef = useRef<AbortController | null>(null)
   /** The query the in-flight fetch is for */
   const inFlightQueryRef = useRef<string | null>(null)
+  /** Whether the in-flight fetch is a later page */
+  const isPagingRef = useRef(false)
+  /**
+   * Whether a later page was skipped or aborted for another fetch, so
+   * a sentinel already in view has no notification left to resume it
+   */
+  const isPagingStalledRef = useRef(false)
+  /** Recreates the scroll observer, which reports a visible sentinel */
+  const [pagingKey, rearmPaging] = useReducer((n: number) => n + 1, 0)
   const hasLoadedFirstPageRef = useRef(false)
+  const isSeeded = initial !== undefined
   /** A first-page query whose fetch failed, for `ensureFirstPage` to retry */
   const failedQueryRef = useRef<string | null>(null)
+  /** Whether fetches include drafts, i.e. the admin augment is on */
+  const didAugmentRef = useRef(false)
+  /** Whether the shown first page was fetched with drafts */
+  const isResultsAugmentedRef = useRef(false)
+  /** Whether logout cleared the shown results, pending a refetch */
+  const isResultsClearedRef = useRef(false)
 
   // Compared by value so callers can pass an inline `searchParams`
   // object without destabilizing the memoized `fetchPage`.
@@ -113,10 +130,16 @@ export function useResultsList<
         isAnimated?: boolean
       } = {}
     ) => {
+      if (controllerRef.current && isPagingRef.current) {
+        isPagingStalledRef.current = true
+      }
       controllerRef.current?.abort()
       const controller = new AbortController()
       controllerRef.current = controller
       inFlightQueryRef.current = pageQuery
+      isPagingRef.current = !!cursor
+      let isFailed = false
+      const isAugmented = didAugmentRef.current
       setIsLoading(true)
 
       try {
@@ -135,22 +158,27 @@ export function useResultsList<
         // superseded or cancelled while the response was read
         if (controllerRef.current !== controller) return
 
-        resultsQueryRef.current = pageQuery
         const apply = () => {
+          // a view transition defers this; recheck for a newer fetch
+          if (controllerRef.current !== controller) return
+          resultsQueryRef.current = pageQuery
           setResults((prev) =>
             cursor ? appendPage(prev, data) : data
           )
           setResultsQuery(pageQuery)
+          if (!cursor) {
+            hasLoadedFirstPageRef.current = true
+            isResultsAugmentedRef.current = isAugmented
+            isResultsClearedRef.current = false
+            failedQueryRef.current = null
+          }
         }
         if (isAnimated) await withViewTransition(apply)
         else apply()
-        if (!cursor) {
-          hasLoadedFirstPageRef.current = true
-          failedQueryRef.current = null
-        }
       } catch (err: Error | unknown) {
         if (err instanceof Error && err.name !== 'AbortError') {
           console.error('Fetch page error:', err)
+          isFailed = true
           if (!cursor) failedQueryRef.current = pageQuery
         }
       } finally {
@@ -158,7 +186,14 @@ export function useResultsList<
         if (controllerRef.current === controller) {
           controllerRef.current = null
           inFlightQueryRef.current = null
+          isPagingRef.current = false
           setIsLoading(false)
+          // not after a failed later page, which would retry it in a
+          // loop; a failed search keeps the shown cursor, so resume it
+          if (isPagingStalledRef.current && (!isFailed || !cursor)) {
+            isPagingStalledRef.current = false
+            rearmPaging()
+          }
         }
       }
     },
@@ -170,14 +205,26 @@ export function useResultsList<
   // flight for another one, so its response can't replace them.
   useEffect(() => {
     if (query === resultsQueryRef.current) {
-      if (
-        controllerRef.current &&
-        inFlightQueryRef.current !== query
-      ) {
+      if (inFlightQueryRef.current === query) return
+      if (controllerRef.current) {
         controllerRef.current.abort()
         controllerRef.current = null
         inFlightQueryRef.current = null
+        isPagingRef.current = false
         setIsLoading(false)
+      }
+      // a search, even one that since failed, may have aborted the
+      // mount fetch, the session refresh (or logout refetch) of the
+      // shown results, or their next page
+      if (
+        (!isSeeded && !hasLoadedFirstPageRef.current) ||
+        isResultsClearedRef.current ||
+        isResultsAugmentedRef.current !== didAugmentRef.current
+      ) {
+        fetchPage(query, { isAnimated: didAugmentRef.current })
+      } else if (isPagingStalledRef.current) {
+        isPagingStalledRef.current = false
+        rearmPaging()
       }
       return
     }
@@ -186,13 +233,20 @@ export function useResultsList<
       SEARCH_DEBOUNCE_MS
     )
     return () => clearTimeout(timer)
-  }, [query, fetchPage])
+  }, [query, fetchPage, isSeeded])
 
   const { nextCursor } = results
   const loadMore = useCallback(() => {
-    if (!nextCursor || controllerRef.current) return
-    fetchPage(resultsQueryRef.current, { cursor: nextCursor })
-  }, [nextCursor, fetchPage])
+    if (!nextCursor) return
+    // a queued observer callback from before a new search replaced
+    // the results; its cursor belongs to the old query
+    if (resultsQuery !== resultsQueryRef.current) return
+    if (controllerRef.current) {
+      isPagingStalledRef.current = true
+      return
+    }
+    fetchPage(resultsQuery, { cursor: nextCursor })
+  }, [nextCursor, resultsQuery, fetchPage])
 
   // Infinite scroll observer
   const observerRef = useRef<IntersectionObserver | null>(null)
@@ -210,7 +264,9 @@ export function useResultsList<
       )
       observerRef.current.observe(node)
     },
-    [loadMore, nextCursor]
+    // pagingKey re-arms the observer
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [loadMore, nextCursor, pagingKey]
   )
 
   useEffect(() => {
@@ -223,12 +279,22 @@ export function useResultsList<
   // For admins, refetch the first page to reveal unpublished content;
   // on logout, refetch it again so the drafts don't stay listed.
   const isAdmin = useIsAdmin(!!augmentOnMount)
-  const didAugmentRef = useRef(false)
   useEffect(() => {
     if (!augmentOnMount || isAdmin === didAugmentRef.current) return
     didAugmentRef.current = isAdmin
+    // drafts mustn't outlive the session, even if the refetch fails;
+    // a later page may have appended some after a failed first page
+    if (!isAdmin) {
+      isResultsAugmentedRef.current = false
+      isResultsClearedRef.current = true
+      setResults(
+        initial && resultsQueryRef.current === (defaultQuery || '')
+          ? (initial as Results<Item>)
+          : emptyResults
+      )
+    }
     fetchPage(queryRef.current, { isAnimated: isAdmin })
-  }, [augmentOnMount, isAdmin, fetchPage])
+  }, [augmentOnMount, isAdmin, fetchPage, initial, defaultQuery])
 
   // If no initial results are passed from the server, fetch the first
   // page on mount; later calls (e.g. on focus) also retry the current

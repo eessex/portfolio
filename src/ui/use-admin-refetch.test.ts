@@ -95,4 +95,24 @@ describe('useAdminRefetch', () => {
       expect(global.fetch).toHaveBeenCalledTimes(2)
     })
   })
+
+  it('drops the previous session’s data when the next login refetch fails', async () => {
+    jest.mocked(useIsAdmin).mockReturnValue(true)
+    mockFetch({ res: withDrafts })
+    const { result, rerender } = setup()
+    await waitFor(() => {
+      expect(result.current).toEqual(withDrafts)
+    })
+
+    jest.mocked(useIsAdmin).mockReturnValue(false)
+    rerender()
+    global.fetch = jest.fn().mockRejectedValue(new Error('down'))
+    jest.mocked(useIsAdmin).mockReturnValue(true)
+    rerender()
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled()
+    })
+    expect(result.current).toBe(published)
+  })
 })

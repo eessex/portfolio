@@ -5,11 +5,15 @@ import {
   PutObjectCommand
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import sharp from 'sharp'
+import sharp, { type Metadata } from 'sharp'
 
 import { assertAuthed } from '@/lib/auth/guard'
 import { s3 } from '@/lib/images/s3-client'
-import { uploadFormats } from '@/lib/images/util'
+import {
+  MIN_SHORT_EDGE,
+  tooSmallMessage,
+  uploadFormats
+} from '@/lib/images/util'
 
 function getKeyFromS3Url(url: string): string {
   try {
@@ -37,22 +41,31 @@ export async function deleteFromS3(url: string) {
   }
 }
 
-/** Real format from the bytes, not the name or MIME type. */
-async function sniffFormat(bytes: Buffer) {
-  let format: string | undefined
+/**
+ * Real format and size from the bytes, not the name or MIME type.
+ * Throws a user-facing message for anything the spec refuses.
+ */
+async function readImage(bytes: Buffer, name: string) {
+  let metadata: Metadata
   try {
-    format = (await sharp(bytes).metadata()).format
+    metadata = await sharp(bytes).metadata()
   } catch {
     throw new Error('File is not a readable image')
   }
 
+  const { format, width, height, pageHeight } = metadata
   const upload = format ? uploadFormats[format] : undefined
   if (!upload) {
     throw new Error(
       `Unsupported image format${format ? ` (${format})` : ''}; use JPEG, PNG, WebP or GIF`
     )
   }
-  return upload
+  // an animated GIF/WebP's height spans every frame
+  const shortEdge = Math.min(width, pageHeight ?? height)
+  if (shortEdge < MIN_SHORT_EDGE) {
+    throw new Error(tooSmallMessage(name))
+  }
+  return { ...upload, width, height: pageHeight ?? height }
 }
 
 async function getPresignedUploadUrl(
@@ -74,10 +87,22 @@ async function getPresignedUploadUrl(
 export async function uploadFile(file: File) {
   await assertAuthed()
 
+  const startedAt = performance.now()
   const bytes = Buffer.from(await file.arrayBuffer())
-  const { ext, contentType } = await sniffFormat(bytes)
+  let image: Awaited<ReturnType<typeof readImage>>
+  try {
+    image = await readImage(bytes, file.name)
+  } catch (err) {
+    console.warn('Refused image upload:', {
+      size: file.size,
+      reason: (err as Error).message
+    })
+    throw err
+  }
+  const { ext, contentType } = image
   // Unique key per upload, so same-named files never overwrite
   const key = `images/${crypto.randomUUID()}.${ext}`
+  const readAt = performance.now()
 
   const res = await getPresignedUploadUrl(key, contentType)
   const uploadRes = await fetch(res, {
@@ -88,5 +113,13 @@ export async function uploadFile(file: File) {
 
   if (!uploadRes.ok) throw new Error('Upload failed')
 
+  console.info('Uploaded image:', {
+    key,
+    size: file.size,
+    width: image.width,
+    height: image.height,
+    readMs: Math.round(readAt - startedAt),
+    putMs: Math.round(performance.now() - readAt)
+  })
   return res.split('?')[0] // URL without query params
 }

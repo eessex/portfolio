@@ -1,5 +1,12 @@
 import type { NextConfig } from 'next'
 
+import {
+  DEVICE_SIZES,
+  IMAGE_FORMATS,
+  IMAGE_SIZES,
+  SERVER_ACTION_BODY_SIZE_LIMIT
+} from './src/lib/images/util'
+
 type RemotePattern = NonNullable<
   NonNullable<NextConfig['images']>['remotePatterns']
 >[number]
@@ -50,12 +57,16 @@ const nextConfig: NextConfig = {
     ]
   },
   cacheComponents: true,
+  experimental: {
+    // image uploads go through the form's server action
+    serverActions: { bodySizeLimit: SERVER_ACTION_BODY_SIZE_LIMIT }
+  },
   serverExternalPackages: ['sharp'],
   images: {
     minimumCacheTTL: 2678400, // 31 days
-    formats: ['image/avif', 'image/webp'],
-    deviceSizes: [320, 640, 768, 1024, 1280, 1600],
-    imageSizes: [52, 96, 256],
+    formats: IMAGE_FORMATS,
+    deviceSizes: DEVICE_SIZES,
+    imageSizes: IMAGE_SIZES,
     remotePatterns
   }
 }

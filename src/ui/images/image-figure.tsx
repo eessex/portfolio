@@ -1,6 +1,7 @@
 import NextImage from 'next/image'
 
 import type { Image } from '@/lib/images/schemas/db'
+import { MOBILE_CONTENT_SIZE } from '@/lib/images/util'
 
 export const ImageFigure = ({
   image,
@@ -9,7 +10,7 @@ export const ImageFigure = ({
   className,
   isPriority,
   width = 680,
-  sizes = '(max-width: 768px) 100vw, 680px',
+  sizes = `(max-width: 768px) ${MOBILE_CONTENT_SIZE}, 680px`,
   onClick
 }: {
   image: Image

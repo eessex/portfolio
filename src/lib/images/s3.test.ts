@@ -18,12 +18,13 @@ const mockGetSignedUrl = jest.mocked(getSignedUrl)
 async function imageFile(
   format: 'jpeg' | 'png' | 'tiff',
   name: string,
-  type = 'image/jpeg'
+  type = 'image/jpeg',
+  { width = 800, height = 600 } = {}
 ) {
   const bytes = await sharp({
     create: {
-      width: 4,
-      height: 4,
+      width,
+      height,
       channels: 3,
       background: '#000'
     }
@@ -82,5 +83,27 @@ describe('uploadFile', () => {
       'File is not a readable image'
     )
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('refuses a short edge under 600 px without uploading', async () => {
+    await expect(
+      uploadFile(
+        await imageFile('jpeg', 'thumb.jpg', 'image/jpeg', {
+          width: 1200,
+          height: 599
+        })
+      )
+    ).rejects.toThrow('"thumb.jpg" is too small')
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('accepts a 600 px short edge', async () => {
+    const url = await uploadFile(
+      await imageFile('jpeg', 'portrait.jpg', 'image/jpeg', {
+        width: 600,
+        height: 900
+      })
+    )
+    expect(url).toMatch(/\.jpg$/)
   })
 })

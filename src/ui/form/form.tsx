@@ -11,6 +11,11 @@ import {
   useState
 } from 'react'
 
+import {
+  formatMegabytes,
+  MAX_UPLOAD_REQUEST_SIZE,
+  newFilesSize
+} from '@/lib/images/util'
 import type { FormResponse } from '@/lib/types'
 import { Dialog } from '@/ui/dialog/dialog'
 import styles from '@/ui/form/form.module.scss'
@@ -145,6 +150,14 @@ export function Form<T>({
     if (isPending) return prevState
 
     const isDirty = isFormDirty(formData, initialState)
+
+    const filesSize = newFilesSize(formData)
+    if (filesSize > MAX_UPLOAD_REQUEST_SIZE) {
+      addErrorMessage(
+        `New images in this form total ${formatMegabytes(filesSize)}, over the ${formatMegabytes(MAX_UPLOAD_REQUEST_SIZE)} one save can take. Save fewer at a time, then add the rest.`
+      )
+      return prevState
+    }
 
     if (!isDirty) {
       if (onSuccess) {

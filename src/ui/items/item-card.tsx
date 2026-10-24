@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import NextLink from 'next/link'
 import React from 'react'
 
+import { MOBILE_CONTENT_SIZE } from '@/lib/images/util'
 import type { PageItemClient } from '@/lib/types'
 import { FormattedItemDate } from '@/ui/items/item-date'
 import {
@@ -79,7 +80,7 @@ export function ItemCard({
               sizes={
                 imageSize?.sizes ??
                 (isFeatured
-                  ? '(max-width: 768px) 100vw, 680px'
+                  ? `(max-width: 768px) ${MOBILE_CONTENT_SIZE}, 680px`
                   : '(max-width: 768px) 50vw, 350px')
               }
               index={index}

@@ -1,5 +1,7 @@
 import {
+  COVER_IMAGE_THUMBNAIL_SIZE,
   coverImageUrlFromId,
+  isCoverImageThumbnailUrl,
   withCoverImageUrls
 } from '@/lib/embed-codes/cover-image-url'
 
@@ -28,6 +30,24 @@ describe('coverImageUrlFromId', () => {
     expect(coverImageUrlFromId('abc-123', 32)).toEqual(
       'https://bucket.s3.us-east-1.amazonaws.com/embedCodeCoverImages/abc-123_32.jpg'
     )
+  })
+})
+
+describe('isCoverImageThumbnailUrl', () => {
+  it('matches only the stored thumbnail variant', () => {
+    expect(
+      isCoverImageThumbnailUrl(
+        coverImageUrlFromId('abc-123', COVER_IMAGE_THUMBNAIL_SIZE)
+      )
+    ).toBe(true)
+    expect(
+      isCoverImageThumbnailUrl(coverImageUrlFromId('abc-123'))
+    ).toBe(false)
+    expect(
+      isCoverImageThumbnailUrl(
+        'https://bucket.s3.us-east-1.amazonaws.com/images/photo_96.jpg'
+      )
+    ).toBe(false)
   })
 })
 

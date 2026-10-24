@@ -7,6 +7,7 @@ import {
   EmbedCodeTypes
 } from '@/lib/embed-codes/schemas/db'
 import type { Image } from '@/lib/images/schemas/db'
+import { MOBILE_CONTENT_SIZE } from '@/lib/images/util'
 import type { Link } from '@/lib/links/schemas/db'
 import type { Publisher } from '@/lib/publishers/schemas/db'
 import type { ReleaseClient } from '@/lib/releases/types'
@@ -246,7 +247,7 @@ export function ItemsTableRow({
               width={350}
               sizes={
                 isExpanded
-                  ? '(max-width: 768px) 100vw, 50vw'
+                  ? `(max-width: 768px) ${MOBILE_CONTENT_SIZE}, 50vw`
                   : '(max-width: 768px) 92px, 52px'
               }
               index={index}

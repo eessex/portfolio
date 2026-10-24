@@ -3,16 +3,17 @@ import clsx from 'clsx'
 import React, { useEffect, useRef, useState } from 'react'
 
 import type { Image } from '@/lib/images/schemas/db'
-import { ACCEPTED_IMAGE_TYPES } from '@/lib/images/util'
+import {
+  ACCEPTED_IMAGE_TYPES,
+  formatMegabytes,
+  MAX_UPLOAD_FILE_SIZE,
+  MIN_SHORT_EDGE,
+  tooSmallMessage
+} from '@/lib/images/util'
 import styles from '@/ui/form/form.module.scss'
 import type { InputProps } from '@/ui/form/input'
 import { Input } from '@/ui/form/input'
 import { usedOnPages } from '@/ui/util'
-
-/**
- * capped at Next.js's default 1 MB `bodySizeLimit`.
- */
-export const MAX_UPLOAD_FILE_SIZE = 1000 * 1000 // 1 MB
 
 export function FileInputImage({
   ariaControls,
@@ -69,25 +70,32 @@ export function FileInputImage({
     if (!file || !previewUrl) {
       return
     }
+    function rejectFile(message: string) {
+      setPreviewUrl(null)
+      setFile(null)
+      setImageUrl(undefined)
+      setAspectRatio(undefined)
+      setLoadError(message)
+      onChange?.('', undefined, true)
+      clearFileInput()
+    }
     const img = new Image()
     img.src = previewUrl
     img.onload = () => {
       const width = img.naturalWidth
       const height = img.naturalHeight
+      if (Math.min(width, height) < MIN_SHORT_EDGE) {
+        rejectFile(`${tooSmallMessage(file.name)}.`)
+        return
+      }
       const ratio = width / height
       setAspectRatio(ratio)
       onChange?.(file.name, ratio, true)
     }
     img.onerror = () => {
-      setPreviewUrl(null)
-      setFile(null)
-      setImageUrl(undefined)
-      setAspectRatio(undefined)
-      setLoadError(
+      rejectFile(
         `"${file.name}" couldn't be loaded as an image. Choose a different file.`
       )
-      onChange?.('', undefined, true)
-      clearFileInput()
     }
     return () => {
       img.onload = null
@@ -121,7 +129,7 @@ export function FileInputImage({
     )
       ? `"${selectedFile.name}" isn't a supported image. Choose a JPEG, PNG, WebP or GIF.`
       : selectedFile.size > MAX_UPLOAD_FILE_SIZE
-        ? `"${selectedFile.name}" is too large. Choose a file under 1MB.`
+        ? `"${selectedFile.name}" is too large. Choose a file under ${formatMegabytes(MAX_UPLOAD_FILE_SIZE)}.`
         : null
     if (fileError) {
       setPreviewUrl(null)

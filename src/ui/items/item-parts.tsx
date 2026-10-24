@@ -4,6 +4,7 @@ import {
 } from '@heroicons/react/24/outline'
 import NextImage from 'next/image'
 
+import { isCoverImageThumbnailUrl } from '@/lib/embed-codes/cover-image-url'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import { PagePaths } from '@/lib/schemas'
@@ -83,6 +84,7 @@ export function ItemCoverImage({
       width={width}
       height={Math.round(width / image.aspect)}
       sizes={sizes}
+      unoptimized={isCoverImageThumbnailUrl(image.url)}
       loading={isLazy || index > lazyAfter ? 'lazy' : undefined}
       priority={isPriority}
       fetchPriority={isPriority ? 'high' : 'auto'}

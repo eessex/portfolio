@@ -4,15 +4,22 @@ export const COVER_IMAGE_EXTENSION = 'jpg'
 /**
  * Bounding box (width and height, since resizing preserves aspect within
  * it) for the resized thumbnail variant, also used as its filename suffix
- * — see `coverImageUrlFromId`. `CoverImageThumbnail` renders this at
- * 32px tall with no `sizes` prop, so `next/image` treats it as a fixed
- * size and requests a 1x/2x pair from `next.config.ts`'s `imageSizes`
- * (`[52, 96, 256]`) — the 2x request for any width up to ~86px (covering
- * every host's aspect ratio this app currently fetches covers for) rounds
- * up to the `96` step, so 96 is the smallest size that avoids upscaling
- * on retina screens.
+ * — see `coverImageUrlFromId`. Big enough for the 32px-tall picker rows
+ * at 2x on every host's aspect ratio. Served as stored, not through the
+ * optimizer — see `isCoverImageThumbnailUrl`.
  */
 export const COVER_IMAGE_THUMBNAIL_SIZE = 96
+
+/** An embed cover's stored thumbnail, already small enough to serve as-is. */
+export function isCoverImageThumbnailUrl(url: string) {
+  const path = url.split('?')[0] ?? ''
+  return (
+    path.includes(`/${COVER_IMAGE_PATH_PREFIX}/`) &&
+    path.endsWith(
+      `_${COVER_IMAGE_THUMBNAIL_SIZE}.${COVER_IMAGE_EXTENSION}`
+    )
+  )
+}
 
 export interface WithCoverImageUrls {
   coverImageUrl?: string

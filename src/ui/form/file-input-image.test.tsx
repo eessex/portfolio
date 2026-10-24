@@ -5,11 +5,9 @@ import {
   waitFor
 } from '@testing-library/react'
 
+import { MAX_UPLOAD_FILE_SIZE } from '@/lib/images/util'
 import { mockFile } from '@/test/helpers'
-import {
-  FileInputImage,
-  MAX_UPLOAD_FILE_SIZE
-} from '@/ui/form/file-input-image'
+import { FileInputImage } from '@/ui/form/file-input-image'
 
 URL.createObjectURL = jest.fn(() => 'blob:mock-preview')
 URL.revokeObjectURL = jest.fn()
@@ -36,6 +34,11 @@ class LoadingImage {
   set src(_value: string) {
     queueMicrotask(() => this.onload?.())
   }
+}
+
+class SmallImage extends LoadingImage {
+  naturalWidth = 1200
+  naturalHeight = 599
 }
 
 describe('FileInputImage', () => {
@@ -97,6 +100,32 @@ describe('FileInputImage', () => {
     expect(onChange).toHaveBeenCalledWith('', undefined, true)
   })
 
+  it('rejects an image under the minimum short edge', async () => {
+    global.Image = SmallImage as unknown as typeof Image
+    const onChange = jest.fn()
+
+    render(
+      <FileInputImage label='Upload new image' onChange={onChange} />
+    )
+
+    fireEvent.change(screen.getByLabelText(/upload new image/i), {
+      target: { files: [mockFile('thumb.jpg')] }
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText(/too small/i)).toBeInTheDocument()
+    })
+    expect(
+      screen.getByLabelText(/upload new image/i)
+    ).not.toHaveAttribute('hidden')
+    expect(onChange).toHaveBeenCalledWith('', undefined, true)
+    expect(onChange).not.toHaveBeenCalledWith(
+      'thumb.jpg',
+      expect.anything(),
+      true
+    )
+  })
+
   it('limits the picker to supported image types', () => {
     render(<FileInputImage label='Upload new image' />)
 
@@ -109,6 +138,7 @@ describe('FileInputImage', () => {
   })
 
   it('rejects an unsupported file type before previewing it', () => {
+    ;(URL.createObjectURL as jest.Mock).mockClear()
     const onChange = jest.fn()
 
     render(

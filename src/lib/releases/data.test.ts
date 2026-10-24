@@ -117,6 +117,27 @@ describe('fetchReleasesRaw', () => {
     })
   })
 
+  it('matches a search on edition format in both queries', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([releaseFixtureAlbum])
+
+    const result = await Releases.fetchReleasesRaw(
+      false,
+      undefined,
+      undefined,
+      'Cassette'
+    )
+
+    expect(result.totalCount).toBe(1)
+    for (const [strings, ...params] of mockSql.mock.calls) {
+      const text = (strings as unknown as string[]).join('?')
+      expect(text).toContain('OR pe.format ILIKE ?')
+      expect(params).toContain('%Cassette%')
+    }
+    expect(mockSql).toHaveBeenCalledTimes(2)
+  })
+
   it('handles DB errors', async () => {
     mockSql.mockResolvedValueOnce([{ count: 2 }])
     mockSql.mockRejectedValue(new Error('db failed'))

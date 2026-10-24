@@ -153,6 +153,8 @@ export async function fetchImagesRaw(
         OR url ILIKE ${like}
         OR title ILIKE ${like}
         OR caption ILIKE ${like}
+        OR alt ILIKE ${like}
+        OR type ILIKE ${like}
       )
       AND (${typeFilter}::text IS NULL OR type = ${typeFilter})
     `,
@@ -176,6 +178,8 @@ export async function fetchImagesRaw(
         OR url ILIKE ${like}
         OR title ILIKE ${like}
         OR caption ILIKE ${like}
+        OR alt ILIKE ${like}
+        OR images.type ILIKE ${like}
       )
       AND (${typeFilter}::text IS NULL OR images.type = ${typeFilter})
       AND (

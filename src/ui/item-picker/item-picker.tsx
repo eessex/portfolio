@@ -50,7 +50,7 @@ import {
   useEntryValidation
 } from '@/ui/item-picker/use-entry-validation'
 import { useItemPickerEntries } from '@/ui/item-picker/use-item-picker-entries'
-import type { ResultsResponse } from '@/ui/useResultsList'
+import type { ResultsResponse } from '@/ui/use-results-list'
 import type { SearchParams } from '@/ui/util'
 
 /** Named args passed to a picker's `renderEditItemForm` callback. */

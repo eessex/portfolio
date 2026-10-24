@@ -144,6 +144,24 @@ describe('Image Actions', () => {
       expect(mockSql).toHaveBeenCalledTimes(1)
     })
 
+    it('returns a refused upload as a form error, saving nothing', async () => {
+      uploadFileMock.mockRejectedValueOnce(
+        new Error('Unsupported image format (tiff)')
+      )
+      const formData = formDataFromObject({
+        ...createImageFixture,
+        file: mockFile('scan.jpg', 2048, 'image/jpeg')
+      })
+
+      const res = await editImage(formData)
+
+      expect(res?.ok).toBe(false)
+      expect(res!.message).toBe(
+        'Failed to save image: Unsupported image format (tiff).'
+      )
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+
     it('can handle generic errors', async () => {
       mockSql.mockRejectedValueOnce(new Error('DB error'))
       const res = await editImage(formDataFromObject(imageFixture))

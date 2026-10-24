@@ -5,6 +5,7 @@ import type { Metadata } from 'next/types'
 import styles from '@/app/(item-pages)/item-layout.module.scss'
 import { resolvePageItem } from '@/app/(item-pages)/resolve-page-item'
 import type { EventClient } from '@/lib/events/types'
+import { ogImageSize } from '@/lib/images/util'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import { type PagePath, PagePaths } from '@/lib/schemas'
@@ -221,8 +222,7 @@ export async function generateItemMetadata(
   const images = coverImage && [
     {
       url: coverImage.url,
-      width: 1200,
-      height: Math.round(1200 * coverImage.aspect),
+      ...ogImageSize(coverImage.aspect),
       alt: coverImage.alt || ''
     }
   ]

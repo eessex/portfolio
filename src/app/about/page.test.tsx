@@ -161,6 +161,27 @@ describe('generateMetadata', () => {
     ])
   })
 
+  it.each([
+    ['landscape', 1.5, { width: 1200, height: 800 }],
+    ['portrait', 0.75, { width: 1200, height: 1600 }]
+  ])(
+    'reports a %s cover image at its true OG size',
+    async (_, aspect, size) => {
+      mockDefaults({
+        published: {
+          ...defaultProject,
+          coverImage: { ...imageFixture, aspect }
+        }
+      })
+
+      const meta = await generateMetadata()
+
+      expect(meta.openGraph.images).toEqual([
+        expect.objectContaining(size)
+      ])
+    }
+  )
+
   it('falls back to the site description when the project has none', async () => {
     mockDefaults({
       published: { ...defaultProject, shortDescription: undefined }

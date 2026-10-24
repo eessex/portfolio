@@ -3,6 +3,7 @@ import clsx from 'clsx'
 import React, { useEffect, useRef, useState } from 'react'
 
 import type { Image } from '@/lib/images/schemas/db'
+import { ACCEPTED_IMAGE_TYPES } from '@/lib/images/util'
 import styles from '@/ui/form/form.module.scss'
 import type { InputProps } from '@/ui/form/input'
 import { Input } from '@/ui/form/input'
@@ -114,15 +115,21 @@ export function FileInputImage({
       setFile(null)
       return
     }
-    if (selectedFile.size > MAX_UPLOAD_FILE_SIZE) {
+    // `accept` only filters the picker; drag-and-drop and "All files" bypass it
+    const fileError = !ACCEPTED_IMAGE_TYPES.includes(
+      selectedFile.type
+    )
+      ? `"${selectedFile.name}" isn't a supported image. Choose a JPEG, PNG, WebP or GIF.`
+      : selectedFile.size > MAX_UPLOAD_FILE_SIZE
+        ? `"${selectedFile.name}" is too large. Choose a file under 1MB.`
+        : null
+    if (fileError) {
       setPreviewUrl(null)
       setAspectRatio(
         imageUrl ? image?.aspect || undefined : undefined
       )
       setFile(null)
-      setLoadError(
-        `"${selectedFile.name}" is too large. Choose a file under 1MB.`
-      )
+      setLoadError(fileError)
       onChange?.('', undefined, true)
       // clear the input so re-selecting the same file re-fires change
       e.target.value = ''
@@ -205,6 +212,7 @@ export function FileInputImage({
           ...attributes,
           name: attributes?.name || 'file',
           type: 'file',
+          accept: ACCEPTED_IMAGE_TYPES.join(','),
           hidden: !!(previewUrl || imageUrl),
           // Required only until an image is chosen unless the caller overrides
           required:

@@ -181,6 +181,34 @@ describe('generateItemMetadata', () => {
     expect(meta.description).toContain('Live event at')
   })
 
+  it.each([
+    ['landscape', 1.5, { width: 1200, height: 800 }],
+    ['portrait', 0.75, { width: 1200, height: 1600 }]
+  ])(
+    'reports a %s cover image at its true OG size',
+    async (_, aspect, size) => {
+      const item = {
+        ...projectFixtureBand,
+        coverImage: { ...imageFixture, aspect }
+      }
+      mockResolveSlug.mockResolvedValue({
+        id: item.id,
+        slug: item.slug,
+        isRedirect: false
+      })
+
+      const meta = await generateItemMetadata(
+        Promise.resolve({ slug: item.slug }),
+        PagePaths.projects,
+        jest.fn().mockResolvedValue(item)
+      )
+
+      expect(meta.openGraph?.images).toEqual([
+        expect.objectContaining({ url: imageFixture.url, ...size })
+      ])
+    }
+  )
+
   it('leaves the description undefined for releases without shortDescription', async () => {
     const releaseWithoutShortDescription = {
       ...releaseFixtureAlbum,

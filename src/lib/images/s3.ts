@@ -5,9 +5,11 @@ import {
   PutObjectCommand
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import sharp from 'sharp'
 
 import { assertAuthed } from '@/lib/auth/guard'
 import { s3 } from '@/lib/images/s3-client'
+import { uploadFormats } from '@/lib/images/util'
 
 function getKeyFromS3Url(url: string): string {
   try {
@@ -35,12 +37,29 @@ export async function deleteFromS3(url: string) {
   }
 }
 
+/** Real format from the bytes, not the name or MIME type. */
+async function sniffFormat(bytes: Buffer) {
+  let format: string | undefined
+  try {
+    format = (await sharp(bytes).metadata()).format
+  } catch {
+    throw new Error('File is not a readable image')
+  }
+
+  const upload = format ? uploadFormats[format] : undefined
+  if (!upload) {
+    throw new Error(
+      `Unsupported image format${format ? ` (${format})` : ''}; use JPEG, PNG, WebP or GIF`
+    )
+  }
+  return upload
+}
+
 async function getPresignedUploadUrl(
-  filename: string,
+  key: string,
   contentType: string
 ) {
   const bucketName = process.env.AWS_S3_BUCKET_NAME!
-  const key = `images/${filename}`
 
   console.info('Generating presigned URL for:', key, bucketName)
   const command = new PutObjectCommand({
@@ -55,11 +74,16 @@ async function getPresignedUploadUrl(
 export async function uploadFile(file: File) {
   await assertAuthed()
 
-  const res = await getPresignedUploadUrl(file.name, file.type)
+  const bytes = Buffer.from(await file.arrayBuffer())
+  const { ext, contentType } = await sniffFormat(bytes)
+  // Unique key per upload, so same-named files never overwrite
+  const key = `images/${crypto.randomUUID()}.${ext}`
+
+  const res = await getPresignedUploadUrl(key, contentType)
   const uploadRes = await fetch(res, {
     method: 'PUT',
-    headers: { 'Content-Type': file.type },
-    body: file
+    headers: { 'Content-Type': contentType },
+    body: bytes
   })
 
   if (!uploadRes.ok) throw new Error('Upload failed')

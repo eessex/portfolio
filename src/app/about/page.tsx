@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 
 import ItemLayout from '@/app/(item-pages)/item-layout'
 import { fetchPublishedFirst } from '@/app/(item-pages)/resolve-page-item'
+import { ogImageSize } from '@/lib/images/util'
 import {
   fetchCachedDefaultProject,
   fetchCachedProjectsFirstPage
@@ -44,8 +45,7 @@ function ogImages(
     ? [
         {
           url: image.url,
-          width: 1200,
-          height: Math.round(1200 * image.aspect),
+          ...ogImageSize(image.aspect),
           alt: alt ?? ''
         }
       ]

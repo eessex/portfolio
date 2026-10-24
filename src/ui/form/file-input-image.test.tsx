@@ -97,6 +97,39 @@ describe('FileInputImage', () => {
     expect(onChange).toHaveBeenCalledWith('', undefined, true)
   })
 
+  it('limits the picker to supported image types', () => {
+    render(<FileInputImage label='Upload new image' />)
+
+    expect(
+      screen.getByLabelText(/upload new image/i)
+    ).toHaveAttribute(
+      'accept',
+      'image/jpeg,image/png,image/webp,image/gif'
+    )
+  })
+
+  it('rejects an unsupported file type before previewing it', () => {
+    const onChange = jest.fn()
+
+    render(
+      <FileInputImage label='Upload new image' onChange={onChange} />
+    )
+    const fileInput = screen.getByLabelText(/upload new image/i)
+
+    fireEvent.change(fileInput, {
+      target: {
+        files: [mockFile('photo.heic', 1024, 'image/heic')]
+      }
+    })
+
+    expect(
+      screen.getByText(/isn't a supported image/i)
+    ).toBeInTheDocument()
+    expect(URL.createObjectURL).not.toHaveBeenCalled()
+    expect(fileInput).not.toHaveAttribute('hidden')
+    expect(onChange).toHaveBeenCalledWith('', undefined, true)
+  })
+
   it('clears a previous load error once a new file is chosen', async () => {
     global.Image = FailingImage as unknown as typeof Image
 

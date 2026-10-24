@@ -12,6 +12,7 @@
     "start": "next start",
     "setup": "node --import tsx scripts/setup.ts",
     "copy-storage": "node --env-file=.env --import tsx scripts/copy-storage.ts",
+    "migrate-mongo": "node --env-file=.env --import tsx scripts/migrate-mongo.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "prettier": "prettier --write .",

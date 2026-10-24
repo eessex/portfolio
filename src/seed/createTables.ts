@@ -420,6 +420,28 @@ async function createEventsTable() {
   await sql`CREATE INDEX IF NOT EXISTS idx_events_project_id ON events(project_id);`
 }
 
+/**
+ * Creates the legacy_ids table: which row each Mongo document (or
+ * embedded item, by natural key) became, so scripts/migrate-mongo.ts
+ * can re-run without duplicating. Drop once both instances are
+ * migrated.
+ */
+async function createLegacyIdsTable() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS legacy_ids (
+      -- a collection (events), or an embedded item kind (image)
+      source VARCHAR(50) NOT NULL,
+      -- the Mongo _id, or the embedded item's natural key (its old url)
+      mongo_id TEXT NOT NULL,
+      table_name VARCHAR(50) NOT NULL,
+      row_id UUID NOT NULL,
+      created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      PRIMARY KEY (source, mongo_id)
+    );
+  `
+  await sql`CREATE INDEX IF NOT EXISTS idx_legacy_ids_row ON legacy_ids(table_name, row_id);`
+}
+
 /** Columns limited to a code constant's values. */
 const checkedColumns: [
   table: string,
@@ -710,6 +732,7 @@ export async function createTables() {
   await createPublishersTable()
   await createPublishedEditionTable()
   await createEventsTable()
+  await createLegacyIdsTable()
   console.log('✅ All tables created successfully.')
 
   // post-creation setup

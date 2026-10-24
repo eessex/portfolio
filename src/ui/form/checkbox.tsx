@@ -11,32 +11,26 @@ interface CheckboxProps extends Omit<
   'isLabelHidden' | 'as'
 > {
   controlledId?: string
-  isChecked?: boolean
+  /** Initial state of the (uncontrolled) checkbox. */
+  isDefaultChecked?: boolean
 }
 
 export const Checkbox = ({
   attributes,
   className,
   controlledId,
-  isChecked,
+  isDefaultChecked = false,
   label,
   onChange
 }: CheckboxProps) => {
   const [isDirty, setIsDirty] = useState<boolean>(false)
 
-  const onBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    if (event.target.checked !== isChecked && !isDirty) {
-      setIsDirty(true)
-    }
-  }
-
   const onChangeHandler = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    if (!isDirty) {
-      setIsDirty(event.target.checked !== isChecked)
-    }
-    onChange?.(event, event.target.checked !== isChecked)
+    const isChanged = event.target.checked !== isDefaultChecked
+    if (isChanged) setIsDirty(true)
+    onChange?.(event, isChanged)
   }
 
   const autoId = useId()
@@ -46,10 +40,9 @@ export const Checkbox = ({
   const props = {
     ...attributes,
     type: 'checkbox',
-    checked: isChecked,
+    defaultChecked: isDefaultChecked,
     className: clsx(className, styles.input, isDirty && 'dirty'),
-    onChange: onChangeHandler,
-    onBlur
+    onChange: onChangeHandler
   }
 
   return (

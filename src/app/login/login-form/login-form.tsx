@@ -18,7 +18,6 @@ export function LoginForm() {
       action={authenticate}
       confirmUnsavedChanges={false}
       submitButtonText='Log in'
-      submitButtonClassName='button-primary button-lg'
     >
       <Input
         label='Email'

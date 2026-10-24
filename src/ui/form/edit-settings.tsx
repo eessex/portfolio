@@ -107,11 +107,7 @@ export function EditSettings({
   return (
     // remounted per save, so pickers drop their submitted drafts for
     // the saved items and the form's clean baseline matches them
-    <Form
-      key={settings?.updatedAt?.getTime()}
-      action={handleSubmit}
-      submitButtonClassName='button-primary button-lg'
-    >
+    <Form key={settings?.updatedAt?.getTime()} action={handleSubmit}>
       <SettingsFormFields settings={settings} />
     </Form>
   )

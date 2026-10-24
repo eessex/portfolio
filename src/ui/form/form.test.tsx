@@ -121,6 +121,37 @@ describe('Form', () => {
     })
   })
 
+  describe('redirecting action', () => {
+    it('treats a server action redirect as success', async () => {
+      const action = jest.fn().mockRejectedValue(
+        Object.assign(new Error('NEXT_REDIRECT'), {
+          digest: 'NEXT_REDIRECT;push;/;307;'
+        })
+      )
+      renderForm(action)
+
+      fireEvent.change(screen.getByLabelText(/title/i), {
+        target: { value: 'Changed' }
+      })
+      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+      await screen.findByText(/redirecting/i)
+      expect(
+        screen.queryByText('NEXT_REDIRECT')
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('submit button', () => {
+    it('defaults to the large primary button', () => {
+      renderForm(jest.fn())
+
+      expect(
+        screen.getByRole('button', { name: /save/i })
+      ).toHaveClass('button-lg', 'button-primary')
+    })
+  })
+
   describe('confirmUnsavedChanges={false}', () => {
     it('does not show a confirm dialog when navigating away dirty', async () => {
       renderForm(jest.fn(), { confirmUnsavedChanges: false })

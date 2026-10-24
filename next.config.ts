@@ -32,16 +32,6 @@ for (const hostname of [s3Hostname(), blobHostname()]) {
   }
 }
 
-// FIXME: keep serving images from a previous bucket during a
-// migration to a new one. Can remove once images are moved.
-if (process.env.REMOTE_IMAGE_HOSTNAME_OLD) {
-  remotePatterns.push({
-    protocol: 'https',
-    hostname: process.env.REMOTE_IMAGE_HOSTNAME_OLD,
-    pathname: (process.env.REMOTE_IMAGE_PATHNAME || '') + '/**'
-  })
-}
-
 const nextConfig: NextConfig = {
   async redirects() {
     return [

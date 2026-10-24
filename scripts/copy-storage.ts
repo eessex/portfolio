@@ -21,7 +21,7 @@
  *   pnpm run copy-storage --rename-only [--dry-run]
  *
  * Runs only the renames (step 1), writing to the active provider alone.
- * Use it to move images out of an old bucket (REMOTE_IMAGE_HOSTNAME_OLD)
+ * Use it to move images out of an old bucket
  * into the current one before any provider switch; afterwards every row
  * has a format. It updates only Postgres, so cached image and page
  * reads still hold the old-bucket URLs: redeploy (or invalidate the

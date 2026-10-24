@@ -183,7 +183,7 @@ export function projectUrl(slug: string) {
   return pageItemUrl(PagePaths.projects, slug)
 }
 
-/** Just the filename, e.g. an S3 url's key basename. */
+/** Just the filename, e.g. a stored url's key basename. */
 export function formattedFilename(url: string) {
   try {
     return decodeURIComponent(

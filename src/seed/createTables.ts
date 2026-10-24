@@ -6,7 +6,7 @@ import {
   embedCodeHosts,
   embedCodeTypes
 } from '@/lib/embed-codes/schemas/db'
-import { imageTypes } from '@/lib/images/schemas/db'
+import { imageFormats, imageTypes } from '@/lib/images/schemas/db'
 import { linkTypes } from '@/lib/links/schemas/db'
 import { projectTypes } from '@/lib/projects/schemas'
 import { publishedEditionTypes } from '@/lib/published-editions/schemas/db'
@@ -90,9 +90,28 @@ async function createImagesTable() {
       type VARCHAR(30),
       title VARCHAR(255),
       url VARCHAR(255) NOT NULL UNIQUE,
+      format VARCHAR(10),
+      width INTEGER,
+      height INTEGER,
+      original_filename VARCHAR(255),
+      content_hash CHAR(64),
+      blur_data_url TEXT,
+      variant_version INTEGER,
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
     );
+  `
+  // TEMPORARY: stored-file columns for the image plan (Stage 2). Run
+  // once against production via `pnpm run setup`, then delete.
+  await sql`
+    ALTER TABLE images
+      ADD COLUMN IF NOT EXISTS format VARCHAR(10),
+      ADD COLUMN IF NOT EXISTS width INTEGER,
+      ADD COLUMN IF NOT EXISTS height INTEGER,
+      ADD COLUMN IF NOT EXISTS original_filename VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS content_hash CHAR(64),
+      ADD COLUMN IF NOT EXISTS blur_data_url TEXT,
+      ADD COLUMN IF NOT EXISTS variant_version INTEGER
   `
 }
 
@@ -409,6 +428,7 @@ const checkedColumns: [
 ][] = [
   ['projects', 'type', projectTypes],
   ['images', 'type', imageTypes],
+  ['images', 'format', imageFormats],
   ['embed_codes', 'type', embedCodeTypes],
   ['embed_codes', 'host', embedCodeHosts],
   ['embed_codes', 'content_type', embedCodeContentTypes],
@@ -554,7 +574,13 @@ async function setupJsonbFunctions() {
         'aspect', i.aspect,
         'alt', i.alt,
         'title', i.title,
-        'type', i.type
+        'type', i.type,
+        'format', i.format,
+        'width', i.width,
+        'height', i.height,
+        'originalFilename', i.original_filename,
+        'blurDataUrl', i.blur_data_url,
+        'variantVersion', i.variant_version
       ) || build_write_dates_json(i.created_at, i.updated_at);
     $$ LANGUAGE sql IMMUTABLE;
   `

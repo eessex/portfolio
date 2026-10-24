@@ -10,8 +10,10 @@ const originalEnv = process.env
 beforeEach(() => {
   process.env = {
     ...originalEnv,
+    STORAGE_PROVIDER: 's3',
     AWS_S3_BUCKET_NAME: 'bucket',
-    AWS_S3_REGION: 'us-east-1'
+    AWS_S3_REGION: 'us-east-1',
+    REMOTE_IMAGE_HOSTNAME: ''
   }
 })
 

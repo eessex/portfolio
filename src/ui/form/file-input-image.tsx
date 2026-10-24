@@ -28,11 +28,17 @@ export function FileInputImage({
   isLabelHidden,
   onChange,
   ref,
-  image
+  image,
+  isReplaceable = true
 }: Omit<InputProps<HTMLInputElement>, 'children' | 'onChange'> & {
   ariaControls?: string
   ariaExpanded?: boolean
   image?: Partial<Image>
+  /**
+   * False for a saved image: its file never changes, so only the
+   * preview shows. To change the picture, add a new image.
+   */
+  isReplaceable?: boolean
   onChange?: (
     fileName: string,
     aspectRatio: number | undefined,
@@ -170,6 +176,24 @@ export function FileInputImage({
     // keep changes local to this component in case we want to cancel.
     // server will prefer the new input file and require it once the url is removed
     setImageUrl(undefined)
+  }
+
+  if (!isReplaceable && imageUrl) {
+    return (
+      <div className={clsx(styles['file-input'])}>
+        <figure
+          className={clsx(styles['image-preview'], 'item-preview')}
+          style={{
+            aspectRatio: _aspectRatio
+              ? _aspectRatio.toString()
+              : 'auto'
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={imageUrl} alt='Saved image preview' />
+        </figure>
+      </div>
+    )
   }
 
   return (

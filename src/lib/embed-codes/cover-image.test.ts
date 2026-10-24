@@ -1,11 +1,10 @@
 import { fetchEmbedCodeMetadata } from '@/lib/embed-codes/cover-image'
 import { EmbedCodeHosts } from '@/lib/embed-codes/schemas/db'
-import { uploadBufferToS3 } from '@/lib/images/s3-client'
 
-jest.mock('@/lib/images/s3-client', () => ({
-  uploadBufferToS3: jest.fn()
+const mockPut = jest.fn()
+jest.mock('@/lib/storage', () => ({
+  storageAdapter: () => ({ put: mockPut })
 }))
-const uploadBufferToS3Mock = jest.mocked(uploadBufferToS3)
 
 // Real resizing is exercised by sharp's own test suite — here we only
 // verify our orchestration (both variants get uploaded), so the source
@@ -52,17 +51,15 @@ describe('fetchEmbedCodeMetadata', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
     expect(res.coverImageId).toMatch(/^[\w-]+$/)
     expect(res.title).toBe('The Real Video Title')
-    expect(uploadBufferToS3Mock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        contentType: 'image/jpeg',
-        key: `embedCodeCoverImages/${res.coverImageId}.jpg`
-      })
+    expect(mockPut).toHaveBeenCalledWith(
+      `embedCodeCoverImages/${res.coverImageId}.jpg`,
+      expect.any(Buffer),
+      'image/jpeg'
     )
-    expect(uploadBufferToS3Mock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        contentType: 'image/jpeg',
-        key: `embedCodeCoverImages/${res.coverImageId}_96.jpg`
-      })
+    expect(mockPut).toHaveBeenCalledWith(
+      `embedCodeCoverImages/${res.coverImageId}_96.jpg`,
+      expect.any(Buffer),
+      'image/jpeg'
     )
   })
 
@@ -321,7 +318,7 @@ describe('fetchEmbedCodeMetadata', () => {
 
     expect(res).toEqual({})
     expect(fetchMock).not.toHaveBeenCalled()
-    expect(uploadBufferToS3Mock).not.toHaveBeenCalled()
+    expect(mockPut).not.toHaveBeenCalled()
   })
 
   it('still returns a title from oEmbed even when the thumbnail fetch fails', async () => {
@@ -340,7 +337,7 @@ describe('fetchEmbedCodeMetadata', () => {
 
     expect(res.coverImageId).toBeUndefined()
     expect(res.title).toBe('Some Track')
-    expect(uploadBufferToS3Mock).not.toHaveBeenCalled()
+    expect(mockPut).not.toHaveBeenCalled()
   })
 
   it('resolves an empty result when a host oEmbed call fails outright', async () => {
@@ -352,7 +349,7 @@ describe('fetchEmbedCodeMetadata', () => {
     )
 
     expect(res).toEqual({})
-    expect(uploadBufferToS3Mock).not.toHaveBeenCalled()
+    expect(mockPut).not.toHaveBeenCalled()
   })
 
   it('resolves an empty result on unexpected errors instead of throwing', async () => {

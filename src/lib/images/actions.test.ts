@@ -12,17 +12,27 @@ import {
   createImageFixture,
   imageFixture
 } from '@/lib/images/fixtures'
-import { deleteFromS3, uploadFile } from '@/lib/images/s3'
 import type { CreateImage, Image } from '@/lib/images/schemas/db'
+import { deleteImageFile, uploadFile } from '@/lib/images/upload'
 import { formDataFromObject, mockFile } from '@/test/helpers'
 
-jest.mock('@/lib/images/s3', () => ({
+jest.mock('@/lib/images/upload', () => ({
   uploadFile: jest.fn(),
-  deleteFromS3: jest.fn()
+  deleteImageFile: jest.fn()
 }))
 
-const deleteFromS3Mock = deleteFromS3 as jest.Mock
+const deleteImageFileMock = deleteImageFile as jest.Mock
 const uploadFileMock = uploadFile as jest.Mock
+
+const uploadedFixture = {
+  id: '9b2f6a1e-4c3d-4e5f-8a7b-1c2d3e4f5a6b',
+  format: 'jpeg',
+  width: 1600,
+  height: 900,
+  originalFilename: 'uploaded-image.jpg',
+  contentHash: 'a'.repeat(64),
+  url: 'https://example.com/images/9b2f6a1e-4c3d-4e5f-8a7b-1c2d3e4f5a6b.jpg'
+}
 
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
@@ -35,11 +45,15 @@ describe('Image Actions', () => {
   describe('#deleteImage', () => {
     it('can delete a image', async () => {
       mockSql.mockResolvedValueOnce([imageFixture])
-      deleteFromS3Mock.mockResolvedValueOnce(undefined)
+      deleteImageFileMock.mockResolvedValueOnce(undefined)
       const res = await deleteImage(imageFixture)
 
       expect(res).toEqual({ ok: true })
-      expect(deleteFromS3Mock).toHaveBeenCalledWith(imageFixture.url)
+      expect(deleteImageFileMock).toHaveBeenCalledWith({
+        id: imageFixture.id,
+        url: imageFixture.url,
+        format: undefined
+      })
       expect(updateTag).toHaveBeenCalledWith('images')
       // images are embedded into cached release/event/project/edition pages
       expect(updateTag).toHaveBeenCalledWith('releases')
@@ -48,7 +62,7 @@ describe('Image Actions', () => {
     it('can handle generic errors', async () => {
       mockSql.mockRejectedValueOnce(new Error('DB error'))
       const res = await deleteImage(imageFixture)
-      expect(deleteFromS3Mock).not.toHaveBeenCalled()
+      expect(deleteImageFileMock).not.toHaveBeenCalled()
 
       expect(res!.message).toBe('Failed to delete image: DB error.')
     })
@@ -56,16 +70,16 @@ describe('Image Actions', () => {
     it('can handle image not found', async () => {
       mockSql.mockResolvedValueOnce([])
       const res = await deleteImage(imageFixture)
-      expect(deleteFromS3Mock).not.toHaveBeenCalled()
+      expect(deleteImageFileMock).not.toHaveBeenCalled()
 
       expect(res!.message).toBe(
         'Failed to delete image: Image not found.'
       )
     })
 
-    it('can handle S3 deletion errors', async () => {
+    it('can handle storage deletion errors', async () => {
       mockSql.mockResolvedValueOnce([imageFixture])
-      deleteFromS3Mock.mockRejectedValueOnce(new Error('S3 error'))
+      deleteImageFileMock.mockRejectedValueOnce(new Error('S3 error'))
       const res = await deleteImage(imageFixture)
 
       expect(res!.message).toBe('Failed to delete image: S3 error.')
@@ -114,9 +128,7 @@ describe('Image Actions', () => {
     })
 
     it('can create a new image', async () => {
-      uploadFileMock.mockResolvedValueOnce(
-        'https://example.com/uploaded-image.jpg'
-      )
+      uploadFileMock.mockResolvedValueOnce(uploadedFixture)
       const imageFileFixture = mockFile(
         'uploaded-image.jpg',
         2048,
@@ -142,6 +154,51 @@ describe('Image Actions', () => {
       // images are embedded into cached release/event/project/edition pages
       expect(updateTag).toHaveBeenCalledWith('releases')
       expect(mockSql).toHaveBeenCalledTimes(1)
+    })
+
+    it('inserts the row with the id and file fields the upload issued', async () => {
+      uploadFileMock.mockResolvedValueOnce(uploadedFixture)
+      mockSql.mockResolvedValueOnce([imageFixture])
+
+      await editImage(
+        formDataFromObject({
+          ...createImageFixture,
+          // never trusted from the form
+          id: imageFixture.id,
+          format: 'png',
+          file: mockFile('uploaded-image.jpg', 2048, 'image/jpeg')
+        })
+      )
+
+      const params = (mockSql.mock.calls[0] as unknown[]).slice(1)
+      expect(params[0]).toBe(uploadedFixture.id)
+      expect(params).toEqual(
+        expect.arrayContaining([
+          uploadedFixture.url,
+          'jpeg',
+          1600,
+          900,
+          'uploaded-image.jpg',
+          uploadedFixture.contentHash
+        ])
+      )
+    })
+
+    it('refuses a new file for an existing image, since its file never changes', async () => {
+      const res = await editImage(
+        formDataFromObject({
+          ...imageFixture,
+          file: mockFile('other.jpg', 2048, 'image/jpeg')
+        }),
+        imageFixture.id
+      )
+
+      expect(res?.ok).toBe(false)
+      expect(res!.message).toContain(
+        'To change the picture, remove this image and add a new one.'
+      )
+      expect(uploadFileMock).not.toHaveBeenCalled()
+      expect(mockSql).not.toHaveBeenCalled()
     })
 
     it('returns a refused upload as a form error, saving nothing', async () => {
@@ -191,9 +248,7 @@ describe('Image Actions', () => {
 
   describe('#saveImageFromFields', () => {
     it('uploads the file and creates an image from raw fields', async () => {
-      uploadFileMock.mockResolvedValueOnce(
-        'https://example.com/uploaded-image.jpg'
-      )
+      uploadFileMock.mockResolvedValueOnce(uploadedFixture)
       mockSql.mockResolvedValueOnce([imageFixture])
 
       const res = await saveImageFromFields({
@@ -218,7 +273,7 @@ describe('Image Actions', () => {
       })
 
       const rows = mockSql.mock.calls[0] as unknown as string[]
-      const [, alt, , , type] = rows
+      const [, , alt, , , type] = rows
       expect(type).toBe('press')
       expect(alt).toBe(null)
     })
@@ -249,9 +304,7 @@ describe('Image Actions', () => {
     })
 
     it('creates pending new images in place and preserves position for the cover', async () => {
-      uploadFileMock.mockResolvedValueOnce(
-        'https://example.com/uploaded-image.jpg'
-      )
+      uploadFileMock.mockResolvedValueOnce(uploadedFixture)
       mockSql.mockResolvedValueOnce([
         {
           ...imageFixture,
@@ -320,9 +373,7 @@ describe('Image Actions', () => {
     })
 
     it('drops empty new slots but keeps a filled one, preserving order', async () => {
-      uploadFileMock.mockResolvedValueOnce(
-        'https://example.com/uploaded-image.jpg'
-      )
+      uploadFileMock.mockResolvedValueOnce(uploadedFixture)
       mockSql.mockResolvedValueOnce([
         {
           ...imageFixture,

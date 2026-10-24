@@ -6,9 +6,9 @@ import { formDataFromObject } from '@/test/helpers'
 
 jest.mock('next/cache')
 
-jest.mock('@/lib/images/s3', () => ({
+jest.mock('@/lib/images/upload', () => ({
   uploadFile: jest.fn(),
-  deleteFromS3: jest.fn()
+  deleteImageFile: jest.fn()
 }))
 
 jest.mock('@/lib/db', () => ({

@@ -86,6 +86,32 @@ describe('fetchLinksRaw', () => {
     )
   })
 
+  it('searches by attribution on both count and page queries', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([dashboardLinkRow])
+
+    await fetchLinksRaw(undefined, 'Quietus')
+
+    for (const call of mockSql.mock.calls.slice(0, 2)) {
+      expect(call[0].join('?')).toContain('OR attribution ILIKE ?')
+      expect(call).toContain('%Quietus%')
+    }
+  })
+
+  it('searches by type on both count and page queries', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([dashboardLinkRow])
+
+    await fetchLinksRaw(undefined, 'social')
+
+    for (const call of mockSql.mock.calls.slice(0, 2)) {
+      expect(call[0].join('?')).toContain('OR type ILIKE ?')
+      expect(call).toContain('%social%')
+    }
+  })
+
   it('lists every project that uses it as project_slugs, not just its owner', async () => {
     mockSql
       .mockResolvedValueOnce([{ count: 1 }])

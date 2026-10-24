@@ -162,6 +162,7 @@ export async function fetchReleasesRaw(
               AND (
                 pub.name ILIKE ${like}
                 OR pe.catalog_number ILIKE ${like}
+                OR pe.format ILIKE ${like}
               )
           )
         );
@@ -215,6 +216,7 @@ export async function fetchReleasesRaw(
                 AND (
                   pub.name ILIKE ${like}
                   OR pe.catalog_number ILIKE ${like}
+                  OR pe.format ILIKE ${like}
                 )
             )
           )

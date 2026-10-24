@@ -311,9 +311,9 @@ describe('useResultsList', () => {
 
       act(() => result.current.setQuery('ab'))
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledTimes(1)
+        expect(result.current.isLoading).toBe(true)
       })
-      expect(result.current.isLoading).toBe(true)
+      expect(global.fetch).toHaveBeenCalledTimes(1)
 
       act(() => result.current.setQuery(''))
       expect(getAbortControllers().at(-1)?.abort).toHaveBeenCalled()
@@ -632,6 +632,37 @@ describe('useResultsList', () => {
       expect(global.fetch).toHaveBeenCalledTimes(2)
     })
 
+    it('refetches the first page after a search that aborted the mount fetch is cancelled', async () => {
+      global.fetch = jest
+        .fn()
+        .mockReturnValueOnce(new Promise(() => {}))
+        .mockReturnValueOnce(new Promise(() => {}))
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => makeResponse(defaultVenues)
+        } as Response)
+
+      const { result } = renderHook(() =>
+        useResultsList<Venue>('/api/venues')
+      )
+
+      act(() => result.current.setQuery('ab'))
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledTimes(2)
+      })
+
+      act(() => result.current.setQuery(''))
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual(defaultVenues)
+      })
+      expect(global.fetch).toHaveBeenCalledTimes(3)
+      expect(global.fetch).toHaveBeenLastCalledWith(
+        '/api/venues?query=',
+        expect.anything()
+      )
+    })
+
     it('refetches the first page when a StrictMode remount aborts the mount fetch', async () => {
       global.fetch = jest
         .fn()
@@ -800,6 +831,40 @@ describe('useResultsList', () => {
         expect.anything()
       )
     })
+    it('drops a deferred update superseded by a logout refetch', async () => {
+      mockFetchOnce(
+        makeResponse([...defaultVenues, venueFixtureGamma], {
+          nextCursor: 'cursor-admin'
+        })
+      )
+
+      const { result, rerender } = renderHook(() =>
+        useResultsList<Venue>(
+          '/api/venues',
+          makeResponse(defaultVenues),
+          { augmentOnMount: true }
+        )
+      )
+
+      await waitFor(() => {
+        expect(document.startViewTransition).toHaveBeenCalled()
+      })
+
+      jest.mocked(useIsAdmin).mockReturnValue(false)
+      mockFetchOnce(makeResponse(defaultVenues))
+      rerender()
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      await act(async () => {
+        runTransition()
+      })
+
+      expect(result.current.items).toEqual(defaultVenues)
+      expect(result.current.nextCursor).toBeNull()
+    })
   })
 
   describe('admin augment', () => {
@@ -838,6 +903,273 @@ describe('useResultsList', () => {
       )
     })
 
+    it('clears drafts on logout even if the refetch fails', async () => {
+      jest.mocked(useIsAdmin).mockReturnValue(true)
+      mockFetchOnce(
+        makeResponse([...defaultVenues, venueFixtureGamma], {
+          nextCursor: 'cursor-1'
+        })
+      )
+      jest.spyOn(console, 'error').mockImplementation(() => {})
+
+      const { result, rerender } = renderHook(() =>
+        useResultsList<Venue>(
+          '/api/venues',
+          makeResponse(defaultVenues),
+          { augmentOnMount: true }
+        )
+      )
+
+      await waitFor(() => {
+        expect(result.current.items).toHaveLength(3)
+      })
+
+      jest.mocked(useIsAdmin).mockReturnValue(false)
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Server Error'
+      } as Response)
+      rerender()
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+      expect(result.current.items).toEqual(defaultVenues)
+      expect(result.current.nextCursor).toBeNull()
+    })
+
+    it('clears drafts a later page appended after the admin refresh failed', async () => {
+      jest.mocked(useIsAdmin).mockReturnValue(true)
+      jest.spyOn(console, 'error').mockImplementation(() => {})
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Server Error'
+      } as Response)
+
+      const { result, rerender } = renderHook(() =>
+        useResultsList<Venue>(
+          '/api/venues',
+          makeResponse(defaultVenues, { nextCursor: 'cursor-1' }),
+          { augmentOnMount: true }
+        )
+      )
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      mockFetchOnce(makeResponse([venueFixtureGamma]))
+      act(() =>
+        result.current.loadMoreRef(
+          document.createElement('li') as HTMLLIElement
+        )
+      )
+      act(() => triggerIntersection())
+      await waitFor(() => {
+        expect(result.current.items).toHaveLength(3)
+      })
+
+      jest.mocked(useIsAdmin).mockReturnValue(false)
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Server Error'
+      } as Response)
+      rerender()
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+      expect(result.current.items).toEqual(defaultVenues)
+    })
+
+    it('refetches a search cleared by logout when returning to it mid-search', async () => {
+      jest.mocked(useIsAdmin).mockReturnValue(true)
+      global.fetch = jest.fn((url: string) =>
+        url.includes('query=b')
+          ? new Promise<Response>(() => {})
+          : Promise.resolve({
+              ok: true,
+              json: async () =>
+                makeResponse(
+                  url.includes('query=austin')
+                    ? [venueFixtureGamma]
+                    : defaultVenues
+                )
+            } as Response)
+      ) as jest.Mock
+
+      const { result, rerender } = renderHook(() =>
+        useResultsList<Venue>(
+          '/api/venues',
+          makeResponse(defaultVenues),
+          { augmentOnMount: true }
+        )
+      )
+      act(() => result.current.setQuery('austin'))
+      await waitFor(() => {
+        expect(result.current.resultsQuery).toBe('austin')
+      })
+
+      act(() => result.current.setQuery('b'))
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledWith(
+          '/api/venues?query=b',
+          expect.anything()
+        )
+      })
+      jest.mocked(useIsAdmin).mockReturnValue(false)
+      rerender()
+      expect(result.current.items).toEqual([])
+
+      jest.mocked(global.fetch).mockClear()
+      act(() => result.current.setQuery('austin'))
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual([venueFixtureGamma])
+      })
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/venues?query=austin',
+        expect.anything()
+      )
+    })
+
+    it('empties a searched list of drafts on logout if the refetch fails', async () => {
+      jest.mocked(useIsAdmin).mockReturnValue(true)
+      mockFetchOnce(makeResponse([venueFixtureGamma]))
+      jest.spyOn(console, 'error').mockImplementation(() => {})
+
+      const { result, rerender } = renderHook(() =>
+        useResultsList<Venue>(
+          '/api/venues',
+          makeResponse(defaultVenues),
+          { augmentOnMount: true, defaultQuery: 'g' }
+        )
+      )
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual([venueFixtureGamma])
+      })
+      act(() => result.current.setQuery('x'))
+      mockFetchOnce(
+        makeResponse([venueFixtureGamma], { nextCursor: 'cursor-1' })
+      )
+      await waitFor(() => {
+        expect(result.current.resultsQuery).toBe('x')
+      })
+
+      jest.mocked(useIsAdmin).mockReturnValue(false)
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Server Error'
+      } as Response)
+      rerender()
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+      expect(result.current.items).toEqual([])
+      expect(result.current.nextCursor).toBeNull()
+    })
+
+    it('refetches the loaded query when returning to it cancels the admin refresh', async () => {
+      const augmented = makeResponse([
+        ...defaultVenues,
+        venueFixtureGamma
+      ])
+      global.fetch = jest
+        .fn()
+        .mockReturnValueOnce(new Promise<Response>(() => {}))
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => augmented
+        } as Response)
+
+      const { result, rerender } = renderHook(() =>
+        useResultsList<Venue>(
+          '/api/venues',
+          makeResponse(defaultVenues),
+          { augmentOnMount: true }
+        )
+      )
+
+      // the session resolves as admin while a query is typed
+      act(() => result.current.setQuery('a'))
+      jest.mocked(useIsAdmin).mockReturnValue(true)
+      rerender()
+      expect(global.fetch).toHaveBeenLastCalledWith(
+        '/api/venues?query=a',
+        expect.anything()
+      )
+
+      act(() => result.current.setQuery(''))
+      const refreshSignal = jest.mocked(global.fetch).mock
+        .calls[0]![1]!.signal
+      expect(
+        getAbortControllers().find((c) => c.signal === refreshSignal)
+          ?.abort
+      ).toHaveBeenCalled()
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual(augmented.res)
+      })
+      expect(global.fetch).toHaveBeenLastCalledWith(
+        '/api/venues?query=',
+        expect.anything()
+      )
+    })
+
+    it('refetches the loaded query when returning to it after a failed search aborted the admin refresh', async () => {
+      const augmented = makeResponse([
+        ...defaultVenues,
+        venueFixtureGamma
+      ])
+      global.fetch = jest
+        .fn()
+        .mockReturnValueOnce(new Promise<Response>(() => {}))
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+          statusText: 'Server Error'
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => augmented
+        } as Response)
+      jest.spyOn(console, 'error').mockImplementation(() => {})
+
+      const { result, rerender } = renderHook(() =>
+        useResultsList<Venue>(
+          '/api/venues',
+          makeResponse(defaultVenues),
+          { augmentOnMount: true }
+        )
+      )
+
+      jest.mocked(useIsAdmin).mockReturnValue(true)
+      rerender()
+      act(() => result.current.setQuery('a'))
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledTimes(2)
+      })
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      act(() => result.current.setQuery(''))
+
+      await waitFor(() => {
+        expect(result.current.items).toEqual(augmented.res)
+      })
+      expect(global.fetch).toHaveBeenCalledTimes(3)
+      expect(global.fetch).toHaveBeenLastCalledWith(
+        '/api/venues?query=',
+        expect.anything()
+      )
+    })
+
     it('does not refetch for an anonymous visitor', () => {
       renderHook(() =>
         useResultsList<Venue>(
@@ -852,6 +1184,133 @@ describe('useResultsList', () => {
   })
 
   describe('IntersectionObserver', () => {
+    const sentinel = document.createElement('li') as HTMLLIElement
+
+    function interruptLoadMore(search: Promise<unknown>) {
+      global.fetch = jest
+        .fn()
+        .mockReturnValueOnce(new Promise<Response>(() => {}))
+        .mockReturnValueOnce(search)
+      const hook = setup({ nextCursor: 'cursor-1' })
+      act(() => hook.result.current.loadMoreRef(sentinel))
+      act(() => triggerIntersection())
+      act(() => hook.result.current.setQuery('a'))
+      return hook
+    }
+
+    it('ignores a stale observer callback after a search replaces the results', async () => {
+      const { result } = setup({ nextCursor: 'cursor-1' })
+      act(() => result.current.loadMoreRef(sentinel))
+
+      mockFetchOnce(
+        makeResponse([venueFixtureGamma], {
+          nextCursor: 'cursor-austin'
+        })
+      )
+      act(() => result.current.setQuery('austin'))
+      await waitFor(() => {
+        expect(result.current.resultsQuery).toBe('austin')
+      })
+
+      act(() => triggerIntersection())
+
+      expect(global.fetch).toHaveBeenCalledTimes(1)
+      expect(result.current.items).toEqual([venueFixtureGamma])
+    })
+
+    it('re-arms pagination when a search that interrupted load-more is cancelled', async () => {
+      const { result } = interruptLoadMore(new Promise(() => {}))
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledTimes(2)
+      })
+      const { loadMoreRef } = result.current
+
+      act(() => result.current.setQuery(''))
+
+      expect(result.current.loadMoreRef).not.toBe(loadMoreRef)
+      // as React does for a changed ref callback
+      act(() => result.current.loadMoreRef(sentinel))
+      mockFetchOnce(makeResponse([venueFixtureGamma]))
+      act(() => triggerIntersection())
+      await waitFor(() => {
+        expect(result.current.items).toHaveLength(3)
+      })
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/venues?query=&cursor=cursor-1',
+        expect.anything()
+      )
+    })
+
+    it('re-arms pagination when a search that interrupted load-more keeps the same cursor', async () => {
+      const { result } = interruptLoadMore(
+        Promise.resolve({
+          ok: true,
+          json: async () =>
+            makeResponse([venueFixtureAlpha], {
+              nextCursor: 'cursor-1'
+            })
+        } as Response)
+      )
+      const { loadMoreRef } = result.current
+
+      await waitFor(() => {
+        expect(result.current.resultsQuery).toBe('a')
+      })
+
+      expect(result.current.nextCursor).toBe('cursor-1')
+      expect(result.current.loadMoreRef).not.toBe(loadMoreRef)
+    })
+
+    it('re-arms pagination when a search that interrupted load-more fails', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {})
+      const { result } = interruptLoadMore(
+        Promise.resolve({
+          ok: false,
+          status: 500,
+          statusText: 'Server Error'
+        } as Response)
+      )
+      const { loadMoreRef } = result.current
+
+      await waitFor(() => {
+        expect(result.current.loadMoreRef).not.toBe(loadMoreRef)
+      })
+      expect(result.current.resultsQuery).toBe('')
+
+      act(() => result.current.loadMoreRef(sentinel))
+      mockFetchOnce(makeResponse([venueFixtureGamma]))
+      act(() => triggerIntersection())
+      await waitFor(() => {
+        expect(result.current.items).toHaveLength(3)
+      })
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/venues?query=&cursor=cursor-1',
+        expect.anything()
+      )
+    })
+
+    it('does not re-arm pagination after a later page fails', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {})
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Server Error'
+      } as Response)
+      const { result } = setup({ nextCursor: 'cursor-1' })
+      act(() => result.current.loadMoreRef(sentinel))
+      act(() => triggerIntersection())
+      // a second notification while in flight marks paging stalled
+      act(() => triggerIntersection())
+      const { loadMoreRef } = result.current
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.loadMoreRef).toBe(loadMoreRef)
+      expect(global.fetch).toHaveBeenCalledTimes(1)
+    })
+
     it('loads more items when the observer target intersects', async () => {
       const nextPageVenues = [venueFixtureGamma]
 

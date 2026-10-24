@@ -67,7 +67,9 @@ export async function fetchProjectsRaw(
       AND (
         ${like}::text IS NULL
         OR p.title ILIKE ${like}
+        OR p.short_description ILIKE ${like}
         OR p.description ILIKE ${like}
+        OR p.type ILIKE ${like}
       );
     `,
     list: ({
@@ -106,7 +108,13 @@ export async function fetchProjectsRaw(
         WHERE
           (${isAuthed} OR p.is_published = true)
           AND (NOT ${isDefaultExcluded} OR NOT p.is_default_project)
-          AND (${like}::text IS NULL OR p.title ILIKE ${like} OR p.description ILIKE ${like})
+          AND (
+            ${like}::text IS NULL
+            OR p.title ILIKE ${like}
+            OR p.short_description ILIKE ${like}
+            OR p.description ILIKE ${like}
+            OR p.type ILIKE ${like}
+          )
           -- the default project leads the first page, so later pages
           -- (after a cursor) skip it
           AND (${cursorHasEndDate}::text IS NULL

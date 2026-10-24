@@ -99,6 +99,8 @@ export async function fetchLinksRaw(
         OR url ILIKE ${like}
         OR title ILIKE ${like}
         OR quotation ILIKE ${like}
+        OR attribution ILIKE ${like}
+        OR type ILIKE ${like}
       )
       AND (
         ${pressFilter}::boolean IS NULL
@@ -123,6 +125,8 @@ export async function fetchLinksRaw(
         OR url ILIKE ${like}
         OR title ILIKE ${like}
         OR quotation ILIKE ${like}
+        OR attribution ILIKE ${like}
+        OR type ILIKE ${like}
       )
       AND (
         ${pressFilter}::boolean IS NULL

@@ -618,6 +618,19 @@ describe('toRelease', () => {
     ])
   })
 
+  it('types featured and compilation releases', () => {
+    const typeOf = (flags: Record<string, boolean>) =>
+      toRelease({
+        ...unpublishedRelease,
+        formats: [{ format: 'LP', release_year: 2018, ...flags }]
+      }).type
+    expect(typeOf({ featuring: true })).toBe('feature')
+    expect(typeOf({ compilation: true })).toBe('compilation')
+    expect(typeOf({ featuring: false, compilation: false })).toBe(
+      'album'
+    )
+  })
+
   it('takes a full release_date over the year', () => {
     const release = toRelease({
       ...unpublishedRelease,

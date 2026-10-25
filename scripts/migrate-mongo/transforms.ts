@@ -1053,7 +1053,12 @@ export function toRelease(
     ...content,
     issues,
     artist: clean(doc.artist),
-    type: ReleaseTypes.album,
+    // the old site flagged these per edition
+    type: formats.some((f) => f.featuring === true)
+      ? ReleaseTypes.feature
+      : formats.some((f) => f.compilation === true)
+        ? ReleaseTypes.compilation
+        : ReleaseTypes.album,
     mongoProjectIds: projectIdsOf(doc),
     editions,
     releaseDate

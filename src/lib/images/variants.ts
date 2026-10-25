@@ -29,10 +29,22 @@ export async function generateImageVariants(
   const isAnimated = pages > 1
   const storage = storageAdapter()
 
+  // first frame only, under sharp's default pixel limit, which so
+  // holds each frame of an animation to it
+  const blur = await sharp(bytes)
+    .autoOrient()
+    .resize({ width: BLUR_WIDTH })
+    .webp({ quality: 40 })
+    .toBuffer()
+
   // one at a time, so a large photo is decoded once per width, not
   // all at once
   for (const width of VARIANT_WIDTHS) {
-    const variant = await sharp(bytes, { animated: isAnimated })
+    const variant = await sharp(bytes, {
+      animated: isAnimated,
+      // the limit counts every frame: a 441-frame 1265×704 GIF is 393 MP
+      limitInputPixels: isAnimated ? false : undefined
+    })
       .autoOrient()
       .resize({ width, withoutEnlargement: true })
       .webp({ quality: 80 })
@@ -44,12 +56,6 @@ export async function generateImageVariants(
       { isOverwriteAllowed: true }
     )
   }
-
-  const blur = await sharp(bytes)
-    .autoOrient()
-    .resize({ width: BLUR_WIDTH })
-    .webp({ quality: 40 })
-    .toBuffer()
 
   return {
     blurDataUrl: `data:image/webp;base64,${blur.toString('base64')}`,

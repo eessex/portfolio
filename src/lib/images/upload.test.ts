@@ -94,6 +94,42 @@ describe('uploadFile', () => {
     }
   })
 
+  it('keeps an animated GIF animated in every variant', async () => {
+    const frame = (background: string) =>
+      sharp({
+        create: { width: 800, height: 600, channels: 3, background }
+      })
+        .png()
+        .toBuffer()
+    const bytes = await sharp(
+      [await frame('#000'), await frame('#fff')],
+      { join: { animated: true } }
+    )
+      .gif()
+      .toBuffer()
+    const res = await uploadFile(
+      new File([new Uint8Array(bytes)], 'loop.gif', {
+        type: 'image/gif'
+      })
+    )
+
+    expect(res).toMatchObject({
+      format: 'gif',
+      width: 800,
+      height: 600
+    })
+    for (const width of VARIANT_WIDTHS) {
+      const call = mockPut.mock.calls.find(
+        ([key]) =>
+          key === `images/${res.id}_v${VARIANT_VERSION}_${width}.webp`
+      )
+      const meta = await sharp(call?.[1] as Buffer, {
+        animated: true
+      }).metadata()
+      expect(meta.pages).toBe(2)
+    }
+  })
+
   it('saves without variants when writing them fails', async () => {
     mockPut.mockImplementation(async (key: string) => {
       if (key.endsWith('.webp')) throw new Error('storage down')

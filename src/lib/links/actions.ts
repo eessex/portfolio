@@ -2,6 +2,7 @@
 
 import { updateTag } from 'next/cache'
 
+import { assertAuthed } from '@/lib/auth/guard'
 import { sql } from '@/lib/db'
 import {
   resolveOrderedIds,
@@ -57,6 +58,16 @@ export async function deleteLink(link: Link) {
       `
     }
   })
+}
+
+/**
+ * The social link already saved with `url` (and `title`, if given),
+ * for the social links picker's existing-match lookup. Session-checked
+ * since, unlike `fetchLinkByUrl`, it's callable from the client.
+ */
+export async function findSocialLink(url: string, title?: string) {
+  await assertAuthed()
+  return fetchLinkByUrl(url, LinkTypes.social, title)
 }
 
 /**

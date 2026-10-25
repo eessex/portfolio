@@ -175,12 +175,12 @@ export default async function ItemLayout({
 
           {project && !project.isDefaultProject && (
             <p>
-              <a
+              <NextLink
                 href={itemUrl(project)}
                 className='button-outline button-sm'
               >
                 <b>Project:</b> {project.title}
-              </a>
+              </NextLink>
             </p>
           )}
 

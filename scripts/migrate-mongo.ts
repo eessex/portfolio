@@ -15,7 +15,10 @@
  *   venue-locations.json  { "Canonical Name": { "address", "city",
  *                         "state", "country" } }, one place for
  *                         every location of that name
+ *   publisher-aliases.json { "old spelling": "Canonical Name" }
  *   skip-ids.json         { "<mongo id>": "why it's left out" }
+ * An edition may also carry a `release_date` (YYYY-MM-DD), filled in
+ * where its `release_year` isn't enough.
  * The
  * script never connects to Mongo, and writes a report into
  * <dir>/reports on every run.
@@ -792,6 +795,13 @@ async function main() {
   const snapshot = sql ? await loadSnapshot(sql) : emptySnapshot()
   const planner = new Planner(snapshot, report, args.isDryRun)
   const { aliases, locations } = await loadVenueConfig(args.input)
+  const publisherAliases = normalizeAliases(
+    await loadConfig<Record<string, string>>(
+      args.input,
+      'publisher-aliases.json',
+      {}
+    )
+  )
   // documents left out on purpose: { "<mongo id>": "why" }
   const skipIds = await loadConfig<Record<string, string>>(
     args.input,
@@ -833,7 +843,9 @@ async function main() {
       ]
     : []
   const releases = isInScope('releases')
-    ? data.publications.filter(isPicked).map(toRelease)
+    ? data.publications
+        .filter(isPicked)
+        .map((doc) => toRelease(doc, publisherAliases))
     : []
   const events = isInScope('events')
     ? data.events

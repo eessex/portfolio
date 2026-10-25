@@ -318,6 +318,8 @@ const editionFormatAliases: Record<string, PublishedEditionType> = {
   'double cassette': '2xCassette',
   cs: 'Cassette',
   tape: 'Cassette',
+  '2cd': '2xCD',
+  'double cd': '2xCD',
   'compact disc': 'CD',
   download: 'Digital',
   'digital download': 'Digital',
@@ -728,7 +730,7 @@ const cityTimezones: Record<string, VenueTimezone> =
         ],
         ['America/Mexico_City', ['mexico city', 'ciudad de mexico']],
         ['America/Sao_Paulo', ['sao paulo', 'rio de janeiro']],
-        ['America/Bogota', ['bogota']],
+        ['America/Bogota', ['bogota', 'lima']],
         ['Atlantic/Reykjavik', ['reykjavik']],
         [
           'Europe/London',
@@ -754,6 +756,7 @@ const cityTimezones: Record<string, VenueTimezone> =
             'milan',
             'turin',
             'vienna',
+            'wels',
             'zurich',
             'geneva',
             'basel',
@@ -789,8 +792,12 @@ const cityTimezones: Record<string, VenueTimezone> =
           'Asia/Shanghai',
           ['shanghai', 'beijing', 'hong kong', 'taipei']
         ],
-        ['Australia/Sydney', ['sydney', 'melbourne']],
-        ['Pacific/Auckland', ['auckland', 'wellington']]
+        ['Asia/Dubai', ['dubai', 'yerevan']],
+        ['Australia/Sydney', ['sydney', 'melbourne', 'hobart']],
+        [
+          'Pacific/Auckland',
+          ['auckland', 'wellington', 'christchurch', 'dunedin']
+        ]
       ] as const
     ).flatMap(([zone, cities]) => cities.map((city) => [city, zone]))
   )
@@ -994,7 +1001,10 @@ export function toEvent(
   }
 }
 
-export function toRelease(doc: MongoDoc): ReleaseDraft {
+export function toRelease(
+  doc: MongoDoc,
+  publisherAliases: Record<string, string> = {}
+): ReleaseDraft {
   const content = toContent(doc)
   const issues = [...content.issues]
   const editions: EditionDraft[] = []
@@ -1007,7 +1017,12 @@ export function toRelease(doc: MongoDoc): ReleaseDraft {
   }
   for (const raw of formats) {
     const format = mapEditionFormat(raw.format)
-    const year = Number(raw.release_year)
+    // a full date, filled into the export where the year isn't enough
+    const date = toDateOnly(raw.release_date)
+    const year = date
+      ? Number(date.slice(0, 4))
+      : Number(raw.release_year)
+    const publisher = clean(raw.publisher)
     if (!format) {
       issues.push({
         level: 'fail',
@@ -1023,8 +1038,10 @@ export function toRelease(doc: MongoDoc): ReleaseDraft {
     if (format && Number.isInteger(year) && year >= 1000) {
       editions.push({
         format,
-        publishDate: `${year}-01-01`,
-        publisherName: clean(raw.publisher)
+        publishDate: date ?? `${year}-01-01`,
+        publisherName:
+          (publisher && publisherAliases[normalizeKey(publisher)]) ??
+          publisher
       })
     }
   }

@@ -9,14 +9,19 @@ jest.mock('@/lib/site-settings/cached', () => ({
   fetchCachedSiteSettings: jest.fn()
 }))
 jest.mock('@/ui/email-subscribe/email-subscribe', () => ({
-  EmailSubscribe: () => null
+  EmailSubscribe: () => <form aria-label='Subscribe' />
 }))
 const mockFetchSettings = jest.mocked(fetchCachedSiteSettings)
 
-function settingsWith(socialLinks: Link[]) {
-  return { id: 'settings-1', socialLinks } as Awaited<
-    ReturnType<typeof fetchCachedSiteSettings>
-  >
+function settingsWith(
+  socialLinks: Link[],
+  isEmailSubscribeEnabled = false
+) {
+  return {
+    id: 'settings-1',
+    isEmailSubscribeEnabled,
+    socialLinks
+  } as Awaited<ReturnType<typeof fetchCachedSiteSettings>>
 }
 
 describe('Footer', () => {
@@ -66,16 +71,45 @@ describe('Footer', () => {
   })
 
   it('renders no nav without social links', async () => {
-    mockFetchSettings.mockResolvedValue(settingsWith([]))
+    mockFetchSettings.mockResolvedValue(settingsWith([], true))
     render(await Footer())
 
+    expect(screen.getByRole('contentinfo')).toBeInTheDocument()
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
   })
 
-  it('renders no nav before site settings exist', async () => {
+  it('renders no footer without social links or subscribe form', async () => {
+    mockFetchSettings.mockResolvedValue(settingsWith([], false))
+    render(await Footer())
+
+    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument()
+  })
+
+  it('renders no footer before site settings exist', async () => {
     mockFetchSettings.mockResolvedValue(undefined)
     render(await Footer())
 
-    expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
+    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument()
+  })
+
+  it('renders the subscribe form when enabled', async () => {
+    mockFetchSettings.mockResolvedValue(settingsWith([], true))
+    render(await Footer())
+
+    expect(
+      screen.getByRole('form', { name: 'Subscribe' })
+    ).toBeInTheDocument()
+  })
+
+  it('hides the subscribe form when disabled', async () => {
+    mockFetchSettings.mockResolvedValue(
+      settingsWith([linkFixture], false)
+    )
+    render(await Footer())
+
+    expect(screen.getByRole('navigation')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('form', { name: 'Subscribe' })
+    ).not.toBeInTheDocument()
   })
 })

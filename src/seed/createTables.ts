@@ -220,6 +220,7 @@ async function createSiteSettingsTable() {
       description VARCHAR(255),
       title VARCHAR(255),
       social_link_ids UUID[] NOT NULL DEFAULT ARRAY[]::UUID[],
+      is_email_subscribe_enabled BOOLEAN NOT NULL DEFAULT TRUE,
       created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       CONSTRAINT fk_site_settings_cover_image FOREIGN KEY (cover_image_id) REFERENCES images(id) ON DELETE SET NULL

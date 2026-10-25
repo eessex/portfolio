@@ -127,6 +127,27 @@ describe('editSiteSettings', () => {
       expect(params[3]).toBeNull()
     })
 
+    it('saves the email subscribe checkbox state', async () => {
+      mockSql.mockResolvedValue([])
+
+      await editSiteSettings(
+        formDataFromObject({
+          ...validFields,
+          isEmailSubscribeEnabled: 'on'
+        }),
+        validFields.id
+      )
+      expect(settingsWrite().params[4]).toBe(true)
+
+      mockSql.mockClear()
+      // an unchecked checkbox isn't submitted
+      await editSiteSettings(
+        formDataFromObject(validFields),
+        validFields.id
+      )
+      expect(settingsWrite().params[4]).toBe(false)
+    })
+
     it('creates settings with an empty list when none are picked', async () => {
       mockSql.mockResolvedValue([])
 

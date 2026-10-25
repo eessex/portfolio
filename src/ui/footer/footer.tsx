@@ -6,6 +6,10 @@ import styles from '@/ui/footer/footer.module.scss'
 export async function Footer() {
   const settings = await fetchCachedSiteSettings()
   const socialLinks = settings?.socialLinks ?? []
+  const isEmailSubscribeEnabled = !!settings?.isEmailSubscribeEnabled
+
+  if (socialLinks.length === 0 && !isEmailSubscribeEnabled)
+    return null
 
   return (
     <footer className={styles.footer}>
@@ -22,7 +26,7 @@ export async function Footer() {
           </ul>
         </nav>
       )}
-      <EmailSubscribe />
+      {isEmailSubscribeEnabled && <EmailSubscribe />}
     </footer>
   )
 }

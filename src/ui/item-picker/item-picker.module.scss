@@ -80,7 +80,8 @@
   flex-direction: column;
 }
 
-fieldset:has(:global(fieldset.expanded)) {
+// A draft is boxed while its form's details show (`DisclosureDetails`)
+fieldset:has(> :global(fieldset.disclosure-details:not([hidden]))) {
   box-shadow: inset 0 0 0 2px var(--transparency-primary);
   padding-bottom: grids.space-em(4);
 
@@ -88,20 +89,20 @@ fieldset:has(:global(fieldset.expanded)) {
   > .create-form-actions {
     margin-inline: grids.space-em(4);
   }
-}
 
-// Once expanded, forms with a labelled first field sit fully inside
-// the box: links, or images/embed codes with their preview removed
-fieldset:has(> :global(fieldset.boxed-details:not([hidden]))),
-fieldset:has(:global(fieldset.expanded)):not(
-    :has(:global(.item-preview))
-  ) {
-  box-shadow: inset 0 0 0 2px var(--transparency-primary);
-  padding: grids.space-em(4);
-
-  > fieldset,
   > .create-form-actions {
-    margin-inline: 0;
+    display: flex;
+  }
+
+  // With no preview atop (links, or images/embed codes with their
+  // preview removed), a labelled first field sits fully inside the box
+  &:not(:has(:global(.item-preview))) {
+    padding: grids.space-em(4);
+
+    > fieldset,
+    > .create-form-actions {
+      margin-inline: 0;
+    }
   }
 }
 
@@ -112,12 +113,6 @@ fieldset:has(:global(fieldset.expanded)):not(
 }
 
 .create-form-actions-visible {
-  display: flex;
-}
-
-fieldset:has(:global(fieldset.expanded)) > .create-form-actions,
-fieldset:has(> :global(fieldset.boxed-details:not([hidden])))
-  > .create-form-actions {
   display: flex;
 }
 

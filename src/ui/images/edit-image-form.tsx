@@ -1,5 +1,4 @@
-import type { FocusEvent } from 'react'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { z } from 'zod'
 
 import { checkIfImageExists } from '@/lib/images/data'
@@ -9,6 +8,10 @@ import type {
 } from '@/lib/images/schemas/db'
 import { imageTypes } from '@/lib/images/schemas/db'
 import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
+import {
+  DisclosureDetails,
+  useDisclosureDetails
+} from '@/ui/form/disclosure-details'
 import { FileInputImage } from '@/ui/form/file-input-image'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
@@ -16,25 +19,6 @@ import { Select } from '@/ui/form/select'
 import { useNamePrefix } from '@/ui/item-picker/name-prefix'
 
 const imageTypeOptions = [...imageTypes]
-
-// Whether every visible control in the details fieldset is empty.
-// Hidden inputs (aspect/url bookkeeping fields) don't count as user data.
-function isDetailsEmpty(fieldset: HTMLFieldSetElement): boolean {
-  const controls = fieldset.querySelectorAll<
-    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-  >('input:not([type="hidden"]), select, textarea')
-  for (const control of controls) {
-    if (
-      control instanceof HTMLInputElement &&
-      control.type === 'checkbox'
-    ) {
-      if (control.checked) return false
-    } else if (control.value.trim() !== '') {
-      return false
-    }
-  }
-  return true
-}
 
 interface EditImageProps {
   errors?: z.inferFlattenedErrors<
@@ -64,8 +48,6 @@ export const EditImage = ({
   const [formImage, setFormImage] = useState<Partial<Image>>(
     image || {}
   )
-  const [detailsExpanded, setDetailsExpanded] = useState(false)
-  const detailsFieldsetRef = useRef<HTMLFieldSetElement>(null)
   const namePrefix = useNamePrefix()
 
   const { id, url } = (formImage || {}) as Image
@@ -77,15 +59,6 @@ export const EditImage = ({
   ) {
     const aspectRatioValue = aspectRatio || formImage.aspect
     setAspectRatio(aspectRatioValue)
-
-    if (
-      !filename &&
-      !aspectRatioValue &&
-      detailsFieldsetRef.current &&
-      isDetailsEmpty(detailsFieldsetRef.current)
-    ) {
-      setDetailsExpanded(false)
-    }
 
     if (filename) {
       try {
@@ -118,19 +91,16 @@ export const EditImage = ({
       }
     }
   }
-  const detailsFieldsetId = useId()
   const hasImage = !!aspectRatio
-  const isExpanded = hasImage || detailsExpanded
+  const disclosure = useDisclosureDetails({
+    isRevealed: hasImage,
+    isKeptWithContent: true
+  })
+  const { id: detailsFieldsetId, isExpanded } = disclosure
 
   useEffect(() => {
     onReadyChange?.(hasImage)
   }, [hasImage, onReadyChange])
-
-  function onDetailsBlur(e: FocusEvent<HTMLFieldSetElement>) {
-    if (!hasImage && isDetailsEmpty(e.currentTarget)) {
-      setDetailsExpanded(false)
-    }
-  }
 
   return (
     <>
@@ -153,15 +123,7 @@ export const EditImage = ({
         onChange={onFileChange}
         isLabelHidden={!isExpanded}
       />
-      <fieldset
-        ref={detailsFieldsetRef}
-        hidden={!isExpanded}
-        className={isExpanded ? 'expanded' : undefined}
-        id={detailsFieldsetId}
-        onChange={() => setDetailsExpanded(true)}
-        onBlur={onDetailsBlur}
-      >
-        <legend className='visually-hidden'>Image details</legend>
+      <DisclosureDetails {...disclosure} legend='Image details'>
         {aspectRatio && (
           <input
             type='hidden'
@@ -223,7 +185,7 @@ export const EditImage = ({
             value={type}
           />
         </div>
-      </fieldset>
+      </DisclosureDetails>
     </>
   )
 }

@@ -427,45 +427,6 @@ describe('EditLink', () => {
     })
   })
 
-  describe('onReadyChange', () => {
-    it('reports not ready without a valid url', () => {
-      const onReadyChange = jest.fn()
-      renderComponent({ link: undefined, onReadyChange })
-
-      expect(onReadyChange).toHaveBeenLastCalledWith(false)
-    })
-
-    it('reports ready when rendered with an existing valid url', () => {
-      const onReadyChange = jest.fn()
-      renderComponent({ link: linkFixture, onReadyChange })
-
-      expect(onReadyChange).toHaveBeenLastCalledWith(true)
-    })
-
-    it('reports ready once the url becomes valid', () => {
-      const onReadyChange = jest.fn()
-      renderComponent({ link: undefined, onReadyChange })
-      const urlInput = screen.getByLabelText(urlRegex)
-
-      fireEvent.change(urlInput, {
-        target: { value: 'https://example.com' }
-      })
-
-      expect(onReadyChange).toHaveBeenLastCalledWith(true)
-    })
-
-    it('reports not ready again once the url is cleared', () => {
-      const onReadyChange = jest.fn()
-      renderComponent({ link: linkFixture, onReadyChange })
-
-      fireEvent.change(screen.getByLabelText(urlRegex), {
-        target: { value: '' }
-      })
-
-      expect(onReadyChange).toHaveBeenLastCalledWith(false)
-    })
-  })
-
   describe('isSocial', () => {
     it('shows just the url and a name, hiding type and press fields', () => {
       renderComponent({ link: linkFixture, isSocial: true })

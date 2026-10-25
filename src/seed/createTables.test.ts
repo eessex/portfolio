@@ -83,6 +83,42 @@ describe('createTables', () => {
     ).toContain('LANGUAGE plpgsql STABLE')
   })
 
+  describe('page item SQL helpers', () => {
+    function queryIndex(needle: string) {
+      return mockSql.mock.calls.findIndex(([strings]) =>
+        (strings as unknown as string[]).join('?').includes(needle)
+      )
+    }
+
+    it('defines the cover image helpers after what they call', () => {
+      // SQL function bodies are checked against existing functions
+      const resolve = queryIndex('FUNCTION resolve_cover_image_id')
+      const imageJson = queryIndex('FUNCTION build_image_json')
+      const coverJson = queryIndex('FUNCTION build_cover_image_json')
+      expect(resolve).toBeGreaterThan(-1)
+      expect(imageJson).toBeGreaterThan(-1)
+      expect(coverJson).toBeGreaterThan(Math.max(resolve, imageJson))
+      expect(
+        queryIndex('FUNCTION build_project_json')
+      ).toBeGreaterThan(coverJson)
+    })
+
+    it.each([
+      ['build_cover_image_json', 'images'],
+      ['has_embed_code_type', 'embed_codes']
+    ])('marks %s STABLE, since it reads %s', (name) => {
+      expect(findQuery(`FUNCTION ${name}`).text).toContain(
+        'LANGUAGE sql STABLE'
+      )
+    })
+
+    it('resolves a project’s cover through the shared helper', () => {
+      expect(findQuery('FUNCTION build_project_json').text).toContain(
+        'build_cover_image_json(p.cover_image_id, p.image_ids)'
+      )
+    })
+  })
+
   it('requires an event venue to exist and its slug to be unique', () => {
     expect(
       findQuery('CREATE TABLE IF NOT EXISTS events').text

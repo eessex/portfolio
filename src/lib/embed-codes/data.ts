@@ -1,5 +1,3 @@
-'use server'
-
 import { sql } from '@/lib/db'
 import { fetchCachedEmbedCodesFirstPage } from '@/lib/embed-codes/cached'
 import {

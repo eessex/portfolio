@@ -1,9 +1,11 @@
 import { updateTag } from 'next/cache'
 
+import { auth } from '@/auth'
 import { sql } from '@/lib/db'
 import {
   deleteLink,
   editLink,
+  findSocialLink,
   resolveOrderedLinkIds,
   resolveSocialLinkIds,
   saveLinkFromFields,
@@ -25,6 +27,33 @@ const mockSql = jest.mocked(sql)
 
 describe('Link Actions', () => {
   beforeEach(() => jest.clearAllMocks())
+
+  describe('#findSocialLink', () => {
+    it('looks up a social link by url and title', async () => {
+      mockSql.mockResolvedValueOnce([linkFixture])
+      const res = await findSocialLink(linkFixture.url, 'Bandcamp')
+
+      expect(res?.id).toBe(linkFixture.id)
+      const [, ...params] = mockSql.mock.calls[0]!
+      expect(params).toEqual([
+        linkFixture.url,
+        'social',
+        'Bandcamp',
+        'Bandcamp'
+      ])
+    })
+
+    it('refuses a signed-out caller', async () => {
+      jest
+        .mocked(auth as unknown as jest.Mock)
+        .mockResolvedValueOnce(null)
+
+      await expect(findSocialLink(linkFixture.url)).rejects.toThrow(
+        'Unauthorized'
+      )
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+  })
 
   describe('#deleteLink', () => {
     it('can delete a link', async () => {

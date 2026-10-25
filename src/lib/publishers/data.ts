@@ -1,5 +1,3 @@
-'use server'
-
 import { sql } from '@/lib/db'
 import { runListFetch } from '@/lib/list-fetch'
 import { fetchCachedPublishersFirstPage } from '@/lib/publishers/cached'

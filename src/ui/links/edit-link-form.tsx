@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import type { z } from 'zod'
 
 import { EmbedCodeHosts } from '@/lib/embed-codes/schemas/db'
-import { fetchLinkByUrl } from '@/lib/links/data'
+import { findSocialLink } from '@/lib/links/actions'
 import {
   type createLinkSchema,
   type Link,
@@ -175,7 +175,7 @@ export const EditLink = ({
     onBusyChange?.(true)
     let match: Link | undefined
     try {
-      match = await fetchLinkByUrl(value, LinkTypes.social, hostName)
+      match = await findSocialLink(value, hostName)
     } catch {
       // no match: the draft just creates a new link
     }

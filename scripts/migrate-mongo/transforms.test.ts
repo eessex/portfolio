@@ -214,6 +214,8 @@ describe('mapEditionFormat', () => {
     [' Cassette ', 'Cassette'],
     ['tape', 'Cassette'],
     ['CD', 'CD'],
+    ['2xCD', '2xCD'],
+    ['Double CD', '2xCD'],
     ['Digital download', 'Digital'],
     ['iOS app', 'iOSApp']
   ])('maps %s to %s', (format, expected) => {
@@ -362,6 +364,12 @@ describe('toVenue', () => {
   it('times a venue by state, then city, then country', () => {
     expect(toVenue({ city: 'Berlin' }).venue!.timezone).toBe(
       'Europe/Berlin'
+    )
+    expect(toVenue({ city: 'Hobart' }).venue!.timezone).toBe(
+      'Australia/Sydney'
+    )
+    expect(toVenue({ city: 'Lima' }).venue!.timezone).toBe(
+      'America/Bogota'
     )
     expect(
       toVenue({ city: 'Hudson', state: 'NY' }).venue!.timezone
@@ -607,6 +615,32 @@ describe('toRelease', () => {
     expect(release.editions.map((e) => e.publisherName)).toEqual([
       'Sky Walking',
       'Soap Library'
+    ])
+  })
+
+  it('takes a full release_date over the year', () => {
+    const release = toRelease({
+      ...unpublishedRelease,
+      formats: [{ format: 'LP', release_date: '2019-07-30' }]
+    })
+    expect(release.issues).toEqual([])
+    expect(release.editions[0].publishDate).toBe('2019-07-30')
+  })
+
+  it('renames publishers through the aliases', () => {
+    const release = toRelease(
+      {
+        ...unpublishedRelease,
+        formats: [
+          { format: 'LP', release_year: 2018, publisher: 'Braille' },
+          { format: 'CD', release_year: 2018, publisher: 'Zoar' }
+        ]
+      },
+      normalizeAliases({ braille: 'Braille Records' })
+    )
+    expect(release.editions.map((e) => e.publisherName)).toEqual([
+      'Braille Records',
+      'Zoar'
     ])
   })
 

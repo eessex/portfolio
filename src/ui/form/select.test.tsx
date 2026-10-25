@@ -53,7 +53,7 @@ describe('Select', () => {
 
     const select = screen.getByRole('combobox', { name: /type/i })
     const alert = screen.getByRole('alert')
-    expect(alert).toHaveTextContent('Invalid option, Required.')
+    expect(alert).toHaveTextContent('Invalid option. Required.')
     expect(select).toHaveAttribute('aria-invalid', 'true')
     expect(select).toHaveAttribute('aria-describedby', alert.id)
   })

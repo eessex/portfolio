@@ -1,6 +1,7 @@
 import { useId } from 'react'
 
 import { camelToSentence } from '@/lib/strings'
+import { FieldErrorList } from '@/ui/form/field-error-list'
 import styles from '@/ui/form/form.module.scss'
 import { InputLabel } from '@/ui/form/input-label'
 
@@ -68,15 +69,7 @@ export function Select({
           ))}
         </select>
       </div>
-      {hasErrors && (
-        <p
-          id={errorId}
-          role='alert'
-          className={styles['error-message']}
-        >
-          {errors.join(', ')}.
-        </p>
-      )}
+      <FieldErrorList id={errorId} errors={errors} />
     </div>
   )
 }

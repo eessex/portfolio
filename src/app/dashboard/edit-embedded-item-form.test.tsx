@@ -18,10 +18,6 @@ jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))
 
-jest.mock('@/lib/images/data', () => ({
-  checkIfImageExists: jest.fn()
-}))
-
 function renderComponent(editItem: jest.Mock) {
   return render(
     <ToastProvider>

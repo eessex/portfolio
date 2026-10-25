@@ -72,26 +72,9 @@ export async function fetchEventsRaw(
         e.*,
         ${path} AS path,
         e.start_time > now() AS is_upcoming,
-        EXISTS (
-          SELECT 1 FROM embed_codes ec
-          WHERE ec.id = ANY(e.embed_code_ids)
-            AND ec.type = ${EmbedCodeTypes.video}
-        ) AS has_video,
-        EXISTS (
-          SELECT 1 FROM embed_codes ec
-          WHERE ec.id = ANY(e.embed_code_ids)
-            AND ec.type = ${EmbedCodeTypes.audio}
-        ) AS has_audio,
-        (
-          CASE
-            WHEN COALESCE(e.cover_image_id, e.image_ids[1]) IS NOT NULL
-            THEN (
-              SELECT build_image_json(i)
-              FROM images i
-              WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
-            )
-          END
-        ) AS cover_image,
+        has_embed_code_type(e.embed_code_ids, ${EmbedCodeTypes.video}) AS has_video,
+        has_embed_code_type(e.embed_code_ids, ${EmbedCodeTypes.audio}) AS has_audio,
+        build_cover_image_json(e.cover_image_id, e.image_ids) AS cover_image,
         (
           SELECT build_venue_json(v)
           FROM venues v
@@ -137,26 +120,9 @@ export async function fetchUpcomingEventsRaw(
         e.*,
         ${path} AS path,
         e.start_time > now() AS is_upcoming,
-        EXISTS (
-          SELECT 1 FROM embed_codes ec
-          WHERE ec.id = ANY(e.embed_code_ids)
-            AND ec.type = ${EmbedCodeTypes.video}
-        ) AS has_video,
-        EXISTS (
-          SELECT 1 FROM embed_codes ec
-          WHERE ec.id = ANY(e.embed_code_ids)
-            AND ec.type = ${EmbedCodeTypes.audio}
-        ) AS has_audio,
-        (
-          CASE
-            WHEN COALESCE(e.cover_image_id, e.image_ids[1]) IS NOT NULL
-            THEN (
-              SELECT build_image_json(i)
-              FROM images i
-              WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
-            )
-          END
-        ) AS cover_image,
+        has_embed_code_type(e.embed_code_ids, ${EmbedCodeTypes.video}) AS has_video,
+        has_embed_code_type(e.embed_code_ids, ${EmbedCodeTypes.audio}) AS has_audio,
+        build_cover_image_json(e.cover_image_id, e.image_ids) AS cover_image,
         (
           SELECT build_venue_json(v)
           FROM venues v
@@ -185,16 +151,7 @@ export async function fetchEventById(
       SELECT
         e.*,
         e.start_time > now() AS is_upcoming,
-        (
-          CASE
-            WHEN COALESCE(e.cover_image_id, e.image_ids[1]) IS NOT NULL
-            THEN (
-              SELECT build_image_json(i)
-              FROM images i
-              WHERE i.id = COALESCE(e.cover_image_id, e.image_ids[1])
-            )
-          END
-        ) AS cover_image,
+        build_cover_image_json(e.cover_image_id, e.image_ids) AS cover_image,
         (
           SELECT COALESCE(
             jsonb_agg(
@@ -216,7 +173,7 @@ export async function fetchEventById(
           )
           FROM images i
           WHERE i.id = ANY(e.image_ids)
-            AND i.id != COALESCE(e.cover_image_id, e.image_ids[1])
+            AND i.id != resolve_cover_image_id(e.cover_image_id, e.image_ids)
         ) AS images,
         (
           SELECT COALESCE(

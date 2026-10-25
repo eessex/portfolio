@@ -18,7 +18,6 @@ import {
   fetchCachedPressImagesFirstPage
 } from '@/lib/images/cached'
 import {
-  checkIfImageExists,
   fetchImageById,
   fetchImageByUrl,
   fetchImages,
@@ -274,46 +273,5 @@ describe('fetchImageByUrl', () => {
     await expect(fetchImageByUrl(createImageFixture)).rejects.toThrow(
       'Failed to fetch image by URL.'
     )
-  })
-})
-
-describe('checkIfImageExists', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it('returns the image when a match is found', async () => {
-    mockSql.mockResolvedValue([imageFixture])
-
-    const result = await checkIfImageExists('some-filename.jpg')
-
-    expect(result).toEqual(imageFixture)
-  })
-
-  it('returns false when the match has the same id', async () => {
-    mockSql.mockResolvedValue([imageFixture])
-
-    const result = await checkIfImageExists(
-      'some-filename.jpg',
-      imageFixture.id
-    )
-
-    expect(result).toBe(false)
-  })
-
-  it('returns false when no match is found', async () => {
-    mockSql.mockResolvedValue([])
-
-    const result = await checkIfImageExists('missing-filename.jpg')
-
-    expect(result).toBe(false)
-  })
-
-  it('throws on DB error', async () => {
-    mockSql.mockRejectedValue(new Error('db exploded'))
-
-    await expect(
-      checkIfImageExists('some-filename.jpg')
-    ).rejects.toThrow('Failed to check if image exists.')
   })
 })

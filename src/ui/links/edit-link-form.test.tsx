@@ -7,16 +7,16 @@ import {
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { fetchLinkByUrl } from '@/lib/links/data'
+import { findSocialLink } from '@/lib/links/actions'
 import { linkFixture, newLinkFixture } from '@/lib/links/fixtures'
 import type { Link } from '@/lib/links/schemas/db'
 import { NamePrefixProvider } from '@/ui/item-picker/name-prefix'
 import { EditLink } from '@/ui/links/edit-link-form'
 
-jest.mock('@/lib/links/data', () => ({
-  fetchLinkByUrl: jest.fn()
+jest.mock('@/lib/links/actions', () => ({
+  findSocialLink: jest.fn()
 }))
-const mockFetchLinkByUrl = jest.mocked(fetchLinkByUrl)
+const mockFindSocialLink = jest.mocked(findSocialLink)
 
 function renderComponent(props = {}, namePrefix = '') {
   return render(
@@ -427,45 +427,6 @@ describe('EditLink', () => {
     })
   })
 
-  describe('onReadyChange', () => {
-    it('reports not ready without a valid url', () => {
-      const onReadyChange = jest.fn()
-      renderComponent({ link: undefined, onReadyChange })
-
-      expect(onReadyChange).toHaveBeenLastCalledWith(false)
-    })
-
-    it('reports ready when rendered with an existing valid url', () => {
-      const onReadyChange = jest.fn()
-      renderComponent({ link: linkFixture, onReadyChange })
-
-      expect(onReadyChange).toHaveBeenLastCalledWith(true)
-    })
-
-    it('reports ready once the url becomes valid', () => {
-      const onReadyChange = jest.fn()
-      renderComponent({ link: undefined, onReadyChange })
-      const urlInput = screen.getByLabelText(urlRegex)
-
-      fireEvent.change(urlInput, {
-        target: { value: 'https://example.com' }
-      })
-
-      expect(onReadyChange).toHaveBeenLastCalledWith(true)
-    })
-
-    it('reports not ready again once the url is cleared', () => {
-      const onReadyChange = jest.fn()
-      renderComponent({ link: linkFixture, onReadyChange })
-
-      fireEvent.change(screen.getByLabelText(urlRegex), {
-        target: { value: '' }
-      })
-
-      expect(onReadyChange).toHaveBeenLastCalledWith(false)
-    })
-  })
-
   describe('isSocial', () => {
     it('shows just the url and a name, hiding type and press fields', () => {
       renderComponent({ link: linkFixture, isSocial: true })
@@ -601,7 +562,7 @@ describe('EditLink', () => {
       title: 'Bandcamp'
     }
 
-    beforeEach(() => mockFetchLinkByUrl.mockReset())
+    beforeEach(() => mockFindSocialLink.mockReset())
 
     function paste(value: string) {
       fireEvent.change(screen.getByLabelText(urlRegex), {
@@ -610,7 +571,7 @@ describe('EditLink', () => {
     }
 
     it('calls onExistingMatch when a pasted url is already saved', async () => {
-      mockFetchLinkByUrl.mockResolvedValue(match)
+      mockFindSocialLink.mockResolvedValue(match)
       const onExistingMatch = jest.fn()
       const onBusyChange = jest.fn()
       renderComponent({
@@ -625,9 +586,8 @@ describe('EditLink', () => {
         expect(onExistingMatch).toHaveBeenCalledWith(match)
       )
       // only a link named for its host can match
-      expect(mockFetchLinkByUrl).toHaveBeenCalledWith(
+      expect(mockFindSocialLink).toHaveBeenCalledWith(
         match.url,
-        'social',
         'Bandcamp'
       )
       expect(onBusyChange).toHaveBeenCalledWith(true)
@@ -635,7 +595,7 @@ describe('EditLink', () => {
     })
 
     it('does nothing on no match', async () => {
-      mockFetchLinkByUrl.mockResolvedValue(undefined)
+      mockFindSocialLink.mockResolvedValue(undefined)
       const onExistingMatch = jest.fn()
       const onBusyChange = jest.fn()
       renderComponent({
@@ -653,7 +613,7 @@ describe('EditLink', () => {
     })
 
     it('looks up a typed url on Enter', async () => {
-      mockFetchLinkByUrl.mockResolvedValue(match)
+      mockFindSocialLink.mockResolvedValue(match)
       const onExistingMatch = jest.fn()
       renderComponent({ link: undefined, onExistingMatch })
       const urlInput = screen.getByLabelText(urlRegex)
@@ -662,7 +622,7 @@ describe('EditLink', () => {
           target: { value: match.url.slice(0, i) }
         })
       }
-      expect(mockFetchLinkByUrl).not.toHaveBeenCalled()
+      expect(mockFindSocialLink).not.toHaveBeenCalled()
 
       fireEvent.keyDown(urlInput, { key: 'Enter' })
 
@@ -673,7 +633,7 @@ describe('EditLink', () => {
 
     it('stays collapsed while looking up, and on a match', async () => {
       let resolveLookup: (link: Link | undefined) => void = () => {}
-      mockFetchLinkByUrl.mockImplementationOnce(
+      mockFindSocialLink.mockImplementationOnce(
         () => new Promise((resolve) => (resolveLookup = resolve))
       )
       const onExistingMatch = jest.fn()
@@ -692,7 +652,7 @@ describe('EditLink', () => {
     })
 
     it('expands once the lookup finds no match', async () => {
-      mockFetchLinkByUrl.mockResolvedValue(undefined)
+      mockFindSocialLink.mockResolvedValue(undefined)
       renderComponent({ link: undefined, onExistingMatch: jest.fn() })
       const urlInput = screen.getByLabelText(urlRegex)
 
@@ -705,7 +665,7 @@ describe('EditLink', () => {
 
     it('ignores a stale response once the url has changed', async () => {
       let resolveFirst: (link: Link | undefined) => void = () => {}
-      mockFetchLinkByUrl
+      mockFindSocialLink
         .mockImplementationOnce(
           () => new Promise((resolve) => (resolveFirst = resolve))
         )
@@ -722,7 +682,7 @@ describe('EditLink', () => {
 
     it('keeps the draft when its name was changed while looking up', async () => {
       let resolveLookup: (link: Link | undefined) => void = () => {}
-      mockFetchLinkByUrl.mockImplementationOnce(
+      mockFindSocialLink.mockImplementationOnce(
         () => new Promise((resolve) => (resolveLookup = resolve))
       )
       const onExistingMatch = jest.fn()
@@ -744,7 +704,7 @@ describe('EditLink', () => {
 
     it('ignores a pending lookup once a character is typed', async () => {
       let resolveFirst: (link: Link | undefined) => void = () => {}
-      mockFetchLinkByUrl.mockImplementationOnce(
+      mockFindSocialLink.mockImplementationOnce(
         () => new Promise((resolve) => (resolveFirst = resolve))
       )
       const onExistingMatch = jest.fn()
@@ -775,7 +735,7 @@ describe('EditLink', () => {
 
       paste('https://instagram.com/me')
 
-      expect(mockFetchLinkByUrl).not.toHaveBeenCalled()
+      expect(mockFindSocialLink).not.toHaveBeenCalled()
       expect(onBusyChange).not.toHaveBeenCalledWith(true)
       expect(screen.getByLabelText(urlRegex)).toHaveAttribute(
         'aria-expanded',
@@ -788,18 +748,18 @@ describe('EditLink', () => {
 
       paste('not a url')
 
-      expect(mockFetchLinkByUrl).not.toHaveBeenCalled()
+      expect(mockFindSocialLink).not.toHaveBeenCalled()
     })
 
     it('does not look up again on blur for the same url', async () => {
-      mockFetchLinkByUrl.mockResolvedValue(undefined)
+      mockFindSocialLink.mockResolvedValue(undefined)
       renderComponent({ link: undefined, onExistingMatch: jest.fn() })
 
       paste('https://new.bandcamp.com')
       fireEvent.blur(screen.getByLabelText(urlRegex))
 
       await waitFor(() =>
-        expect(mockFetchLinkByUrl).toHaveBeenCalledTimes(1)
+        expect(mockFindSocialLink).toHaveBeenCalledTimes(1)
       )
     })
 
@@ -808,7 +768,7 @@ describe('EditLink', () => {
 
       paste('https://new.bandcamp.com')
 
-      expect(mockFetchLinkByUrl).not.toHaveBeenCalled()
+      expect(mockFindSocialLink).not.toHaveBeenCalled()
     })
   })
 })

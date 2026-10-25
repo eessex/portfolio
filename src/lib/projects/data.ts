@@ -84,26 +84,9 @@ export async function fetchProjectsRaw(
         SELECT
           p.*,
           ${path} AS path,
-          (
-            CASE
-              WHEN COALESCE(p.cover_image_id, p.image_ids[1]) IS NOT NULL
-              THEN (
-                SELECT build_image_json(i)
-                FROM images i
-                WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
-              )
-            END
-          ) AS cover_image,
-          EXISTS (
-            SELECT 1 FROM embed_codes ec
-            WHERE ec.id = ANY(p.embed_code_ids)
-              AND ec.type = ${EmbedCodeTypes.video}
-          ) AS has_video,
-          EXISTS (
-            SELECT 1 FROM embed_codes ec
-            WHERE ec.id = ANY(p.embed_code_ids)
-              AND ec.type = ${EmbedCodeTypes.audio}
-          ) AS has_audio
+          build_cover_image_json(p.cover_image_id, p.image_ids) AS cover_image,
+          has_embed_code_type(p.embed_code_ids, ${EmbedCodeTypes.video}) AS has_video,
+          has_embed_code_type(p.embed_code_ids, ${EmbedCodeTypes.audio}) AS has_audio
         FROM projects AS p
         WHERE
           (${isAuthed} OR p.is_published = true)
@@ -153,16 +136,7 @@ export async function fetchProjectById(
     const data = await sql`
       SELECT
         p.*,
-        (
-          CASE
-            WHEN COALESCE(p.cover_image_id, p.image_ids[1]) IS NOT NULL
-            THEN (
-              SELECT build_image_json(i)
-              FROM images i
-              WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
-            )
-          END
-        ) AS cover_image,
+        build_cover_image_json(p.cover_image_id, p.image_ids) AS cover_image,
         (
           SELECT COALESCE(
             jsonb_agg(
@@ -184,7 +158,7 @@ export async function fetchProjectById(
           )
           FROM images i
           WHERE i.id = ANY(p.image_ids)
-            AND i.id != COALESCE(p.cover_image_id, p.image_ids[1])
+            AND i.id != resolve_cover_image_id(p.cover_image_id, p.image_ids)
         ) AS images,
         (
           SELECT COALESCE(

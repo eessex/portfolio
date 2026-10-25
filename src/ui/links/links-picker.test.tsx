@@ -8,7 +8,9 @@ import {
   SocialLinksPicker
 } from '@/ui/links/links-picker'
 
-jest.mock('@/lib/links/data', () => ({ fetchLinkByUrl: jest.fn() }))
+jest.mock('@/lib/links/actions', () => ({
+  findSocialLink: jest.fn()
+}))
 
 function submittedIds(name: string) {
   return Array.from(

@@ -1,5 +1,3 @@
-'use server'
-
 import { sql } from '@/lib/db'
 import { fetchCachedLinksFirstPage } from '@/lib/links/cached'
 import type { DashboardLink } from '@/lib/links/schemas/client'

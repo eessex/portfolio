@@ -22,8 +22,8 @@ import {
 } from '@/lib/schemas/primitives'
 import { EmbedCodesPicker } from '@/ui/embed-codes/embed-codes-picker'
 import { Checkbox } from '@/ui/form/checkbox'
+import { FieldErrorList } from '@/ui/form/field-error-list'
 import { useFormErrors } from '@/ui/form/form'
-import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { ItemEditForm } from '@/ui/form/item-edit-form'
 import { Select } from '@/ui/form/select'
@@ -82,11 +82,7 @@ function ReleaseFormFields({ release }: EditReleaseFormProps) {
           onSelectionChange={handleProjectChange}
           isRequired
         />
-        {errors?.projectId && (
-          <p role='alert' className={styles['error-message']}>
-            {errors.projectId.join(' ')}
-          </p>
-        )}
+        <FieldErrorList errors={errors?.projectId} />
       </div>
       <Input
         attributes={{
@@ -129,11 +125,7 @@ function ReleaseFormFields({ release }: EditReleaseFormProps) {
             />
           )}
         />
-        {errors?.[PUBLISHED_EDITIONS_FIELD] && (
-          <p role='alert' className={styles['error-message']}>
-            {errors[PUBLISHED_EDITIONS_FIELD].join(' ')}
-          </p>
-        )}
+        <FieldErrorList errors={errors?.[PUBLISHED_EDITIONS_FIELD]} />
       </div>
       <Input
         as='textarea'

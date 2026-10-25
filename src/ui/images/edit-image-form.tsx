@@ -1,14 +1,16 @@
-import type { FocusEvent } from 'react'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { z } from 'zod'
 
-import { checkIfImageExists } from '@/lib/images/data'
 import type {
   createImageSchema,
   Image
 } from '@/lib/images/schemas/db'
 import { imageTypes } from '@/lib/images/schemas/db'
 import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
+import {
+  DisclosureDetails,
+  useDisclosureDetails
+} from '@/ui/form/disclosure-details'
 import { FileInputImage } from '@/ui/form/file-input-image'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
@@ -16,25 +18,6 @@ import { Select } from '@/ui/form/select'
 import { useNamePrefix } from '@/ui/item-picker/name-prefix'
 
 const imageTypeOptions = [...imageTypes]
-
-// Whether every visible control in the details fieldset is empty.
-// Hidden inputs (aspect/url bookkeeping fields) don't count as user data.
-function isDetailsEmpty(fieldset: HTMLFieldSetElement): boolean {
-  const controls = fieldset.querySelectorAll<
-    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-  >('input:not([type="hidden"]), select, textarea')
-  for (const control of controls) {
-    if (
-      control instanceof HTMLInputElement &&
-      control.type === 'checkbox'
-    ) {
-      if (control.checked) return false
-    } else if (control.value.trim() !== '') {
-      return false
-    }
-  }
-  return true
-}
 
 interface EditImageProps {
   errors?: z.inferFlattenedErrors<
@@ -61,76 +44,27 @@ export const EditImage = ({
   const [aspectRatio, setAspectRatio] = useState<number | undefined>(
     image?.aspect || undefined
   )
-  const [formImage, setFormImage] = useState<Partial<Image>>(
-    image || {}
-  )
-  const [detailsExpanded, setDetailsExpanded] = useState(false)
-  const detailsFieldsetRef = useRef<HTMLFieldSetElement>(null)
+  const [formImage] = useState<Partial<Image>>(image || {})
   const namePrefix = useNamePrefix()
 
   const { id, url } = (formImage || {}) as Image
 
-  async function onFileChange(
-    filename: string,
-    aspectRatio: number | undefined,
-    _isDirty?: boolean
+  function onFileChange(
+    _filename: string,
+    aspectRatio: number | undefined
   ) {
-    const aspectRatioValue = aspectRatio || formImage.aspect
-    setAspectRatio(aspectRatioValue)
-
-    if (
-      !filename &&
-      !aspectRatioValue &&
-      detailsFieldsetRef.current &&
-      isDetailsEmpty(detailsFieldsetRef.current)
-    ) {
-      setDetailsExpanded(false)
-    }
-
-    if (filename) {
-      try {
-        if (image?.url) {
-          const urlPath = image.url.split('/images/')[1]
-          const isProbablyExisting =
-            urlPath &&
-            urlPath === filename &&
-            aspectRatio === image.aspect
-          if (isProbablyExisting) return
-        }
-        const existingImage = await checkIfImageExists(filename)
-        if (existingImage) {
-          if (id && existingImage.id !== id) {
-            alert(
-              'An image with this URL already exists, use a unique filename.'
-            )
-          } else if (!id) {
-            const confirmed = confirm(
-              'This image URL already exists. Confirm to edit the existing image. Cancel to choose another image with a unique filename.'
-            )
-            if (confirmed) {
-              setFormImage(existingImage)
-              setAspectRatio(existingImage.aspect)
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error checking if image exists:', error)
-      }
-    }
+    setAspectRatio(aspectRatio || formImage.aspect)
   }
-  const detailsFieldsetId = useId()
   const hasImage = !!aspectRatio
-  const isExpanded = hasImage || detailsExpanded
+  const disclosure = useDisclosureDetails({
+    isRevealed: hasImage,
+    isKeptWithContent: true
+  })
+  const { id: detailsFieldsetId, isExpanded } = disclosure
 
   useEffect(() => {
     onReadyChange?.(hasImage)
   }, [hasImage, onReadyChange])
-
-  function onDetailsBlur(e: FocusEvent<HTMLFieldSetElement>) {
-    if (!hasImage && isDetailsEmpty(e.currentTarget)) {
-      setDetailsExpanded(false)
-    }
-  }
 
   return (
     <>
@@ -153,41 +87,20 @@ export const EditImage = ({
         onChange={onFileChange}
         isLabelHidden={!isExpanded}
       />
-      <fieldset
-        ref={detailsFieldsetRef}
-        hidden={!isExpanded}
-        className={isExpanded ? 'expanded' : undefined}
-        id={detailsFieldsetId}
-        onChange={() => setDetailsExpanded(true)}
-        onBlur={onDetailsBlur}
-      >
-        <legend className='visually-hidden'>Image details</legend>
+      <DisclosureDetails {...disclosure} legend='Image details'>
         {aspectRatio && (
-          <Input
-            attributes={{
-              name: `${namePrefix}aspect`,
-              type: 'hidden'
-            }}
-            errors={errors?.aspect}
-            label='Aspect Ratio'
+          <input
+            type='hidden'
+            name={`${namePrefix}aspect`}
             value={aspectRatio}
           />
         )}
         {/* an existing image's url, which validation requires; its file never changes */}
         {url?.length > 0 && id && (
-          <Input
-            attributes={{
-              maxLength: MAX_STRING_LENGTH_SHORT,
-              name: `${namePrefix}url`,
-              placeholder:
-                'https://aws.s3.bucket/images/your-image.jpg',
-              required: true,
-              type: 'hidden'
-            }}
+          <input
+            type='hidden'
+            name={`${namePrefix}url`}
             defaultValue={url}
-            description='Where the image file is stored.'
-            errors={errors?.url}
-            label='Image url'
           />
         )}
         <Input
@@ -236,7 +149,7 @@ export const EditImage = ({
             value={type}
           />
         </div>
-      </fieldset>
+      </DisclosureDetails>
     </>
   )
 }

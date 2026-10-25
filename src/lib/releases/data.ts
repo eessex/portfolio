@@ -33,16 +33,7 @@ export async function fetchReleaseById(
           r.artist,
           (SELECT title FROM projects WHERE id = r.project_id)
         ) AS display_artist,
-        (
-          CASE
-            WHEN COALESCE(r.cover_image_id, r.image_ids[1]) IS NOT NULL
-            THEN (
-              SELECT build_image_json(i)
-              FROM images i
-              WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
-            )
-          END
-        ) AS cover_image,
+        build_cover_image_json(r.cover_image_id, r.image_ids) AS cover_image,
         (
           SELECT COALESCE(
             jsonb_agg(
@@ -64,7 +55,7 @@ export async function fetchReleaseById(
           )
           FROM images i
           WHERE i.id = ANY(r.image_ids)
-            AND i.id != COALESCE(r.cover_image_id, r.image_ids[1])
+            AND i.id != resolve_cover_image_id(r.cover_image_id, r.image_ids)
         ) AS images,
         (
           SELECT COALESCE(
@@ -173,24 +164,9 @@ export async function fetchReleasesRaw(
           r.*,
           COALESCE(r.artist, p.title) AS display_artist,
           ${path} AS path,
-          (
-            CASE
-              WHEN COALESCE(r.cover_image_id, r.image_ids[1]) IS NOT NULL
-              THEN (
-                SELECT build_image_json(i)
-                FROM images i
-                WHERE i.id = COALESCE(r.cover_image_id, r.image_ids[1])
-              )
-            END
-          ) AS cover_image,
-          EXISTS (
-            SELECT 1 FROM embed_codes ec
-            WHERE ec.id = ANY(r.embed_code_ids) AND ec.type = ${EmbedCodeTypes.video}
-          ) AS has_video,
-          EXISTS (
-            SELECT 1 FROM embed_codes ec
-            WHERE ec.id = ANY(r.embed_code_ids) AND ec.type = ${EmbedCodeTypes.audio}
-          ) AS has_audio,
+          build_cover_image_json(r.cover_image_id, r.image_ids) AS cover_image,
+          has_embed_code_type(r.embed_code_ids, ${EmbedCodeTypes.video}) AS has_video,
+          has_embed_code_type(r.embed_code_ids, ${EmbedCodeTypes.audio}) AS has_audio,
           (
             SELECT COALESCE(jsonb_agg(build_published_edition_json(pe) ORDER BY pe.publish_date, pe.created_at), '[]'::jsonb)
             FROM published_editions pe

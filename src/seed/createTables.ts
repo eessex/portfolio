@@ -101,18 +101,6 @@ async function createImagesTable() {
       updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
     );
   `
-  // TEMPORARY: stored-file columns for the image plan (Stage 2). Run
-  // once against production via `pnpm run setup`, then delete.
-  await sql`
-    ALTER TABLE images
-      ADD COLUMN IF NOT EXISTS format VARCHAR(10),
-      ADD COLUMN IF NOT EXISTS width INTEGER,
-      ADD COLUMN IF NOT EXISTS height INTEGER,
-      ADD COLUMN IF NOT EXISTS original_filename VARCHAR(255),
-      ADD COLUMN IF NOT EXISTS content_hash CHAR(64),
-      ADD COLUMN IF NOT EXISTS blur_data_url TEXT,
-      ADD COLUMN IF NOT EXISTS variant_version INTEGER
-  `
 }
 
 /**
@@ -607,6 +595,46 @@ async function setupJsonbFunctions() {
     $$ LANGUAGE sql IMMUTABLE;
   `
 
+  // A page item's cover: its cover_image_id, else its first image
+  await sql`
+    CREATE OR REPLACE FUNCTION resolve_cover_image_id(
+      cover_image_id UUID,
+      image_ids UUID[]
+    )
+    RETURNS UUID AS $$
+      SELECT COALESCE(cover_image_id, image_ids[1]);
+    $$ LANGUAGE sql IMMUTABLE;
+  `
+
+  await sql`
+    CREATE OR REPLACE FUNCTION build_cover_image_json(
+      cover_image_id UUID,
+      image_ids UUID[]
+    )
+    RETURNS jsonb AS $$
+      SELECT build_image_json(i)
+      FROM images i
+      WHERE i.id = resolve_cover_image_id(cover_image_id, image_ids);
+    -- STABLE, not IMMUTABLE: it reads images
+    $$ LANGUAGE sql STABLE;
+  `
+
+  // a page item's media icons (has_video/has_audio)
+  await sql`
+    CREATE OR REPLACE FUNCTION has_embed_code_type(
+      embed_code_ids UUID[],
+      embed_code_type TEXT
+    )
+    RETURNS boolean AS $$
+      SELECT EXISTS (
+        SELECT 1 FROM embed_codes ec
+        WHERE ec.id = ANY(embed_code_ids)
+          AND ec.type = embed_code_type
+      );
+    -- STABLE, not IMMUTABLE: it reads embed_codes
+    $$ LANGUAGE sql STABLE;
+  `
+
   await sql`
     CREATE OR REPLACE FUNCTION build_link_json(l links)
     RETURNS jsonb AS $$
@@ -698,11 +726,8 @@ async function setupJsonbFunctions() {
           'endDate', p.end_date,
           'path', 'projects',
           'isDefaultProject', p.is_default_project,
-          'coverImage', (
-            SELECT build_image_json(i)
-            FROM images i
-            WHERE i.id = COALESCE(p.cover_image_id, p.image_ids[1])
-          )
+          'coverImage',
+            build_cover_image_json(p.cover_image_id, p.image_ids)
         )
       || COALESCE(build_write_dates_json(p.created_at, p.updated_at), '{}'::jsonb)
     );

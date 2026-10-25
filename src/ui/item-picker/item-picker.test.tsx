@@ -2397,10 +2397,7 @@ describe('ItemPicker', () => {
                 onReadyChange?.(e.target.value.trim() !== '')
               }}
             />
-            <fieldset
-              className={url ? 'expanded' : undefined}
-              hidden={!url}
-            >
+            <fieldset className='disclosure-details' hidden={!url}>
               <input aria-label='Link title' />
             </fieldset>
           </>
@@ -2424,11 +2421,13 @@ describe('ItemPicker', () => {
         )
         expect(actions).not.toHaveClass('create-form-actions-visible')
         expect(
-          document.querySelector('fieldset.expanded')
+          document.querySelector(
+            'fieldset.disclosure-details:not([hidden])'
+          )
         ).not.toBeInTheDocument()
       })
 
-      it('exposes the .expanded hook beside the actions row once the main field is filled', () => {
+      it('shows the disclosure details beside the actions row once the main field is filled', () => {
         renderComponent({
           itemType: 'links',
           renderEditItemForm: (
@@ -2443,7 +2442,9 @@ describe('ItemPicker', () => {
         const actions = actionsFor(
           screen.getByRole('button', { name: /save link/i })
         )
-        const expanded = document.querySelector('fieldset.expanded')
+        const expanded = document.querySelector(
+          'fieldset.disclosure-details:not([hidden])'
+        )
         expect(expanded).toBeInTheDocument()
         const fieldset = actions?.closest('.new-item-fieldset')
         expect(fieldset).not.toBeNull()
@@ -2473,7 +2474,9 @@ describe('ItemPicker', () => {
         )
         expect(actions).not.toHaveClass('create-form-actions-visible')
         expect(
-          document.querySelector('fieldset.expanded')
+          document.querySelector(
+            'fieldset.disclosure-details:not([hidden])'
+          )
         ).not.toBeInTheDocument()
       })
 

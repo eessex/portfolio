@@ -11,6 +11,7 @@ import {
   type Publisher
 } from '@/lib/publishers/schemas/db'
 import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
+import { FieldErrorList } from '@/ui/form/field-error-list'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
@@ -104,11 +105,7 @@ export const EditPublishedEdition = ({
           name={`${namePrefix}${PUBLISHER_NAME_SUMMARY_FIELD}`}
           value={publisherName ?? ''}
         />
-        {errors?.publisherId && (
-          <p role='alert' className={styles['error-message']}>
-            {errors.publisherId.join(', ')}.
-          </p>
-        )}
+        <FieldErrorList errors={errors?.publisherId} />
       </div>
 
       <div className={styles['input-group']}>

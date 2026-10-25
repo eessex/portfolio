@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import type { z } from 'zod'
 
 import { EmbedCodeHosts } from '@/lib/embed-codes/schemas/db'
-import { fetchLinkByUrl } from '@/lib/links/data'
+import { findSocialLink } from '@/lib/links/actions'
 import {
   type createLinkSchema,
   type Link,
@@ -16,6 +16,10 @@ import {
 } from '@/lib/schemas/primitives'
 import { embedCodeHostLabel } from '@/ui/embed-codes/embed-code-details'
 import { extractHostFromUrl } from '@/ui/embed-codes/util'
+import {
+  DisclosureDetails,
+  useDisclosureDetails
+} from '@/ui/form/disclosure-details'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
@@ -65,11 +69,6 @@ interface LinkProps {
    * select (the parent saves the link as social).
    */
   isSocial?: boolean
-  /**
-   * Reports when a link goes from unparsed/absent to
-   * successfully parsed or back.
-   */
-  onReadyChange?: (isReady: boolean) => void
   /** Reports the existing-url lookup in flight. */
   onBusyChange?: (isBusy: boolean) => void
   /**
@@ -86,7 +85,6 @@ export const EditLink = ({
   link,
   isPress,
   isSocial,
-  onReadyChange,
   onBusyChange,
   onExistingMatch
 }: LinkProps) => {
@@ -98,7 +96,7 @@ export const EditLink = ({
   const [isUrlFilled, setIsUrlFilled] = useState(!!link?.url)
   const namePrefix = useNamePrefix()
   const pressControlsId = useId()
-  const detailsFieldsetId = useId()
+  const disclosure = useDisclosureDetails({ isRevealed: isUrlFilled })
   // Browsers don't reliably report insertReplacementText for
   // autocomplete/autofill (see bulkInputTypes below), so the primary
   // signal is length: any change of more than one character is
@@ -133,10 +131,6 @@ export const EditLink = ({
     input.value = name
     autoFilledTitle.current = name
   }
-
-  useEffect(() => {
-    onReadyChange?.(isUrlFilled)
-  }, [isUrlFilled, onReadyChange])
 
   useEffect(() => {
     const seq = lookupSeq
@@ -181,7 +175,7 @@ export const EditLink = ({
     onBusyChange?.(true)
     let match: Link | undefined
     try {
-      match = await fetchLinkByUrl(value, LinkTypes.social, hostName)
+      match = await findSocialLink(value, hostName)
     } catch {
       // no match: the draft just creates a new link
     }
@@ -257,7 +251,7 @@ export const EditLink = ({
     <>
       <Input
         attributes={{
-          'aria-controls': detailsFieldsetId,
+          'aria-controls': disclosure.id,
           'aria-expanded': isUrlFilled,
           maxLength: 255,
           name: `${namePrefix}url`,
@@ -279,13 +273,7 @@ export const EditLink = ({
         isLabelHidden={!isUrlFilled}
       />
 
-      <fieldset
-        hidden={!isUrlFilled}
-        className='boxed-details'
-        id={detailsFieldsetId}
-      >
-        <legend className='visually-hidden'>Link details</legend>
-
+      <DisclosureDetails {...disclosure} legend='Link details'>
         {isPress || isSocial ? (
           titleInput
         ) : (
@@ -360,7 +348,7 @@ export const EditLink = ({
             />
           </fieldset>
         )}
-      </fieldset>
+      </DisclosureDetails>
     </>
   )
 }

@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useRef,
-  useState
-} from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { z } from 'zod'
 
 import { previewEmbedCodeMetadata } from '@/lib/embed-codes/preview-metadata'
@@ -19,6 +13,10 @@ import {
 import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import { EmbedCodeItem } from '@/ui/embed-codes/embed-code'
 import { extractIframeParams } from '@/ui/embed-codes/util'
+import {
+  DisclosureDetails,
+  useDisclosureDetails
+} from '@/ui/form/disclosure-details'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
@@ -30,17 +28,7 @@ interface EmbedCodeProps {
   errors?: z.inferFlattenedErrors<
     typeof createEmbedCodeSchema
   >['fieldErrors']
-  /**
-   * Hides the inline "Remove embed" button on the parsed preview.
-   * Not currently used.
-   */
-  isRemoveButtonHidden?: boolean
   isRequired?: boolean
-  /**
-   * Reports when a pasted iframe goes from unparsed/absent to
-   * successfully parsed or back.
-   */
-  onReadyChange?: (isReady: boolean) => void
   /**
    * So the picker can block Save until the chip's title/thumbnail exist (or fail).
    */
@@ -64,9 +52,7 @@ function isContentTypeValidFor(
 export const EditEmbedCode = ({
   embedCode,
   errors,
-  isRemoveButtonHidden,
   isRequired = true,
-  onReadyChange,
   onBusyChange
 }: EmbedCodeProps) => {
   const [embedCodeIframe, setEmbedCodeIframe] =
@@ -78,9 +64,6 @@ export const EditEmbedCode = ({
   const [contentType, setContentType] = useState<
     EmbedCode['contentType'] | undefined
   >(embedCode?.src ? embedCode.contentType : undefined)
-  // Details stay open after the iframe is removed if they have content.
-  const [isDetailsKept, setIsDetailsKept] = useState(false)
-  const detailsFieldsetRef = useRef<HTMLFieldSetElement>(null)
   const [iframeInputValue, setIframeInputValue] = useState('')
   // oEmbed title/thumbnail for the collapsed-chip preview
   const [previewMeta, setPreviewMeta] = useState<{
@@ -91,23 +74,15 @@ export const EditEmbedCode = ({
   // Ignore a slower resolve landing after a newer paste cleared/changed it.
   const previewRequestId = useRef(0)
   const namePrefix = useNamePrefix()
-  const detailsFieldsetId = useId()
+  // Details stay open after the iframe is removed if they have
+  // content; the host-derived media type select is hidden by then.
+  const disclosure = useDisclosureDetails({
+    isRevealed: !!embedCodeIframe,
+    isKeptWithContent: true
+  })
+  const { id: detailsFieldsetId, isExpanded } = disclosure
 
   const { addErrorMessage } = useToast()
-  const isExpanded = !!embedCodeIframe || isDetailsKept
-
-  // Only user-entered fields count; media type is host-derived.
-  function hasDetails() {
-    const caption =
-      detailsFieldsetRef.current?.querySelector<HTMLInputElement>(
-        `input[name="${namePrefix}caption"]`
-      )
-    return !!contentType || !!caption?.value.trim()
-  }
-
-  useEffect(() => {
-    onReadyChange?.(!!embedCodeIframe)
-  }, [embedCodeIframe, onReadyChange])
 
   useEffect(() => {
     onBusyChange?.(isPreviewLoading)
@@ -205,7 +180,6 @@ export const EditEmbedCode = ({
   }
 
   function onRemove() {
-    setIsDetailsKept(hasDetails())
     changeIframeValue('')
   }
 
@@ -220,10 +194,6 @@ export const EditEmbedCode = ({
     setEmbedCodeIframe({ ...embedCodeIframe, type })
   }
 
-  function onDetailsBlur() {
-    if (!embedCodeIframe && !hasDetails()) setIsDetailsKept(false)
-  }
-
   return (
     <>
       <div className={embedCodeIframe ? 'item-preview' : undefined}>
@@ -232,7 +202,7 @@ export const EditEmbedCode = ({
             ariaControls={detailsFieldsetId}
             ariaExpanded={isExpanded}
             embedCode={embedCodeIframe}
-            onRemove={isRemoveButtonHidden ? undefined : onRemove}
+            onRemove={onRemove}
           />
         ) : (
           <Input
@@ -264,14 +234,7 @@ export const EditEmbedCode = ({
           />
         )}
       </div>
-      <fieldset
-        ref={detailsFieldsetRef}
-        hidden={!isExpanded}
-        className={isExpanded ? 'expanded' : undefined}
-        id={detailsFieldsetId}
-        onBlur={onDetailsBlur}
-      >
-        <legend className='visually-hidden'>Embed details</legend>
+      <DisclosureDetails {...disclosure} legend='Embed details'>
         {isPreviewLoading && (
           <p role='status' aria-live='polite'>
             Loading preview…
@@ -331,51 +294,37 @@ export const EditEmbedCode = ({
           label='Caption'
         />
         {embedCodeIframe?.src && (
-          <Input
-            attributes={{
-              name: `${namePrefix}src`,
-              type: 'hidden',
-              required: true
-            }}
+          <input
+            type='hidden'
+            name={`${namePrefix}src`}
             defaultValue={embedCodeIframe.src}
-            label='Embed Code Source'
           />
         )}
         {embedCodeIframe?.host && (
-          <Input
-            attributes={{
-              name: `${namePrefix}host`,
-              type: 'hidden',
-              required: true
-            }}
+          <input
+            type='hidden'
+            name={`${namePrefix}host`}
             defaultValue={embedCodeIframe.host}
-            label='Embed Code Host'
           />
         )}
         {/* Display-only oEmbed metadata for the collapsed new-item chip.
             Not schema fields, so `createEmbedCodeSchema` strips them on
             submit — the server re-resolves title/cover at save time. */}
         {previewMeta?.title && (
-          <Input
-            attributes={{
-              name: `${namePrefix}previewTitle`,
-              type: 'hidden'
-            }}
+          <input
+            type='hidden'
+            name={`${namePrefix}previewTitle`}
             defaultValue={previewMeta.title}
-            label='Embed Code Preview Title'
           />
         )}
         {previewMeta?.thumbnailUrl && (
-          <Input
-            attributes={{
-              name: `${namePrefix}previewThumbnailUrl`,
-              type: 'hidden'
-            }}
+          <input
+            type='hidden'
+            name={`${namePrefix}previewThumbnailUrl`}
             defaultValue={previewMeta.thumbnailUrl}
-            label='Embed Code Preview Thumbnail'
           />
         )}
-      </fieldset>
+      </DisclosureDetails>
     </>
   )
 }

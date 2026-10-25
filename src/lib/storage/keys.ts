@@ -4,7 +4,7 @@
  * use it. Relative imports only: next.config.ts loads this file without
  * the `@/` alias.
  */
-import { uploadFormats } from '../images/util'
+import { uploadFormats, variantSuffix } from '../images/util'
 
 /** Every original lives at `images/{id}.{ext}`. */
 export const IMAGE_PATH_PREFIX = 'images'
@@ -86,6 +86,15 @@ export function imageKey(id: string, format: string): string {
   const upload = uploadFormats[format]
   if (!upload) throw new Error(`Unknown image format "${format}"`)
   return `${IMAGE_PATH_PREFIX}/${id}.${upload.ext}`
+}
+
+/** One of an original's WebP widths; see `imageVariantUrl`. */
+export function imageVariantKey(
+  id: string,
+  width: number,
+  version: number
+): string {
+  return `${IMAGE_PATH_PREFIX}/${id}${variantSuffix(width, version)}`
 }
 
 /** A stored URL's key: its path, decoded, without the leading slash. */

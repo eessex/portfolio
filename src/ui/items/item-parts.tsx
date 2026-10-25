@@ -2,15 +2,16 @@ import {
   SpeakerWaveIcon,
   VideoCameraIcon
 } from '@heroicons/react/24/outline'
-import NextImage from 'next/image'
 
 import { isCoverImageThumbnailUrl } from '@/lib/embed-codes/cover-image-url'
+import { imageAspect } from '@/lib/images/util'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import { PagePaths } from '@/lib/schemas'
 import type { PageItemClient } from '@/lib/types'
 import { DraftBadge } from '@/ui/badges/draft-badge'
 import type { ThumbnailImage } from '@/ui/cover-image-thumbnail'
+import { StoredImage } from '@/ui/images/stored-image'
 import { formattedItemTitle, formattedItemType } from '@/ui/util'
 
 /** Pieces of a page item shared by `ItemCard` and `ItemsTableRow`. */
@@ -77,12 +78,12 @@ export function ItemCoverImage({
 }) {
   const isPriority = !isLazy && (isFeatured || index < priorityBefore)
   return (
-    <NextImage
-      src={image.url}
+    <StoredImage
+      image={image}
       alt={image.alt || image.caption || ''}
       title={image.caption || image.alt || undefined}
       width={width}
-      height={Math.round(width / image.aspect)}
+      height={Math.round(width / imageAspect(image))}
       sizes={sizes}
       unoptimized={isCoverImageThumbnailUrl(image.url)}
       loading={isLazy || index > lazyAfter ? 'lazy' : undefined}

@@ -15,14 +15,14 @@ export function createBlobAdapter(): StorageAdapter {
   return {
     provider: 'blob',
 
-    async put(key, body, contentType) {
+    async put(key, body, contentType, options) {
       const blob = await put(key, body, {
         access: 'public',
         contentType,
         // URLs are derived from the key, so it must be stored as given
         addRandomSuffix: false,
         // a key names one file forever
-        allowOverwrite: false,
+        allowOverwrite: options?.isOverwriteAllowed ?? false,
         cacheControlMaxAge: STORAGE_CACHE_MAX_AGE
       })
       const expected = publicUrl(key, 'blob')

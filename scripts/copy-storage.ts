@@ -34,8 +34,10 @@
  *    to BOTH providers, then its format, size and original filename are
  *    recorded. Writing both first means a row with a format resolves on
  *    either provider, so the switch and a rollback both keep working.
- * 2. Copies. Every row's images/{id}.{ext} and every embed code's
- *    cover files that the target is missing are copied from the source.
+ * 2. Copies. Every row's images/{id}.{ext}, its WebP variants
+ *    (images/{id}_v{n}_{w}.webp) once it has a variant version, and every
+ *    embed code's cover files that the target is missing are copied
+ *    from the source.
  *
  * Old names stay on the source until it's retired by hand.
  */
@@ -47,11 +49,12 @@ import {
   COVER_IMAGE_PATH_PREFIX,
   COVER_IMAGE_THUMBNAIL_SIZE
 } from '@/lib/embed-codes/cover-image-url'
-import { uploadFormats } from '@/lib/images/util'
+import { uploadFormats, VARIANT_WIDTHS } from '@/lib/images/util'
 import { storageAdapter } from '@/lib/storage'
 import {
   IMAGE_PATH_PREFIX,
   imageKey,
+  imageVariantKey,
   keyFromUrl,
   type StorageProvider,
   storageProvider,
@@ -169,8 +172,8 @@ async function main() {
           UPDATE images
           SET
             format = ${format},
-            width = ${metadata.width},
-            height = ${metadata.pageHeight ?? metadata.height},
+            width = ${metadata.autoOrient.width},
+            height = ${metadata.pageHeight ?? metadata.autoOrient.height},
             original_filename = COALESCE(original_filename, ${originalFilename ?? null})
           WHERE id = ${id} AND format IS NULL
         `
@@ -194,13 +197,22 @@ async function main() {
 
   // 2. Copies; a snapshot, so rows written after this are missed
   const named = (await sql`
-    SELECT id, format FROM images WHERE format IS NOT NULL
-  `) as { id: string; format: string }[]
+    SELECT id, format, COALESCE(variant_version, 0) AS variant_version
+    FROM images WHERE format IS NOT NULL
+  `) as { id: string; format: string; variant_version: number }[]
   const covers = (await sql`
     SELECT cover_image_id FROM embed_codes WHERE cover_image_id IS NOT NULL
   `) as { cover_image_id: string }[]
   const keys = [
-    ...named.map(({ id, format }) => imageKey(id, format)),
+    // a row with a variant version is served from its variants alone
+    ...named.flatMap(({ id, format, variant_version: version }) => [
+      imageKey(id, format),
+      ...(version > 0
+        ? VARIANT_WIDTHS.map((width) =>
+            imageVariantKey(id, width, version)
+          )
+        : [])
+    ]),
     ...covers.flatMap(({ cover_image_id: id }) => [
       `${COVER_IMAGE_PATH_PREFIX}/${id}.${COVER_IMAGE_EXTENSION}`,
       `${COVER_IMAGE_PATH_PREFIX}/${id}_${COVER_IMAGE_THUMBNAIL_SIZE}.${COVER_IMAGE_EXTENSION}`

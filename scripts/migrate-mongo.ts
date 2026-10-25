@@ -41,6 +41,7 @@ import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3'
 import { neon } from '@neondatabase/serverless'
 
 import { fetchEmbedCodeMetadata } from '@/lib/embed-codes/cover-image'
+import { imageAspect } from '@/lib/images/util'
 import { storageAdapter } from '@/lib/storage'
 import { IMAGE_PATH_PREFIX, publicUrl } from '@/lib/storage/keys'
 
@@ -290,7 +291,7 @@ async function apply(sql: Sql, plan: Plan, report: Report) {
             id, url, aspect, caption, type, format, width, height,
             original_filename
           ) VALUES (
-            ${image.id}, ${row.url}, ${Number(row.aspect.toFixed(4))},
+            ${image.id}, ${row.url}, ${Number(imageAspect(row).toFixed(4))},
             ${row.caption ?? null}, ${row.type ?? null}, ${row.format!},
             ${row.width!}, ${row.height!}, ${row.originalFilename ?? null}
           )

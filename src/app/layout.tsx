@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
 import { DeviceProvider } from '@/lib/device-context'
-import { ogImageSize } from '@/lib/images/util'
+import { ogImage } from '@/lib/images/util'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
 import { geistMono, geistSans } from '@/ui/fonts'
@@ -18,8 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const images = siteSettings?.coverImage
     ? [
         {
-          url: siteSettings.coverImage.url,
-          ...ogImageSize(siteSettings.coverImage.aspect),
+          ...ogImage(siteSettings.coverImage),
           alt:
             siteSettings?.coverImage.alt ||
             siteSettings?.coverImage.caption

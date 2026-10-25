@@ -1,6 +1,7 @@
 'use client'
 
 import type { Image } from '@/lib/images/schemas/db'
+import { imageAspect } from '@/lib/images/util'
 import type { CarouselMediaHeights } from '@/ui/carousel/carousel'
 import {
   Carousel,
@@ -49,7 +50,7 @@ export function ImagesCarousel({
         {images.map((image) => {
           const { width, sizes } = mediaSlideSize(
             MEDIA_HEIGHTS,
-            image.aspect
+            imageAspect(image)
           )
           return (
             <CarouselItem key={image.id}>

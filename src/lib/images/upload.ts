@@ -7,13 +7,23 @@ import sharp, { type Metadata } from 'sharp'
 import { assertAuthed } from '@/lib/auth/guard'
 import type { ImageFormat } from '@/lib/images/schemas/db'
 import {
+  badAspectMessage,
+  MAX_ASPECT,
+  MIN_ASPECT,
   MIN_SHORT_EDGE,
   tooSmallMessage,
-  uploadFormats
+  uploadFormats,
+  VARIANT_VERSION,
+  VARIANT_WIDTHS
 } from '@/lib/images/util'
+import {
+  generateImageVariants,
+  type ImageVariants
+} from '@/lib/images/variants'
 import { storageAdapter } from '@/lib/storage'
 import {
   imageKey,
+  imageVariantKey,
   keyFromUrl,
   storageHostname
 } from '@/lib/storage/keys'
@@ -30,7 +40,9 @@ async function readImage(bytes: Buffer, name: string) {
     throw new Error('File is not a readable image')
   }
 
-  const { format, width, height, pageHeight } = metadata
+  const { format, pageHeight } = metadata
+  // the size as displayed, after EXIF rotation
+  const { width, height } = metadata.autoOrient
   const upload = format ? uploadFormats[format] : undefined
   if (!upload) {
     throw new Error(
@@ -38,15 +50,19 @@ async function readImage(bytes: Buffer, name: string) {
     )
   }
   // an animated GIF/WebP's height spans every frame
-  const shortEdge = Math.min(width, pageHeight ?? height)
-  if (shortEdge < MIN_SHORT_EDGE) {
+  const frameHeight = pageHeight ?? height
+  if (Math.min(width, frameHeight) < MIN_SHORT_EDGE) {
     throw new Error(tooSmallMessage(name))
+  }
+  const aspect = width / frameHeight
+  if (aspect < MIN_ASPECT || aspect > MAX_ASPECT) {
+    throw new Error(badAspectMessage(name))
   }
   return {
     ...upload,
     format: format as ImageFormat,
     width,
-    height: pageHeight ?? height
+    height: frameHeight
   }
 }
 
@@ -58,6 +74,8 @@ export interface UploadedImage {
   originalFilename: string
   contentHash: string
   url: string
+  blurDataUrl?: string
+  variantVersion?: number
 }
 
 /**
@@ -86,6 +104,16 @@ export async function uploadFile(file: File): Promise<UploadedImage> {
 
   const storage = storageAdapter()
   await storage.put(key, bytes, image.contentType)
+  const putAt = performance.now()
+
+  // without variants the image is served through the optimizer until
+  // the backfill writes them, so a failure here doesn't fail the save
+  let variants: ImageVariants | undefined
+  try {
+    variants = await generateImageVariants(id, bytes)
+  } catch (err) {
+    console.error('Error writing image variants:', key, err)
+  }
 
   console.info('Uploaded image:', {
     key,
@@ -94,7 +122,8 @@ export async function uploadFile(file: File): Promise<UploadedImage> {
     width: image.width,
     height: image.height,
     readMs: Math.round(readAt - startedAt),
-    putMs: Math.round(performance.now() - readAt)
+    putMs: Math.round(putAt - readAt),
+    variantsMs: Math.round(performance.now() - putAt)
   })
   return {
     id,
@@ -103,19 +132,22 @@ export async function uploadFile(file: File): Promise<UploadedImage> {
     height: image.height,
     originalFilename: file.name,
     contentHash: createHash('sha256').update(bytes).digest('hex'),
-    url: storage.publicUrl(key)
+    url: storage.publicUrl(key),
+    ...variants
   }
 }
 
 /**
- * Removes an image's original. Rows saved before the Stage 3 copy have
- * no format; their file is found from the stored url, and only when it
- * lives on the active provider. Storage errors are logged, not thrown.
+ * Removes an image's original and its variants. Rows saved before the
+ * Stage 3 copy have no format; their file is found from the stored
+ * url, and only when it lives on the active provider. Storage errors
+ * are logged, not thrown.
  */
 export async function deleteImageFile(image: {
   id: string
   url: string
   format?: string | null
+  variantVersion?: number | null
 }) {
   await assertAuthed()
 
@@ -136,6 +168,15 @@ export async function deleteImageFile(image: {
     }
     await storage.delete(key)
     console.info('Deleted image file:', key)
+    if (image.format) {
+      // no version: a failed upload may have written the current one
+      const version = image.variantVersion || VARIANT_VERSION
+      await Promise.all(
+        VARIANT_WIDTHS.map((width) =>
+          storage.delete(imageVariantKey(image.id, width, version))
+        )
+      )
+    }
   } catch (err) {
     console.error('Error deleting image file:', err)
   }

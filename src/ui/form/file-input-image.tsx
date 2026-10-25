@@ -6,6 +6,7 @@ import type { Image } from '@/lib/images/schemas/db'
 import {
   ACCEPTED_IMAGE_TYPES,
   formatMegabytes,
+  imageAspect,
   MAX_UPLOAD_FILE_SIZE,
   MIN_SHORT_EDGE,
   tooSmallMessage
@@ -47,8 +48,9 @@ export function FileInputImage({
 }) {
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const savedAspect = image?.url ? imageAspect(image) : undefined
   const [_aspectRatio, setAspectRatio] = useState<number | undefined>(
-    image?.aspect || undefined
+    savedAspect
   )
   const [imageUrl, setImageUrl] = useState<string | undefined>(
     image?.url || undefined
@@ -122,9 +124,7 @@ export function FileInputImage({
     setLoadError(null)
     if (!selectedFile) {
       setPreviewUrl(null)
-      setAspectRatio(
-        imageUrl ? image?.aspect || undefined : undefined
-      )
+      setAspectRatio(imageUrl ? savedAspect : undefined)
       onChange?.('', undefined, true)
       setFile(null)
       return
@@ -139,9 +139,7 @@ export function FileInputImage({
         : null
     if (fileError) {
       setPreviewUrl(null)
-      setAspectRatio(
-        imageUrl ? image?.aspect || undefined : undefined
-      )
+      setAspectRatio(imageUrl ? savedAspect : undefined)
       setFile(null)
       setLoadError(fileError)
       onChange?.('', undefined, true)
@@ -156,7 +154,7 @@ export function FileInputImage({
 
   function onRemovePreviewImage() {
     setPreviewUrl(null)
-    setAspectRatio(imageUrl ? image?.aspect || undefined : undefined)
+    setAspectRatio(imageUrl ? savedAspect : undefined)
     onChange?.('', undefined, true)
     setFile(null)
     clearFileInput()

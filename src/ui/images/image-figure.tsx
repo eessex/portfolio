@@ -1,7 +1,6 @@
-import NextImage from 'next/image'
-
 import type { Image } from '@/lib/images/schemas/db'
-import { MOBILE_CONTENT_SIZE } from '@/lib/images/util'
+import { imageAspect, MOBILE_CONTENT_SIZE } from '@/lib/images/util'
+import { StoredImage } from '@/ui/images/stored-image'
 
 export const ImageFigure = ({
   image,
@@ -28,12 +27,12 @@ export const ImageFigure = ({
   }
   const alt = image.alt || image.caption || ''
   const img = (
-    <NextImage
-      src={image.url}
+    <StoredImage
+      image={image}
       alt={alt}
       title={image.caption || image.caption || undefined}
       width={width}
-      height={Math.round(width / image.aspect)}
+      height={Math.round(width / imageAspect(image))}
       loading={isLazy ? 'lazy' : undefined}
       priority={isPriority}
       fetchPriority={isPriority ? 'high' : 'auto'}

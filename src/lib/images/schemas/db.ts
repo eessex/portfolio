@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { MAX_ASPECT, MIN_ASPECT } from '@/lib/images/util'
 import { systemFields } from '@/lib/schemas/fields'
 import { shortText, url, uuid } from '@/lib/schemas/primitives'
 import { imageKey, publicUrl } from '@/lib/storage/keys'
@@ -46,18 +47,21 @@ export const storedFileFieldNames = Object.keys(
   storedFileFields
 ) as (keyof typeof storedFileFields)[]
 
+export const aspectSchema = z.preprocess((val) => {
+  if (typeof val === 'number') {
+    return Number(val.toFixed(4))
+  }
+  if (typeof val === 'string') {
+    const num = parseFloat(val)
+    return isNaN(num) ? val : Number(num.toFixed(4))
+  }
+  return val
+}, z.number().min(MIN_ASPECT).max(MAX_ASPECT))
+
 const imageFields = {
   alt: shortText.optional(),
-  aspect: z.preprocess((val) => {
-    if (typeof val === 'number') {
-      return Number(val.toFixed(4))
-    }
-    if (typeof val === 'string') {
-      const num = parseFloat(val)
-      return isNaN(num) ? val : Number(num.toFixed(4))
-    }
-    return val
-  }, z.number().min(0.1).max(10)),
+  /** derived from width/height on upload; see `imageAspect` */
+  aspect: aspectSchema.optional(),
   caption: shortText.optional(),
   type: imageTypeSchema.optional(),
   title: shortText.optional(),

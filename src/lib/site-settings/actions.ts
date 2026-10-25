@@ -110,6 +110,7 @@ function validateSocialLinkEntries(
 async function createSiteSettings({
   coverImageId,
   description,
+  isEmailSubscribeEnabled,
   socialLinkIds,
   title
 }: CreateSiteSettings) {
@@ -118,13 +119,15 @@ async function createSiteSettings({
       title,
       description,
       cover_image_id,
-      social_link_ids
+      social_link_ids,
+      is_email_subscribe_enabled
     )
     VALUES (
       ${title || ''},
       ${description || ''},
       ${coverImageId || null},
-      ${socialLinkIds ?? []}::uuid[]
+      ${socialLinkIds ?? []}::uuid[],
+      ${isEmailSubscribeEnabled}
     )
   `
 }
@@ -133,6 +136,7 @@ async function updateSiteSettings(
   {
     coverImageId,
     description,
+    isEmailSubscribeEnabled,
     socialLinkIds,
     title
   }: CreateSiteSettings,
@@ -148,6 +152,7 @@ async function updateSiteSettings(
           ${socialLinkIds ?? null}::uuid[],
           social_link_ids
         ),
+        is_email_subscribe_enabled = ${isEmailSubscribeEnabled},
         updated_at = current_timestamp
     WHERE id = ${id}
   `

@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { imageSchema } from '@/lib/images/schemas/db'
 import { linkSchema } from '@/lib/links/schemas/db'
 import { relationFields, systemFields } from '@/lib/schemas/fields'
-import { shortText, uuid } from '@/lib/schemas/primitives'
+import { bool, shortText, uuid } from '@/lib/schemas/primitives'
 
 /** Most social links the footer shows. */
 export const MAX_SOCIAL_LINKS = 6
@@ -17,6 +17,8 @@ export const maxSocialLinksMessage = `Add up to ${MAX_SOCIAL_LINKS} social links
 const siteSettingsFields = {
   coverImageId: relationFields.coverImageId,
   description: shortText.optional(),
+  /** whether the footer shows the email subscribe form */
+  isEmailSubscribeEnabled: bool.optional().default(false),
   /** the footer's links, in footer order */
   socialLinkIds: z
     .array(uuid)

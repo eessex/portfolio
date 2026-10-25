@@ -81,11 +81,30 @@ describe('EditSettings', () => {
     ).toBeInTheDocument()
   })
 
+  it('checks the email subscribe box by default', () => {
+    renderComponent()
+
+    expect(
+      screen.getByLabelText(/show email subscribe form/i)
+    ).toBeChecked()
+  })
+
+  it('reflects a disabled email subscribe setting', () => {
+    renderComponent({
+      settings: { id: 'settings-1', isEmailSubscribeEnabled: false }
+    })
+
+    expect(
+      screen.getByLabelText(/show email subscribe form/i)
+    ).not.toBeChecked()
+  })
+
   it('refreshes after a save and remounts on the saved settings', async () => {
     mockEditSiteSettings.mockResolvedValue({ ok: true })
     const settings = {
       id: 'settings-1',
       createdAt: new Date('2026-01-01'),
+      isEmailSubscribeEnabled: true,
       updatedAt: new Date('2026-01-01T12:00:00.100Z')
     }
     const { rerender } = renderComponent({ settings })

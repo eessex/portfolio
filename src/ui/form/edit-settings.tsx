@@ -8,6 +8,7 @@ import {
 } from '@/lib/images/schemas/db'
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
+import { Checkbox } from '@/ui/form/checkbox'
 import { FieldErrorList } from '@/ui/form/field-error-list'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
@@ -83,6 +84,13 @@ function SettingsFormFields({
         <SocialLinksPicker links={settings?.socialLinks} />
         <FieldErrorList errors={errors?.socialLinks} />
       </div>
+
+      <Checkbox
+        attributes={{ name: 'isEmailSubscribeEnabled' }}
+        // on by default, matching the column default
+        isDefaultChecked={settings?.isEmailSubscribeEnabled ?? true}
+        label='Show email subscribe form'
+      />
     </>
   )
 }

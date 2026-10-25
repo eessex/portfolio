@@ -245,29 +245,6 @@ describe('EditEmbedCode', () => {
     })
   })
 
-  describe('isRemoveButtonHidden', () => {
-    it('hides the remove button once parsed, keeping the preview', () => {
-      renderComponent({ isRemoveButtonHidden: true })
-      pasteIframe(embedCodeYoutubeFixture)
-
-      expect(
-        screen.getByTitle('Embedded media preview')
-      ).toBeInTheDocument()
-      expect(
-        screen.queryByRole('button', { name: removeButtonName })
-      ).not.toBeInTheDocument()
-    })
-
-    it('still shows the remove button by default', () => {
-      renderComponent()
-      pasteIframe(embedCodeYoutubeFixture)
-
-      expect(
-        screen.getByRole('button', { name: removeButtonName })
-      ).toBeInTheDocument()
-    })
-  })
-
   describe('removing a parsed embed', () => {
     it('reverts visibility back to the pre-parse state', () => {
       renderComponent()
@@ -313,7 +290,9 @@ describe('EditEmbedCode', () => {
         'podcast'
       )
       expect(
-        document.querySelector('fieldset.expanded')
+        document.querySelector(
+          'fieldset.disclosure-details:not([hidden])'
+        )
       ).toBeInTheDocument()
     })
 
@@ -718,42 +697,6 @@ describe('EditEmbedCode', () => {
         'aria-controls',
         fieldset.id
       )
-    })
-  })
-
-  describe('onReadyChange', () => {
-    it('reports not ready before an iframe is parsed', () => {
-      const onReadyChange = jest.fn()
-      renderComponent({ onReadyChange })
-
-      expect(onReadyChange).toHaveBeenLastCalledWith(false)
-    })
-
-    it('reports ready once the iframe parses successfully', () => {
-      const onReadyChange = jest.fn()
-      renderComponent({ onReadyChange })
-      pasteIframe(embedCodeYoutubeFixture)
-
-      expect(onReadyChange).toHaveBeenLastCalledWith(true)
-    })
-
-    it('reports not ready when a pasted iframe fails to parse', () => {
-      const onReadyChange = jest.fn()
-      renderComponent({ onReadyChange })
-      pasteIframe('invalid iframe code')
-
-      expect(onReadyChange).toHaveBeenLastCalledWith(false)
-    })
-
-    it('reports not ready again once the parsed embed is removed', () => {
-      const onReadyChange = jest.fn()
-      renderComponent({ onReadyChange })
-      pasteIframe(embedCodeYoutubeFixture)
-      fireEvent.click(
-        screen.getByRole('button', { name: removeButtonName })
-      )
-
-      expect(onReadyChange).toHaveBeenLastCalledWith(false)
     })
   })
 

@@ -331,48 +331,34 @@ export const EditEmbedCode = ({
           label='Caption'
         />
         {embedCodeIframe?.src && (
-          <Input
-            attributes={{
-              name: `${namePrefix}src`,
-              type: 'hidden',
-              required: true
-            }}
+          <input
+            type='hidden'
+            name={`${namePrefix}src`}
             defaultValue={embedCodeIframe.src}
-            label='Embed Code Source'
           />
         )}
         {embedCodeIframe?.host && (
-          <Input
-            attributes={{
-              name: `${namePrefix}host`,
-              type: 'hidden',
-              required: true
-            }}
+          <input
+            type='hidden'
+            name={`${namePrefix}host`}
             defaultValue={embedCodeIframe.host}
-            label='Embed Code Host'
           />
         )}
         {/* Display-only oEmbed metadata for the collapsed new-item chip.
             Not schema fields, so `createEmbedCodeSchema` strips them on
             submit — the server re-resolves title/cover at save time. */}
         {previewMeta?.title && (
-          <Input
-            attributes={{
-              name: `${namePrefix}previewTitle`,
-              type: 'hidden'
-            }}
+          <input
+            type='hidden'
+            name={`${namePrefix}previewTitle`}
             defaultValue={previewMeta.title}
-            label='Embed Code Preview Title'
           />
         )}
         {previewMeta?.thumbnailUrl && (
-          <Input
-            attributes={{
-              name: `${namePrefix}previewThumbnailUrl`,
-              type: 'hidden'
-            }}
+          <input
+            type='hidden'
+            name={`${namePrefix}previewThumbnailUrl`}
             defaultValue={previewMeta.thumbnailUrl}
-            label='Embed Code Preview Thumbnail'
           />
         )}
       </fieldset>

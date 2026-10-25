@@ -163,31 +163,18 @@ export const EditImage = ({
       >
         <legend className='visually-hidden'>Image details</legend>
         {aspectRatio && (
-          <Input
-            attributes={{
-              name: `${namePrefix}aspect`,
-              type: 'hidden'
-            }}
-            errors={errors?.aspect}
-            label='Aspect Ratio'
+          <input
+            type='hidden'
+            name={`${namePrefix}aspect`}
             value={aspectRatio}
           />
         )}
         {/* an existing image's url, which validation requires; its file never changes */}
         {url?.length > 0 && id && (
-          <Input
-            attributes={{
-              maxLength: MAX_STRING_LENGTH_SHORT,
-              name: `${namePrefix}url`,
-              placeholder:
-                'https://aws.s3.bucket/images/your-image.jpg',
-              required: true,
-              type: 'hidden'
-            }}
+          <input
+            type='hidden'
+            name={`${namePrefix}url`}
             defaultValue={url}
-            description='Where the image file is stored.'
-            errors={errors?.url}
-            label='Image url'
           />
         )}
         <Input

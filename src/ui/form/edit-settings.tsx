@@ -8,8 +8,8 @@ import {
 } from '@/lib/images/schemas/db'
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
+import { FieldErrorList } from '@/ui/form/field-error-list'
 import { Form, useFormErrors } from '@/ui/form/form'
-import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { EditImage } from '@/ui/images/edit-image-form'
 import {
@@ -81,11 +81,7 @@ function SettingsFormFields({
 
       <div>
         <SocialLinksPicker links={settings?.socialLinks} />
-        {errors?.socialLinks && (
-          <p role='alert' className={styles['error-message']}>
-            {errors.socialLinks.join(' ')}
-          </p>
-        )}
+        <FieldErrorList errors={errors?.socialLinks} />
       </div>
     </>
   )

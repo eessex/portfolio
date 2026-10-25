@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import { type JSX, useId, useState } from 'react'
 import React from 'react'
 
+import { FieldErrorList } from '@/ui/form/field-error-list'
 import styles from '@/ui/form/form.module.scss'
 import { InputLabel } from '@/ui/form/input-label'
 
@@ -82,11 +83,7 @@ export function Input<T extends InputElement = HTMLInputElement>({
   const descriptionId = useId()
   const validationId = useId()
   const errorId = useId()
-  const isHidden =
-    (attributes as React.InputHTMLAttributes<HTMLInputElement>)
-      ?.type === 'hidden' ||
-    !!(attributes as React.InputHTMLAttributes<HTMLInputElement>)
-      ?.hidden
+  const isHidden = !!attributes?.hidden
   const isRequired = !!(
     attributes as React.InputHTMLAttributes<HTMLInputElement>
   )?.required
@@ -165,15 +162,7 @@ export function Input<T extends InputElement = HTMLInputElement>({
           {validationText}
         </p>
       )}
-      {errors?.length && (
-        <p
-          id={errorId}
-          role='alert'
-          className={styles['error-message']}
-        >
-          {errors.join(', ')}.
-        </p>
-      )}
+      <FieldErrorList id={errorId} errors={errors} />
     </div>
   )
 }

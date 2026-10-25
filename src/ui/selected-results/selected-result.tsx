@@ -1,7 +1,5 @@
 import { itemIdFieldName } from '@/lib/item-fields'
 import type { EmbeddedItemType, PagePath } from '@/lib/schemas'
-import { itemTypeToLabel } from '@/lib/schemas'
-import { Input } from '@/ui/form/input'
 import styles from '@/ui/selected-results/selected-results.module.scss'
 
 export type SelectedResultProps = {
@@ -32,7 +30,6 @@ export const SelectedResult = ({
   dragHandle,
   children
 }: SelectedResultProps) => {
-  const formattedIdLabel = `${itemTypeToLabel(itemType, true)} ID`
   const fieldName = itemIdFieldName(itemType, name)
 
   return (
@@ -40,15 +37,7 @@ export const SelectedResult = ({
       {dragHandle}
       <div className={styles['content']}>{children}</div>
 
-      <Input
-        label={formattedIdLabel}
-        value={id}
-        attributes={{
-          name: fieldName,
-          readOnly: true,
-          type: 'hidden'
-        }}
-      />
+      <input type='hidden' name={fieldName} readOnly value={id} />
     </Component>
   )
 }

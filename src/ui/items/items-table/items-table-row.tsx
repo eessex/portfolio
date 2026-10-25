@@ -7,7 +7,7 @@ import {
   EmbedCodeTypes
 } from '@/lib/embed-codes/schemas/db'
 import type { Image } from '@/lib/images/schemas/db'
-import { MOBILE_CONTENT_SIZE } from '@/lib/images/util'
+import { imageAspect, MOBILE_CONTENT_SIZE } from '@/lib/images/util'
 import type { Link } from '@/lib/links/schemas/db'
 import type { Publisher } from '@/lib/publishers/schemas/db'
 import type { ReleaseClient } from '@/lib/releases/types'
@@ -210,7 +210,9 @@ export function ItemsTableRow({
       style={
         isExpanded
           ? ({
-              '--aspect': rowCoverImage?.aspect ?? 1,
+              '--aspect': rowCoverImage
+                ? imageAspect(rowCoverImage)
+                : 1,
               viewTransitionName: `item-${item.id}`
             } as React.CSSProperties)
           : undefined

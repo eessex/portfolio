@@ -6,6 +6,7 @@ import type {
   Image
 } from '@/lib/images/schemas/db'
 import { imageTypes } from '@/lib/images/schemas/db'
+import { imageAspect } from '@/lib/images/util'
 import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import {
   DisclosureDetails,
@@ -41,10 +42,13 @@ export const EditImage = ({
   const [type, setType] = useState<string | undefined>(
     image?.type || undefined
   )
-  const [aspectRatio, setAspectRatio] = useState<number | undefined>(
-    image?.aspect || undefined
-  )
   const [formImage] = useState<Partial<Image>>(image || {})
+  const savedAspect = formImage.url
+    ? imageAspect(formImage)
+    : undefined
+  const [aspectRatio, setAspectRatio] = useState<number | undefined>(
+    savedAspect
+  )
   const namePrefix = useNamePrefix()
 
   const { id, url } = (formImage || {}) as Image
@@ -53,7 +57,7 @@ export const EditImage = ({
     _filename: string,
     aspectRatio: number | undefined
   ) {
-    setAspectRatio(aspectRatio || formImage.aspect)
+    setAspectRatio(aspectRatio || savedAspect)
   }
   const hasImage = !!aspectRatio
   const disclosure = useDisclosureDetails({
@@ -88,13 +92,6 @@ export const EditImage = ({
         isLabelHidden={!isExpanded}
       />
       <DisclosureDetails {...disclosure} legend='Image details'>
-        {aspectRatio && (
-          <input
-            type='hidden'
-            name={`${namePrefix}aspect`}
-            value={aspectRatio}
-          />
-        )}
         {/* an existing image's url, which validation requires; its file never changes */}
         {url?.length > 0 && id && (
           <input

@@ -110,20 +110,16 @@ describe('Image Actions', () => {
         .mockResolvedValueOnce([imageFixture])
         .mockResolvedValueOnce([imageFixture])
 
-      // only aspect and url (required) are submitted; caption/title
-      // should fall back to the existing image's values
+      // only url (required) is submitted; caption/title should fall
+      // back to the existing image's values
       await editImage(
-        formDataFromObject({
-          aspect: imageFixture.aspect,
-          url: imageFixture.url
-        }),
+        formDataFromObject({ url: imageFixture.url }),
         imageFixture.id
       )
 
-      const [, alt, aspect, caption] = mockSql.mock
+      const [, alt, caption] = mockSql.mock
         .calls[1] as unknown as string[]
       expect(alt).toBe(null)
-      expect(aspect).toBeCloseTo(imageFixture.aspect)
       expect(caption).toBe(imageFixture.caption)
     })
 
@@ -182,6 +178,24 @@ describe('Image Actions', () => {
           uploadedFixture.contentHash
         ])
       )
+    })
+
+    it('refuses an out-of-range derived aspect before inserting', async () => {
+      uploadFileMock.mockResolvedValueOnce({
+        ...uploadedFixture,
+        width: 12000,
+        height: 600
+      })
+
+      const res = await editImage(
+        formDataFromObject({
+          ...createImageFixture,
+          file: mockFile('banner.jpg', 2048, 'image/jpeg')
+        })
+      )
+
+      expect(res?.ok).toBe(false)
+      expect(mockSql).not.toHaveBeenCalled()
     })
 
     it('refuses a new file for an existing image, since its file never changes', async () => {

@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 
 import ItemLayout from '@/app/(item-pages)/item-layout'
 import { fetchPublishedFirst } from '@/app/(item-pages)/resolve-page-item'
-import { ogImageSize } from '@/lib/images/util'
+import { ogImage } from '@/lib/images/util'
 import {
   fetchCachedDefaultProject,
   fetchCachedProjectsFirstPage
@@ -38,14 +38,13 @@ export async function generateMetadata() {
 }
 
 function ogImages(
-  image: { url: string; aspect: number } | undefined,
+  image: Parameters<typeof ogImage>[0] | undefined,
   alt: string | undefined
 ) {
   return image
     ? [
         {
-          url: image.url,
-          ...ogImageSize(image.aspect),
+          ...ogImage(image),
           alt: alt ?? ''
         }
       ]

@@ -6,13 +6,14 @@ import {
   ChevronRightIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
-import NextImage from 'next/image'
 import { useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { type Image, ImageTypes } from '@/lib/images/schemas/db'
+import { imageAspect } from '@/lib/images/util'
 import { useModalDialog } from '@/ui/dialog/use-modal-dialog'
 import styles from '@/ui/images/image-lightbox.module.scss'
+import { StoredImage } from '@/ui/images/stored-image'
 import { Spinner } from '@/ui/spinner/spinner'
 
 /** Minimum horizontal touch travel, in px, that counts as a swipe. */
@@ -53,6 +54,7 @@ export function ImageLightbox({
 
   const isMulti = total > 1
   const isLoading = loadedId !== image.id
+  const aspect = imageAspect(image)
 
   return createPortal(
     <dialog
@@ -112,14 +114,14 @@ export function ImageLightbox({
           <span data-backdrop />
         )}
 
-        <NextImage
+        <StoredImage
           key={image.id}
-          src={image.url}
+          image={image}
           alt={image.alt || image.caption || ''}
           width={1600}
-          height={Math.round(1600 / image.aspect)}
+          height={Math.round(1600 / aspect)}
           sizes='100vw'
-          style={{ aspectRatio: image.aspect }}
+          style={{ aspectRatio: aspect }}
           className={isLoading ? styles.loading : undefined}
           onLoad={() => setLoadedId(image.id)}
           onError={() => setLoadedId(image.id)}

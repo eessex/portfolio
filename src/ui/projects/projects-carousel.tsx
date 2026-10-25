@@ -1,5 +1,6 @@
 'use client'
 
+import { imageAspect } from '@/lib/images/util'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { CarouselMediaHeights } from '@/ui/carousel/carousel'
 import {
@@ -44,7 +45,7 @@ export function ProjectsCarousel({
             className={styles.project}
             imageSize={mediaSlideSize(
               MEDIA_HEIGHTS,
-              project.coverImage?.aspect ?? 1
+              project.coverImage ? imageAspect(project.coverImage) : 1
             )}
             isBadgeOnImage
             isCategoryVisible

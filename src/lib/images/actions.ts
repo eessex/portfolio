@@ -12,6 +12,7 @@ import {
 } from '@/lib/form-action'
 import { fetchImagesByIds } from '@/lib/images/data'
 import {
+  aspectSchema,
   type CreateImage,
   createImageSchema,
   type Image,
@@ -19,6 +20,7 @@ import {
   storedFileFieldNames
 } from '@/lib/images/schemas/db'
 import { deleteImageFile, uploadFile } from '@/lib/images/upload'
+import { imageAspect } from '@/lib/images/util'
 import { formatDbResponseForClient } from '@/lib/util'
 
 /**
@@ -140,7 +142,7 @@ export async function deleteImage(image: Image) {
       const [res] = await sql`
         DELETE FROM images as i
         WHERE id = ${image.id}
-        RETURNING i.id, i.url, i.format
+        RETURNING i.id, i.url, i.format, i.variant_version
       `
       if (!res?.url) {
         return {
@@ -151,7 +153,8 @@ export async function deleteImage(image: Image) {
       await deleteImageFile({
         id: res.id,
         url: res.url,
-        format: res.format
+        format: res.format,
+        variantVersion: res.variant_version
       })
     }
   })
@@ -159,7 +162,12 @@ export async function deleteImage(image: Image) {
 
 async function createImage(image: CreateImage) {
   try {
-    const { alt, aspect, caption, type, title } = toDbRow(image)
+    const { alt, caption, type, title } = toDbRow(image)
+    // kept in step with width/height until the column is dropped;
+    // parsed so the row reads back through imageSchema
+    const aspect = aspectSchema.parse(
+      imageAspect({ width: image.width, height: image.height })
+    )
     const rows = await sql`
       INSERT INTO images (
         id,
@@ -174,6 +182,8 @@ async function createImage(image: CreateImage) {
         height,
         original_filename,
         content_hash,
+        blur_data_url,
+        variant_version,
         created_at
       ) VALUES (
         COALESCE(${image.id ?? null}::uuid, uuid_generate_v4()),
@@ -188,6 +198,8 @@ async function createImage(image: CreateImage) {
         ${image.height ?? null},
         ${image.originalFilename ?? null},
         ${image.contentHash ?? null},
+        ${image.blurDataUrl ?? null},
+        ${image.variantVersion ?? null},
         current_timestamp
       )
       RETURNING *
@@ -203,8 +215,8 @@ async function createImage(image: CreateImage) {
 async function updateImage(image: CreateImage, id: string) {
   const [existingImage] = await fetchImagesByIds([id])
   try {
-    // the file, and so url and format, never change after upload
-    const { alt, aspect, caption, type, title } = toDbRow(
+    // the file, and so url, format and size, never change after upload
+    const { alt, caption, type, title } = toDbRow(
       image,
       existingImage
     )
@@ -212,7 +224,6 @@ async function updateImage(image: CreateImage, id: string) {
       UPDATE images
       SET
         alt = ${alt},
-        aspect = ${aspect},
         caption = ${caption},
         type = ${type},
         title = ${title},
@@ -236,7 +247,6 @@ function toDbRow(image: CreateImage, existing?: Image) {
 
   return {
     alt: imageToSave.alt ?? null,
-    aspect: imageToSave.aspect,
     caption: imageToSave.caption ?? null,
     type: imageToSave.type ?? null,
     title: imageToSave.title ?? null

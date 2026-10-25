@@ -2,6 +2,7 @@
 import sharp from 'sharp'
 
 import { deleteImageFile, uploadFile } from '@/lib/images/upload'
+import { VARIANT_VERSION, VARIANT_WIDTHS } from '@/lib/images/util'
 
 const mockPut = jest.fn()
 const mockDelete = jest.fn()
@@ -70,8 +71,65 @@ describe('uploadFile', () => {
       height: 600,
       originalFilename: 'IMG_0001.JPG',
       contentHash: expect.stringMatching(/^[0-9a-f]{64}$/),
-      url: `https://bucket.example/images/${res.id}.jpg`
+      url: `https://bucket.example/images/${res.id}.jpg`,
+      blurDataUrl: expect.stringMatching(/^data:image\/webp;base64,/),
+      variantVersion: VARIANT_VERSION
     })
+  })
+
+  it('writes every variant width as WebP, never wider than the original', async () => {
+    const res = await uploadFile(
+      await imageFile('jpeg', 'IMG_0001.JPG')
+    )
+
+    for (const width of VARIANT_WIDTHS) {
+      const call = mockPut.mock.calls.find(
+        ([key]) =>
+          key === `images/${res.id}_v${VARIANT_VERSION}_${width}.webp`
+      )
+      expect(call?.[2]).toBe('image/webp')
+      const meta = await sharp(call?.[1] as Buffer).metadata()
+      expect(meta.format).toBe('webp')
+      expect(meta.width).toBe(Math.min(width, 800))
+    }
+  })
+
+  it('saves without variants when writing them fails', async () => {
+    mockPut.mockImplementation(async (key: string) => {
+      if (key.endsWith('.webp')) throw new Error('storage down')
+    })
+    const errorSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {})
+
+    const res = await uploadFile(
+      await imageFile('jpeg', 'IMG_0001.JPG')
+    )
+
+    expect(res.url).toMatch(/\.jpg$/)
+    expect(res.variantVersion).toBeUndefined()
+    errorSpy.mockRestore()
+  })
+
+  it('records the size as displayed, after EXIF rotation', async () => {
+    const bytes = await sharp({
+      create: {
+        width: 800,
+        height: 600,
+        channels: 3,
+        background: '#000'
+      }
+    })
+      .jpeg()
+      .withMetadata({ orientation: 6 })
+      .toBuffer()
+    const res = await uploadFile(
+      new File([new Uint8Array(bytes)], 'rotated.jpg', {
+        type: 'image/jpeg'
+      })
+    )
+
+    expect(res).toMatchObject({ width: 600, height: 800 })
   })
 
   it('stores same-named files under different keys', async () => {
@@ -128,6 +186,18 @@ describe('uploadFile', () => {
     expect(mockPut).not.toHaveBeenCalled()
   })
 
+  it('refuses an aspect over 10:1 without uploading', async () => {
+    await expect(
+      uploadFile(
+        await imageFile('jpeg', 'banner.jpg', 'image/jpeg', {
+          width: 12000,
+          height: 600
+        })
+      )
+    ).rejects.toThrow('"banner.jpg" is too long and thin')
+    expect(mockPut).not.toHaveBeenCalled()
+  })
+
   it('accepts a 600 px short edge', async () => {
     const res = await uploadFile(
       await imageFile('jpeg', 'portrait.jpg', 'image/jpeg', {
@@ -151,6 +221,11 @@ describe('deleteImageFile', () => {
       url: 'https://anywhere.example/old.png'
     })
     expect(mockDelete).toHaveBeenCalledWith(`images/${id}.png`)
+    for (const width of VARIANT_WIDTHS) {
+      expect(mockDelete).toHaveBeenCalledWith(
+        `images/${id}_v${VARIANT_VERSION}_${width}.webp`
+      )
+    }
   })
 
   it('deletes an older row by its stored url on the active provider', async () => {
@@ -167,6 +242,20 @@ describe('deleteImageFile', () => {
       url: 'https://old-bucket.s3.amazonaws.com/images/photo.jpg'
     })
     expect(mockDelete).not.toHaveBeenCalled()
+  })
+
+  it("deletes a row's own variant version", async () => {
+    await deleteImageFile({
+      id,
+      format: 'png',
+      variantVersion: 2,
+      url: 'https://anywhere.example/old.png'
+    })
+    for (const width of VARIANT_WIDTHS) {
+      expect(mockDelete).toHaveBeenCalledWith(
+        `images/${id}_v2_${width}.webp`
+      )
+    }
   })
 
   it('logs storage errors instead of throwing', async () => {

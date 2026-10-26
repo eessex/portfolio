@@ -1,0 +1,30 @@
+name: Checks
+
+# Typecheck, lint and tests. Vercel's build only migrates and builds.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    # Only on the source repo, so forks' synced pushes cost them nothing
+    if: github.repository == 'eessex/portfolio-cms'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      # Version from package.json's packageManager
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test:quiet

@@ -11,6 +11,7 @@
     "build": "next build",
     "start": "next start",
     "setup": "node --import tsx scripts/setup.ts",
+    "migrate": "node --env-file-if-exists=.env --import tsx scripts/migrate.ts",
     "backfill-image-variants": "node --env-file=.env --import tsx scripts/backfill-image-variants.ts",
     "copy-storage": "node --env-file=.env --import tsx scripts/copy-storage.ts",
     "migrate-mongo": "node --env-file=.env --import tsx scripts/migrate-mongo.ts",

@@ -28,10 +28,10 @@ Open [http://localhost:3000](http://localhost:3000) and sign in at `/login` with
 1. Copies `.env.example` → `.env` (if `.env` doesn't exist yet)
 2. Generates `AUTH_SECRET` and writes it to `.env` (if unset)
 3. Prompts for your Postgres `DATABASE_URL`, testing the connection and re-prompting until it succeeds
-4. Creates the database schema from `src/seed/createTables.ts`
+4. Applies database migrations (`pnpm migrate`)
 5. Creates the first admin user, if none exists yet
 
-Each step checks the current state before it acts. Existing env values are reused and re-validated instead of overwritten, schema creation is `IF NOT EXISTS`-guarded, and admin creation is skipped once any user exists. That makes it **safe to re-run**, for example after pulling schema changes.
+Each step checks the current state before it acts. Existing env values are reused and re-validated instead of overwritten, migrations already applied are skipped, and admin creation is skipped once any user exists. That makes it **safe to re-run**, for example after pulling schema changes.
 
 > `run` is required. Bare `pnpm setup` invokes pnpm's own built-in command instead of this script.
 
@@ -68,7 +68,8 @@ pnpm prettier      # prettier --write .
 pnpm test          # run the jest suite
 pnpm test:watch    # jest --watch
 pnpm test:quiet    # jest --silent --noStackTrace (summary only)
-pnpm check         # typecheck, lint, tests, then build (what CI runs)
+pnpm check         # typecheck, lint, tests, then build
+pnpm migrate       # apply pending migrations to the database .env points at
 pnpm run setup     # interactive first-run setup; safe to re-run
 pnpm run copy-storage --to blob [--dry-run]  # copy stored files to another provider
 pnpm run copy-storage --rename-only [--dry-run]  # move older images (e.g. an old bucket's) to images/{id}.{ext} on the current provider
@@ -76,7 +77,7 @@ pnpm run copy-storage --rename-only [--dry-run]  # move older images (e.g. an ol
 
 To run a single test file: `NODE_OPTIONS=--no-deprecation npx jest src/lib/util.test.ts` (add `-t "name"` to filter by test name).
 
-CI runs through Vercel, which builds every push. `vercel.json` sets Vercel's build command to `pnpm check`, so a deploy fails if typecheck, lint, tests, or the build fail. That setting overrides the build command in the Vercel dashboard. Run `pnpm check` locally to reproduce a CI failure.
+Checks run in GitHub Actions: typecheck, lint and tests on every pull request and push to `main`. Vercel builds every push with `pnpm migrate && pnpm build` (set in `vercel.json`, which overrides the dashboard's build command), so a deploy fails if a migration or the build fails. Production builds migrate the production database; preview builds skip migrations unless they have their own Neon branch and `MIGRATE_PREVIEWS`/`PRODUCTION_DATABASE_HOST` are set (see "Migrating preview deployments" in `CONTRIBUTING.md`). Run `pnpm check` locally to reproduce a failure.
 
 ## Using the admin
 
@@ -98,7 +99,8 @@ src/proxy.ts            middleware wiring for auth.config
 src/lib/<domain>/       per-content-type data, cache, actions, schemas
 src/lib/form-action.ts  shared server-action pipeline
 src/lib/list-fetch.ts   shared cursor-paginated list query
-src/seed/createTables.ts  the Postgres schema (single source of truth)
+migrations/             versioned schema migrations (`pnpm migrate`)
+src/seed/every-deploy.ts  CHECKs, triggers and SQL functions re-run on every migrate
 src/ui/                 shared React components (item-picker, combobox, form, ...)
 src/test/               jest setup, mocks, helpers
 ```
@@ -115,7 +117,7 @@ src/test/               jest setup, mocks, helpers
 
 DB rows are `snake_case`. Everything that reaches the client is converted to `camelCase` and validated against its Zod schema by `formatDbResponseForClient` (`src/lib/util.ts`). List endpoints use cursor pagination through `runListFetch()` (`src/lib/list-fetch.ts`).
 
-**Schema.** `src/seed/createTables.ts` defines every table, constraint, and index. There are no migration files. The file is idempotent. To change the schema, add statements guarded the same way (`IF NOT EXISTS`, or an `information_schema` check for constraints) and re-run `pnpm run setup`.
+**Schema.** Tables, columns and indexes come from the versioned files in `migrations/`, applied in order by `pnpm migrate` (`scripts/migrate.ts`), each once per database and never edited after it ships. `0001_baseline.ts` is the schema from before migrations existed. Enum-like CHECKs, slug triggers, SQL functions and the built-in publisher are re-applied on every run from `src/seed/every-deploy.ts`, since their SQL follows the code. To change the schema, add a new `migrations/NNNN_short_name.sql` and run `pnpm migrate`.
 
 **Mutations.** Server actions take `FormData` and return a `FormResponse` (`{ ok: true, res }` or `{ ok: false, message, errors? }`) instead of throwing, so forms can show field errors inline. The shared pipeline in `src/lib/form-action.ts` (`runFormAction` / `runDeleteAction`) runs the steps in this order: auth check, normalize, Zod validate, save, invalidate cache tags, format errors. Each domain supplies only its schema, SQL callbacks, and tags.
 

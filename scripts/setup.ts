@@ -5,7 +5,7 @@
  *   2. Generates AUTH_SECRET and writes it to .env (if unset)
  *   3. Prompts for the Postgres DATABASE_URL (with doc links)
  *   4. Tests the connection, re-prompting until it succeeds
- *   5. Creates the database schema (idempotent)
+ *   5. Applies database migrations (`pnpm migrate`)
  *   6. Creates the first admin user (only if none exists)
  *
  * Run with: pnpm run setup
@@ -235,12 +235,19 @@ async function promptAdmin(): Promise<AdminInput> {
 }
 
 async function setupDatabase(): Promise<void> {
+  const { migrateDatabase } =
+    await import('./migrate/migrate-database')
+  console.log('• Applying migrations…')
+  // Only the tested DATABASE_URL: a stale DATABASE_URL_UNPOOLED in
+  // .env would otherwise win and migrate a different database
+  const decision = await migrateDatabase({
+    ...process.env,
+    DATABASE_URL_UNPOOLED: undefined
+  })
+  if (!decision.isRun) throw new Error(decision.message)
+
   // Imported dynamically: these modules read DATABASE_URL at import
   // time, so they must load only after ensureDatabaseUrl() has set it.
-  const { createTables } = await import('@/seed/createTables')
-  console.log('• Creating (or migrating) tables…')
-  await createTables()
-
   const { countUsers } = await import('@/lib/users/data')
   const existing = await countUsers()
   if (existing > 0) {

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { fetchEmbedCodes } from '@/lib/embed-codes/data'
+import { fetchEmbedCodes } from '@/lib/embed-codes/cached'
 import { EmbeddedItemTypes } from '@/lib/schemas'
 import { camelToSentence } from '@/lib/strings'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'

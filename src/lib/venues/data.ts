@@ -5,7 +5,6 @@ import {
   formatDbResponseForClient,
   type ResponseWithCursor
 } from '@/lib/util'
-import { fetchCachedVenuesFirstPage } from '@/lib/venues/cached'
 import {
   type DashboardVenue,
   dashboardVenueSchema
@@ -32,14 +31,6 @@ export async function fetchVenueById(id: string) {
   } catch (cause) {
     throw new Error('Failed to fetch venue.', { cause })
   }
-}
-
-export async function fetchVenues(cursor?: string, query?: string) {
-  if (!cursor && !query) {
-    return fetchCachedVenuesFirstPage()
-  }
-
-  return fetchVenuesRaw(cursor, query)
 }
 
 /**

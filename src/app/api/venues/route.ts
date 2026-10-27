@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { fetchVenues } from '@/lib/venues/data'
+import { fetchVenues } from '@/lib/venues/cached'
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)

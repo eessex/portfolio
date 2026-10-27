@@ -1,9 +1,5 @@
 import { sql } from '@/lib/db'
 import {
-  fetchCachedImagesFirstPage,
-  fetchCachedPressImagesFirstPage
-} from '@/lib/images/cached'
-import {
   type DashboardImage,
   dashboardImageSchema
 } from '@/lib/images/schemas/client'
@@ -79,19 +75,6 @@ export const fetchImagesByIds = async (ids: string[]) => {
   } catch (cause) {
     throw new Error('Failed to fetch images.', { cause })
   }
-}
-
-export async function fetchImages(
-  cursor?: string,
-  query?: string,
-  type?: string
-) {
-  if (!cursor && !query) {
-    if (type === 'press') return fetchCachedPressImagesFirstPage()
-    if (!type) return fetchCachedImagesFirstPage()
-  }
-
-  return fetchImagesRaw(cursor, query, type)
 }
 
 /**

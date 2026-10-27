@@ -1,5 +1,5 @@
 import { isAuthed } from '@/lib/auth/guard'
-import { fetchReleases } from '@/lib/releases/data'
+import { fetchReleases } from '@/lib/releases/cached'
 import { formatAuthedApiResponseJSON } from '@/lib/util'
 
 export async function GET(req: Request) {

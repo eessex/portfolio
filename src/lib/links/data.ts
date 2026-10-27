@@ -1,5 +1,4 @@
 import { sql } from '@/lib/db'
-import { fetchCachedLinksFirstPage } from '@/lib/links/cached'
 import type { DashboardLink } from '@/lib/links/schemas/client'
 import { dashboardLinkSchema } from '@/lib/links/schemas/client'
 import {
@@ -56,22 +55,6 @@ export async function fetchLinkByUrl(
   } catch (cause) {
     throw new Error('Failed to fetch link.', { cause })
   }
-}
-
-/**
- * `isPress` restricts results to press links (`true`) or to every
- * other link (`false`), for the separate Press/Links pickers.
- */
-export async function fetchLinks(
-  cursor?: string,
-  query?: string,
-  isPress?: boolean
-) {
-  if (!cursor && !query) {
-    return fetchCachedLinksFirstPage(isPress)
-  }
-
-  return fetchLinksRaw(cursor, query, isPress)
 }
 
 /**

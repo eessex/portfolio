@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { fetchPublishers } from '@/lib/publishers/data'
+import { fetchPublishers } from '@/lib/publishers/cached'
 import { EmbeddedItemTypes } from '@/lib/schemas'
 import { camelToSentence } from '@/lib/strings'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'

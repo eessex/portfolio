@@ -1,5 +1,4 @@
 import { sql } from '@/lib/db'
-import { fetchCachedEmbedCodesFirstPage } from '@/lib/embed-codes/cached'
 import {
   type WithCoverImageUrls,
   withCoverImageUrls
@@ -43,17 +42,6 @@ export const fetchEmbedCodesByIds = async (ids: string[]) => {
   } catch (cause) {
     throw new Error('Failed to fetch embed codes.', { cause })
   }
-}
-
-export async function fetchEmbedCodes(
-  cursor?: string,
-  query?: string
-) {
-  if (!cursor && !query) {
-    return fetchCachedEmbedCodesFirstPage()
-  }
-
-  return fetchEmbedCodesRaw(cursor, query)
 }
 
 /**

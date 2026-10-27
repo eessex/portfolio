@@ -1,57 +1,20 @@
 import { embedCodeFixture } from '@/lib/embed-codes/fixtures'
 
-jest.mock('@/lib/embed-codes/cached', () => ({
-  fetchCachedEmbedCodesFirstPage: jest.fn()
-}))
-
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))
 
 import { sql } from '@/lib/db'
-import { fetchCachedEmbedCodesFirstPage } from '@/lib/embed-codes/cached'
 import { withCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import * as EmbedCodes from '@/lib/embed-codes/data'
 
 const mockSql = jest.mocked(sql)
-const mockCached = jest.mocked(fetchCachedEmbedCodesFirstPage)
 
 const dashboardEmbedCodeRow = withCoverImageUrls({
   ...embedCodeFixture,
   eventSlugs: [],
   projectSlugs: [],
   releaseSlugs: []
-})
-
-describe('fetchEmbedCodes', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it('returns cached first page when no cursor and no query', async () => {
-    mockCached.mockResolvedValue({
-      res: [dashboardEmbedCodeRow],
-      nextCursor: 'next',
-      totalCount: 1
-    })
-
-    const result = await EmbedCodes.fetchEmbedCodes()
-
-    expect(mockCached).toHaveBeenCalled()
-    expect(result).toEqual({
-      res: [dashboardEmbedCodeRow],
-      nextCursor: 'next',
-      totalCount: 1
-    })
-  })
-
-  it('falls back to raw fetch when cursor is provided', async () => {
-    mockSql.mockResolvedValue([])
-
-    const result = await EmbedCodes.fetchEmbedCodes('cursor')
-
-    expect(result).toBeDefined()
-  })
 })
 
 describe('fetchEmbedCodesRaw', () => {

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
-import { fetchImages } from '@/lib/images/data'
+import { fetchImages } from '@/lib/images/cached'
 import { EmbeddedItemTypes } from '@/lib/schemas'
 import { camelToSentence } from '@/lib/strings'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'

@@ -1,10 +1,10 @@
 /** @jest-environment node */
 
-jest.mock('@/lib/images/data', () => ({ fetchImages: jest.fn() }))
+jest.mock('@/lib/images/cached', () => ({ fetchImages: jest.fn() }))
 
 import { GET } from '@/app/api/images/route'
 import { auth } from '@/auth'
-import { fetchImages } from '@/lib/images/data'
+import { fetchImages } from '@/lib/images/cached'
 import { apiRequest } from '@/test/helpers'
 
 const mockFetch = jest.mocked(fetchImages)

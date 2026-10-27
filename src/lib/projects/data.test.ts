@@ -1,81 +1,14 @@
 import { embedCodeFixture } from '@/lib/embed-codes/fixtures'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
 
-jest.mock('@/lib/projects/cached', () => ({
-  fetchCachedProjectsFirstPage: jest.fn()
-}))
-
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))
 
 import { sql } from '@/lib/db'
-import { fetchCachedProjectsFirstPage } from '@/lib/projects/cached'
 import * as Projects from '@/lib/projects/data'
 
 const mockSql = jest.mocked(sql)
-const mockCached = jest.mocked(fetchCachedProjectsFirstPage)
-
-describe('fetchProjects', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it('returns cached first page when no cursor and no query', async () => {
-    mockCached.mockResolvedValue({
-      res: {
-        allProjects: [projectFixtureBand]
-      },
-      nextCursor: 'next',
-      totalCount: 1
-    })
-
-    const result = await Projects.fetchProjects(false)
-
-    expect(mockCached).toHaveBeenCalledWith(false, false)
-    expect(result).toEqual({
-      res: {
-        allProjects: [projectFixtureBand]
-      },
-      nextCursor: 'next',
-      totalCount: 1
-    })
-  })
-
-  it('falls back to raw fetch when cursor is provided', async () => {
-    mockSql.mockResolvedValue([])
-
-    const result = await Projects.fetchProjects(false, 'cursor')
-
-    expect(result).toBeDefined()
-  })
-
-  it('threads isDefaultExcluded to the cached first page', async () => {
-    mockCached.mockResolvedValue({
-      res: { allProjects: [] },
-      nextCursor: null,
-      totalCount: 0
-    })
-
-    await Projects.fetchProjects(false, undefined, undefined, {
-      isDefaultExcluded: true
-    })
-
-    expect(mockCached).toHaveBeenCalledWith(false, true)
-  })
-
-  it('threads isDefaultExcluded to the raw fetch', async () => {
-    mockSql
-      .mockResolvedValueOnce([{ count: 0 }])
-      .mockResolvedValueOnce([])
-
-    await Projects.fetchProjects(false, undefined, 'band', {
-      isDefaultExcluded: true
-    })
-
-    expect(defaultExcludedParams()).toEqual([true, true])
-  })
-})
 
 /**
  * The value bound to `NOT ${isDefaultExcluded}` in each `sql` call

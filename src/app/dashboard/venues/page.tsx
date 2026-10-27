@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 
 import { EmbeddedItemTypes } from '@/lib/schemas'
 import { camelToSentence } from '@/lib/strings'
-import { fetchVenues } from '@/lib/venues/data'
+import { fetchVenues } from '@/lib/venues/cached'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
 import { Loading } from '@/ui/loading'

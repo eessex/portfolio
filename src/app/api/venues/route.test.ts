@@ -1,10 +1,10 @@
 /** @jest-environment node */
 
-jest.mock('@/lib/venues/data', () => ({ fetchVenues: jest.fn() }))
+jest.mock('@/lib/venues/cached', () => ({ fetchVenues: jest.fn() }))
 
 import { GET } from '@/app/api/venues/route'
 import { auth } from '@/auth'
-import { fetchVenues } from '@/lib/venues/data'
+import { fetchVenues } from '@/lib/venues/cached'
 import { apiRequest } from '@/test/helpers'
 
 const mockFetch = jest.mocked(fetchVenues)

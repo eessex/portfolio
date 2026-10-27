@@ -6,8 +6,11 @@ jest.mock('@/lib/events/data', () => ({
   fetchUpcomingEventsRaw: jest.fn()
 }))
 
-import { fetchCachedEventById } from '@/lib/events/cached'
-import { fetchEventById } from '@/lib/events/data'
+import {
+  fetchCachedEventById,
+  fetchEvents
+} from '@/lib/events/cached'
+import { fetchEventById, fetchEventsRaw } from '@/lib/events/data'
 
 const mockFetch = jest.mocked(fetchEventById)
 
@@ -34,6 +37,41 @@ describe('fetchCachedEventById', () => {
 
     expect(cacheTag).not.toHaveBeenCalledWith(
       expect.stringMatching(/^project:/)
+    )
+  })
+})
+
+describe('fetchEvents', () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  it('serves the first page from the cache', async () => {
+    await fetchEvents(false, 'project-1')
+
+    expect(cacheTag).toHaveBeenCalledWith('events')
+    expect(fetchEventsRaw).toHaveBeenCalledWith(
+      false,
+      'project-1',
+      undefined,
+      undefined
+    )
+  })
+
+  it('fetches later pages and searches uncached', async () => {
+    await fetchEvents(true, undefined, 'cursor')
+    await fetchEvents(true, 'project-1', undefined, 'query')
+
+    expect(cacheTag).not.toHaveBeenCalled()
+    expect(fetchEventsRaw).toHaveBeenCalledWith(
+      true,
+      undefined,
+      'cursor',
+      undefined
+    )
+    expect(fetchEventsRaw).toHaveBeenCalledWith(
+      true,
+      'project-1',
+      undefined,
+      'query'
     )
   })
 })

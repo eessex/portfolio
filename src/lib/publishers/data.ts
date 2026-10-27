@@ -1,6 +1,5 @@
 import { sql } from '@/lib/db'
 import { runListFetch } from '@/lib/list-fetch'
-import { fetchCachedPublishersFirstPage } from '@/lib/publishers/cached'
 import {
   type DashboardPublisher,
   dashboardPublisherSchema
@@ -36,20 +35,6 @@ export async function fetchPublisherById(id: string) {
   } catch (cause) {
     throw new Error('Failed to fetch publisher.', { cause })
   }
-}
-
-/**
- * dashboard: fetch all the publishers
- */
-export async function fetchPublishers(
-  cursor?: string,
-  query?: string
-) {
-  if (!cursor && !query) {
-    return fetchCachedPublishersFirstPage()
-  }
-
-  return fetchPublishersRaw(cursor, query)
 }
 
 /**

@@ -252,11 +252,13 @@ describe('ItemLayout header', () => {
     expect(screen.getByText(/2025/)).toBeInTheDocument()
   })
 
-  it('shows "About" with no category or date for the default project', async () => {
-    await renderLayout({
-      ...projectFixtureBand,
-      isDefaultProject: true
-    })
+  it('renders a given header in place of the category, title and date', async () => {
+    render(
+      await ItemLayout({
+        item: projectFixtureBand,
+        header: <h1>About</h1>
+      })
+    )
 
     expect(
       screen.getByRole('heading', { level: 1 })
@@ -268,31 +270,24 @@ describe('ItemLayout header', () => {
     expect(screen.queryByText(/2025/)).not.toBeInTheDocument()
   })
 
-  it('keeps the draft badge on an unpublished default project', async () => {
-    await renderLayout({
-      ...projectFixtureBand,
-      isDefaultProject: true,
-      isPublished: false
-    })
+  it('uses the minimal header layout only for a given header', async () => {
+    render(
+      await ItemLayout({
+        item: projectFixtureBand,
+        header: <h1>About</h1>
+      })
+    )
 
-    expect(screen.getByText('Unpublished')).toBeInTheDocument()
-  })
-
-  it('styles only the default project with the legacy About header', async () => {
-    await renderLayout({
-      ...projectFixtureBand,
-      isDefaultProject: true
-    })
     expect(screen.getByRole('article').parentElement).toHaveClass(
-      'default-project'
+      'custom-header'
     )
   })
 
-  it('keeps the centered header on other projects', async () => {
+  it('keeps the centered header on page items', async () => {
     await renderLayout(projectFixtureBand)
 
     expect(screen.getByRole('article').parentElement).not.toHaveClass(
-      'default-project'
+      'custom-header'
     )
   })
 })

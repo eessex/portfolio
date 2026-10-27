@@ -73,8 +73,9 @@
   }
 }
 
-// The default project at `/about` uses a minimal, left-aligned header
-.item-layout.default-project > article {
+// A page passing its own `header` (`/about`) gets a minimal,
+// left-aligned header
+.item-layout.custom-header > article {
   max-width: none;
   padding: grids.space-em(6, 4, 8);
 

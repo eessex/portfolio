@@ -9,6 +9,7 @@ import {
   fetchCachedProjectsFirstPage
 } from '@/lib/projects/cached'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
+import { DraftBadge } from '@/ui/badges/draft-badge'
 import { ProjectsCarousel } from '@/ui/projects/projects-carousel'
 
 const title = 'About'
@@ -59,12 +60,31 @@ export default async function AboutPage() {
 
   if (!pageItem) notFound()
 
+  const { item } = pageItem
+
   return (
-    <ItemLayout item={pageItem.item}>
+    <ItemLayout
+      item={item}
+      header={<AboutHeader isPublished={item.isPublished} />}
+    >
       <Suspense>
         <AboutProjects />
       </Suspense>
     </ItemLayout>
+  )
+}
+
+/** Just "About" (and a draft badge): no category or date. */
+function AboutHeader({ isPublished }: { isPublished: boolean }) {
+  return (
+    <>
+      <h1>{title}</h1>
+      {!isPublished && (
+        <p className='category'>
+          <DraftBadge />
+        </p>
+      )}
+    </>
   )
 }
 

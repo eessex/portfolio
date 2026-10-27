@@ -45,15 +45,20 @@ const IMAGES_CAROUSEL_MIN = 3
 
 export default async function ItemLayout({
   item,
+  header,
   children
 }: {
   item: PageItemClient
+  /**
+   * Replaces the default header (category, title, date, venue, ticket
+   * link) and switches to the minimal, left-aligned layout, e.g.
+   * `/about`'s "About" heading.
+   */
+  header?: React.ReactNode
   children?: React.ReactNode
 }) {
-  const { publishedEditions } = item as ReleaseClient
-  const { ticketLink, venue, project, isUpcoming } =
-    item as EventClient
-  const { contactInfo, isDefaultProject } = item as ProjectClient
+  const { project } = item as EventClient
+  const { contactInfo } = item as ProjectClient
   const images = item.images ?? []
   const embedCodes = item.embedCodes ?? []
 
@@ -67,85 +72,16 @@ export default async function ItemLayout({
     ? [item.coverImage, ...images]
     : images
 
-  function category() {
-    switch (item.path) {
-      case PagePaths.projects:
-      case PagePaths.releases:
-        return formattedItemType(
-          (item as ReleaseClient | ProjectClient).type || item.path,
-          isUpcoming
-        )
-      default:
-        return formattedItemType(item.path, isUpcoming)
-    }
-  }
-
   return (
     <ImageGallery images={galleryImages}>
       <div
         className={clsx(
           styles['item-layout'],
-          isDefaultProject && styles['default-project']
+          header !== undefined && styles['custom-header']
         )}
       >
         <article>
-          <header>
-            {isDefaultProject ? (
-              !item.isPublished && (
-                <p className='category'>
-                  <DraftBadge />
-                </p>
-              )
-            ) : (
-              <p className='category'>
-                <NextLink href={`/${item.path}`}>
-                  {category()}
-                </NextLink>
-                {!item.isPublished && <DraftBadge />}
-              </p>
-            )}
-
-            <h1>
-              {isDefaultProject ? 'About' : formattedItemTitle(item)}
-            </h1>
-
-            {publishedEditions ? (
-              <PublishedEditionsCombined
-                publishedEditions={publishedEditions}
-              />
-            ) : (
-              !isDefaultProject && (
-                <p>
-                  <FormattedItemDate
-                    item={item}
-                    timezone={(item as EventClient).venue?.timezone}
-                  />
-                </p>
-              )
-            )}
-
-            {venue && (
-              <p className={styles.venue}>
-                {venue.url ? (
-                  <a
-                    href={venue.url}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                  >
-                    {formatVenueInline({ venue })}
-                  </a>
-                ) : (
-                  formatVenueInline({ venue })
-                )}
-              </p>
-            )}
-
-            {ticketLink && isUpcoming && (
-              <p className={styles['ticket-link']}>
-                <TicketButton url={ticketLink} />
-              </p>
-            )}
-          </header>
+          <header>{header ?? <ItemHeader item={item} />}</header>
 
           {item.coverImage && (
             <GalleryImageFigure image={item.coverImage} isPriority />
@@ -203,6 +139,71 @@ export default async function ItemLayout({
         {children}
       </div>
     </ImageGallery>
+  )
+}
+
+/** A page item's own header: category, title, date, venue, tickets. */
+function ItemHeader({ item }: { item: PageItemClient }) {
+  const { publishedEditions } = item as ReleaseClient
+  const { ticketLink, venue, isUpcoming } = item as EventClient
+
+  function category() {
+    switch (item.path) {
+      case PagePaths.projects:
+      case PagePaths.releases:
+        return formattedItemType(
+          (item as ReleaseClient | ProjectClient).type || item.path,
+          isUpcoming
+        )
+      default:
+        return formattedItemType(item.path, isUpcoming)
+    }
+  }
+
+  return (
+    <>
+      <p className='category'>
+        <NextLink href={`/${item.path}`}>{category()}</NextLink>
+        {!item.isPublished && <DraftBadge />}
+      </p>
+
+      <h1>{formattedItemTitle(item)}</h1>
+
+      {publishedEditions ? (
+        <PublishedEditionsCombined
+          publishedEditions={publishedEditions}
+        />
+      ) : (
+        <p>
+          <FormattedItemDate
+            item={item}
+            timezone={(item as EventClient).venue?.timezone}
+          />
+        </p>
+      )}
+
+      {venue && (
+        <p className={styles.venue}>
+          {venue.url ? (
+            <a
+              href={venue.url}
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              {formatVenueInline({ venue })}
+            </a>
+          ) : (
+            formatVenueInline({ venue })
+          )}
+        </p>
+      )}
+
+      {ticketLink && isUpcoming && (
+        <p className={styles['ticket-link']}>
+          <TicketButton url={ticketLink} />
+        </p>
+      )}
+    </>
   )
 }
 

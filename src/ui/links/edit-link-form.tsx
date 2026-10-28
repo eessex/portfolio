@@ -240,7 +240,7 @@ export const EditLink = ({
       }}
       defaultValue={link?.title}
       errors={errors?.title}
-      label={isSocial ? 'Name' : 'Display text'}
+      label={isSocial ? 'Name' : 'Title'}
       ref={(el) => {
         titleRef.current = el
       }}

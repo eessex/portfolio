@@ -64,7 +64,7 @@ function asPress<T extends Record<string, unknown>>(values: T) {
  * Press links, sorted by date by default. Takes the item's full
  * `links` list and shows only the press ones. Entries submit no
  * `type` field (so a blank slot stays blank); the server saves every
- * new or edited entry as press, requiring display text, attribution
+ * new or edited entry as press, requiring a title, attribution
  * and publish date. Submits under `pressLinks`, which
  * `resolveOrderedLinkIds` merges with `LinksPicker`'s `links`.
  */

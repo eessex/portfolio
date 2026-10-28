@@ -164,8 +164,7 @@ export function Form<T>({
       if (onSuccess) {
         onSuccess()
       } else {
-        addSuccessMessage('Changes saved.')
-        console.info('No changes made.')
+        addSuccessMessage('No changes to save.')
       }
       return null
     }

@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import { capitalizeFirstLetter } from '@/lib/strings'
 import type { FormResponse } from '@/lib/types'
 import { Dialog } from '@/ui/dialog/dialog'
 import styles from '@/ui/items/delete-item-button.module.scss'
@@ -34,7 +35,7 @@ export function DeleteItemButton<T>({
       return
     }
 
-    addSuccessMessage(`${itemLabel} deleted.`)
+    addSuccessMessage(`${capitalizeFirstLetter(itemLabel)} deleted.`)
     setIsOpen(false)
     router.push(redirectTo)
   }

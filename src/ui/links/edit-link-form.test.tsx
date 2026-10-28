@@ -27,7 +27,7 @@ function renderComponent(props = {}, namePrefix = '') {
 }
 
 const urlRegex = /url/i
-const titleRegex = /display text/i
+const titleRegex = /^title\b/i
 const typeRegex = /type/i
 
 describe('EditLink', () => {
@@ -549,7 +549,7 @@ describe('EditLink', () => {
 
         paste('https://artist.bandcamp.com')
 
-        expect(screen.getByLabelText(/display text/i)).toHaveValue('')
+        expect(screen.getByLabelText(/^title\b/i)).toHaveValue('')
       })
     })
   })

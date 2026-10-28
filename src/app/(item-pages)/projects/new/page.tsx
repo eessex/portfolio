@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 
+import { EditPageLayout } from '@/app/(item-pages)/edit-page-layout'
 import { EditProjectForm } from '@/ui/projects/edit-project-form'
 
 const title = 'New Project'
@@ -7,12 +8,8 @@ export const metadata: Metadata = { title }
 
 export default function NewProjectPage() {
   return (
-    <article>
-      <header>
-        <h1>{title}</h1>
-      </header>
-
+    <EditPageLayout title={title}>
       <EditProjectForm />
-    </article>
+    </EditPageLayout>
   )
 }

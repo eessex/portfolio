@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { fetchPublishers } from '@/lib/publishers/data'
+import { fetchPublishers } from '@/lib/publishers/cached'
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)

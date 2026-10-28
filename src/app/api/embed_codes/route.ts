@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { fetchEmbedCodes } from '@/lib/embed-codes/data'
+import { fetchEmbedCodes } from '@/lib/embed-codes/cached'
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)

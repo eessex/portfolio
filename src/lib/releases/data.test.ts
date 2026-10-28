@@ -4,10 +4,6 @@ import {
   releaseFixtureSingle
 } from '@/lib/releases/fixtures'
 
-jest.mock('@/lib/releases/cached', () => ({
-  fetchCachedReleasesFirstPage: jest.fn()
-}))
-
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))
@@ -22,64 +18,9 @@ jest.mock('@/lib/releases/data', () => {
 })
 
 import { sql } from '@/lib/db'
-import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import * as Releases from '@/lib/releases/data'
 
 const mockSql = jest.mocked(sql)
-const mockCached = jest.mocked(fetchCachedReleasesFirstPage)
-
-describe('fetchReleases', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it('returns cached first page when no cursor and no query', async () => {
-    mockCached.mockResolvedValue({
-      res: {
-        releases: [],
-        albums: [releaseFixtureAlbum],
-        singlesAndCompilations: [releaseFixtureSingle],
-        eps: [],
-        soundtracks: [],
-        collaborativeReleases: [],
-        featuredOn: [],
-        everythingElse: []
-      },
-      nextCursor: 'next',
-      totalCount: 2
-    })
-
-    const result = await Releases.fetchReleases(false, 'project-1')
-
-    expect(mockCached).toHaveBeenCalledWith(false, 'project-1')
-    expect(result).toEqual({
-      res: {
-        releases: [],
-        albums: [releaseFixtureAlbum],
-        singlesAndCompilations: [releaseFixtureSingle],
-        eps: [],
-        soundtracks: [],
-        collaborativeReleases: [],
-        featuredOn: [],
-        everythingElse: []
-      },
-      nextCursor: 'next',
-      totalCount: 2
-    })
-  })
-
-  it('falls back to raw fetch when cursor is provided', async () => {
-    mockSql.mockResolvedValue([])
-
-    const result = await Releases.fetchReleases(
-      false,
-      undefined,
-      'cursor'
-    )
-
-    expect(result).toBeDefined()
-  })
-})
 
 describe('fetchReleasesRaw', () => {
   beforeEach(() => {

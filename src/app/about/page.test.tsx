@@ -9,6 +9,7 @@ jest.mock('@/lib/site-settings/cached', () => ({
   fetchCachedSiteSettings: jest.fn()
 }))
 
+import { render, screen } from '@testing-library/react'
 import { notFound } from 'next/navigation'
 import type { ReactElement } from 'react'
 
@@ -81,6 +82,36 @@ describe('AboutPage', () => {
     expect(el.type).toBe(ItemLayout)
     expect(el.props.item).toBe(defaultProject)
     expect(mockIsAuthed).not.toHaveBeenCalled()
+  })
+
+  it('passes an "About" header with no category or date', async () => {
+    mockDefaults({ published: defaultProject })
+
+    const el = (await AboutPage()) as ReactElement<{
+      header: ReactElement
+    }>
+    render(el.props.header)
+
+    expect(
+      screen.getByRole('heading', { level: 1 })
+    ).toHaveTextContent('About')
+    expect(
+      screen.queryByText(defaultProject.title)
+    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    expect(screen.queryByText('Unpublished')).not.toBeInTheDocument()
+  })
+
+  it('keeps the draft badge on an unpublished default project', async () => {
+    mockDefaults({ any: draftDefault })
+    mockIsAuthed.mockResolvedValue(true)
+
+    const el = (await AboutPage()) as ReactElement<{
+      header: ReactElement
+    }>
+    render(el.props.header)
+
+    expect(screen.getByText('Unpublished')).toBeInTheDocument()
   })
 
   it('lists the other projects in a carousel', async () => {

@@ -1,7 +1,6 @@
 import { sql } from '@/lib/db'
 import { withEmbedCodeCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
-import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import { eventClientSchema } from '@/lib/events/schemas'
 import type {
   EventClient,
@@ -18,19 +17,6 @@ import {
 
 const path = PagePaths.events
 const pathSingular = pagePathSingulars[path]
-
-export async function fetchEvents(
-  isAuthed = false,
-  projectId?: string,
-  cursor?: string,
-  query?: string
-) {
-  if (!cursor && !query) {
-    return fetchCachedEventsFirstPage(isAuthed, projectId)
-  }
-
-  return fetchEventsRaw(isAuthed, projectId, cursor, query)
-}
 
 export async function fetchEventsRaw(
   isAuthed: boolean = false,

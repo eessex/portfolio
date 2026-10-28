@@ -2567,7 +2567,7 @@ describe('ItemPicker', () => {
         expect(
           document.querySelectorAll('input[name$=".url"]')
         ).toHaveLength(1)
-        expect(screen.getByText('Invalid url')).toBeInTheDocument()
+        expect(screen.getByText('Invalid URL')).toBeInTheDocument()
       })
 
       it('opens a fresh create editor after Save so the next item can be added', async () => {
@@ -2630,7 +2630,7 @@ describe('ItemPicker', () => {
 
         expect(urlInput).toBeVisible()
         expect(urlInput).toHaveValue('not-a-valid-url')
-        expect(screen.getByText('Invalid url')).toBeInTheDocument()
+        expect(screen.getByText('Invalid URL')).toBeInTheDocument()
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
       })
 
@@ -2647,13 +2647,13 @@ describe('ItemPicker', () => {
         await user.click(
           screen.getByRole('button', { name: /save link/i })
         )
-        expect(screen.getByText('Invalid url')).toBeInTheDocument()
+        expect(screen.getByText('Invalid URL')).toBeInTheDocument()
 
         // Correcting the value alone doesn't revalidate.
         fireEvent.change(urlInput, {
           target: { value: 'https://example.com' }
         })
-        expect(screen.getByText('Invalid url')).toBeInTheDocument()
+        expect(screen.getByText('Invalid URL')).toBeInTheDocument()
 
         await user.click(
           screen.getByRole('button', { name: /search link/i })
@@ -2666,7 +2666,7 @@ describe('ItemPicker', () => {
           document.querySelector('input[name="links[0].url"]')
         ).toHaveValue('https://example.com')
         expect(
-          screen.queryByText('Invalid url')
+          screen.queryByText('Invalid URL')
         ).not.toBeInTheDocument()
       })
     })
@@ -2744,7 +2744,7 @@ describe('ItemPicker', () => {
         })
         fireEvent.blur(urlInput)
 
-        expect(screen.getByText('Invalid url')).toBeInTheDocument()
+        expect(screen.getByText('Invalid URL')).toBeInTheDocument()
       })
 
       it('does not validate while focus moves to another element within the fieldset', async () => {
@@ -2762,7 +2762,7 @@ describe('ItemPicker', () => {
         fireEvent.blur(urlInput, { relatedTarget: saveButton })
 
         expect(
-          screen.queryByText('Invalid url')
+          screen.queryByText('Invalid URL')
         ).not.toBeInTheDocument()
       })
 
@@ -2776,7 +2776,7 @@ describe('ItemPicker', () => {
           target: { value: 'not-a-valid-url' }
         })
         fireEvent.blur(urlInput)
-        expect(screen.getByText('Invalid url')).toBeInTheDocument()
+        expect(screen.getByText('Invalid URL')).toBeInTheDocument()
 
         fireEvent.change(urlInput, {
           target: { value: 'https://example.com' }
@@ -2784,7 +2784,7 @@ describe('ItemPicker', () => {
         fireEvent.blur(urlInput)
 
         expect(
-          screen.queryByText('Invalid url')
+          screen.queryByText('Invalid URL')
         ).not.toBeInTheDocument()
       })
     })

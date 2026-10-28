@@ -57,7 +57,7 @@ describe('editSiteSettings', () => {
 
     expect(res).toEqual({
       ok: false,
-      errors: { coverImageId: ['Invalid uuid'] },
+      errors: { coverImageId: ['Invalid UUID'] },
       message: 'Failed to validate site settings.'
     })
   })

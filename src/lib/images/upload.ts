@@ -7,10 +7,14 @@ import sharp, { type Metadata } from 'sharp'
 import { assertAuthed } from '@/lib/auth/guard'
 import type { ImageFormat } from '@/lib/images/schemas/db'
 import {
+  animationTooLargeMessage,
   badAspectMessage,
+  MAX_ANIMATION_PIXELS,
   MAX_ASPECT,
+  MAX_INPUT_PIXELS,
   MIN_ASPECT,
   MIN_SHORT_EDGE,
+  tooManyPixelsMessage,
   tooSmallMessage,
   uploadFormats,
   VARIANT_VERSION,
@@ -40,7 +44,7 @@ async function readImage(bytes: Buffer, name: string) {
     throw new Error('File is not a readable image')
   }
 
-  const { format, pageHeight } = metadata
+  const { format, pageHeight, pages = 1 } = metadata
   // the size as displayed, after EXIF rotation
   const { width, height } = metadata.autoOrient
   const upload = format ? uploadFormats[format] : undefined
@@ -49,14 +53,20 @@ async function readImage(bytes: Buffer, name: string) {
       `Unsupported image format${format ? ` (${format})` : ''}; use JPEG, PNG, WebP or GIF`
     )
   }
-  // an animated GIF/WebP's height spans every frame
+  // one frame's height; sharp gives the whole strip only when opened `animated`
   const frameHeight = pageHeight ?? height
   if (Math.min(width, frameHeight) < MIN_SHORT_EDGE) {
     throw new Error(tooSmallMessage(name))
   }
+  if (width * frameHeight > MAX_INPUT_PIXELS) {
+    throw new Error(tooManyPixelsMessage(name))
+  }
   const aspect = width / frameHeight
   if (aspect < MIN_ASPECT || aspect > MAX_ASPECT) {
     throw new Error(badAspectMessage(name))
+  }
+  if (width * frameHeight * pages > MAX_ANIMATION_PIXELS) {
+    throw new Error(animationTooLargeMessage(name))
   }
   return {
     ...upload,

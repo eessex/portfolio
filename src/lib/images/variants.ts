@@ -4,7 +4,11 @@
  */
 import sharp from 'sharp'
 
-import { VARIANT_VERSION, VARIANT_WIDTHS } from '@/lib/images/util'
+import {
+  MAX_ANIMATION_PIXELS,
+  VARIANT_VERSION,
+  VARIANT_WIDTHS
+} from '@/lib/images/util'
 import { storageAdapter } from '@/lib/storage'
 import { imageVariantKey } from '@/lib/storage/keys'
 
@@ -42,8 +46,8 @@ export async function generateImageVariants(
   for (const width of VARIANT_WIDTHS) {
     const variant = await sharp(bytes, {
       animated: isAnimated,
-      // the limit counts every frame: a 441-frame 1265×704 GIF is 393 MP
-      limitInputPixels: isAnimated ? false : undefined
+      // the limit counts every frame, so sharp's default is too low
+      limitInputPixels: isAnimated ? MAX_ANIMATION_PIXELS : undefined
     })
       .autoOrient()
       .resize({ width, withoutEnlargement: true })

@@ -23,6 +23,13 @@ export const SERVER_ACTION_BODY_SIZE_LIMIT = '4.5mb'
 // Below this, nothing on the site looks right
 export const MIN_SHORT_EDGE = 600
 
+// per frame, so a crafted file can't exhaust memory when decoded
+export const MAX_INPUT_PIXELS = 40_000_000
+
+// every frame together, since variants decode them all; a real
+// 441-frame 1265×704 GIF is 393 MP
+export const MAX_ANIMATION_PIXELS = 500_000_000
+
 /** width / height bounds; the images.aspect schema enforces them */
 export const MIN_ASPECT = 0.1
 export const MAX_ASPECT = 10
@@ -151,6 +158,14 @@ export function newFilesSize(formData: FormData) {
 
 export function badAspectMessage(name: string) {
   return `"${name}" is too long and thin. Choose an image no more than ${MAX_ASPECT} times as wide as it is tall, or as tall as it is wide`
+}
+
+export function tooManyPixelsMessage(name: string) {
+  return `"${name}" is too large. Choose an image of at most ${MAX_INPUT_PIXELS / 1_000_000} megapixels`
+}
+
+export function animationTooLargeMessage(name: string) {
+  return `"${name}" has too many frames for its size. Choose a shorter or smaller animation`
 }
 
 export function tooSmallMessage(name: string) {

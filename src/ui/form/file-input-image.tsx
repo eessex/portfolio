@@ -7,8 +7,10 @@ import {
   ACCEPTED_IMAGE_TYPES,
   formatMegabytes,
   imageAspect,
+  MAX_INPUT_PIXELS,
   MAX_UPLOAD_FILE_SIZE,
   MIN_SHORT_EDGE,
+  tooManyPixelsMessage,
   tooSmallMessage
 } from '@/lib/images/util'
 import styles from '@/ui/form/form.module.scss'
@@ -94,6 +96,10 @@ export function FileInputImage({
       const height = img.naturalHeight
       if (Math.min(width, height) < MIN_SHORT_EDGE) {
         rejectFile(`${tooSmallMessage(file.name)}.`)
+        return
+      }
+      if (width * height > MAX_INPUT_PIXELS) {
+        rejectFile(`${tooManyPixelsMessage(file.name)}.`)
         return
       }
       const ratio = width / height

@@ -4,6 +4,12 @@ import sharp from 'sharp'
 import { deleteImageFile, uploadFile } from '@/lib/images/upload'
 import { VARIANT_VERSION, VARIANT_WIDTHS } from '@/lib/images/util'
 
+jest.mock('@/lib/images/util', () => ({
+  ...jest.requireActual('@/lib/images/util'),
+  // small enough to exceed with a few test frames
+  MAX_ANIMATION_PIXELS: 2_000_000
+}))
+
 const mockPut = jest.fn()
 const mockDelete = jest.fn()
 jest.mock('@/lib/storage', () => ({
@@ -130,6 +136,31 @@ describe('uploadFile', () => {
     }
   })
 
+  it('refuses an animation whose frames together are too many pixels', async () => {
+    // distinct, or the encoder merges them
+    const frames = await Promise.all(
+      ['#000', '#333', '#666', '#999', '#ccc'].map((background) =>
+        sharp({
+          create: { width: 800, height: 600, channels: 3, background }
+        })
+          .png()
+          .toBuffer()
+      )
+    )
+    const bytes = await sharp(frames, { join: { animated: true } })
+      .gif()
+      .toBuffer()
+
+    await expect(
+      uploadFile(
+        new File([new Uint8Array(bytes)], 'long.gif', {
+          type: 'image/gif'
+        })
+      )
+    ).rejects.toThrow('"long.gif" has too many frames')
+    expect(mockPut).not.toHaveBeenCalled()
+  })
+
   it('saves without variants when writing them fails', async () => {
     mockPut.mockImplementation(async (key: string) => {
       if (key.endsWith('.webp')) throw new Error('storage down')
@@ -231,6 +262,18 @@ describe('uploadFile', () => {
         })
       )
     ).rejects.toThrow('"banner.jpg" is too long and thin')
+    expect(mockPut).not.toHaveBeenCalled()
+  })
+
+  it('refuses more than 40 MP without uploading', async () => {
+    await expect(
+      uploadFile(
+        await imageFile('jpeg', 'huge.jpg', 'image/jpeg', {
+          width: 8000,
+          height: 5001
+        })
+      )
+    ).rejects.toThrow('"huge.jpg" is too large')
     expect(mockPut).not.toHaveBeenCalled()
   })
 

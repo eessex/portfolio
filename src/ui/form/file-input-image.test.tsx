@@ -41,6 +41,11 @@ class SmallImage extends LoadingImage {
   naturalHeight = 599
 }
 
+class HugeImage extends LoadingImage {
+  naturalWidth = 8000
+  naturalHeight = 5001
+}
+
 describe('FileInputImage', () => {
   const originalImage = global.Image
 
@@ -97,6 +102,24 @@ describe('FileInputImage', () => {
     expect(URL.createObjectURL).not.toHaveBeenCalled()
     expect(fileInput).not.toHaveAttribute('hidden')
     expect(fileInput).toBeRequired()
+    expect(onChange).toHaveBeenCalledWith('', undefined, true)
+  })
+
+  it('rejects an image over the pixel limit', async () => {
+    global.Image = HugeImage as unknown as typeof Image
+    const onChange = jest.fn()
+
+    render(
+      <FileInputImage label='Upload new image' onChange={onChange} />
+    )
+
+    fireEvent.change(screen.getByLabelText(/upload new image/i), {
+      target: { files: [mockFile('huge.jpg')] }
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText(/too large/i)).toBeInTheDocument()
+    })
     expect(onChange).toHaveBeenCalledWith('', undefined, true)
   })
 

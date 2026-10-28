@@ -103,6 +103,34 @@ describe('Form', () => {
     })
   })
 
+  describe('submit', () => {
+    it('skips the action and says so when nothing changed', async () => {
+      const action = jest.fn()
+      renderForm(action)
+
+      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+      await screen.findByText('No changes to save.')
+      expect(action).not.toHaveBeenCalled()
+      expect(
+        screen.queryByText('Changes saved.')
+      ).not.toBeInTheDocument()
+    })
+
+    it('saves and confirms when something changed', async () => {
+      const action = jest.fn().mockResolvedValue({ ok: true })
+      renderForm(action)
+
+      fireEvent.change(screen.getByLabelText(/title/i), {
+        target: { value: 'Changed' }
+      })
+      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+      await screen.findByText('Changes saved.')
+      expect(action).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('failed submit', () => {
     it('preserves the typed input when the action fails', async () => {
       const action = jest

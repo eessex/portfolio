@@ -31,7 +31,10 @@ export function escapeLike(value: string) {
   return value.replace(/[\\%_]/g, '\\$&')
 }
 
-interface RunListFetchOptions<S extends z.ZodTypeAny, R> {
+interface RunListFetchOptions<
+  S extends z.ZodType<{ id?: string }>,
+  R
+> {
   cursor?: string
   query?: string
   itemType: ItemType
@@ -50,7 +53,7 @@ interface RunListFetchOptions<S extends z.ZodTypeAny, R> {
 }
 
 export async function runListFetch<
-  S extends z.ZodTypeAny,
+  S extends z.ZodType<{ id?: string }>,
   R = z.infer<S>[]
 >({
   cursor,

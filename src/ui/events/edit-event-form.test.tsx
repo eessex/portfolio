@@ -76,6 +76,22 @@ describe('EditEventForm', () => {
       expect(screen.getByText(/^images/i)).toBeInTheDocument()
       expect(screen.getByText(/^project/i)).toBeInTheDocument()
     })
+
+    it('puts the project right after the title, before the dates', () => {
+      renderComponent()
+
+      const title = screen.getByLabelText(titleText)
+      const project = screen.getByText(/^project/i)
+      const startTime = screen.getByLabelText(startTimeRegex)
+      expect(
+        title.compareDocumentPosition(project) &
+          Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy()
+      expect(
+        project.compareDocumentPosition(startTime) &
+          Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy()
+    })
   })
 
   describe('default values', () => {

@@ -64,10 +64,6 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
           label='End date'
         />
       </div>
-      <ImagesPicker
-        coverImage={project?.coverImage}
-        images={project?.images}
-      />
       <Input
         as='textarea'
         attributes={{
@@ -78,6 +74,10 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         defaultValue={project?.description}
         errors={errors?.description}
         label='Description'
+      />
+      <ImagesPicker
+        coverImage={project?.coverImage}
+        images={project?.images}
       />
       <EmbedCodesPicker embedCodes={project?.embedCodes} />
       <ContactInfoFields contactInfo={project?.contactInfo} />

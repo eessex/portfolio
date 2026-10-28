@@ -4,10 +4,6 @@ import {
   eventFixtureUpcoming
 } from '@/lib/events/fixtures'
 
-jest.mock('@/lib/events/cached', () => ({
-  fetchCachedEventsFirstPage: jest.fn()
-}))
-
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))
@@ -22,52 +18,9 @@ jest.mock('@/lib/events/data', () => {
 })
 
 import { sql } from '@/lib/db'
-import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import * as Events from '@/lib/events/data'
 
 const mockSql = jest.mocked(sql)
-const mockCached = jest.mocked(fetchCachedEventsFirstPage)
-
-describe('fetchEvents', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it('returns cached first page when no cursor and no query', async () => {
-    mockCached.mockResolvedValue({
-      res: {
-        upcomingEvents: [eventFixtureUpcoming],
-        pastEvents: [eventFixturePast]
-      },
-      nextCursor: 'next',
-      totalCount: 2
-    })
-
-    const result = await Events.fetchEvents(false, 'project-1')
-
-    expect(mockCached).toHaveBeenCalledWith(false, 'project-1')
-    expect(result).toEqual({
-      res: {
-        upcomingEvents: [eventFixtureUpcoming],
-        pastEvents: [eventFixturePast]
-      },
-      nextCursor: 'next',
-      totalCount: 2
-    })
-  })
-
-  it('falls back to raw fetch when cursor is provided', async () => {
-    mockSql.mockResolvedValue([])
-
-    const result = await Events.fetchEvents(
-      false,
-      undefined,
-      'cursor'
-    )
-
-    expect(result).toBeDefined()
-  })
-})
 
 describe('fetchEventsRaw', () => {
   beforeEach(() => {

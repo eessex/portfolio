@@ -2,7 +2,6 @@ import { sql } from '@/lib/db'
 import { withEmbedCodeCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import { runListFetch } from '@/lib/list-fetch'
-import { fetchCachedProjectsFirstPage } from '@/lib/projects/cached'
 import { projectClientSchema } from '@/lib/projects/schemas'
 import type {
   FetchProjectsResult,
@@ -24,21 +23,6 @@ export type FetchProjectsOptions = {
    * e.g. for the `/projects` index. Pickers and static params keep it.
    */
   isDefaultExcluded?: boolean
-}
-
-export async function fetchProjects(
-  isAuthed: boolean = false,
-  cursor?: string,
-  query?: string,
-  { isDefaultExcluded = false }: FetchProjectsOptions = {}
-) {
-  if (!cursor && !query) {
-    return fetchCachedProjectsFirstPage(isAuthed, isDefaultExcluded)
-  }
-
-  return fetchProjectsRaw(isAuthed, cursor, query, {
-    isDefaultExcluded
-  })
 }
 
 export async function fetchProjectsRaw(

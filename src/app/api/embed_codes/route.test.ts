@@ -1,12 +1,12 @@
 /** @jest-environment node */
 
-jest.mock('@/lib/embed-codes/data', () => ({
+jest.mock('@/lib/embed-codes/cached', () => ({
   fetchEmbedCodes: jest.fn()
 }))
 
 import { GET } from '@/app/api/embed_codes/route'
 import { auth } from '@/auth'
-import { fetchEmbedCodes } from '@/lib/embed-codes/data'
+import { fetchEmbedCodes } from '@/lib/embed-codes/cached'
 import { apiRequest } from '@/test/helpers'
 
 const mockFetch = jest.mocked(fetchEmbedCodes)

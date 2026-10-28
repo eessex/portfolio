@@ -1,5 +1,5 @@
 import { isAuthed } from '@/lib/auth/guard'
-import { fetchProjects } from '@/lib/projects/data'
+import { fetchProjects } from '@/lib/projects/cached'
 import { formatAuthedApiResponseJSON } from '@/lib/util'
 
 export async function GET(req: Request) {

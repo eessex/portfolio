@@ -1,12 +1,12 @@
 /** @jest-environment node */
 
-jest.mock('@/lib/publishers/data', () => ({
+jest.mock('@/lib/publishers/cached', () => ({
   fetchPublishers: jest.fn()
 }))
 
 import { GET } from '@/app/api/publishers/route'
 import { auth } from '@/auth'
-import { fetchPublishers } from '@/lib/publishers/data'
+import { fetchPublishers } from '@/lib/publishers/cached'
 import { apiRequest } from '@/test/helpers'
 
 const mockFetch = jest.mocked(fetchPublishers)

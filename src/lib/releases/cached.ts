@@ -1,5 +1,3 @@
-'use cache'
-
 import { cacheTag } from 'next/cache'
 
 import {
@@ -7,10 +5,25 @@ import {
   fetchReleasesRaw
 } from '@/lib/releases/data'
 
+/** The first page is cached; later pages and searches aren't. */
+export async function fetchReleases(
+  isAuthed = false,
+  projectId?: string,
+  cursor?: string,
+  query?: string
+) {
+  if (!cursor && !query) {
+    return fetchCachedReleasesFirstPage(isAuthed, projectId)
+  }
+
+  return fetchReleasesRaw(isAuthed, projectId, cursor, query)
+}
+
 export async function fetchCachedReleasesFirstPage(
   isAuthed: boolean,
   projectId?: string
 ) {
+  'use cache'
   cacheTag('releases')
 
   return await fetchReleasesRaw(
@@ -25,6 +38,7 @@ export async function fetchCachedReleaseById(
   id: string,
   isAuthed: boolean = false
 ) {
+  'use cache'
   cacheTag('releases')
   cacheTag(`release:${id}`)
 

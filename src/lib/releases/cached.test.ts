@@ -5,8 +5,14 @@ jest.mock('@/lib/releases/data', () => ({
   fetchReleasesRaw: jest.fn()
 }))
 
-import { fetchCachedReleaseById } from '@/lib/releases/cached'
-import { fetchReleaseById } from '@/lib/releases/data'
+import {
+  fetchCachedReleaseById,
+  fetchReleases
+} from '@/lib/releases/cached'
+import {
+  fetchReleaseById,
+  fetchReleasesRaw
+} from '@/lib/releases/data'
 
 const mockFetch = jest.mocked(fetchReleaseById)
 
@@ -33,6 +39,41 @@ describe('fetchCachedReleaseById', () => {
 
     expect(cacheTag).not.toHaveBeenCalledWith(
       expect.stringMatching(/^project:/)
+    )
+  })
+})
+
+describe('fetchReleases', () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  it('serves the first page from the cache', async () => {
+    await fetchReleases(false, 'project-1')
+
+    expect(cacheTag).toHaveBeenCalledWith('releases')
+    expect(fetchReleasesRaw).toHaveBeenCalledWith(
+      false,
+      'project-1',
+      undefined,
+      undefined
+    )
+  })
+
+  it('fetches later pages and searches uncached', async () => {
+    await fetchReleases(true, undefined, 'cursor')
+    await fetchReleases(true, 'project-1', undefined, 'query')
+
+    expect(cacheTag).not.toHaveBeenCalled()
+    expect(fetchReleasesRaw).toHaveBeenCalledWith(
+      true,
+      undefined,
+      'cursor',
+      undefined
+    )
+    expect(fetchReleasesRaw).toHaveBeenCalledWith(
+      true,
+      'project-1',
+      undefined,
+      'query'
     )
   })
 })

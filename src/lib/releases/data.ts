@@ -2,7 +2,6 @@ import { sql } from '@/lib/db'
 import { withEmbedCodeCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import { runListFetch } from '@/lib/list-fetch'
-import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import { releaseClientSchema } from '@/lib/releases/schemas'
 import type {
   FetchReleasesResult,
@@ -100,19 +99,6 @@ export async function fetchReleaseById(
       cause
     })
   }
-}
-
-export async function fetchReleases(
-  isAuthed = false,
-  projectId?: string,
-  cursor?: string,
-  query?: string
-) {
-  if (!cursor && !query) {
-    return fetchCachedReleasesFirstPage(isAuthed, projectId)
-  }
-
-  return fetchReleasesRaw(isAuthed, projectId, cursor, query)
 }
 
 export async function fetchReleasesRaw(

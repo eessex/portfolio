@@ -3,31 +3,19 @@ import {
   imageFixture
 } from '@/lib/images/fixtures'
 
-jest.mock('@/lib/images/cached', () => ({
-  fetchCachedImagesFirstPage: jest.fn(),
-  fetchCachedPressImagesFirstPage: jest.fn()
-}))
-
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
 }))
 
 import { sql } from '@/lib/db'
 import {
-  fetchCachedImagesFirstPage,
-  fetchCachedPressImagesFirstPage
-} from '@/lib/images/cached'
-import {
   fetchImageById,
   fetchImageByUrl,
-  fetchImages,
   fetchImagesByIds,
   fetchImagesRaw
 } from '@/lib/images/data'
 
 const mockSql = jest.mocked(sql)
-const mockCached = jest.mocked(fetchCachedImagesFirstPage)
-const mockCachedPress = jest.mocked(fetchCachedPressImagesFirstPage)
 
 const dashboardImageRow = {
   ...imageFixture,
@@ -35,67 +23,6 @@ const dashboardImageRow = {
   projectSlugs: [],
   releaseSlugs: []
 }
-
-describe('fetchImages', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it('returns cached first page when no cursor and no query', async () => {
-    mockCached.mockResolvedValue({
-      res: [dashboardImageRow],
-      nextCursor: 'next',
-      totalCount: 1
-    })
-
-    const result = await fetchImages()
-
-    expect(mockCached).toHaveBeenCalled()
-    expect(result).toEqual({
-      res: [dashboardImageRow],
-      nextCursor: 'next',
-      totalCount: 1
-    })
-  })
-
-  it('falls back to raw fetch when cursor is provided', async () => {
-    mockSql.mockResolvedValue([])
-
-    const result = await fetchImages('cursor')
-
-    expect(result).toBeDefined()
-  })
-
-  it('returns cached press first page when type is press and no cursor/query', async () => {
-    mockCachedPress.mockResolvedValue({
-      res: [dashboardImageRow],
-      nextCursor: null,
-      totalCount: 1
-    })
-
-    const result = await fetchImages(undefined, undefined, 'press')
-
-    expect(mockCachedPress).toHaveBeenCalled()
-    expect(mockCached).not.toHaveBeenCalled()
-    expect(result).toEqual({
-      res: [dashboardImageRow],
-      nextCursor: null,
-      totalCount: 1
-    })
-  })
-
-  it('falls back to raw fetch for a non-press type with no cursor/query', async () => {
-    mockSql
-      .mockResolvedValueOnce([{ count: 1 }])
-      .mockResolvedValueOnce([dashboardImageRow])
-
-    await fetchImages(undefined, undefined, 'documentation')
-
-    expect(mockCached).not.toHaveBeenCalled()
-    expect(mockCachedPress).not.toHaveBeenCalled()
-    expect(mockSql).toHaveBeenCalled()
-  })
-})
 
 describe('fetchImagesRaw', () => {
   beforeEach(() => {

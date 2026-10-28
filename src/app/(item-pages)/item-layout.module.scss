@@ -1,6 +1,6 @@
 @use '@/ui/images/image-button';
-@use '@/ui/styles/breakpoints';
 @use '@/ui/styles/grids';
+@use '@/ui/styles/gutter-header';
 @use '@/ui/styles/type';
 
 .item-layout {
@@ -73,47 +73,7 @@
   }
 }
 
-// A page passing its own `header` (`/about`) gets a minimal,
-// left-aligned header
+// A page passing its own `header` (`/about`) gets the minimal one
 .item-layout.custom-header > article {
-  max-width: none;
-  padding: grids.space-em(6, 4, 8);
-
-  > header {
-    margin-bottom: grids.space-em(4);
-    text-align: start;
-
-    h1 {
-      @include type.heading('base');
-
-      margin-block: 0;
-    }
-  }
-
-  > :not(header) {
-    max-width: var(--body-width);
-    margin-inline: auto;
-  }
-
-  // wide: header in the left gutter, cover image level with it
-  @include breakpoints.xl-desktop {
-    display: grid;
-    grid-template-columns: 1fr minmax(0, var(--body-width)) 1fr;
-    align-items: start;
-
-    > header {
-      grid-row: 1;
-      grid-column: 1;
-    }
-
-    > :not(header) {
-      grid-column: 2;
-      width: 100%;
-    }
-
-    > header + figure {
-      grid-row: 1;
-      margin-top: 0;
-    }
-  }
+  @include gutter-header.gutter-header;
 }

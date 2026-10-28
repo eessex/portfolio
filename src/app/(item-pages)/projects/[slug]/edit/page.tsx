@@ -1,8 +1,13 @@
-import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 import { Suspense } from 'react'
 
+import {
+  editItemTitle,
+  generateEditItemMetadata
+} from '@/app/(item-pages)/edit-item-metadata'
+import { EditPageLayout } from '@/app/(item-pages)/edit-page-layout'
 import { resolveEditItemId } from '@/app/(item-pages)/resolve-page-item'
+import { fetchCachedProjectById } from '@/lib/projects/cached'
 import { fetchProjectById } from '@/lib/projects/data'
 import { PagePaths } from '@/lib/schemas'
 import type { PageItemProps } from '@/lib/types'
@@ -11,19 +16,27 @@ import { EditProjectForm } from '@/ui/projects/edit-project-form'
 import { itemEditUrl } from '@/ui/util'
 
 const title = 'Edit Project'
-export const metadata: Metadata = { title }
+
+export async function generateMetadata({ params }: PageItemProps) {
+  return generateEditItemMetadata(
+    params,
+    PagePaths.projects,
+    fetchCachedProjectById,
+    title
+  )
+}
 
 export default function EditProjectPage({ params }: PageItemProps) {
   return (
-    <article>
-      <header>
-        <h1>{title}</h1>
-      </header>
-
-      <Suspense fallback={<Loading />}>
-        <EditProject params={params} />
-      </Suspense>
-    </article>
+    <Suspense
+      fallback={
+        <EditPageLayout title={title}>
+          <Loading />
+        </EditPageLayout>
+      }
+    >
+      <EditProject params={params} />
+    </Suspense>
   )
 }
 
@@ -36,5 +49,9 @@ async function EditProject({ params }: PageItemProps) {
   if (!project) return notFound()
   if (project.isDefaultProject) redirect(itemEditUrl(project))
 
-  return <EditProjectForm project={project} />
+  return (
+    <EditPageLayout title={editItemTitle(title, project)}>
+      <EditProjectForm project={project} />
+    </EditPageLayout>
+  )
 }

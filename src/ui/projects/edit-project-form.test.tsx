@@ -119,6 +119,17 @@ describe('EditProjectForm', () => {
       ).toBeInTheDocument()
       expect(screen.getByText(/^images/i)).toBeInTheDocument()
     })
+
+    it('puts the description before the images', () => {
+      renderComponent()
+
+      const description = screen.getByLabelText(descriptionRegex)
+      const images = screen.getByText(/^images/i)
+      expect(
+        description.compareDocumentPosition(images) &
+          Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy()
+    })
   })
 
   describe('images field', () => {

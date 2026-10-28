@@ -55,6 +55,12 @@ function EventFormFields({ event }: EditEventFormProps) {
         errors={errors?.title}
         label='Title'
       />
+      <ItemPicker<never, ProjectClient, FetchProjectsResult>
+        itemType={PagePaths.projects}
+        label='Project'
+        existingItem={event?.project as ProjectClient | undefined}
+        renderExistingResult={formatProjectResult}
+      />
       <div className={styles['input-group']}>
         <Input
           attributes={{
@@ -114,12 +120,6 @@ function EventFormFields({ event }: EditEventFormProps) {
       <EmbedCodesPicker embedCodes={event?.embedCodes} />
       <PressLinksPicker links={event?.links} />
       <LinksPicker links={event?.links} />
-      <ItemPicker<never, ProjectClient, FetchProjectsResult>
-        itemType={PagePaths.projects}
-        label='Project'
-        existingItem={event?.project as ProjectClient | undefined}
-        renderExistingResult={formatProjectResult}
-      />
       <Checkbox
         attributes={{ name: 'isPublished' }}
         isDefaultChecked={!!event?.isPublished}

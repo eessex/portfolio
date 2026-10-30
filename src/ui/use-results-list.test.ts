@@ -15,13 +15,13 @@ import {
   resetIntersectionObservers,
   triggerIntersection
 } from '@/test/__mocks__/browser/intersectionObserver'
+import { useIsAdmin } from '@/ui/use-is-admin'
 import {
   SEARCH_DEBOUNCE_MS,
   useResultsList
 } from '@/ui/use-results-list'
-import { useIsAdmin } from '@/ui/useIsAdmin'
 
-jest.mock('@/ui/useIsAdmin', () => ({
+jest.mock('@/ui/use-is-admin', () => ({
   useIsAdmin: jest.fn(() => false)
 }))
 
@@ -783,7 +783,7 @@ describe('useResultsList', () => {
             nextCursor: 'cursor-old',
             totalCount: 3
           }),
-          { augmentOnMount: true }
+          { isAugmentedOnMount: true }
         )
       )
 
@@ -842,7 +842,7 @@ describe('useResultsList', () => {
         useResultsList<Venue>(
           '/api/venues',
           makeResponse(defaultVenues),
-          { augmentOnMount: true }
+          { isAugmentedOnMount: true }
         )
       )
 
@@ -882,7 +882,7 @@ describe('useResultsList', () => {
         useResultsList<Venue>(
           '/api/venues',
           makeResponse(defaultVenues),
-          { augmentOnMount: true }
+          { isAugmentedOnMount: true }
         )
       )
 
@@ -916,7 +916,7 @@ describe('useResultsList', () => {
         useResultsList<Venue>(
           '/api/venues',
           makeResponse(defaultVenues),
-          { augmentOnMount: true }
+          { isAugmentedOnMount: true }
         )
       )
 
@@ -952,7 +952,7 @@ describe('useResultsList', () => {
         useResultsList<Venue>(
           '/api/venues',
           makeResponse(defaultVenues, { nextCursor: 'cursor-1' }),
-          { augmentOnMount: true }
+          { isAugmentedOnMount: true }
         )
       )
       await waitFor(() => {
@@ -1004,7 +1004,7 @@ describe('useResultsList', () => {
         useResultsList<Venue>(
           '/api/venues',
           makeResponse(defaultVenues),
-          { augmentOnMount: true }
+          { isAugmentedOnMount: true }
         )
       )
       act(() => result.current.setQuery('austin'))
@@ -1044,7 +1044,7 @@ describe('useResultsList', () => {
         useResultsList<Venue>(
           '/api/venues',
           makeResponse(defaultVenues),
-          { augmentOnMount: true, defaultQuery: 'g' }
+          { isAugmentedOnMount: true, defaultQuery: 'g' }
         )
       )
 
@@ -1091,7 +1091,7 @@ describe('useResultsList', () => {
         useResultsList<Venue>(
           '/api/venues',
           makeResponse(defaultVenues),
-          { augmentOnMount: true }
+          { isAugmentedOnMount: true }
         )
       )
 
@@ -1144,7 +1144,7 @@ describe('useResultsList', () => {
         useResultsList<Venue>(
           '/api/venues',
           makeResponse(defaultVenues),
-          { augmentOnMount: true }
+          { isAugmentedOnMount: true }
         )
       )
 
@@ -1175,7 +1175,7 @@ describe('useResultsList', () => {
         useResultsList<Venue>(
           '/api/venues',
           makeResponse(defaultVenues),
-          { augmentOnMount: true }
+          { isAugmentedOnMount: true }
         )
       )
 

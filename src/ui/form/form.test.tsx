@@ -15,7 +15,9 @@ const mockUseRouter = jest.mocked(useRouter)
 
 function renderForm(
   action: jest.Mock,
-  { confirmUnsavedChanges }: { confirmUnsavedChanges?: boolean } = {}
+  {
+    isUnsavedChangesConfirmed
+  }: { isUnsavedChangesConfirmed?: boolean } = {}
 ) {
   return render(
     <ToastProvider>
@@ -25,7 +27,7 @@ function renderForm(
       </a>
       <Form
         action={action}
-        confirmUnsavedChanges={confirmUnsavedChanges}
+        isUnsavedChangesConfirmed={isUnsavedChangesConfirmed}
       >
         <label htmlFor='title'>Title</label>
         <input id='title' name='title' defaultValue='Original' />
@@ -224,9 +226,9 @@ describe('Form', () => {
     })
   })
 
-  describe('confirmUnsavedChanges={false}', () => {
+  describe('isUnsavedChangesConfirmed={false}', () => {
     it('does not show a confirm dialog when navigating away dirty', async () => {
-      renderForm(jest.fn(), { confirmUnsavedChanges: false })
+      renderForm(jest.fn(), { isUnsavedChangesConfirmed: false })
 
       fireEvent.change(screen.getByLabelText(/title/i), {
         target: { value: 'Changed' }
@@ -262,8 +264,8 @@ describe('Form', () => {
       expect(dispatchBeforeUnload().defaultPrevented).toBe(false)
     })
 
-    it('does not guard when confirmUnsavedChanges is false', () => {
-      renderForm(jest.fn(), { confirmUnsavedChanges: false })
+    it('does not guard when isUnsavedChangesConfirmed is false', () => {
+      renderForm(jest.fn(), { isUnsavedChangesConfirmed: false })
 
       fireEvent.change(screen.getByLabelText(/title/i), {
         target: { value: 'Changed' }

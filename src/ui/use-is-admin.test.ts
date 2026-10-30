@@ -4,7 +4,7 @@ import {
   resetIsAdminCache,
   syncIsAdmin,
   useIsAdmin
-} from '@/ui/useIsAdmin'
+} from '@/ui/use-is-admin'
 
 function mockSession(isAuthed: boolean) {
   global.fetch = jest.fn().mockResolvedValue({

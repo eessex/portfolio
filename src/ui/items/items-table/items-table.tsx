@@ -33,9 +33,9 @@ import { Loading } from '@/ui/loading'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import { PublisherDetails } from '@/ui/publishers/publisher-details'
 import { SearchInput } from '@/ui/search-input/search-input'
+import { useIsAdmin } from '@/ui/use-is-admin'
 import type { ResultsResponse } from '@/ui/use-results-list'
 import { useResultsList } from '@/ui/use-results-list'
-import { useIsAdmin } from '@/ui/useIsAdmin'
 import {
   formattedItemType,
   formatVenueInline,
@@ -100,12 +100,12 @@ export function ItemsTable<
       // only pay a shared /api/session check, not the refetch.
       // Embedded items have no publish state, so there's nothing to
       // reveal and the refetch is skipped entirely.
-      augmentOnMount: !isEmbeddedItemType(itemType),
+      isAugmentedOnMount: !isEmbeddedItemType(itemType),
       searchParams: { projectId, ...searchParams }
     }
   )
 
-  // lighter session check (no data refetch) than augmentOnMount,
+  // lighter session check (no data refetch) than isAugmentedOnMount,
   // only runs for embedded-item tables to reveal edit buttons.
   const isAdmin = useIsAdmin(isEmbeddedItemType(itemType))
 

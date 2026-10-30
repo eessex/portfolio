@@ -7,8 +7,8 @@ import type {
   FetchEventsResult
 } from '@/lib/events/types'
 import { PagePaths } from '@/lib/schemas'
+import { formattedItemType } from '@/ui/format/items'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
-import { formattedItemType } from '@/ui/util'
 
 const path = PagePaths.events
 const description = 'Upcoming and past live performances.'

@@ -14,8 +14,8 @@ import type {
   PageItemResponseWithCursor
 } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
+import { buildApiUrl, type SearchParams } from '@/ui/api-url'
 import { useIsAdmin } from '@/ui/use-is-admin'
-import { buildApiUrl, type SearchParams } from '@/ui/util'
 import { withViewTransition } from '@/ui/view-transition'
 
 /** How long typing pauses before the search is sent */

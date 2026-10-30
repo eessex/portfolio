@@ -24,8 +24,8 @@ import {
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
+import { toDateInputValue } from '@/ui/format/dates'
 import { useNamePrefix } from '@/ui/item-picker/name-prefix'
-import { toDateInputValue } from '@/ui/util'
 
 const linkTypeOptions = [...linkTypes]
 const nonPressLinkTypeOptions = linkTypes.filter(

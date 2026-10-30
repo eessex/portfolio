@@ -13,7 +13,7 @@ import { PagePaths } from '@/lib/schemas'
 import type { PageItemProps } from '@/lib/types'
 import { Loading } from '@/ui/loading'
 import { EditProjectForm } from '@/ui/projects/edit-project-form'
-import { itemEditUrl } from '@/ui/util'
+import { itemEditUrl } from '@/ui/routes'
 
 const title = 'Edit Project'
 

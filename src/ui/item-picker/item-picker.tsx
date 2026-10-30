@@ -28,6 +28,7 @@ import type {
   PageDataResponse,
   PageItemClient
 } from '@/lib/types'
+import type { SearchParams } from '@/ui/api-url'
 import { CreateItemButton } from '@/ui/buttons/create-item-button'
 import { Combobox } from '@/ui/combobox/combobox'
 import { SortableList } from '@/ui/drag-and-drop/sortable-list'
@@ -51,7 +52,6 @@ import {
 } from '@/ui/item-picker/use-entry-validation'
 import { useItemPickerEntries } from '@/ui/item-picker/use-item-picker-entries'
 import type { ResultsResponse } from '@/ui/use-results-list'
-import type { SearchParams } from '@/ui/util'
 
 /** Named args passed to a picker's `renderEditItemForm` callback. */
 export type RenderEditItemFormArgs<

@@ -1,7 +1,7 @@
 import type { PublishedEditionClient } from '@/lib/published-editions/schemas/client'
+import { formattedDateTime } from '@/ui/format/dates'
 import type { NewItemSummaryActions } from '@/ui/item-picker/item-picker'
 import { ItemResultLabel } from '@/ui/item-result-label'
-import { formattedDateTime } from '@/ui/util'
 
 /** The edition form's selected publisher's name, for its chip. */
 export const PUBLISHER_NAME_SUMMARY_FIELD = 'publisherName'

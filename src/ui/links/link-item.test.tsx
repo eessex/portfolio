@@ -1,8 +1,8 @@
 import { render } from '@testing-library/react'
 
 import { pressLinkFixture } from '@/lib/links/fixtures'
+import { formattedDateTime } from '@/ui/format/dates'
 import { LinkItem } from '@/ui/links/link-item'
-import { formattedDateTime } from '@/ui/util'
 
 const publishDate = new Date('2024-03-15T12:00:00Z')
 const date = formattedDateTime(publishDate, 'xs')

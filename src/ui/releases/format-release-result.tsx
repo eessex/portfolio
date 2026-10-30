@@ -1,6 +1,9 @@
 import type { ReleaseClient } from '@/lib/releases/types'
+import {
+  formattedItemTitle,
+  formattedItemType
+} from '@/ui/format/items'
 import { ItemResultLabel } from '@/ui/item-result-label'
-import { formattedItemTitle, formattedItemType } from '@/ui/util'
 
 export function formatReleaseResult(
   release: ReleaseClient,

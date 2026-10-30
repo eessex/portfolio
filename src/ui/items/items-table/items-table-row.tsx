@@ -21,6 +21,8 @@ import type { Venue } from '@/lib/venues/schemas/db'
 import type { ThumbnailImage } from '@/ui/cover-image-thumbnail'
 import { formattedEmbedCodeTitle } from '@/ui/embed-codes/embed-code-details'
 import { coverImageAspectByHost } from '@/ui/embed-codes/util'
+import { formattedItemType } from '@/ui/format/items'
+import { formattedFilename, formattedLinkUrl } from '@/ui/format/urls'
 import { FormattedItemDate } from '@/ui/items/item-date'
 import {
   itemCategory,
@@ -30,17 +32,14 @@ import {
   ItemMediaIcons,
   ItemTitle
 } from '@/ui/items/item-parts'
+import { isImageColumnVisible } from '@/ui/items/items-table/columns'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import {
   dashboardItemEditUrl,
-  formattedFilename,
-  formattedItemType,
-  formattedLinkUrl,
-  formatVenueInline,
-  isImageColumnVisible,
   itemUrl,
   usedOnPages
-} from '@/ui/util'
+} from '@/ui/routes'
+import { formatVenueInline } from '@/ui/venues/format-venue-inline'
 
 function embeddedItemTitle(
   item: EmbeddedItem,

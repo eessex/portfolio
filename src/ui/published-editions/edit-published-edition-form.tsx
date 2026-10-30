@@ -15,12 +15,12 @@ import { FieldErrorList } from '@/ui/form/field-error-list'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
+import { toDateInputValue } from '@/ui/format/dates'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { useNamePrefix } from '@/ui/item-picker/name-prefix'
 import { PUBLISHER_NAME_SUMMARY_FIELD } from '@/ui/published-editions/format-published-edition-result'
 import { EditPublisher } from '@/ui/publishers/edit-publisher-form'
 import { formatPublisherResult } from '@/ui/publishers/format-publisher-result'
-import { toDateInputValue } from '@/ui/util'
 
 interface EditPublishedEditionProps {
   errors?: z.inferFlattenedErrors<

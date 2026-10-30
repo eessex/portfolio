@@ -5,7 +5,7 @@ import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import { ABOUT_PATH, type PagePath, pagePaths } from '@/lib/schemas'
-import { editUrl, isEditOrNewUrl } from '@/ui/util'
+import { editUrl, isEditOrNewUrl } from '@/ui/routes'
 
 export function EditButton() {
   const pathname = usePathname()

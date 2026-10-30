@@ -8,6 +8,10 @@ import {
 import { projectTypes } from '@/lib/projects/schemas'
 import type { ProjectClient } from '@/lib/projects/types'
 import { ABOUT_PATH, PagePaths } from '@/lib/schemas'
+import {
+  MAX_STRING_LENGTH_LONG,
+  MAX_STRING_LENGTH_SHORT
+} from '@/lib/schemas/primitives'
 import { EmbedCodesPicker } from '@/ui/embed-codes/embed-codes-picker'
 import { Checkbox } from '@/ui/form/checkbox'
 import { useFormErrors } from '@/ui/form/form'
@@ -30,7 +34,7 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
     <>
       <Input
         attributes={{
-          maxLength: 255,
+          maxLength: MAX_STRING_LENGTH_SHORT,
           name: 'title',
           required: true
         }}
@@ -67,7 +71,7 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
       <Input
         as='textarea'
         attributes={{
-          maxLength: 5000,
+          maxLength: MAX_STRING_LENGTH_LONG,
           name: 'description',
           required: true
         }}

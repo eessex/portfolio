@@ -25,4 +25,13 @@ describe('beforeSend', () => {
       expect(beforeSend(event(path))).toEqual(event(path))
     }
   )
+
+  it('filters Speed Insights vitals the same way', () => {
+    const vital = (path: string) => ({
+      type: 'vital' as const,
+      url: `https://example.com${path}`
+    })
+    expect(beforeSend(vital('/dashboard'))).toBeNull()
+    expect(beforeSend(vital('/about'))).toEqual(vital('/about'))
+  })
 })

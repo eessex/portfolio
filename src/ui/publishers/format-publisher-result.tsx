@@ -1,6 +1,6 @@
 import type { Publisher } from '@/lib/publishers/schemas/db'
+import { formattedItemType } from '@/ui/format/items'
 import { ItemResultLabel } from '@/ui/item-result-label'
-import { formattedItemType } from '@/ui/util'
 
 export function formatPublisherResult(
   publisher: Publisher,

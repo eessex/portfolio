@@ -1,9 +1,9 @@
 import type { Image } from '@/lib/images/schemas/db'
 import { itemBadges } from '@/ui/badges/badges'
 import thumbnailStyles from '@/ui/cover-image-thumbnail.module.scss'
+import { formattedFilename } from '@/ui/format/urls'
 import type { NewItemSummaryActions } from '@/ui/item-picker/item-picker'
 import { ItemResultLabel } from '@/ui/item-result-label'
-import { formattedFilename } from '@/ui/util'
 
 /**
  * Renders a collapsed chip for a saved image.

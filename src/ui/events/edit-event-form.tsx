@@ -22,6 +22,7 @@ import { useFormErrors } from '@/ui/form/form'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { ItemEditForm } from '@/ui/form/item-edit-form'
+import { toDateTimeInputValue } from '@/ui/format/dates'
 import { ImagesPicker } from '@/ui/images/images-picker'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import {
@@ -29,7 +30,6 @@ import {
   PressLinksPicker
 } from '@/ui/links/links-picker'
 import { formatProjectResult } from '@/ui/projects/format-project-result'
-import { toDateTimeInputValue } from '@/ui/util'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 import {
   formatNewVenueSummary,

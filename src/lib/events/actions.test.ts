@@ -15,7 +15,7 @@ import { generateUniqueSlug } from '@/lib/slug/data'
 import { fetchVenueById } from '@/lib/venues/data'
 import { venueFixtureAlpha } from '@/lib/venues/fixtures'
 import { formDataFromObject } from '@/test/helpers'
-import { toDateTimeInputValue } from '@/ui/util'
+import { toDateTimeInputValue } from '@/ui/format/dates'
 
 jest.mock('@/lib/slug/data', () => ({
   generateUniqueSlug: jest.fn()

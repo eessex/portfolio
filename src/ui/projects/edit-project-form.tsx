@@ -19,13 +19,13 @@ import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { ItemEditForm } from '@/ui/form/item-edit-form'
 import { Select } from '@/ui/form/select'
+import { toDateInputValue } from '@/ui/format/dates'
 import { ImagesPicker } from '@/ui/images/images-picker'
 import {
   LinksPicker,
   PressLinksPicker
 } from '@/ui/links/links-picker'
 import { ContactInfoFields } from '@/ui/projects/contact-info-fields'
-import { toDateInputValue } from '@/ui/util'
 
 function ProjectFormFields({ project }: { project?: ProjectClient }) {
   const errors = useFormErrors()

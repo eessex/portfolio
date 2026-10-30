@@ -12,8 +12,8 @@ import { eventFixtureUpcoming } from '@/lib/events/fixtures'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
 import { venueFixtureAlpha } from '@/lib/venues/fixtures'
 import { EditEventForm } from '@/ui/events/edit-event-form'
+import { toDateTimeInputValue } from '@/ui/format/dates'
 import { ToastProvider } from '@/ui/toast/toast-context'
-import { toDateTimeInputValue } from '@/ui/util'
 
 const pushMock = jest.fn()
 

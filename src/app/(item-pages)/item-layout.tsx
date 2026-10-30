@@ -19,6 +19,11 @@ import { DraftBadge } from '@/ui/badges/draft-badge'
 import { TicketButton } from '@/ui/buttons/ticket-button'
 import { EmbedCodes } from '@/ui/embed-codes/embed-codes'
 import { EmbedCodesCarousel } from '@/ui/embed-codes/embed-codes-carousel'
+import { formattedDateTime } from '@/ui/format/dates'
+import {
+  formattedItemTitle,
+  formattedItemType
+} from '@/ui/format/items'
 import {
   GalleryImageFigure,
   ImageGallery
@@ -33,13 +38,8 @@ import {
 } from '@/ui/items/item-date'
 import { LinksList } from '@/ui/links/link-list'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
-import {
-  formattedDateTime,
-  formattedItemTitle,
-  formattedItemType,
-  formatVenueInline,
-  itemUrl
-} from '@/ui/util'
+import { itemUrl } from '@/ui/routes'
+import { formatVenueInline } from '@/ui/venues/format-venue-inline'
 
 const IMAGES_CAROUSEL_MIN = 3
 

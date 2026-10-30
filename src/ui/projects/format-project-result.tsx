@@ -1,6 +1,6 @@
 import type { ProjectClient } from '@/lib/projects/types'
+import { formattedItemType } from '@/ui/format/items'
 import { ItemResultLabel } from '@/ui/item-result-label'
-import { formattedItemType } from '@/ui/util'
 
 export function formatProjectResult(
   project: ProjectClient,

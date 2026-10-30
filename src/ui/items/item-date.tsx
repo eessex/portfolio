@@ -4,7 +4,10 @@ import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
 import { PagePaths } from '@/lib/schemas'
 import type { PageItemClient } from '@/lib/types'
-import { type DateFormatSize, formattedDateTime } from '@/ui/util'
+import {
+  type DateFormatSize,
+  formattedDateTime
+} from '@/ui/format/dates'
 
 export function itemSortDate(
   item: PageItemClient,

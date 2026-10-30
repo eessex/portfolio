@@ -6,7 +6,7 @@ import NextLink from 'next/link'
 import style from '@/ui/nav/nav.module.scss'
 import type { NavItem } from '@/ui/nav/nav-items'
 import { useWindowScrollPosition } from '@/ui/nav/scroll-position'
-import { useIsAdmin } from '@/ui/useIsAdmin'
+import { useIsAdmin } from '@/ui/use-is-admin'
 
 export function NavClient({
   title,

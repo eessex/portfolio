@@ -6,7 +6,7 @@ import {
   navItems,
   type NavPath
 } from '@/ui/nav/nav-items'
-import { resetIsAdminCache, syncIsAdmin } from '@/ui/useIsAdmin'
+import { resetIsAdminCache, syncIsAdmin } from '@/ui/use-is-admin'
 
 function mockSession(isAuthed: boolean) {
   global.fetch = jest.fn().mockResolvedValue({

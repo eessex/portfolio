@@ -38,7 +38,7 @@ export function Form<T>({
   action,
   children,
   className,
-  confirmUnsavedChanges = true,
+  isUnsavedChangesConfirmed = true,
   onSuccess,
   submitButtonText,
   submitButtonClassName = 'button-lg button-primary'
@@ -52,7 +52,7 @@ export function Form<T>({
    * enough to be worth interrupting navigation (e.g. login, email
    * subscribe).
    */
-  confirmUnsavedChanges?: boolean
+  isUnsavedChangesConfirmed?: boolean
   onSuccess?: () => void
   submitButtonText?: string
   /** Defaults to the large primary button; pass `''` for none. */
@@ -75,7 +75,7 @@ export function Form<T>({
   const router = useRouter()
 
   useEffect(() => {
-    if (!confirmUnsavedChanges) return
+    if (!isUnsavedChangesConfirmed) return
 
     function handleClick(event: MouseEvent) {
       if (
@@ -113,10 +113,10 @@ export function Form<T>({
     document.addEventListener('click', handleClick, true)
     return () =>
       document.removeEventListener('click', handleClick, true)
-  }, [confirmUnsavedChanges, initialState])
+  }, [isUnsavedChangesConfirmed, initialState])
 
   useEffect(() => {
-    if (!confirmUnsavedChanges) return
+    if (!isUnsavedChangesConfirmed) return
 
     function handleBeforeUnload(event: BeforeUnloadEvent) {
       if (!formRef.current || !initialState) return
@@ -130,7 +130,7 @@ export function Form<T>({
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () =>
       window.removeEventListener('beforeunload', handleBeforeUnload)
-  }, [confirmUnsavedChanges, initialState])
+  }, [isUnsavedChangesConfirmed, initialState])
 
   const [state, formAction, isPending] = useActionState<
     FormResponse<T> | null,

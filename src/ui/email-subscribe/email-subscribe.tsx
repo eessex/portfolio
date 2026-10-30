@@ -28,7 +28,7 @@ export function EmailSubscribe() {
           className={styles['email-subscribe']}
           aria-describedby='email-subscribe'
           action={createEmailSubscription}
-          confirmUnsavedChanges={false}
+          isUnsavedChangesConfirmed={false}
           onSuccess={onSuccess}
           submitButtonText='Subscribe'
           submitButtonClassName=''

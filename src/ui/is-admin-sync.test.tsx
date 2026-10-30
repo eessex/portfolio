@@ -1,9 +1,9 @@
 import { render } from '@testing-library/react'
 
 import { IsAdminSync } from '@/ui/is-admin-sync'
-import { syncIsAdmin } from '@/ui/useIsAdmin'
+import { syncIsAdmin } from '@/ui/use-is-admin'
 
-jest.mock('@/ui/useIsAdmin', () => ({ syncIsAdmin: jest.fn() }))
+jest.mock('@/ui/use-is-admin', () => ({ syncIsAdmin: jest.fn() }))
 
 describe('IsAdminSync', () => {
   beforeEach(() => {

@@ -49,11 +49,23 @@ function saveProjectForm(
     schema: createProjectSchema,
     itemType: PagePaths.projects,
     prepare: async (data) => {
-      const { coverImageId, imageIds } =
-        await resolveOrderedImageIds(data)
-      const { linkIds } = await resolveOrderedLinkIds(data)
-      const { embedCodeIds } = await resolveOrderedEmbedCodeIds(data)
+      // first: it can throw, and the resolvers below save items
       const contactInfo = resolveContactInfo(data)
+      const [
+        { coverImageId, imageIds },
+        { linkIds },
+        { embedCodeIds },
+        slug
+      ] = await Promise.all([
+        resolveOrderedImageIds(data),
+        resolveOrderedLinkIds(data),
+        resolveOrderedEmbedCodeIds(data),
+        generateUniqueSlug(
+          String(data.title || ''),
+          PagePaths.projects,
+          id
+        )
+      ])
 
       return {
         ...data,
@@ -68,11 +80,7 @@ function saveProjectForm(
         imageIds,
         linkIds,
         path: PagePaths.projects,
-        slug: await generateUniqueSlug(
-          String(data.title || ''),
-          PagePaths.projects,
-          id
-        )
+        slug
       }
     },
     invalidate: (saved?: Project) =>

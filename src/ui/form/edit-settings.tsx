@@ -6,6 +6,7 @@ import {
   type Image,
   imageClientFieldsSchema
 } from '@/lib/images/schemas/db'
+import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
 import { Checkbox } from '@/ui/form/checkbox'
@@ -52,7 +53,7 @@ function SettingsFormFields({
         errors={errors?.description}
         attributes={{
           name: 'description',
-          maxLength: 255,
+          maxLength: MAX_STRING_LENGTH_SHORT,
           required: true
         }}
       />

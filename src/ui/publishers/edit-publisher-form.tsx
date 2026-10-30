@@ -5,6 +5,7 @@ import type {
   Publisher
 } from '@/lib/publishers/schemas/db'
 import { publisherTypes } from '@/lib/publishers/schemas/db'
+import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
 import { useNamePrefix } from '@/ui/item-picker/name-prefix'
@@ -31,7 +32,7 @@ export const EditPublisher = ({
     <>
       <Input
         attributes={{
-          maxLength: 255,
+          maxLength: MAX_STRING_LENGTH_SHORT,
           name: `${namePrefix}name`,
           placeholder: 'Soap Library',
           required: true,
@@ -57,7 +58,7 @@ export const EditPublisher = ({
 
       <Input
         attributes={{
-          maxLength: 255,
+          maxLength: MAX_STRING_LENGTH_SHORT,
           name: `${namePrefix}url`,
           placeholder: 'https://example.com',
           type: 'url'

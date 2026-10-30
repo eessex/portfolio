@@ -262,35 +262,18 @@ function isFormDirty(
   initial?: FormData | null
 ): boolean {
   if (!initial) return true
+  return serializeFormData(current) !== serializeFormData(initial)
+}
 
-  const currentObj = Object.fromEntries(current.entries())
-  const initialObj = Object.fromEntries(initial.entries())
-
-  const nonFileDiff =
-    JSON.stringify({
-      ...currentObj,
-      file: undefined
-    }) !==
-    JSON.stringify({
-      ...initialObj,
-      file: undefined
-    })
-
-  if (nonFileDiff) return true
-
-  // File comparison
-  const currentFile = current.get('file') as File | null
-  const initialFile = initial.get('file') as File | null
-
-  if (
-    (currentFile && !initialFile) ||
-    (!currentFile && initialFile) ||
-    (currentFile &&
-      initialFile &&
-      currentFile.name !== initialFile.name)
-  ) {
-    return true
-  }
-
-  return false
+// Every entry in order, so repeated names and namespaced file inputs
+// (`iconImage.file`) count; JSON.stringify(File) is just `{}`
+function serializeFormData(formData: FormData): string {
+  return JSON.stringify(
+    [...formData.entries()].map(([name, value]) => [
+      name,
+      typeof value === 'string'
+        ? value
+        : [value.name, value.size, value.lastModified]
+    ])
+  )
 }

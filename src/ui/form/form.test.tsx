@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { useRouter } from 'next/navigation'
 
+import { mockFile } from '@/test/helpers'
 import { Form } from '@/ui/form/form'
 import { ToastProvider } from '@/ui/toast/toast-context'
 
@@ -123,6 +125,48 @@ describe('Form', () => {
 
       fireEvent.change(screen.getByLabelText(/title/i), {
         target: { value: 'Changed' }
+      })
+      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+      await screen.findByText('Changes saved.')
+      expect(action).toHaveBeenCalledTimes(1)
+    })
+
+    it('saves when only a namespaced file input changed', async () => {
+      const action = jest.fn().mockResolvedValue({ ok: true })
+      render(
+        <ToastProvider>
+          <Form action={action}>
+            <label htmlFor='icon'>Icon</label>
+            <input id='icon' type='file' name='iconImage.file' />
+          </Form>
+        </ToastProvider>
+      )
+
+      await userEvent.upload(
+        screen.getByLabelText('Icon'),
+        mockFile('icon.png', 2048, 'image/png')
+      )
+      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+      await screen.findByText('Changes saved.')
+      expect(action).toHaveBeenCalledTimes(1)
+    })
+
+    it('saves when a repeated field changes anywhere but its last value', async () => {
+      const action = jest.fn().mockResolvedValue({ ok: true })
+      render(
+        <ToastProvider>
+          <Form action={action}>
+            <label htmlFor='first'>First</label>
+            <input id='first' name='linkIds' defaultValue='a' />
+            <input name='linkIds' defaultValue='b' />
+          </Form>
+        </ToastProvider>
+      )
+
+      fireEvent.change(screen.getByLabelText('First'), {
+        target: { value: 'c' }
       })
       fireEvent.click(screen.getByRole('button', { name: /save/i }))
 

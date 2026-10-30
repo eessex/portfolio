@@ -2,6 +2,7 @@
 
 import { z } from 'zod'
 
+import { shortText } from '@/lib/schemas/primitives'
 import {
   extractIndexedGroups,
   extractPrefixedGroup,
@@ -375,7 +376,7 @@ describe('#formatErrorResponse', () => {
 
 describe('#formatValidationResponse', () => {
   it('builds a response with per-field errors from a ZodError', () => {
-    const schema = z.object({ url: z.string() })
+    const schema = z.object({ url: shortText })
     const result = schema.safeParse({})
 
     expect(result.success).toBe(false)

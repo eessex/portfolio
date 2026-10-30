@@ -36,7 +36,7 @@ describe('createEmailSubscription', () => {
 
     expect(res).toEqual({
       ok: false,
-      errors: { email: ['Invalid email'] },
+      errors: { email: ['Invalid email address'] },
       message: 'Failed to validate email, try again.'
     })
   })

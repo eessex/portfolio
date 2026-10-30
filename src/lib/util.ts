@@ -35,7 +35,9 @@ export function decodeCursor(cursor?: string | null): Cursor | null {
   }
 }
 
-export function formatResponseWithCursor<T extends z.ZodTypeAny>(
+export function formatResponseWithCursor<
+  T extends z.ZodType<{ id?: string }>
+>(
   result: unknown[],
   cursorKey: keyof z.infer<T>,
   schema: T,
@@ -47,23 +49,21 @@ export function formatResponseWithCursor<T extends z.ZodTypeAny>(
   )
 
   const lastItem = formatted[formatted.length - 1]
-  const isLoadMoreAvailable =
-    formatted.length === DEFAULT_PAGE_SIZE && lastItem?.id != null
+  const lastId = lastItem?.id
 
-  const cursorObj = isLoadMoreAvailable
-    ? {
-        name: lastItem[cursorKey], // Always encoded as `name`
-        id: lastItem.id,
-        ...cursorExtra?.(lastItem)
-      }
-    : null
+  const cursorObj =
+    formatted.length === DEFAULT_PAGE_SIZE && lastId != null
+      ? {
+          // Always encoded as `name`; a Date serializes to ISO
+          name: lastItem[cursorKey] as string,
+          id: lastId,
+          ...cursorExtra?.(lastItem)
+        }
+      : null
 
   const nextCursor = cursorObj ? encodeCursor(cursorObj) : null
 
-  const response: Omit<
-    ResponseWithCursor<z.infer<T>>,
-    'totalCount'
-  > = {
+  const response: { res: z.infer<T>[]; nextCursor: string | null } = {
     res: formatted,
     nextCursor
   }

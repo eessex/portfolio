@@ -37,3 +37,19 @@ Preview builds skip migrations by default, so a preview runs on whatever schema 
 3. Redeploy a preview. Its build log shows the migrations, or why it skipped them.
 
 `pnpm migrate` runs on a preview only when both are set, and skips it when the preview's database host is production's. That's the guard against a preview without its own branch migrating production with unmerged code.
+
+## Preview branch cleanup
+
+The Vercel-managed Neon integration names each preview branch `preview/<git-branch>` and deletes it only when its Vercel deployments are deleted, months later by default. Neon Free allows 10 branches per project, so `.github/workflows/neon-preview-branches.yml` cleans them up:
+
+- **On every push to a branch other than `main`**, it sets that branch's `preview/<git-branch>` to expire 7 days out. Neon deletes it if nothing is pushed for a week. On a branch's first push it waits up to 4 minutes for Vercel's build to create the Neon branch.
+- **When a pull request closes** (merged or not), it deletes the pull request's `preview/<git-branch>`.
+
+A missing Neon branch is logged and skipped, never a failure. Both jobs need two repository secrets (GitHub → Settings → Secrets and variables → Actions):
+
+| Secret            | Value                                                                          |
+| ----------------- | ------------------------------------------------------------------------------ |
+| `NEON_API_KEY`    | A Neon API key (Neon console → Account settings → API keys, or an org API key) |
+| `NEON_PROJECT_ID` | The Neon project's ID (Neon console → Project settings → General)              |
+
+Without them, both jobs fail at their first Neon request.

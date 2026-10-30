@@ -7,7 +7,7 @@ import { DeviceProvider } from '@/lib/device-context'
 import { ogImage } from '@/lib/images/util'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
-import { Analytics } from '@/ui/analytics/analytics'
+import { Analytics, SpeedInsights } from '@/ui/analytics/analytics'
 import { geistMono, geistSans } from '@/ui/fonts'
 import { Footer } from '@/ui/footer/footer'
 import { Loading } from '@/ui/loading'
@@ -74,6 +74,7 @@ export default async function RootLayout({
           </DeviceProvider>
         </ToastProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )

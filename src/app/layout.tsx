@@ -6,6 +6,7 @@ import { Suspense } from 'react'
 import { DeviceProvider } from '@/lib/device-context'
 import { ogImage } from '@/lib/images/util'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
+import { siteIconUrls } from '@/lib/site-settings/util'
 import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
 import { Analytics, SpeedInsights } from '@/ui/analytics/analytics'
 import { geistMono, geistSans } from '@/ui/fonts'
@@ -26,13 +27,21 @@ export async function generateMetadata(): Promise<Metadata> {
         }
       ]
     : []
+  const icons = siteIconUrls(siteSettings)
   return {
     title: {
       template: `%s | ${siteSettings?.title ?? 'Site Title'}`,
       default: siteSettings?.title ?? 'Site Title'
     },
     description: siteSettings?.description ?? 'Site Description',
-    openGraph: { images }
+    openGraph: { images },
+    // no manifest: src/app/manifest.ts links itself
+    icons: {
+      icon: [
+        { url: icons.icon32, type: 'image/png', sizes: '32x32' }
+      ],
+      apple: [{ url: icons.appleTouchIcon, sizes: '180x180' }]
+    }
   }
 }
 

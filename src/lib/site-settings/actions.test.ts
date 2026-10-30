@@ -2,6 +2,8 @@ import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
 import { editSiteSettings } from '@/lib/site-settings/actions'
+import { generateSiteIcons } from '@/lib/site-settings/icons'
+import { ICON_VERSION } from '@/lib/site-settings/util'
 import { formDataFromObject } from '@/test/helpers'
 
 jest.mock('next/cache')
@@ -10,6 +12,11 @@ jest.mock('@/lib/images/upload', () => ({
   uploadFile: jest.fn(),
   deleteImageFile: jest.fn()
 }))
+
+jest.mock('@/lib/site-settings/icons', () => ({
+  generateSiteIcons: jest.fn()
+}))
+const mockGenerateSiteIcons = jest.mocked(generateSiteIcons)
 
 jest.mock('@/lib/db', () => ({
   sql: jest.fn()
@@ -222,6 +229,166 @@ describe('editSiteSettings', () => {
       ]) {
         expect(updateTag).toHaveBeenCalledWith(tag)
       }
+    })
+  })
+
+  describe('site icon', () => {
+    const iconImageId = 'c1b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a'
+
+    /** mocks the stored row's icon columns; returns the write */
+    function mockStoredIcon(stored?: {
+      icon_image_id: string | null
+      icon_version: number | null
+    }) {
+      mockSql.mockImplementation(((strings: TemplateStringsArray) =>
+        Promise.resolve(
+          strings.join('?').includes('SELECT icon_image_id') && stored
+            ? [stored]
+            : []
+        )) as never)
+      return () => {
+        const call = mockSql.mock.calls.find(([strings]) =>
+          /(UPDATE|INSERT INTO) site_settings/.test(
+            (strings as TemplateStringsArray).join('?')
+          )
+        )
+        if (!call) return
+        const [strings, ...params] = call
+        return {
+          text: (strings as TemplateStringsArray).join('?'),
+          params
+        }
+      }
+    }
+
+    it('skips generation for an unchanged, current icon', async () => {
+      const write = mockStoredIcon({
+        icon_image_id: iconImageId,
+        icon_version: ICON_VERSION
+      })
+
+      const res = await editSiteSettings(
+        formDataFromObject({ ...validFields, iconImageId }),
+        validFields.id
+      )
+
+      expect(res).toEqual({ ok: true })
+      expect(mockGenerateSiteIcons).not.toHaveBeenCalled()
+      expect(write()?.params.slice(5, 7)).toEqual([
+        iconImageId,
+        ICON_VERSION
+      ])
+    })
+
+    it('generates once for a changed icon', async () => {
+      const write = mockStoredIcon({
+        icon_image_id: 'd1b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a',
+        icon_version: ICON_VERSION
+      })
+
+      await editSiteSettings(
+        formDataFromObject({ ...validFields, iconImageId }),
+        validFields.id
+      )
+
+      expect(mockGenerateSiteIcons).toHaveBeenCalledTimes(1)
+      expect(mockGenerateSiteIcons).toHaveBeenCalledWith(iconImageId)
+      expect(write()?.params.slice(5, 7)).toEqual([
+        iconImageId,
+        ICON_VERSION
+      ])
+    })
+
+    it('regenerates a stale icon version', async () => {
+      mockStoredIcon({
+        icon_image_id: iconImageId,
+        icon_version: ICON_VERSION - 1
+      })
+
+      await editSiteSettings(
+        formDataFromObject({ ...validFields, iconImageId }),
+        validFields.id
+      )
+
+      expect(mockGenerateSiteIcons).toHaveBeenCalledWith(iconImageId)
+    })
+
+    it('regenerates when the image was deleted but the version kept', async () => {
+      mockStoredIcon({
+        icon_image_id: null,
+        icon_version: ICON_VERSION
+      })
+
+      await editSiteSettings(
+        formDataFromObject({ ...validFields, iconImageId }),
+        validFields.id
+      )
+
+      expect(mockGenerateSiteIcons).toHaveBeenCalledWith(iconImageId)
+    })
+
+    it('generates when creating the settings row', async () => {
+      const write = mockStoredIcon()
+
+      await editSiteSettings(
+        formDataFromObject({ ...validFields, iconImageId })
+      )
+
+      expect(mockGenerateSiteIcons).toHaveBeenCalledWith(iconImageId)
+      const { text, params } = write()!
+      expect(text).toContain('INSERT INTO site_settings')
+      expect(params.slice(5, 7)).toEqual([iconImageId, ICON_VERSION])
+    })
+
+    it('clears both columns when the field is cleared', async () => {
+      const write = mockStoredIcon({
+        icon_image_id: iconImageId,
+        icon_version: ICON_VERSION
+      })
+
+      await editSiteSettings(
+        formDataFromObject(validFields),
+        validFields.id
+      )
+
+      expect(mockGenerateSiteIcons).not.toHaveBeenCalled()
+      expect(write()?.params.slice(5, 7)).toEqual([null, null])
+    })
+
+    it('writes no icon files when validation fails', async () => {
+      mockStoredIcon()
+
+      const res = await editSiteSettings(
+        formDataFromObject({
+          ...validFields,
+          iconImageId,
+          coverImageId: 'not-a-uuid'
+        }),
+        validFields.id
+      )
+
+      expect(res).toMatchObject({ ok: false })
+      expect(mockGenerateSiteIcons).not.toHaveBeenCalled()
+    })
+
+    it('returns a failed generation as a form error, leaving the row', async () => {
+      const write = mockStoredIcon()
+      mockGenerateSiteIcons.mockRejectedValueOnce(
+        new Error('The site icon is too small')
+      )
+
+      const res = await editSiteSettings(
+        formDataFromObject({ ...validFields, iconImageId }),
+        validFields.id
+      )
+
+      expect(res).toEqual({
+        ok: false,
+        message:
+          'Failed to save site settings: The site icon is too small.'
+      })
+      expect(write()).toBeUndefined()
+      expect(updateTag).not.toHaveBeenCalled()
     })
   })
 })

@@ -20,16 +20,23 @@ export type ThumbnailImage = Pick<
 >
 
 export const CoverImageThumbnail = ({
-  image
+  image,
+  isSquare
 }: {
   image: ThumbnailImage
+  /** center-cropped, as a site icon is */
+  isSquare?: boolean
 }) => (
   <StoredImage
     image={image}
     alt={image.alt || image.caption || ''}
-    width={Math.round(COVER_IMAGE_HEIGHT * imageAspect(image))}
+    width={
+      isSquare
+        ? COVER_IMAGE_HEIGHT
+        : Math.round(COVER_IMAGE_HEIGHT * imageAspect(image))
+    }
     height={COVER_IMAGE_HEIGHT}
     unoptimized={isCoverImageThumbnailUrl(image.url)}
-    className={styles['cover-image']}
+    className={`${styles['cover-image']} ${isSquare ? styles['square'] : ''}`}
   />
 )

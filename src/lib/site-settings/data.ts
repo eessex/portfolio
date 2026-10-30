@@ -19,6 +19,16 @@ export async function fetchSiteSettings() {
           END
         ) AS cover_image,
         (
+          CASE
+            WHEN s.icon_image_id IS NOT NULL
+            THEN (
+              SELECT build_image_json(i)
+              FROM images i
+              WHERE i.id = s.icon_image_id
+            )
+          END
+        ) AS icon_image,
+        (
           SELECT COALESCE(
             jsonb_agg(
               build_link_json(l)

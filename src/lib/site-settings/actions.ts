@@ -11,12 +11,14 @@ import {
   createSocialLinkSchema,
   LinkTypes
 } from '@/lib/links/schemas/db'
+import { generateSiteIcons } from '@/lib/site-settings/icons'
 import type { CreateSiteSettings } from '@/lib/site-settings/schemas'
 import {
   createSiteSettingsSchema,
   MAX_SOCIAL_LINKS,
   maxSocialLinksMessage
 } from '@/lib/site-settings/schemas'
+import { ICON_VERSION } from '@/lib/site-settings/util'
 import type { FormResponse } from '@/lib/types'
 import {
   extractIndexedGroups,
@@ -57,11 +59,15 @@ export async function editSiteSettings(
       // sequential: links are pre-validated, so the cover image
       // (storage upload) is the likelier failure and runs first
       const coverImageId = await resolveCoverImageId(data)
+      const iconImageId = await resolveCoverImageId(
+        data,
+        'iconImageId'
+      )
       const socialLinkIds = await resolveSocialLinkIds(
         data,
         SOCIAL_LINKS_FIELD
       )
-      return { ...data, coverImageId, socialLinkIds }
+      return { ...data, coverImageId, iconImageId, socialLinkIds }
     },
     invalidate: () => {
       updateTag('settings')
@@ -72,12 +78,48 @@ export async function editSiteSettings(
       updateTag('events')
       updateTag('projects')
     },
-    save: (settings) =>
-      id
-        ? updateSiteSettings(settings, id)
-        : createSiteSettings(settings)
+    save: async (settings) => {
+      // after validation, so a refused form writes no icon files
+      const iconVersion = await ensureSiteIcons(
+        settings.iconImageId,
+        id
+      )
+      const row = { ...settings, iconVersion }
+      return id
+        ? updateSiteSettings(row, id)
+        : createSiteSettings(row)
+    }
   })
 }
+
+/**
+ * Generates the icon's files unless the stored ones are this image's
+ * at ICON_VERSION; returns the version to record (none without an
+ * icon). Throws before the row is written, so it never points at
+ * missing files.
+ */
+async function ensureSiteIcons(
+  iconImageId: string | undefined,
+  id: string | undefined
+): Promise<number | undefined> {
+  if (!iconImageId) return
+  const [stored] = id
+    ? await sql`
+        SELECT icon_image_id, icon_version
+        FROM site_settings
+        WHERE id = ${id}
+      `
+    : []
+  const isCurrent =
+    stored?.icon_image_id === iconImageId &&
+    (stored?.icon_version ?? 0) >= ICON_VERSION
+  // a newer version (written before a rollback) keeps its own files
+  if (isCurrent) return stored.icon_version
+  await generateSiteIcons(iconImageId)
+  return ICON_VERSION
+}
+
+type SiteSettingsRow = CreateSiteSettings & { iconVersion?: number }
 
 function validateSocialLinkEntries(
   formData: FormData
@@ -110,24 +152,30 @@ function validateSocialLinkEntries(
 async function createSiteSettings({
   coverImageId,
   description,
+  iconImageId,
+  iconVersion,
   isEmailSubscribeEnabled,
   socialLinkIds,
   title
-}: CreateSiteSettings) {
+}: SiteSettingsRow) {
   await sql`
     INSERT INTO site_settings (
       title,
       description,
       cover_image_id,
       social_link_ids,
-      is_email_subscribe_enabled
+      is_email_subscribe_enabled,
+      icon_image_id,
+      icon_version
     )
     VALUES (
       ${title || ''},
       ${description || ''},
       ${coverImageId || null},
       ${socialLinkIds ?? []}::uuid[],
-      ${isEmailSubscribeEnabled}
+      ${isEmailSubscribeEnabled},
+      ${iconImageId || null},
+      ${iconVersion ?? null}
     )
   `
 }
@@ -136,10 +184,12 @@ async function updateSiteSettings(
   {
     coverImageId,
     description,
+    iconImageId,
+    iconVersion,
     isEmailSubscribeEnabled,
     socialLinkIds,
     title
-  }: CreateSiteSettings,
+  }: SiteSettingsRow,
   id: string
 ) {
   // an unsubmitted picker keeps the stored list
@@ -153,6 +203,8 @@ async function updateSiteSettings(
           social_link_ids
         ),
         is_email_subscribe_enabled = ${isEmailSubscribeEnabled},
+        icon_image_id = ${iconImageId || null},
+        icon_version = ${iconVersion ?? null},
         updated_at = current_timestamp
     WHERE id = ${id}
   `

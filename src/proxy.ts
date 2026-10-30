@@ -1,8 +1,12 @@
 import NextAuth from 'next-auth'
 
 import { authConfig } from '@/auth.config'
+import { authSecret } from '@/lib/auth/secret'
 
-export default NextAuth(authConfig).auth
+export default NextAuth(async () => ({
+  ...authConfig,
+  secret: await authSecret()
+})).auth
 
 export const config = {
   // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher

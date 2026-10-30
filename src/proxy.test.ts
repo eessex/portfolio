@@ -1,5 +1,6 @@
 jest.mock('next-auth', () => () => ({ auth: jest.fn() }))
 jest.mock('@/auth.config', () => ({ authConfig: {} }))
+jest.mock('@/lib/auth/secret', () => ({ authSecret: jest.fn() }))
 
 import { config } from '@/proxy'
 

@@ -1,0 +1,85 @@
+name: Neon preview branches
+
+# The Vercel-managed Neon integration creates `preview/<git-branch>`
+# per previewed branch and deletes it only when its deployments are
+# deleted (months later), so stale branches hit Neon Free's limit.
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+    types: [closed]
+
+concurrency:
+  group: neon-preview-${{ github.head_ref || github.ref_name }}
+
+env:
+  NEON_API: https://console.neon.tech/api/v2/projects/${{ secrets.NEON_PROJECT_ID }}/branches
+  NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+  BRANCH: preview/${{ github.head_ref || github.ref_name }}
+
+jobs:
+  expire:
+    # Only on the source repo, so forks' synced pushes cost them nothing
+    if: >-
+      github.repository == 'eessex/portfolio-cms' &&
+      github.event_name == 'push' && !github.event.deleted
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Expire ${{ env.BRANCH }} in 7 days
+        run: |
+          find_branch() {
+            curl -fsS -G "$NEON_API" \
+              -H "Authorization: Bearer $NEON_API_KEY" \
+              --data-urlencode "search=$BRANCH" |
+              jq -r --arg name "$BRANCH" \
+                '.branches[] | select(.name == $name) | .id'
+          }
+          # A first push's branch appears once Vercel's build starts
+          for _ in $(seq 12); do
+            id=$(find_branch)
+            [ -n "$id" ] && break
+            sleep 20
+          done
+          if [ -z "$id" ]; then
+            echo "::notice::No Neon branch $BRANCH, skipping"
+            exit 0
+          fi
+          # Neon caps expiration at 30 days out
+          expires_at=$(date -u -d '+7 days' +%Y-%m-%dT%H:%M:%SZ)
+          curl -fsS -X PATCH "$NEON_API/$id" \
+            -H "Authorization: Bearer $NEON_API_KEY" \
+            -H 'Content-Type: application/json' \
+            -d "{\"branch\":{\"expires_at\":\"$expires_at\"}}" \
+            -o /dev/null
+          echo "$BRANCH ($id) expires at $expires_at"
+
+  delete:
+    # Fork PRs get no secrets, and their head branch name could match
+    # one of this repo's own branches
+    if: >-
+      github.repository == 'eessex/portfolio-cms' &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Delete ${{ env.BRANCH }}
+        run: |
+          id=$(curl -fsS -G "$NEON_API" \
+            -H "Authorization: Bearer $NEON_API_KEY" \
+            --data-urlencode "search=$BRANCH" |
+            jq -r --arg name "$BRANCH" \
+              '.branches[] | select(.name == $name) | .id')
+          if [ -z "$id" ]; then
+            echo "::notice::No Neon branch $BRANCH, nothing to delete"
+            exit 0
+          fi
+          status=$(curl -sS -X DELETE "$NEON_API/$id" \
+            -H "Authorization: Bearer $NEON_API_KEY" \
+            -o response.json -w '%{http_code}')
+          case "$status" in
+            2??) echo "Deleted $BRANCH ($id)" ;;
+            404) echo "::notice::$BRANCH already deleted" ;;
+            *) cat response.json; exit 1 ;;
+          esac

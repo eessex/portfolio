@@ -17,6 +17,8 @@ export const maxSocialLinksMessage = `Add up to ${MAX_SOCIAL_LINKS} social links
 const siteSettingsFields = {
   coverImageId: relationFields.coverImageId,
   description: shortText.optional(),
+  /** the image the site icons are generated from */
+  iconImageId: uuid.optional(),
   /** whether the footer shows the email subscribe form */
   isEmailSubscribeEnabled: bool.optional().default(false),
   /** the footer's links, in footer order */
@@ -29,7 +31,9 @@ const siteSettingsFields = {
 
 export const siteSettingsSchema = z.object({
   ...systemFields,
-  ...siteSettingsFields
+  ...siteSettingsFields,
+  /** the ICON_VERSION the stored icon files were generated at */
+  iconVersion: z.number().int().min(1).optional()
 })
 
 /**
@@ -44,5 +48,6 @@ export type CreateSiteSettings = z.infer<
 
 export const siteSettingsClientSchema = siteSettingsSchema.extend({
   coverImage: z.lazy(() => imageSchema).optional(),
+  iconImage: z.lazy(() => imageSchema).optional(),
   socialLinks: z.array(linkSchema).optional()
 })

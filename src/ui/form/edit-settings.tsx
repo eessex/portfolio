@@ -15,7 +15,9 @@ import { Input } from '@/ui/form/input'
 import { EditImage } from '@/ui/images/edit-image-form'
 import {
   formatImageResult,
-  formatNewImageSummary
+  formatNewImageSummary,
+  formatNewSiteIconSummary,
+  formatSiteIconResult
 } from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { SocialLinksPicker } from '@/ui/links/links-picker'
@@ -78,6 +80,30 @@ function SettingsFormFields({
           />
         )}
         isRequired
+      />
+
+      <ItemPicker<Image>
+        name='iconImageId'
+        itemType='images'
+        label='Site icon'
+        description='A square image, at least 600 × 600. PNG with a transparent background works best.'
+        existingItem={settings?.iconImage}
+        renderExistingResult={formatSiteIconResult}
+        renderNewItemSummary={formatNewSiteIconSummary}
+        schema={imageClientFieldsSchema}
+        renderEditItemForm={({
+          errors,
+          isRequired,
+          existingItem,
+          onReadyChange
+        }) => (
+          <EditImage
+            image={existingItem}
+            errors={errors}
+            isRequired={isRequired}
+            onReadyChange={onReadyChange}
+          />
+        )}
       />
 
       <div>

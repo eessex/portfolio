@@ -1,5 +1,8 @@
 import bcrypt from 'bcrypt'
-import NextAuth, { CredentialsSignin } from 'next-auth'
+import NextAuth, {
+  CredentialsSignin,
+  type NextAuthConfig
+} from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { z } from 'zod'
 
@@ -9,6 +12,7 @@ import {
   LOGIN_THROTTLED_CODE,
   registerLoginAttempt
 } from '@/lib/auth/rate-limit'
+import { authSecret } from '@/lib/auth/secret'
 import { fetchUserByEmail } from '@/lib/users/data'
 
 const CredentialsSchema = z.object({
@@ -32,7 +36,7 @@ class ThrottledSignin extends CredentialsSignin {
 const DUMMY_PASSWORD_HASH =
   '$2b$10$jbuOzkjIvg398zktHoqbcuNDcVdJhtMq2ZgWpRlLZ0Gldto8CSdQa'
 
-export const { auth, handlers, signIn, signOut } = NextAuth({
+const config = {
   ...authConfig,
   providers: [
     Credentials({
@@ -65,4 +69,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       }
     })
   ]
-})
+} satisfies NextAuthConfig
+
+// Lazy config: the secret may come from the database
+export const { auth, handlers, signIn, signOut } = NextAuth(
+  async () => ({ ...config, secret: await authSecret() })
+)

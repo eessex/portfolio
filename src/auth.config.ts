@@ -1,20 +1,7 @@
 import type { NextAuthConfig } from 'next-auth'
 
-import { ABOUT_PATH, pagePaths } from '@/lib/schemas'
+import { isAuthedPath, isUnauthedPath } from '@/lib/auth/paths'
 import { hasSiteSettings } from '@/lib/site-settings/data'
-
-const authedPathPatterns = [
-  ...pagePaths.map(
-    (type) => new RegExp(`^/${type}/[^/]+/edit$`) // /events/:slug/edit
-  ),
-  ...pagePaths.map(
-    (type) => new RegExp(`^/${type}/new$`) // /events/new
-  ),
-  new RegExp(`^/${ABOUT_PATH}/edit$`),
-  /^\/dashboard(?:\/.*)?$/
-]
-
-const unauthedPathPatterns = [/^\/login$/]
 
 // site_settings is created once during first-run setup and never
 // deleted, so once we've observed it exists we can stop asking — this
@@ -43,17 +30,9 @@ export const authConfig = {
     async authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
 
-      const isAuthedPath = authedPathPatterns.some((pattern) =>
-        pattern.test(nextUrl.pathname)
-      )
-
-      const isUnauthedPath = unauthedPathPatterns.some((pattern) =>
-        pattern.test(nextUrl.pathname)
-      )
-
-      if (isAuthedPath) {
+      if (isAuthedPath(nextUrl.pathname)) {
         return isLoggedIn // Redirect unauthenticated users
-      } else if (isUnauthedPath) {
+      } else if (isUnauthedPath(nextUrl.pathname)) {
         return !isLoggedIn // allow unauthenticated users only
       } else if (isLoggedIn) {
         return true // everything else is public once logged in

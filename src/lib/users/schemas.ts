@@ -12,3 +12,19 @@ export const userSchema = z.object({
   email,
   password: z.string().min(8)
 })
+
+/**
+ * The /setup form's account fields. The setup code itself is checked
+ * separately (against its hash, not through Zod) before this runs.
+ */
+export const completeSetupSchema = z
+  .object({
+    name: shortText,
+    email,
+    password: z.string().min(8),
+    confirmPassword: z.string().min(8)
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords must match.',
+    path: ['confirmPassword']
+  })

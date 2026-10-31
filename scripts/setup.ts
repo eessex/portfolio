@@ -259,8 +259,53 @@ async function setupDatabase(): Promise<void> {
 
   console.log('\nCreate a user account.')
   const admin = await promptAdmin()
-  const { createUser } = await import('@/lib/users/create')
-  await createUser(admin)
+
+  // Terminal access is already the trust boundary here, so there's no
+  // code for the operator to type — read the row the migration above
+  // just wrote and consume it the same atomic way /setup's web flow
+  // does. That keeps the two bootstrap paths from both creating an
+  // admin if someone completes /setup while this prompt was open.
+  const { sql } = await import('@/lib/db')
+  const [setupCode] = await sql`
+    SELECT code_hash FROM setup_code LIMIT 1
+  `
+  if (!setupCode) {
+    // The web /setup flow can win this race while the prompt above
+    // was open: its own createFirstUser() call deletes this same row
+    // as part of creating its admin, so a missing row here is success
+    // for the other side, not an invariant failure — only a genuinely
+    // missing row (no user either) is an actual bug.
+    const { countUsers } = await import('@/lib/users/data')
+    if ((await countUsers()) > 0) {
+      console.log(
+        '✅ Another process already created the first admin — skipping'
+      )
+      return
+    }
+    throw new Error(
+      'No setup_code row found right after migrating with no users — this should not happen.'
+    )
+  }
+  const { createFirstUser } = await import('@/lib/users/create')
+  const isCreated = await createFirstUser({
+    ...admin,
+    codeHash: setupCode.code_hash as string
+  })
+  if (!isCreated) {
+    // As above: a lost race isn't always someone else's submit — the
+    // code can also have expired while this prompt was open. Only the
+    // former is success; the latter means no admin exists at all.
+    const { countUsers } = await import('@/lib/users/data')
+    if ((await countUsers()) > 0) {
+      console.log(
+        '✅ Another process already created the first admin — skipping'
+      )
+      return
+    }
+    throw new Error(
+      'Setup code expired before the account could be created — rerun `pnpm run setup` to get a fresh one.'
+    )
+  }
   console.log(`✅ Created admin ${admin.email}`)
 }
 

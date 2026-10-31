@@ -1,5 +1,7 @@
 // Deliberately NOT a server action: generating or hashing the plain
-// code has no reason to be reachable from the browser.
+// code has no reason to be reachable from the browser. Pure/crypto
+// only — no `@/lib/db` import — since every-deploy.ts (run by the
+// migration script, never the app's db client) depends on this file.
 import { createHash, randomInt } from 'node:crypto'
 
 /**

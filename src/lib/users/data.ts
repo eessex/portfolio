@@ -25,3 +25,15 @@ export async function countUsers(): Promise<number> {
     throw new Error('Failed to count users.', { cause })
   }
 }
+
+/** Whether any user exists yet (first-run setup). */
+export async function hasUsers(): Promise<boolean> {
+  try {
+    const rows = await sql`
+      SELECT EXISTS(SELECT 1 FROM users) AS exists
+    `
+    return Boolean(rows[0]?.exists)
+  } catch (cause) {
+    throw new Error('Failed to check users.', { cause })
+  }
+}

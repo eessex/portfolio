@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { connection } from 'next/server'
 
 import { SetupForm } from '@/app/setup/setup-form/setup-form'
+import { isAuthed } from '@/lib/auth/guard'
 import { hasUsers } from '@/lib/users/data'
 
 const title = 'Set up your site'
@@ -17,7 +18,10 @@ export const metadata: Metadata = { title }
  */
 export default async function SetupPage() {
   await connection()
-  if (await hasUsers()) notFound()
+  if (await hasUsers()) {
+    if (await isAuthed()) redirect('/dashboard')
+    notFound()
+  }
 
   return (
     <article>

@@ -5,6 +5,7 @@ import { Client } from '@neondatabase/serverless'
 
 import {
   EVERY_DEPLOY_REVISION,
+  type EveryDeployOptions,
   everyDeploySteps
 } from '@/seed/every-deploy'
 
@@ -33,7 +34,8 @@ function appVersion(): string | undefined {
  * environment shouldn't. Shared by `pnpm migrate` and `pnpm run setup`.
  */
 export async function migrateDatabase(
-  env: Record<string, string | undefined>
+  env: Record<string, string | undefined>,
+  everyDeployOptions?: EveryDeployOptions
 ): Promise<RunDecision> {
   const decision = decideRun(env)
   if (!decision.isRun) return decision
@@ -47,6 +49,7 @@ export async function migrateDatabase(
       migrations,
       everyDeploySteps,
       everyDeployRevision: EVERY_DEPLOY_REVISION,
+      everyDeployOptions,
       isPreview: decision.isPreview,
       appVersion: appVersion()
     })

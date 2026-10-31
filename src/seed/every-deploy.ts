@@ -33,6 +33,16 @@ export type EveryDeployClient = {
   ) => Promise<{ rows: Record<string, unknown>[] }>
 }
 
+export type EveryDeployOptions = {
+  /**
+   * Replace a live setup code instead of keeping it. Only
+   * `pnpm run setup` sets this: only the code's hash is stored, so a
+   * lost one can't be shown again, and whoever runs setup already
+   * holds DATABASE_URL, so a new code grants them nothing more.
+   */
+  isSetupCodeRotated?: boolean
+}
+
 /** Columns limited to a code constant's values. */
 export const checkedColumns: [
   table: string,
@@ -413,11 +423,12 @@ async function ensureAuthSecret(client: EveryDeployClient) {
  * the build log banner. A code that hasn't expired is kept, so a later
  * build (a preview deploy on the same database, a local setup run)
  * can't invalidate the one already printed; that build just notes when
- * it expires. Once a user exists, the row is gone for good and nothing
- * is printed.
+ * it expires, unless `isSetupCodeRotated` asks for a new one. Once a
+ * user exists, the row is gone for good and nothing is printed.
  */
 async function ensureSetupCode(
-  client: EveryDeployClient
+  client: EveryDeployClient,
+  { isSetupCodeRotated = false }: EveryDeployOptions = {}
 ): Promise<string | void> {
   const { rows } = await client.query(
     'SELECT EXISTS (SELECT 1 FROM users) AS "exists"'
@@ -431,7 +442,7 @@ async function ensureSetupCode(
     'SELECT expires_at FROM setup_code WHERE expires_at > now()'
   )
   const expiresAt = live[0]?.expires_at as string | Date | undefined
-  if (expiresAt) {
+  if (expiresAt && !isSetupCodeRotated) {
     return buildLiveSetupCodeNote(new Date(expiresAt))
   }
 
@@ -443,7 +454,10 @@ async function ensureSetupCode(
     SET code_hash = EXCLUDED.code_hash, expires_at = EXCLUDED.expires_at`,
     [hashSetupCode(code)]
   )
-  return buildSetupCodeBanner(code)
+  const banner = buildSetupCodeBanner(code)
+  return expiresAt
+    ? `  Replaced the earlier setup code; it no longer works.\n${banner}`
+    : banner
 }
 
 /**
@@ -456,7 +470,10 @@ export const EVERY_DEPLOY_REVISION = 4
 // In order: triggers call save_old_slug()
 export const everyDeploySteps: {
   name: string
-  run: (client: EveryDeployClient) => Promise<string | void>
+  run: (
+    client: EveryDeployClient,
+    options?: EveryDeployOptions
+  ) => Promise<string | void>
 }[] = [
   { name: 'syncCheckConstraints', run: syncCheckConstraints },
   { name: 'setupSlugHistoryFunction', run: setupSlugHistoryFunction },

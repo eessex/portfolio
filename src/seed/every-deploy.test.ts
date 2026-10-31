@@ -278,6 +278,43 @@ describe('everyDeploySteps', () => {
       )
     })
 
+    it('replaces an unexpired code when asked to rotate it', async () => {
+      const step = everyDeploySteps.find(
+        (s) => s.name === 'ensureSetupCode'
+      )!
+      const setupQuery = setupCodeQuery(false, [
+        { expires_at: '2026-11-02T12:00:00.000Z' }
+      ])
+
+      const message = await step.run(
+        { query: setupQuery },
+        { isSetupCodeRotated: true }
+      )
+
+      expect(setupQuery.mock.calls[2]?.[0]).toContain(
+        'ON CONFLICT (id) DO UPDATE'
+      )
+      expect(message).toContain('Replaced the earlier setup code')
+      expect(message).toContain('Setup code: K7QM-3XRD-PW9T-H2FC')
+    })
+
+    it('still prints nothing once a user exists when asked to rotate', async () => {
+      const step = everyDeploySteps.find(
+        (s) => s.name === 'ensureSetupCode'
+      )!
+      const setupQuery = setupCodeQuery(true)
+
+      const message = await step.run(
+        { query: setupQuery },
+        { isSetupCodeRotated: true }
+      )
+
+      expect(setupQuery.mock.calls[1]?.[0]).toContain(
+        'DELETE FROM setup_code'
+      )
+      expect(message).toBeUndefined()
+    })
+
     it('replaces the stored code once it has expired', async () => {
       const step = everyDeploySteps.find(
         (s) => s.name === 'ensureSetupCode'

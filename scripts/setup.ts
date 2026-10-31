@@ -1,12 +1,17 @@
 /**
- * Interactive first-run setup for a new instance:
+ * Interactive first-run setup for local development:
  *
  *   1. Copies .env.example -> .env (if .env doesn't exist yet)
  *   2. Generates AUTH_SECRET and writes it to .env (if unset)
  *   3. Prompts for the Postgres DATABASE_URL (with doc links)
  *   4. Tests the connection, re-prompting until it succeeds
  *   5. Applies database migrations (`pnpm migrate`)
- *   6. Creates the first admin user (only if none exists)
+ *
+ * Migrating prints a setup code when no admin exists yet — the same
+ * code a deployed instance's build log prints, except that each run
+ * here replaces any earlier code with a new one. Start the app and open
+ * http://localhost:3000/setup to create your account with it, the same
+ * way a deployed site's owner claims theirs; see CONTRIBUTING.md.
  *
  * Run with: pnpm run setup
  * (`run` is required — bare `pnpm setup` invokes pnpm's own builtin
@@ -15,9 +20,6 @@
  * Safe to re-run: every step checks current state before acting, and a
  * DATABASE_URL is only persisted once it has connected successfully, so
  * a failed run never leaves bad values behind.
- *
- * Admin details can be supplied non-interactively via SETUP_ADMIN_NAME
- * / SETUP_ADMIN_EMAIL / SETUP_ADMIN_PASSWORD (useful for automation).
  */
 import { randomBytes } from 'node:crypto'
 import {
@@ -30,7 +32,6 @@ import { stdin, stdout } from 'node:process'
 import { createInterface } from 'node:readline'
 
 import { neon } from '@neondatabase/serverless'
-import { z } from 'zod'
 
 const ENV_PATH = '.env'
 const ENV_EXAMPLE_PATH = '.env.example'
@@ -42,32 +43,16 @@ const DB_DOC_LINKS = [
   'It looks like: postgres://USER:PASSWORD@HOST/DB?sslmode=require'
 ].join('\n')
 
-const adminSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Must be a valid email'),
-  password: z.string().min(8, 'Must be at least 8 characters')
-})
-
-type AdminInput = z.infer<typeof adminSchema>
-
 // Prompts
 
 // A single, shared readline interface is reused for every prompt.
 // Creating and closing one per prompt leaves the TTY stdin paused, so
 // later prompts stop receiving input and appear to hang.
 let rl: ReturnType<typeof createInterface> | null = null
-let muted = false
 
 function getReadline(): ReturnType<typeof createInterface> {
   if (rl) return rl
   rl = createInterface({ input: stdin, output: stdout })
-  // @ts-expect-error _writeToOutput is an internal readline method
-  const write = rl._writeToOutput.bind(rl)
-  // @ts-expect-error _writeToOutput is an internal readline method
-  rl._writeToOutput = (chunk: string) => {
-    // Suppress echo while `muted` so passwords aren't shown as typed.
-    if (!muted) write(chunk)
-  }
   return rl
 }
 
@@ -76,19 +61,9 @@ function closeReadline(): void {
   rl = null
 }
 
-function ask(
-  query: string,
-  { hidden = false } = {}
-): Promise<string> {
+function ask(query: string): Promise<string> {
   return new Promise((resolve) => {
-    const readline = getReadline()
-    muted = false
-    readline.question(query, (answer) => {
-      muted = false
-      if (hidden) stdout.write('\n')
-      resolve(answer.trim())
-    })
-    muted = hidden
+    getReadline().question(query, (answer) => resolve(answer.trim()))
   })
 }
 
@@ -199,114 +174,20 @@ async function ensureDatabaseUrl(): Promise<void> {
   }
 }
 
-async function promptAdmin(): Promise<AdminInput> {
-  const env = {
-    email: process.env.SETUP_ADMIN_EMAIL,
-    name: process.env.SETUP_ADMIN_NAME,
-    password: process.env.SETUP_ADMIN_PASSWORD
-  }
-  const nonInteractive = !!(env.email && env.name && env.password)
-
-  // SETUP_ADMIN_* seed only the first attempt.
-  let seed: Partial<typeof env> = env
-  for (;;) {
-    const email =
-      seed.email ?? (await ask('Enter your email address: '))
-    const name = seed.name ?? (await ask('Enter your name: '))
-    const password =
-      seed.password ??
-      (await ask('Enter a password (min 8 characters): ', {
-        hidden: true
-      }))
-    seed = {}
-
-    const parsed = adminSchema.safeParse({ name, email, password })
-    if (parsed.success) return parsed.data
-
-    console.log('Please fix:')
-    for (const issue of parsed.error.issues) {
-      console.log(`  - ${issue.message}`)
-    }
-    console.log('')
-    if (nonInteractive) {
-      throw new Error('Invalid SETUP_ADMIN_* environment values.')
-    }
-  }
-}
-
 async function setupDatabase(): Promise<void> {
   const { migrateDatabase } =
     await import('./migrate/migrate-database')
   console.log('• Applying migrations…')
   // Only the tested DATABASE_URL: a stale DATABASE_URL_UNPOOLED in
   // .env would otherwise win and migrate a different database
-  const decision = await migrateDatabase({
-    ...process.env,
-    DATABASE_URL_UNPOOLED: undefined
-  })
+  // A new setup code on every run, so a lost one never locks a local
+  // instance out; rotated inside the runner's every-deploy
+  // transaction, so a skipped or refused run keeps the old one
+  const decision = await migrateDatabase(
+    { ...process.env, DATABASE_URL_UNPOOLED: undefined },
+    { isSetupCodeRotated: true }
+  )
   if (!decision.isRun) throw new Error(decision.message)
-
-  // Imported dynamically: these modules read DATABASE_URL at import
-  // time, so they must load only after ensureDatabaseUrl() has set it.
-  const { countUsers } = await import('@/lib/users/data')
-  const existing = await countUsers()
-  if (existing > 0) {
-    console.log(
-      `✅ ${existing} user(s) already exist — skipping admin creation`
-    )
-    return
-  }
-
-  console.log('\nCreate a user account.')
-  const admin = await promptAdmin()
-
-  // Terminal access is already the trust boundary here, so there's no
-  // code for the operator to type — read the row the migration above
-  // just wrote and consume it the same atomic way /setup's web flow
-  // does. That keeps the two bootstrap paths from both creating an
-  // admin if someone completes /setup while this prompt was open.
-  const { sql } = await import('@/lib/db')
-  const [setupCode] = await sql`
-    SELECT code_hash FROM setup_code LIMIT 1
-  `
-  if (!setupCode) {
-    // The web /setup flow can win this race while the prompt above
-    // was open: its own createFirstUser() call deletes this same row
-    // as part of creating its admin, so a missing row here is success
-    // for the other side, not an invariant failure — only a genuinely
-    // missing row (no user either) is an actual bug.
-    const { countUsers } = await import('@/lib/users/data')
-    if ((await countUsers()) > 0) {
-      console.log(
-        '✅ Another process already created the first admin — skipping'
-      )
-      return
-    }
-    throw new Error(
-      'No setup_code row found right after migrating with no users — this should not happen.'
-    )
-  }
-  const { createFirstUser } = await import('@/lib/users/create')
-  const isCreated = await createFirstUser({
-    ...admin,
-    codeHash: setupCode.code_hash as string
-  })
-  if (!isCreated) {
-    // As above: a lost race isn't always someone else's submit — the
-    // code can also have expired while this prompt was open. Only the
-    // former is success; the latter means no admin exists at all.
-    const { countUsers } = await import('@/lib/users/data')
-    if ((await countUsers()) > 0) {
-      console.log(
-        '✅ Another process already created the first admin — skipping'
-      )
-      return
-    }
-    throw new Error(
-      'Setup code expired before the account could be created — rerun `pnpm run setup` to get a fresh one.'
-    )
-  }
-  console.log(`✅ Created admin ${admin.email}`)
 }
 
 async function main(): Promise<void> {
@@ -318,7 +199,12 @@ async function main(): Promise<void> {
   await setupDatabase()
   closeReadline()
   console.log('\nSetup complete. Start the app with: pnpm dev')
-  console.log('Then log in at http://localhost:3000/login')
+  console.log(
+    'Then open http://localhost:3000/setup to create your account'
+  )
+  console.log(
+    '(a code printed above), or /login if you already have one.'
+  )
   process.exit(0)
 }
 

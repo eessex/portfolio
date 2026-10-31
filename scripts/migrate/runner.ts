@@ -14,6 +14,8 @@ import { readdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
+import type { EveryDeployOptions } from '@/seed/every-deploy'
+
 /** The slice of the driver's `Client` the runner uses. */
 export type MigrationClient = {
   query: (
@@ -32,7 +34,10 @@ export type Migration = {
 export type EveryDeployStep = {
   name: string
   /** A banner to print to the build log once committed, if any. */
-  run: (client: MigrationClient) => Promise<string | void>
+  run: (
+    client: MigrationClient,
+    options?: EveryDeployOptions
+  ) => Promise<string | void>
 }
 
 export const NOT_CONNECTED_MESSAGE =
@@ -367,6 +372,8 @@ type RunOptions = {
   everyDeploySteps: EveryDeployStep[]
   /** Ordered version of the steps' definitions (see every-deploy.ts) */
   everyDeployRevision: number
+  /** Passed to every step, e.g. setup's setup-code rotation */
+  everyDeployOptions?: EveryDeployOptions
   isPreview?: boolean
   appVersion?: string
   log?: (message: string) => void
@@ -383,6 +390,7 @@ export async function runMigrations({
   migrations,
   everyDeploySteps,
   everyDeployRevision,
+  everyDeployOptions = {},
   isPreview = false,
   appVersion,
   log = console.log,
@@ -514,7 +522,7 @@ export async function runMigrations({
         const startedAt = now()
         let message: string | void
         try {
-          message = await step.run(client)
+          message = await step.run(client, everyDeployOptions)
         } catch (error) {
           throw new Error(
             `Every-deploy step ${step.name} failed: ${errorMessage(error)}`,

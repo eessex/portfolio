@@ -1,0 +1,120 @@
+# Deploying your own copy
+
+A step-by-step guide to running your own portfolio site, hosted free on
+Vercel. No coding, and nothing to type into a terminal.
+
+**Estimated time:** 30 minutes.
+
+## 1. Make a GitHub account
+
+At [github.com](https://github.com), if you don't have one already. Use an
+email you'll keep for years — it's how you'll get updates to your site.
+
+## 2. Fork the project
+
+Open the project's GitHub page,
+[eessex/portfolio-cms](https://github.com/eessex/portfolio-cms), and click
+**Fork**. You can rename your copy (e.g. `jane-doe-site`) — this is your own
+copy of the code, separate from the original.
+
+## 3. Make a Vercel account
+
+At [vercel.com](https://vercel.com), choosing "Continue with GitHub" so it's
+linked to the account from step 1.
+
+## 4. Import your fork
+
+In Vercel: **Add New → Project**, then pick your fork. There's nothing to
+fill in — leave every field as it is.
+
+Click **Deploy**. The first build will stop with "Database not connected."
+That's expected — there's no database yet.
+
+## 5. Add storage
+
+In your Vercel project, open **Storage**, then:
+
+- Add **Neon** and choose the **Free** plan
+- Add a **Blob** store
+
+Connect both to your project, then go to **Deployments** and click
+**Redeploy**. This build creates your database tables.
+
+## 6. Claim your site
+
+In Vercel, open **Deployments → the latest deployment → Build Logs**, and
+scroll to find a setup code near the end — it looks like this:
+
+```
+==================================================
+  Setup code: K7QM-3XRD-PW9T-H2FC
+  Open your site and enter it to create your account.
+  Expires in 72 hours. Redeploy after that for a new one.
+==================================================
+```
+
+Copy the code, then open your site (its URL is at the top of the Vercel
+project page). It'll send you straight to a setup page. Enter the code,
+then your name, email and a password, and submit.
+
+**Save that password somewhere safe — a password manager, ideally.**
+There's no "forgot password" link yet, so if you lose it, you'll need to ask
+in a GitHub issue on the project for help getting back in.
+
+**Don't see a code?** If you redeployed before claiming your site, the
+latest build log shows this line instead:
+
+```
+  A setup code from an earlier build is still valid until 2026-11-02T12:00:00.000Z; find it in that build's log.
+```
+
+The code is only printed once, by the build that created it, so a redeploy
+doesn't replace one you've already copied. Go back to **Deployments**, open
+each older deployment in turn (newest first), and check its **Build Logs**
+for the banner above. It's the oldest deployment created within 72 hours
+before that "valid until" time.
+
+If the code has expired (after 72 hours), click **Redeploy** on your latest
+deployment to get a new one.
+
+## 7. Fill in your site
+
+You'll land on your dashboard, which asks for your site title and
+description, plus optional social links. Fill those in and save.
+
+Then create your About page, which visitors reach by clicking your site's
+description. Go to `/about/edit` on your site (for example
+`https://your-site.vercel.app/about/edit`), fill in the project that
+represents you, tick **Published**, and save. Until you do, `/about` shows
+a "not found" page.
+
+**See your visitors (optional):** Vercel → your project → **Analytics** →
+**Enable**. Free up to 50,000 page views a month; it just stops counting
+past that, it won't charge you.
+
+## 8. Add your domain (optional)
+
+Vercel → your project → **Settings → Domains**, then follow the instructions
+it gives you at your domain registrar.
+
+## 9. Get updates
+
+The project keeps improving after you've deployed it. To pull in updates:
+on your fork's GitHub page, click **Watch → Custom → Releases** to hear
+about new ones. When one comes out, click **Sync fork** on your fork's
+GitHub page — Vercel deploys it automatically.
+
+---
+
+## If something goes wrong
+
+- **A build failed.** Open the failed deployment in Vercel and copy its
+  Build Logs link into a new
+  [GitHub issue](https://github.com/eessex/portfolio-cms/issues) — that log
+  has what's needed to figure out what happened.
+- **You forgot your password.** There's no self-service recovery yet.
+  Open a GitHub issue and we'll help you get back in — this is exactly why
+  step 6 says to save it in a password manager.
+- **Images aren't uploading.** Double check Storage → your Blob store is
+  still connected (Settings → Environment Variables should show
+  `BLOB_READ_WRITE_TOKEN`), then redeploy.

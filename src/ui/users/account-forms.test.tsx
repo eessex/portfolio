@@ -114,4 +114,26 @@ describe('PasswordForm', () => {
       await screen.findByText('Incorrect password.')
     ).toBeInTheDocument()
   })
+
+  it('submits a password with emoji up to the character limit', async () => {
+    mockChangePassword.mockResolvedValue({ ok: true })
+    // 63 characters but 66 UTF-16 units: a native maxLength of 64
+    // would cut it short
+    const password = `${'a'.repeat(60)}🐙🦊🐝`
+    const user = userEvent.setup()
+    render(<PasswordForm />)
+
+    await user.type(screen.getByLabelText(/current password/i), 'x')
+    await user.click(screen.getByLabelText(/^new password/i))
+    await user.paste(password)
+    await user.click(screen.getByLabelText(/confirm new password/i))
+    await user.paste(password)
+    await user.click(
+      screen.getByRole('button', { name: 'Change password' })
+    )
+
+    const formData = mockChangePassword.mock.calls[0]?.[0]
+    expect(formData?.get('newPassword')).toBe(password)
+    expect(formData?.get('confirmPassword')).toBe(password)
+  })
 })

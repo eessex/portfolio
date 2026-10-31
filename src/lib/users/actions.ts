@@ -24,7 +24,7 @@ import {
   changePasswordSchema,
   completeSetupSchema
 } from '@/lib/users/schemas'
-import type { User } from '@/lib/users/types'
+import type { UserRow } from '@/lib/users/types'
 import {
   updateUserEmail,
   updateUserName,
@@ -212,8 +212,14 @@ const SIGNED_OUT_RESPONSE = {
   ok: false,
   message: 'You must be signed in to perform this action.'
 }
+// Another change to the account landed after the password check
+const STALE_RESPONSE = {
+  ok: false,
+  message:
+    'Your account was just changed elsewhere. Reload the page and try again.'
+}
 
-async function signedInUser(): Promise<User | null> {
+async function signedInUser(): Promise<UserRow | null> {
   const id = await currentUserId()
   return id ? await fetchUserById(id) : null
 }
@@ -223,7 +229,7 @@ async function signedInUser(): Promise<User | null> {
  * can't brute-force the password it doesn't know.
  */
 async function checkCurrentPassword(
-  user: User,
+  user: UserRow,
   password: string
 ): Promise<AccountResponse | null> {
   if ((await registerLoginAttempt(user.email)) > 0) {
@@ -298,7 +304,12 @@ export async function changePassword(
       }
     }
 
-    await updateUserPassword(user.id, newPassword)
+    const isUpdated = await updateUserPassword(
+      user.id,
+      newPassword,
+      user.session_version
+    )
+    if (!isUpdated) return STALE_RESPONSE
     email = user.email
   } catch (error) {
     console.error('changePassword failed', error)
@@ -340,7 +351,13 @@ export async function changeEmail(
     const failed = await checkCurrentPassword(user, currentPassword)
     if (failed) return failed
 
-    if (!(await updateUserEmail(user.id, email))) {
+    const outcome = await updateUserEmail(
+      user.id,
+      email,
+      user.session_version
+    )
+    if (outcome === 'stale') return STALE_RESPONSE
+    if (outcome === 'taken') {
       return {
         ok: false,
         message: 'Failed to validate email.',
@@ -364,7 +381,7 @@ export async function changeName(
   if (denied) return denied
 
   const validated = changeNameSchema.safeParse(
-    normalizeFormData(formData)
+    Object.fromEntries(formData)
   )
   if (!validated.success) {
     return formatValidationResponse(

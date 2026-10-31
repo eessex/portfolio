@@ -14,17 +14,43 @@ export const userTokenPurposeSchema = z.enum(userTokenPurposes)
 export const MIN_PASSWORD_LENGTH = 15
 export const MAX_PASSWORD_LENGTH = 64
 
+/** bcrypt ignores everything past this many bytes */
+export const MAX_PASSWORD_BYTES = 72
+
+// Accented letters and emoji take 2–4 bytes each, so a password under
+// MAX_PASSWORD_LENGTH can still be truncated; past the limit, two
+// passwords sharing their first 72 bytes would hash the same
+function isWithinBcryptLimit(password: string) {
+  let bytes = 0
+  // UTF-8 width per code point; no TextEncoder in jsdom
+  for (const char of password) {
+    const code = char.codePointAt(0) ?? 0
+    bytes +=
+      code < 0x80 ? 1 : code < 0x800 ? 2 : code < 0x10000 ? 3 : 4
+  }
+  return bytes <= MAX_PASSWORD_BYTES
+}
+
+const bcryptLimitMessage =
+  'Too long: accented letters and emoji count as several characters. Use a shorter password.'
+
+// .min()/.max() count UTF-16 code units, so an emoji would count twice
+function characterCount(password: string) {
+  return [...password].length
+}
+
 /** A password being set; login still accepts older 8+ ones. */
 export const newPassword = z
   .string()
-  .min(
-    MIN_PASSWORD_LENGTH,
+  .refine(
+    (password) => characterCount(password) >= MIN_PASSWORD_LENGTH,
     `Use at least ${MIN_PASSWORD_LENGTH} characters.`
   )
-  .max(
-    MAX_PASSWORD_LENGTH,
+  .refine(
+    (password) => characterCount(password) <= MAX_PASSWORD_LENGTH,
     `Use at most ${MAX_PASSWORD_LENGTH} characters.`
   )
+  .refine(isWithinBcryptLimit, bcryptLimitMessage)
 
 const currentPassword = z.string({
   error: 'Enter your current password.'
@@ -53,7 +79,7 @@ export const changeEmailSchema = z.object({
 })
 
 export const changeNameSchema = z.object({
-  name: shortText.min(1)
+  name: shortText.min(1, 'Enter a name.')
 })
 
 /**
@@ -74,7 +100,10 @@ export const completeSetupSchema = z
   .object({
     name: shortText,
     email,
-    password: z.string().min(8),
+    password: z
+      .string()
+      .min(8)
+      .refine(isWithinBcryptLimit, bcryptLimitMessage),
     confirmPassword: z.string().min(8)
   })
   .refine((data) => data.password === data.confirmPassword, {

@@ -67,10 +67,12 @@ const config = {
         )
         if (!user || !passwordsMatch) return null
 
+        const { id, name, session_version: sessionVersion } = user
+        // The account changed since it was read: treat as a failure
+        if (!(await recordLogin(id, sessionVersion))) return null
+
         await clearFailedLogins(email)
-        const sessionVersion = await recordLogin(user.id)
-        const { password: _, ...safeUser } = user
-        return { ...safeUser, sessionVersion }
+        return { id, name, email: user.email, sessionVersion }
       }
     })
   ],

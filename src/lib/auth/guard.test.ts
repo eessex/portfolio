@@ -1,5 +1,10 @@
 import { auth } from '@/auth'
-import { assertAuthed, isAuthed, requireAuth } from '@/lib/auth/guard'
+import {
+  assertAuthed,
+  currentUserId,
+  isAuthed,
+  requireAuth
+} from '@/lib/auth/guard'
 
 const mockAuth = auth as unknown as jest.Mock
 
@@ -37,6 +42,18 @@ describe('auth/guard', () => {
     it('returns false without a session', async () => {
       mockAuth.mockResolvedValueOnce(null)
       expect(await isAuthed()).toBe(false)
+    })
+  })
+
+  describe('#currentUserId', () => {
+    it("returns the session's user id", async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } })
+      expect(await currentUserId()).toBe('user-1')
+    })
+
+    it('returns null without a session', async () => {
+      mockAuth.mockResolvedValueOnce(null)
+      expect(await currentUserId()).toBeNull()
     })
   })
 })

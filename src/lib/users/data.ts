@@ -17,6 +17,22 @@ export async function fetchUserByEmail(
   }
 }
 
+export async function fetchUserById(
+  id: string
+): Promise<User | null> {
+  try {
+    const users = await sql`
+      SELECT * FROM users
+      WHERE id = ${id}
+      LIMIT 1
+    `
+
+    return (users[0] as User) ?? null
+  } catch (cause) {
+    throw new Error('Failed to fetch user.', { cause })
+  }
+}
+
 /**
  * Stamps a successful login and returns the session version the new
  * session carries.

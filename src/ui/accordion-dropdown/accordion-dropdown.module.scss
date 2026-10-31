@@ -2,7 +2,8 @@
 
 $items-list-border: 1px solid var(--transparency-primary);
 
-.accordion-dropdown:last-child {
+// Closes each run of accordions, even when other content follows
+.accordion-dropdown:not(:has(+ .accordion-dropdown)) {
   border-bottom: $items-list-border;
 }
 

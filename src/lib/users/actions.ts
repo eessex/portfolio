@@ -1,8 +1,11 @@
 'use server'
 
+import bcrypt from 'bcrypt'
 import { unstable_rethrow } from 'next/navigation'
 
 import { signIn } from '@/auth'
+import { isPasswordBreached } from '@/lib/auth/breached-password'
+import { currentUserId, requireAuth } from '@/lib/auth/guard'
 import {
   clearFailedLogins,
   getClientIp,
@@ -14,8 +17,19 @@ import { hashSetupCode } from '@/lib/auth/setup-code'
 import { verifySetupCode } from '@/lib/auth/setup-code-check'
 import type { FormResponse } from '@/lib/types'
 import { createFirstUser } from '@/lib/users/create'
-import { hasUsers } from '@/lib/users/data'
-import { completeSetupSchema } from '@/lib/users/schemas'
+import { fetchUserById, hasUsers } from '@/lib/users/data'
+import {
+  changeEmailSchema,
+  changeNameSchema,
+  changePasswordSchema,
+  completeSetupSchema
+} from '@/lib/users/schemas'
+import type { User } from '@/lib/users/types'
+import {
+  updateUserEmail,
+  updateUserName,
+  updateUserPassword
+} from '@/lib/users/update'
 import {
   formatValidationResponse,
   normalizeFormData
@@ -184,5 +198,188 @@ export async function completeSetup(
       message:
         'Account created! Automatic sign-in failed — please log in at /login.'
     }
+  }
+}
+
+type AccountResponse = FormResponse<Record<string, never>>
+
+const THROTTLED_MESSAGE =
+  'Too many attempts — please wait a moment and try again.'
+const ACCOUNT_ERROR_MESSAGE =
+  'Something went wrong — please try again.'
+// A valid session whose user row is gone
+const SIGNED_OUT_RESPONSE = {
+  ok: false,
+  message: 'You must be signed in to perform this action.'
+}
+
+async function signedInUser(): Promise<User | null> {
+  const id = await currentUserId()
+  return id ? await fetchUserById(id) : null
+}
+
+/**
+ * Shares the login throttle (keyed by email), so a stolen session
+ * can't brute-force the password it doesn't know.
+ */
+async function checkCurrentPassword(
+  user: User,
+  password: string
+): Promise<AccountResponse | null> {
+  if ((await registerLoginAttempt(user.email)) > 0) {
+    return { ok: false, message: THROTTLED_MESSAGE }
+  }
+  if (!(await bcrypt.compare(password, user.password))) {
+    return {
+      ok: false,
+      message: 'Failed to verify your password.',
+      errors: { currentPassword: ['Incorrect password.'] }
+    }
+  }
+  await clearFailedLogins(user.email)
+  return null
+}
+
+/**
+ * The change bumped session_version, which ends this session too;
+ * signing in again issues this device a current token.
+ */
+async function renewSession(
+  email: string,
+  password: string
+): Promise<AccountResponse> {
+  try {
+    await signIn('credentials', { email, password, redirect: false })
+    return { ok: true }
+  } catch (error) {
+    unstable_rethrow(error)
+    console.error('renewSession: sign-in after change failed', error)
+    return {
+      ok: false,
+      message: 'Saved, but you were signed out — please log in again.'
+    }
+  }
+}
+
+/** Ends the account's other sessions. */
+export async function changePassword(
+  formData: FormData
+): Promise<AccountResponse> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
+  const validated = changePasswordSchema.safeParse(
+    normalizeFormData(formData)
+  )
+  if (!validated.success) {
+    return formatValidationResponse(
+      validated.error,
+      'Failed to validate password.'
+    )
+  }
+  const { currentPassword, newPassword } = validated.data
+
+  let email: string
+  try {
+    const user = await signedInUser()
+    if (!user) return SIGNED_OUT_RESPONSE
+    const failed = await checkCurrentPassword(user, currentPassword)
+    if (failed) return failed
+
+    if (await isPasswordBreached(newPassword)) {
+      return {
+        ok: false,
+        message: 'Failed to validate password.',
+        errors: {
+          newPassword: [
+            'This password has appeared in a data breach. Choose another.'
+          ]
+        }
+      }
+    }
+
+    await updateUserPassword(user.id, newPassword)
+    email = user.email
+  } catch (error) {
+    console.error('changePassword failed', error)
+    return { ok: false, message: ACCOUNT_ERROR_MESSAGE }
+  }
+
+  return await renewSession(email, newPassword)
+}
+
+/** Ends the account's other sessions. */
+export async function changeEmail(
+  formData: FormData
+): Promise<AccountResponse> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
+  const validated = changeEmailSchema.safeParse(
+    normalizeFormData(formData)
+  )
+  if (!validated.success) {
+    return formatValidationResponse(
+      validated.error,
+      'Failed to validate email.'
+    )
+  }
+  const { currentPassword, email } = validated.data
+
+  try {
+    const user = await signedInUser()
+    if (!user) return SIGNED_OUT_RESPONSE
+    if (email === user.email) {
+      return {
+        ok: false,
+        message: 'Failed to validate email.',
+        errors: { email: ['This is already your email.'] }
+      }
+    }
+
+    const failed = await checkCurrentPassword(user, currentPassword)
+    if (failed) return failed
+
+    if (!(await updateUserEmail(user.id, email))) {
+      return {
+        ok: false,
+        message: 'Failed to validate email.',
+        errors: {
+          email: ['Another account already uses this email.']
+        }
+      }
+    }
+  } catch (error) {
+    console.error('changeEmail failed', error)
+    return { ok: false, message: ACCOUNT_ERROR_MESSAGE }
+  }
+
+  return await renewSession(email, currentPassword)
+}
+
+export async function changeName(
+  formData: FormData
+): Promise<AccountResponse> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
+  const validated = changeNameSchema.safeParse(
+    normalizeFormData(formData)
+  )
+  if (!validated.success) {
+    return formatValidationResponse(
+      validated.error,
+      'Failed to validate name.'
+    )
+  }
+
+  try {
+    const id = await currentUserId()
+    if (!id) return SIGNED_OUT_RESPONSE
+    await updateUserName(id, validated.data.name)
+    return { ok: true }
+  } catch (error) {
+    console.error('changeName failed', error)
+    return { ok: false, message: ACCOUNT_ERROR_MESSAGE }
   }
 }

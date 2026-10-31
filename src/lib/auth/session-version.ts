@@ -1,4 +1,4 @@
-import type { User } from 'next-auth'
+import type { Session, User } from 'next-auth'
 import type { JWT } from 'next-auth/jwt'
 import { cache } from 'react'
 
@@ -48,4 +48,16 @@ export async function checkSessionVersion({
     console.error('Failed to check session version:', error)
     return token
   }
+}
+
+/** The `session` callback: exposes the user id to server code. */
+export function withUserId({
+  session,
+  token
+}: {
+  session: Session
+  token: JWT
+}): Session {
+  if (token.sub && session.user) session.user.id = token.sub
+  return session
 }

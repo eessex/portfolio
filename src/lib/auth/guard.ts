@@ -29,3 +29,9 @@ export async function isAuthed(): Promise<boolean> {
   const session = await auth()
   return !!session?.user
 }
+
+/** The signed-in user's id, or `null` without a session */
+export async function currentUserId(): Promise<string | null> {
+  const session = await auth()
+  return session?.user?.id ?? null
+}

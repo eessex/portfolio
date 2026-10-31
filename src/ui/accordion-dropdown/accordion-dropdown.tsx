@@ -14,6 +14,7 @@ import { Badges } from '@/ui/badges/badges'
 export function AccordionDropdown({
   badges,
   children,
+  headingLevel = 2,
   isExpanded,
   isFullWidth,
   title,
@@ -22,6 +23,8 @@ export function AccordionDropdown({
 }: {
   badges?: Badge[]
   children: React.ReactNode
+  /** 3 when grouped under its own h2 */
+  headingLevel?: 2 | 3
   isExpanded?: boolean
   isFullWidth?: boolean
   title: string
@@ -31,6 +34,7 @@ export function AccordionDropdown({
   const triggerId = useId()
   const panelId = useId()
   const [isOpen, setIsOpen] = useState(isExpanded || false)
+  const Heading = `h${headingLevel}` as const
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -39,7 +43,7 @@ export function AccordionDropdown({
 
   return (
     <section className={styles['accordion-dropdown']}>
-      <h2>
+      <Heading>
         <button
           aria-expanded={isOpen}
           className={clsx(
@@ -58,7 +62,7 @@ export function AccordionDropdown({
 
           {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
         </button>
-      </h2>
+      </Heading>
 
       <div
         id={panelId}

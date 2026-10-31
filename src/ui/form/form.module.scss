@@ -75,6 +75,13 @@
     margin-bottom: grids.space-rem(2);
   }
 
+  // Cancels most of the form's row gap so it reads with the button
+  p.submit-note {
+    margin-bottom: calc(
+      #{grids.space-em(3)} - var(--row-gap, #{grids.space-em(8)})
+    );
+  }
+
   .input-group {
     display: grid;
     grid-template-columns: 1fr 1fr;

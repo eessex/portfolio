@@ -13,7 +13,8 @@ import {
   registerLoginAttempt
 } from '@/lib/auth/rate-limit'
 import { authSecret } from '@/lib/auth/secret'
-import { fetchUserByEmail } from '@/lib/users/data'
+import { checkSessionVersion } from '@/lib/auth/session-version'
+import { fetchUserByEmail, recordLogin } from '@/lib/users/data'
 
 const CredentialsSchema = z.object({
   email: z.string().email(),
@@ -64,11 +65,16 @@ const config = {
         if (!user || !passwordsMatch) return null
 
         await clearFailedLogins(email)
+        const sessionVersion = await recordLogin(user.id)
         const { password: _, ...safeUser } = user
-        return safeUser
+        return { ...safeUser, sessionVersion }
       }
     })
-  ]
+  ],
+  callbacks: {
+    ...authConfig.callbacks,
+    jwt: checkSessionVersion
+  }
 } satisfies NextAuthConfig
 
 // Lazy config: the secret may come from the database

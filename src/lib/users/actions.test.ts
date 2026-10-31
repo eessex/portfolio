@@ -52,9 +52,9 @@ jest.mock('@/lib/users/data', () => ({
   fetchUserById: jest.fn()
 }))
 jest.mock('@/lib/users/update', () => ({
-  updateUserEmail: jest.fn().mockResolvedValue(true),
+  updateUserEmail: jest.fn().mockResolvedValue('updated'),
   updateUserName: jest.fn(),
-  updateUserPassword: jest.fn()
+  updateUserPassword: jest.fn().mockResolvedValue(true)
 }))
 jest.mock('@/lib/auth/breached-password', () => ({
   isPasswordBreached: jest.fn().mockResolvedValue(false)
@@ -400,7 +400,7 @@ describe('account actions', () => {
     name: 'Ada Lovelace',
     email: 'ada@example.com',
     password: bcrypt.hashSync(currentPassword, 4),
-    createdAt: new Date('2024-01-01')
+    session_version: 2
   }
 
   beforeEach(() => {
@@ -430,7 +430,8 @@ describe('account actions', () => {
       expect(res).toEqual({ ok: true })
       expect(mockUpdateUserPassword).toHaveBeenCalledWith(
         user.id,
-        newPassword
+        newPassword,
+        2
       )
       expect(mockSignIn).toHaveBeenCalledWith('credentials', {
         email: user.email,
@@ -486,6 +487,38 @@ describe('account actions', () => {
       expect(mockUpdateUserPassword).not.toHaveBeenCalled()
     })
 
+    it('counts emoji as one character each', async () => {
+      // 8 emoji: 16 UTF-16 code units, 32 bytes, 8 characters
+      const emoji = '🐙🦊🐝🦉🐢🦋🐳🦔'
+
+      const res = await changePassword(
+        formDataFromObject({
+          ...fields,
+          newPassword: emoji,
+          confirmPassword: emoji
+        })
+      )
+
+      expect(res?.errors).toHaveProperty('newPassword')
+      expect(mockUpdateUserPassword).not.toHaveBeenCalled()
+    })
+
+    it("rejects a password over bcrypt's 72 bytes", async () => {
+      // 37 characters, 73 bytes: under the character limit
+      const accented = `${'é'.repeat(36)}A`
+
+      const res = await changePassword(
+        formDataFromObject({
+          ...fields,
+          newPassword: accented,
+          confirmPassword: accented
+        })
+      )
+
+      expect(res?.errors).toHaveProperty('newPassword')
+      expect(mockUpdateUserPassword).not.toHaveBeenCalled()
+    })
+
     it('rejects mismatched confirmation', async () => {
       const res = await changePassword(
         formDataFromObject({
@@ -525,6 +558,15 @@ describe('account actions', () => {
       expect(mockUpdateUserPassword).not.toHaveBeenCalled()
     })
 
+    it('refuses when the account changed after the password check', async () => {
+      mockUpdateUserPassword.mockResolvedValueOnce(false)
+
+      const res = await changePassword(formDataFromObject(fields))
+
+      expect(res?.message).toMatch(/changed elsewhere/)
+      expect(mockSignIn).not.toHaveBeenCalled()
+    })
+
     it('returns a form error when the save fails', async () => {
       jest.spyOn(console, 'error').mockImplementation(() => {})
       mockUpdateUserPassword.mockRejectedValueOnce(new Error('db'))
@@ -558,7 +600,8 @@ describe('account actions', () => {
       expect(res).toEqual({ ok: true })
       expect(mockUpdateUserEmail).toHaveBeenCalledWith(
         user.id,
-        'new@example.com'
+        'new@example.com',
+        2
       )
       expect(mockSignIn).toHaveBeenCalledWith('credentials', {
         email: 'new@example.com',
@@ -577,13 +620,22 @@ describe('account actions', () => {
     })
 
     it('rejects an email another account uses', async () => {
-      mockUpdateUserEmail.mockResolvedValueOnce(false)
+      mockUpdateUserEmail.mockResolvedValueOnce('taken')
 
       const res = await changeEmail(formDataFromObject(fields))
 
       expect(res?.errors).toEqual({
         email: ['Another account already uses this email.']
       })
+      expect(mockSignIn).not.toHaveBeenCalled()
+    })
+
+    it('refuses when the account changed after the password check', async () => {
+      mockUpdateUserEmail.mockResolvedValueOnce('stale')
+
+      const res = await changeEmail(formDataFromObject(fields))
+
+      expect(res?.message).toMatch(/changed elsewhere/)
       expect(mockSignIn).not.toHaveBeenCalled()
     })
 
@@ -617,6 +669,13 @@ describe('account actions', () => {
         'Augusta Ada King'
       )
       expect(mockSignIn).not.toHaveBeenCalled()
+    })
+
+    it('saves a name that reads like a checkbox value', async () => {
+      const res = await changeName(formDataFromObject({ name: 'on' }))
+
+      expect(res).toEqual({ ok: true })
+      expect(mockUpdateUserName).toHaveBeenCalledWith(user.id, 'on')
     })
 
     it('rejects a blank name', async () => {

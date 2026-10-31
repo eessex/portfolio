@@ -66,12 +66,12 @@ describe('#checkSessionVersion', () => {
     expect(await checkSessionVersion({ token: {} })).toBeNull()
   })
 
-  it('keeps the session when the lookup fails', async () => {
+  it('ends the session when the lookup fails', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {})
     mockFetchSessionVersion.mockRejectedValue(new Error('db down'))
     const token = { sub: userId, sessionVersion: 0 }
 
-    expect(await checkSessionVersion({ token })).toBe(token)
+    expect(await checkSessionVersion({ token })).toBeNull()
   })
 })
 

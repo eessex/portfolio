@@ -1,9 +1,9 @@
 import { sql } from '@/lib/db'
-import type { User } from '@/lib/users/types'
+import type { UserRow } from '@/lib/users/types'
 
 export async function fetchUserByEmail(
   email: string
-): Promise<User | null> {
+): Promise<UserRow | null> {
   try {
     const users = await sql`
       SELECT * FROM users
@@ -11,7 +11,7 @@ export async function fetchUserByEmail(
       LIMIT 1
     `
 
-    return (users[0] as User) ?? null
+    return (users[0] as UserRow) ?? null
   } catch (cause) {
     throw new Error('Failed to fetch user.', { cause })
   }
@@ -19,7 +19,7 @@ export async function fetchUserByEmail(
 
 export async function fetchUserById(
   id: string
-): Promise<User | null> {
+): Promise<UserRow | null> {
   try {
     const users = await sql`
       SELECT * FROM users
@@ -27,24 +27,29 @@ export async function fetchUserById(
       LIMIT 1
     `
 
-    return (users[0] as User) ?? null
+    return (users[0] as UserRow) ?? null
   } catch (cause) {
     throw new Error('Failed to fetch user.', { cause })
   }
 }
 
 /**
- * Stamps a successful login and returns the session version the new
- * session carries.
+ * Stamps a successful login, only while the account still has the
+ * session version its password was checked against: a password or
+ * email change landing mid-login would otherwise hand the old
+ * credentials a token for the new version. Returns whether it did.
  */
-export async function recordLogin(id: string): Promise<number> {
+export async function recordLogin(
+  id: string,
+  sessionVersion: number
+): Promise<boolean> {
   try {
     const rows = await sql`
       UPDATE users SET last_login_at = now()
-      WHERE id = ${id}
-      RETURNING session_version
+      WHERE id = ${id} AND session_version = ${sessionVersion}
+      RETURNING id
     `
-    return (rows[0]?.session_version as number) ?? 0
+    return rows.length > 0
   } catch (cause) {
     throw new Error('Failed to record login.', { cause })
   }

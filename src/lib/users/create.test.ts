@@ -9,7 +9,7 @@ jest.mock('bcrypt', () => ({
 import bcrypt from 'bcrypt'
 
 import { sql } from '@/lib/db'
-import { createUser } from '@/lib/users/create'
+import { createFirstUser, createUser } from '@/lib/users/create'
 
 const mockSql = jest.mocked(sql)
 const mockHash = jest.mocked(bcrypt.hash)
@@ -63,6 +63,57 @@ describe('#createUser', () => {
 
     await expect(createUser(input)).rejects.toThrow(
       'Failed to create user.'
+    )
+  })
+})
+
+describe('#createFirstUser', () => {
+  const firstUserInput = { ...input, codeHash: 'a'.repeat(64) }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('atomically consumes the setup code and reports it won', async () => {
+    // @ts-expect-error see above
+    mockHash.mockResolvedValue('hashed-password')
+    mockSql.mockResolvedValue([{ id: '1' }])
+
+    const result = await createFirstUser(firstUserInput)
+
+    expect(result).toBe(true)
+    expect(mockSql).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.stringContaining('DELETE FROM setup_code'),
+        expect.stringContaining(
+          'WHERE EXISTS (SELECT 1 FROM consumed)'
+        ),
+        expect.stringContaining(
+          'AND NOT EXISTS (SELECT 1 FROM users)'
+        )
+      ]),
+      firstUserInput.codeHash,
+      firstUserInput.name,
+      firstUserInput.email,
+      'hashed-password'
+    )
+  })
+
+  it('reports a loss when the code was already consumed', async () => {
+    // @ts-expect-error see above
+    mockHash.mockResolvedValue('hashed-password')
+    mockSql.mockResolvedValue([])
+
+    expect(await createFirstUser(firstUserInput)).toBe(false)
+  })
+
+  it('throws on DB error', async () => {
+    // @ts-expect-error see above
+    mockHash.mockResolvedValue('hashed-password')
+    mockSql.mockRejectedValue(new Error('db exploded'))
+
+    await expect(createFirstUser(firstUserInput)).rejects.toThrow(
+      'Failed to create first user.'
     )
   })
 })

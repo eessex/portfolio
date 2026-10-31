@@ -3,7 +3,11 @@ jest.mock('@/lib/db', () => ({
 }))
 
 import { sql } from '@/lib/db'
-import { countUsers, fetchUserByEmail } from '@/lib/users/data'
+import {
+  countUsers,
+  fetchUserByEmail,
+  hasUsers
+} from '@/lib/users/data'
 
 const mockSql = jest.mocked(sql)
 
@@ -73,5 +77,29 @@ describe('#countUsers', () => {
     await expect(countUsers()).rejects.toThrow(
       'Failed to count users.'
     )
+  })
+})
+
+describe('#hasUsers', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('returns true when a user exists', async () => {
+    mockSql.mockResolvedValue([{ exists: true }])
+
+    expect(await hasUsers()).toBe(true)
+  })
+
+  it('returns false when none exist', async () => {
+    mockSql.mockResolvedValue([{ exists: false }])
+
+    expect(await hasUsers()).toBe(false)
+  })
+
+  it('throws on DB error', async () => {
+    mockSql.mockRejectedValue(new Error('db exploded'))
+
+    await expect(hasUsers()).rejects.toThrow('Failed to check users.')
   })
 })

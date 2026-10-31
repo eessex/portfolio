@@ -217,14 +217,14 @@ describe('everyDeploySteps', () => {
 
   describe('setup code', () => {
     function setupCodeQuery(
-      usersExist: boolean,
+      hasAnyUser: boolean,
       liveRows: { expires_at: string }[] = []
     ) {
       const setupQuery = jest
         .fn()
         .mockResolvedValue({ rows: [] })
         .mockImplementationOnce(() =>
-          Promise.resolve({ rows: [{ exists: usersExist }] })
+          Promise.resolve({ rows: [{ exists: hasAnyUser }] })
         )
         .mockImplementationOnce(() =>
           Promise.resolve({ rows: liveRows })

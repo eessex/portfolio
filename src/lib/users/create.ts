@@ -22,3 +22,46 @@ export async function createUser(input: {
     throw new Error('Failed to create user.', { cause })
   }
 }
+
+/**
+ * Creates the account /setup offers, consuming the matching
+ * `setup_code` row in the same statement. That DELETE is what makes
+ * two simultaneous submits race-safe — Postgres serializes concurrent
+ * deletes of the same row, so only one transaction's `consumed` CTE
+ * is ever non-empty — unlike a plain `WHERE NOT EXISTS (SELECT 1 FROM
+ * users)`, which checks an empty table that has no row to lock and so
+ * doesn't stop two different emails from both passing the check.
+ * `NOT EXISTS (SELECT 1 FROM users)` is kept as a belt-and-suspenders
+ * guard against a `pnpm run setup` admin created out of band on the
+ * same database. Returns whether this call won.
+ */
+export async function createFirstUser(input: {
+  name: string
+  email: string
+  password: string
+  codeHash: string
+}): Promise<boolean> {
+  const hashedPassword = await bcrypt.hash(
+    input.password,
+    SALT_ROUNDS
+  )
+  try {
+    const rows = await sql`
+      WITH consumed AS (
+        DELETE FROM setup_code
+        WHERE id = true
+          AND code_hash = ${input.codeHash}
+          AND expires_at > now()
+        RETURNING 1
+      )
+      INSERT INTO users (name, email, password)
+      SELECT ${input.name}, ${input.email}, ${hashedPassword}
+      WHERE EXISTS (SELECT 1 FROM consumed)
+        AND NOT EXISTS (SELECT 1 FROM users)
+      RETURNING id
+    `
+    return rows.length > 0
+  } catch (cause) {
+    throw new Error('Failed to create first user.', { cause })
+  }
+}

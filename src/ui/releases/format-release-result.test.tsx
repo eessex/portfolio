@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react'
 
 import { imageFixture } from '@/lib/images/fixtures'
 import { releaseFixtureAlbum } from '@/lib/releases/fixtures'
+import { formattedItemTitle } from '@/ui/format/items'
 import { formatReleaseResult } from '@/ui/releases/format-release-result'
-import { formattedItemTitle } from '@/ui/util'
 
 describe('formatReleaseResult', () => {
   it('renders the (artist-prefixed) title', () => {

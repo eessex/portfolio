@@ -669,6 +669,22 @@ describe('Project Actions', () => {
         expect(mockSql).not.toHaveBeenCalled()
       })
 
+      it('rejects an invalid contact before saving any inline items', async () => {
+        await editProject(
+          formDataFromObject({
+            ...newProjectFixtureAlpha,
+            isPublished: 'on',
+            'contactInfo[]': '',
+            'contactInfo[0].title': 'Press',
+            'contactInfo[0].contact': ''
+          })
+        )
+
+        expect(mockResolveOrderedImageIds).not.toHaveBeenCalled()
+        expect(mockResolveOrderedLinkIds).not.toHaveBeenCalled()
+        expect(mockResolveOrderedEmbedCodeIds).not.toHaveBeenCalled()
+      })
+
       const existingContacts = [
         { title: 'Bookings', contact: 'bookings@example.com' }
       ]

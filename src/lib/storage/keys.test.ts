@@ -83,9 +83,9 @@ describe('imageKey', () => {
   })
 
   it('knows every format the schema allows', () => {
-    expect(
-      imageSchema._def.schema.shape.format.unwrap().options
-    ).toEqual(Object.keys(uploadFormats))
+    expect(imageSchema.in.shape.format.unwrap().options).toEqual(
+      Object.keys(uploadFormats)
+    )
   })
 })
 

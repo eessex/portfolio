@@ -9,7 +9,7 @@ import { TicketButton } from '@/ui/buttons/ticket-button'
 import { ItemCard } from '@/ui/items/item-card'
 import styles from '@/ui/items/items.module.scss'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
-import { formatVenueInline } from '@/ui/util'
+import { formatVenueInline } from '@/ui/venues/format-venue-inline'
 
 export function ItemsList({
   isCategoryVisible = false,

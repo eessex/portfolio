@@ -23,9 +23,9 @@ const mockFetch = jest.mocked(fetchDefaultProject)
 /** The async `EditDefaultProject` inside the page's Suspense. */
 async function renderEditDefaultProject() {
   const page = EditAboutPage() as ReactElement<{
-    children: ReactElement[]
+    children: ReactElement
   }>
-  const suspense = page.props.children[1] as ReactElement<{
+  const suspense = page.props.children as ReactElement<{
     children: ReactElement
   }>
   const inner = suspense.props.children

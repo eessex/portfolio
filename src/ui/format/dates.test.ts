@@ -2,24 +2,12 @@ import {
   DEFAULT_TIME_ZONE,
   fromDateTimeInputValue
 } from '@/lib/dates'
-import { projectFixtureBand } from '@/lib/projects/fixtures'
-import { releaseFixtureAlbum } from '@/lib/releases/fixtures'
 import {
-  dashboardItemEditUrl,
-  dashboardUrl,
-  editUrl,
   formattedDateOrTimestamp,
   formattedDateTime,
-  formattedItemTitle,
-  formattedLinkUrl,
-  isEditOrNewUrl,
-  itemEditUrl,
-  itemUrl,
-  newUrl,
-  pageItemUrl,
   toDateInputValue,
   toDateTimeInputValue
-} from '@/ui/util'
+} from '@/ui/format/dates'
 
 describe('toDateInputValue', () => {
   it('returns an empty string for missing dates', () => {
@@ -178,114 +166,5 @@ describe('formattedDateOrTimestamp', () => {
     expect(formattedDateOrTimestamp(undefined, createdAt, 'xs')).toBe(
       'Jan 2026'
     )
-  })
-})
-
-describe('formattedLinkUrl', () => {
-  it('drops www. and the trailing slash from a root URL', () => {
-    expect(formattedLinkUrl('https://www.example.com/')).toBe(
-      'example.com'
-    )
-  })
-
-  it('drops the trailing slash from a nested path', () => {
-    expect(
-      formattedLinkUrl('https://example.com/press/review/?ref=x#top')
-    ).toBe('example.com/press/review')
-  })
-
-  it('returns the input unchanged when it is not a valid URL', () => {
-    expect(formattedLinkUrl('not a url')).toBe('not a url')
-  })
-})
-
-describe('itemUrl', () => {
-  it('links a page item to its slug', () => {
-    expect(itemUrl(projectFixtureBand)).toBe(
-      `/projects/${projectFixtureBand.slug}`
-    )
-  })
-
-  it('links the default project to /about', () => {
-    expect(
-      itemUrl({ ...projectFixtureBand, isDefaultProject: true })
-    ).toBe('/about')
-  })
-})
-
-describe('itemEditUrl', () => {
-  it('edits a page item at its slug', () => {
-    expect(itemEditUrl(projectFixtureBand)).toBe(
-      `/projects/${projectFixtureBand.slug}/edit`
-    )
-  })
-
-  it('edits the default project at /about/edit', () => {
-    expect(
-      itemEditUrl({ ...projectFixtureBand, isDefaultProject: true })
-    ).toBe('/about/edit')
-  })
-})
-
-describe('page and dashboard urls', () => {
-  it('builds page item, list and create urls', () => {
-    expect(pageItemUrl('events', 'show')).toBe('/events/show')
-    expect(editUrl(pageItemUrl('events', 'show'))).toBe(
-      '/events/show/edit'
-    )
-    expect(newUrl('/releases')).toBe('/releases/new')
-  })
-
-  it('snake-cases dashboard item types', () => {
-    expect(dashboardUrl('embedCodes')).toBe('/dashboard/embed_codes')
-    expect(newUrl(dashboardUrl('venues'))).toBe(
-      '/dashboard/venues/new'
-    )
-    expect(dashboardItemEditUrl('embedCodes', 'id-1')).toBe(
-      '/dashboard/embed_codes/id-1/edit'
-    )
-  })
-})
-
-describe('isEditOrNewUrl', () => {
-  it.each(['/events/show/edit', '/about/edit', '/releases/new'])(
-    'matches %s',
-    (pathname) => {
-      expect(isEditOrNewUrl(pathname)).toBe(true)
-    }
-  )
-
-  it.each(['/events/show', '/about', '/events/new-years-eve', '/'])(
-    'does not match %s',
-    (pathname) => {
-      expect(isEditOrNewUrl(pathname)).toBe(false)
-    }
-  )
-})
-
-describe('formattedItemTitle', () => {
-  it("prefers a release's display artist (its override or project name)", () => {
-    expect(
-      formattedItemTitle({
-        ...releaseFixtureAlbum,
-        artist: undefined,
-        displayArtist: 'Joe Smith'
-      })
-    ).toBe(`Joe Smith: ${releaseFixtureAlbum.title}`)
-  })
-
-  it('falls back to the stored artist', () => {
-    expect(formattedItemTitle(releaseFixtureAlbum)).toBe(
-      `${releaseFixtureAlbum.artist}: ${releaseFixtureAlbum.title}`
-    )
-  })
-
-  it('is just the title without an artist', () => {
-    expect(
-      formattedItemTitle({
-        ...releaseFixtureAlbum,
-        artist: undefined
-      })
-    ).toBe(releaseFixtureAlbum.title)
   })
 })

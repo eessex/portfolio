@@ -134,3 +134,9 @@ export function itemTypeToLabel(
   ).toLowerCase()
   return isDownCased ? formatted : capitalizeFirstLetter(formatted)
 }
+
+export function isEmbeddedItemType(
+  itemType: EmbeddedItemType | PagePath
+): itemType is EmbeddedItemType {
+  return itemType in EmbeddedItemTypes
+}

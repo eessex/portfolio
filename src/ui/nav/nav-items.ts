@@ -1,5 +1,5 @@
 import { ABOUT_PATH, PagePaths } from '@/lib/schemas'
-import { formattedItemType } from '@/ui/util'
+import { formattedItemType } from '@/ui/format/items'
 
 export const navPaths = [
   PagePaths.events,

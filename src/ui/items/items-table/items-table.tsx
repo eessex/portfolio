@@ -14,6 +14,7 @@ import {
   type PagePath,
   PagePaths
 } from '@/lib/schemas'
+import { isEmbeddedItemType } from '@/lib/schemas'
 import { camelToSnake, capitalizeFirstLetter } from '@/lib/strings'
 import type {
   EmbeddedItem,
@@ -22,10 +23,16 @@ import type {
 } from '@/lib/types'
 import { DEFAULT_PAGE_SIZE } from '@/lib/util'
 import type { Venue } from '@/lib/venues/schemas/db'
+import { type SearchParams } from '@/ui/api-url'
 import { Badges, itemBadges } from '@/ui/badges/badges'
 import { FiltersWrapper } from '@/ui/filters/filters'
+import { formattedItemType } from '@/ui/format/items'
 import { ItemsList } from '@/ui/items/items-list'
 import { animateRowChanges } from '@/ui/items/items-table/animate-row-changes'
+import {
+  isEmbeddedDetailColumnVisible,
+  isImageColumnVisible
+} from '@/ui/items/items-table/columns'
 import styles from '@/ui/items/items-table/items-table.module.scss'
 import { ItemsTableRow } from '@/ui/items/items-table/items-table-row'
 import { LinkDetails } from '@/ui/links/link-details'
@@ -33,17 +40,10 @@ import { Loading } from '@/ui/loading'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
 import { PublisherDetails } from '@/ui/publishers/publisher-details'
 import { SearchInput } from '@/ui/search-input/search-input'
+import { useIsAdmin } from '@/ui/use-is-admin'
 import type { ResultsResponse } from '@/ui/use-results-list'
 import { useResultsList } from '@/ui/use-results-list'
-import { useIsAdmin } from '@/ui/useIsAdmin'
-import {
-  formattedItemType,
-  formatVenueInline,
-  isEmbeddedDetailColumnVisible,
-  isEmbeddedItemType,
-  isImageColumnVisible,
-  type SearchParams
-} from '@/ui/util'
+import { formatVenueInline } from '@/ui/venues/format-venue-inline'
 import { VenueDetails } from '@/ui/venues/venue-details'
 
 export function ItemsTable<
@@ -100,12 +100,12 @@ export function ItemsTable<
       // only pay a shared /api/session check, not the refetch.
       // Embedded items have no publish state, so there's nothing to
       // reveal and the refetch is skipped entirely.
-      augmentOnMount: !isEmbeddedItemType(itemType),
+      isAugmentedOnMount: !isEmbeddedItemType(itemType),
       searchParams: { projectId, ...searchParams }
     }
   )
 
-  // lighter session check (no data refetch) than augmentOnMount,
+  // lighter session check (no data refetch) than isAugmentedOnMount,
   // only runs for embedded-item tables to reveal edit buttons.
   const isAdmin = useIsAdmin(isEmbeddedItemType(itemType))
 

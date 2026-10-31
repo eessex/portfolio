@@ -11,8 +11,11 @@ import { PagePaths } from '@/lib/schemas'
 import type { PageItemClient } from '@/lib/types'
 import { DraftBadge } from '@/ui/badges/draft-badge'
 import type { ThumbnailImage } from '@/ui/cover-image-thumbnail'
+import {
+  formattedItemTitle,
+  formattedItemType
+} from '@/ui/format/items'
 import { StoredImage } from '@/ui/images/stored-image'
-import { formattedItemTitle, formattedItemType } from '@/ui/util'
 
 /** Pieces of a page item shared by `ItemCard` and `ItemsTableRow`. */
 

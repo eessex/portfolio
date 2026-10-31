@@ -12,7 +12,8 @@ import {
 import {
   httpsUrlMessage,
   httpsUrlPattern,
-  isHttpsUrl
+  isHttpsUrl,
+  MAX_STRING_LENGTH_SHORT
 } from '@/lib/schemas/primitives'
 import { embedCodeHostLabel } from '@/ui/embed-codes/embed-code-details'
 import { extractHostFromUrl } from '@/ui/embed-codes/util'
@@ -23,8 +24,8 @@ import {
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
+import { toDateInputValue } from '@/ui/format/dates'
 import { useNamePrefix } from '@/ui/item-picker/name-prefix'
-import { toDateInputValue } from '@/ui/util'
 
 const linkTypeOptions = [...linkTypes]
 const nonPressLinkTypeOptions = linkTypes.filter(
@@ -233,14 +234,14 @@ export const EditLink = ({
   const titleInput = (
     <Input
       attributes={{
-        maxLength: 255,
+        maxLength: MAX_STRING_LENGTH_SHORT,
         name: `${namePrefix}title`,
         placeholder: isSocial ? 'Instagram' : 'Title',
         required: isCitationRequired || (!!isSocial && isUrlFilled)
       }}
       defaultValue={link?.title}
       errors={errors?.title}
-      label={isSocial ? 'Name' : 'Display text'}
+      label={isSocial ? 'Name' : 'Title'}
       ref={(el) => {
         titleRef.current = el
       }}
@@ -253,7 +254,7 @@ export const EditLink = ({
         attributes={{
           'aria-controls': disclosure.id,
           'aria-expanded': isUrlFilled,
-          maxLength: 255,
+          maxLength: MAX_STRING_LENGTH_SHORT,
           name: `${namePrefix}url`,
           // `type=url` alone accepts any scheme
           pattern: httpsUrlPattern,
@@ -310,7 +311,7 @@ export const EditLink = ({
             <div className={styles['input-group']}>
               <Input
                 attributes={{
-                  maxLength: 255,
+                  maxLength: MAX_STRING_LENGTH_SHORT,
                   name: `${namePrefix}attribution`,
                   placeholder: 'New York Times',
                   required: isCitationRequired
@@ -336,7 +337,7 @@ export const EditLink = ({
             <Input
               as='textarea'
               attributes={{
-                maxLength: 255,
+                maxLength: MAX_STRING_LENGTH_SHORT,
                 name: `${namePrefix}quotation`,
                 placeholder:
                   'One of New York’s most influential artists'

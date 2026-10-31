@@ -67,7 +67,6 @@ export async function fetchProjectsRaw(
       return sql`
         SELECT
           p.*,
-          ${path} AS path,
           build_cover_image_json(p.cover_image_id, p.image_ids) AS cover_image,
           has_embed_code_type(p.embed_code_ids, ${EmbedCodeTypes.video}) AS has_video,
           has_embed_code_type(p.embed_code_ids, ${EmbedCodeTypes.audio}) AS has_audio
@@ -164,13 +163,7 @@ export async function fetchProjectById(
       return undefined
     }
     return withEmbedCodeCoverImageUrls(
-      formatDbResponseForClient(
-        {
-          ...data[0],
-          path
-        },
-        projectClientSchema
-      )
+      formatDbResponseForClient(data[0], projectClientSchema)
     )
   } catch (cause) {
     throw new Error(`Failed to fetch ${pathSingular}: ${id}.`, {

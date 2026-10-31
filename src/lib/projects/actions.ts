@@ -49,11 +49,23 @@ function saveProjectForm(
     schema: createProjectSchema,
     itemType: PagePaths.projects,
     prepare: async (data) => {
-      const { coverImageId, imageIds } =
-        await resolveOrderedImageIds(data)
-      const { linkIds } = await resolveOrderedLinkIds(data)
-      const { embedCodeIds } = await resolveOrderedEmbedCodeIds(data)
+      // first: it can throw, and the resolvers below save items
       const contactInfo = resolveContactInfo(data)
+      const [
+        { coverImageId, imageIds },
+        { linkIds },
+        { embedCodeIds },
+        slug
+      ] = await Promise.all([
+        resolveOrderedImageIds(data),
+        resolveOrderedLinkIds(data),
+        resolveOrderedEmbedCodeIds(data),
+        generateUniqueSlug(
+          String(data.title || ''),
+          PagePaths.projects,
+          id
+        )
+      ])
 
       return {
         ...data,
@@ -67,12 +79,7 @@ function saveProjectForm(
         embedCodeIds,
         imageIds,
         linkIds,
-        path: PagePaths.projects,
-        slug: await generateUniqueSlug(
-          String(data.title || ''),
-          PagePaths.projects,
-          id
-        )
+        slug
       }
     },
     invalidate: (saved?: Project) =>
@@ -229,10 +236,7 @@ async function createProject(project: CreateProject) {
     `
     const row = rows[0]
     if (!row) throw new Error('Failed to create project.')
-    return formatDbResponseForClient(
-      { ...row, path: PagePaths.projects },
-      projectSchema
-    )
+    return formatDbResponseForClient(row, projectSchema)
   } catch (cause) {
     throw new Error('Failed to create project.', { cause })
   }
@@ -280,10 +284,7 @@ async function updateProject(project: CreateProject, id: string) {
     `
     const row = rows[0]
     if (!row) throw new Error('Failed to update project.')
-    return formatDbResponseForClient(
-      { ...row, path: PagePaths.projects },
-      projectSchema
-    )
+    return formatDbResponseForClient(row, projectSchema)
   } catch (cause) {
     throw new Error('Failed to update project.', { cause })
   }

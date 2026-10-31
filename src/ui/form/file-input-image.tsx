@@ -16,7 +16,6 @@ import {
 import styles from '@/ui/form/form.module.scss'
 import type { InputProps } from '@/ui/form/input'
 import { Input } from '@/ui/form/input'
-import { usedOnPages } from '@/ui/util'
 
 export function FileInputImage({
   ariaControls,
@@ -71,10 +70,6 @@ export function FileInputImage({
   function clearFileInput() {
     if (inputRef.current) inputRef.current.value = ''
   }
-
-  const usedOnCount = (image as Image)?.id
-    ? usedOnPages(image as Image).length
-    : 0
 
   useEffect(() => {
     if (!file || !previewUrl) {
@@ -171,12 +166,6 @@ export function FileInputImage({
   }
 
   function onRemoveSavedImage() {
-    if (usedOnCount > 0) {
-      const confirmed = confirm(
-        `This image is used on ${usedOnCount} existing page(s). Changing it here will update all pages it is used on. Are you sure you want to remove it?`
-      )
-      if (!confirmed) return
-    }
     // keep changes local to this component in case we want to cancel.
     // server will prefer the new input file and require it once the url is removed
     setImageUrl(undefined)

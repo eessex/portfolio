@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import { isAuthed } from '@/lib/auth/guard'
 import type { PagePath } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
-import { editUrl, pageItemUrl } from '@/ui/util'
+import { editUrl, pageItemUrl } from '@/ui/routes'
 
 type PageItem<T> = {
   item: T

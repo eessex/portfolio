@@ -1,0 +1,50 @@
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
+
+// A minimal, left-aligned page header (`/about`, the edit and new
+// pages). Wide screens move it into the left gutter, with the page's
+// first block (a cover image, a form) level with it. Include on the
+// `article` holding the `header`. Skips `dialog`s, which size
+// themselves as modals.
+@mixin gutter-header {
+  max-width: none;
+  padding: grids.space-em(6, 4, 8);
+
+  > header {
+    margin-bottom: grids.space-em(4);
+    text-align: start;
+
+    h1 {
+      @include type.heading('base');
+
+      margin-block: 0;
+    }
+  }
+
+  > :not(header, dialog) {
+    max-width: var(--body-width);
+    margin-inline: auto;
+  }
+
+  @include breakpoints.xl-desktop {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, var(--body-width)) 1fr;
+    align-items: start;
+
+    > header {
+      grid-row: 1;
+      grid-column: 1;
+    }
+
+    > :not(header, dialog) {
+      grid-column: 2;
+      width: 100%;
+    }
+
+    > header + :not(dialog) {
+      grid-row: 1;
+      margin-top: 0;
+    }
+  }
+}

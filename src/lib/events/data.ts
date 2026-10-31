@@ -56,7 +56,6 @@ export async function fetchEventsRaw(
     list: ({ like, cursorName: cursorStartTime, cursorId }) => sql`
       SELECT
         e.*,
-        ${path} AS path,
         e.start_time > now() AS is_upcoming,
         has_embed_code_type(e.embed_code_ids, ${EmbedCodeTypes.video}) AS has_video,
         has_embed_code_type(e.embed_code_ids, ${EmbedCodeTypes.audio}) AS has_audio,
@@ -104,7 +103,6 @@ export async function fetchUpcomingEventsRaw(
     const data = await sql`
       SELECT
         e.*,
-        ${path} AS path,
         e.start_time > now() AS is_upcoming,
         has_embed_code_type(e.embed_code_ids, ${EmbedCodeTypes.video}) AS has_video,
         has_embed_code_type(e.embed_code_ids, ${EmbedCodeTypes.audio}) AS has_audio,
@@ -192,13 +190,7 @@ export async function fetchEventById(
       return
     }
     return withEmbedCodeCoverImageUrls(
-      formatDbResponseForClient(
-        {
-          ...data[0],
-          path
-        },
-        eventClientSchema
-      )
+      formatDbResponseForClient(data[0], eventClientSchema)
     )
   } catch (cause) {
     throw new Error(`Failed to fetch ${pathSingular}: ${id}.`, {

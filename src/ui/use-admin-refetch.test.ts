@@ -1,9 +1,9 @@
 import { renderHook, waitFor } from '@testing-library/react'
 
 import { useAdminRefetch } from '@/ui/use-admin-refetch'
-import { useIsAdmin } from '@/ui/useIsAdmin'
+import { useIsAdmin } from '@/ui/use-is-admin'
 
-jest.mock('@/ui/useIsAdmin', () => ({
+jest.mock('@/ui/use-is-admin', () => ({
   useIsAdmin: jest.fn(() => false)
 }))
 

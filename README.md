@@ -104,7 +104,7 @@ The site has two kinds of content:
 
 Every release belongs to a project, and an event may too. Deleting a project hands its releases and events to the default project. A release's **published editions** (format, publisher, date) are edited only inline in the release form. The release date is the earliest edition's date. Images, links and embed codes have no owner. A project lists the ones it uses.
 
-Site settings (`/dashboard`) hold the site title, description, cover image, footer social links, and whether the footer shows the email subscribe form.
+Site settings (`/dashboard`) hold the site title, description, cover image, site icon (the favicon and home-screen icon, generated from one square image of at least 600 × 600), footer social links, and whether the footer shows the email subscribe form.
 
 ## Project layout
 

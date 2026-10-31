@@ -12,7 +12,7 @@ import type { EventClient } from '@/lib/events/types'
 import { PagePaths } from '@/lib/schemas'
 import type { PageItemProps } from '@/lib/types'
 import { UpcomingEventsList } from '@/ui/events/upcoming-events-list'
-import { formattedItemType } from '@/ui/util'
+import { formattedItemType } from '@/ui/format/items'
 
 export async function generateMetadata({ params }: PageItemProps) {
   return generateItemMetadata(

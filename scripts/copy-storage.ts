@@ -35,9 +35,9 @@
  *    recorded. Writing both first means a row with a format resolves on
  *    either provider, so the switch and a rollback both keep working.
  * 2. Copies. Every row's images/{id}.{ext}, its WebP variants
- *    (images/{id}_v{n}_{w}.webp) once it has a variant version, and every
- *    embed code's cover files that the target is missing are copied
- *    from the source.
+ *    (images/{id}_v{n}_{w}.webp) once it has a variant version, every
+ *    embed code's cover files, and every generated site icon (icons/)
+ *    that the target is missing are copied from the source.
  *
  * Old names stay on the source until it's retired by hand.
  */
@@ -52,6 +52,7 @@ import {
 import { uploadFormats, VARIANT_WIDTHS } from '@/lib/images/util'
 import { storageAdapter } from '@/lib/storage'
 import {
+  ICON_PATH_PREFIX,
   IMAGE_PATH_PREFIX,
   imageKey,
   imageVariantKey,
@@ -96,6 +97,7 @@ async function download(url: string): Promise<Buffer> {
 
 function contentTypeOf(key: string) {
   const ext = key.split('.').pop()
+  if (ext === 'ico') return 'image/x-icon'
   const upload = Object.values(uploadFormats).find(
     (format) => format.ext === ext
   )
@@ -124,7 +126,8 @@ async function main() {
   )
   const prefixes = [
     `${IMAGE_PATH_PREFIX}/`,
-    `${COVER_IMAGE_PATH_PREFIX}/`
+    `${COVER_IMAGE_PATH_PREFIX}/`,
+    `${ICON_PATH_PREFIX}/`
   ]
   const existing = new Map<StorageAdapter, Set<string>>()
   for (const storage of new Set([source, target])) {
@@ -216,7 +219,11 @@ async function main() {
     ...covers.flatMap(({ cover_image_id: id }) => [
       `${COVER_IMAGE_PATH_PREFIX}/${id}.${COVER_IMAGE_EXTENSION}`,
       `${COVER_IMAGE_PATH_PREFIX}/${id}_${COVER_IMAGE_THUMBNAIL_SIZE}.${COVER_IMAGE_EXTENSION}`
-    ])
+    ]),
+    // every version: a few KB each, and cached pages may still link one
+    ...[...existing.get(source)!].filter((key) =>
+      key.startsWith(`${ICON_PATH_PREFIX}/`)
+    )
   ]
   let copied = 0
   for (const key of keys) {

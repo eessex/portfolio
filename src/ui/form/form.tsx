@@ -38,7 +38,7 @@ export function Form<T>({
   action,
   children,
   className,
-  confirmUnsavedChanges = true,
+  isUnsavedChangesConfirmed = true,
   onSuccess,
   submitButtonText,
   submitButtonClassName = 'button-lg button-primary'
@@ -52,7 +52,7 @@ export function Form<T>({
    * enough to be worth interrupting navigation (e.g. login, email
    * subscribe).
    */
-  confirmUnsavedChanges?: boolean
+  isUnsavedChangesConfirmed?: boolean
   onSuccess?: () => void
   submitButtonText?: string
   /** Defaults to the large primary button; pass `''` for none. */
@@ -75,7 +75,7 @@ export function Form<T>({
   const router = useRouter()
 
   useEffect(() => {
-    if (!confirmUnsavedChanges) return
+    if (!isUnsavedChangesConfirmed) return
 
     function handleClick(event: MouseEvent) {
       if (
@@ -113,10 +113,10 @@ export function Form<T>({
     document.addEventListener('click', handleClick, true)
     return () =>
       document.removeEventListener('click', handleClick, true)
-  }, [confirmUnsavedChanges, initialState])
+  }, [isUnsavedChangesConfirmed, initialState])
 
   useEffect(() => {
-    if (!confirmUnsavedChanges) return
+    if (!isUnsavedChangesConfirmed) return
 
     function handleBeforeUnload(event: BeforeUnloadEvent) {
       if (!formRef.current || !initialState) return
@@ -130,7 +130,7 @@ export function Form<T>({
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () =>
       window.removeEventListener('beforeunload', handleBeforeUnload)
-  }, [confirmUnsavedChanges, initialState])
+  }, [isUnsavedChangesConfirmed, initialState])
 
   const [state, formAction, isPending] = useActionState<
     FormResponse<T> | null,
@@ -164,8 +164,7 @@ export function Form<T>({
       if (onSuccess) {
         onSuccess()
       } else {
-        addSuccessMessage('Changes saved.')
-        console.info('No changes made.')
+        addSuccessMessage('No changes to save.')
       }
       return null
     }
@@ -263,35 +262,18 @@ function isFormDirty(
   initial?: FormData | null
 ): boolean {
   if (!initial) return true
+  return serializeFormData(current) !== serializeFormData(initial)
+}
 
-  const currentObj = Object.fromEntries(current.entries())
-  const initialObj = Object.fromEntries(initial.entries())
-
-  const nonFileDiff =
-    JSON.stringify({
-      ...currentObj,
-      file: undefined
-    }) !==
-    JSON.stringify({
-      ...initialObj,
-      file: undefined
-    })
-
-  if (nonFileDiff) return true
-
-  // File comparison
-  const currentFile = current.get('file') as File | null
-  const initialFile = initial.get('file') as File | null
-
-  if (
-    (currentFile && !initialFile) ||
-    (!currentFile && initialFile) ||
-    (currentFile &&
-      initialFile &&
-      currentFile.name !== initialFile.name)
-  ) {
-    return true
-  }
-
-  return false
+// Every entry in order, so repeated names and namespaced file inputs
+// (`iconImage.file`) count; JSON.stringify(File) is just `{}`
+function serializeFormData(formData: FormData): string {
+  return JSON.stringify(
+    [...formData.entries()].map(([name, value]) => [
+      name,
+      typeof value === 'string'
+        ? value
+        : [value.name, value.size, value.lastModified]
+    ])
+  )
 }

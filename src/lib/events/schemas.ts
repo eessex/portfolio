@@ -28,7 +28,7 @@ export const eventSchema = z.object({
   endTime: date.optional(),
   imageIds: relationFields.imageIds,
   linkIds: relationFields.linkIds,
-  path: z.literal(PagePaths.events),
+  path: z.literal(PagePaths.events).default(PagePaths.events),
   startTime: date,
   ticketLink: url.optional(),
   venueId: uuid

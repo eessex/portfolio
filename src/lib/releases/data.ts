@@ -86,13 +86,7 @@ export async function fetchReleaseById(
       return
     }
     return withEmbedCodeCoverImageUrls(
-      formatDbResponseForClient(
-        {
-          ...data[0],
-          path
-        },
-        releaseClientSchema
-      )
+      formatDbResponseForClient(data[0], releaseClientSchema)
     )
   } catch (cause) {
     throw new Error(`Failed to fetch ${pathSingular}: ${id}.`, {
@@ -149,7 +143,6 @@ export async function fetchReleasesRaw(
         SELECT
           r.*,
           COALESCE(r.artist, p.title) AS display_artist,
-          ${path} AS path,
           build_cover_image_json(r.cover_image_id, r.image_ids) AS cover_image,
           has_embed_code_type(r.embed_code_ids, ${EmbedCodeTypes.video}) AS has_video,
           has_embed_code_type(r.embed_code_ids, ${EmbedCodeTypes.audio}) AS has_audio,

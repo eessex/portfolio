@@ -14,8 +14,8 @@ import type {
   PageItemResponseWithCursor
 } from '@/lib/types'
 import type { ResponseWithCursor } from '@/lib/util'
-import { useIsAdmin } from '@/ui/useIsAdmin'
-import { buildApiUrl, type SearchParams } from '@/ui/util'
+import { buildApiUrl, type SearchParams } from '@/ui/api-url'
+import { useIsAdmin } from '@/ui/use-is-admin'
 import { withViewTransition } from '@/ui/view-transition'
 
 /** How long typing pauses before the search is sent */
@@ -57,11 +57,11 @@ export function useResultsList<
   initial?: ResultsResponse<TEmbeddedItem, TPage, S>,
   {
     defaultQuery,
-    augmentOnMount,
+    isAugmentedOnMount,
     searchParams
   }: {
     defaultQuery?: string
-    augmentOnMount?: boolean
+    isAugmentedOnMount?: boolean
     /**
      * Extra query-string params forwarded to every API fetch, e.g.
      * `{ projectId }` to scope to a parent, or `{ type: 'press' }` to
@@ -278,9 +278,10 @@ export function useResultsList<
 
   // For admins, refetch the first page to reveal unpublished content;
   // on logout, refetch it again so the drafts don't stay listed.
-  const isAdmin = useIsAdmin(!!augmentOnMount)
+  const isAdmin = useIsAdmin(!!isAugmentedOnMount)
   useEffect(() => {
-    if (!augmentOnMount || isAdmin === didAugmentRef.current) return
+    if (!isAugmentedOnMount || isAdmin === didAugmentRef.current)
+      return
     didAugmentRef.current = isAdmin
     // drafts mustn't outlive the session, even if the refetch fails;
     // a later page may have appended some after a failed first page
@@ -294,7 +295,7 @@ export function useResultsList<
       )
     }
     fetchPage(queryRef.current, { isAnimated: isAdmin })
-  }, [augmentOnMount, isAdmin, fetchPage, initial, defaultQuery])
+  }, [isAugmentedOnMount, isAdmin, fetchPage, initial, defaultQuery])
 
   // If no initial results are passed from the server, fetch the first
   // page on mount; later calls (e.g. on focus) also retry the current

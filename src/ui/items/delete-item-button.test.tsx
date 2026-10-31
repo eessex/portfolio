@@ -68,7 +68,7 @@ describe('DeleteItemButton', () => {
 
     expect(deleteItem).toHaveBeenCalledTimes(1)
     expect(await screen.findByRole('status')).toHaveTextContent(
-      'project deleted.'
+      'Project deleted.'
     )
     expect(pushMock).toHaveBeenCalledWith('/projects')
   })

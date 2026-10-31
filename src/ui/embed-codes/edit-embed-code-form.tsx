@@ -224,7 +224,7 @@ export const EditEmbedCode = ({
                 : undefined
             }
             value={iframeInputValue}
-            label='iframe code'
+            label='Iframe code'
             onKeyDown={onKeyDown}
             onDrop={(e) => e.preventDefault()}
             onPaste={onPaste}

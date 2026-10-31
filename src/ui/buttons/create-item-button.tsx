@@ -11,7 +11,7 @@ import {
   pagePaths
 } from '@/lib/schemas'
 import { snakeToCamel } from '@/lib/strings'
-import { dashboardUrl, newUrl } from '@/ui/util'
+import { dashboardUrl, newUrl } from '@/ui/routes'
 
 export function CreateItemButton({
   className,

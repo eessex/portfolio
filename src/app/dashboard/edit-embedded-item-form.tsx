@@ -17,7 +17,7 @@ import { EditImage } from '@/ui/images/edit-image-form'
 import { DeleteItemButton } from '@/ui/items/delete-item-button'
 import { EditLink } from '@/ui/links/edit-link-form'
 import { EditPublisher } from '@/ui/publishers/edit-publisher-form'
-import { dashboardUrl } from '@/ui/util'
+import { dashboardUrl } from '@/ui/routes'
 import { EditVenue } from '@/ui/venues/edit-venue-form'
 
 function getEditFormComponent(itemType: EmbeddedItemType) {

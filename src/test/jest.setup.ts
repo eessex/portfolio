@@ -23,6 +23,12 @@ jest.mock('@/auth', () => ({
   signOut: jest.fn()
 }))
 
+// ESM-only packages Jest can't parse
+jest.mock('@vercel/analytics/next', () => ({ Analytics: () => null }))
+jest.mock('@vercel/speed-insights/next', () => ({
+  SpeedInsights: () => null
+}))
+
 installAbortControllerMock()
 
 // Route handler tests run in the node environment (no DOM) and

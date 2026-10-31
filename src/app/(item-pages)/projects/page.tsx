@@ -7,8 +7,8 @@ import type {
   ProjectClient
 } from '@/lib/projects/types'
 import { PagePaths } from '@/lib/schemas'
+import { formattedItemType } from '@/ui/format/items'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
-import { formattedItemType } from '@/ui/util'
 
 const path = PagePaths.projects
 const description = 'Additional projects and collaborations.'

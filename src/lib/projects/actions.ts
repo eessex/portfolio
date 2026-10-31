@@ -79,7 +79,6 @@ function saveProjectForm(
         embedCodeIds,
         imageIds,
         linkIds,
-        path: PagePaths.projects,
         slug
       }
     },
@@ -237,10 +236,7 @@ async function createProject(project: CreateProject) {
     `
     const row = rows[0]
     if (!row) throw new Error('Failed to create project.')
-    return formatDbResponseForClient(
-      { ...row, path: PagePaths.projects },
-      projectSchema
-    )
+    return formatDbResponseForClient(row, projectSchema)
   } catch (cause) {
     throw new Error('Failed to create project.', { cause })
   }
@@ -288,10 +284,7 @@ async function updateProject(project: CreateProject, id: string) {
     `
     const row = rows[0]
     if (!row) throw new Error('Failed to update project.')
-    return formatDbResponseForClient(
-      { ...row, path: PagePaths.projects },
-      projectSchema
-    )
+    return formatDbResponseForClient(row, projectSchema)
   } catch (cause) {
     throw new Error('Failed to update project.', { cause })
   }

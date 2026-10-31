@@ -53,7 +53,7 @@ export const projectSchema = z.object({
    */
   isDefaultProject: z.boolean().optional(),
   linkIds: relationFields.linkIds,
-  path: z.literal(PagePaths.projects),
+  path: z.literal(PagePaths.projects).default(PagePaths.projects),
   startDate: date.optional(),
   type: projectTypeSchema.optional()
 })

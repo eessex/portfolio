@@ -4,6 +4,12 @@
 
 GitHub Actions runs `pnpm typecheck`, `pnpm lint` and `pnpm test:quiet` on every pull request and every push to `main` (`.github/workflows/checks.yml`). Vercel's build runs only `pnpm migrate && pnpm build`. Run `pnpm check` locally to do all of it, build included.
 
+## First-run setup
+
+`pnpm run setup` (not bare `pnpm setup`, which runs pnpm's own built-in command) is the contributor path: it writes `.env` and runs migrations — see the README's "Getting started". It doesn't create an admin account itself; migrating prints a setup code when no user exists yet, the same code a deployed build prints to its log, and you claim your local instance through `/setup` in the browser just like a deployed instance's owner does (see `docs/SETUP.md` and `CLAUDE.md` → Auth). Both paths create the first admin through the same `createFirstUser()` (`src/lib/users/create.ts`), which atomically consumes the `setup_code` row the migration run wrote — there's only one admin-creation path to keep in sync, not two.
+
+Every step checks current state before acting, so it's safe to re-run, for example after pulling schema changes.
+
 ## Writing migrations
 
 The schema comes from versioned files in `migrations/`. `pnpm migrate` applies each one once per database, in order, in its own transaction, and records it in `schema_migrations` with a checksum. Production builds run it before `next build`. Enum-like values, slug triggers, SQL functions and the built-in publisher are not migrations: `src/seed/every-deploy.ts` re-applies them on every run.

@@ -656,6 +656,23 @@ describe('runMigrations', () => {
     ])
   })
 
+  it('passes every-deploy options to each step', async () => {
+    const { client } = mockClient()
+    const step = { name: 'ensureSetupCode', run: jest.fn() }
+
+    await runMigrations({
+      client,
+      migrations: [],
+      everyDeploySteps: [step],
+      ...defaults,
+      everyDeployOptions: { isSetupCodeRotated: true }
+    })
+
+    expect(step.run).toHaveBeenCalledWith(client, {
+      isSetupCodeRotated: true
+    })
+  })
+
   it('logs a step’s returned banner only after it commits', async () => {
     const { client } = mockClient()
     const logged: string[] = []

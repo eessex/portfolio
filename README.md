@@ -4,6 +4,11 @@ A Next.js CMS for managing and serving a personal portfolio site: releases, even
 
 Built on Next.js 16 (App Router, `cacheComponents`), Postgres ([Neon](https://neon.tech) serverless, no ORM), next-auth v5 for admin login, and Vercel Blob for image storage.
 
+**Want to run your own copy?** No coding required — see
+[`docs/SETUP.md`](docs/SETUP.md) for a step-by-step guide to deploying on
+Vercel from the browser. The rest of this README is for people working on
+the code itself.
+
 ## Prerequisites
 
 - Node 22.x
@@ -15,29 +20,26 @@ Built on Next.js 16 (App Router, `cacheComponents`), Postgres ([Neon](https://ne
 
 ```bash
 pnpm install
-pnpm run setup   # interactive: .env, DB schema, first admin user
+pnpm run setup   # interactive: .env and DB schema
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and sign in at `/login` with the admin account you just created. Until setup has completed (no site settings row exists yet), every page redirects logged-out visitors to `/login`.
+Open [http://localhost:3000](http://localhost:3000) and go to `/setup` to claim your local instance — migrating prints a setup code to the terminal, the same way a deployed instance prints one to its build log (each `pnpm run setup` run replaces any earlier code with a new one, so re-run it if you lose the code); see [`docs/SETUP.md`](docs/SETUP.md#6-claim-your-site). Until an admin exists, every page redirects to `/setup`; after that, until site settings are saved, every page redirects logged-out visitors to `/login`.
 
 ### `pnpm run setup`
 
-`scripts/setup.ts` takes you from a fresh clone to a running instance:
+`scripts/setup.ts` takes you from a fresh clone to a migrated database:
 
 1. Copies `.env.example` → `.env` (if `.env` doesn't exist yet)
 2. Generates `AUTH_SECRET` and writes it to `.env` (if unset)
 3. Prompts for your Postgres `DATABASE_URL`, testing the connection and re-prompting until it succeeds
 4. Applies database migrations (`pnpm migrate`)
-5. Creates the first admin user, if none exists yet
 
-Each step checks the current state before it acts. Existing env values are reused and re-validated instead of overwritten, migrations already applied are skipped, and admin creation is skipped once any user exists. That makes it **safe to re-run**, for example after pulling schema changes.
+Each step checks the current state before it acts: existing env values are reused and re-validated instead of overwritten, and migrations already applied are skipped. That makes it **safe to re-run**, for example after pulling schema changes.
 
 > `run` is required. Bare `pnpm setup` invokes pnpm's own built-in command instead of this script.
 
-For non-interactive runs (a fresh deploy, automation), you can provide the admin account through `SETUP_ADMIN_NAME`, `SETUP_ADMIN_EMAIL`, and `SETUP_ADMIN_PASSWORD` instead of the prompts.
-
-There is no admin UI for creating users. Additional users are created server-side via `createUser()` in `src/lib/users/create.ts`.
+It doesn't create an admin account — that's always done at `/setup`, by the same `createFirstUser()` a deployed instance's owner goes through (see `CONTRIBUTING.md` → "First-run setup"). There is no admin UI for creating further users; additional ones are created server-side via `createUser()` in `src/lib/users/create.ts`.
 
 ## Environment variables
 

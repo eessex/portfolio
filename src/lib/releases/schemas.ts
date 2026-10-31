@@ -45,7 +45,7 @@ export const releaseSchema = z.object({
   embedCodeIds: relationFields.embedCodeIds,
   imageIds: relationFields.imageIds,
   linkIds: relationFields.linkIds,
-  path: z.literal(PagePaths.releases),
+  path: z.literal(PagePaths.releases).default(PagePaths.releases),
   // required here, unlike events' `ownershipFields`
   projectId: z
     .string({

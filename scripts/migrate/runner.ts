@@ -31,7 +31,8 @@ export type Migration = {
 
 export type EveryDeployStep = {
   name: string
-  run: (client: MigrationClient) => Promise<void>
+  /** A banner to print to the build log once committed, if any. */
+  run: (client: MigrationClient) => Promise<string | void>
 }
 
 export const NOT_CONNECTED_MESSAGE =
@@ -353,7 +354,11 @@ export async function loadMigrations(
 
 export type RunResult = {
   applied: { id: string; durationMs: number }[]
-  everyDeploy: { name: string; durationMs: number }[]
+  everyDeploy: {
+    name: string
+    durationMs: number
+    message?: string
+  }[]
 }
 
 type RunOptions = {
@@ -507,8 +512,9 @@ export async function runMigrations({
       result.everyDeploy = []
       for (const step of everyDeploySteps) {
         const startedAt = now()
+        let message: string | void
         try {
-          await step.run(client)
+          message = await step.run(client)
         } catch (error) {
           throw new Error(
             `Every-deploy step ${step.name} failed: ${errorMessage(error)}`,
@@ -516,7 +522,11 @@ export async function runMigrations({
           )
         }
         const durationMs = now() - startedAt
-        result.everyDeploy.push({ name: step.name, durationMs })
+        result.everyDeploy.push({
+          name: step.name,
+          durationMs,
+          message: message || undefined
+        })
       }
       await client.query(
         `INSERT INTO schema_every_deploy (id, revision, app_version)
@@ -527,8 +537,9 @@ ON CONFLICT (id) DO UPDATE SET revision = EXCLUDED.revision,
       )
     })
     // Logged only once committed, so a rolled-back step isn't shown ✅
-    for (const { name, durationMs } of result.everyDeploy) {
+    for (const { name, durationMs, message } of result.everyDeploy) {
       log(`✅ ${name} (${durationMs}ms)`)
+      if (message) log(message)
     }
   } finally {
     await client

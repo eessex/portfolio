@@ -2,6 +2,13 @@
 // SQL follows the code, so each is idempotent. Deliberately NOT a
 // server action ('use server' would expose them as a public endpoint).
 import {
+  buildLiveSetupCodeNote,
+  buildSetupCodeBanner,
+  generateSetupCode,
+  hashSetupCode,
+  SETUP_CODE_TTL_HOURS
+} from '@/lib/auth/setup-code'
+import {
   embedCodeContentTypes,
   embedCodeHosts,
   embedCodeTypes
@@ -20,7 +27,10 @@ import { pagePaths } from '@/lib/schemas'
 
 /** The runner's session client (structurally its `MigrationClient`). */
 export type EveryDeployClient = {
-  query: (text: string, values?: unknown[]) => Promise<unknown>
+  query: (
+    text: string,
+    values?: unknown[]
+  ) => Promise<{ rows: Record<string, unknown>[] }>
 }
 
 /** Columns limited to a code constant's values. */
@@ -397,21 +407,62 @@ async function ensureAuthSecret(client: EveryDeployClient) {
 }
 
 /**
+ * While no user exists, a build creates a setup code so a freshly
+ * imported site can be claimed with nothing set by hand: only its
+ * hash and an expiry are stored, and the plain code is returned for
+ * the build log banner. A code that hasn't expired is kept, so a later
+ * build (a preview deploy on the same database, a local setup run)
+ * can't invalidate the one already printed; that build just notes when
+ * it expires. Once a user exists, the row is gone for good and nothing
+ * is printed.
+ */
+async function ensureSetupCode(
+  client: EveryDeployClient
+): Promise<string | void> {
+  const { rows } = await client.query(
+    'SELECT EXISTS (SELECT 1 FROM users) AS "exists"'
+  )
+  if (rows[0]?.exists) {
+    await client.query('DELETE FROM setup_code')
+    return
+  }
+
+  const { rows: live } = await client.query(
+    'SELECT expires_at FROM setup_code WHERE expires_at > now()'
+  )
+  const expiresAt = live[0]?.expires_at as string | Date | undefined
+  if (expiresAt) {
+    return buildLiveSetupCodeNote(new Date(expiresAt))
+  }
+
+  const code = generateSetupCode()
+  await client.query(
+    `INSERT INTO setup_code (id, code_hash, expires_at)
+    VALUES (true, $1, now() + interval '${SETUP_CODE_TTL_HOURS} hours')
+    ON CONFLICT (id) DO UPDATE
+    SET code_hash = EXCLUDED.code_hash, expires_at = EXCLUDED.expires_at`,
+    [hashSetupCode(code)]
+  )
+  return buildSetupCodeBanner(code)
+}
+
+/**
  * Bump whenever any step's SQL changes (every-deploy.test.ts pins the
  * SQL to it). The runner records it and refuses a checkout with a
  * lower one, so an older build can't re-apply stale definitions.
  */
-export const EVERY_DEPLOY_REVISION = 3
+export const EVERY_DEPLOY_REVISION = 4
 
 // In order: triggers call save_old_slug()
 export const everyDeploySteps: {
   name: string
-  run: (client: EveryDeployClient) => Promise<void>
+  run: (client: EveryDeployClient) => Promise<string | void>
 }[] = [
   { name: 'syncCheckConstraints', run: syncCheckConstraints },
   { name: 'setupSlugHistoryFunction', run: setupSlugHistoryFunction },
   { name: 'setupSlugTriggers', run: setupSlugTriggers },
   { name: 'setupJsonbFunctions', run: setupJsonbFunctions },
   { name: 'seedBuiltInPublisher', run: seedBuiltInPublisher },
-  { name: 'ensureAuthSecret', run: ensureAuthSecret }
+  { name: 'ensureAuthSecret', run: ensureAuthSecret },
+  { name: 'ensureSetupCode', run: ensureSetupCode }
 ]

@@ -17,6 +17,13 @@ import {
   everyDeploySteps
 } from '@/seed/every-deploy'
 
+// Fixed, so the checksum pinning test below (and any other ordering
+// of calls) is deterministic rather than keyed to a random code
+jest.mock('@/lib/auth/setup-code', () => ({
+  ...jest.requireActual('@/lib/auth/setup-code'),
+  generateSetupCode: () => 'K7QM-3XRD-PW9T-H2FC'
+}))
+
 const query = jest.fn().mockResolvedValue({ rows: [] })
 
 const texts = () => query.mock.calls.map(([text]) => text as string)
@@ -47,9 +54,9 @@ describe('everyDeploySteps', () => {
       .update(JSON.stringify(query.mock.calls))
       .digest('hex')
     expect({ revision: EVERY_DEPLOY_REVISION, checksum }).toEqual({
-      revision: 3,
+      revision: 4,
       checksum:
-        'a9fe8532e3cbf2572a2df4f660b923c857908a22e80a49d4bcff38eb148f26a7'
+        'ed5fd49b63fe251bf6248b6df0af187ad8b3f28b7330bae7478e2361ba5ec812'
     })
   })
 
@@ -199,8 +206,106 @@ describe('everyDeploySteps', () => {
       expect(values).toBeUndefined()
     })
 
-    it('runs last, after every schema step', () => {
-      expect(everyDeploySteps.at(-1)?.name).toBe('ensureAuthSecret')
+    it('runs after every schema step', () => {
+      expect(
+        everyDeploySteps.findIndex(
+          (s) => s.name === 'ensureAuthSecret'
+        )
+      ).toBe(everyDeploySteps.length - 2)
+    })
+  })
+
+  describe('setup code', () => {
+    function setupCodeQuery(
+      usersExist: boolean,
+      liveRows: { expires_at: string }[] = []
+    ) {
+      const setupQuery = jest
+        .fn()
+        .mockResolvedValue({ rows: [] })
+        .mockImplementationOnce(() =>
+          Promise.resolve({ rows: [{ exists: usersExist }] })
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve({ rows: liveRows })
+        )
+      return setupQuery
+    }
+
+    it('runs last, after the auth secret', () => {
+      expect(everyDeploySteps.at(-1)?.name).toBe('ensureSetupCode')
+    })
+
+    it('creates a hashed code with a 72-hour expiry while no user exists', async () => {
+      const step = everyDeploySteps.find(
+        (s) => s.name === 'ensureSetupCode'
+      )!
+      const setupQuery = setupCodeQuery(false)
+
+      const message = await step.run({ query: setupQuery })
+
+      const existsCall = setupQuery.mock.calls[0]
+      expect(existsCall?.[0]).toContain(
+        'SELECT EXISTS (SELECT 1 FROM users)'
+      )
+      expect(setupQuery.mock.calls[1]?.[0]).toContain(
+        'SELECT expires_at FROM setup_code WHERE expires_at > now()'
+      )
+      const insertCall = setupQuery.mock.calls[2]
+      expect(insertCall?.[0]).toContain('INSERT INTO setup_code')
+      expect(insertCall?.[0]).toContain("now() + interval '72 hours'")
+      expect(insertCall?.[0]).toContain('ON CONFLICT (id) DO UPDATE')
+      expect(insertCall?.[1]).toEqual([
+        expect.stringMatching(/^[0-9a-f]{64}$/)
+      ])
+      expect(message).toContain('Setup code: K7QM-3XRD-PW9T-H2FC')
+    })
+
+    it('keeps an unexpired code and notes its expiry instead of a banner', async () => {
+      const step = everyDeploySteps.find(
+        (s) => s.name === 'ensureSetupCode'
+      )!
+      const setupQuery = setupCodeQuery(false, [
+        { expires_at: '2026-11-02T12:00:00.000Z' }
+      ])
+
+      const message = await step.run({ query: setupQuery })
+
+      expect(setupQuery).toHaveBeenCalledTimes(2)
+      expect(message).not.toContain('Setup code:')
+      expect(message).toContain(
+        'still valid until 2026-11-02T12:00:00.000Z'
+      )
+    })
+
+    it('replaces the stored code once it has expired', async () => {
+      const step = everyDeploySteps.find(
+        (s) => s.name === 'ensureSetupCode'
+      )!
+      // An expired row is filtered out by the live-code query
+      const setupQuery = setupCodeQuery(false, [])
+
+      const message = await step.run({ query: setupQuery })
+
+      expect(setupQuery.mock.calls[2]?.[0]).toContain(
+        'ON CONFLICT (id) DO UPDATE'
+      )
+      expect(message).toContain('Setup code: K7QM-3XRD-PW9T-H2FC')
+    })
+
+    it('deletes the row and prints nothing once a user exists', async () => {
+      const step = everyDeploySteps.find(
+        (s) => s.name === 'ensureSetupCode'
+      )!
+      const setupQuery = setupCodeQuery(true)
+
+      const message = await step.run({ query: setupQuery })
+
+      expect(setupQuery).toHaveBeenCalledTimes(2)
+      expect(setupQuery.mock.calls[1]?.[0]).toContain(
+        'DELETE FROM setup_code'
+      )
+      expect(message).toBeUndefined()
     })
   })
 })

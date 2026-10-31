@@ -656,6 +656,50 @@ describe('runMigrations', () => {
     ])
   })
 
+  it('logs a step’s returned banner only after it commits', async () => {
+    const { client } = mockClient()
+    const logged: string[] = []
+    const step = {
+      name: 'ensureSetupCode',
+      run: jest.fn().mockResolvedValue('=== banner ===')
+    }
+
+    await runMigrations({
+      client,
+      migrations: [],
+      everyDeploySteps: [step],
+      ...defaults,
+      now: () => 0,
+      log: (message) => void logged.push(message)
+    })
+
+    expect(logged).toEqual([
+      'No pending migrations.',
+      '✅ ensureSetupCode (0ms)',
+      '=== banner ==='
+    ])
+  })
+
+  it('logs nothing extra for a step that returns no banner', async () => {
+    const { client } = mockClient()
+    const logged: string[] = []
+    const step = { name: 'syncCheckConstraints', run: jest.fn() }
+
+    await runMigrations({
+      client,
+      migrations: [],
+      everyDeploySteps: [step],
+      ...defaults,
+      now: () => 0,
+      log: (message) => void logged.push(message)
+    })
+
+    expect(logged).toEqual([
+      'No pending migrations.',
+      '✅ syncCheckConstraints (0ms)'
+    ])
+  })
+
   it('names a failing every-deploy step', async () => {
     const { client } = mockClient()
     await expect(

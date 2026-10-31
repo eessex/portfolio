@@ -24,6 +24,7 @@ import {
 } from '@/lib/publishers/schemas/db'
 import { releaseTypes } from '@/lib/releases/schemas'
 import { pagePaths } from '@/lib/schemas'
+import { userTokenPurposes } from '@/lib/users/schemas'
 
 /** The runner's session client (structurally its `MigrationClient`). */
 export type EveryDeployClient = {
@@ -58,7 +59,8 @@ export const checkedColumns: [
   ['links', 'type', linkTypes],
   ['publishers', 'type', publisherTypes],
   ['releases', 'type', releaseTypes],
-  ['published_editions', 'format', publishedEditionTypes]
+  ['published_editions', 'format', publishedEditionTypes],
+  ['user_tokens', 'purpose', userTokenPurposes]
 ]
 
 /**
@@ -465,7 +467,7 @@ async function ensureSetupCode(
  * SQL to it). The runner records it and refuses a checkout with a
  * lower one, so an older build can't re-apply stale definitions.
  */
-export const EVERY_DEPLOY_REVISION = 4
+export const EVERY_DEPLOY_REVISION = 5
 
 // In order: triggers call save_old_slug()
 export const everyDeploySteps: {

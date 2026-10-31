@@ -12,6 +12,7 @@ import { publishedEditionTypes } from '@/lib/published-editions/schemas/db'
 import { publisherTypes } from '@/lib/publishers/schemas/db'
 import { releaseTypes } from '@/lib/releases/schemas'
 import { pagePaths } from '@/lib/schemas'
+import { userTokenPurposes } from '@/lib/users/schemas'
 import {
   EVERY_DEPLOY_REVISION,
   everyDeploySteps
@@ -54,9 +55,9 @@ describe('everyDeploySteps', () => {
       .update(JSON.stringify(query.mock.calls))
       .digest('hex')
     expect({ revision: EVERY_DEPLOY_REVISION, checksum }).toEqual({
-      revision: 4,
+      revision: 5,
       checksum:
-        'ed5fd49b63fe251bf6248b6df0af187ad8b3f28b7330bae7478e2361ba5ec812'
+        '8de191c0e681d86c8d864452c48214683a68209c00cf3d97f5f802bd6c898486'
     })
   })
 
@@ -70,7 +71,8 @@ describe('everyDeploySteps', () => {
     ['links', 'type', linkTypes],
     ['publishers', 'type', publisherTypes],
     ['releases', 'type', releaseTypes],
-    ['published_editions', 'format', publishedEditionTypes]
+    ['published_editions', 'format', publishedEditionTypes],
+    ['user_tokens', 'purpose', userTokenPurposes]
   ])(
     'rebuilds the %s.%s CHECK from its constant',
     (table, column, values) => {

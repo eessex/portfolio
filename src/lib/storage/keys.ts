@@ -9,6 +9,9 @@ import { uploadFormats, variantSuffix } from '../images/util'
 /** Every original lives at `images/{id}.{ext}`. */
 export const IMAGE_PATH_PREFIX = 'images'
 
+/** Generated site icons: `icons/{imageId}/v{version}/{file}`. */
+export const ICON_PATH_PREFIX = 'icons'
+
 export const storageProviders = ['s3', 'blob'] as const
 export type StorageProvider = (typeof storageProviders)[number]
 
@@ -95,6 +98,18 @@ export function imageVariantKey(
   version: number
 ): string {
   return `${IMAGE_PATH_PREFIX}/${id}${variantSuffix(width, version)}`
+}
+
+/**
+ * One of a site icon's generated files. An image's file never changes,
+ * so a new icon (or ICON_VERSION) always gets new URLs.
+ */
+export function iconKey(
+  imageId: string,
+  version: number,
+  file: string
+): string {
+  return `${ICON_PATH_PREFIX}/${imageId}/v${version}/${file}`
 }
 
 /** A stored URL's key: its path, decoded, without the leading slash. */

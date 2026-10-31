@@ -11,12 +11,14 @@ import {
   itemTypeToLabel,
   type PagePath
 } from '@/lib/schemas'
+import { isEmbeddedItemType } from '@/lib/schemas'
 import { camelToSnake } from '@/lib/strings'
 import type {
   EmbeddedItem,
   PageDataResponse,
   PageItemClient
 } from '@/lib/types'
+import { type SearchParams } from '@/ui/api-url'
 import { CreateItemButton } from '@/ui/buttons/create-item-button'
 import styles from '@/ui/combobox/combobox.module.scss'
 import { Loading } from '@/ui/loading'
@@ -25,7 +27,6 @@ import {
   type ResultsResponse,
   useResultsList
 } from '@/ui/use-results-list'
-import { isEmbeddedItemType, type SearchParams } from '@/ui/util'
 
 export interface ComboboxProps<
   TEmbeddedItem extends EmbeddedItem,

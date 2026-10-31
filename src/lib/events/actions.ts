@@ -49,7 +49,6 @@ async function prepareEventData(
     venueId,
     startTime: toEventInstant(data.startTime, timeZone),
     endTime: toEventInstant(data.endTime, timeZone),
-    path: PagePaths.events,
     slug
   }
 }
@@ -161,10 +160,7 @@ async function createEvent(event: CreateEvent) {
     `
     const row = rows[0]
     if (!row) throw new Error('Failed to create event.')
-    return formatDbResponseForClient(
-      { ...row, path: PagePaths.events },
-      eventSchema
-    )
+    return formatDbResponseForClient(row, eventSchema)
   } catch (cause) {
     throw new Error('Failed to create event.', { cause })
   }
@@ -214,10 +210,7 @@ async function updateEvent(event: CreateEvent, id: string) {
     `
     const row = rows[0]
     if (!row) throw new Error('Failed to update event.')
-    return formatDbResponseForClient(
-      { ...row, path: PagePaths.events },
-      eventSchema
-    )
+    return formatDbResponseForClient(row, eventSchema)
   } catch (cause) {
     throw new Error('Failed to update event.', { cause })
   }

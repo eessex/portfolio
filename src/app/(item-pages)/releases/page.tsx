@@ -7,8 +7,8 @@ import type {
   ReleaseClient
 } from '@/lib/releases/types'
 import { PagePaths } from '@/lib/schemas'
+import { formattedItemType } from '@/ui/format/items'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
-import { formattedItemType } from '@/ui/util'
 
 const path = PagePaths.releases
 const description = 'Selected discography.'

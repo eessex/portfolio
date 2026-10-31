@@ -9,6 +9,7 @@ import {
   indexedItemFieldPrefix
 } from '@/lib/item-fields'
 import { type Contact, contactSchema } from '@/lib/schemas/fields'
+import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import contactStyles from '@/ui/projects/contact-info-fields.module.scss'
@@ -153,7 +154,7 @@ export function ContactInfoFields({
             <div className={styles['input-group']}>
               <Input
                 attributes={{
-                  maxLength: 255,
+                  maxLength: MAX_STRING_LENGTH_SHORT,
                   name: `${prefix}contact`,
                   // Rejects whitespace-only values, which the
                   // server would otherwise treat as blank.
@@ -174,7 +175,7 @@ export function ContactInfoFields({
               />
               <Input
                 attributes={{
-                  maxLength: 255,
+                  maxLength: MAX_STRING_LENGTH_SHORT,
                   name: `${prefix}title`,
                   placeholder: 'Bookings'
                 }}

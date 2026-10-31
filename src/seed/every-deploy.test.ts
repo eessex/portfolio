@@ -47,9 +47,9 @@ describe('everyDeploySteps', () => {
       .update(JSON.stringify(query.mock.calls))
       .digest('hex')
     expect({ revision: EVERY_DEPLOY_REVISION, checksum }).toEqual({
-      revision: 2,
+      revision: 3,
       checksum:
-        'e7729c7b4dadfc75eab910810208a4d8f0ccda4f6e22dcc9b23b5476fa62d9b9'
+        'a9fe8532e3cbf2572a2df4f660b923c857908a22e80a49d4bcff38eb148f26a7'
     })
   })
 
@@ -185,6 +185,22 @@ describe('everyDeploySteps', () => {
       expect(
         findQuery('FUNCTION build_publisher_json').text
       ).toContain("'isBuiltIn', p.is_built_in")
+    })
+  })
+
+  describe('auth secret', () => {
+    it('creates a random 32-byte secret only if none exists', () => {
+      const { text, values } = findQuery(
+        'INSERT INTO instance_secrets'
+      )
+      expect(text).toContain("'auth_secret'")
+      expect(text).toContain("encode(gen_random_bytes(32), 'base64')")
+      expect(text).toContain('ON CONFLICT (name) DO NOTHING')
+      expect(values).toBeUndefined()
+    })
+
+    it('runs last, after every schema step', () => {
+      expect(everyDeploySteps.at(-1)?.name).toBe('ensureAuthSecret')
     })
   })
 })

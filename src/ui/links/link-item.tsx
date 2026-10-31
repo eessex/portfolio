@@ -1,5 +1,5 @@
 import type { Link } from '@/lib/links/schemas/db'
-import { formattedDateOrTimestamp } from '@/ui/util'
+import { formattedDateOrTimestamp } from '@/ui/format/dates'
 
 export function LinkItem({
   link,

@@ -1,7 +1,7 @@
 import type { Venue } from '@/lib/venues/schemas/db'
 import type { NewItemSummaryActions } from '@/ui/item-picker/item-picker'
 import { ItemResultLabel } from '@/ui/item-result-label'
-import { formatVenueInline } from '@/ui/util'
+import { formatVenueInline } from '@/ui/venues/format-venue-inline'
 
 export function formatVenueResult(
   venue: Venue,

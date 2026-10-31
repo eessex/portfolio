@@ -9,7 +9,7 @@ import { imageFixture } from '@/lib/images/fixtures'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
 import type { ProjectClient } from '@/lib/projects/types'
 import { ProjectsCarousel } from '@/ui/projects/projects-carousel'
-import { resetIsAdminCache } from '@/ui/useIsAdmin'
+import { resetIsAdminCache } from '@/ui/use-is-admin'
 
 const draftProject: ProjectClient = {
   ...projectFixtureBand,

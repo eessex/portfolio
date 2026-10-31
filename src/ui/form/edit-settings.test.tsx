@@ -47,10 +47,27 @@ describe('EditSettings', () => {
   it('renders the create-new image fields inline without submitting', () => {
     renderComponent()
 
+    // cover image, then site icon
     expect(
-      screen.getByLabelText(/upload new image/i)
-    ).toBeInTheDocument()
+      screen
+        .getAllByLabelText(/upload new image/i)
+        .map((input) => input.getAttribute('name'))
+    ).toEqual(['coverImage.file', 'iconImage.file'])
     expect(mockEditSiteSettings).not.toHaveBeenCalled()
+  })
+
+  it('renders an optional site icon picker', () => {
+    renderComponent()
+
+    expect(
+      document.querySelector('input[name="iconImageId"]')
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/A square image, at least 600 × 600/)
+    ).toBeInTheDocument()
+    expect(
+      document.querySelector('input[name="iconImage.file"]')
+    ).not.toBeRequired()
   })
 
   it('renders the social links picker with existing links in order', () => {

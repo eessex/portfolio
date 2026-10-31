@@ -16,7 +16,7 @@ export function LoginForm() {
   return (
     <Form
       action={authenticate}
-      confirmUnsavedChanges={false}
+      isUnsavedChangesConfirmed={false}
       submitButtonText='Log in'
     >
       <Input

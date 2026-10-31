@@ -8,6 +8,10 @@ import {
 import { projectTypes } from '@/lib/projects/schemas'
 import type { ProjectClient } from '@/lib/projects/types'
 import { ABOUT_PATH, PagePaths } from '@/lib/schemas'
+import {
+  MAX_STRING_LENGTH_LONG,
+  MAX_STRING_LENGTH_SHORT
+} from '@/lib/schemas/primitives'
 import { EmbedCodesPicker } from '@/ui/embed-codes/embed-codes-picker'
 import { Checkbox } from '@/ui/form/checkbox'
 import { useFormErrors } from '@/ui/form/form'
@@ -15,13 +19,13 @@ import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { ItemEditForm } from '@/ui/form/item-edit-form'
 import { Select } from '@/ui/form/select'
+import { toDateInputValue } from '@/ui/format/dates'
 import { ImagesPicker } from '@/ui/images/images-picker'
 import {
   LinksPicker,
   PressLinksPicker
 } from '@/ui/links/links-picker'
 import { ContactInfoFields } from '@/ui/projects/contact-info-fields'
-import { toDateInputValue } from '@/ui/util'
 
 function ProjectFormFields({ project }: { project?: ProjectClient }) {
   const errors = useFormErrors()
@@ -30,7 +34,7 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
     <>
       <Input
         attributes={{
-          maxLength: 255,
+          maxLength: MAX_STRING_LENGTH_SHORT,
           name: 'title',
           required: true
         }}
@@ -64,20 +68,20 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
           label='End date'
         />
       </div>
-      <ImagesPicker
-        coverImage={project?.coverImage}
-        images={project?.images}
-      />
       <Input
         as='textarea'
         attributes={{
-          maxLength: 5000,
+          maxLength: MAX_STRING_LENGTH_LONG,
           name: 'description',
           required: true
         }}
         defaultValue={project?.description}
         errors={errors?.description}
         label='Description'
+      />
+      <ImagesPicker
+        coverImage={project?.coverImage}
+        images={project?.images}
       />
       <EmbedCodesPicker embedCodes={project?.embedCodes} />
       <ContactInfoFields contactInfo={project?.contactInfo} />

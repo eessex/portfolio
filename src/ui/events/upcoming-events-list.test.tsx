@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { eventFixtureUpcoming } from '@/lib/events/fixtures'
 import type { EventClient } from '@/lib/events/types'
 import { UpcomingEventsList } from '@/ui/events/upcoming-events-list'
-import { resetIsAdminCache } from '@/ui/useIsAdmin'
+import { resetIsAdminCache } from '@/ui/use-is-admin'
 
 const draftUpcomingEvent: EventClient = {
   ...eventFixtureUpcoming,

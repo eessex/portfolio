@@ -6,3 +6,8 @@
   flex-shrink: 0;
   object-fit: cover;
 }
+
+.square {
+  aspect-ratio: 1;
+  object-position: center;
+}

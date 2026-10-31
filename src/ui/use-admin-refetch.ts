@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-import { useIsAdmin } from '@/ui/useIsAdmin'
+import { useIsAdmin } from '@/ui/use-is-admin'
 
 /**
  * Client-side draft augmentation: starts from the statically rendered

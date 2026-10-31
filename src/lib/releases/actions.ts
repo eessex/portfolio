@@ -58,7 +58,6 @@ async function prepareReleaseData(
     embedCodeIds,
     imageIds,
     linkIds,
-    path: PagePaths.releases,
     ...('artist' in data && {
       artist: await resolveArtist(data.artist, data.projectId)
     }),
@@ -280,10 +279,7 @@ async function createRelease(release: CreateRelease) {
     `
     const row = rows[0]
     if (!row) throw new Error('Failed to create release.')
-    return formatDbResponseForClient(
-      { ...row, path: PagePaths.releases },
-      releaseSchema
-    )
+    return formatDbResponseForClient(row, releaseSchema)
   } catch (cause) {
     throw new Error('Failed to create release.', { cause })
   }
@@ -331,10 +327,7 @@ async function updateRelease(release: CreateRelease, id: string) {
     `
     const row = rows[0]
     if (!row) throw new Error('Failed to update release.')
-    return formatDbResponseForClient(
-      { ...row, path: PagePaths.releases },
-      releaseSchema
-    )
+    return formatDbResponseForClient(row, releaseSchema)
   } catch (cause) {
     throw new Error('Failed to update release.', { cause })
   }

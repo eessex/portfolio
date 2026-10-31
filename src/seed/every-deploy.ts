@@ -385,11 +385,23 @@ async function seedBuiltInPublisher(client: EveryDeployClient) {
 }
 
 /**
+ * The instance's own session secret, created once and never rotated
+ * here. An AUTH_SECRET env var, when set, takes precedence over it.
+ */
+async function ensureAuthSecret(client: EveryDeployClient) {
+  await client.query(
+    `INSERT INTO instance_secrets (name, value)
+    VALUES ('auth_secret', encode(gen_random_bytes(32), 'base64'))
+    ON CONFLICT (name) DO NOTHING`
+  )
+}
+
+/**
  * Bump whenever any step's SQL changes (every-deploy.test.ts pins the
  * SQL to it). The runner records it and refuses a checkout with a
  * lower one, so an older build can't re-apply stale definitions.
  */
-export const EVERY_DEPLOY_REVISION = 2
+export const EVERY_DEPLOY_REVISION = 3
 
 // In order: triggers call save_old_slug()
 export const everyDeploySteps: {
@@ -400,5 +412,6 @@ export const everyDeploySteps: {
   { name: 'setupSlugHistoryFunction', run: setupSlugHistoryFunction },
   { name: 'setupSlugTriggers', run: setupSlugTriggers },
   { name: 'setupJsonbFunctions', run: setupJsonbFunctions },
-  { name: 'seedBuiltInPublisher', run: seedBuiltInPublisher }
+  { name: 'seedBuiltInPublisher', run: seedBuiltInPublisher },
+  { name: 'ensureAuthSecret', run: ensureAuthSecret }
 ]

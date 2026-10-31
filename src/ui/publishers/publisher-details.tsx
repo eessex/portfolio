@@ -4,7 +4,7 @@ import {
 } from '@/lib/publishers/schemas/db'
 import type { Badge } from '@/lib/types'
 import { Badges } from '@/ui/badges/badges'
-import { formattedItemType } from '@/ui/util'
+import { formattedItemType } from '@/ui/format/items'
 
 const publisherTypeColors: Record<
   NonNullable<Publisher['type']>,

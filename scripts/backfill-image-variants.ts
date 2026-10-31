@@ -13,6 +13,9 @@
  * to stop and re-run: it skips images already at the current version,
  * and rewrites a partly written image's variants.
  *
+ * It also regenerates the site icon when its icon_version is older
+ * than ICON_VERSION.
+ *
  * It updates only Postgres, so cached reads keep serving through the
  * optimizer, or an older version's variants: redeploy afterwards.
  *
@@ -30,6 +33,8 @@ import sharp from 'sharp'
 
 import { VARIANT_VERSION } from '@/lib/images/util'
 import { generateImageVariants } from '@/lib/images/variants'
+import { generateSiteIcons } from '@/lib/site-settings/icons'
+import { ICON_VERSION } from '@/lib/site-settings/util'
 import { storageAdapter } from '@/lib/storage'
 import { IMAGE_PATH_PREFIX, imageKey } from '@/lib/storage/keys'
 import type { StorageAdapter } from '@/lib/storage/types'
@@ -107,6 +112,27 @@ async function main() {
       console.info(`  ${key} (${done} of ${rows.length})`)
     } catch (err) {
       failures.push(`${key}: ${(err as Error).message}`)
+    }
+  }
+
+  const staleIcons = (await sql`
+    SELECT id, icon_image_id FROM site_settings
+    WHERE icon_image_id IS NOT NULL
+      AND COALESCE(icon_version, 0) < ${ICON_VERSION}
+  `) as { id: string; icon_image_id: string }[]
+  for (const { id, icon_image_id: imageId } of staleIcons) {
+    try {
+      if (!isDryRun) {
+        await generateSiteIcons(imageId)
+        await sql`
+          UPDATE site_settings
+          SET icon_version = ${ICON_VERSION}
+          WHERE id = ${id} AND icon_image_id = ${imageId}
+        `
+      }
+      console.info(`  site icon ${imageId} → v${ICON_VERSION}`)
+    } catch (err) {
+      failures.push(`site icon ${imageId}: ${(err as Error).message}`)
     }
   }
 

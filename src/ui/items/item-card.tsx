@@ -4,6 +4,7 @@ import React from 'react'
 
 import { MOBILE_CONTENT_SIZE } from '@/lib/images/util'
 import type { PageItemClient } from '@/lib/types'
+import { formattedItemType } from '@/ui/format/items'
 import { FormattedItemDate } from '@/ui/items/item-date'
 import {
   itemCategory,
@@ -14,7 +15,7 @@ import {
   ItemTitle
 } from '@/ui/items/item-parts'
 import styles from '@/ui/items/items.module.scss'
-import { formattedItemType, itemUrl } from '@/ui/util'
+import { itemUrl } from '@/ui/routes'
 
 export function ItemCard({
   children,

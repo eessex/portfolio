@@ -164,7 +164,7 @@ describe('PressLinksPicker', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('requires display text, attribution and publish date once the url is filled', async () => {
+  it('requires a title, attribution and publish date once the url is filled', async () => {
     const user = userEvent.setup()
     render(<PressLinksPicker />)
 
@@ -184,7 +184,7 @@ describe('PressLinksPicker', () => {
     expect(required()).toEqual([true, true, true])
   })
 
-  it('renders display text outside the two-column group', async () => {
+  it('renders the title outside the two-column group', async () => {
     const user = userEvent.setup()
     render(<PressLinksPicker />)
 
@@ -193,7 +193,7 @@ describe('PressLinksPicker', () => {
     await user.tab()
 
     expect(
-      screen.getByLabelText(/display text/i).closest('.input-group')
+      screen.getByLabelText(/^title\b/i).closest('.input-group')
     ).toBeNull()
   })
 
@@ -222,10 +222,7 @@ describe('PressLinksPicker', () => {
       const [input] = visibleUrlInputs()
       await user.type(input, 'https://new-review.com')
       await user.tab()
-      await user.type(
-        screen.getByLabelText(/display text/i),
-        'Review'
-      )
+      await user.type(screen.getByLabelText(/^title\b/i), 'Review')
       await user.type(screen.getByLabelText(/attribution/i), 'Wire')
       await user.type(
         screen.getByLabelText(/publish date/i),

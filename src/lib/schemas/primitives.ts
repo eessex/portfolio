@@ -3,28 +3,30 @@ import { z } from 'zod'
 import { camelToSentence } from '@/lib/strings'
 
 /**
- * Zod's default `invalid_enum_value` message dumps every allowed option into
- * the text (unreadable for fields like `venueTimezoneSchema`'s ~28 zones).
+ * Zod's default enum message dumps every allowed option into the text
+ * (unreadable for fields like `venueTimezoneSchema`'s ~28 zones).
  * Regex failures (e.g. `slug` below) should set their own specific message
  * via `.regex(pattern, message)`, which takes priority over this map — this
  * only provides a generic fallback for any regex validator that doesn't.
+ * Returning `undefined` falls through to Zod's default message.
  */
-z.setErrorMap((issue, ctx) => {
-  if (issue.code === z.ZodIssueCode.invalid_enum_value) {
-    const key = issue.path[issue.path.length - 1]
-    const fieldName =
-      typeof key === 'string'
-        ? camelToSentence(key).toLowerCase()
-        : 'field'
-    return { message: `Please select a valid ${fieldName} option.` }
+z.config({
+  customError: (issue) => {
+    // v3's wording, which forms and tests rely on
+    if (issue.input === undefined) return 'Required'
+    if (issue.code === 'invalid_value') {
+      const key = issue.path?.[issue.path.length - 1]
+      const fieldName =
+        typeof key === 'string'
+          ? camelToSentence(key).toLowerCase()
+          : 'field'
+      return `Please select a valid ${fieldName} option.`
+    }
+    if (issue.code === 'invalid_format' && issue.format === 'regex') {
+      return 'Invalid format.'
+    }
+    return undefined
   }
-  if (
-    issue.code === z.ZodIssueCode.invalid_string &&
-    issue.validation === 'regex'
-  ) {
-    return { message: 'Invalid format.' }
-  }
-  return { message: ctx.defaultError }
 })
 
 export const MAX_STRING_LENGTH_LONG = 5000

@@ -14,6 +14,7 @@ export function ItemResultLabel({
   details,
   badges = [],
   coverImage,
+  isThumbnailSquare,
   thumbnail,
   extraActions,
   onRemove,
@@ -25,6 +26,7 @@ export function ItemResultLabel({
   details?: React.ReactNode
   badges?: Badge[]
   coverImage?: ThumbnailImage
+  isThumbnailSquare?: boolean
   /**
    * pre-rendered thumbnail, taking `coverImage` slot's position.
    * next/image cannot render a file input preview.
@@ -38,7 +40,12 @@ export function ItemResultLabel({
   return (
     <div className={styles['row']}>
       {thumbnail ??
-        (coverImage && <CoverImageThumbnail image={coverImage} />)}
+        (coverImage && (
+          <CoverImageThumbnail
+            image={coverImage}
+            isSquare={isThumbnailSquare}
+          />
+        ))}
       <div className={styles['container']}>
         <span className={styles['title']}>
           <span className={styles['title-text']}>{title}</span>

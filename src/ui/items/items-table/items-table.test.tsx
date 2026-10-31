@@ -32,7 +32,7 @@ import { EmbeddedItemTypes, PagePaths } from '@/lib/schemas'
 import type { ResponseWithCursor } from '@/lib/util'
 import { formattedEmbedCodeTitle } from '@/ui/embed-codes/embed-code-details'
 import { ItemsTable } from '@/ui/items/items-table/items-table'
-import { resetIsAdminCache } from '@/ui/useIsAdmin'
+import { resetIsAdminCache } from '@/ui/use-is-admin'
 
 const draftEvent: EventClient = {
   ...eventFixturePast,

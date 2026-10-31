@@ -36,28 +36,29 @@ export function syncIsAdmin(isAdmin: boolean) {
  * for anonymous visitors. UX only — never a security boundary: the
  * data API routes gate drafts on the session cookie server-side.
  */
-export function useIsAdmin(enabled = true) {
+export function useIsAdmin(isEnabled = true) {
   const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-    if (!enabled) return
+    if (!isEnabled) return
 
-    let cancelled = false
+    let isCancelled = false
     const promise = fetchIsAdmin()
 
     promise.then((value) => {
       // a later sync supersedes this answer
-      if (!cancelled && promise === isAdminPromise) setIsAdmin(value)
+      if (!isCancelled && promise === isAdminPromise)
+        setIsAdmin(value)
     })
     listeners.add(setIsAdmin)
 
     return () => {
-      cancelled = true
+      isCancelled = true
       listeners.delete(setIsAdmin)
     }
-  }, [enabled])
+  }, [isEnabled])
 
-  return enabled && isAdmin
+  return isEnabled && isAdmin
 }
 
 /** Test-only: clear the shared session result between tests */

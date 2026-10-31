@@ -1,0 +1,5 @@
+@use '@/ui/styles/gutter-header';
+
+.edit-page {
+  @include gutter-header.gutter-header;
+}

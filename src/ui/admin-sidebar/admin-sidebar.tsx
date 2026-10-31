@@ -9,7 +9,7 @@ import { CreateItemFromPathnameButton } from '@/ui/buttons/create-item-button'
 import { EditButton } from '@/ui/buttons/edit-button'
 import { LogoutButton } from '@/ui/buttons/logout-button'
 import { IsAdminSync } from '@/ui/is-admin-sync'
-import { dashboardUrl } from '@/ui/util'
+import { dashboardUrl } from '@/ui/routes'
 
 const links = ['dashboard' as const, ...dashboardItemTypes]
 

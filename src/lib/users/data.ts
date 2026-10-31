@@ -17,6 +17,39 @@ export async function fetchUserByEmail(
   }
 }
 
+/**
+ * Stamps a successful login and returns the session version the new
+ * session carries.
+ */
+export async function recordLogin(id: string): Promise<number> {
+  try {
+    const rows = await sql`
+      UPDATE users SET last_login_at = now()
+      WHERE id = ${id}
+      RETURNING session_version
+    `
+    return (rows[0]?.session_version as number) ?? 0
+  } catch (cause) {
+    throw new Error('Failed to record login.', { cause })
+  }
+}
+
+/** `null` when the user no longer exists. */
+export async function fetchSessionVersion(
+  id: string
+): Promise<number | null> {
+  try {
+    const rows = await sql`
+      SELECT session_version FROM users
+      WHERE id = ${id}
+      LIMIT 1
+    `
+    return rows[0] ? (rows[0].session_version as number) : null
+  } catch (cause) {
+    throw new Error('Failed to fetch session version.', { cause })
+  }
+}
+
 export async function countUsers(): Promise<number> {
   try {
     const rows = await sql`SELECT count(*)::int AS count FROM users`

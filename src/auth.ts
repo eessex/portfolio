@@ -13,7 +13,10 @@ import {
   registerLoginAttempt
 } from '@/lib/auth/rate-limit'
 import { authSecret } from '@/lib/auth/secret'
-import { checkSessionVersion } from '@/lib/auth/session-version'
+import {
+  checkSessionVersion,
+  withUserId
+} from '@/lib/auth/session-version'
 import { fetchUserByEmail, recordLogin } from '@/lib/users/data'
 
 const CredentialsSchema = z.object({
@@ -73,7 +76,8 @@ const config = {
   ],
   callbacks: {
     ...authConfig.callbacks,
-    jwt: checkSessionVersion
+    jwt: checkSessionVersion,
+    session: withUserId
   }
 } satisfies NextAuthConfig
 

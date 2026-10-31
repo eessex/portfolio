@@ -10,6 +10,52 @@ import { email, shortText } from '@/lib/schemas/primitives'
 export const userTokenPurposes = ['invite', 'reset'] as const
 export const userTokenPurposeSchema = z.enum(userTokenPurposes)
 
+/** NIST SP 800-63B rev. 4 for single-factor passwords */
+export const MIN_PASSWORD_LENGTH = 15
+export const MAX_PASSWORD_LENGTH = 64
+
+/** A password being set; login still accepts older 8+ ones. */
+export const newPassword = z
+  .string()
+  .min(
+    MIN_PASSWORD_LENGTH,
+    `Use at least ${MIN_PASSWORD_LENGTH} characters.`
+  )
+  .max(
+    MAX_PASSWORD_LENGTH,
+    `Use at most ${MAX_PASSWORD_LENGTH} characters.`
+  )
+
+const currentPassword = z.string({
+  error: 'Enter your current password.'
+})
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword,
+    newPassword,
+    confirmPassword: z.string({
+      error: 'Confirm your new password.'
+    })
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Passwords must match.',
+    path: ['confirmPassword']
+  })
+  .refine((data) => data.newPassword !== data.currentPassword, {
+    message: 'Choose a password different from your current one.',
+    path: ['newPassword']
+  })
+
+export const changeEmailSchema = z.object({
+  currentPassword,
+  email
+})
+
+export const changeNameSchema = z.object({
+  name: shortText.min(1)
+})
+
 /**
  * User represents an admin user who can log into the CMS.
  */

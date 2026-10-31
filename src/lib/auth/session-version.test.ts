@@ -2,7 +2,10 @@ jest.mock('@/lib/users/data', () => ({
   fetchSessionVersion: jest.fn()
 }))
 
-import { checkSessionVersion } from '@/lib/auth/session-version'
+import {
+  checkSessionVersion,
+  withUserId
+} from '@/lib/auth/session-version'
 import { fetchSessionVersion } from '@/lib/users/data'
 
 const mockFetchSessionVersion = jest.mocked(fetchSessionVersion)
@@ -69,5 +72,16 @@ describe('#checkSessionVersion', () => {
     const token = { sub: userId, sessionVersion: 0 }
 
     expect(await checkSessionVersion({ token })).toBe(token)
+  })
+})
+
+describe('#withUserId', () => {
+  it("adds the token's user id to the session", () => {
+    const session = withUserId({
+      session: { user: { name: 'Ada' }, expires: '2030-01-01' },
+      token: { sub: userId }
+    })
+
+    expect(session.user?.id).toBe(userId)
   })
 })

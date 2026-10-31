@@ -15,3 +15,11 @@
     margin-bottom: grids.space-rem(4);
   }
 }
+
+.dashboard-section {
+  margin-top: grids.space-rem(8);
+
+  > h2 {
+    padding: var(--items-list-padding);
+  }
+}

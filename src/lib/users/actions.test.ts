@@ -1,4 +1,7 @@
-import { signIn } from '@/auth'
+import bcrypt from 'bcrypt'
+
+import { auth, signIn } from '@/auth'
+import { isPasswordBreached } from '@/lib/auth/breached-password'
 import {
   clearFailedLogins,
   getClientIp,
@@ -7,9 +10,20 @@ import {
 } from '@/lib/auth/rate-limit'
 import { hashSetupCode } from '@/lib/auth/setup-code'
 import { verifySetupCode } from '@/lib/auth/setup-code-check'
-import { authenticate, completeSetup } from '@/lib/users/actions'
+import {
+  authenticate,
+  changeEmail,
+  changeName,
+  changePassword,
+  completeSetup
+} from '@/lib/users/actions'
 import { createFirstUser } from '@/lib/users/create'
-import { hasUsers } from '@/lib/users/data'
+import { fetchUserById, hasUsers } from '@/lib/users/data'
+import {
+  updateUserEmail,
+  updateUserName,
+  updateUserPassword
+} from '@/lib/users/update'
 import { formDataFromObject } from '@/test/helpers'
 
 // signIn is a jest.fn() via the global @/auth mock in jest.setup.ts
@@ -34,7 +48,16 @@ jest.mock('@/lib/auth/setup-code-check', () => ({
   verifySetupCode: jest.fn().mockResolvedValue('valid')
 }))
 jest.mock('@/lib/users/data', () => ({
-  hasUsers: jest.fn().mockResolvedValue(false)
+  hasUsers: jest.fn().mockResolvedValue(false),
+  fetchUserById: jest.fn()
+}))
+jest.mock('@/lib/users/update', () => ({
+  updateUserEmail: jest.fn().mockResolvedValue(true),
+  updateUserName: jest.fn(),
+  updateUserPassword: jest.fn()
+}))
+jest.mock('@/lib/auth/breached-password', () => ({
+  isPasswordBreached: jest.fn().mockResolvedValue(false)
 }))
 jest.mock('@/lib/users/create', () => ({
   createFirstUser: jest.fn().mockResolvedValue(true)
@@ -358,6 +381,249 @@ describe('completeSetup', () => {
       ok: false,
       message:
         'Account created! Automatic sign-in failed — please log in at /login.'
+    })
+  })
+})
+
+describe('account actions', () => {
+  const mockAuth = auth as unknown as jest.Mock
+  const mockFetchUserById = jest.mocked(fetchUserById)
+  const mockIsPasswordBreached = jest.mocked(isPasswordBreached)
+  const mockUpdateUserPassword = jest.mocked(updateUserPassword)
+  const mockUpdateUserEmail = jest.mocked(updateUserEmail)
+  const mockUpdateUserName = jest.mocked(updateUserName)
+
+  const currentPassword = 'current-password'
+  const newPassword = 'a long enough new passphrase'
+  const user = {
+    id: '11111111-1111-1111-1111-111111111111',
+    name: 'Ada Lovelace',
+    email: 'ada@example.com',
+    password: bcrypt.hashSync(currentPassword, 4),
+    createdAt: new Date('2024-01-01')
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockAuth.mockResolvedValue({
+      user: { id: user.id, name: user.name, email: user.email }
+    })
+    mockFetchUserById.mockResolvedValue(user)
+  })
+
+  afterAll(() => {
+    mockAuth.mockResolvedValue({
+      user: { name: 'Test User', email: 'test@example.com' }
+    })
+  })
+
+  describe('changePassword', () => {
+    const fields = {
+      currentPassword,
+      newPassword,
+      confirmPassword: newPassword
+    }
+
+    it('saves the new password and signs this device back in', async () => {
+      const res = await changePassword(formDataFromObject(fields))
+
+      expect(res).toEqual({ ok: true })
+      expect(mockUpdateUserPassword).toHaveBeenCalledWith(
+        user.id,
+        newPassword
+      )
+      expect(mockSignIn).toHaveBeenCalledWith('credentials', {
+        email: user.email,
+        password: newPassword,
+        redirect: false
+      })
+      expect(mockClearFailedLogins).toHaveBeenCalledWith(user.email)
+    })
+
+    it('refuses without a session', async () => {
+      mockAuth.mockResolvedValue(null)
+
+      const res = await changePassword(formDataFromObject(fields))
+
+      expect(res?.ok).toBe(false)
+      expect(mockUpdateUserPassword).not.toHaveBeenCalled()
+    })
+
+    it('rejects a wrong current password', async () => {
+      const res = await changePassword(
+        formDataFromObject({ ...fields, currentPassword: 'wrong' })
+      )
+
+      expect(res?.errors).toEqual({
+        currentPassword: ['Incorrect password.']
+      })
+      expect(mockClearFailedLogins).not.toHaveBeenCalled()
+      expect(mockUpdateUserPassword).not.toHaveBeenCalled()
+    })
+
+    it('is throttled with login', async () => {
+      mockRegisterLoginAttempt.mockResolvedValueOnce(8)
+
+      const res = await changePassword(formDataFromObject(fields))
+
+      expect(res?.message).toMatch(/too many attempts/i)
+      expect(mockRegisterLoginAttempt).toHaveBeenCalledWith(
+        user.email
+      )
+      expect(mockUpdateUserPassword).not.toHaveBeenCalled()
+    })
+
+    it('rejects a short new password', async () => {
+      const res = await changePassword(
+        formDataFromObject({
+          ...fields,
+          newPassword: 'too-short',
+          confirmPassword: 'too-short'
+        })
+      )
+
+      expect(res?.errors).toHaveProperty('newPassword')
+      expect(mockUpdateUserPassword).not.toHaveBeenCalled()
+    })
+
+    it('rejects mismatched confirmation', async () => {
+      const res = await changePassword(
+        formDataFromObject({
+          ...fields,
+          confirmPassword: 'different'
+        })
+      )
+
+      expect(res?.errors).toHaveProperty('confirmPassword')
+    })
+
+    it('rejects reusing the current password', async () => {
+      const reused = 'the very same passphrase'
+      mockFetchUserById.mockResolvedValue({
+        ...user,
+        password: bcrypt.hashSync(reused, 4)
+      })
+
+      const res = await changePassword(
+        formDataFromObject({
+          currentPassword: reused,
+          newPassword: reused,
+          confirmPassword: reused
+        })
+      )
+
+      expect(res?.errors).toHaveProperty('newPassword')
+      expect(mockUpdateUserPassword).not.toHaveBeenCalled()
+    })
+
+    it('rejects a breached password', async () => {
+      mockIsPasswordBreached.mockResolvedValueOnce(true)
+
+      const res = await changePassword(formDataFromObject(fields))
+
+      expect(res?.errors).toHaveProperty('newPassword')
+      expect(mockUpdateUserPassword).not.toHaveBeenCalled()
+    })
+
+    it('returns a form error when the save fails', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {})
+      mockUpdateUserPassword.mockRejectedValueOnce(new Error('db'))
+
+      const res = await changePassword(formDataFromObject(fields))
+
+      expect(res).toEqual({
+        ok: false,
+        message: 'Something went wrong — please try again.'
+      })
+      expect(mockSignIn).not.toHaveBeenCalled()
+    })
+
+    it('says so when signing back in fails', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {})
+      mockSignIn.mockRejectedValueOnce(new Error('sign-in failed'))
+
+      const res = await changePassword(formDataFromObject(fields))
+
+      expect(res?.message).toMatch(/log in again/)
+      expect(mockUpdateUserPassword).toHaveBeenCalled()
+    })
+  })
+
+  describe('changeEmail', () => {
+    const fields = { currentPassword, email: 'new@example.com' }
+
+    it('saves the new email and signs this device back in', async () => {
+      const res = await changeEmail(formDataFromObject(fields))
+
+      expect(res).toEqual({ ok: true })
+      expect(mockUpdateUserEmail).toHaveBeenCalledWith(
+        user.id,
+        'new@example.com'
+      )
+      expect(mockSignIn).toHaveBeenCalledWith('credentials', {
+        email: 'new@example.com',
+        password: currentPassword,
+        redirect: false
+      })
+    })
+
+    it('rejects a wrong current password', async () => {
+      const res = await changeEmail(
+        formDataFromObject({ ...fields, currentPassword: 'wrong' })
+      )
+
+      expect(res?.errors).toHaveProperty('currentPassword')
+      expect(mockUpdateUserEmail).not.toHaveBeenCalled()
+    })
+
+    it('rejects an email another account uses', async () => {
+      mockUpdateUserEmail.mockResolvedValueOnce(false)
+
+      const res = await changeEmail(formDataFromObject(fields))
+
+      expect(res?.errors).toEqual({
+        email: ['Another account already uses this email.']
+      })
+      expect(mockSignIn).not.toHaveBeenCalled()
+    })
+
+    it('rejects an unchanged email instead of reporting success', async () => {
+      const res = await changeEmail(
+        formDataFromObject({
+          currentPassword: 'wrong',
+          email: user.email
+        })
+      )
+
+      expect(res).toEqual({
+        ok: false,
+        message: 'Failed to validate email.',
+        errors: { email: ['This is already your email.'] }
+      })
+      expect(mockUpdateUserEmail).not.toHaveBeenCalled()
+      expect(mockSignIn).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('changeName', () => {
+    it('saves the name without ending sessions', async () => {
+      const res = await changeName(
+        formDataFromObject({ name: 'Augusta Ada King' })
+      )
+
+      expect(res).toEqual({ ok: true })
+      expect(mockUpdateUserName).toHaveBeenCalledWith(
+        user.id,
+        'Augusta Ada King'
+      )
+      expect(mockSignIn).not.toHaveBeenCalled()
+    })
+
+    it('rejects a blank name', async () => {
+      const res = await changeName(formDataFromObject({ name: '' }))
+
+      expect(res?.errors).toHaveProperty('name')
+      expect(mockUpdateUserName).not.toHaveBeenCalled()
     })
   })
 })

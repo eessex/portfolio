@@ -83,10 +83,6 @@ function EmailFields({ email }: { email: string }) {
 
 function PasswordFields() {
   const errors = useFormErrors()
-  const lengths = {
-    minLength: MIN_PASSWORD_LENGTH,
-    maxLength: MAX_PASSWORD_LENGTH
-  }
 
   return (
     <>
@@ -100,7 +96,9 @@ function PasswordFields() {
           name: 'newPassword',
           required: true,
           autoComplete: 'new-password',
-          ...lengths
+          // No maxLength: it counts UTF-16 units, so it'd block
+          // emoji passwords the server accepts
+          minLength: MIN_PASSWORD_LENGTH
         }}
       />
       <Input
@@ -111,7 +109,7 @@ function PasswordFields() {
           name: 'confirmPassword',
           required: true,
           autoComplete: 'new-password',
-          ...lengths
+          minLength: MIN_PASSWORD_LENGTH
         }}
       />
     </>

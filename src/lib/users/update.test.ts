@@ -22,9 +22,11 @@ describe('#updateUserPassword', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('stores a hash and bumps the session version', async () => {
-    mockSql.mockResolvedValue([])
+    mockSql.mockResolvedValue([{ id }])
 
-    await updateUserPassword(id, 'a long enough new passphrase')
+    expect(
+      await updateUserPassword(id, 'a long enough new passphrase', 2)
+    ).toBe(true)
 
     const hashed = mockSql.mock.calls[0]?.[1] as string
     expect(
@@ -34,14 +36,24 @@ describe('#updateUserPassword', () => {
       'session_version = session_version + 1'
     )
     expect(mockSql.mock.calls[0]?.[2]).toBe(id)
+    expect(mockSql.mock.calls[0]?.[3]).toBe(2)
+  })
+
+  it('writes nothing when the account changed since the check', async () => {
+    mockSql.mockResolvedValue([])
+
+    expect(
+      await updateUserPassword(id, 'a long enough new passphrase', 2)
+    ).toBe(false)
+    expect(queryText()).toContain('AND session_version = ')
   })
 
   it('throws on DB error', async () => {
     mockSql.mockRejectedValue(new Error('db exploded'))
 
-    await expect(updateUserPassword(id, 'whatever')).rejects.toThrow(
-      'Failed to update password.'
-    )
+    await expect(
+      updateUserPassword(id, 'whatever', 0)
+    ).rejects.toThrow('Failed to update password.')
   })
 })
 
@@ -49,17 +61,28 @@ describe('#updateUserEmail', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('saves the email and bumps the session version', async () => {
-    mockSql.mockResolvedValue([])
+    mockSql.mockResolvedValue([{ id }])
 
-    expect(await updateUserEmail(id, 'new@example.com')).toBe(true)
+    expect(await updateUserEmail(id, 'new@example.com', 2)).toBe(
+      'updated'
+    )
     expect(queryText()).toContain(
       'session_version = session_version + 1'
     )
     expect(mockSql.mock.calls[0]?.[1]).toBe('new@example.com')
+    expect(mockSql.mock.calls[0]?.[3]).toBe(2)
+  })
+
+  it('writes nothing when the account changed since the check', async () => {
+    mockSql.mockResolvedValue([])
+
+    expect(await updateUserEmail(id, 'new@example.com', 2)).toBe(
+      'stale'
+    )
   })
 
   it.each(['idx_users_email', 'users_email_key'])(
-    'returns false when the email is taken (%s)',
+    'returns taken when the email is taken (%s)',
     async (constraint) => {
       mockSql.mockRejectedValue(
         Object.assign(new Error('duplicate key'), {
@@ -68,8 +91,8 @@ describe('#updateUserEmail', () => {
         })
       )
 
-      expect(await updateUserEmail(id, 'taken@example.com')).toBe(
-        false
+      expect(await updateUserEmail(id, 'taken@example.com', 0)).toBe(
+        'taken'
       )
     }
   )
@@ -78,7 +101,7 @@ describe('#updateUserEmail', () => {
     mockSql.mockRejectedValue(new Error('db exploded'))
 
     await expect(
-      updateUserEmail(id, 'new@example.com')
+      updateUserEmail(id, 'new@example.com', 0)
     ).rejects.toThrow('Failed to update email.')
   })
 })

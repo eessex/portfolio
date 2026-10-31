@@ -57,20 +57,27 @@ describe('#recordLogin', () => {
     jest.clearAllMocks()
   })
 
-  it('stamps last_login_at and returns the session version', async () => {
-    mockSql.mockResolvedValue([{ session_version: 2 }])
+  it('stamps last_login_at while the version still matches', async () => {
+    mockSql.mockResolvedValue([{ id: userRow.id }])
 
-    expect(await recordLogin(userRow.id)).toBe(2)
-    expect(mockSql.mock.calls[0]?.[0].join('')).toContain(
-      'last_login_at = now()'
-    )
+    expect(await recordLogin(userRow.id, 2)).toBe(true)
+    const query = mockSql.mock.calls[0]?.[0].join('')
+    expect(query).toContain('last_login_at = now()')
+    expect(query).toContain('AND session_version = ')
     expect(mockSql.mock.calls[0]?.[1]).toBe(userRow.id)
+    expect(mockSql.mock.calls[0]?.[2]).toBe(2)
+  })
+
+  it('records nothing when the account changed mid-login', async () => {
+    mockSql.mockResolvedValue([])
+
+    expect(await recordLogin(userRow.id, 2)).toBe(false)
   })
 
   it('throws on DB error', async () => {
     mockSql.mockRejectedValue(new Error('db exploded'))
 
-    await expect(recordLogin(userRow.id)).rejects.toThrow(
+    await expect(recordLogin(userRow.id, 0)).rejects.toThrow(
       'Failed to record login.'
     )
   })

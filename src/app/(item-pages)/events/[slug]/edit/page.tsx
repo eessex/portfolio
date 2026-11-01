@@ -5,13 +5,13 @@ import {
   editItemTitle,
   generateEditItemMetadata
 } from '@/app/(item-pages)/edit-item-metadata'
-import { EditPageLayout } from '@/app/(item-pages)/edit-page-layout'
 import { resolveEditItemId } from '@/app/(item-pages)/resolve-page-item'
 import { fetchCachedEventById } from '@/lib/events/cached'
 import { fetchEventById } from '@/lib/events/data'
 import { PagePaths } from '@/lib/schemas'
 import type { PageItemProps } from '@/lib/types'
 import { EditEventForm } from '@/ui/events/edit-event-form'
+import { FormPageLayout } from '@/ui/form/form-page-layout'
 import { Loading } from '@/ui/loading'
 
 const title = 'Edit Event'
@@ -29,9 +29,9 @@ export default function EditEventPage({ params }: PageItemProps) {
   return (
     <Suspense
       fallback={
-        <EditPageLayout title={title}>
+        <FormPageLayout title={title}>
           <Loading />
-        </EditPageLayout>
+        </FormPageLayout>
       }
     >
       <EditEvent params={params} />
@@ -48,8 +48,8 @@ async function EditEvent({ params }: PageItemProps) {
   if (!event) return notFound()
 
   return (
-    <EditPageLayout title={editItemTitle(title, event)}>
+    <FormPageLayout title={editItemTitle(title, event)}>
       <EditEventForm event={event} />
-    </EditPageLayout>
+    </FormPageLayout>
   )
 }

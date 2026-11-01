@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react'
 
-import { EditPageLayout } from '@/app/(item-pages)/edit-page-layout'
+import { FormPageLayout } from '@/ui/form/form-page-layout'
 
-describe('EditPageLayout', () => {
+describe('FormPageLayout', () => {
   it('heads the page with its title, above the form', () => {
     render(
-      <EditPageLayout title='Edit Event'>
+      <FormPageLayout title='Edit Event'>
         <form aria-label='Event' />
-      </EditPageLayout>
+      </FormPageLayout>
     )
 
     const article = screen.getByRole('article')
@@ -21,11 +21,11 @@ describe('EditPageLayout', () => {
 
   it('uses the minimal, gutter header layout', () => {
     render(
-      <EditPageLayout title='New Release'>
+      <FormPageLayout title='New Release'>
         <form />
-      </EditPageLayout>
+      </FormPageLayout>
     )
 
-    expect(screen.getByRole('article')).toHaveClass('edit-page')
+    expect(screen.getByRole('article')).toHaveClass('form-page')
   })
 })

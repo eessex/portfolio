@@ -5,12 +5,12 @@ import {
   editItemTitle,
   generateEditItemMetadata
 } from '@/app/(item-pages)/edit-item-metadata'
-import { EditPageLayout } from '@/app/(item-pages)/edit-page-layout'
 import { resolveEditItemId } from '@/app/(item-pages)/resolve-page-item'
 import { fetchCachedReleaseById } from '@/lib/releases/cached'
 import { fetchReleaseById } from '@/lib/releases/data'
 import { PagePaths } from '@/lib/schemas'
 import type { PageItemProps } from '@/lib/types'
+import { FormPageLayout } from '@/ui/form/form-page-layout'
 import { Loading } from '@/ui/loading'
 import { EditReleaseForm } from '@/ui/releases/edit-release-form'
 
@@ -29,9 +29,9 @@ export default function EditReleasePage({ params }: PageItemProps) {
   return (
     <Suspense
       fallback={
-        <EditPageLayout title={title}>
+        <FormPageLayout title={title}>
           <Loading />
-        </EditPageLayout>
+        </FormPageLayout>
       }
     >
       <EditRelease params={params} />
@@ -48,8 +48,8 @@ async function EditRelease({ params }: PageItemProps) {
   if (!release) return notFound()
 
   return (
-    <EditPageLayout title={editItemTitle(title, release)}>
+    <FormPageLayout title={editItemTitle(title, release)}>
       <EditReleaseForm release={release} />
-    </EditPageLayout>
+    </FormPageLayout>
   )
 }

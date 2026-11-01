@@ -5,12 +5,12 @@ import {
   editItemTitle,
   generateEditItemMetadata
 } from '@/app/(item-pages)/edit-item-metadata'
-import { EditPageLayout } from '@/app/(item-pages)/edit-page-layout'
 import { resolveEditItemId } from '@/app/(item-pages)/resolve-page-item'
 import { fetchCachedProjectById } from '@/lib/projects/cached'
 import { fetchProjectById } from '@/lib/projects/data'
 import { PagePaths } from '@/lib/schemas'
 import type { PageItemProps } from '@/lib/types'
+import { FormPageLayout } from '@/ui/form/form-page-layout'
 import { Loading } from '@/ui/loading'
 import { EditProjectForm } from '@/ui/projects/edit-project-form'
 import { itemEditUrl } from '@/ui/routes'
@@ -30,9 +30,9 @@ export default function EditProjectPage({ params }: PageItemProps) {
   return (
     <Suspense
       fallback={
-        <EditPageLayout title={title}>
+        <FormPageLayout title={title}>
           <Loading />
-        </EditPageLayout>
+        </FormPageLayout>
       }
     >
       <EditProject params={params} />
@@ -50,8 +50,8 @@ async function EditProject({ params }: PageItemProps) {
   if (project.isDefaultProject) redirect(itemEditUrl(project))
 
   return (
-    <EditPageLayout title={editItemTitle(title, project)}>
+    <FormPageLayout title={editItemTitle(title, project)}>
       <EditProjectForm project={project} />
-    </EditPageLayout>
+    </FormPageLayout>
   )
 }

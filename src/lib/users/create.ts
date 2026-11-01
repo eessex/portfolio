@@ -1,18 +1,15 @@
 // Deliberately NOT a server action ('use server' would expose this as
-// a public endpoint). User creation is only available to server-side
-// scripts — currently scripts/setup.ts.
-import bcrypt from 'bcrypt'
-
+// a public endpoint). Accounts are created only by the actions in
+// actions.ts, after their own checks: completeSetup and acceptInvite.
+import { hashSecret } from '@/lib/auth/hash-secret'
 import { sql } from '@/lib/db'
-
-const SALT_ROUNDS = 10
 
 export async function createUser(input: {
   name: string
   email: string
   password: string
 }): Promise<void> {
-  const password = await bcrypt.hash(input.password, SALT_ROUNDS)
+  const password = await hashSecret(input.password)
   try {
     await sql`
       INSERT INTO users (name, email, password)
@@ -44,10 +41,7 @@ export async function createFirstUser(input: {
   codeHash: string
   recoveryCodeHashes: string[]
 }): Promise<boolean> {
-  const hashedPassword = await bcrypt.hash(
-    input.password,
-    SALT_ROUNDS
-  )
+  const hashedPassword = await hashSecret(input.password)
   try {
     const rows = await sql`
       WITH consumed AS (
@@ -72,5 +66,46 @@ export async function createFirstUser(input: {
     return rows.length > 0
   } catch (cause) {
     throw new Error('Failed to create first user.', { cause })
+  }
+}
+
+// One statement, so a link can't create two admins; a taken email
+// fails all of it and leaves the link unspent
+export async function createInvitedUser(input: {
+  name: string
+  email: string
+  password: string
+  tokenHash: string
+  recoveryCodeHashes: string[]
+}): Promise<'created' | 'invalid' | 'taken'> {
+  const hashedPassword = await hashSecret(input.password)
+  try {
+    const rows = await sql`
+      WITH consumed AS (
+        UPDATE user_tokens SET used_at = now()
+        WHERE token_hash = ${input.tokenHash}
+          AND purpose = 'invite'
+          AND used_at IS NULL
+          AND expires_at > now()
+        RETURNING id
+      ), created AS (
+        INSERT INTO users (name, email, password)
+        SELECT ${input.name}, ${input.email}, ${hashedPassword}
+        WHERE EXISTS (SELECT 1 FROM consumed)
+        RETURNING id
+      ), codes AS (
+        INSERT INTO user_recovery_codes (user_id, code_hash)
+        SELECT created.id, hash
+        FROM created, unnest(${input.recoveryCodeHashes}::text[]) AS hash
+      )
+      SELECT id FROM created
+    `
+    return rows.length > 0 ? 'created' : 'invalid'
+  } catch (cause) {
+    // unique_violation on email (any case), as in updateUserEmail
+    if ((cause as { code?: string } | undefined)?.code === '23505') {
+      return 'taken'
+    }
+    throw new Error('Failed to create invited user.', { cause })
   }
 }

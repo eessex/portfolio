@@ -29,6 +29,9 @@ describe('AdminSidebar', () => {
     const { container } = render(await AdminSidebar())
 
     expect(container.querySelector('.admin-sidebar')).not.toBeNull()
+    expect(
+      container.querySelector('a[href="/dashboard/users"]')
+    ).toHaveTextContent('Users')
     expect(jest.mocked(IsAdminSync).mock.calls[0]?.[0]).toEqual({
       isAdmin: true
     })

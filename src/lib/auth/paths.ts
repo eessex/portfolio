@@ -17,8 +17,15 @@ export const unauthedPathPatterns = [
   /^\/forgot-password$/
 ]
 
+// One-time links work signed in or out (e.g. an admin opening a reset
+// link someone sent them); token in the fragment, never logged
+export const linkPathPatterns = [/^\/invite$/, /^\/reset-password$/]
+
 export const isAuthedPath = (pathname: string) =>
   authedPathPatterns.some((pattern) => pattern.test(pathname))
 
 export const isUnauthedPath = (pathname: string) =>
   unauthedPathPatterns.some((pattern) => pattern.test(pathname))
+
+export const isLinkPath = (pathname: string) =>
+  linkPathPatterns.some((pattern) => pattern.test(pathname))

@@ -116,8 +116,11 @@ GitHub page — Vercel deploys it automatically.
   has what's needed to figure out what happened.
 - **You forgot your password.** On the login page, click "Forgot
   password?" and enter your email, one of your recovery codes and a new
-  password. If you've lost your codes too, open a GitHub issue and we'll
-  help you get back in.
+  password. If you've lost your codes too, ask another admin to open
+  Dashboard → Users and send you a reset link. With no other admin,
+  open a GitHub issue and we'll help you get back in. Adding a second
+  admin (Dashboard → Users → Create invite link) is the simplest
+  safety net.
 - **Images aren't uploading.** Double check Storage → your Blob store is
   still connected (Settings → Environment Variables should show
   `BLOB_READ_WRITE_TOKEN`), then redeploy.

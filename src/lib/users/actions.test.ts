@@ -15,16 +15,26 @@ import {
 } from '@/lib/auth/recovery-codes'
 import { hashSetupCode } from '@/lib/auth/setup-code'
 import { verifySetupCode } from '@/lib/auth/setup-code-check'
+import { hashUserToken } from '@/lib/auth/user-token'
 import {
+  acceptInvite,
   authenticate,
   changeEmail,
   changeName,
   changePassword,
   completeSetup,
+  createResetLink,
+  inviteUser,
   recoverAccount,
-  regenerateRecoveryCodes
+  regenerateRecoveryCodes,
+  removeUser,
+  resetPasswordWithLink,
+  revokeInvite
 } from '@/lib/users/actions'
-import { createFirstUser } from '@/lib/users/create'
+import {
+  createFirstUser,
+  createInvitedUser
+} from '@/lib/users/create'
 import { fetchUserById, hasUsers } from '@/lib/users/data'
 import {
   fetchUnusedRecoveryCodesByEmail,
@@ -32,6 +42,14 @@ import {
   resetPasswordWithRecoveryCode
 } from '@/lib/users/recovery-codes'
 import {
+  createInviteToken,
+  createResetToken,
+  deleteInvite,
+  isUserTokenLive,
+  resetPasswordWithToken
+} from '@/lib/users/tokens'
+import {
+  deleteUser,
   updateUserEmail,
   updateUserName,
   updateUserPassword
@@ -65,6 +83,7 @@ jest.mock('@/lib/users/data', () => ({
   fetchUserById: jest.fn()
 }))
 jest.mock('@/lib/users/update', () => ({
+  deleteUser: jest.fn().mockResolvedValue('deleted'),
   updateUserEmail: jest.fn().mockResolvedValue('updated'),
   updateUserName: jest.fn(),
   updateUserPassword: jest.fn().mockResolvedValue(true)
@@ -73,7 +92,15 @@ jest.mock('@/lib/auth/breached-password', () => ({
   isPasswordBreached: jest.fn().mockResolvedValue(false)
 }))
 jest.mock('@/lib/users/create', () => ({
-  createFirstUser: jest.fn().mockResolvedValue(true)
+  createFirstUser: jest.fn().mockResolvedValue(true),
+  createInvitedUser: jest.fn().mockResolvedValue('created')
+}))
+jest.mock('@/lib/users/tokens', () => ({
+  createInviteToken: jest.fn(),
+  createResetToken: jest.fn(),
+  deleteInvite: jest.fn().mockResolvedValue(true),
+  isUserTokenLive: jest.fn().mockResolvedValue(true),
+  resetPasswordWithToken: jest.fn()
 }))
 const recoveryCodeSet = {
   codes: ['AAAAA-AAAAA', 'BBBBB-BBBBB'],
@@ -1045,6 +1072,495 @@ describe('account actions', () => {
         ok: false,
         message: 'Something went wrong — please try again.'
       })
+    })
+  })
+})
+
+describe('Users page actions', () => {
+  const mockAuth = auth as unknown as jest.Mock
+  const mockFetchUserById = jest.mocked(fetchUserById)
+  const mockCreateInviteToken = jest.mocked(createInviteToken)
+  const mockCreateResetToken = jest.mocked(createResetToken)
+  const mockDeleteUser = jest.mocked(deleteUser)
+  const mockDeleteInvite = jest.mocked(deleteInvite)
+
+  const currentPassword = 'current-password'
+  const admin = {
+    id: '11111111-1111-4111-8111-111111111111',
+    name: 'Ada Lovelace',
+    email: 'ada@example.com',
+    password: bcrypt.hashSync(currentPassword, 4),
+    session_version: 2
+  }
+  const otherId = '22222222-2222-4222-8222-222222222222'
+  const expiresAt = new Date('2026-11-04T12:00:00.000Z')
+  const wrongPassword = {
+    ok: false,
+    message: 'Failed to verify your password.',
+    errors: { currentPassword: ['Incorrect password.'] }
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockAuth.mockResolvedValue({
+      user: { id: admin.id, name: admin.name, email: admin.email }
+    })
+    mockFetchUserById.mockResolvedValue(admin)
+    mockCreateInviteToken.mockResolvedValue(expiresAt)
+    mockCreateResetToken.mockResolvedValue(expiresAt)
+  })
+
+  afterAll(() => {
+    mockAuth.mockResolvedValue({
+      user: { name: 'Test User', email: 'test@example.com' }
+    })
+  })
+
+  describe('inviteUser', () => {
+    it('stores only the hash and returns the plain token once', async () => {
+      const res = await inviteUser(
+        formDataFromObject({ currentPassword })
+      )
+
+      expect(res?.ok).toBe(true)
+      const { token, expiresAt: expires } = res?.ok
+        ? res.res!
+        : { token: '', expiresAt: '' }
+      expect(expires).toBe(expiresAt.toISOString())
+      expect(mockCreateInviteToken).toHaveBeenCalledWith(
+        admin.id,
+        admin.session_version,
+        hashUserToken(token)
+      )
+      expect(mockRegisterLoginAttempt).toHaveBeenCalledWith(
+        admin.email
+      )
+    })
+
+    it('refuses when the account changed after the password check', async () => {
+      mockCreateInviteToken.mockResolvedValueOnce('stale')
+
+      const res = await inviteUser(
+        formDataFromObject({ currentPassword })
+      )
+
+      expect(res).toEqual({
+        ok: false,
+        message:
+          'Your account was just changed elsewhere. Reload the page and try again.'
+      })
+    })
+
+    it('requires the current password', async () => {
+      const res = await inviteUser(
+        formDataFromObject({ currentPassword: 'wrong' })
+      )
+
+      expect(res).toEqual(wrongPassword)
+      expect(mockCreateInviteToken).not.toHaveBeenCalled()
+    })
+
+    it('requires a session', async () => {
+      mockAuth.mockResolvedValueOnce(null)
+
+      const res = await inviteUser(
+        formDataFromObject({ currentPassword })
+      )
+
+      expect(res?.ok).toBe(false)
+      expect(mockCreateInviteToken).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('createResetLink', () => {
+    it('creates a link for another admin', async () => {
+      const res = await createResetLink(
+        formDataFromObject({ currentPassword, userId: otherId })
+      )
+
+      expect(res?.ok).toBe(true)
+      expect(mockCreateResetToken).toHaveBeenCalledWith(
+        admin.id,
+        admin.session_version,
+        otherId,
+        expect.stringMatching(/^[0-9a-f]{64}$/)
+      )
+    })
+
+    it('refuses your own account', async () => {
+      const res = await createResetLink(
+        formDataFromObject({ currentPassword, userId: admin.id })
+      )
+
+      expect(res?.ok).toBe(false)
+      expect(mockCreateResetToken).not.toHaveBeenCalled()
+    })
+
+    it('reports an admin who was removed meanwhile', async () => {
+      mockCreateResetToken.mockResolvedValueOnce('gone')
+
+      const res = await createResetLink(
+        formDataFromObject({ currentPassword, userId: otherId })
+      )
+
+      expect(res).toEqual({
+        ok: false,
+        message: 'That admin was already removed.'
+      })
+    })
+
+    it('requires the current password', async () => {
+      const res = await createResetLink(
+        formDataFromObject({
+          currentPassword: 'wrong',
+          userId: otherId
+        })
+      )
+
+      expect(res).toEqual(wrongPassword)
+      expect(mockCreateResetToken).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('stale sessions', () => {
+    it('refuses a reset link when the account changed after the password check', async () => {
+      mockCreateResetToken.mockResolvedValueOnce('stale')
+
+      const res = await createResetLink(
+        formDataFromObject({ currentPassword, userId: otherId })
+      )
+
+      expect(res).toEqual({
+        ok: false,
+        message:
+          'Your account was just changed elsewhere. Reload the page and try again.'
+      })
+    })
+
+    it('refuses a removal when the account changed after the password check', async () => {
+      mockDeleteUser.mockResolvedValueOnce('stale')
+
+      const res = await removeUser(
+        formDataFromObject({ currentPassword, userId: otherId })
+      )
+
+      expect(res).toEqual({
+        ok: false,
+        message:
+          'Your account was just changed elsewhere. Reload the page and try again.'
+      })
+    })
+  })
+
+  describe('removeUser', () => {
+    it('removes another admin', async () => {
+      const res = await removeUser(
+        formDataFromObject({ currentPassword, userId: otherId })
+      )
+
+      expect(res).toEqual({ ok: true })
+      expect(mockDeleteUser).toHaveBeenCalledWith(
+        otherId,
+        admin.id,
+        admin.session_version
+      )
+    })
+
+    it('refuses to remove yourself', async () => {
+      const res = await removeUser(
+        formDataFromObject({ currentPassword, userId: admin.id })
+      )
+
+      expect(res).toEqual({
+        ok: false,
+        message: 'You can’t remove yourself.'
+      })
+      expect(mockDeleteUser).not.toHaveBeenCalled()
+    })
+
+    it('reports nothing removed', async () => {
+      mockDeleteUser.mockResolvedValueOnce('gone')
+
+      const res = await removeUser(
+        formDataFromObject({ currentPassword, userId: otherId })
+      )
+
+      expect(res).toEqual({
+        ok: false,
+        message: 'That admin was already removed.'
+      })
+    })
+
+    it('requires the current password', async () => {
+      const res = await removeUser(
+        formDataFromObject({
+          currentPassword: 'wrong',
+          userId: otherId
+        })
+      )
+
+      expect(res).toEqual(wrongPassword)
+      expect(mockDeleteUser).not.toHaveBeenCalled()
+    })
+
+    it('rejects a malformed user id', async () => {
+      const res = await removeUser(
+        formDataFromObject({ currentPassword, userId: 'nope' })
+      )
+
+      expect(res?.ok).toBe(false)
+      expect(mockDeleteUser).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('revokeInvite', () => {
+    const inviteId = '33333333-3333-4333-8333-333333333333'
+
+    it('deletes the invite', async () => {
+      const res = await revokeInvite(formDataFromObject({ inviteId }))
+
+      expect(res).toEqual({ ok: true })
+      expect(mockDeleteInvite).toHaveBeenCalledWith(inviteId)
+    })
+
+    it('reports an invite already used or revoked', async () => {
+      mockDeleteInvite.mockResolvedValueOnce(false)
+
+      const res = await revokeInvite(formDataFromObject({ inviteId }))
+
+      expect(res).toEqual({
+        ok: false,
+        message: 'That invite was already used or revoked.'
+      })
+    })
+
+    it('requires a session', async () => {
+      mockAuth.mockResolvedValueOnce(null)
+
+      const res = await revokeInvite(formDataFromObject({ inviteId }))
+
+      expect(res?.ok).toBe(false)
+      expect(mockDeleteInvite).not.toHaveBeenCalled()
+    })
+  })
+})
+
+describe('token link actions', () => {
+  const mockIsPasswordBreached = jest.mocked(isPasswordBreached)
+  const mockCheckWindowLimit = jest.mocked(checkWindowLimit)
+  const mockCreateInvitedUser = jest.mocked(createInvitedUser)
+  const mockResetWithToken = jest.mocked(resetPasswordWithToken)
+  const mockIsUserTokenLive = jest.mocked(isUserTokenLive)
+
+  const token = 'A'.repeat(43)
+  const newPassword = 'a long enough new passphrase'
+  const throttled = {
+    ok: false,
+    message: 'Too many attempts — please wait a moment and try again.'
+  }
+  const invalidLink = {
+    ok: false,
+    message:
+      'This link has expired or was already used. Ask an admin for a new one.'
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockGetClientIp.mockResolvedValue(CLIENT_IP)
+    mockResetWithToken.mockResolvedValue('ada@example.com')
+  })
+
+  describe('acceptInvite', () => {
+    const submission = {
+      token,
+      name: 'Grace Hopper',
+      email: 'grace@example.com',
+      newPassword,
+      confirmPassword: newPassword
+    }
+
+    it('creates the account from the hashed token, signs in and returns recovery codes', async () => {
+      const res = await acceptInvite(formDataFromObject(submission))
+
+      expect(res).toEqual({
+        ok: true,
+        res: { recoveryCodes: recoveryCodeSet.codes }
+      })
+      expect(mockCheckWindowLimit).toHaveBeenCalledWith(
+        `invite:${CLIENT_IP}`,
+        20,
+        3600
+      )
+      expect(mockCreateInvitedUser).toHaveBeenCalledWith({
+        name: submission.name,
+        email: submission.email,
+        password: newPassword,
+        tokenHash: hashUserToken(token),
+        recoveryCodeHashes: recoveryCodeSet.hashes
+      })
+      expect(mockClearFailedLogins).toHaveBeenCalledWith(
+        `invite:${CLIENT_IP}`
+      )
+      expect(mockClearFailedLogins).toHaveBeenCalledWith(
+        submission.email
+      )
+      expect(mockSignIn).toHaveBeenCalledWith('credentials', {
+        email: submission.email,
+        password: newPassword,
+        redirect: false
+      })
+    })
+
+    it('reports an invalid link without signing in', async () => {
+      mockCreateInvitedUser.mockResolvedValueOnce('invalid')
+
+      const res = await acceptInvite(formDataFromObject(submission))
+
+      expect(res).toEqual(invalidLink)
+      expect(mockClearFailedLogins).not.toHaveBeenCalled()
+      expect(mockSignIn).not.toHaveBeenCalled()
+    })
+
+    it('turns away a dead link before any bcrypt work', async () => {
+      mockIsUserTokenLive.mockResolvedValueOnce(false)
+
+      const res = await acceptInvite(formDataFromObject(submission))
+
+      expect(res).toEqual(invalidLink)
+      expect(mockIsUserTokenLive).toHaveBeenCalledWith(
+        'invite',
+        hashUserToken(token)
+      )
+      expect(generateRecoveryCodeSet).not.toHaveBeenCalled()
+      expect(mockCreateInvitedUser).not.toHaveBeenCalled()
+    })
+
+    it('reports a taken email on the field', async () => {
+      mockCreateInvitedUser.mockResolvedValueOnce('taken')
+
+      const res = await acceptInvite(formDataFromObject(submission))
+
+      expect(res?.errors).toEqual({
+        email: ['Another account already uses this email.']
+      })
+    })
+
+    it('rejects a breached password before counting a failure', async () => {
+      mockIsPasswordBreached.mockResolvedValueOnce(true)
+
+      const res = await acceptInvite(formDataFromObject(submission))
+
+      expect(res?.errors).toHaveProperty('newPassword')
+      expect(mockRegisterLoginAttempt).not.toHaveBeenCalled()
+      expect(mockCreateInvitedUser).not.toHaveBeenCalled()
+    })
+
+    it('refuses over the IP window limit', async () => {
+      mockCheckWindowLimit.mockResolvedValueOnce(false)
+
+      const res = await acceptInvite(formDataFromObject(submission))
+
+      expect(res).toEqual(throttled)
+      expect(mockCreateInvitedUser).not.toHaveBeenCalled()
+    })
+
+    it('refuses while failures are throttled', async () => {
+      mockRegisterLoginAttempt.mockResolvedValueOnce(30)
+
+      const res = await acceptInvite(formDataFromObject(submission))
+
+      expect(res).toEqual(throttled)
+      expect(mockCreateInvitedUser).not.toHaveBeenCalled()
+    })
+
+    it('validates the new password', async () => {
+      const res = await acceptInvite(
+        formDataFromObject({
+          ...submission,
+          newPassword: 'short',
+          confirmPassword: 'short'
+        })
+      )
+
+      expect(res?.errors).toHaveProperty('newPassword')
+      expect(mockCheckWindowLimit).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('resetPasswordWithLink', () => {
+    const submission = {
+      token,
+      newPassword,
+      confirmPassword: newPassword
+    }
+
+    it('sets the password from the hashed token and signs in', async () => {
+      const res = await resetPasswordWithLink(
+        formDataFromObject(submission)
+      )
+
+      expect(res).toEqual({ ok: true })
+      expect(mockResetWithToken).toHaveBeenCalledWith(
+        hashUserToken(token),
+        newPassword
+      )
+      expect(mockClearFailedLogins).toHaveBeenCalledWith(
+        `reset:${CLIENT_IP}`
+      )
+      // Failed logins from before the reset mustn't block sign-in
+      expect(mockClearFailedLogins).toHaveBeenCalledWith(
+        'ada@example.com'
+      )
+      expect(mockSignIn).toHaveBeenCalledWith('credentials', {
+        email: 'ada@example.com',
+        password: newPassword,
+        redirectTo: '/dashboard'
+      })
+    })
+
+    it('reports an invalid link', async () => {
+      mockResetWithToken.mockResolvedValueOnce(null)
+
+      const res = await resetPasswordWithLink(
+        formDataFromObject(submission)
+      )
+
+      expect(res).toEqual(invalidLink)
+      expect(mockSignIn).not.toHaveBeenCalled()
+    })
+
+    it('turns away a dead link before hashing', async () => {
+      mockIsUserTokenLive.mockResolvedValueOnce(false)
+
+      const res = await resetPasswordWithLink(
+        formDataFromObject(submission)
+      )
+
+      expect(res).toEqual(invalidLink)
+      expect(mockResetWithToken).not.toHaveBeenCalled()
+    })
+
+    it('refuses while failures are throttled', async () => {
+      mockRegisterLoginAttempt.mockResolvedValueOnce(30)
+
+      const res = await resetPasswordWithLink(
+        formDataFromObject(submission)
+      )
+
+      expect(res).toEqual(throttled)
+      expect(mockResetWithToken).not.toHaveBeenCalled()
+    })
+
+    it('requires matching passwords', async () => {
+      const res = await resetPasswordWithLink(
+        formDataFromObject({
+          ...submission,
+          confirmPassword: 'something else entirely'
+        })
+      )
+
+      expect(res?.errors).toHaveProperty('confirmPassword')
+      expect(mockResetWithToken).not.toHaveBeenCalled()
     })
   })
 })

@@ -45,6 +45,11 @@ export async function AdminSidebar() {
               </NextLink>
             </li>
           ))}
+          <li>
+            <NextLink href='/dashboard/users' className='button'>
+              Users
+            </NextLink>
+          </li>
         </ul>
 
         <ul>

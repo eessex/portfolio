@@ -1,11 +1,12 @@
 jest.mock('@/lib/db', () => ({
-  sql: jest.fn()
+  sql: Object.assign(jest.fn(), { transaction: jest.fn() })
 }))
 
 import bcrypt from 'bcrypt'
 
 import { sql } from '@/lib/db'
 import {
+  deleteUser,
   updateUserEmail,
   updateUserName,
   updateUserPassword
@@ -116,5 +117,60 @@ describe('#updateUserName', () => {
 
     expect(mockSql.mock.calls[0]?.[1]).toBe('Augusta Ada King')
     expect(queryText()).not.toContain('session_version')
+  })
+})
+
+describe('#deleteUser', () => {
+  const mockTransaction = jest.mocked(sql.transaction)
+  const actingId = '22222222-2222-2222-2222-222222222222'
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockSql.mockImplementation(((strings: TemplateStringsArray) =>
+      strings.join('')) as unknown as typeof sql)
+  })
+
+  it('locks every user, then deletes another admin while the acting one exists', async () => {
+    mockTransaction.mockResolvedValue([[], [{ id }]])
+
+    expect(await deleteUser(id, actingId, 2)).toBe('deleted')
+    const [lock, del] = mockTransaction.mock
+      .calls[0]?.[0] as unknown as string[]
+    expect(lock).toContain('ORDER BY id FOR UPDATE')
+    expect(del).toContain('DELETE FROM users')
+    expect(del).toContain('AND id <>')
+    expect(del).toContain('AND session_version =')
+    expect(mockSql.mock.calls[1]?.slice(1)).toEqual([
+      id,
+      actingId,
+      actingId,
+      2
+    ])
+  })
+
+  it('reports a target already gone', async () => {
+    mockTransaction.mockResolvedValue([
+      [{ id: actingId, session_version: 2 }],
+      []
+    ])
+
+    expect(await deleteUser(id, actingId, 2)).toBe('gone')
+  })
+
+  it('reports an acting admin whose session version moved on', async () => {
+    mockTransaction.mockResolvedValue([
+      [{ id: actingId, session_version: 3 }],
+      []
+    ])
+
+    expect(await deleteUser(id, actingId, 2)).toBe('stale')
+  })
+
+  it('throws on DB error', async () => {
+    mockTransaction.mockRejectedValue(new Error('db exploded'))
+
+    await expect(deleteUser(id, actingId, 2)).rejects.toThrow(
+      'Failed to remove user.'
+    )
   })
 })

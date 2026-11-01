@@ -20,8 +20,15 @@ import {
 import { safeRedirectPath } from '@/lib/auth/redirect'
 import { hashSetupCode } from '@/lib/auth/setup-code'
 import { verifySetupCode } from '@/lib/auth/setup-code-check'
+import {
+  generateUserToken,
+  hashUserToken
+} from '@/lib/auth/user-token'
 import type { FormResponse } from '@/lib/types'
-import { createFirstUser } from '@/lib/users/create'
+import {
+  createFirstUser,
+  createInvitedUser
+} from '@/lib/users/create'
 import { fetchUserById, hasUsers } from '@/lib/users/data'
 import {
   fetchUnusedRecoveryCodesByEmail,
@@ -29,15 +36,28 @@ import {
   resetPasswordWithRecoveryCode
 } from '@/lib/users/recovery-codes'
 import {
+  acceptInviteSchema,
   changeEmailSchema,
   changeNameSchema,
   changePasswordSchema,
   completeSetupSchema,
+  inviteUserSchema,
+  otherUserSchema,
   recoverAccountSchema,
-  regenerateRecoveryCodesSchema
+  regenerateRecoveryCodesSchema,
+  resetPasswordSchema,
+  revokeInviteSchema
 } from '@/lib/users/schemas'
+import {
+  createInviteToken,
+  createResetToken,
+  deleteInvite,
+  isUserTokenLive,
+  resetPasswordWithToken
+} from '@/lib/users/tokens'
 import type { UserRow } from '@/lib/users/types'
 import {
+  deleteUser,
   updateUserEmail,
   updateUserName,
   updateUserPassword
@@ -584,5 +604,364 @@ export async function regenerateRecoveryCodes(
   } catch (error) {
     console.error('regenerateRecoveryCodes failed', error)
     return { ok: false, message: ACCOUNT_ERROR_MESSAGE }
+  }
+}
+
+/** The plain token, shown once as a link, and when it expires */
+export type UserLink = { token: string; expiresAt: string }
+type UserLinkResponse = FormResponse<UserLink>
+
+/** A one-time link that adds an admin. */
+export async function inviteUser(
+  formData: FormData
+): Promise<UserLinkResponse> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
+  const validated = inviteUserSchema.safeParse(
+    normalizeFormData(formData)
+  )
+  if (!validated.success) {
+    return formatValidationResponse(
+      validated.error,
+      'Failed to validate password.'
+    )
+  }
+
+  try {
+    const user = await signedInUser()
+    if (!user) return SIGNED_OUT_RESPONSE
+    const failed = await checkCurrentPassword(
+      user,
+      validated.data.currentPassword
+    )
+    if (failed) return failed
+
+    const { token, hash } = generateUserToken()
+    const expiresAt = await createInviteToken(
+      user.id,
+      user.session_version,
+      hash
+    )
+    if (expiresAt === 'stale') return STALE_RESPONSE
+    return {
+      ok: true,
+      res: { token, expiresAt: expiresAt.toISOString() }
+    }
+  } catch (error) {
+    console.error('inviteUser failed', error)
+    return { ok: false, message: ACCOUNT_ERROR_MESSAGE }
+  }
+}
+
+const USER_GONE_MESSAGE = 'That admin was already removed.'
+
+/**
+ * A one-time link that sets another admin's password, replacing any
+ * earlier one for them.
+ */
+export async function createResetLink(
+  formData: FormData
+): Promise<UserLinkResponse> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
+  const validated = otherUserSchema.safeParse(
+    normalizeFormData(formData)
+  )
+  if (!validated.success) {
+    return formatValidationResponse(
+      validated.error,
+      'Failed to validate password.'
+    )
+  }
+  const { currentPassword, userId } = validated.data
+
+  try {
+    const user = await signedInUser()
+    if (!user) return SIGNED_OUT_RESPONSE
+    if (userId === user.id) {
+      return {
+        ok: false,
+        message:
+          'Change your own password from your dashboard instead.'
+      }
+    }
+    const failed = await checkCurrentPassword(user, currentPassword)
+    if (failed) return failed
+
+    const { token, hash } = generateUserToken()
+    const expiresAt = await createResetToken(
+      user.id,
+      user.session_version,
+      userId,
+      hash
+    )
+    if (expiresAt === 'stale') return STALE_RESPONSE
+    if (expiresAt === 'gone') {
+      return { ok: false, message: USER_GONE_MESSAGE }
+    }
+    return {
+      ok: true,
+      res: { token, expiresAt: expiresAt.toISOString() }
+    }
+  } catch (error) {
+    console.error('createResetLink failed', error)
+    return { ok: false, message: ACCOUNT_ERROR_MESSAGE }
+  }
+}
+
+/** Removes another admin and ends their sessions. */
+export async function removeUser(
+  formData: FormData
+): Promise<AccountResponse> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
+  const validated = otherUserSchema.safeParse(
+    normalizeFormData(formData)
+  )
+  if (!validated.success) {
+    return formatValidationResponse(
+      validated.error,
+      'Failed to validate password.'
+    )
+  }
+  const { currentPassword, userId } = validated.data
+
+  try {
+    const user = await signedInUser()
+    if (!user) return SIGNED_OUT_RESPONSE
+    if (userId === user.id) {
+      return { ok: false, message: 'You can’t remove yourself.' }
+    }
+    const failed = await checkCurrentPassword(user, currentPassword)
+    if (failed) return failed
+
+    const outcome = await deleteUser(
+      userId,
+      user.id,
+      user.session_version
+    )
+    if (outcome === 'stale') return STALE_RESPONSE
+    if (outcome === 'gone') {
+      return { ok: false, message: USER_GONE_MESSAGE }
+    }
+    return { ok: true }
+  } catch (error) {
+    console.error('removeUser failed', error)
+    return { ok: false, message: ACCOUNT_ERROR_MESSAGE }
+  }
+}
+
+export async function revokeInvite(
+  formData: FormData
+): Promise<AccountResponse> {
+  const denied = await requireAuth()
+  if (denied) return denied
+
+  const validated = revokeInviteSchema.safeParse(
+    Object.fromEntries(formData)
+  )
+  if (!validated.success) {
+    return { ok: false, message: 'Failed to revoke invite.' }
+  }
+
+  try {
+    if (!(await deleteInvite(validated.data.inviteId))) {
+      return {
+        ok: false,
+        message: 'That invite was already used or revoked.'
+      }
+    }
+    return { ok: true }
+  } catch (error) {
+    console.error('revokeInvite failed', error)
+    return { ok: false, message: ACCOUNT_ERROR_MESSAGE }
+  }
+}
+
+const INVALID_LINK_MESSAGE =
+  'This link has expired or was already used. Ask an admin for a new one.'
+// Accepting runs a full recovery-code set of bcrypt hashes
+const LINK_IP_LIMIT = 20
+const LINK_IP_WINDOW_SECONDS = 60 * 60
+
+// Breached check between the window limit and the failure backoff,
+// so a rejected password isn't a failure
+/** The throttle key to clear on success, or a response */
+async function checkLinkAttempt(
+  bucket: 'invite' | 'reset',
+  password: string
+): Promise<string | FormResponse<never>> {
+  const throttleKey = `${bucket}:${await getClientIp()}`
+  const isWithinLimit = await checkWindowLimit(
+    throttleKey,
+    LINK_IP_LIMIT,
+    LINK_IP_WINDOW_SECONDS
+  )
+  if (!isWithinLimit) return { ok: false, message: THROTTLED_MESSAGE }
+
+  const breached = await breachedPasswordResponse(password)
+  if (breached) return breached
+
+  if ((await registerLoginAttempt(throttleKey)) > 0) {
+    return { ok: false, message: THROTTLED_MESSAGE }
+  }
+  return throttleKey
+}
+
+// Also the email's login backoff, or failed logins from before the
+// new password would block its sign-in. Best-effort: the link is
+// already spent, so this mustn't skip the sign-in.
+async function clearLinkThrottles(
+  throttleKey: string,
+  email: string
+) {
+  try {
+    await Promise.all([
+      clearFailedLogins(throttleKey),
+      clearFailedLogins(email)
+    ])
+  } catch (error) {
+    console.error('Failed to clear link throttles', error)
+  }
+}
+
+/**
+ * Deliberately public, gated by the invite link's token. Returns the
+ * new admin's recovery codes for the form to show.
+ */
+export async function acceptInvite(
+  formData: FormData
+): Promise<RecoveryCodesResponse> {
+  const validated = acceptInviteSchema.safeParse(
+    normalizeFormData(formData)
+  )
+  if (!validated.success) {
+    return formatValidationResponse(
+      validated.error,
+      'Failed to validate account details.'
+    )
+  }
+  const { token, name, email, newPassword } = validated.data
+
+  let recoveryCodes: string[]
+  let throttleKey: string
+  try {
+    const attempt = await checkLinkAttempt('invite', newPassword)
+    if (typeof attempt !== 'string') return attempt
+    throttleKey = attempt
+
+    const tokenHash = hashUserToken(token)
+    if (!(await isUserTokenLive('invite', tokenHash))) {
+      return { ok: false, message: INVALID_LINK_MESSAGE }
+    }
+    const recoveryCodeSet = await generateRecoveryCodeSet()
+    recoveryCodes = recoveryCodeSet.codes
+    const outcome = await createInvitedUser({
+      name,
+      email,
+      password: newPassword,
+      tokenHash,
+      recoveryCodeHashes: recoveryCodeSet.hashes
+    })
+    if (outcome === 'invalid') {
+      return { ok: false, message: INVALID_LINK_MESSAGE }
+    }
+    if (outcome === 'taken') {
+      return {
+        ok: false,
+        message: 'Failed to validate email.',
+        errors: {
+          email: ['Another account already uses this email.']
+        }
+      }
+    }
+  } catch (error) {
+    console.error('acceptInvite failed', error)
+    return { ok: false, message: ACCOUNT_ERROR_MESSAGE }
+  }
+
+  await clearLinkThrottles(throttleKey, email)
+
+  // No redirect: the form shows the recovery codes first
+  try {
+    await signIn('credentials', {
+      email,
+      password: newPassword,
+      redirect: false
+    })
+    return { ok: true, res: { recoveryCodes } }
+  } catch (error) {
+    unstable_rethrow(error)
+    console.error(
+      'acceptInvite: sign-in after creation failed',
+      error
+    )
+    return {
+      ok: false,
+      message:
+        'Account created! Automatic sign-in failed — please log in at /login, then generate recovery codes on your dashboard.'
+    }
+  }
+}
+
+/** Deliberately public, gated by the reset link's token. */
+export async function resetPasswordWithLink(
+  formData: FormData
+): Promise<FormResponse<Record<string, never>>> {
+  const validated = resetPasswordSchema.safeParse(
+    normalizeFormData(formData)
+  )
+  if (!validated.success) {
+    return formatValidationResponse(
+      validated.error,
+      'Failed to validate password.'
+    )
+  }
+  const { token, newPassword } = validated.data
+
+  let email: string
+  let throttleKey: string
+  try {
+    const attempt = await checkLinkAttempt('reset', newPassword)
+    if (typeof attempt !== 'string') return attempt
+    throttleKey = attempt
+
+    const tokenHash = hashUserToken(token)
+    if (!(await isUserTokenLive('reset', tokenHash))) {
+      return { ok: false, message: INVALID_LINK_MESSAGE }
+    }
+    const resetEmail = await resetPasswordWithToken(
+      tokenHash,
+      newPassword
+    )
+    if (!resetEmail) {
+      return { ok: false, message: INVALID_LINK_MESSAGE }
+    }
+    email = resetEmail
+  } catch (error) {
+    console.error('resetPasswordWithLink failed', error)
+    return { ok: false, message: ACCOUNT_ERROR_MESSAGE }
+  }
+
+  await clearLinkThrottles(throttleKey, email)
+
+  try {
+    await signIn('credentials', {
+      email,
+      password: newPassword,
+      redirectTo: '/dashboard'
+    })
+    return { ok: true }
+  } catch (error) {
+    // Successful sign-in redirects by throwing; let Next handle it.
+    unstable_rethrow(error)
+    console.error('resetPasswordWithLink: sign-in failed', error)
+    return {
+      ok: false,
+      message: 'Password changed — please log in at /login.'
+    }
   }
 }

@@ -7,6 +7,7 @@ import {
   countUsers,
   fetchSessionVersion,
   fetchUserByEmail,
+  fetchUsers,
   hasUsers,
   recordLogin
 } from '@/lib/users/data'
@@ -160,5 +161,42 @@ describe('#hasUsers', () => {
     mockSql.mockRejectedValue(new Error('db exploded'))
 
     await expect(hasUsers()).rejects.toThrow('Failed to check users.')
+  })
+})
+
+describe('#fetchUsers', () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  it('returns every user without their password, oldest first', async () => {
+    mockSql.mockResolvedValue([
+      {
+        id: userRow.id,
+        name: userRow.name,
+        email: userRow.email,
+        created_at: '2026-01-01T00:00:00.000Z',
+        last_login_at: null
+      }
+    ])
+
+    expect(await fetchUsers()).toEqual([
+      {
+        id: userRow.id,
+        name: userRow.name,
+        email: userRow.email,
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        lastLoginAt: undefined
+      }
+    ])
+    const query = mockSql.mock.calls[0]?.[0].join('')
+    expect(query).not.toContain('password')
+    expect(query).toContain('ORDER BY created_at')
+  })
+
+  it('throws on DB error', async () => {
+    mockSql.mockRejectedValue(new Error('db exploded'))
+
+    await expect(fetchUsers()).rejects.toThrow(
+      'Failed to fetch users.'
+    )
   })
 })

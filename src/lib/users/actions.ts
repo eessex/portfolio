@@ -55,13 +55,14 @@ const BREACHED_PASSWORD_MESSAGE =
   'This password has appeared in a data breach. Choose another.'
 
 async function breachedPasswordResponse(
-  password: string
+  password: string,
+  fieldName = 'newPassword'
 ): Promise<FormResponse<never> | null> {
   if (!(await isPasswordBreached(password))) return null
   return {
     ok: false,
     message: 'Failed to validate password.',
-    errors: { newPassword: [BREACHED_PASSWORD_MESSAGE] }
+    errors: { [fieldName]: [BREACHED_PASSWORD_MESSAGE] }
   }
 }
 
@@ -115,6 +116,9 @@ const ACCOUNT_EXISTS_MESSAGE = 'An account already exists.'
 const CODE_EXPIRED_MESSAGE =
   'This code has expired. In Vercel, open Deployments and click Redeploy for a new one.'
 
+const SETUP_IP_LIMIT = 20
+const SETUP_IP_WINDOW_SECONDS = 60 * 60
+
 /**
  * Deliberately public — no admin exists yet. Returns the recovery
  * codes for the form to show.
@@ -129,12 +133,41 @@ export async function completeSetup(
   let outcome: 'created' | 'exists' | 'expired'
   let recoveryCodes: string[] = []
 
+  const validated = completeSetupSchema.safeParse(
+    normalizeFormData(formData)
+  )
+  if (!validated.success) {
+    return formatValidationResponse(
+      validated.error,
+      'Failed to validate account details.'
+    )
+  }
+  const { name, email, password } = validated.data
+
   // Everything up to account creation is a plain DB read or the
   // atomic insert itself; an unexpected failure anywhere in here
   // (not the expected-outcome returns below, which aren't thrown)
   // would otherwise reject the action, and Next.js masks a thrown
   // server-action error to a generic message in production.
   try {
+    // Bounds the breach lookups, which run before the code throttle
+    const isWithinLimit = await checkWindowLimit(
+      throttleKey,
+      SETUP_IP_LIMIT,
+      SETUP_IP_WINDOW_SECONDS
+    )
+    if (!isWithinLimit) {
+      return { ok: false, message: THROTTLED_MESSAGE }
+    }
+
+    // Before the code throttle, so a rejected password doesn't count
+    // as a failed attempt
+    const breached = await breachedPasswordResponse(
+      password,
+      'password'
+    )
+    if (breached) return breached
+
     if ((await registerLoginAttempt(throttleKey)) > 0) {
       return { ok: false, message: THROTTLED_MESSAGE }
     }
@@ -152,23 +185,12 @@ export async function completeSetup(
       return { ok: false, message: CODE_EXPIRED_MESSAGE }
     }
 
-    const validated = completeSetupSchema.safeParse(
-      normalizeFormData(formData)
-    )
-    if (!validated.success) {
-      return formatValidationResponse(
-        validated.error,
-        'Failed to validate account details.'
-      )
-    }
-
+    const recoveryCodeSet = await generateRecoveryCodeSet()
+    recoveryCodes = recoveryCodeSet.codes
     // The verifySetupCode() check above is just for a friendly
     // message; this is what's actually race-safe (see
     // createFirstUser's own comment) — it also consumes the
     // setup_code row, so there's nothing left to delete afterward.
-    const { name, email, password } = validated.data
-    const recoveryCodeSet = await generateRecoveryCodeSet()
-    recoveryCodes = recoveryCodeSet.codes
     const isCreated = await createFirstUser({
       name,
       email,

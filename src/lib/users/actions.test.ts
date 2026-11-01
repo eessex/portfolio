@@ -48,8 +48,8 @@ jest.mock('@/lib/db', () => ({ sql: jest.fn() }))
 const CLIENT_IP = '203.0.113.1'
 
 // completeSetup's own collaborators: mocked so its tests exercise only
-// its orchestration (throttle → exists → code → validate → create →
-// sign in), not rate-limit's or setup-code's SQL.
+// its orchestration (validate → IP limit → breach check → throttle → exists →
+// code → create → sign in), not rate-limit's or setup-code's SQL.
 jest.mock('@/lib/auth/rate-limit', () => ({
   LOGIN_THROTTLED_CODE: 'login-throttled',
   checkWindowLimit: jest.fn().mockResolvedValue(true),
@@ -208,14 +208,14 @@ const setupSubmission = {
   code: 'K7QM-3XRD-PW9T-H2FC',
   name: 'Ada Lovelace',
   email: 'ada@example.com',
-  password: 'super-secret',
-  confirmPassword: 'super-secret'
+  password: 'a long enough setup passphrase',
+  confirmPassword: 'a long enough setup passphrase'
 }
 
 describe('completeSetup', () => {
   beforeEach(() => jest.clearAllMocks())
 
-  it('throttles repeated attempts before checking anything else', async () => {
+  it('throttles repeated attempts before checking the account or code', async () => {
     mockRegisterLoginAttempt.mockResolvedValueOnce(30)
 
     const res = await completeSetup(
@@ -228,6 +228,27 @@ describe('completeSetup', () => {
         'Too many attempts — please wait a moment and try again.'
     })
     expect(mockHasUsers).not.toHaveBeenCalled()
+  })
+
+  it('limits attempts per IP before the breach lookup', async () => {
+    jest.mocked(checkWindowLimit).mockResolvedValueOnce(false)
+
+    const res = await completeSetup(
+      formDataFromObject(setupSubmission)
+    )
+
+    expect(res).toEqual({
+      ok: false,
+      message:
+        'Too many attempts — please wait a moment and try again.'
+    })
+    expect(jest.mocked(checkWindowLimit)).toHaveBeenCalledWith(
+      `setup:${CLIENT_IP}`,
+      20,
+      60 * 60
+    )
+    expect(jest.mocked(isPasswordBreached)).not.toHaveBeenCalled()
+    expect(mockRegisterLoginAttempt).not.toHaveBeenCalled()
   })
 
   it('throttles per client IP, not one shared bucket', async () => {
@@ -287,7 +308,7 @@ describe('completeSetup', () => {
     })
   })
 
-  it('validates the account fields once the code checks out', async () => {
+  it('validates the account fields without counting an attempt', async () => {
     const res = await completeSetup(
       formDataFromObject({
         ...setupSubmission,
@@ -299,6 +320,37 @@ describe('completeSetup', () => {
     expect(res?.errors).toEqual({
       confirmPassword: ['Passwords must match.']
     })
+    expect(mockRegisterLoginAttempt).not.toHaveBeenCalled()
+    expect(mockCreateFirstUser).not.toHaveBeenCalled()
+  })
+
+  it('holds the first password to the same length rule as changes', async () => {
+    const res = await completeSetup(
+      formDataFromObject({
+        ...setupSubmission,
+        password: 'super-secret',
+        confirmPassword: 'super-secret'
+      })
+    )
+
+    expect(res?.errors).toHaveProperty('password')
+    expect(mockRegisterLoginAttempt).not.toHaveBeenCalled()
+    expect(mockCreateFirstUser).not.toHaveBeenCalled()
+  })
+
+  it('rejects a breached password without counting an attempt', async () => {
+    jest.mocked(isPasswordBreached).mockResolvedValueOnce(true)
+
+    const res = await completeSetup(
+      formDataFromObject(setupSubmission)
+    )
+
+    expect(res?.errors).toEqual({
+      password: [
+        'This password has appeared in a data breach. Choose another.'
+      ]
+    })
+    expect(mockRegisterLoginAttempt).not.toHaveBeenCalled()
     expect(mockCreateFirstUser).not.toHaveBeenCalled()
   })
 

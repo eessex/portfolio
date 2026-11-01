@@ -23,9 +23,10 @@ const currentSessionVersion = cache(fetchSessionVersion)
  * The `jwt` callback. Sessions are JWTs, so bumping
  * `users.session_version` (password change, recovery, removal) ends
  * every other session only because each one is checked here. Runs
- * for server-side auth() calls, not the middleware's, so page
- * navigation alone doesn't pay for the lookup; every mutation still
- * checks through requireAuth().
+ * for server-side auth() calls and the proxy's, so a revoked token
+ * can't reach protected pages either (and the proxy clears its
+ * cookie, leaving /login reachable). Only requests carrying a
+ * session token pay for the lookup.
  */
 export async function checkSessionVersion({
   token,
@@ -44,9 +45,11 @@ export async function checkSessionVersion({
     // Tokens from before session versions existed carry none: 0
     return version === (token.sessionVersion ?? 0) ? token : null
   } catch (error) {
-    // Fail open: writes fail anyway while the DB is unreachable
+    // Fail closed: a revoked token must not pass while the version
+    // can't be read (storage deletes don't need the DB). Signing in
+    // needs the DB too, so this only costs a re-login after an outage
     console.error('Failed to check session version:', error)
-    return token
+    return null
   }
 }
 

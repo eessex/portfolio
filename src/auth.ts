@@ -13,10 +13,6 @@ import {
   registerLoginAttempt
 } from '@/lib/auth/rate-limit'
 import { authSecret } from '@/lib/auth/secret'
-import {
-  checkSessionVersion,
-  withUserId
-} from '@/lib/auth/session-version'
 import { fetchUserByEmail, recordLogin } from '@/lib/users/data'
 
 const CredentialsSchema = z.object({
@@ -75,12 +71,7 @@ const config = {
         return { id, name, email: user.email, sessionVersion }
       }
     })
-  ],
-  callbacks: {
-    ...authConfig.callbacks,
-    jwt: checkSessionVersion,
-    session: withUserId
-  }
+  ]
 } satisfies NextAuthConfig
 
 // Lazy config: the secret may come from the database

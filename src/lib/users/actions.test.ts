@@ -549,6 +549,31 @@ describe('account actions', () => {
       expect(mockUpdateUserPassword).not.toHaveBeenCalled()
     })
 
+    it("rejects a legacy password's 72-byte truncation", async () => {
+      // 72 bytes, then a suffix bcrypt never reads
+      const truncated = 'é'.repeat(36)
+      const legacy = `${truncated}-legacy-suffix`
+      mockFetchUserById.mockResolvedValue({
+        ...user,
+        password: bcrypt.hashSync(legacy, 4)
+      })
+
+      const res = await changePassword(
+        formDataFromObject({
+          currentPassword: legacy,
+          newPassword: truncated,
+          confirmPassword: truncated
+        })
+      )
+
+      expect(res?.errors).toEqual({
+        newPassword: [
+          'Choose a password different from your current one.'
+        ]
+      })
+      expect(mockUpdateUserPassword).not.toHaveBeenCalled()
+    })
+
     it('rejects a breached password', async () => {
       mockIsPasswordBreached.mockResolvedValueOnce(true)
 

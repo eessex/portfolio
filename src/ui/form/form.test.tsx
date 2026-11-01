@@ -105,6 +105,44 @@ describe('Form', () => {
         expect.stringContaining('/dashboard')
       )
     })
+
+    it('opens one dialog when several forms are dirty', async () => {
+      render(
+        <ToastProvider>
+          <a href='/dashboard' onClick={(e) => e.preventDefault()}>
+            Dashboard
+          </a>
+          <Form action={jest.fn()}>
+            <label htmlFor='first'>First</label>
+            <input id='first' name='first' defaultValue='Original' />
+          </Form>
+          <Form action={jest.fn()}>
+            <label htmlFor='second'>Second</label>
+            <input
+              id='second'
+              name='second'
+              defaultValue='Original'
+            />
+          </Form>
+        </ToastProvider>
+      )
+
+      fireEvent.change(screen.getByLabelText(/first/i), {
+        target: { value: 'Changed' }
+      })
+      fireEvent.change(screen.getByLabelText(/second/i), {
+        target: { value: 'Changed' }
+      })
+      fireEvent.click(
+        screen.getByRole('link', { name: /dashboard/i })
+      )
+
+      expect(screen.getAllByRole('dialog')).toHaveLength(1)
+      fireEvent.click(
+        screen.getByRole('button', { name: /stay on this page/i })
+      )
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
   })
 
   describe('submit', () => {

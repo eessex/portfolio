@@ -1,0 +1,29 @@
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
+
+.recovery-codes {
+  display: grid;
+  row-gap: grids.space-rem(4);
+  max-width: var(--body-width);
+  margin: auto;
+}
+
+.codes {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  gap: grids.space-rem(2, 8);
+  padding: 0;
+  list-style: none;
+  font-family: monospace;
+  font-size: 1.125em;
+
+  @include breakpoints.mobile {
+    grid-template-columns: max-content;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: grids.space-rem(2);
+}

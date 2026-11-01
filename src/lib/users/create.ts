@@ -33,13 +33,16 @@ export async function createUser(input: {
  * doesn't stop two different emails from both passing the check.
  * `NOT EXISTS (SELECT 1 FROM users)` is kept as a belt-and-suspenders
  * guard against a `pnpm run setup` admin created out of band on the
- * same database. Returns whether this call won.
+ * same database. The account's recovery codes are inserted in the
+ * same statement, so it never exists without them. Returns whether
+ * this call won.
  */
 export async function createFirstUser(input: {
   name: string
   email: string
   password: string
   codeHash: string
+  recoveryCodeHashes: string[]
 }): Promise<boolean> {
   const hashedPassword = await bcrypt.hash(
     input.password,
@@ -53,12 +56,18 @@ export async function createFirstUser(input: {
           AND code_hash = ${input.codeHash}
           AND expires_at > now()
         RETURNING 1
+      ), created AS (
+        INSERT INTO users (name, email, password)
+        SELECT ${input.name}, ${input.email}, ${hashedPassword}
+        WHERE EXISTS (SELECT 1 FROM consumed)
+          AND NOT EXISTS (SELECT 1 FROM users)
+        RETURNING id
+      ), codes AS (
+        INSERT INTO user_recovery_codes (user_id, code_hash)
+        SELECT created.id, hash
+        FROM created, unnest(${input.recoveryCodeHashes}::text[]) AS hash
       )
-      INSERT INTO users (name, email, password)
-      SELECT ${input.name}, ${input.email}, ${hashedPassword}
-      WHERE EXISTS (SELECT 1 FROM consumed)
-        AND NOT EXISTS (SELECT 1 FROM users)
-      RETURNING id
+      SELECT id FROM created
     `
     return rows.length > 0
   } catch (cause) {

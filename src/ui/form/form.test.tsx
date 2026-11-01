@@ -1,4 +1,9 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useRouter } from 'next/navigation'
 
@@ -169,6 +174,55 @@ describe('Form', () => {
       fireEvent.click(screen.getByRole('button', { name: /save/i }))
 
       await screen.findByText('Changes saved.')
+      expect(action).toHaveBeenCalledTimes(1)
+    })
+
+    it("hands the action's res to onSuccess", async () => {
+      const action = jest
+        .fn()
+        .mockResolvedValue({ ok: true, res: { id: 'saved' } })
+      const onSuccess = jest.fn()
+      render(
+        <ToastProvider>
+          <Form action={action} onSuccess={onSuccess}>
+            <label htmlFor='title'>Title</label>
+            <input id='title' name='title' defaultValue='Original' />
+          </Form>
+        </ToastProvider>
+      )
+
+      fireEvent.change(screen.getByLabelText(/title/i), {
+        target: { value: 'Changed' }
+      })
+      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+      await waitFor(() =>
+        expect(onSuccess).toHaveBeenCalledWith({ id: 'saved' })
+      )
+    })
+
+    it('submits an unchanged form with isSubmittedUnchanged', async () => {
+      const action = jest
+        .fn()
+        .mockResolvedValue({ ok: true, res: { id: 'saved' } })
+      const onSuccess = jest.fn()
+      render(
+        <ToastProvider>
+          <Form
+            action={action}
+            isSubmittedUnchanged
+            onSuccess={onSuccess}
+          >
+            <input name='title' defaultValue='Original' />
+          </Form>
+        </ToastProvider>
+      )
+
+      fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+      await waitFor(() =>
+        expect(onSuccess).toHaveBeenCalledWith({ id: 'saved' })
+      )
       expect(action).toHaveBeenCalledTimes(1)
     })
 

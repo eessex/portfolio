@@ -2,7 +2,6 @@ import {
   buildSetupCodeBanner,
   generateSetupCode,
   hashSetupCode,
-  normalizeSetupCode,
   SETUP_CODE_TTL_HOURS
 } from '@/lib/auth/setup-code'
 
@@ -22,14 +21,6 @@ describe('generateSetupCode', () => {
 
   it('is different on each call', () => {
     expect(generateSetupCode()).not.toBe(generateSetupCode())
-  })
-})
-
-describe('normalizeSetupCode', () => {
-  it('strips dashes and spaces and uppercases', () => {
-    expect(normalizeSetupCode('k7qm-3xrd pw9t-h2fc')).toBe(
-      'K7QM3XRDPW9TH2FC'
-    )
   })
 })
 

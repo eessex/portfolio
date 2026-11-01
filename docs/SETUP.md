@@ -57,9 +57,11 @@ Copy the code, then open your site (its URL is at the top of the Vercel
 project page). It'll send you straight to a setup page. Enter the code,
 then your name, email and a password, and submit.
 
-**Save that password somewhere safe — a password manager, ideally.**
-There's no "forgot password" link yet, so if you lose it, you'll need to ask
-in a GitHub issue on the project for help getting back in.
+Next you'll see 8 **recovery codes**. Save them, along with your password,
+somewhere safe — a password manager, ideally. If you ever forget your
+password, the login page's "Forgot password?" link trades one code for a new
+password. Each code works once, and they're only shown this one time; you can
+generate a fresh set any time from the Account section of your dashboard.
 
 **Don't see a code?** If you redeployed before claiming your site, the
 latest build log shows this line instead:
@@ -112,9 +114,10 @@ GitHub page — Vercel deploys it automatically.
   Build Logs link into a new
   [GitHub issue](https://github.com/eessex/portfolio-cms/issues) — that log
   has what's needed to figure out what happened.
-- **You forgot your password.** There's no self-service recovery yet.
-  Open a GitHub issue and we'll help you get back in — this is exactly why
-  step 6 says to save it in a password manager.
+- **You forgot your password.** On the login page, click "Forgot
+  password?" and enter your email, one of your recovery codes and a new
+  password. If you've lost your codes too, open a GitHub issue and we'll
+  help you get back in.
 - **Images aren't uploading.** Double check Storage → your Blob store is
   still connected (Settings → Environment Variables should show
   `BLOB_READ_WRITE_TOKEN`), then redeploy.

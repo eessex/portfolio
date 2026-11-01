@@ -10,6 +10,9 @@ import { email, shortText } from '@/lib/schemas/primitives'
 export const userTokenPurposes = ['invite', 'reset'] as const
 export const userTokenPurposeSchema = z.enum(userTokenPurposes)
 
+/** Codes per set; client-safe, unlike src/lib/auth/recovery-codes.ts */
+export const RECOVERY_CODE_COUNT = 8
+
 /** NIST SP 800-63B rev. 4 for single-factor passwords */
 export const MIN_PASSWORD_LENGTH = 15
 export const MAX_PASSWORD_LENGTH = 64
@@ -107,6 +110,25 @@ export const completeSetupSchema = z
     confirmPassword: z.string().min(8)
   })
   .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords must match.',
+    path: ['confirmPassword']
+  })
+
+export const regenerateRecoveryCodesSchema = z.object({
+  currentPassword
+})
+
+/** /forgot-password: trades one recovery code for a new password. */
+export const recoverAccountSchema = z
+  .object({
+    email,
+    code: z.string({ error: 'Enter a recovery code.' }),
+    newPassword,
+    confirmPassword: z.string({
+      error: 'Confirm your new password.'
+    })
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
     message: 'Passwords must match.',
     path: ['confirmPassword']
   })

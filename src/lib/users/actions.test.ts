@@ -3,11 +3,16 @@ import bcrypt from 'bcrypt'
 import { auth, signIn } from '@/auth'
 import { isPasswordBreached } from '@/lib/auth/breached-password'
 import {
+  checkWindowLimit,
   clearFailedLogins,
   getClientIp,
   LOGIN_THROTTLED_CODE,
   registerLoginAttempt
 } from '@/lib/auth/rate-limit'
+import {
+  findMatchingRecoveryCode,
+  generateRecoveryCodeSet
+} from '@/lib/auth/recovery-codes'
 import { hashSetupCode } from '@/lib/auth/setup-code'
 import { verifySetupCode } from '@/lib/auth/setup-code-check'
 import {
@@ -15,10 +20,17 @@ import {
   changeEmail,
   changeName,
   changePassword,
-  completeSetup
+  completeSetup,
+  recoverAccount,
+  regenerateRecoveryCodes
 } from '@/lib/users/actions'
 import { createFirstUser } from '@/lib/users/create'
 import { fetchUserById, hasUsers } from '@/lib/users/data'
+import {
+  fetchUnusedRecoveryCodesByEmail,
+  replaceRecoveryCodes,
+  resetPasswordWithRecoveryCode
+} from '@/lib/users/recovery-codes'
 import {
   updateUserEmail,
   updateUserName,
@@ -40,6 +52,7 @@ const CLIENT_IP = '203.0.113.1'
 // sign in), not rate-limit's or setup-code's SQL.
 jest.mock('@/lib/auth/rate-limit', () => ({
   LOGIN_THROTTLED_CODE: 'login-throttled',
+  checkWindowLimit: jest.fn().mockResolvedValue(true),
   registerLoginAttempt: jest.fn().mockResolvedValue(0),
   clearFailedLogins: jest.fn(),
   getClientIp: jest.fn().mockResolvedValue('203.0.113.1')
@@ -62,6 +75,22 @@ jest.mock('@/lib/auth/breached-password', () => ({
 jest.mock('@/lib/users/create', () => ({
   createFirstUser: jest.fn().mockResolvedValue(true)
 }))
+const recoveryCodeSet = {
+  codes: ['AAAAA-AAAAA', 'BBBBB-BBBBB'],
+  hashes: ['hash-a', 'hash-b']
+}
+jest.mock('@/lib/auth/recovery-codes', () => ({
+  generateRecoveryCodeSet: jest.fn(),
+  findMatchingRecoveryCode: jest.fn()
+}))
+jest.mock('@/lib/users/recovery-codes', () => ({
+  fetchUnusedRecoveryCodesByEmail: jest.fn(),
+  replaceRecoveryCodes: jest.fn(),
+  resetPasswordWithRecoveryCode: jest.fn()
+}))
+jest
+  .mocked(generateRecoveryCodeSet)
+  .mockResolvedValue(recoveryCodeSet)
 
 const mockRegisterLoginAttempt = jest.mocked(registerLoginAttempt)
 const mockClearFailedLogins = jest.mocked(clearFailedLogins)
@@ -273,23 +302,31 @@ describe('completeSetup', () => {
     expect(mockCreateFirstUser).not.toHaveBeenCalled()
   })
 
-  it('creates the account, clears the throttle, and signs in', async () => {
-    const formData = formDataFromObject(setupSubmission)
-
-    const res = await completeSetup(formData)
+  it('creates the account with recovery codes, clears the throttle, signs in and returns the codes', async () => {
+    const res = await completeSetup(
+      formDataFromObject(setupSubmission)
+    )
 
     expect(mockCreateFirstUser).toHaveBeenCalledWith({
       name: setupSubmission.name,
       email: setupSubmission.email,
       password: setupSubmission.password,
-      codeHash: hashSetupCode(setupSubmission.code)
+      codeHash: hashSetupCode(setupSubmission.code),
+      recoveryCodeHashes: recoveryCodeSet.hashes
     })
     expect(mockClearFailedLogins).toHaveBeenCalledWith(
       `setup:${CLIENT_IP}`
     )
-    expect(mockSignIn).toHaveBeenCalledWith('credentials', formData)
-    expect(formData.get('redirectTo')).toBe('/dashboard')
-    expect(res).toEqual({ ok: true })
+    // no redirect: the form shows the codes first
+    expect(mockSignIn).toHaveBeenCalledWith('credentials', {
+      email: setupSubmission.email,
+      password: setupSubmission.password,
+      redirect: false
+    })
+    expect(res).toEqual({
+      ok: true,
+      res: { recoveryCodes: recoveryCodeSet.codes }
+    })
   })
 
   it('returns a graceful message when a pre-creation DB call throws', async () => {
@@ -349,15 +386,18 @@ describe('completeSetup', () => {
       new Error('connection refused')
     )
     jest.spyOn(console, 'error').mockImplementation(() => {})
-    const formData = formDataFromObject(setupSubmission)
+    const res = await completeSetup(
+      formDataFromObject(setupSubmission)
+    )
 
-    const res = await completeSetup(formData)
-
-    expect(mockSignIn).toHaveBeenCalledWith('credentials', formData)
-    expect(res).toEqual({ ok: true })
+    expect(mockSignIn).toHaveBeenCalled()
+    expect(res).toEqual({
+      ok: true,
+      res: { recoveryCodes: recoveryCodeSet.codes }
+    })
   })
 
-  it('rethrows the redirect thrown by a successful sign-in', async () => {
+  it("rethrows Next's control-flow errors from sign-in", async () => {
     const redirect = Object.assign(new Error('NEXT_REDIRECT'), {
       digest: 'NEXT_REDIRECT;replace;/dashboard;307;'
     })
@@ -380,8 +420,178 @@ describe('completeSetup', () => {
     expect(res).toEqual({
       ok: false,
       message:
-        'Account created! Automatic sign-in failed — please log in at /login.'
+        'Account created! Automatic sign-in failed — please log in at /login, then generate recovery codes on your dashboard.'
     })
+  })
+})
+
+describe('recoverAccount', () => {
+  const mockFetchCodes = jest.mocked(fetchUnusedRecoveryCodesByEmail)
+  const mockFindMatch = jest.mocked(findMatchingRecoveryCode)
+  const mockReset = jest.mocked(resetPasswordWithRecoveryCode)
+  const mockIsPasswordBreached = jest.mocked(isPasswordBreached)
+  const mockCheckWindowLimit = jest.mocked(checkWindowLimit)
+
+  const userId = '11111111-1111-1111-1111-111111111111'
+  const codeId = '22222222-2222-2222-2222-222222222222'
+  const codes = [{ id: codeId, code_hash: 'hash' }]
+  const submission = {
+    email: 'ada@example.com',
+    code: 'aaaaa-aaaaa',
+    newPassword: 'a long enough new passphrase',
+    confirmPassword: 'a long enough new passphrase'
+  }
+  const noMatch = {
+    ok: false,
+    message: "That email and recovery code don't match."
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockFetchCodes.mockResolvedValue({ userId, codes })
+    mockFindMatch.mockResolvedValue(codeId)
+    mockReset.mockResolvedValue(true)
+  })
+
+  it('resets the password with the matching code, clears the throttle and signs in', async () => {
+    const res = await recoverAccount(formDataFromObject(submission))
+
+    expect(mockRegisterLoginAttempt).toHaveBeenCalledWith(
+      submission.email
+    )
+    expect(mockFindMatch).toHaveBeenCalledWith(submission.code, codes)
+    expect(mockReset).toHaveBeenCalledWith(
+      userId,
+      codeId,
+      submission.newPassword
+    )
+    expect(mockClearFailedLogins).toHaveBeenCalledWith(
+      submission.email
+    )
+    expect(mockSignIn).toHaveBeenCalledWith('credentials', {
+      email: submission.email,
+      password: submission.newPassword,
+      redirectTo: '/dashboard'
+    })
+    expect(res).toEqual({ ok: true })
+  })
+
+  it('validates before touching the throttle', async () => {
+    const res = await recoverAccount(
+      formDataFromObject({ ...submission, newPassword: 'too short' })
+    )
+
+    expect(res?.ok).toBe(false)
+    expect(res?.errors).toHaveProperty('newPassword')
+    expect(mockRegisterLoginAttempt).not.toHaveBeenCalled()
+  })
+
+  it('refuses while throttled', async () => {
+    mockRegisterLoginAttempt.mockResolvedValueOnce(30)
+
+    const res = await recoverAccount(formDataFromObject(submission))
+
+    expect(res).toEqual({
+      ok: false,
+      message:
+        'Too many attempts — please wait a moment and try again.'
+    })
+    expect(mockFetchCodes).not.toHaveBeenCalled()
+  })
+
+  it('rejects a breached password before using up a code', async () => {
+    mockIsPasswordBreached.mockResolvedValueOnce(true)
+
+    const res = await recoverAccount(formDataFromObject(submission))
+
+    expect(res?.errors).toEqual({
+      newPassword: [
+        'This password has appeared in a data breach. Choose another.'
+      ]
+    })
+    expect(mockReset).not.toHaveBeenCalled()
+    // so picking breached passwords can't lock the owner out
+    expect(mockRegisterLoginAttempt).not.toHaveBeenCalled()
+  })
+
+  it('limits attempts per IP, whatever the email', async () => {
+    mockCheckWindowLimit.mockResolvedValueOnce(false)
+
+    const res = await recoverAccount(formDataFromObject(submission))
+
+    expect(mockCheckWindowLimit).toHaveBeenCalledWith(
+      `recover:${CLIENT_IP}`,
+      expect.any(Number),
+      expect.any(Number)
+    )
+    expect(res).toEqual({
+      ok: false,
+      message:
+        'Too many attempts — please wait a moment and try again.'
+    })
+    expect(mockFindMatch).not.toHaveBeenCalled()
+  })
+
+  it('still compares codes for an unknown email, and answers the same as a wrong code', async () => {
+    mockFetchCodes.mockResolvedValueOnce(null)
+    mockFindMatch.mockResolvedValueOnce(null)
+
+    const unknown = await recoverAccount(
+      formDataFromObject(submission)
+    )
+    expect(mockFindMatch).toHaveBeenCalledWith(submission.code, [])
+
+    mockFindMatch.mockResolvedValueOnce(null)
+    const wrong = await recoverAccount(formDataFromObject(submission))
+
+    expect(unknown).toEqual(noMatch)
+    expect(wrong).toEqual(noMatch)
+    expect(mockReset).not.toHaveBeenCalled()
+    expect(mockClearFailedLogins).not.toHaveBeenCalled()
+  })
+
+  it('rejects a code a concurrent submit used first', async () => {
+    mockReset.mockResolvedValueOnce(false)
+
+    const res = await recoverAccount(formDataFromObject(submission))
+
+    expect(res).toEqual(noMatch)
+    expect(mockSignIn).not.toHaveBeenCalled()
+  })
+
+  it('returns a graceful message when a DB call throws', async () => {
+    mockFetchCodes.mockRejectedValueOnce(new Error('db exploded'))
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+
+    const res = await recoverAccount(formDataFromObject(submission))
+
+    expect(res).toEqual({
+      ok: false,
+      message: 'Something went wrong — please try again.'
+    })
+  })
+
+  it('points to /login when sign-in after the reset fails', async () => {
+    mockSignIn.mockRejectedValueOnce(new Error('connection refused'))
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+
+    const res = await recoverAccount(formDataFromObject(submission))
+
+    expect(res).toEqual({
+      ok: false,
+      message: 'Password changed — please log in at /login.'
+    })
+  })
+
+  // The code is already spent, so this mustn't read as a failure
+  it('still signs in when clearing the throttle fails', async () => {
+    mockClearFailedLogins.mockRejectedValueOnce(new Error('db blip'))
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+
+    const res = await recoverAccount(formDataFromObject(submission))
+
+    expect(mockSignIn).toHaveBeenCalled()
+    expect(res).toEqual({ ok: true })
   })
 })
 
@@ -708,6 +918,81 @@ describe('account actions', () => {
 
       expect(res?.errors).toHaveProperty('name')
       expect(mockUpdateUserName).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('regenerateRecoveryCodes', () => {
+    const mockReplace = jest.mocked(replaceRecoveryCodes)
+
+    beforeEach(() => mockReplace.mockResolvedValue(true))
+
+    it('replaces the set after checking the password and returns the codes', async () => {
+      const res = await regenerateRecoveryCodes(
+        formDataFromObject({ currentPassword })
+      )
+
+      expect(mockRegisterLoginAttempt).toHaveBeenCalledWith(
+        user.email
+      )
+      expect(mockReplace).toHaveBeenCalledWith(
+        user.id,
+        user.session_version,
+        recoveryCodeSet.hashes
+      )
+      expect(res).toEqual({
+        ok: true,
+        res: { recoveryCodes: recoveryCodeSet.codes }
+      })
+    })
+
+    it('refuses when the account changed after the password check', async () => {
+      mockReplace.mockResolvedValueOnce(false)
+
+      const res = await regenerateRecoveryCodes(
+        formDataFromObject({ currentPassword })
+      )
+
+      expect(res).toEqual({
+        ok: false,
+        message:
+          'Your account was just changed elsewhere. Reload the page and try again.'
+      })
+    })
+
+    it('rejects a wrong current password', async () => {
+      const res = await regenerateRecoveryCodes(
+        formDataFromObject({ currentPassword: 'wrong' })
+      )
+
+      expect(res?.errors).toEqual({
+        currentPassword: ['Incorrect password.']
+      })
+      expect(mockReplace).not.toHaveBeenCalled()
+    })
+
+    it('requires a session', async () => {
+      mockAuth.mockResolvedValueOnce(null)
+
+      const res = await regenerateRecoveryCodes(
+        formDataFromObject({ currentPassword })
+      )
+
+      expect(res?.ok).toBe(false)
+      expect(mockReplace).not.toHaveBeenCalled()
+    })
+
+    it('returns a graceful message when the swap fails', async () => {
+      mockReplace.mockRejectedValueOnce(new Error('db exploded'))
+      jest.spyOn(console, 'error').mockImplementation(() => {})
+
+      const res = await regenerateRecoveryCodes(
+        formDataFromObject({ currentPassword })
+      )
+
+      expect(res).toEqual({
+        ok: false,
+        message: 'Something went wrong — please try again.'
+      })
     })
   })
 })

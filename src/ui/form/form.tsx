@@ -39,6 +39,7 @@ export function Form<T>({
   children,
   className,
   isUnsavedChangesConfirmed = true,
+  isSubmittedUnchanged = false,
   onSuccess,
   submitButtonText,
   submitButtonClassName = 'button-lg button-primary'
@@ -53,7 +54,10 @@ export function Form<T>({
    * subscribe).
    */
   isUnsavedChangesConfirmed?: boolean
-  onSuccess?: () => void
+  /** Submit even when unchanged, for actions that return new data */
+  isSubmittedUnchanged?: boolean
+  /** Receives the action's `res` (none when nothing changed) */
+  onSuccess?: (res?: T) => void
   submitButtonText?: string
   /** Defaults to the large primary button; pass `''` for none. */
   submitButtonClassName?: string
@@ -162,7 +166,7 @@ export function Form<T>({
       return prevState
     }
 
-    if (!isDirty) {
+    if (!isDirty && !isSubmittedUnchanged) {
       if (onSuccess) {
         onSuccess()
       } else {
@@ -186,7 +190,7 @@ export function Form<T>({
         return res ?? null
       }
       if (onSuccess) {
-        onSuccess()
+        onSuccess(res.res)
       } else {
         addSuccessMessage('Changes saved.')
       }

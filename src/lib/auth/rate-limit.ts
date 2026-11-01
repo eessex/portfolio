@@ -11,6 +11,8 @@ import { sql } from '@/lib/db'
 export const LOGIN_THROTTLED_CODE = 'login-throttled'
 
 const MAX_BACKOFF_SECONDS = 15 * 60
+// Two-int4 advisory key space, apart from the migration lock's bigint
+const WINDOW_LIMIT_LOCK_CLASS = 1
 /** Failures allowed before backoff kicks in — typos are free. */
 const FREE_FAILED_LOGINS = 3
 
@@ -102,7 +104,11 @@ export async function checkWindowLimit(
   windowSeconds: number
 ): Promise<boolean> {
   try {
-    const rows = await sql`
+    // Per-bucket lock, so concurrent requests can't all count under
+    // the limit before any of them records
+    const [, rows] = await sql.transaction([
+      sql`SELECT pg_advisory_xact_lock(${WINDOW_LIMIT_LOCK_CLASS}, hashtext(${bucket}))`,
+      sql`
       WITH stale AS (
         DELETE FROM rate_limit_events
         WHERE created_at < CURRENT_TIMESTAMP - INTERVAL '7 days'
@@ -116,6 +122,7 @@ export async function checkWindowLimit(
       )
       SELECT (SELECT count FROM recent) < ${limit} AS allowed
     `
+    ])
     return rows[0]?.allowed === true
   } catch (cause) {
     throw new Error('Failed to check rate limit.', { cause })

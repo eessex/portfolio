@@ -7,6 +7,7 @@ import Credentials from 'next-auth/providers/credentials'
 import { z } from 'zod'
 
 import { authConfig } from '@/auth.config'
+import { DUMMY_PASSWORD_HASH } from '@/lib/auth/dummy-hash'
 import {
   clearFailedLogins,
   LOGIN_THROTTLED_CODE,
@@ -26,15 +27,6 @@ const CredentialsSchema = z.object({
 class ThrottledSignin extends CredentialsSignin {
   code = LOGIN_THROTTLED_CODE
 }
-
-/**
- * A real bcrypt hash (cost 10, same as user hashes) of a random
- * value nothing can match. Compared against when no user is found so
- * unknown and known emails take the same time to reject — otherwise
- * response timing reveals which emails have accounts.
- */
-const DUMMY_PASSWORD_HASH =
-  '$2b$10$jbuOzkjIvg398zktHoqbcuNDcVdJhtMq2ZgWpRlLZ0Gldto8CSdQa'
 
 const config = {
   ...authConfig,

@@ -1,8 +1,5 @@
 jest.mock('next/server', () => ({ connection: jest.fn() }))
-jest.mock('next/navigation', () => ({
-  notFound: jest.fn(),
-  redirect: jest.fn()
-}))
+jest.mock('next/navigation', () => ({ notFound: jest.fn() }))
 jest.mock('@/lib/auth/guard', () => ({ isAuthed: jest.fn() }))
 jest.mock('@/lib/users/data', () => ({ hasUsers: jest.fn() }))
 jest.mock('@/app/setup/setup-form/setup-form', () => ({
@@ -10,7 +7,7 @@ jest.mock('@/app/setup/setup-form/setup-form', () => ({
 }))
 
 import { render } from '@testing-library/react'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import type { ReactElement } from 'react'
 
 import SetupPage from '@/app/setup/page'
@@ -28,9 +25,6 @@ describe('SetupPage', () => {
     jest.mocked(notFound).mockImplementation(() => {
       throw new Error('notFound')
     })
-    jest.mocked(redirect).mockImplementation(() => {
-      throw new Error('redirect')
-    })
   })
 
   it('renders the setup form while no user exists', async () => {
@@ -39,7 +33,9 @@ describe('SetupPage', () => {
     const el = (await SetupPage()) as ReactElement
     render(el)
 
-    expect(SetupForm).toHaveBeenCalled()
+    expect(jest.mocked(SetupForm).mock.calls[0][0]).toEqual({
+      isAccountCreated: false
+    })
   })
 
   it('404s once a user exists for a logged-out visitor', async () => {
@@ -49,13 +45,18 @@ describe('SetupPage', () => {
     expect(SetupForm).not.toHaveBeenCalled()
   })
 
-  it('sends a signed-in visitor to /dashboard instead of 404ing', async () => {
+  // completeSetup's sign-in re-renders this page; the form must stay
+  // mounted to show the recovery codes
+  it('keeps the form mounted for a signed-in visitor', async () => {
     mockHasUsers.mockResolvedValue(true)
     mockIsAuthed.mockResolvedValue(true)
 
-    await expect(SetupPage()).rejects.toThrow('redirect')
-    expect(redirect).toHaveBeenCalledWith('/dashboard')
+    const el = (await SetupPage()) as ReactElement
+    render(el)
+
     expect(notFound).not.toHaveBeenCalled()
-    expect(SetupForm).not.toHaveBeenCalled()
+    expect(jest.mocked(SetupForm).mock.calls[0][0]).toEqual({
+      isAccountCreated: true
+    })
   })
 })

@@ -1,5 +1,11 @@
+@use '@/ui/styles/grids';
 @use '@/ui/styles/gutter-header';
 
 .form-page {
   @include gutter-header.gutter-header;
+
+  > p.note {
+    margin-block: grids.space-em(6) 0;
+    text-align: center;
+  }
 }

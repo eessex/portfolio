@@ -12,7 +12,10 @@ export const authedPathPatterns = [
   /^\/dashboard(?:\/.*)?$/
 ]
 
-export const unauthedPathPatterns = [/^\/login$/]
+export const unauthedPathPatterns = [
+  /^\/login$/,
+  /^\/forgot-password$/
+]
 
 export const isAuthedPath = (pathname: string) =>
   authedPathPatterns.some((pattern) => pattern.test(pathname))

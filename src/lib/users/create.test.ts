@@ -68,13 +68,17 @@ describe('#createUser', () => {
 })
 
 describe('#createFirstUser', () => {
-  const firstUserInput = { ...input, codeHash: 'a'.repeat(64) }
+  const firstUserInput = {
+    ...input,
+    codeHash: 'a'.repeat(64),
+    recoveryCodeHashes: ['code-hash-1', 'code-hash-2']
+  }
 
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it('atomically consumes the setup code and reports it won', async () => {
+  it('atomically consumes the setup code, inserts the recovery codes and reports it won', async () => {
     // @ts-expect-error see above
     mockHash.mockResolvedValue('hashed-password')
     mockSql.mockResolvedValue([{ id: '1' }])
@@ -90,12 +94,14 @@ describe('#createFirstUser', () => {
         ),
         expect.stringContaining(
           'AND NOT EXISTS (SELECT 1 FROM users)'
-        )
+        ),
+        expect.stringContaining('INSERT INTO user_recovery_codes')
       ]),
       firstUserInput.codeHash,
       firstUserInput.name,
       firstUserInput.email,
-      'hashed-password'
+      'hashed-password',
+      firstUserInput.recoveryCodeHashes
     )
   })
 

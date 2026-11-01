@@ -14,9 +14,10 @@ jest.mock('next/headers', () => ({
 const mockHeaders = headers as unknown as jest.Mock
 
 jest.mock('@/lib/db', () => ({
-  sql: jest.fn()
+  sql: Object.assign(jest.fn(), { transaction: jest.fn() })
 }))
 const mockSql = jest.mocked(sql)
+const mockTransaction = jest.mocked(sql.transaction)
 
 describe('rate-limit', () => {
   beforeEach(() => jest.clearAllMocks())
@@ -48,21 +49,39 @@ describe('rate-limit', () => {
 
   describe('#checkWindowLimit', () => {
     it('allows attempts under the limit', async () => {
-      mockSql.mockResolvedValueOnce([{ allowed: true }])
+      mockTransaction.mockResolvedValueOnce([[], [{ allowed: true }]])
       expect(
         await checkWindowLimit('subscribe:1.2.3.4', 5, 3600)
       ).toBe(true)
     })
 
     it('rejects attempts over the limit', async () => {
-      mockSql.mockResolvedValueOnce([{ allowed: false }])
+      mockTransaction.mockResolvedValueOnce([
+        [],
+        [{ allowed: false }]
+      ])
       expect(
         await checkWindowLimit('subscribe:1.2.3.4', 5, 3600)
       ).toBe(false)
     })
 
+    // Concurrent requests mustn't all count under the limit
+    it('locks the bucket before counting and recording', async () => {
+      mockSql.mockImplementation(((strings: TemplateStringsArray) =>
+        strings.join('')) as unknown as typeof sql)
+      mockTransaction.mockResolvedValueOnce([[], [{ allowed: true }]])
+
+      await checkWindowLimit('subscribe:1.2.3.4', 5, 3600)
+
+      const queries = mockTransaction.mock
+        .calls[0]?.[0] as unknown as string[]
+      expect(queries[0]).toContain('pg_advisory_xact_lock')
+      expect(mockSql.mock.calls[0]).toContain('subscribe:1.2.3.4')
+      expect(queries[1]).toContain('INSERT INTO rate_limit_events')
+    })
+
     it('can handle errors', async () => {
-      mockSql.mockRejectedValueOnce(new Error('DB error'))
+      mockTransaction.mockRejectedValueOnce(new Error('DB error'))
       await expect(
         checkWindowLimit('subscribe:1.2.3.4', 5, 3600)
       ).rejects.toThrow('Failed to check rate limit.')

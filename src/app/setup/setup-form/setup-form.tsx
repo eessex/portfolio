@@ -1,15 +1,54 @@
 'use client'
 
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+
 import { completeSetup } from '@/lib/users/actions'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
+import { RecoveryCodesList } from '@/ui/users/recovery-codes'
 
-export function SetupForm() {
+export function SetupForm({
+  isAccountCreated = false
+}: {
+  isAccountCreated?: boolean
+}) {
+  const [recoveryCodes, setRecoveryCodes] = useState<string[]>()
+  // Only a visit after setup redirects, not this form's own submit
+  const [isCreatedOnLoad] = useState(isAccountCreated)
+  const router = useRouter()
+
+  useEffect(() => {
+    if (isCreatedOnLoad) router.replace('/dashboard')
+  }, [isCreatedOnLoad, router])
+
+  // The account exists and is signed in by now
+  if (recoveryCodes) {
+    return (
+      <RecoveryCodesList
+        codes={recoveryCodes}
+        onDone={() => router.push('/dashboard')}
+      />
+    )
+  }
+
+  if (isAccountCreated) {
+    return (
+      <p>
+        Your account is set up.{' '}
+        <Link href='/dashboard'>Go to the dashboard</Link>
+      </p>
+    )
+  }
+
   return (
     <Form
       action={completeSetup}
       isUnsavedChangesConfirmed={false}
+      isSubmittedUnchanged
       submitButtonText='Create account'
+      onSuccess={(res) => setRecoveryCodes(res?.recoveryCodes)}
     >
       <SetupFields />
     </Form>

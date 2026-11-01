@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 
-import { EditPageLayout } from '@/app/(item-pages)/edit-page-layout'
 import { fetchDefaultProject } from '@/lib/projects/data'
+import { FormPageLayout } from '@/ui/form/form-page-layout'
 import { Loading } from '@/ui/loading'
 import { EditProjectForm } from '@/ui/projects/edit-project-form'
 
@@ -12,11 +12,11 @@ export const metadata: Metadata = { title }
 
 export default function EditAboutPage() {
   return (
-    <EditPageLayout title={title}>
+    <FormPageLayout title={title}>
       <Suspense fallback={<Loading />}>
         <EditDefaultProject />
       </Suspense>
-    </EditPageLayout>
+    </FormPageLayout>
   )
 }
 

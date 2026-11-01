@@ -106,7 +106,9 @@ export function Form<T>({
       if (!isFormDirty(current, initialState)) return
 
       event.preventDefault()
-      event.stopPropagation()
+      // Immediate: every Form listens on document, so with several
+      // dirty forms on a page only the first opens a dialog
+      event.stopImmediatePropagation()
       setPendingHref(anchor.href)
     }
 

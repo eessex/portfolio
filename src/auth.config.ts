@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server'
 import type { NextAuthConfig } from 'next-auth'
 
 import { isAuthedPath, isUnauthedPath } from '@/lib/auth/paths'
+import {
+  checkSessionVersion,
+  withUserId
+} from '@/lib/auth/session-version'
 import { hasSiteSettings } from '@/lib/site-settings/data'
 import { hasUsers } from '@/lib/users/data'
 
@@ -49,6 +53,8 @@ export const authConfig = {
   trustHost: true,
   pages: { signIn: '/login' },
   callbacks: {
+    jwt: checkSessionVersion,
+    session: withUserId,
     async authorized({ auth, request: { nextUrl } }) {
       // Before any admin exists, /setup is the only reachable page —
       // nobody could be logged in yet either way.

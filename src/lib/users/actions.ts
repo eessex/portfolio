@@ -292,6 +292,20 @@ export async function changePassword(
     const failed = await checkCurrentPassword(user, currentPassword)
     if (failed) return failed
 
+    // bcrypt reads only the first 72 bytes, so a legacy password
+    // longer than that still matches its own truncation
+    if (await bcrypt.compare(newPassword, user.password)) {
+      return {
+        ok: false,
+        message: 'Failed to validate password.',
+        errors: {
+          newPassword: [
+            'Choose a password different from your current one.'
+          ]
+        }
+      }
+    }
+
     if (await isPasswordBreached(newPassword)) {
       return {
         ok: false,

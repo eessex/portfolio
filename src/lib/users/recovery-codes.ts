@@ -1,10 +1,7 @@
 // Deliberately NOT a server action: the account actions in actions.ts
 // call these after checking the session or a recovery code.
-import bcrypt from 'bcrypt'
-
+import { hashSecret } from '@/lib/auth/hash-secret'
 import { sql } from '@/lib/db'
-
-const SALT_ROUNDS = 10
 
 // `null` for an unknown email; one query either way, for timing
 export async function fetchUnusedRecoveryCodesByEmail(
@@ -96,7 +93,7 @@ export async function resetPasswordWithRecoveryCode(
   codeId: string,
   password: string
 ): Promise<boolean> {
-  const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
+  const hashedPassword = await hashSecret(password)
   try {
     // Users row first, the same lock order as replaceRecoveryCodes
     const [, rows] = await sql.transaction([

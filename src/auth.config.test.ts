@@ -77,6 +77,17 @@ describe('authConfig.callbacks.authorized', () => {
     expect(await authorized(args('/login', true))).toBe(false)
   })
 
+  it.each(['/invite', '/reset-password'])(
+    'allows %s signed in or out, before site settings exist',
+    async (path) => {
+      const { authorized, hasSiteSettings } = await load()
+      hasSiteSettings.mockResolvedValue(false)
+
+      expect(await authorized(args(path, true))).toBe(true)
+      expect(await authorized(args(path, false))).toBe(true)
+    }
+  )
+
   it('allows logged-in users on public paths without checking site settings', async () => {
     const { authorized, hasSiteSettings } = await load()
 

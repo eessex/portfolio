@@ -14,7 +14,9 @@ describe('beforeSend', () => {
     '/releases/new',
     '/events/some-event/edit',
     '/about/edit',
-    '/login'
+    '/login',
+    '/invite',
+    '/reset-password'
   ])('drops %s', (path) => {
     expect(beforeSend(event(path))).toBeNull()
   })

@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server'
 import type { NextAuthConfig } from 'next-auth'
 
-import { isAuthedPath, isUnauthedPath } from '@/lib/auth/paths'
+import {
+  isAuthedPath,
+  isLinkPath,
+  isUnauthedPath
+} from '@/lib/auth/paths'
 import {
   checkSessionVersion,
   withUserId
@@ -31,9 +35,9 @@ async function siteIsConfigured(): Promise<boolean> {
   return isSiteConfigured
 }
 
-// Same memoization as isSiteConfigured above: a user, once created,
-// is never the last one deleted (there's no such flow), so there's
-// nothing to re-check once this has seen one.
+// Same memoization as isSiteConfigured above: deleteUser() never
+// removes the last admin, so once this has seen one there's nothing
+// to re-check.
 let isAnyUserCreated = false
 
 async function anyUserIsCreated(): Promise<boolean> {
@@ -66,7 +70,9 @@ export const authConfig = {
 
       const isLoggedIn = !!auth?.user
 
-      if (isAuthedPath(nextUrl.pathname)) {
+      if (isLinkPath(nextUrl.pathname)) {
+        return true // signed in or out, configured or not
+      } else if (isAuthedPath(nextUrl.pathname)) {
         return isLoggedIn // Redirect unauthenticated users
       } else if (isUnauthedPath(nextUrl.pathname)) {
         return !isLoggedIn // allow unauthenticated users only

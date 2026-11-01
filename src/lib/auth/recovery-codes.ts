@@ -7,13 +7,12 @@ import {
   generateGroupedCode,
   normalizeGroupedCode
 } from '@/lib/auth/grouped-code'
+import { hashSecret } from '@/lib/auth/hash-secret'
 import { RECOVERY_CODE_COUNT } from '@/lib/users/schemas'
 
 // 50 bits each; guesses are also throttled per email
 const RECOVERY_CODE_LENGTH = 10
 const RECOVERY_CODE_GROUP_SIZE = 5
-const SALT_ROUNDS = 10
-
 export interface RecoveryCodeSet {
   /** Shown once, never stored */
   codes: string[]
@@ -29,9 +28,7 @@ export async function generateRecoveryCodeSet(): Promise<RecoveryCodeSet> {
     )
   )
   const hashes = await Promise.all(
-    codes.map((code) =>
-      bcrypt.hash(normalizeGroupedCode(code), SALT_ROUNDS)
-    )
+    codes.map((code) => hashSecret(normalizeGroupedCode(code)))
   )
   return { codes, hashes }
 }

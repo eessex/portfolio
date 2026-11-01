@@ -1,10 +1,8 @@
 // Deliberately NOT a server action: the account actions in
 // actions.ts call these after checking the session and password.
-import bcrypt from 'bcrypt'
-
+import { hashSecret } from '@/lib/auth/hash-secret'
 import { sql } from '@/lib/db'
-
-const SALT_ROUNDS = 10
+import { isActorCurrent } from '@/lib/users/tokens'
 
 // Each email/password write lands only while the account still has
 // the session version the caller checked the current password
@@ -20,7 +18,7 @@ export async function updateUserPassword(
   password: string,
   sessionVersion: number
 ): Promise<boolean> {
-  const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
+  const hashedPassword = await hashSecret(password)
   try {
     const rows = await sql`
       UPDATE users SET
@@ -59,6 +57,42 @@ export async function updateUserEmail(
       return 'taken'
     }
     throw new Error('Failed to update email.', { cause })
+  }
+}
+
+// Locks every users row first, so two admins removing each other
+// can't leave none
+/**
+ * Never the last admin or `actingUserId`; tokens and codes cascade.
+ * `'stale'` if the acting admin changed since `sessionVersion` was
+ * read (or is gone), `'gone'` if the target already is.
+ */
+export async function deleteUser(
+  id: string,
+  actingUserId: string,
+  sessionVersion: number
+): Promise<'deleted' | 'gone' | 'stale'> {
+  try {
+    const [locked, rows] = await sql.transaction([
+      sql`SELECT id, session_version FROM users ORDER BY id FOR UPDATE`,
+      sql`
+        DELETE FROM users
+        WHERE id = ${id}
+          AND id <> ${actingUserId}
+          AND EXISTS (
+            SELECT 1 FROM users
+            WHERE id = ${actingUserId}
+              AND session_version = ${sessionVersion}
+          )
+        RETURNING id
+      `
+    ])
+    if (rows.length > 0) return 'deleted'
+    return isActorCurrent(locked, actingUserId, sessionVersion)
+      ? 'gone'
+      : 'stale'
+  } catch (cause) {
+    throw new Error('Failed to remove user.', { cause })
   }
 }
 

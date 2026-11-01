@@ -8,6 +8,7 @@ import {
 import { Form, useFormErrors } from '@/ui/form/form'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
+import { CurrentPasswordInput } from '@/ui/users/current-password-input'
 import { NewPasswordInputs } from '@/ui/users/new-password-inputs'
 
 const OTHER_SESSIONS_NOTE =
@@ -33,7 +34,8 @@ export function EmailForm({ email }: { email: string }) {
 export function PasswordForm() {
   return (
     <Form action={changePassword} submitButtonText='Change password'>
-      <PasswordFields />
+      <CurrentPasswordInput />
+      <NewPasswordInputs />
       <p className={styles['submit-note']}>{OTHER_SESSIONS_NOTE}</p>
     </Form>
   )
@@ -73,33 +75,7 @@ function EmailFields({ email }: { email: string }) {
           autoComplete: 'email'
         }}
       />
-      <CurrentPasswordInput errors={errors?.currentPassword} />
+      <CurrentPasswordInput />
     </>
-  )
-}
-
-function PasswordFields() {
-  const errors = useFormErrors()
-
-  return (
-    <>
-      <CurrentPasswordInput errors={errors?.currentPassword} />
-      <NewPasswordInputs />
-    </>
-  )
-}
-
-function CurrentPasswordInput({ errors }: { errors?: string[] }) {
-  return (
-    <Input
-      label='Current password'
-      errors={errors}
-      attributes={{
-        type: 'password',
-        name: 'currentPassword',
-        required: true,
-        autoComplete: 'current-password'
-      }}
-    />
   )
 }

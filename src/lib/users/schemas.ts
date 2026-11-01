@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { systemFields } from '@/lib/schemas/fields'
-import { email, shortText } from '@/lib/schemas/primitives'
+import { email, shortText, uuid } from '@/lib/schemas/primitives'
 
 /**
  * What a user_tokens row's one-time link does: an invite creates a new
@@ -9,6 +9,12 @@ import { email, shortText } from '@/lib/schemas/primitives'
  */
 export const userTokenPurposes = ['invite', 'reset'] as const
 export const userTokenPurposeSchema = z.enum(userTokenPurposes)
+
+/** Invite and reset links work once, within this many hours */
+export const USER_TOKEN_TTL_HOURS = 72
+
+/** generateUserToken()'s shape: 32 bytes as base64url */
+export const USER_TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/
 
 /** Codes per set; client-safe, unlike src/lib/auth/recovery-codes.ts */
 export const RECOVERY_CODE_COUNT = 8
@@ -55,26 +61,40 @@ export const newPassword = z
   )
   .refine(isWithinBcryptLimit, bcryptLimitMessage)
 
+/** Adds a confirm field that must match `passwordKey` */
+function withPasswordConfirmation<
+  Shape extends z.ZodRawShape,
+  Key extends keyof Shape & string
+>(shape: Shape, passwordKey: Key, confirmError: string) {
+  return z
+    .object({
+      ...shape,
+      confirmPassword: z.string({ error: confirmError })
+    })
+    .refine(
+      (data) => {
+        const fields = data as Record<string, unknown>
+        return fields[passwordKey] === fields.confirmPassword
+      },
+      { message: 'Passwords must match.', path: ['confirmPassword'] }
+    )
+}
+
 const currentPassword = z.string({
   error: 'Enter your current password.'
 })
 
-export const changePasswordSchema = z
-  .object({
+export const changePasswordSchema = withPasswordConfirmation(
+  {
     currentPassword,
-    newPassword,
-    confirmPassword: z.string({
-      error: 'Confirm your new password.'
-    })
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Passwords must match.',
-    path: ['confirmPassword']
-  })
-  .refine((data) => data.newPassword !== data.currentPassword, {
-    message: 'Choose a password different from your current one.',
-    path: ['newPassword']
-  })
+    newPassword
+  },
+  'newPassword',
+  'Confirm your new password.'
+).refine((data) => data.newPassword !== data.currentPassword, {
+  message: 'Choose a password different from your current one.',
+  path: ['newPassword']
+})
 
 export const changeEmailSchema = z.object({
   currentPassword,
@@ -99,35 +119,63 @@ export const userSchema = z.object({
  * The /setup form's account fields. The setup code itself is checked
  * separately (against its hash, not through Zod) before this runs.
  */
-export const completeSetupSchema = z
-  .object({
+export const completeSetupSchema = withPasswordConfirmation(
+  {
     name: shortText,
     email,
-    password: newPassword,
-    confirmPassword: z.string({
-      error: 'Confirm your password.'
-    })
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords must match.',
-    path: ['confirmPassword']
-  })
+    password: newPassword
+  },
+  'password',
+  'Confirm your password.'
+)
 
 export const regenerateRecoveryCodesSchema = z.object({
   currentPassword
 })
 
 /** /forgot-password: trades one recovery code for a new password. */
-export const recoverAccountSchema = z
-  .object({
+export const recoverAccountSchema = withPasswordConfirmation(
+  {
     email,
     code: z.string({ error: 'Enter a recovery code.' }),
-    newPassword,
-    confirmPassword: z.string({
-      error: 'Confirm your new password.'
-    })
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Passwords must match.',
-    path: ['confirmPassword']
-  })
+    newPassword
+  },
+  'newPassword',
+  'Confirm your new password.'
+)
+
+/** Users page: invite, reset-link and remove all re-check the password */
+export const inviteUserSchema = z.object({ currentPassword })
+
+export const otherUserSchema = z.object({
+  currentPassword,
+  userId: uuid
+})
+
+export const revokeInviteSchema = z.object({ inviteId: uuid })
+
+const token = z
+  .string({ error: 'This link is incomplete.' })
+  .regex(USER_TOKEN_PATTERN, 'This link is incomplete.')
+
+/** /invite: the invitee sets up their own account. */
+export const acceptInviteSchema = withPasswordConfirmation(
+  {
+    token,
+    name: shortText.min(1, 'Enter a name.'),
+    email,
+    newPassword
+  },
+  'newPassword',
+  'Confirm your password.'
+)
+
+/** /reset-password: a reset link from another admin. */
+export const resetPasswordSchema = withPasswordConfirmation(
+  {
+    token,
+    newPassword
+  },
+  'newPassword',
+  'Confirm your new password.'
+)

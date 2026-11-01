@@ -6,9 +6,9 @@ import { useEffect, useRef, useState } from 'react'
 import { regenerateRecoveryCodes } from '@/lib/users/actions'
 import { RECOVERY_CODE_COUNT } from '@/lib/users/schemas'
 import { Checkbox } from '@/ui/form/checkbox'
-import { Form, useFormErrors } from '@/ui/form/form'
-import { Input } from '@/ui/form/input'
+import { Form } from '@/ui/form/form'
 import { useToast } from '@/ui/toast/toast-context'
+import { CurrentPasswordInput } from '@/ui/users/current-password-input'
 import styles from '@/ui/users/recovery-codes.module.scss'
 
 /** Shown once, so Continue waits for the "saved" tick */
@@ -131,25 +131,7 @@ export function RecoveryCodesForm({
           : 'You have no recovery codes left.'}{' '}
         Generating new codes replaces the old ones.
       </p>
-      <CurrentPasswordField />
+      <CurrentPasswordInput />
     </Form>
-  )
-}
-
-// Separate so useFormErrors() reads the Form's provider
-function CurrentPasswordField() {
-  const errors = useFormErrors()
-
-  return (
-    <Input
-      label='Current password'
-      errors={errors?.currentPassword}
-      attributes={{
-        type: 'password',
-        name: 'currentPassword',
-        required: true,
-        autoComplete: 'current-password'
-      }}
-    />
   )
 }

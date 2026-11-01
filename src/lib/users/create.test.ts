@@ -9,7 +9,11 @@ jest.mock('bcrypt', () => ({
 import bcrypt from 'bcrypt'
 
 import { sql } from '@/lib/db'
-import { createFirstUser, createUser } from '@/lib/users/create'
+import {
+  createFirstUser,
+  createInvitedUser,
+  createUser
+} from '@/lib/users/create'
 
 const mockSql = jest.mocked(sql)
 const mockHash = jest.mocked(bcrypt.hash)
@@ -120,6 +124,63 @@ describe('#createFirstUser', () => {
 
     await expect(createFirstUser(firstUserInput)).rejects.toThrow(
       'Failed to create first user.'
+    )
+  })
+})
+
+describe('#createInvitedUser', () => {
+  const invitedInput = {
+    ...input,
+    tokenHash: 'b'.repeat(64),
+    recoveryCodeHashes: ['code-hash-1', 'code-hash-2']
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    // @ts-expect-error see above
+    mockHash.mockResolvedValue('hashed-password')
+  })
+
+  it('spends the invite and inserts the user and recovery codes in one statement', async () => {
+    mockSql.mockResolvedValue([{ id: '1' }])
+
+    expect(await createInvitedUser(invitedInput)).toBe('created')
+    expect(mockSql).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.stringContaining('UPDATE user_tokens SET used_at'),
+        expect.stringContaining("AND purpose = 'invite'"),
+        expect.stringContaining(
+          'WHERE EXISTS (SELECT 1 FROM consumed)'
+        ),
+        expect.stringContaining('INSERT INTO user_recovery_codes')
+      ]),
+      invitedInput.tokenHash,
+      invitedInput.name,
+      invitedInput.email,
+      'hashed-password',
+      invitedInput.recoveryCodeHashes
+    )
+  })
+
+  it('reports an unknown, used or expired invite', async () => {
+    mockSql.mockResolvedValue([])
+
+    expect(await createInvitedUser(invitedInput)).toBe('invalid')
+  })
+
+  it('reports a taken email', async () => {
+    mockSql.mockRejectedValue(
+      Object.assign(new Error('duplicate key'), { code: '23505' })
+    )
+
+    expect(await createInvitedUser(invitedInput)).toBe('taken')
+  })
+
+  it('throws on other DB errors', async () => {
+    mockSql.mockRejectedValue(new Error('db exploded'))
+
+    await expect(createInvitedUser(invitedInput)).rejects.toThrow(
+      'Failed to create invited user.'
     )
   })
 })

@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 
 import { SetupForm } from '@/app/setup/setup-form/setup-form'
 import { completeSetup } from '@/lib/users/actions'
+import { MIN_PASSWORD_LENGTH } from '@/lib/users/schemas'
 import { useToast } from '@/ui/toast/toast-context'
 
 const mockPush = jest.fn()
@@ -38,8 +39,8 @@ async function fillAndSubmit(
     code: 'K7QM-3XRD-PW9T-H2FC',
     name: 'Ada Lovelace',
     email: 'ada@example.com',
-    password: 'super-secret',
-    confirmPassword: 'super-secret',
+    password: 'a long enough setup passphrase',
+    confirmPassword: 'a long enough setup passphrase',
     ...overrides
   }
   const user = userEvent.setup()
@@ -85,6 +86,17 @@ describe('SetupForm', () => {
     ).toBeInTheDocument()
   })
 
+  it('asks for the same password length as the other password forms', () => {
+    render(<SetupForm />)
+
+    for (const label of [/^password/i, /confirm password/i]) {
+      expect(screen.getByLabelText(label)).toHaveAttribute(
+        'minLength',
+        String(MIN_PASSWORD_LENGTH)
+      )
+    }
+  })
+
   it('submits every field to completeSetup', async () => {
     mockCompleteSetup.mockResolvedValue({ ok: true })
 
@@ -95,8 +107,12 @@ describe('SetupForm', () => {
     expect(formData.get('code')).toBe('K7QM-3XRD-PW9T-H2FC')
     expect(formData.get('name')).toBe('Ada Lovelace')
     expect(formData.get('email')).toBe('ada@example.com')
-    expect(formData.get('password')).toBe('super-secret')
-    expect(formData.get('confirmPassword')).toBe('super-secret')
+    expect(formData.get('password')).toBe(
+      'a long enough setup passphrase'
+    )
+    expect(formData.get('confirmPassword')).toBe(
+      'a long enough setup passphrase'
+    )
   })
 
   it('shows the recovery codes before continuing to the dashboard', async () => {

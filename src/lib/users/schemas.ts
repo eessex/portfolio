@@ -103,11 +103,10 @@ export const completeSetupSchema = z
   .object({
     name: shortText,
     email,
-    password: z
-      .string()
-      .min(8)
-      .refine(isWithinBcryptLimit, bcryptLimitMessage),
-    confirmPassword: z.string().min(8)
+    password: newPassword,
+    confirmPassword: z.string({
+      error: 'Confirm your password.'
+    })
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords must match.',

@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { completeSetup } from '@/lib/users/actions'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
+import { NewPasswordInputs } from '@/ui/users/new-password-inputs'
 import { RecoveryCodesList } from '@/ui/users/recovery-codes'
 
 export function SetupForm({
@@ -86,26 +87,7 @@ function SetupFields() {
           required: true
         }}
       />
-      <Input
-        label='Password'
-        errors={errors?.password}
-        attributes={{
-          type: 'password',
-          name: 'password',
-          required: true,
-          minLength: 8
-        }}
-      />
-      <Input
-        label='Confirm password'
-        errors={errors?.confirmPassword}
-        attributes={{
-          type: 'password',
-          name: 'confirmPassword',
-          required: true,
-          minLength: 8
-        }}
-      />
+      <NewPasswordInputs name='password' label='Password' />
     </>
   )
 }

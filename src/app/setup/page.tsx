@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { connection } from 'next/server'
 
 import { SetupForm } from '@/app/setup/setup-form/setup-form'
@@ -10,18 +10,13 @@ const title = 'Set up your site'
 export const metadata: Metadata = { title }
 
 /**
- * Only reachable before the first admin exists: once one does, this
- * 404s immediately rather than streaming the header and a loading
- * state first. No Suspense boundary, so there's no shell to flash —
- * connection() just opts the whole page out of static rendering,
- * since the row it checks can be created by a submit at any moment.
+ * No Suspense boundary, so there's no shell to flash before the 404.
+ * connection(): a submit can create the user at any moment.
  */
 export default async function SetupPage() {
   await connection()
-  if (await hasUsers()) {
-    if (await isAuthed()) redirect('/dashboard')
-    notFound()
-  }
+  const isAccountCreated = await hasUsers()
+  if (isAccountCreated && !(await isAuthed())) notFound()
 
   return (
     <article>
@@ -29,7 +24,9 @@ export default async function SetupPage() {
         <h1>{title}</h1>
       </header>
 
-      <SetupForm />
+      {/* Same tree once signed in: completeSetup's cookie re-renders
+          this page, and SetupForm must keep the codes it holds */}
+      <SetupForm isAccountCreated={isAccountCreated} />
     </article>
   )
 }

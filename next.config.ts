@@ -43,6 +43,7 @@ const nextConfig: NextConfig = {
     ]
   },
   cacheComponents: true,
+  partialPrefetching: true,
   experimental: {
     // image uploads go through the form's server action
     serverActions: { bodySizeLimit: SERVER_ACTION_BODY_SIZE_LIMIT }

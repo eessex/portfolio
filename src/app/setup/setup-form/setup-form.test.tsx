@@ -5,8 +5,10 @@ import { SetupForm } from '@/app/setup/setup-form/setup-form'
 import { completeSetup } from '@/lib/users/actions'
 import { useToast } from '@/ui/toast/toast-context'
 
+const mockPush = jest.fn()
+const mockReplace = jest.fn()
 jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(() => ({ push: jest.fn() }))
+  useRouter: jest.fn(() => ({ push: mockPush, replace: mockReplace }))
 }))
 
 jest.mock('@/lib/users/actions', () => ({
@@ -41,7 +43,7 @@ async function fillAndSubmit(
     ...overrides
   }
   const user = userEvent.setup()
-  render(<SetupForm />)
+  const view = render(<SetupForm />)
 
   await user.type(screen.getByLabelText(/setup code/i), values.code)
   await user.type(screen.getByLabelText(/^name/i), values.name)
@@ -60,6 +62,7 @@ async function fillAndSubmit(
   await user.click(
     screen.getByRole('button', { name: /create account/i })
   )
+  return view
 }
 
 describe('SetupForm', () => {
@@ -94,6 +97,48 @@ describe('SetupForm', () => {
     expect(formData.get('email')).toBe('ada@example.com')
     expect(formData.get('password')).toBe('super-secret')
     expect(formData.get('confirmPassword')).toBe('super-secret')
+  })
+
+  it('shows the recovery codes before continuing to the dashboard', async () => {
+    mockCompleteSetup.mockResolvedValue({
+      ok: true,
+      res: { recoveryCodes: ['AAAAA-AAAAA', 'BBBBB-BBBBB'] }
+    })
+    const user = userEvent.setup()
+
+    await fillAndSubmit()
+
+    expect(await screen.findByText('AAAAA-AAAAA')).toBeInTheDocument()
+    expect(mockPush).not.toHaveBeenCalled()
+
+    await user.click(screen.getByLabelText(/saved these codes/i))
+    await user.click(screen.getByRole('button', { name: 'Continue' }))
+
+    expect(mockPush).toHaveBeenCalledWith('/dashboard')
+  })
+
+  it('keeps showing the codes when the sign-in re-renders the page', async () => {
+    mockCompleteSetup.mockResolvedValue({
+      ok: true,
+      res: { recoveryCodes: ['AAAAA-AAAAA'] }
+    })
+
+    const { rerender } = await fillAndSubmit()
+    expect(await screen.findByText('AAAAA-AAAAA')).toBeInTheDocument()
+
+    rerender(<SetupForm isAccountCreated />)
+
+    expect(screen.getByText('AAAAA-AAAAA')).toBeInTheDocument()
+    expect(mockReplace).not.toHaveBeenCalled()
+  })
+
+  it('sends a visit after setup to the dashboard', () => {
+    render(<SetupForm isAccountCreated />)
+
+    expect(mockReplace).toHaveBeenCalledWith('/dashboard')
+    expect(
+      screen.queryByRole('button', { name: /create account/i })
+    ).not.toBeInTheDocument()
   })
 
   it('shows a top-level message for a wrong code', async () => {

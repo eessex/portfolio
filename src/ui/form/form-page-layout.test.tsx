@@ -28,4 +28,16 @@ describe('FormPageLayout', () => {
 
     expect(screen.getByRole('article')).toHaveClass('form-page')
   })
+
+  it('renders a note after the form', () => {
+    render(
+      <FormPageLayout title='Log in' note='Forgot password?'>
+        <form aria-label='Log in' />
+      </FormPageLayout>
+    )
+
+    const note = screen.getByText('Forgot password?')
+    expect(note).toHaveClass('note')
+    expect(screen.getByRole('article').lastElementChild).toBe(note)
+  })
 })

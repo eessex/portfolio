@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 import { currentUserId } from '@/lib/auth/guard'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { fetchUserById } from '@/lib/users/data'
+import { countUnusedRecoveryCodes } from '@/lib/users/recovery-codes'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
 import styles from '@/ui/dashboard/dashboard.module.scss'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
@@ -14,6 +15,7 @@ import {
   NameForm,
   PasswordForm
 } from '@/ui/users/account-forms'
+import { RecoveryCodesForm } from '@/ui/users/recovery-codes'
 
 const title = 'Dashboard'
 export const metadata: Metadata = { title }
@@ -52,7 +54,15 @@ export default async function DashboardPage() {
 // Reads the session, so it streams in under the static heading
 async function AccountSettings() {
   const id = await currentUserId()
-  const user = id ? await fetchUserById(id) : null
+  if (!id) return null
+  const [user, unusedRecoveryCodes] = await Promise.all([
+    fetchUserById(id),
+    // A failed count shouldn't take down the other account forms
+    countUnusedRecoveryCodes(id).catch((error) => {
+      console.error('Failed to count recovery codes', error)
+      return null
+    })
+  ])
   if (!user) return null
 
   return (
@@ -65,6 +75,15 @@ async function AccountSettings() {
       </AccordionDropdown>
       <AccordionDropdown title='Change password' headingLevel={3}>
         <PasswordForm />
+      </AccordionDropdown>
+      <AccordionDropdown title='Recovery codes' headingLevel={3}>
+        {unusedRecoveryCodes === null ? (
+          <p>
+            Couldn&apos;t load recovery codes — reload to try again.
+          </p>
+        ) : (
+          <RecoveryCodesForm unusedCount={unusedRecoveryCodes} />
+        )}
       </AccordionDropdown>
     </>
   )

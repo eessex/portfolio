@@ -60,7 +60,14 @@ export async function fetchPublishersRaw(
         OR publishers.url ILIKE ${like}
       )
     `,
+    // a label site's own publisher (the default project's) leads,
+    // then the built-in one; on artist sites it's NULL, so only the
+    // built-in one does
     list: ({ like, cursorName, cursorId }) => sql`
+      WITH house AS (
+        SELECT p.publisher_id AS id FROM projects p
+        WHERE p.is_default_project
+      )
       SELECT
         publishers.*,
         ARRAY(
@@ -75,12 +82,13 @@ export async function fetchPublishersRaw(
         OR publishers.type ILIKE ${like}
         OR publishers.url ILIKE ${like}
       )
-      -- the built-in publisher leads the first page, so later pages
-      -- (after a cursor) skip it and continue by name
+      -- the leading publishers head the first page, so later pages
+      -- (after a cursor) skip them and continue by name
       AND (
         ${cursorName}::text IS NULL
         OR (
           NOT publishers.is_built_in
+          AND publishers.id IS DISTINCT FROM (SELECT id FROM house)
           AND (
             LOWER(publishers.name) > LOWER(${cursorName})
             OR (LOWER(publishers.name) = LOWER(${cursorName}) AND publishers.id > ${cursorId})
@@ -88,6 +96,7 @@ export async function fetchPublishersRaw(
         )
       )
       ORDER BY
+        publishers.id IS NOT DISTINCT FROM (SELECT id FROM house) DESC,
         publishers.is_built_in DESC,
         LOWER(publishers.name) ASC,
         publishers.id ASC

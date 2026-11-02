@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import ListLayout from '@/app/(item-pages)/list-layout'
+import { activeHousePublisherId } from '@/lib/projects/site-identity'
 import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import type {
   FetchReleasesResult,
@@ -25,12 +26,16 @@ export default async function ReleasesPage() {
 }
 
 async function ReleasesList() {
-  const releases = await fetchCachedReleasesFirstPage(false)
+  const [releases, hiddenPublisherId] = await Promise.all([
+    fetchCachedReleasesFirstPage(false),
+    activeHousePublisherId()
+  ])
 
   return (
     <ItemsTable<ReleaseClient, FetchReleasesResult>
       itemType={path}
       initialItems={releases}
+      hiddenPublisherId={hiddenPublisherId}
     />
   )
 }

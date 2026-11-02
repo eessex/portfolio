@@ -8,6 +8,7 @@ import { resolvePageItem } from '@/app/(item-pages)/resolve-page-item'
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import { fetchCachedProjectById } from '@/lib/projects/cached'
 import { fetchProjectsRaw } from '@/lib/projects/data'
+import { activeHousePublisherId } from '@/lib/projects/site-identity'
 import type { ProjectClient } from '@/lib/projects/types'
 import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import { ABOUT_PATH, PagePaths } from '@/lib/schemas'
@@ -51,9 +52,10 @@ async function ProjectDetail({
   project: ProjectClient
   isAuthed: boolean
 }) {
-  const [releases, events] = await Promise.all([
+  const [releases, events, hiddenPublisherId] = await Promise.all([
     fetchCachedReleasesFirstPage(authed, project.id),
-    fetchCachedEventsFirstPage(authed, project.id)
+    fetchCachedEventsFirstPage(authed, project.id),
+    activeHousePublisherId()
   ])
 
   return (
@@ -62,6 +64,7 @@ async function ProjectDetail({
         itemType={PagePaths.releases}
         initialItems={releases}
         projectId={project.id}
+        hiddenPublisherId={hiddenPublisherId}
       />
       <ItemsTable
         itemType={PagePaths.events}

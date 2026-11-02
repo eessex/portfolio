@@ -59,7 +59,8 @@ export function ItemsTable<
   isPathTypeVisible,
   featuredKey,
   projectId,
-  searchParams
+  searchParams,
+  hiddenPublisherId
 }: {
   initialItems: ResultsResponse<TEmbeddedItem, T, S>
   itemType: PagePath | EmbeddedItemType
@@ -79,6 +80,8 @@ export function ItemsTable<
   projectId?: string
   /** Extra params forwarded to every API fetch, so pages match the first */
   searchParams?: SearchParams
+  /** release rows leave out this publisher's name (the house publisher) */
+  hiddenPublisherId?: string
 }) {
   const {
     count,
@@ -261,6 +264,7 @@ export function ItemsTable<
                       isPathTypeVisible={!!isPathTypeVisible}
                       itemType={itemType}
                       isAdmin={isAdmin}
+                      hiddenPublisherId={hiddenPublisherId}
                     />
                   ))}
                 </tbody>
@@ -291,7 +295,8 @@ function ItemsTableItem({
   isCategoryVisible,
   isPathTypeVisible,
   itemType,
-  isAdmin
+  isAdmin,
+  hiddenPublisherId
 }: {
   item: PageItemClient | EmbeddedItem
   index: number
@@ -300,6 +305,7 @@ function ItemsTableItem({
   isPathTypeVisible?: boolean
   itemType: PagePath | EmbeddedItemType
   isAdmin: boolean
+  hiddenPublisherId?: string
 }) {
   return (
     <ItemsTableRow
@@ -322,6 +328,7 @@ function ItemsTableItem({
             (item as ReleaseClient).publishedEditions
           }
           format='sm'
+          hiddenPublisherId={hiddenPublisherId}
         />
       )}
       {(itemType === EmbeddedItemTypes.embedCodes ||

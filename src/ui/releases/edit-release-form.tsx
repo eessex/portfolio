@@ -12,6 +12,7 @@ import {
   comparePublishedEditionsByDate,
   PUBLISHED_EDITIONS_FIELD
 } from '@/lib/published-editions/util'
+import type { Publisher } from '@/lib/publishers/schemas/db'
 import { deleteRelease, editRelease } from '@/lib/releases/actions'
 import { releaseTypes } from '@/lib/releases/schemas'
 import type { ReleaseClient } from '@/lib/releases/types'
@@ -42,9 +43,14 @@ import {
 
 type EditReleaseFormProps = {
   release?: ReleaseClient
+  /** new editions start on it (a label site's house publisher) */
+  housePublisher?: Publisher
 }
 
-function ReleaseFormFields({ release }: EditReleaseFormProps) {
+function ReleaseFormFields({
+  release,
+  housePublisher
+}: EditReleaseFormProps) {
   const errors = useFormErrors()
   const initialProject = release?.project as ProjectClient | undefined
   const [project, setProject] = useState(initialProject)
@@ -122,6 +128,7 @@ function ReleaseFormFields({ release }: EditReleaseFormProps) {
             <EditPublishedEdition
               errors={errors}
               publishedEdition={existingItem}
+              defaultPublisher={housePublisher}
             />
           )}
         />
@@ -153,14 +160,20 @@ function ReleaseFormFields({ release }: EditReleaseFormProps) {
   )
 }
 
-export function EditReleaseForm({ release }: EditReleaseFormProps) {
+export function EditReleaseForm({
+  release,
+  housePublisher
+}: EditReleaseFormProps) {
   return (
     <ItemEditForm
       path={PagePaths.releases}
       action={(formData) => editRelease(formData, release?.id)}
       deleteItem={release && (() => deleteRelease(release))}
     >
-      <ReleaseFormFields release={release} />
+      <ReleaseFormFields
+        release={release}
+        housePublisher={housePublisher}
+      />
     </ItemEditForm>
   )
 }

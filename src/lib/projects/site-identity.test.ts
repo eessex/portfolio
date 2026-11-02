@@ -1,7 +1,12 @@
 import { cacheTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
-import { siteIdentity } from '@/lib/projects/site-identity'
+import {
+  activeHousePublisherId,
+  fetchActiveHousePublisher,
+  siteIdentity
+} from '@/lib/projects/site-identity'
+import { publisherFixtureAlpha } from '@/lib/publishers/fixtures'
 
 jest.mock('@/lib/db', () => ({ sql: jest.fn() }))
 const mockSql = jest.mocked(sql)
@@ -81,6 +86,70 @@ describe('siteIdentity', () => {
     mockSql.mockRejectedValueOnce(new Error('DB error'))
 
     await expect(siteIdentity()).resolves.toEqual({ kind: 'music' })
+    expect(consoleError).toHaveBeenCalled()
+    consoleError.mockRestore()
+  })
+})
+
+function identityRow(type: string) {
+  return [
+    {
+      type,
+      publisher_id: PUBLISHER_ID,
+      built_in_publisher_id: BUILT_IN_ID
+    }
+  ] as never
+}
+
+describe('activeHousePublisherId', () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  it('is the house publisher on a label site', async () => {
+    mockSql.mockResolvedValueOnce(identityRow('recordLabel'))
+
+    await expect(activeHousePublisherId()).resolves.toBe(PUBLISHER_ID)
+  })
+
+  it('is undefined on an artist site, which opts out', async () => {
+    mockSql.mockResolvedValueOnce(identityRow('band'))
+
+    await expect(activeHousePublisherId()).resolves.toBeUndefined()
+  })
+})
+
+describe('fetchActiveHousePublisher', () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  it('reads the house publisher on a label site, without its release slugs', async () => {
+    mockSql
+      .mockResolvedValueOnce(identityRow('recordLabel'))
+      .mockResolvedValueOnce([
+        { ...publisherFixtureAlpha, release_slugs: ['a'] }
+      ] as never)
+
+    const publisher = await fetchActiveHousePublisher()
+
+    expect(publisher?.id).toBe(publisherFixtureAlpha.id)
+    expect(publisher).not.toHaveProperty('releaseSlugs')
+    expect(mockSql.mock.calls[1]).toContain(PUBLISHER_ID)
+  })
+
+  it('reads nothing more on an artist site', async () => {
+    mockSql.mockResolvedValueOnce(identityRow('solo'))
+
+    await expect(fetchActiveHousePublisher()).resolves.toBeUndefined()
+    expect(mockSql).toHaveBeenCalledTimes(1)
+  })
+
+  it('logs a read error and leaves new editions blank', async () => {
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {})
+    mockSql
+      .mockResolvedValueOnce(identityRow('recordLabel'))
+      .mockRejectedValueOnce(new Error('DB error'))
+
+    await expect(fetchActiveHousePublisher()).resolves.toBeUndefined()
     expect(consoleError).toHaveBeenCalled()
     consoleError.mockRestore()
   })

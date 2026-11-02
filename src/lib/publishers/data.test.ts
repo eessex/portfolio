@@ -21,15 +21,19 @@ describe('fetchPublishersRaw', () => {
       ])
   })
 
-  it('lists the built-in publisher first', async () => {
+  it('lists the house publisher, then the built-in one, first', async () => {
     await fetchPublishersRaw()
 
     expect(listQueryText()).toMatch(
-      /ORDER BY\s+publishers\.is_built_in DESC,\s+LOWER\(publishers\.name\) ASC/
+      /ORDER BY\s+publishers\.id IS NOT DISTINCT FROM \(SELECT id FROM house\) DESC,\s+publishers\.is_built_in DESC,\s+LOWER\(publishers\.name\) ASC/
+    )
+    // the default project's linked publisher, NULL on artist sites
+    expect(listQueryText()).toMatch(
+      /SELECT p\.publisher_id AS id FROM projects p\s+WHERE p\.is_default_project/
     )
   })
 
-  it('skips it on later pages, which continue by name', async () => {
+  it('skips both on later pages, which continue by name', async () => {
     await fetchPublishersRaw(
       encodeCursor({
         name: 'Soap Library',
@@ -38,6 +42,9 @@ describe('fetchPublishersRaw', () => {
     )
 
     expect(listQueryText()).toContain('NOT publishers.is_built_in')
+    expect(listQueryText()).toContain(
+      'publishers.id IS DISTINCT FROM (SELECT id FROM house)'
+    )
   })
 
   it('searches by name, type and url on both count and page queries', async () => {

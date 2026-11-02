@@ -89,6 +89,7 @@ pnpm run copy-storage --rename-only [--dry-run]  # move older images (e.g. an ol
 pnpm run backfill-image-variants [--dry-run]     # write missing or outdated WebP variants, then redeploy
 pnpm run backfill-image-variants --prune [--dry-run]  # delete old variant versions (only once the redeploy is live)
 pnpm run migrate-mongo --input <dir> [--dry-run]  # one-off import of the old site's Mongo exports
+pnpm run reset-password <email> [--url <site>]  # print a one-time password reset link (last-resort recovery)
 ```
 
 To run a single test file: `NODE_OPTIONS=--no-deprecation npx jest src/lib/util.test.ts` (add `-t "name"` to filter by test name).
@@ -114,6 +115,7 @@ Site settings (`/dashboard`) hold the site title, description, cover image, site
 scripts/setup.ts        first-run setup
 scripts/migrate.ts      migration runner (logic in scripts/migrate/)
 scripts/copy-storage.ts, backfill-image-variants.ts, migrate-mongo.ts  one-off data scripts
+scripts/reset-password.ts  last-resort reset link for a locked-out admin
 src/app/                routes: public pages, (item-pages), /dashboard, /api, /login
 src/auth.ts             next-auth credentials provider
 src/auth.config.ts      which routes require a session

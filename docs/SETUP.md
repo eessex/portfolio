@@ -118,9 +118,41 @@ GitHub page — Vercel deploys it automatically.
   password?" and enter your email, one of your recovery codes and a new
   password. If you've lost your codes too, ask another admin to open
   Dashboard → Users and send you a reset link. With no other admin,
-  open a GitHub issue and we'll help you get back in. Adding a second
-  admin (Dashboard → Users → Create invite link) is the simplest
-  safety net.
+  you can make that link yourself from a computer (see "Resetting a
+  password from your computer" below), or open a
+  [GitHub issue](https://github.com/eessex/portfolio-cms/issues) and
+  we'll help you get back in. Adding a second admin (Dashboard → Users
+  → Create invite link) is the simplest safety net.
 - **Images aren't uploading.** Double check Storage → your Blob store is
   still connected (Settings → Environment Variables should show
   `BLOB_READ_WRITE_TOKEN`), then redeploy.
+
+### Resetting a password from your computer
+
+The last resort, for when you've lost your password and your recovery
+codes and there's no other admin. It needs [Node.js 22](https://nodejs.org)
+and a copy of your fork on your computer.
+
+1. In Vercel, open your project → **Settings → Environment Variables**
+   and copy the value of `DATABASE_URL`. Treat it like a password.
+2. In a terminal, download your fork and install its tools (replace
+   `YOUR-NAME` with your GitHub username):
+
+   ```
+   git clone https://github.com/YOUR-NAME/portfolio-cms.git
+   cd portfolio-cms
+   corepack enable
+   pnpm install
+   ```
+
+3. Run this, with your database URL, your account's email and your
+   site's address:
+
+   ```
+   DATABASE_URL='paste-it-here' pnpm run reset-password you@example.com --url https://your-site.com
+   ```
+
+4. It prints a one-time link. Open it, choose a new password, and
+   you're signed in. The link works once, within 72 hours.
+5. Your old recovery codes still work, but if you lost them, generate
+   a new set from your dashboard and save them.

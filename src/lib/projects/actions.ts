@@ -9,10 +9,21 @@ import { resolveOrderedImageIds } from '@/lib/images/actions'
 import { resolveOrderedLinkIds } from '@/lib/links/actions'
 import { fetchProjectById } from '@/lib/projects/data'
 import {
+  createDatedProjectSchema,
   createProjectSchema,
-  projectSchema
+  projectSchema,
+  type ProjectType,
+  ProjectTypes,
+  projectTypeSchema
 } from '@/lib/projects/schemas'
+import { siteIdentity } from '@/lib/projects/site-identity'
+import {
+  isProjectDateShown,
+  siteKindForType
+} from '@/lib/projects/site-profile'
 import type { CreateProject, Project } from '@/lib/projects/types'
+import { resolvePublisherId } from '@/lib/publishers/actions'
+import { fetchPublisherById } from '@/lib/publishers/data'
 import { PagePaths } from '@/lib/schemas'
 import type { Contact } from '@/lib/schemas/fields'
 import { generateUniqueSlug } from '@/lib/slug/data'
@@ -39,18 +50,25 @@ export async function editDefaultProject(
   return saveProjectForm(formData, id, true)
 }
 
-function saveProjectForm(
+async function saveProjectForm(
   formData: FormData,
   id: string | undefined,
   isDefaultProject: boolean
 ) {
+  const parsedType = projectTypeSchema.safeParse(formData.get('type'))
+  const type = parsedType.success ? parsedType.data : undefined
+  const schema = (await isStartDateRequired(type, isDefaultProject))
+    ? createDatedProjectSchema
+    : createProjectSchema
+
   return runFormAction({
     formData,
-    schema: createProjectSchema,
+    schema,
     itemType: PagePaths.projects,
     prepare: async (data) => {
-      // first: it can throw, and the resolvers below save items
+      // first: these can throw, and the resolvers below save items
       const contactInfo = resolveContactInfo(data)
+      const publisherId = await resolveProjectPublisherId(data, type)
       const [
         { coverImageId, imageIds },
         { linkIds },
@@ -79,6 +97,7 @@ function saveProjectForm(
         embedCodeIds,
         imageIds,
         linkIds,
+        publisherId,
         slug
       }
     },
@@ -90,8 +109,13 @@ function saveProjectForm(
           ? await updateProject(project, id)
           : await createProject(project)
       } catch (err) {
-        if (isSecondDefaultError(err)) {
+        if (isConstraintError(err, 'idx_projects_single_default')) {
           throw new Error('A default project already exists')
+        }
+        if (isConstraintError(err, 'idx_projects_publisher_id')) {
+          throw new Error(
+            'That publisher already belongs to another project'
+          )
         }
         throw err
       }
@@ -99,13 +123,56 @@ function saveProjectForm(
   })
 }
 
-/** Creating a second default project trips the partial unique index. */
-function isSecondDefaultError(err: unknown) {
+/**
+ * A save tripped a unique index: a second default project, or a
+ * publisher already linked to another project.
+ */
+function isConstraintError(err: unknown, constraint: string) {
   const cause = err instanceof Error ? err.cause : undefined
   return (
     (cause as { constraint?: string } | undefined)?.constraint ===
-    'idx_projects_single_default'
+    constraint
   )
+}
+
+/**
+ * The start date is required wherever project dates show
+ * (`isProjectDateShown`), so not for a label site's roster artists.
+ * Validation is synchronous, so the site kind is read up front: from
+ * the submitted type for the default project, whose own form decides
+ * the kind, else from `siteIdentity()` (a cached public read).
+ */
+async function isStartDateRequired(
+  type: ProjectType | undefined,
+  isDefaultProject: boolean
+) {
+  const kind = isDefaultProject
+    ? siteKindForType(type)
+    : (await siteIdentity()).kind
+  return isProjectDateShown(type, kind)
+}
+
+/**
+ * Resolves the publisher picker, shown only for a `recordLabel`
+ * project (other types save no publisher, see `toDbRow`), so a
+ * publisher can be created inline from a name. The built-in
+ * Self-released publisher is refused: it's already the fallback house
+ * publisher.
+ */
+async function resolveProjectPublisherId(
+  data: Record<string, unknown>,
+  type: ProjectType | undefined
+) {
+  if (type !== ProjectTypes.recordLabel) return undefined
+  const publisherId = await resolvePublisherId(data)
+  if (!publisherId) return undefined
+  const publisher = await fetchPublisherById(publisherId)
+  if (publisher?.isBuiltIn) {
+    throw new Error(
+      'The built-in Self-released publisher can’t be linked to a project'
+    )
+  }
+  return publisherId
 }
 
 /**
@@ -116,10 +183,14 @@ function isSecondDefaultError(err: unknown) {
  * `images`/`links`/`embedCodes` pickers' create-new flows), bypassing
  * `editImage`'s/`editLink`'s/`editEmbedCode`'s own cache invalidation,
  * and changes which projects list them (their `project_slugs`), so
- * those tags are invalidated here too.
+ * those tags are invalidated here too. `projects` also covers
+ * `siteIdentity()`, so relinking the label's publisher refreshes every
+ * list that hides it.
  */
 function invalidateProjectTags(id?: string) {
   updateTag('projects')
+  // the publisher picker can create one inline
+  updateTag('publishers')
   updateTag(slugCacheTag(PagePaths.projects))
   if (id) updateTag(`project:${id}`)
   updateTag('releases')
@@ -189,6 +260,7 @@ async function createProject(project: CreateProject) {
       isDefaultProject,
       isPublished,
       linkIds,
+      publisherId,
       shortDescription,
       slug,
       startDate,
@@ -213,6 +285,7 @@ async function createProject(project: CreateProject) {
         title,
         type,
         contact_info,
+        publisher_id,
         created_at
       ) VALUES (
         ${coverImageId},
@@ -230,6 +303,7 @@ async function createProject(project: CreateProject) {
         ${title},
         ${type},
         ${contactInfo}::jsonb[],
+        ${publisherId},
         current_timestamp
       )
       RETURNING *
@@ -259,7 +333,8 @@ async function updateProject(project: CreateProject, id: string) {
       tagIds,
       title,
       type,
-      contactInfo
+      contactInfo,
+      publisherId
     } = toDbRow(project, existingProject)
     const rows = await sql`
       UPDATE projects
@@ -278,6 +353,7 @@ async function updateProject(project: CreateProject, id: string) {
         title = ${title},
         type = ${type},
         contact_info = ${contactInfo}::jsonb[],
+        publisher_id = ${publisherId},
         updated_at = current_timestamp
       WHERE id = ${id}
       RETURNING *
@@ -388,6 +464,12 @@ function toDbRow(
       existing?.isDefaultProject ?? project.isDefaultProject ?? false,
     isPublished: projectToSave.isPublished ?? null,
     linkIds: projectToSave.linkIds ?? null,
+    // from the submission alone: the form's picker is authoritative,
+    // and any other type clears it
+    publisherId:
+      project.type === ProjectTypes.recordLabel
+        ? (project.publisherId ?? null)
+        : null,
     shortDescription: projectToSave.shortDescription ?? null,
     slug: projectToSave.slug,
     startDate: projectToSave.startDate ?? null,

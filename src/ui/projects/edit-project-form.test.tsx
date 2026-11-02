@@ -14,6 +14,7 @@ import {
   editProject
 } from '@/lib/projects/actions'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
+import { publisherFixtureAlpha } from '@/lib/publishers/fixtures'
 import { embedCodeYoutubeFixture } from '@/ui/embed-codes/fixtures'
 import { EditProjectForm } from '@/ui/projects/edit-project-form'
 import { ToastProvider } from '@/ui/toast/toast-context'
@@ -118,6 +119,47 @@ describe('EditProjectForm', () => {
         screen.getByLabelText(publishedRegex)
       ).toBeInTheDocument()
       expect(screen.getByText(/^images/i)).toBeInTheDocument()
+    })
+
+    it('shows the publisher picker only for a record label', async () => {
+      renderComponent({ project: projectFixtureBand })
+      expect(
+        screen.queryByText('The publisher this label releases as.')
+      ).not.toBeInTheDocument()
+
+      await userEvent.selectOptions(
+        screen.getByLabelText(typeText),
+        'recordLabel'
+      )
+      expect(
+        screen.getByText('The publisher this label releases as.')
+      ).toBeInTheDocument()
+
+      await userEvent.selectOptions(
+        screen.getByLabelText(typeText),
+        'band'
+      )
+      expect(
+        screen.queryByText('The publisher this label releases as.')
+      ).not.toBeInTheDocument()
+    })
+
+    it('starts the publisher picker on the project’s publisher', () => {
+      renderComponent({
+        project: {
+          ...projectFixtureBand,
+          type: 'recordLabel',
+          publisherId: publisherFixtureAlpha.id,
+          publisher: publisherFixtureAlpha
+        }
+      })
+
+      expect(
+        screen.getByText(publisherFixtureAlpha.name)
+      ).toBeInTheDocument()
+      expect(
+        document.querySelector('input[name="publisherId"]')
+      ).toHaveValue(publisherFixtureAlpha.id)
     })
 
     it('puts the description before the images', () => {

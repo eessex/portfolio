@@ -33,11 +33,15 @@ export async function editPublisher(formData: FormData, id?: string) {
 /**
  * Publishers are embedded into releases' cached fetches (via their
  * published editions' build_publisher_json), so saving/deleting one must
- * invalidate that cache too, not just the publishers list.
+ * invalidate that cache too, not just the publishers list. A
+ * `recordLabel` project embeds its own, and `siteIdentity()` reads the
+ * default project's (a deleted one is set NULL by the FK), so
+ * `projects` too.
  */
 function invalidatePublisherTags() {
   updateTag('publishers')
   updateTag('releases')
+  updateTag('projects')
 }
 
 /**

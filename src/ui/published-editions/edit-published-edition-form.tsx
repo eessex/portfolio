@@ -6,6 +6,7 @@ import {
   type publishedEditionDraftSchema,
   publishedEditionTypes
 } from '@/lib/published-editions/schemas/db'
+import type { Publisher } from '@/lib/publishers/schemas/db'
 import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import { FieldErrorList } from '@/ui/form/field-error-list'
 import styles from '@/ui/form/form.module.scss'
@@ -21,6 +22,8 @@ interface EditPublishedEditionProps {
     typeof publishedEditionDraftSchema
   >['fieldErrors']
   publishedEdition?: Partial<PublishedEditionClient>
+  /** a new edition's publisher (a label site's house publisher) */
+  defaultPublisher?: Publisher
 }
 
 /**
@@ -29,11 +32,15 @@ interface EditPublishedEditionProps {
  */
 export const EditPublishedEdition = ({
   errors,
-  publishedEdition
+  publishedEdition,
+  defaultPublisher
 }: EditPublishedEditionProps) => {
   const namePrefix = useNamePrefix()
+  const initialPublisher = publishedEdition
+    ? publishedEdition.publisher
+    : defaultPublisher
   const [publisherName, setPublisherName] = useState(
-    publishedEdition?.publisher?.name
+    initialPublisher?.name
   )
 
   return (
@@ -66,7 +73,7 @@ export const EditPublishedEdition = ({
       <div>
         <PublisherPicker
           isRequired
-          publisher={publishedEdition?.publisher}
+          publisher={initialPublisher}
           onSelectionChange={(publisher) =>
             setPublisherName(publisher?.name)
           }

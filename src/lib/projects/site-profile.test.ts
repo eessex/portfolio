@@ -20,14 +20,16 @@ describe('siteProfile', () => {
   it('words the release form by role on label sites', () => {
     expect(siteProfile('label')).toEqual({
       projectPickerLabel: 'Roster artist',
-      artistFieldLabel: 'Credited as'
+      artistFieldLabel: 'Credited as',
+      isHousePublisherUsed: true
     })
   })
 
   it('keeps today’s wording on music sites', () => {
     expect(siteProfile('music')).toEqual({
       projectPickerLabel: 'Project',
-      artistFieldLabel: 'Artist name'
+      artistFieldLabel: 'Artist name',
+      isHousePublisherUsed: false
     })
   })
 })

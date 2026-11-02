@@ -26,17 +26,25 @@ export interface SiteProfile {
   projectPickerLabel: string
   /** the release form's artist text field label */
   artistFieldLabel: string
+  /**
+   * Whether new editions start on the house publisher and release
+   * lists leave its name out. Artist sites opt out, so their
+   * Self-released editions keep showing as they always have.
+   */
+  isHousePublisherUsed: boolean
 }
 
 const musicProfile: SiteProfile = {
   projectPickerLabel: 'Project',
-  artistFieldLabel: 'Artist name'
+  artistFieldLabel: 'Artist name',
+  isHousePublisherUsed: false
 }
 
 const siteProfiles: Record<SiteKind, SiteProfile> = {
   label: {
     projectPickerLabel: 'Roster artist',
-    artistFieldLabel: 'Credited as'
+    artistFieldLabel: 'Credited as',
+    isHousePublisherUsed: true
   },
   music: musicProfile,
   // until visual artist support defines its own

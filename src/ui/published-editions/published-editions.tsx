@@ -48,10 +48,16 @@ function combinePublishedEditions(
 
 export function PublishedEditionsCombined({
   publishedEditions,
-  format = 'lg'
+  format = 'lg',
+  hiddenPublisherId
 }: {
   publishedEditions: ReleaseClient['publishedEditions']
   format?: 'sm' | 'lg'
+  /**
+   * Leaves out this publisher's name (a label site's house publisher,
+   * which the site title already names), keeping format and date
+   */
+  hiddenPublisherId?: string
 }) {
   if (!publishedEditions || publishedEditions.length === 0)
     return null
@@ -67,9 +73,18 @@ export function PublishedEditionsCombined({
             <li
               key={`${edition.publisher?.id}-${edition.publishDate}-${id}`}
             >
-              {edition.format}, {edition.publisher?.name}
-              {format === 'lg' &&
-                ', ' + formattedDateTime(edition.publishDate, 'xxs')}
+              {[
+                edition.format,
+                hiddenPublisherId &&
+                edition.publisher?.id === hiddenPublisherId
+                  ? undefined
+                  : edition.publisher?.name,
+                format === 'lg'
+                  ? formattedDateTime(edition.publishDate, 'xxs')
+                  : undefined
+              ]
+                .filter(Boolean)
+                .join(', ')}
             </li>
           )
         )}

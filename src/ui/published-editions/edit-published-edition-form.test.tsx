@@ -1,7 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 
 import { publishedEditionFixtureAlpha } from '@/lib/published-editions/fixtures'
-import { publisherFixtureAlpha } from '@/lib/publishers/fixtures'
+import {
+  publisherFixtureAlpha,
+  publisherFixtureBeta
+} from '@/lib/publishers/fixtures'
 import { NamePrefixProvider } from '@/ui/item-picker/name-prefix'
 import { EditPublishedEdition } from '@/ui/published-editions/edit-published-edition-form'
 
@@ -151,6 +154,36 @@ describe('EditPublishedEdition', () => {
       expect(
         screen.queryByRole('button', { name: 'Edit' })
       ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('default publisher', () => {
+    it('starts a new edition on it', () => {
+      renderComponent({
+        publishedEdition: undefined,
+        defaultPublisher: publisherFixtureBeta
+      })
+
+      expect(
+        document.querySelector(
+          'input[name="publishedEditions[0].publisherId"]'
+        )
+      ).toHaveValue(publisherFixtureBeta.id)
+      expect(
+        document.querySelector(
+          'input[name="publishedEditions[0].publisherName"]'
+        )
+      ).toHaveValue(publisherFixtureBeta.name)
+    })
+
+    it("keeps an existing edition's own publisher", () => {
+      renderComponent({ defaultPublisher: publisherFixtureBeta })
+
+      expect(
+        document.querySelector(
+          'input[name="publishedEditions[0].publisherId"]'
+        )
+      ).toHaveValue(publisherFixtureAlpha.id)
     })
   })
 

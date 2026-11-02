@@ -6,6 +6,7 @@ import {
   generateEditItemMetadata
 } from '@/app/(item-pages)/edit-item-metadata'
 import { resolveEditItemId } from '@/app/(item-pages)/resolve-page-item'
+import { fetchActiveHousePublisher } from '@/lib/projects/site-identity'
 import { fetchCachedReleaseById } from '@/lib/releases/cached'
 import { fetchReleaseById } from '@/lib/releases/data'
 import { PagePaths } from '@/lib/schemas'
@@ -43,13 +44,19 @@ async function EditRelease({ params }: PageItemProps) {
   const { slug } = await params
   const id = await resolveEditItemId(PagePaths.releases, slug)
   // uncached: saving a stale form drops child ids added since
-  const release = await fetchReleaseById(id, true)
+  const [release, housePublisher] = await Promise.all([
+    fetchReleaseById(id, true),
+    fetchActiveHousePublisher()
+  ])
 
   if (!release) return notFound()
 
   return (
     <FormPageLayout title={editItemTitle(title, release)}>
-      <EditReleaseForm release={release} />
+      <EditReleaseForm
+        release={release}
+        housePublisher={housePublisher}
+      />
     </FormPageLayout>
   )
 }

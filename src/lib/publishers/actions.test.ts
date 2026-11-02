@@ -54,6 +54,8 @@ describe('Publisher Actions', () => {
       expect(updateTag).toHaveBeenCalledWith('publishers')
       // publishers are embedded into cached release fetches
       expect(updateTag).toHaveBeenCalledWith('releases')
+      // and a label project's (siteIdentity's house publisher)
+      expect(updateTag).toHaveBeenCalledWith('projects')
     })
 
     it('can handle errors', async () => {

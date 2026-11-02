@@ -2,7 +2,11 @@ import { sql } from '@/lib/db'
 import { withEmbedCodeCoverImageUrls } from '@/lib/embed-codes/cover-image-url'
 import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import { runListFetch } from '@/lib/list-fetch'
-import { projectClientSchema } from '@/lib/projects/schemas'
+import {
+  projectClientSchema,
+  type ProjectType,
+  projectTypeSchema
+} from '@/lib/projects/schemas'
 import type {
   FetchProjectsResult,
   ProjectClient
@@ -153,7 +157,12 @@ export async function fetchProjectById(
           )
           FROM links l
           WHERE l.id = ANY(p.link_ids)
-        ) AS links
+        ) AS links,
+        (
+          SELECT build_publisher_json(pub)
+          FROM publishers pub
+          WHERE pub.id = p.publisher_id
+        ) AS publisher
       FROM projects as p
       WHERE p.id = ${id}
         AND (${isAuthed} OR p.is_published = true)
@@ -195,4 +204,39 @@ export async function fetchDefaultProject(isAuthed: boolean = false) {
     return undefined
   }
   return fetchProjectById(rows[0].id, isAuthed)
+}
+
+/**
+ * What `siteIdentity()` derives the site from, in one read: the
+ * default project's type and publisher (published or not), and the
+ * built-in publisher's id as the house publisher fallback.
+ */
+export async function fetchSiteIdentitySource(): Promise<{
+  type?: ProjectType
+  publisherId?: string
+  builtInPublisherId?: string
+}> {
+  let rows
+  try {
+    rows = await sql`
+      SELECT
+        p.type,
+        p.publisher_id,
+        (
+          SELECT id FROM publishers WHERE is_built_in LIMIT 1
+        ) AS built_in_publisher_id
+      FROM (SELECT 1) AS one
+      LEFT JOIN projects AS p ON p.is_default_project
+      LIMIT 1
+    `
+  } catch (cause) {
+    throw new Error('Failed to fetch the site identity.', { cause })
+  }
+  const row = rows[0]
+  const type = projectTypeSchema.safeParse(row?.type)
+  return {
+    type: type.success ? type.data : undefined,
+    publisherId: row?.publisher_id ?? undefined,
+    builtInPublisherId: row?.built_in_publisher_id ?? undefined
+  }
 }

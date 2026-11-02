@@ -6,21 +6,15 @@ import {
   type publishedEditionDraftSchema,
   publishedEditionTypes
 } from '@/lib/published-editions/schemas/db'
-import {
-  createPublisherSchema,
-  type Publisher
-} from '@/lib/publishers/schemas/db'
 import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import { FieldErrorList } from '@/ui/form/field-error-list'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
 import { Select } from '@/ui/form/select'
 import { toDateInputValue } from '@/ui/format/dates'
-import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { useNamePrefix } from '@/ui/item-picker/name-prefix'
 import { PUBLISHER_NAME_SUMMARY_FIELD } from '@/ui/published-editions/format-published-edition-result'
-import { EditPublisher } from '@/ui/publishers/edit-publisher-form'
-import { formatPublisherResult } from '@/ui/publishers/format-publisher-result'
+import { PublisherPicker } from '@/ui/publishers/publisher-picker'
 
 interface EditPublishedEditionProps {
   errors?: z.inferFlattenedErrors<
@@ -70,34 +64,12 @@ export const EditPublishedEdition = ({
       </div>
 
       <div>
-        <ItemPicker<Publisher>
-          itemType='publishers'
-          isSearchFirst
-          isCreatedFromQuery
+        <PublisherPicker
           isRequired
-          placeholder='Search or create by name'
-          isItemEditable={(publisher) => !publisher.isBuiltIn}
-          existingItem={publishedEdition?.publisher}
+          publisher={publishedEdition?.publisher}
           onSelectionChange={(publisher) =>
             setPublisherName(publisher?.name)
           }
-          renderExistingResult={formatPublisherResult}
-          renderNewItemSummary={(data, _previewUrl, actions) =>
-            formatPublisherResult(
-              { name: String(data.name ?? '') } as Publisher,
-              actions.onRemove,
-              actions.removeLabel,
-              actions.editButton
-            )
-          }
-          schema={createPublisherSchema}
-          renderEditItemForm={({ errors, existingItem, query }) => (
-            <EditPublisher
-              errors={errors}
-              isTypeHidden
-              publisher={existingItem ?? { name: query }}
-            />
-          )}
         />
         {/* for the edition's chip; the server ignores it */}
         <input

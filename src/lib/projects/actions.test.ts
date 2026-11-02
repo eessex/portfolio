@@ -15,7 +15,11 @@ import {
   projectFixtureAlpha
 } from '@/lib/projects/fixtures'
 import { createProjectSchema } from '@/lib/projects/schemas'
+import { siteIdentity } from '@/lib/projects/site-identity'
 import type { CreateProject, Project } from '@/lib/projects/types'
+import { resolvePublisherId } from '@/lib/publishers/actions'
+import { fetchPublisherById } from '@/lib/publishers/data'
+import { publisherFixtureAlpha } from '@/lib/publishers/fixtures'
 import { generateUniqueSlug } from '@/lib/slug/data'
 import { formDataFromObject } from '@/test/helpers'
 
@@ -50,6 +54,21 @@ jest.mock('@/lib/links/actions', () => ({
 }))
 const mockResolveOrderedLinkIds = jest.mocked(resolveOrderedLinkIds)
 
+jest.mock('@/lib/projects/site-identity', () => ({
+  siteIdentity: jest.fn()
+}))
+const mockSiteIdentity = jest.mocked(siteIdentity)
+
+jest.mock('@/lib/publishers/actions', () => ({
+  resolvePublisherId: jest.fn()
+}))
+const mockResolvePublisherId = jest.mocked(resolvePublisherId)
+
+jest.mock('@/lib/publishers/data', () => ({
+  fetchPublisherById: jest.fn()
+}))
+const mockFetchPublisherById = jest.mocked(fetchPublisherById)
+
 const EXISTING_IMAGE_ID_1 = '11111111-1111-4111-8111-111111111111'
 const NEW_IMAGE_ID = '33333333-3333-4333-8333-333333333333'
 const EXISTING_EMBED_CODE_ID = '22222222-2222-4222-8222-222222222222'
@@ -74,6 +93,12 @@ describe('Project Actions', () => {
       embedCodeIds: []
     })
     mockResolveOrderedLinkIds.mockResolvedValue({ linkIds: [] })
+    mockSiteIdentity.mockResolvedValue({ kind: 'music' })
+    mockResolvePublisherId.mockResolvedValue(undefined)
+    mockFetchPublisherById.mockResolvedValue({
+      ...publisherFixtureAlpha,
+      releaseSlugs: []
+    })
   })
 
   it('rejects unauthenticated callers', async () => {
@@ -608,6 +633,168 @@ describe('Project Actions', () => {
       })
     })
 
+    describe('publisher', () => {
+      const labelFields = {
+        ...requiredFields,
+        type: 'recordLabel',
+        title: 'Label'
+      }
+
+      it('saves the resolved publisher for a recordLabel project', async () => {
+        mockResolvePublisherId.mockResolvedValueOnce(
+          publisherFixtureAlpha.id
+        )
+        mockSql.mockResolvedValueOnce([projectFixtureAlpha])
+
+        const res = await editProject(formDataFromObject(labelFields))
+
+        expect(res?.ok).toBe(true)
+        const [strings, ...params] = mockSql.mock.calls[0]!
+        expect(strings.join('?')).toContain('publisher_id')
+        // after contact_info, the last column
+        expect(params[15]).toBe(publisherFixtureAlpha.id)
+        // the picker can create a publisher inline
+        expect(updateTag).toHaveBeenCalledWith('publishers')
+      })
+
+      it('skips the picker and clears a stored publisher for any other type', async () => {
+        mockSql
+          .mockResolvedValueOnce([
+            {
+              ...projectFixtureAlpha,
+              publisherId: publisherFixtureAlpha.id
+            }
+          ]) // fetchProjectById
+          .mockResolvedValueOnce([projectFixtureAlpha]) // UPDATE
+
+        const res = await editProject(
+          formDataFromObject({
+            ...requiredFields,
+            title: 'Band',
+            publisherId: publisherFixtureAlpha.id
+          }),
+          projectFixtureAlpha.id
+        )
+
+        expect(res?.ok).toBe(true)
+        expect(mockResolvePublisherId).not.toHaveBeenCalled()
+        // after contact_info, before the WHERE id
+        expect(mockSql.mock.calls[1]?.[15]).toBeNull()
+      })
+
+      it('clears the publisher when the picker is emptied', async () => {
+        mockSql
+          .mockResolvedValueOnce([
+            {
+              ...projectFixtureAlpha,
+              type: 'recordLabel',
+              publisherId: publisherFixtureAlpha.id
+            }
+          ]) // fetchProjectById
+          .mockResolvedValueOnce([projectFixtureAlpha]) // UPDATE
+
+        const res = await editProject(
+          formDataFromObject(labelFields),
+          projectFixtureAlpha.id
+        )
+
+        expect(res?.ok).toBe(true)
+        expect(mockSql.mock.calls[1]?.[15]).toBeNull()
+      })
+
+      it('refuses the built-in publisher', async () => {
+        mockResolvePublisherId.mockResolvedValueOnce(
+          publisherFixtureAlpha.id
+        )
+        mockFetchPublisherById.mockResolvedValueOnce({
+          ...publisherFixtureAlpha,
+          isBuiltIn: true,
+          releaseSlugs: []
+        })
+
+        const res = await editProject(formDataFromObject(labelFields))
+
+        expect(res).toEqual({
+          ok: false,
+          message:
+            'Failed to save project: The built-in Self-released publisher can’t be linked to a project.'
+        })
+        expect(mockSql).not.toHaveBeenCalled()
+        // refused before any inline image/link/embed code is saved
+        expect(mockResolveOrderedImageIds).not.toHaveBeenCalled()
+        expect(mockResolveOrderedLinkIds).not.toHaveBeenCalled()
+        expect(mockResolveOrderedEmbedCodeIds).not.toHaveBeenCalled()
+      })
+
+      it('returns a form error when the publisher belongs to another project', async () => {
+        mockResolvePublisherId.mockResolvedValueOnce(
+          publisherFixtureAlpha.id
+        )
+        mockSql.mockRejectedValueOnce(
+          Object.assign(
+            new Error(
+              'duplicate key value violates unique constraint'
+            ),
+            { constraint: 'idx_projects_publisher_id' }
+          )
+        )
+
+        const res = await editProject(formDataFromObject(labelFields))
+
+        expect(res).toEqual({
+          ok: false,
+          message:
+            'Failed to save project: That publisher already belongs to another project.'
+        })
+      })
+    })
+
+    describe('start date', () => {
+      it('is optional for a roster artist on a label site', async () => {
+        mockSiteIdentity.mockResolvedValueOnce({ kind: 'label' })
+        mockSql.mockResolvedValueOnce([projectFixtureAlpha])
+
+        const res = await editProject(
+          formDataFromObject({ type: 'band', title: 'Roster Band' })
+        )
+
+        expect(res?.ok).toBe(true)
+        // 11th column: … slug, start_date
+        expect(mockSql.mock.calls[0]?.[11]).toBeNull()
+      })
+
+      it('is required for a non-artist project on a label site', async () => {
+        mockSiteIdentity.mockResolvedValueOnce({ kind: 'label' })
+
+        const res = await editProject(
+          formDataFromObject({ type: 'radioShow', title: 'Show' })
+        )
+
+        expect(res!.errors).toEqual({ startDate: ['Required'] })
+        expect(mockSql).not.toHaveBeenCalled()
+      })
+
+      it('is required for a roster type on an artist site', async () => {
+        const res = await editProject(
+          formDataFromObject({ type: 'band', title: 'Band' })
+        )
+
+        expect(res!.errors).toEqual({ startDate: ['Required'] })
+      })
+
+      it('follows the default project’s submitted type, not the stored site kind', async () => {
+        mockSiteIdentity.mockResolvedValue({ kind: 'label' })
+
+        const res = await editDefaultProject(
+          formDataFromObject({ type: 'band', title: 'About' })
+        )
+
+        // a band default project makes an artist site
+        expect(res!.errors).toEqual({ startDate: ['Required'] })
+        expect(mockSiteIdentity).not.toHaveBeenCalled()
+      })
+    })
+
     describe('contact info (CONTACT‑1)', () => {
       it('serializes submitted contact rows to a jsonb[] param on create', async () => {
         mockSql.mockResolvedValueOnce([projectFixtureAlpha])
@@ -705,7 +892,7 @@ describe('Project Actions', () => {
         )
 
         expect(res?.ok).toBe(true)
-        // last UPDATE SET param (before the WHERE id) is contact_info
+        // UPDATE SET param before publisher_id is contact_info
         expect(mockSql.mock.calls[1]?.[14]).toEqual([
           '{"title":"Bookings","contact":"bookings@example.com"}'
         ])

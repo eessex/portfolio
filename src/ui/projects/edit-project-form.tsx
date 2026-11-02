@@ -1,11 +1,18 @@
 'use client'
 
+import { useState } from 'react'
+
 import {
   deleteProject,
   editDefaultProject,
   editProject
 } from '@/lib/projects/actions'
-import { projectTypes } from '@/lib/projects/schemas'
+import {
+  type ProjectType,
+  ProjectTypes,
+  projectTypes,
+  projectTypeSchema
+} from '@/lib/projects/schemas'
 import type { ProjectClient } from '@/lib/projects/types'
 import { ABOUT_PATH, PagePaths } from '@/lib/schemas'
 import {
@@ -14,6 +21,7 @@ import {
 } from '@/lib/schemas/primitives'
 import { EmbedCodesPicker } from '@/ui/embed-codes/embed-codes-picker'
 import { Checkbox } from '@/ui/form/checkbox'
+import { FieldErrorList } from '@/ui/form/field-error-list'
 import { useFormErrors } from '@/ui/form/form'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
@@ -26,9 +34,13 @@ import {
   PressLinksPicker
 } from '@/ui/links/links-picker'
 import { ContactInfoFields } from '@/ui/projects/contact-info-fields'
+import { PublisherPicker } from '@/ui/publishers/publisher-picker'
 
 function ProjectFormFields({ project }: { project?: ProjectClient }) {
   const errors = useFormErrors()
+  const [type, setType] = useState<ProjectType | undefined>(
+    project?.type
+  )
 
   return (
     <>
@@ -48,8 +60,22 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
         label='Type'
         placeholder='Select a type'
         value={project?.type}
+        onChange={(value) => {
+          const parsed = projectTypeSchema.safeParse(value)
+          setType(parsed.success ? parsed.data : undefined)
+        }}
         attributes={{ name: 'type', required: true }}
       />
+      {type === ProjectTypes.recordLabel && (
+        <div>
+          <PublisherPicker
+            label='Publisher'
+            description='The publisher this label releases as.'
+            publisher={project?.publisher}
+          />
+          <FieldErrorList errors={errors?.publisherId} />
+        </div>
+      )}
       <div className={styles['input-group']}>
         <Input
           attributes={{

@@ -96,7 +96,9 @@ function UsersTable({
               {formattedTimestamp(user.createdAt, 'md')}
             </td>
             <td>
-              <span className={styles['cell-label']}>Last login </span>
+              <span className={styles['cell-label']}>
+                Last login{' '}
+              </span>
               {user.lastLoginAt
                 ? formattedTimestamp(user.lastLoginAt)
                 : 'Never'}

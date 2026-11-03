@@ -63,8 +63,9 @@ export function OneTimeLink({
         </button>
       </div>
       <p>
-        Works once, until {formattedDateTime(expiresAt, 'lg', DEFAULT_TIME_ZONE)}. This is the
-        only time it&apos;s shown, so send it privately now.
+        Works once, until{' '}
+        {formattedDateTime(expiresAt, 'lg', DEFAULT_TIME_ZONE)}. This
+        is the only time it&apos;s shown, so send it privately now.
       </p>
     </div>
   )

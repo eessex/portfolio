@@ -1,6 +1,7 @@
 {
-  "name": "portforlio-cms",
+  "name": "portfolio-cms",
   "version": "0.1.0",
+  "license": "FSL-1.1-ALv2",
   "private": true,
   "packageManager": "pnpm@11.0.0",
   "engines": {

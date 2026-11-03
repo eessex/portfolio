@@ -70,9 +70,9 @@ describe('#createInviteToken', () => {
   it('throws on DB error', async () => {
     mockTransaction.mockRejectedValue(new Error('db exploded'))
 
-    await expect(createInviteToken(adminId, 2, 'hash')).rejects.toThrow(
-      'Failed to create invite.'
-    )
+    await expect(
+      createInviteToken(adminId, 2, 'hash')
+    ).rejects.toThrow('Failed to create invite.')
   })
 })
 

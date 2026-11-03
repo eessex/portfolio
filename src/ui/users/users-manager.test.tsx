@@ -120,7 +120,9 @@ describe('UsersManager', () => {
     expect(formData?.get('currentPassword')).toBe('my-password')
     expect(
       screen.getByRole('textbox', { name: /link/i })
-    ).toHaveValue(`${window.location.origin}/reset-password#${'A'.repeat(43)}`)
+    ).toHaveValue(
+      `${window.location.origin}/reset-password#${'A'.repeat(43)}`
+    )
   })
 
   it('removes an admin and refreshes the list', async () => {
@@ -167,7 +169,9 @@ describe('UsersManager', () => {
 
     expect(
       screen.getByRole('textbox', { name: /link/i })
-    ).toHaveValue(`${window.location.origin}/invite#${'A'.repeat(43)}`)
+    ).toHaveValue(
+      `${window.location.origin}/invite#${'A'.repeat(43)}`
+    )
     expect(mockRefresh).toHaveBeenCalled()
 
     await user.click(screen.getByRole('button', { name: 'Done' }))

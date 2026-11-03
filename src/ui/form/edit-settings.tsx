@@ -22,11 +22,17 @@ import {
 } from '@/ui/images/format-image-result'
 import { ItemPicker } from '@/ui/item-picker/item-picker'
 import { SocialLinksPicker } from '@/ui/links/links-picker'
+import {
+  NavItemsFields,
+  type NavItemStatuses
+} from '@/ui/nav/nav-items-fields'
 
 function SettingsFormFields({
-  settings
+  settings,
+  navStatuses
 }: {
   settings?: SiteSettingsClient
+  navStatuses?: NavItemStatuses
 }) {
   const errors = useFormErrors()
 
@@ -118,14 +124,23 @@ function SettingsFormFields({
         isDefaultChecked={settings?.isEmailSubscribeEnabled ?? true}
         label='Show email subscribe form'
       />
+
+      <NavItemsFields
+        navItems={settings?.navItems}
+        statuses={navStatuses}
+        errors={errors?.navItems}
+      />
     </>
   )
 }
 
 export function EditSettings({
-  settings
+  settings,
+  navStatuses
 }: {
   settings?: SiteSettingsClient
+  /** the hint beside each menu item; none on first-run setup */
+  navStatuses?: NavItemStatuses
 }) {
   const router = useRouter()
 
@@ -139,7 +154,10 @@ export function EditSettings({
     // remounted per save, so pickers drop their submitted drafts for
     // the saved items and the form's clean baseline matches them
     <Form key={settings?.updatedAt?.getTime()} action={handleSubmit}>
-      <SettingsFormFields settings={settings} />
+      <SettingsFormFields
+        settings={settings}
+        navStatuses={navStatuses}
+      />
     </Form>
   )
 }

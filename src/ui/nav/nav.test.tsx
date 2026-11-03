@@ -70,6 +70,13 @@ function mockProjectCount(totalCount: number) {
   >)
 }
 
+function mockNavItems(navItems: { path: NavPath; label?: string }[]) {
+  mockSettings.mockResolvedValue({
+    title: 'My Site',
+    navItems
+  } as Awaited<ReturnType<typeof fetchCachedSiteSettings>>)
+}
+
 async function navProps() {
   const element = await Nav()
   return element.props as { title?: string; items: NavItem[] }
@@ -232,5 +239,67 @@ describe('Nav', () => {
       })
     )
     expect(console.error).toHaveBeenCalled()
+  })
+
+  describe('saved menu', () => {
+    it('follows its order and names', async () => {
+      mockContent({ about: 'published', events: 'published' })
+      mockNavItems([
+        { path: 'about', label: 'Bio' },
+        { path: 'events' }
+      ])
+
+      const { items } = await navProps()
+
+      expect(items).toEqual([
+        {
+          navPath: 'about',
+          href: '/about',
+          label: 'Bio',
+          status: 'published'
+        },
+        {
+          navPath: 'events',
+          href: '/events',
+          label: 'Events',
+          status: 'published'
+        }
+      ])
+      // a hidden item costs no read
+      expect(mockReleases).not.toHaveBeenCalled()
+    })
+
+    it('shows nothing when every item is hidden', async () => {
+      mockContent({ events: 'published' })
+      mockNavItems([])
+
+      const { items } = await navProps()
+
+      expect(items).toEqual([])
+    })
+
+    it('gives Projects a status from the projects besides About', async () => {
+      mockContent({})
+      mockNavItems([{ path: 'projects' }])
+      // only a draft project besides the default one
+      mockProjects.mockImplementation(
+        async (isAuthed) =>
+          ({ totalCount: isAuthed ? 1 : 0 }) as Awaited<
+            ReturnType<typeof fetchCachedProjectsFirstPage>
+          >
+      )
+
+      const { items } = await navProps()
+
+      expect(items).toEqual([
+        expect.objectContaining({
+          navPath: 'projects',
+          label: 'Projects',
+          status: 'drafts'
+        })
+      ])
+      expect(mockProjects).toHaveBeenCalledWith(false, true)
+      expect(mockProjects).toHaveBeenCalledWith(true, true)
+    })
   })
 })

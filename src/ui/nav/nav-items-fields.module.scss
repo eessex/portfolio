@@ -1,0 +1,23 @@
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: grids.space-em(2);
+}
+
+// handle · show checkbox · name input, with the hint under the last two
+.row {
+  display: grid;
+  grid-template-columns: auto minmax(7em, 1fr) 2fr;
+  align-items: center;
+  column-gap: grids.space-em(2);
+}
+
+.hint {
+  @include type.meta();
+
+  grid-column: 2 / -1;
+  margin: 0;
+}

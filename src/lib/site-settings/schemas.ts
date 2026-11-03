@@ -4,10 +4,35 @@ import { imageSchema } from '@/lib/images/schemas/db'
 import { linkSchema } from '@/lib/links/schemas/db'
 import { relationFields, systemFields } from '@/lib/schemas/fields'
 import { bool, shortText, uuid } from '@/lib/schemas/primitives'
+import {
+  MAX_NAV_LABEL_LENGTH,
+  type NavItemSetting,
+  navPaths
+} from '@/lib/site-settings/nav-paths'
 
 /** Most social links the footer shows. */
 export const MAX_SOCIAL_LINKS = 6
 export const maxSocialLinksMessage = `Add up to ${MAX_SOCIAL_LINKS} social links.`
+
+const navItemSettingSchema: z.ZodType<NavItemSetting> = z.object({
+  path: z.enum(navPaths),
+  label: z
+    .string()
+    .trim()
+    .max(
+      MAX_NAV_LABEL_LENGTH,
+      `Keep menu labels to ${MAX_NAV_LABEL_LENGTH} characters.`
+    )
+    .optional()
+})
+/** The shown menu items, in order; hidden ones are left out. */
+export const navItemSettingsSchema = z
+  .array(navItemSettingSchema)
+  .refine(
+    (items) =>
+      new Set(items.map((item) => item.path)).size === items.length,
+    'Each menu item can appear once.'
+  )
 
 /**
  * Site settings represent global settings for the site.
@@ -21,6 +46,8 @@ const siteSettingsFields = {
   iconImageId: uuid.optional(),
   /** whether the footer shows the email subscribe form */
   isEmailSubscribeEnabled: bool.optional().default(false),
+  /** the menubar's items; absent shows DEFAULT_NAV_ITEMS */
+  navItems: navItemSettingsSchema.optional(),
   /** the footer's links, in footer order */
   socialLinkIds: z
     .array(uuid)

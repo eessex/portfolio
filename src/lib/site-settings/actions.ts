@@ -12,11 +12,13 @@ import {
   LinkTypes
 } from '@/lib/links/schemas/db'
 import { generateSiteIcons } from '@/lib/site-settings/icons'
+import type { NavItemSetting } from '@/lib/site-settings/nav-paths'
 import type { CreateSiteSettings } from '@/lib/site-settings/schemas'
 import {
   createSiteSettingsSchema,
   MAX_SOCIAL_LINKS,
-  maxSocialLinksMessage
+  maxSocialLinksMessage,
+  navItemSettingsSchema
 } from '@/lib/site-settings/schemas'
 import { ICON_VERSION } from '@/lib/site-settings/util'
 import type { FormResponse } from '@/lib/types'
@@ -27,6 +29,7 @@ import {
 } from '@/lib/util'
 
 const SOCIAL_LINKS_FIELD = 'socialLinks'
+const NAV_ITEMS_FIELD = 'navItems'
 
 /**
  * site_settings is a singleton: `id` present updates the existing
@@ -50,12 +53,21 @@ export async function editSiteSettings(
       errors: { [SOCIAL_LINKS_FIELD]: [socialLinksError] }
     }
   }
+  const navItemsError = validateNavItems(formData)
+  if (navItemsError) {
+    return {
+      ok: false,
+      message: 'Failed to validate site settings.',
+      errors: { [NAV_ITEMS_FIELD]: [navItemsError] }
+    }
+  }
 
   return runFormAction({
     formData,
     schema: createSiteSettingsSchema,
     itemType: 'siteSettings',
     prepare: async (data) => {
+      const navItems = takeNavItems(data)
       // sequential: links are pre-validated, so the cover image
       // (storage upload) is the likelier failure and runs first
       const coverImageId = await resolveCoverImageId(data)
@@ -67,7 +79,13 @@ export async function editSiteSettings(
         data,
         SOCIAL_LINKS_FIELD
       )
-      return { ...data, coverImageId, iconImageId, socialLinkIds }
+      return {
+        ...data,
+        coverImageId,
+        iconImageId,
+        socialLinkIds,
+        navItems
+      }
     },
     invalidate: () => {
       updateTag('settings')
@@ -149,12 +167,43 @@ function validateSocialLinkEntries(
   }
 }
 
+/**
+ * The Menu fieldset's rows (`navItems[i].path`, `.label`,
+ * `.isVisible`), removed from `data`, as the shown items in order.
+ * Undefined when the fieldset wasn't submitted.
+ */
+function takeNavItems(
+  data: Record<string, unknown>
+): NavItemSetting[] | undefined {
+  const rows = extractIndexedGroups(data, NAV_ITEMS_FIELD)
+  if (rows.length === 0) return
+  return rows.flatMap((row) => {
+    if (row.kind !== 'new' || row.fields.isVisible !== 'on') return []
+    const { path, label } = row.fields
+    const trimmed = typeof label === 'string' ? label.trim() : ''
+    return [{ path, label: trimmed || undefined } as NavItemSetting]
+  })
+}
+
+function validateNavItems(formData: FormData): string | undefined {
+  const navItems = takeNavItems(Object.fromEntries(formData))
+  if (!navItems) return
+  const parsed = navItemSettingsSchema.safeParse(navItems)
+  return parsed.success ? undefined : parsed.error.issues[0]?.message
+}
+
+/** JSON text for the `::jsonb` cast; NULL keeps or sets the default */
+function toNavItemsColumn(navItems?: NavItemSetting[]) {
+  return navItems ? JSON.stringify(navItems) : null
+}
+
 async function createSiteSettings({
   coverImageId,
   description,
   iconImageId,
   iconVersion,
   isEmailSubscribeEnabled,
+  navItems,
   socialLinkIds,
   title
 }: SiteSettingsRow) {
@@ -166,7 +215,8 @@ async function createSiteSettings({
       social_link_ids,
       is_email_subscribe_enabled,
       icon_image_id,
-      icon_version
+      icon_version,
+      nav_items
     )
     VALUES (
       ${title || ''},
@@ -175,7 +225,8 @@ async function createSiteSettings({
       ${socialLinkIds ?? []}::uuid[],
       ${isEmailSubscribeEnabled},
       ${iconImageId || null},
-      ${iconVersion ?? null}
+      ${iconVersion ?? null},
+      ${toNavItemsColumn(navItems)}::jsonb
     )
   `
 }
@@ -187,12 +238,13 @@ async function updateSiteSettings(
     iconImageId,
     iconVersion,
     isEmailSubscribeEnabled,
+    navItems,
     socialLinkIds,
     title
   }: SiteSettingsRow,
   id: string
 ) {
-  // an unsubmitted picker keeps the stored list
+  // an unsubmitted picker or menu keeps the stored list
   await sql`
     UPDATE site_settings
     SET title = ${title || ''},
@@ -205,6 +257,10 @@ async function updateSiteSettings(
         is_email_subscribe_enabled = ${isEmailSubscribeEnabled},
         icon_image_id = ${iconImageId || null},
         icon_version = ${iconVersion ?? null},
+        nav_items = COALESCE(
+          ${toNavItemsColumn(navItems)}::jsonb,
+          nav_items
+        ),
         updated_at = current_timestamp
     WHERE id = ${id}
   `

@@ -1,5 +1,8 @@
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
-import { fetchCachedDefaultProject } from '@/lib/projects/cached'
+import {
+  fetchCachedDefaultProject,
+  fetchCachedProjectsFirstPage
+} from '@/lib/projects/cached'
 import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { NavClient } from '@/ui/nav/nav-client'
@@ -23,18 +26,39 @@ const hasContent: Record<
     !!(await fetchCachedDefaultProject(isAuthed))
 }
 
+// an empty section is left out while its create form can't succeed
+const canCreate: Partial<Record<NavPath, () => Promise<boolean>>> = {
+  // a release's project is required and can't be created inline
+  releases: async () =>
+    (await fetchCachedProjectsFirstPage(true)).totalCount > 0
+}
+
+async function isCreatable(navPath: NavPath) {
+  try {
+    return (await canCreate[navPath]?.()) ?? true
+  } catch (error) {
+    // the ghost link is admin-only, so showing it is the safe side
+    console.error(
+      `Failed to check whether nav item ${navPath} can be created:`,
+      error
+    )
+    return true
+  }
+}
+
 async function navItemVisibility(
   navPath: NavPath
-): Promise<NavItemStatus> {
+): Promise<NavItemStatus | undefined> {
   try {
     if (await hasContent[navPath](false)) return 'published'
     if (await hasContent[navPath](true)) return 'drafts'
-    return 'empty'
   } catch (error) {
-    // fail open (show to everyone): a throw takes down every page
+    // admin-only, not a public link to a possibly empty page; caught
+    // since a throw takes down every page
     console.error(`Failed to check nav item ${navPath}:`, error)
-    return 'published'
+    return 'empty'
   }
+  return (await isCreatable(navPath)) ? 'empty' : undefined
 }
 
 export async function Nav() {
@@ -48,10 +72,10 @@ export async function Nav() {
     )
   ])
 
-  const items: NavItem[] = navItems.map((item, i) => ({
-    ...item,
-    status: statuses[i]
-  }))
+  const items: NavItem[] = navItems.flatMap((item, i) => {
+    const status = statuses[i]
+    return status ? [{ ...item, status }] : []
+  })
 
   return <NavClient title={siteSettings?.title} items={items} />
 }

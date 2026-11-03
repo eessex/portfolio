@@ -87,44 +87,46 @@ describe('Nav', () => {
         navPath: 'events',
         href: '/events',
         label: 'Events',
-        hasPublishedItems: true
+        status: 'published'
       },
       {
         navPath: 'releases',
         href: '/releases',
         label: 'Releases',
-        hasPublishedItems: true
+        status: 'published'
       },
       {
         navPath: 'about',
         href: '/about',
         label: 'About',
-        hasPublishedItems: true
+        status: 'published'
       }
     ])
   })
 
   it.each<NavPath>(['events', 'releases', 'about'])(
-    'marks %s with drafts only as not published',
+    'marks %s with drafts only as drafts',
     async (navPath) => {
       mockContent({ [navPath]: 'drafts' })
 
       const { items } = await navProps()
 
-      expect(items).toEqual([
-        expect.objectContaining({ navPath, hasPublishedItems: false })
-      ])
+      expect(items).toContainEqual(
+        expect.objectContaining({ navPath, status: 'drafts' })
+      )
     }
   )
 
   it.each<NavPath>(['events', 'releases', 'about'])(
-    'omits %s when it has no content',
+    'marks %s with no content as empty',
     async (navPath) => {
       mockContent({})
 
       const { items } = await navProps()
 
-      expect(items.map((item) => item.navPath)).not.toContain(navPath)
+      expect(items).toContainEqual(
+        expect.objectContaining({ navPath, status: 'empty' })
+      )
     }
   )
 
@@ -151,11 +153,12 @@ describe('Nav', () => {
 
     const { items } = await navProps()
 
-    expect(items).toEqual([
-      expect.objectContaining({
-        navPath: 'events',
-        hasPublishedItems: true
-      })
+    expect(
+      items.map(({ navPath, status }) => [navPath, status])
+    ).toEqual([
+      ['events', 'published'],
+      ['releases', 'empty'],
+      ['about', 'empty']
     ])
     expect(console.error).toHaveBeenCalled()
   })
@@ -168,6 +171,10 @@ describe('Nav', () => {
     const { title, items } = await navProps()
 
     expect(title).toBeUndefined()
-    expect(items.map((item) => item.navPath)).toEqual(['events'])
+    expect(items.map((item) => item.status)).toEqual([
+      'published',
+      'empty',
+      'empty'
+    ])
   })
 })

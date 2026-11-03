@@ -1,6 +1,7 @@
 'use client'
 
 import { PlusIcon } from '@heroicons/react/24/outline'
+import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import {
@@ -19,27 +20,37 @@ export function CreateItemButton({
   onClick,
   href,
   label,
+  ariaLabel,
   ref
 }: {
   className?: string
-  itemType: EmbeddedItemType | PagePath
   onClick?: () => void
   href?: string
-  /** Replaces the default "New {item}" text. */
-  label?: string
+  /** For when the text alone doesn't say what's created */
+  ariaLabel?: string
   ref?: React.Ref<HTMLButtonElement>
-}) {
-  const text = label ?? `New ${itemTypeToLabel(itemType, true, true)}`
+} & (
+  | {
+      itemType: EmbeddedItemType | PagePath
+      /** Replaces the default "New {item}" text. */
+      label?: string
+    }
+  | { itemType?: never; label: string }
+)) {
+  const text =
+    label ??
+    (itemType && `New ${itemTypeToLabel(itemType, true, true)}`)
 
   if (href) {
     return (
-      <a
+      <NextLink
         className={className}
         href={href}
+        aria-label={ariaLabel}
         ref={ref as React.Ref<HTMLAnchorElement>}
       >
         <PlusIcon /> {text}
-      </a>
+      </NextLink>
     )
   } else {
     return (
@@ -47,6 +58,7 @@ export function CreateItemButton({
         type='button'
         className={className}
         onClick={onClick}
+        aria-label={ariaLabel}
         ref={ref}
       >
         <PlusIcon /> {text}

@@ -1,5 +1,8 @@
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
-import { fetchCachedDefaultProject } from '@/lib/projects/cached'
+import {
+  fetchCachedDefaultProject,
+  fetchCachedProjectsFirstPage
+} from '@/lib/projects/cached'
 import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { Nav } from '@/ui/nav/nav'
@@ -12,7 +15,8 @@ jest.mock('@/lib/releases/cached', () => ({
   fetchCachedReleasesFirstPage: jest.fn()
 }))
 jest.mock('@/lib/projects/cached', () => ({
-  fetchCachedDefaultProject: jest.fn()
+  fetchCachedDefaultProject: jest.fn(),
+  fetchCachedProjectsFirstPage: jest.fn()
 }))
 jest.mock('@/lib/site-settings/cached', () => ({
   fetchCachedSiteSettings: jest.fn()
@@ -21,6 +25,7 @@ jest.mock('@/lib/site-settings/cached', () => ({
 const mockEvents = jest.mocked(fetchCachedEventsFirstPage)
 const mockReleases = jest.mocked(fetchCachedReleasesFirstPage)
 const mockDefaultProject = jest.mocked(fetchCachedDefaultProject)
+const mockProjects = jest.mocked(fetchCachedProjectsFirstPage)
 const mockSettings = jest.mocked(fetchCachedSiteSettings)
 
 type ContentState = 'published' | 'drafts' | 'empty' | 'error'
@@ -59,6 +64,12 @@ function mockContent(states: Partial<Record<NavPath, ContentState>>) {
   )
 }
 
+function mockProjectCount(totalCount: number) {
+  mockProjects.mockResolvedValue({ totalCount } as Awaited<
+    ReturnType<typeof fetchCachedProjectsFirstPage>
+  >)
+}
+
 async function navProps() {
   const element = await Nav()
   return element.props as { title?: string; items: NavItem[] }
@@ -70,6 +81,7 @@ describe('Nav', () => {
     mockSettings.mockResolvedValue({
       title: 'My Site'
     } as Awaited<ReturnType<typeof fetchCachedSiteSettings>>)
+    mockProjectCount(1)
   })
 
   it('includes published sections in nav order', async () => {
@@ -147,7 +159,7 @@ describe('Nav', () => {
     expect(mockDefaultProject).toHaveBeenCalledWith(false)
   })
 
-  it('shows a section whose fetch throws to everyone', async () => {
+  it('keeps a section whose fetch throws admin-only', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {})
     mockContent({ events: 'error', releases: 'empty' })
 
@@ -156,7 +168,7 @@ describe('Nav', () => {
     expect(
       items.map(({ navPath, status }) => [navPath, status])
     ).toEqual([
-      ['events', 'published'],
+      ['events', 'empty'],
       ['releases', 'empty'],
       ['about', 'empty']
     ])
@@ -176,5 +188,49 @@ describe('Nav', () => {
       'empty',
       'empty'
     ])
+  })
+
+  it('omits empty releases while no project exists', async () => {
+    mockContent({})
+    mockProjectCount(0)
+
+    const { items } = await navProps()
+
+    expect(items.map((item) => item.navPath)).toEqual([
+      'events',
+      'about'
+    ])
+    expect(mockProjects).toHaveBeenCalledWith(true)
+  })
+
+  it('skips the project check for releases with content', async () => {
+    mockContent({ releases: 'drafts' })
+    mockProjectCount(0)
+
+    const { items } = await navProps()
+
+    expect(items).toContainEqual(
+      expect.objectContaining({
+        navPath: 'releases',
+        status: 'drafts'
+      })
+    )
+    expect(mockProjects).not.toHaveBeenCalled()
+  })
+
+  it('keeps empty releases as admin-only when the project check throws', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+    mockContent({})
+    mockProjects.mockRejectedValue(new Error('DB down'))
+
+    const { items } = await navProps()
+
+    expect(items).toContainEqual(
+      expect.objectContaining({
+        navPath: 'releases',
+        status: 'empty'
+      })
+    )
+    expect(console.error).toHaveBeenCalled()
   })
 })

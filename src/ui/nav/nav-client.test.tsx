@@ -95,6 +95,36 @@ describe('NavClient', () => {
     expect(linkNames()).toEqual(['Site Title', 'Events', 'Releases'])
   })
 
+  it('marks only the draft-only section as a draft for admins', async () => {
+    mockSession(true)
+
+    render(
+      <NavClient
+        items={itemsWith({ events: 'published', releases: 'drafts' })}
+      />
+    )
+
+    const releases = await screen.findByRole('link', {
+      name: 'Releases'
+    })
+    const badges = screen.getAllByText('Draft')
+    expect(badges).toHaveLength(1)
+    expect(releases.closest('li')).toContainElement(badges[0])
+  })
+
+  it('shows anonymous visitors no draft badge', async () => {
+    mockSession(false)
+
+    render(
+      <NavClient
+        items={itemsWith({ events: 'published', releases: 'drafts' })}
+      />
+    )
+
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
+    expect(screen.queryByText('Draft')).not.toBeInTheDocument()
+  })
+
   it('omits the navigation landmark with no items', () => {
     render(<NavClient title='My Site' items={[]} />)
 

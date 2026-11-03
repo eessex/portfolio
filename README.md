@@ -39,7 +39,7 @@ Each step checks the current state before it acts: existing env values are reuse
 
 > `run` is required. Bare `pnpm setup` invokes pnpm's own built-in command instead of this script.
 
-It doesn't create an admin account — that's always done at `/setup`, by the same `createFirstUser()` a deployed instance's owner goes through (see `CONTRIBUTING.md` → "First-run setup"). There is no admin UI for creating further users; additional ones are created server-side via `createUser()` in `src/lib/users/create.ts`.
+It doesn't create an admin account — that's always done at `/setup`, by the same `createFirstUser()` a deployed instance's owner goes through (see `CONTRIBUTING.md` → "First-run setup"). Further admins join through invite links from Dashboard → Users (`/dashboard/users`).
 
 ## Environment variables
 

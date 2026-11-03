@@ -1,22 +1,39 @@
-import { ABOUT_PATH, itemTypeToLabel, PagePaths } from '@/lib/schemas'
+import { ABOUT_PATH, itemTypeToLabel } from '@/lib/schemas'
+import {
+  DEFAULT_NAV_ITEMS,
+  type NavItemSetting,
+  type NavPath,
+  navPaths
+} from '@/lib/site-settings/nav-paths'
 import { formattedItemType } from '@/ui/format/items'
 import { editUrl, newUrl } from '@/ui/routes'
 
-export const navPaths = [
-  PagePaths.events,
-  PagePaths.releases,
-  ABOUT_PATH
-] as const
-export type NavPath = (typeof navPaths)[number]
+export { type NavPath, navPaths }
 
-export const navItems = navPaths.map((navPath) => ({
-  navPath,
-  href: `/${navPath}`,
-  label:
-    navPath === ABOUT_PATH
-      ? 'About'
-      : formattedItemType(navPath, false, true).trim()
-}))
+/** What an item is called without a custom label */
+export function defaultNavLabel(navPath: NavPath) {
+  return navPath === ABOUT_PATH
+    ? 'About'
+    : formattedItemType(navPath, false, true).trim()
+}
+
+function navItem(navPath: NavPath, label?: string) {
+  return {
+    navPath,
+    href: `/${navPath}`,
+    label: label || defaultNavLabel(navPath)
+  }
+}
+
+/** Every possible item, with its default label */
+export const navItems = navPaths.map((navPath) => navItem(navPath))
+
+/** The saved menu, or the default one, as items in order */
+export function navItemsFromSettings(
+  settings: NavItemSetting[] = DEFAULT_NAV_ITEMS
+) {
+  return settings.map(({ path, label }) => navItem(path, label))
+}
 
 /** drafts and empty are shown to admins only */
 export type NavItemStatus = 'published' | 'drafts' | 'empty'

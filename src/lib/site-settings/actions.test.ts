@@ -232,6 +232,107 @@ describe('editSiteSettings', () => {
     })
   })
 
+  describe('menu', () => {
+    /** the stored nav_items param, parsed back from its JSON text */
+    function savedNavItems() {
+      const call = mockSql.mock.calls.find(([strings]) =>
+        /(UPDATE|INSERT INTO) site_settings/.test(
+          (strings as TemplateStringsArray).join('?')
+        )
+      )
+      const [strings, ...params] = call!
+      expect((strings as TemplateStringsArray).join('?')).toContain(
+        'nav_items'
+      )
+      const value = params[7]
+      return typeof value === 'string' ? JSON.parse(value) : value
+    }
+
+    it('saves the shown items in order, with names', async () => {
+      mockSql.mockResolvedValue([])
+
+      const res = await editSiteSettings(
+        formDataFromObject({
+          ...validFields,
+          'navItems[0].path': 'releases',
+          'navItems[0].label': '  Music ',
+          'navItems[0].isVisible': 'on',
+          'navItems[1].path': 'events',
+          'navItems[1].label': '',
+          'navItems[1].isVisible': 'on',
+          'navItems[2].path': 'about',
+          'navItems[2].label': 'Bio'
+        }),
+        validFields.id
+      )
+
+      expect(res).toEqual({ ok: true })
+      expect(savedNavItems()).toEqual([
+        { path: 'releases', label: 'Music' },
+        { path: 'events' }
+      ])
+    })
+
+    it('saves an empty menu when every item is hidden', async () => {
+      mockSql.mockResolvedValue([])
+
+      await editSiteSettings(
+        formDataFromObject({
+          ...validFields,
+          'navItems[0].path': 'events'
+        })
+      )
+
+      expect(savedNavItems()).toEqual([])
+    })
+
+    it('keeps the stored menu when the fieldset was not submitted', async () => {
+      mockSql.mockResolvedValue([])
+
+      await editSiteSettings(
+        formDataFromObject(validFields),
+        validFields.id
+      )
+
+      expect(savedNavItems()).toBeNull()
+    })
+
+    it.each([
+      [
+        'an unknown path',
+        { 'navItems[0].path': 'blog', 'navItems[0].isVisible': 'on' }
+      ],
+      [
+        'a repeated path',
+        {
+          'navItems[0].path': 'events',
+          'navItems[0].isVisible': 'on',
+          'navItems[1].path': 'events',
+          'navItems[1].isVisible': 'on'
+        }
+      ],
+      [
+        'a name over 30 characters',
+        {
+          'navItems[0].path': 'events',
+          'navItems[0].label': 'x'.repeat(31),
+          'navItems[0].isVisible': 'on'
+        }
+      ]
+    ])('rejects %s before writing anything', async (_, fields) => {
+      const res = await editSiteSettings(
+        formDataFromObject({ ...validFields, ...fields }),
+        validFields.id
+      )
+
+      expect(res).toMatchObject({
+        ok: false,
+        errors: { navItems: [expect.any(String)] }
+      })
+      expect(mockSql).not.toHaveBeenCalled()
+    })
+  })
+
   describe('site icon', () => {
     const iconImageId = 'c1b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a'
 

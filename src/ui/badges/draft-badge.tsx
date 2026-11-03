@@ -1,3 +1,7 @@
-export function DraftBadge() {
-  return <mark className='draft-badge badge'>Unpublished</mark>
+export function DraftBadge({
+  label = 'Unpublished'
+}: {
+  label?: string
+}) {
+  return <mark className='draft-badge badge'>{label}</mark>
 }

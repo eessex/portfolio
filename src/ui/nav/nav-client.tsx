@@ -3,6 +3,7 @@
 import clsx from 'clsx'
 import NextLink from 'next/link'
 
+import { DraftBadge } from '@/ui/badges/draft-badge'
 import { CreateItemButton } from '@/ui/buttons/create-item-button'
 import style from '@/ui/nav/nav.module.scss'
 import {
@@ -63,7 +64,12 @@ export function NavClient({
                         })}
                       />
                     ) : (
-                      <NextLink href={href}>{label}</NextLink>
+                      <>
+                        <NextLink href={href}>{label}</NextLink>
+                        {status === 'drafts' && (
+                          <DraftBadge label='Draft' />
+                        )}
+                      </>
                     )}
                   </li>
                 )

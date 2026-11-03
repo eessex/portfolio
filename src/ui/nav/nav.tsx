@@ -6,6 +6,7 @@ import { NavClient } from '@/ui/nav/nav-client'
 import {
   type NavItem,
   navItems,
+  type NavItemStatus,
   type NavPath
 } from '@/ui/nav/nav-items'
 
@@ -22,21 +23,22 @@ const hasContent: Record<
     !!(await fetchCachedDefaultProject(isAuthed))
 }
 
-async function navItemVisibility(navPath: NavPath) {
+async function navItemVisibility(
+  navPath: NavPath
+): Promise<NavItemStatus> {
   try {
-    if (await hasContent[navPath](false))
-      return { hasPublishedItems: true }
-    if (await hasContent[navPath](true))
-      return { hasPublishedItems: false }
+    if (await hasContent[navPath](false)) return 'published'
+    if (await hasContent[navPath](true)) return 'drafts'
+    return 'empty'
   } catch (error) {
     // fail open (show to everyone): a throw takes down every page
     console.error(`Failed to check nav item ${navPath}:`, error)
-    return { hasPublishedItems: true }
+    return 'published'
   }
 }
 
 export async function Nav() {
-  const [siteSettings, states] = await Promise.all([
+  const [siteSettings, statuses] = await Promise.all([
     fetchCachedSiteSettings().catch((error) => {
       console.error('Failed to fetch site settings for nav:', error)
       return undefined
@@ -46,10 +48,10 @@ export async function Nav() {
     )
   ])
 
-  const items: NavItem[] = navItems.flatMap((item, i) => {
-    const state = states[i]
-    return state ? [{ ...item, ...state }] : []
-  })
+  const items: NavItem[] = navItems.map((item, i) => ({
+    ...item,
+    status: statuses[i]
+  }))
 
   return <NavClient title={siteSettings?.title} items={items} />
 }

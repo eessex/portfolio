@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 
 /** Shared across callers: one session request per page load */
 let isAdminPromise: Promise<boolean> | null = null
+let syncedIsAdmin = false
 const listeners = new Set<(isAdmin: boolean) => void>()
 
 function fetchIsAdmin() {
@@ -25,6 +26,7 @@ function fetchIsAdmin() {
  * callers would otherwise keep the answer from before.
  */
 export function syncIsAdmin(isAdmin: boolean) {
+  syncedIsAdmin = isAdmin
   isAdminPromise = Promise.resolve(isAdmin)
   listeners.forEach((listener) => listener(isAdmin))
 }
@@ -61,7 +63,28 @@ export function useIsAdmin(isEnabled = true) {
   return isEnabled && isAdmin
 }
 
+function subscribe(onChange: () => void) {
+  listeners.add(onChange)
+  return () => {
+    listeners.delete(onChange)
+  }
+}
+
+/**
+ * Only the answer `syncIsAdmin` pushes from the server-read session,
+ * never a /api/session request: for callers too common to pay one
+ * on every anonymous page load. False until the first sync.
+ */
+export function useSyncedIsAdmin() {
+  return useSyncExternalStore(
+    subscribe,
+    () => syncedIsAdmin,
+    () => false
+  )
+}
+
 /** Test-only: clear the shared session result between tests */
 export function resetIsAdminCache() {
   isAdminPromise = null
+  syncedIsAdmin = false
 }

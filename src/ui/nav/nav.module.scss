@@ -38,6 +38,16 @@
     li {
       margin: 0;
     }
+
+    // a plain nav link plus its icon, not a button
+    .create svg {
+      width: 1em;
+      height: 1em;
+      vertical-align: -0.125em;
+      // 1.5px at 1em, not 1px; snapped, since its x offset is fractional
+      stroke-width: 2.25;
+      shape-rendering: crispEdges;
+    }
   }
 }
 

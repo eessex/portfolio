@@ -34,6 +34,11 @@
     border-bottom: 1px solid var(--transparency-extra-light);
   }
 
+  // a path-dependent button (Create, Edit) can render nothing
+  li:empty {
+    display: none;
+  }
+
   ul:last-child li:last-child {
     border-bottom: none;
   }

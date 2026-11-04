@@ -1,0 +1,8 @@
+// aligned with the menubar's right edge
+.header {
+  max-width: var(--max-body-width);
+  margin: 0 auto;
+  padding: var(--items-list-padding);
+  display: flex;
+  justify-content: flex-end;
+}

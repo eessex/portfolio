@@ -8,6 +8,14 @@
   }
 }
 
+.dashboard-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: grids.space-rem(4);
+}
+
 .dashboard-inner {
   padding: grids.space-rem(2, 4, 6, 4);
 

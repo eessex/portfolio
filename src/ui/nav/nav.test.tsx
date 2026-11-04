@@ -21,6 +21,7 @@ jest.mock('@/lib/projects/cached', () => ({
 jest.mock('@/lib/site-settings/cached', () => ({
   fetchCachedSiteSettings: jest.fn()
 }))
+jest.mock('@/ui/nav/admin-menu', () => ({ AdminMenu: () => null }))
 
 const mockEvents = jest.mocked(fetchCachedEventsFirstPage)
 const mockReleases = jest.mocked(fetchCachedReleasesFirstPage)
@@ -79,7 +80,18 @@ function mockNavItems(navItems: { path: NavPath; label?: string }[]) {
 
 async function navProps() {
   const element = await Nav()
-  return element.props as { title?: string; items: NavItem[] }
+  return element.props as {
+    title?: string
+    items: NavItem[]
+    adminMenu: React.ReactElement<{
+      children: React.ReactElement<{ hiddenNavPaths: NavPath[] }>
+    }>
+  }
+}
+
+async function hiddenNavPaths() {
+  const { adminMenu } = await navProps()
+  return adminMenu.props.children.props.hiddenNavPaths
 }
 
 describe('Nav', () => {
@@ -242,6 +254,13 @@ describe('Nav', () => {
   })
 
   describe('saved menu', () => {
+    it('hands the paths left off the bar to the admin menu', async () => {
+      mockContent({})
+      mockNavItems([{ path: 'about' }, { path: 'events' }])
+
+      expect(await hiddenNavPaths()).toEqual(['releases', 'projects'])
+    })
+
     it('follows its order and names', async () => {
       mockContent({ about: 'published', events: 'published' })
       mockNavItems([

@@ -122,18 +122,6 @@ main {
     flex-direction: column;
   }
 
-  &:has(.admin-sidebar) {
-    flex-direction: row-reverse;
-
-    > div:has(main) {
-      max-width: calc(100% - var(--admin-sidebar-width));
-    }
-
-    .admin-sidebar {
-      width: var(--admin-sidebar-width);
-    }
-  }
-
   #content {
     width: 100%;
     height: 1px;
@@ -142,11 +130,6 @@ main {
 
 body:has(.menubar.hide) {
   --header-height: -1px;
-
-  .admin-sidebar {
-    top: 0;
-    height: 100vh;
-  }
 }
 
 .visually-hidden:not(:focus, :focus-visible, :active),

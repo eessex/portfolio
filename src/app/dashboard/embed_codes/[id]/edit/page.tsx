@@ -11,6 +11,7 @@ import { fetchEmbedCodesByIds } from '@/lib/embed-codes/data'
 import type { EmbedCode } from '@/lib/embed-codes/schemas/db'
 import { EmbeddedItemTypes } from '@/lib/schemas'
 import type { PageEmbeddedItemProps } from '@/lib/types'
+import { DashboardHeader } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
 
 const title = 'Edit Embed Code'
@@ -26,9 +27,10 @@ export default async function EditEmbedCodePage({
 
   return (
     <article>
-      <header>
-        <h1>{title}</h1>
-      </header>
+      <DashboardHeader
+        title={title}
+        itemType={EmbeddedItemTypes.embedCodes}
+      />
 
       <Suspense fallback={<Loading />}>
         <EditEmbeddedItemForm<EmbedCode>

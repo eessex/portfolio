@@ -1,8 +1,12 @@
+import { Suspense } from 'react'
+
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
+import { AdminMenu } from '@/ui/nav/admin-menu'
 import { NavClient } from '@/ui/nav/nav-client'
 import {
   type NavItem,
-  navItemsFromSettings
+  navItemsFromSettings,
+  navPaths
 } from '@/ui/nav/nav-items'
 import { fetchNavItemStatus } from '@/ui/nav/nav-status'
 
@@ -23,5 +27,19 @@ export async function Nav() {
     return status ? [{ ...item, status }] : []
   })
 
-  return <NavClient title={siteSettings?.title} items={items} />
+  const hiddenNavPaths = navPaths.filter(
+    (navPath) => !shownItems.some((item) => item.navPath === navPath)
+  )
+
+  return (
+    <NavClient
+      title={siteSettings?.title}
+      items={items}
+      adminMenu={
+        <Suspense fallback={null}>
+          <AdminMenu hiddenNavPaths={hiddenNavPaths} />
+        </Suspense>
+      }
+    />
+  )
 }

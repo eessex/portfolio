@@ -1,61 +1,43 @@
-import { render, screen } from '@testing-library/react'
-import { usePathname } from 'next/navigation'
+import { fireEvent, render, screen } from '@testing-library/react'
 
-import { CreateItemFromPathnameButton } from '@/ui/buttons/create-item-button'
+import { CreateItemButton } from '@/ui/buttons/create-item-button'
 
-jest.mock('next/navigation', () => ({
-  usePathname: jest.fn()
-}))
-const mockUsePathname = jest.mocked(usePathname)
+describe('CreateItemButton', () => {
+  it('links to href with a "New {type}" label', () => {
+    render(
+      <CreateItemButton
+        itemType='images'
+        href='/dashboard/images/new'
+      />
+    )
 
-describe('CreateItemFromPathnameButton', () => {
-  it('renders a "New" link for an embedded item dashboard list page', () => {
-    mockUsePathname.mockReturnValue('/dashboard/images')
-    render(<CreateItemFromPathnameButton />)
-
-    const link = screen.getByRole('link', { name: /new image/i })
-    expect(link).toHaveAttribute('href', '/dashboard/images/new')
+    expect(
+      screen.getByRole('link', { name: 'New image' })
+    ).toHaveAttribute('href', '/dashboard/images/new')
   })
 
-  it("renders nothing on a page type's index (its header has one)", () => {
-    mockUsePathname.mockReturnValue('/projects')
-    render(<CreateItemFromPathnameButton />)
+  it('renders a button without href', () => {
+    const onClick = jest.fn()
+    render(<CreateItemButton label='Add' onClick={onClick} />)
 
-    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }))
+
+    expect(onClick).toHaveBeenCalled()
   })
 
-  it('renders nothing on the about page (singleton, no create flow)', () => {
-    mockUsePathname.mockReturnValue('/about')
-    render(<CreateItemFromPathnameButton />)
+  it('prefers ariaLabel for the accessible name', () => {
+    render(
+      <CreateItemButton
+        label='Events'
+        ariaLabel='Events: create the first event'
+        href='/events/new'
+      />
+    )
 
-    expect(screen.queryByRole('link')).not.toBeInTheDocument()
-  })
-
-  it("renders nothing on a page item's detail page", () => {
-    mockUsePathname.mockReturnValue('/projects/some-project')
-    render(<CreateItemFromPathnameButton />)
-
-    expect(screen.queryByRole('link')).not.toBeInTheDocument()
-  })
-
-  it('renders nothing on an unrelated page', () => {
-    mockUsePathname.mockReturnValue('/')
-    render(<CreateItemFromPathnameButton />)
-
-    expect(screen.queryByRole('link')).not.toBeInTheDocument()
-  })
-
-  it('renders nothing for an unrecognized dashboard item type', () => {
-    mockUsePathname.mockReturnValue('/dashboard/unknown')
-    render(<CreateItemFromPathnameButton />)
-
-    expect(screen.queryByRole('link')).not.toBeInTheDocument()
-  })
-
-  it('renders nothing for published editions (edited inline on releases)', () => {
-    mockUsePathname.mockReturnValue('/dashboard/published_editions')
-    render(<CreateItemFromPathnameButton />)
-
-    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('link', {
+        name: 'Events: create the first event'
+      })
+    ).toHaveTextContent('Events')
   })
 })

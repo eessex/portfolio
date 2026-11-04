@@ -1,0 +1,83 @@
+@use '@/ui/styles/grids';
+@use '@/ui/styles/type';
+
+.admin-menu {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + #{grids.space-em(1)});
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 14em;
+  // short viewports scroll it; scrolling the page would close it
+  max-height: calc(
+    100dvh - var(--menubar-height) - #{grids.space-em(2)}
+  );
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background-color: var(--page-background-color);
+  box-shadow: 1px 1px 2px var(--transparency-primary);
+  border: 1px solid var(--transparency-extra-light);
+
+  // the class's display would beat the attribute's
+  &[hidden] {
+    display: none;
+  }
+
+  > ul,
+  > [role='group'] {
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--transparency-extra-light);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li,
+  li > form {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+
+  // a link plus its draft badge
+  .hidden-item {
+    flex-direction: row;
+    align-items: center;
+
+    > a {
+      flex: 1;
+    }
+
+    > mark {
+      margin-inline-end: grids.space-em(3);
+    }
+  }
+
+  // EditButton renders nothing off item pages
+  li:empty,
+  > ul:not(:has(li:not(:empty))) {
+    display: none;
+  }
+}
+
+.label {
+  @include type.meta;
+
+  display: block;
+  padding: grids.space-em(2, 3, 1);
+  color: var(--secondary-text-color);
+}

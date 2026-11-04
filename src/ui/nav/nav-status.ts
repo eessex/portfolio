@@ -1,3 +1,4 @@
+import { isCreatable } from '@/lib/creatable'
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
 import {
   fetchCachedDefaultProject,
@@ -23,26 +24,6 @@ const hasContent: Record<
     !!(await fetchCachedDefaultProject(isAuthed))
 }
 
-// an empty section is left out while its create form can't succeed
-const canCreate: Partial<Record<NavPath, () => Promise<boolean>>> = {
-  // a release's project is required and can't be created inline
-  releases: async () =>
-    (await fetchCachedProjectsFirstPage(true)).totalCount > 0
-}
-
-async function isCreatable(navPath: NavPath) {
-  try {
-    return (await canCreate[navPath]?.()) ?? true
-  } catch (error) {
-    // the ghost link is admin-only, so showing it is the safe side
-    console.error(
-      `Failed to check whether nav item ${navPath} can be created:`,
-      error
-    )
-    return true
-  }
-}
-
 /** Undefined: left out of the menu, even for admins */
 export async function fetchNavItemStatus(
   navPath: NavPath
@@ -56,5 +37,6 @@ export async function fetchNavItemStatus(
     console.error(`Failed to check nav item ${navPath}:`, error)
     return 'empty'
   }
+  // an empty section is left out while its create form can't succeed
   return (await isCreatable(navPath)) ? 'empty' : undefined
 }

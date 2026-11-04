@@ -17,12 +17,11 @@ describe('CreateItemFromPathnameButton', () => {
     expect(link).toHaveAttribute('href', '/dashboard/images/new')
   })
 
-  it('renders a "New" link for a page type\'s public list page', () => {
+  it("renders nothing on a page type's index (its header has one)", () => {
     mockUsePathname.mockReturnValue('/projects')
     render(<CreateItemFromPathnameButton />)
 
-    const link = screen.getByRole('link', { name: /new project/i })
-    expect(link).toHaveAttribute('href', '/projects/new')
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
   })
 
   it('renders nothing on the about page (singleton, no create flow)', () => {

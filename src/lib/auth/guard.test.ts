@@ -1,22 +1,38 @@
-jest.mock('next/headers', () => ({
-  headers: jest.fn(async () => new Headers({ cookie: 'old=1' })),
-  cookies: jest.fn(async () => ({
-    toString: () => 'authjs.session-token=new'
-  }))
-}))
+import { cookies, headers } from 'next/headers'
 
 import { auth } from '@/auth'
 import {
   assertAuthed,
+  currentSession,
   currentUserId,
   isAuthed,
-  isAuthedIncludingNewCookies,
   requireAuth
 } from '@/lib/auth/guard'
 
 const mockAuth = auth as unknown as jest.Mock
 
 describe('auth/guard', () => {
+  describe('#currentSession', () => {
+    // An action's re-render: cookies() has the cookie it just set,
+    // headers() still has the request's
+    it('reads the session cookie from cookies(), not headers()', async () => {
+      jest
+        .mocked(headers)
+        .mockResolvedValueOnce(
+          new Headers({ cookie: 'session=old', host: 'example.com' })
+        )
+      jest.mocked(cookies).mockResolvedValueOnce({
+        toString: () => 'session=new'
+      } as Awaited<ReturnType<typeof cookies>>)
+
+      await currentSession()
+
+      const { req } = mockAuth.mock.calls.at(-1)?.[0]
+      expect(req.headers.get('cookie')).toBe('session=new')
+      expect(req.headers.get('host')).toBe('example.com')
+    })
+  })
+
   describe('#requireAuth', () => {
     it('returns null when a session exists', async () => {
       expect(await requireAuth()).toBeNull()
@@ -50,21 +66,6 @@ describe('auth/guard', () => {
     it('returns false without a session', async () => {
       mockAuth.mockResolvedValueOnce(null)
       expect(await isAuthed()).toBe(false)
-    })
-  })
-
-  describe('#isAuthedIncludingNewCookies', () => {
-    it('reads the session from cookies(), not the request headers', async () => {
-      expect(await isAuthedIncludingNewCookies()).toBe(true)
-      const { req } = mockAuth.mock.calls.at(-1)?.[0]
-      expect(req.headers.get('cookie')).toBe(
-        'authjs.session-token=new'
-      )
-    })
-
-    it('returns false without a session', async () => {
-      mockAuth.mockResolvedValueOnce(null)
-      expect(await isAuthedIncludingNewCookies()).toBe(false)
     })
   })
 

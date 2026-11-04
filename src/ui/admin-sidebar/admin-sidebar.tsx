@@ -1,7 +1,7 @@
 import NextLink from 'next/link'
 import { connection } from 'next/server'
 
-import { auth } from '@/auth'
+import { currentSession } from '@/lib/auth/guard'
 import { dashboardItemTypes } from '@/lib/schemas'
 import { camelToSentence, snakeToCamel } from '@/lib/strings'
 import styles from '@/ui/admin-sidebar/admin-sidebar.module.scss'
@@ -16,7 +16,7 @@ const links = ['dashboard' as const, ...dashboardItemTypes]
 export async function AdminSidebar() {
   // opt out of prerender
   await connection()
-  const session = await auth()
+  const session = await currentSession()
   // re-rendered on login/logout, so it keeps useIsAdmin current
   if (!session?.user) return <IsAdminSync isAdmin={false} />
 

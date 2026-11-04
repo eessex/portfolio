@@ -1,8 +1,16 @@
+jest.mock('next/headers', () => ({
+  headers: jest.fn(async () => new Headers({ cookie: 'old=1' })),
+  cookies: jest.fn(async () => ({
+    toString: () => 'authjs.session-token=new'
+  }))
+}))
+
 import { auth } from '@/auth'
 import {
   assertAuthed,
   currentUserId,
   isAuthed,
+  isAuthedIncludingNewCookies,
   requireAuth
 } from '@/lib/auth/guard'
 
@@ -42,6 +50,21 @@ describe('auth/guard', () => {
     it('returns false without a session', async () => {
       mockAuth.mockResolvedValueOnce(null)
       expect(await isAuthed()).toBe(false)
+    })
+  })
+
+  describe('#isAuthedIncludingNewCookies', () => {
+    it('reads the session from cookies(), not the request headers', async () => {
+      expect(await isAuthedIncludingNewCookies()).toBe(true)
+      const { req } = mockAuth.mock.calls.at(-1)?.[0]
+      expect(req.headers.get('cookie')).toBe(
+        'authjs.session-token=new'
+      )
+    })
+
+    it('returns false without a session', async () => {
+      mockAuth.mockResolvedValueOnce(null)
+      expect(await isAuthedIncludingNewCookies()).toBe(false)
     })
   })
 

@@ -1,6 +1,8 @@
 jest.mock('next/server', () => ({ connection: jest.fn() }))
 jest.mock('next/navigation', () => ({ notFound: jest.fn() }))
-jest.mock('@/lib/auth/guard', () => ({ isAuthed: jest.fn() }))
+jest.mock('@/lib/auth/guard', () => ({
+  isAuthedIncludingNewCookies: jest.fn()
+}))
 jest.mock('@/lib/users/data', () => ({ hasUsers: jest.fn() }))
 jest.mock('@/app/setup/setup-form/setup-form', () => ({
   SetupForm: jest.fn(() => null)
@@ -12,11 +14,11 @@ import type { ReactElement } from 'react'
 
 import SetupPage from '@/app/setup/page'
 import { SetupForm } from '@/app/setup/setup-form/setup-form'
-import { isAuthed } from '@/lib/auth/guard'
+import { isAuthedIncludingNewCookies } from '@/lib/auth/guard'
 import { hasUsers } from '@/lib/users/data'
 
 const mockHasUsers = jest.mocked(hasUsers)
-const mockIsAuthed = jest.mocked(isAuthed)
+const mockIsAuthed = jest.mocked(isAuthedIncludingNewCookies)
 
 describe('SetupPage', () => {
   beforeEach(() => {

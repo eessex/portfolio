@@ -23,6 +23,13 @@ jest.mock('@/auth', () => ({
   signOut: jest.fn()
 }))
 
+// The guard reads both to find the session cookie (see
+// currentSession in src/lib/auth/guard.ts)
+jest.mock('next/headers', () => ({
+  headers: jest.fn(async () => new Headers()),
+  cookies: jest.fn(async () => ({ toString: () => '' }))
+}))
+
 // ESM-only packages Jest can't parse
 jest.mock('@vercel/analytics/next', () => ({ Analytics: () => null }))
 jest.mock('@vercel/speed-insights/next', () => ({

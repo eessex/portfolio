@@ -8,8 +8,7 @@ import {
   dashboardItemTypes,
   type EmbeddedItemType,
   itemTypeToLabel,
-  type PagePath,
-  pagePaths
+  type PagePath
 } from '@/lib/schemas'
 import { snakeToCamel } from '@/lib/strings'
 import { dashboardUrl, newUrl } from '@/ui/routes'
@@ -68,41 +67,24 @@ export function CreateItemButton({
 }
 
 /**
- * Derives the creatable item type (and its "New" href) from the
- * current pathname: `/dashboard/{embeddedType}` for embedded items
- * (e.g. images, venues), or a page type's own public list page
- * (`/{pagePath}`, e.g. `/projects`) for page items — `about` is
- * excluded since it's a singleton with no create flow.
+ * Derives the creatable embedded item type (and its "New" href) from
+ * a `/dashboard/{embeddedType}` pathname (e.g. images, venues). Page
+ * types get theirs from their index header (`CreateItemHeader`).
  */
 function itemTypeFromPathname(
   pathnameParts: string[]
-):
-  | { itemType: EmbeddedItemType | PagePath; href: string }
-  | undefined {
-  if (pathnameParts[1] === 'dashboard') {
-    const itemPart = pathnameParts[2]
-      ? (snakeToCamel(pathnameParts[2]) as EmbeddedItemType)
-      : undefined
-    const itemType = dashboardItemTypes.find(
-      (type) => type === itemPart
-    )
-    return (
-      itemType && {
-        itemType,
-        href: newUrl(dashboardUrl(itemType))
-      }
-    )
-  }
+): { itemType: EmbeddedItemType; href: string } | undefined {
+  if (pathnameParts[1] !== 'dashboard') return undefined
 
-  if (
-    pathnameParts.length === 2 &&
-    pagePaths.includes(pathnameParts[1] as PagePath)
-  ) {
-    const itemType = pathnameParts[1] as PagePath
-    return { itemType, href: newUrl(`/${itemType}`) }
-  }
-
-  return undefined
+  const itemPart = pathnameParts[2]
+    ? (snakeToCamel(pathnameParts[2]) as EmbeddedItemType)
+    : undefined
+  const itemType = dashboardItemTypes.find(
+    (type) => type === itemPart
+  )
+  return (
+    itemType && { itemType, href: newUrl(dashboardUrl(itemType)) }
+  )
 }
 
 export function CreateItemFromPathnameButton() {

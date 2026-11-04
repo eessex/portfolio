@@ -14,10 +14,11 @@
 
   > div > a:first-child {
     @include type.heading('lg');
-  }
 
-  a {
-    @include type.heading('base');
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   > div {
@@ -27,16 +28,36 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: grids.space-em(4);
 
-    ul {
+    // narrow screens scroll the links, never push the gear off
+    .end {
+      display: flex;
+      align-items: center;
+      gap: grids.space-em(4);
+      min-width: 0;
+    }
+
+    nav {
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    nav a {
+      @include type.heading('base');
+    }
+
+    nav ul {
       display: flex;
       gap: grids.space-em(4);
       margin: 0;
       padding: 0;
     }
 
-    li {
+    nav li {
       margin: 0;
+      white-space: nowrap;
     }
 
     // a plain nav link plus its icon, not a button

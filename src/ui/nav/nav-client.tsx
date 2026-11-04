@@ -3,23 +3,21 @@
 import clsx from 'clsx'
 import NextLink from 'next/link'
 
-import { DraftBadge } from '@/ui/badges/draft-badge'
-import { CreateItemButton } from '@/ui/buttons/create-item-button'
 import style from '@/ui/nav/nav.module.scss'
-import {
-  type NavItem,
-  navItemCreateHref,
-  navItemCreateLabel
-} from '@/ui/nav/nav-items'
+import { NavItemLink } from '@/ui/nav/nav-item-link'
+import type { NavItem } from '@/ui/nav/nav-items'
 import { useWindowScrollPosition } from '@/ui/nav/scroll-position'
 import { useIsAdmin, useSyncedIsAdmin } from '@/ui/use-is-admin'
 
 export function NavClient({
   title,
-  items
+  items,
+  adminMenu
 }: {
   title?: string
   items: NavItem[]
+  /** Server-rendered; renders nothing visible for visitors */
+  adminMenu?: React.ReactNode
 }) {
   const { isAtContentTop, isScrollingDown } =
     useWindowScrollPosition()
@@ -47,36 +45,23 @@ export function NavClient({
           <span>{title || 'Site Title'}</span>
         </NextLink>
 
-        {visibleItems.length > 0 && (
-          <nav aria-label='Main navigation'>
-            <ul>
-              {visibleItems.map(
-                ({ navPath, href, label, status }) => (
-                  <li key={navPath}>
-                    {status === 'empty' ? (
-                      <CreateItemButton
-                        className={style['create']}
-                        href={navItemCreateHref(navPath)}
-                        label={label}
-                        ariaLabel={navItemCreateLabel({
-                          navPath,
-                          label
-                        })}
-                      />
-                    ) : (
-                      <>
-                        <NextLink href={href}>{label}</NextLink>
-                        {status === 'drafts' && (
-                          <DraftBadge label='Draft' />
-                        )}
-                      </>
-                    )}
+        <div className={style['end']}>
+          {visibleItems.length > 0 && (
+            <nav aria-label='Main navigation'>
+              <ul>
+                {visibleItems.map((item) => (
+                  <li key={item.navPath}>
+                    <NavItemLink
+                      item={item}
+                      createClassName={style['create']}
+                    />
                   </li>
-                )
-              )}
-            </ul>
-          </nav>
-        )}
+                ))}
+              </ul>
+            </nav>
+          )}
+          {adminMenu}
+        </div>
       </div>
     </header>
   )

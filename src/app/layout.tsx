@@ -7,7 +7,6 @@ import { DeviceProvider } from '@/lib/device-context'
 import { ogImage } from '@/lib/images/util'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { siteIconUrls } from '@/lib/site-settings/util'
-import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
 import { Analytics, SpeedInsights } from '@/ui/analytics/analytics'
 import { geistMono, geistSans } from '@/ui/fonts'
 import { Footer } from '@/ui/footer/footer'
@@ -65,10 +64,6 @@ export default async function RootLayout({
           <Nav />
           <DeviceProvider>
             <div className='body-container'>
-              <Suspense fallback={null}>
-                <AdminSidebar />
-              </Suspense>
-
               <div>
                 <main>
                   <div id='content' />

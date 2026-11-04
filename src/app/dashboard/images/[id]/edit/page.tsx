@@ -8,6 +8,7 @@ import { fetchImageById } from '@/lib/images/data'
 import type { Image } from '@/lib/images/schemas/db'
 import { EmbeddedItemTypes } from '@/lib/schemas'
 import type { PageEmbeddedItemProps } from '@/lib/types'
+import { DashboardHeader } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
 
 const title = 'Edit Image'
@@ -23,9 +24,10 @@ export default async function EditImagePage({
 
   return (
     <article>
-      <header>
-        <h1>{title}</h1>
-      </header>
+      <DashboardHeader
+        title={title}
+        itemType={EmbeddedItemTypes.images}
+      />
 
       <Suspense fallback={<Loading />}>
         <EditEmbeddedItemForm<Image>

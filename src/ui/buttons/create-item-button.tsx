@@ -2,16 +2,12 @@
 
 import { PlusIcon } from '@heroicons/react/24/outline'
 import NextLink from 'next/link'
-import { usePathname } from 'next/navigation'
 
 import {
-  dashboardItemTypes,
   type EmbeddedItemType,
   itemTypeToLabel,
   type PagePath
 } from '@/lib/schemas'
-import { snakeToCamel } from '@/lib/strings'
-import { dashboardUrl, newUrl } from '@/ui/routes'
 
 export function CreateItemButton({
   className,
@@ -64,41 +60,4 @@ export function CreateItemButton({
       </button>
     )
   }
-}
-
-/**
- * Derives the creatable embedded item type (and its "New" href) from
- * a `/dashboard/{embeddedType}` pathname (e.g. images, venues). Page
- * types get theirs from their index header (`CreateItemHeader`).
- */
-function itemTypeFromPathname(
-  pathnameParts: string[]
-): { itemType: EmbeddedItemType; href: string } | undefined {
-  if (pathnameParts[1] !== 'dashboard') return undefined
-
-  const itemPart = pathnameParts[2]
-    ? (snakeToCamel(pathnameParts[2]) as EmbeddedItemType)
-    : undefined
-  const itemType = dashboardItemTypes.find(
-    (type) => type === itemPart
-  )
-  return (
-    itemType && { itemType, href: newUrl(dashboardUrl(itemType)) }
-  )
-}
-
-export function CreateItemFromPathnameButton() {
-  const pathname = usePathname()
-  const found = itemTypeFromPathname(pathname.split('/'))
-
-  if (!found) return null
-  const { itemType, href } = found
-
-  return (
-    <CreateItemButton
-      className='button-primary'
-      itemType={itemType}
-      href={href}
-    />
-  )
 }

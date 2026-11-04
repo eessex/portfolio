@@ -7,6 +7,7 @@ import type { PageEmbeddedItemProps } from '@/lib/types'
 import { deleteVenue, editVenue } from '@/lib/venues/actions'
 import { fetchVenueById } from '@/lib/venues/data'
 import type { Venue } from '@/lib/venues/schemas/db'
+import { DashboardHeader } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
 
 const title = 'Edit Venue'
@@ -23,9 +24,7 @@ export default async function EditVenuePage({
 
   return (
     <article>
-      <header>
-        <h1>{title}</h1>
-      </header>
+      <DashboardHeader title={title} itemType='venues' />
 
       <Suspense fallback={<Loading />}>
         <EditEmbeddedItemForm<Venue>

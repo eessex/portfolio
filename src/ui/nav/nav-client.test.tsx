@@ -242,4 +242,17 @@ describe('NavClient', () => {
         .map((link) => link.getAttribute('href'))
     ).toEqual(['/', '/events/new', '/releases', '/about'])
   })
+
+  it('renders the admin menu slot beside the nav', () => {
+    render(
+      <NavClient
+        items={itemsWith({ events: 'published' })}
+        adminMenu={<button type='button'>Admin menu</button>}
+      />
+    )
+
+    expect(
+      screen.getByRole('button', { name: 'Admin menu' })
+    ).toBeInTheDocument()
+  })
 })

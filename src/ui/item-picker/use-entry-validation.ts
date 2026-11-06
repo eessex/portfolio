@@ -121,7 +121,7 @@ export function useEntryValidation({
   function validateDraft(
     tempId: string,
     submitIndex: number,
-    options: { focus?: boolean } = {}
+    options: { isFocused?: boolean } = {}
   ): boolean {
     const result = parseEntry(tempId, submitIndex)
     if (!result) return true
@@ -135,7 +135,7 @@ export function useEntryValidation({
         ...current,
         [tempId]: fieldErrors
       }))
-      if (options.focus) {
+      if (options.isFocused) {
         const firstField = Object.keys(fieldErrors)[0]
         const invalidEl = firstField
           ? fieldset.elements.namedItem(`${prefix}${firstField}`)
@@ -171,7 +171,7 @@ export function useEntryValidation({
       return false
     }
 
-    return validateDraft(tempId, submitIndex, { focus: true })
+    return validateDraft(tempId, submitIndex, { isFocused: true })
   }
 
   /**

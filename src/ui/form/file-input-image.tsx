@@ -19,7 +19,7 @@ import { Input } from '@/ui/form/input'
 
 export function FileInputImage({
   ariaControls,
-  ariaExpanded,
+  isExpanded,
   label,
   className,
   description,
@@ -34,7 +34,7 @@ export function FileInputImage({
   isReplaceable = true
 }: Omit<InputProps<HTMLInputElement>, 'children' | 'onChange'> & {
   ariaControls?: string
-  ariaExpanded?: boolean
+  isExpanded?: boolean
   image?: Partial<Image>
   /**
    * False for a saved image: its file never changes, so only the
@@ -219,7 +219,7 @@ export function FileInputImage({
               title='Remove image'
               aria-label='Remove image'
               aria-controls={ariaControls}
-              aria-expanded={ariaExpanded}
+              aria-expanded={isExpanded}
               type='button'
               onClick={
                 previewUrl ? onRemovePreviewImage : onRemoveSavedImage

@@ -14,9 +14,9 @@ export const useWindowScrollPosition = () => {
       }
       const observer = new IntersectionObserver(
         ([entry]) => {
-          const atTop = entry.boundingClientRect.top > 0
-          if (atTop !== isAtContentTop) {
-            setIsAtContentTop(atTop)
+          const isAtTop = entry.boundingClientRect.top > 0
+          if (isAtTop !== isAtContentTop) {
+            setIsAtContentTop(isAtTop)
           }
         },
         { threshold: 0 }
@@ -35,9 +35,9 @@ export const useWindowScrollPosition = () => {
       if (scrollTimeout !== null) return
       scrollTimeout = window.requestAnimationFrame(() => {
         const currentScrollY = window.scrollY
-        const scrollingDown = currentScrollY > lastScrollY
-        if (isScrollingDown !== scrollingDown) {
-          setIsScrollingDown(scrollingDown)
+        const isScrollingDown = currentScrollY > lastScrollY
+        if (isScrollingDown !== isScrollingDown) {
+          setIsScrollingDown(isScrollingDown)
         }
         lastScrollY = currentScrollY
         scrollTimeout = null

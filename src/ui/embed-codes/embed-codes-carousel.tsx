@@ -8,14 +8,14 @@ import styles from '@/ui/embed-codes/embed-codes.module.scss'
 
 /** Names only the media types present. */
 function embedCodesTitle(embedCodes: EmbedCode[]) {
-  const hasVideo = embedCodes.some(
+  const isVideo = embedCodes.some(
     ({ type }) => type === EmbedCodeTypes.video
   )
-  const hasAudio = embedCodes.some(
+  const isAudio = embedCodes.some(
     ({ type }) => type === EmbedCodeTypes.audio
   )
-  if (hasVideo && hasAudio) return 'Video & audio'
-  return hasVideo ? 'Video' : 'Audio'
+  if (isVideo && isAudio) return 'Video & audio'
+  return isVideo ? 'Video' : 'Audio'
 }
 
 /** Embeds in a carousel of columns, each at its host's default height. */

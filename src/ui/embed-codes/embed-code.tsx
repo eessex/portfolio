@@ -7,12 +7,12 @@ import { defaultEmbedSizeByHost } from '@/ui/embed-codes/util'
 
 export function EmbedCodeItem({
   ariaControls,
-  ariaExpanded,
+  isExpanded,
   embedCode,
   onRemove
 }: {
   ariaControls?: string
-  ariaExpanded?: boolean
+  isExpanded?: boolean
   embedCode: Partial<EmbedCode>
   onRemove?: (id?: string) => void
 }) {
@@ -50,7 +50,7 @@ export function EmbedCodeItem({
           title='Remove embed code'
           aria-label='Remove embed'
           aria-controls={ariaControls}
-          aria-expanded={ariaExpanded}
+          aria-expanded={isExpanded}
           type='button'
           onClick={handleRemove}
           className='button-icon button-primary'

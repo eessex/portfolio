@@ -65,7 +65,7 @@ export async function fetchLinksRaw(
   query?: string,
   isPress?: boolean
 ): Promise<ResponseWithCursor<DashboardLink>> {
-  const pressFilter = isPress ?? null
+  const isPressFilter = isPress ?? null
   return runListFetch({
     cursor,
     query,
@@ -84,8 +84,8 @@ export async function fetchLinksRaw(
         OR type ILIKE ${like}
       )
       AND (
-        ${pressFilter}::boolean IS NULL
-        OR (type IS NOT DISTINCT FROM 'press') = ${pressFilter}
+        ${isPressFilter}::boolean IS NULL
+        OR (type IS NOT DISTINCT FROM 'press') = ${isPressFilter}
       )
     `,
     list: ({ like, cursorName, cursorId }) => sql`
@@ -110,8 +110,8 @@ export async function fetchLinksRaw(
         OR type ILIKE ${like}
       )
       AND (
-        ${pressFilter}::boolean IS NULL
-        OR (type IS NOT DISTINCT FROM 'press') = ${pressFilter}
+        ${isPressFilter}::boolean IS NULL
+        OR (type IS NOT DISTINCT FROM 'press') = ${isPressFilter}
       )
       AND (
         ${cursorName}::text IS NULL

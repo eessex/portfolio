@@ -45,9 +45,9 @@ export async function createEmailSubscription<T>(
     )
   }
 
-  let withinLimit = true
+  let isWithinLimit = true
   try {
-    withinLimit = await checkWindowLimit(
+    isWithinLimit = await checkWindowLimit(
       `subscribe:${await getClientIp()}`,
       SUBSCRIBE_LIMIT,
       SUBSCRIBE_WINDOW_SECONDS
@@ -59,7 +59,7 @@ export async function createEmailSubscription<T>(
       err
     )
   }
-  if (!withinLimit) {
+  if (!isWithinLimit) {
     return {
       ok: false,
       message: 'Too many attempts — please try again later.'

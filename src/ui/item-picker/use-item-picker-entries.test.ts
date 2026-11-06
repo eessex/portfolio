@@ -19,8 +19,11 @@ URL.createObjectURL = jest.fn(() => 'blob:mock-preview')
 URL.revokeObjectURL = jest.fn()
 
 function makeValidation(
+  // keyed by the mocked functions' names
   overrides: Partial<{
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     validateEntryStrict: boolean
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     hasEntryContent: boolean
     file?: File
     summaryData: Record<string, unknown>
@@ -335,12 +338,12 @@ describe('useItemPickerEntries', () => {
         { kind: 'new' }
       >
 
-      let didSave = true
+      let isSaved = true
       act(() => {
-        didSave = result.current.saveDraft(draft, 0)
+        isSaved = result.current.saveDraft(draft, 0)
       })
 
-      expect(didSave).toBe(false)
+      expect(isSaved).toBe(false)
       expect(
         (result.current.entries[0] as { isSaved?: boolean }).isSaved
       ).toBeUndefined()

@@ -197,8 +197,8 @@ export function ItemsTableRow({
     itemType === EmbeddedItemTypes.embedCodes &&
     embedCode.type === EmbedCodeTypes.video
   const media = hasOwnPage(item) ? itemMedia(item) : undefined
-  const hasAudio = !!media?.hasAudio || isAudioEmbedCode
-  const hasVideo = !!media?.hasVideo || isVideoEmbedCode
+  const isAudio = !!media?.isAudio || isAudioEmbedCode
+  const isVideo = !!media?.isVideo || isVideoEmbedCode
   const isImageVisible = isImageColumnVisible(itemType)
 
   return (
@@ -308,7 +308,7 @@ export function ItemsTableRow({
 
       {children && <td>{children}</td>}
       <td className={styles['table-row-media']}>
-        <ItemMediaIcons hasAudio={hasAudio} hasVideo={hasVideo} />
+        <ItemMediaIcons isAudio={isAudio} isVideo={isVideo} />
       </td>
     </tr>
   )

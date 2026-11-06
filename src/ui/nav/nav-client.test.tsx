@@ -304,6 +304,22 @@ describe('NavClient', () => {
       expect(homeLink().querySelector('img')).toBeNull()
     })
 
+    it('masks with the inlined SVG when given one', () => {
+      const dataUrl = 'data:image/svg+xml;base64,AA=='
+      render(
+        <NavClient
+          title='My Site'
+          logo={svgLogo}
+          logoMaskUrl={dataUrl}
+          items={[]}
+        />
+      )
+
+      expect(homeLink().querySelector('[aria-hidden]')).toHaveStyle({
+        maskImage: `url("${dataUrl}")`
+      })
+    })
+
     it('hides the title text, but keeps the link name, when logo-only', () => {
       render(
         <NavClient

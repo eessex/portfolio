@@ -4,7 +4,13 @@ jest.mock('@/lib/images/data', () => ({
   fetchImagesRaw: jest.fn()
 }))
 
-import { fetchImages } from '@/lib/images/cached'
+import fetchMock from 'jest-fetch-mock'
+
+import {
+  fetchCachedSvgDataUrl,
+  fetchImages,
+  MAX_INLINE_SVG_BYTES
+} from '@/lib/images/cached'
 import { fetchImagesRaw } from '@/lib/images/data'
 
 const noSvgFilter = { isSvgExcluded: false }
@@ -80,5 +86,33 @@ describe('fetchImages', () => {
       'press',
       noSvgFilter
     )
+  })
+})
+
+describe('fetchCachedSvgDataUrl', () => {
+  const url = 'https://bucket.example/images/logo.svg'
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg"></svg>'
+
+  beforeEach(() => fetchMock.resetMocks())
+
+  it('inlines the file as a base64 data URL', async () => {
+    fetchMock.mockResponseOnce(svg)
+
+    expect(await fetchCachedSvgDataUrl(url)).toBe(
+      `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`
+    )
+    expect(fetchMock).toHaveBeenCalledWith(url)
+  })
+
+  it('keeps a file too big to inline as a URL', async () => {
+    fetchMock.mockResponseOnce('x'.repeat(MAX_INLINE_SVG_BYTES + 1))
+
+    expect(await fetchCachedSvgDataUrl(url)).toBeUndefined()
+  })
+
+  it("throws on a failed fetch, so it isn't cached", async () => {
+    fetchMock.mockResponseOnce('', { status: 404 })
+
+    await expect(fetchCachedSvgDataUrl(url)).rejects.toThrow('404')
   })
 })

@@ -1,4 +1,6 @@
 import { fetchCachedEventsFirstPage } from '@/lib/events/cached'
+import { fetchCachedSvgDataUrl } from '@/lib/images/cached'
+import { imageFixture } from '@/lib/images/fixtures'
 import {
   fetchCachedDefaultProject,
   fetchCachedProjectsFirstPage
@@ -18,6 +20,9 @@ jest.mock('@/lib/projects/cached', () => ({
   fetchCachedDefaultProject: jest.fn(),
   fetchCachedProjectsFirstPage: jest.fn()
 }))
+jest.mock('@/lib/images/cached', () => ({
+  fetchCachedSvgDataUrl: jest.fn()
+}))
 jest.mock('@/lib/site-settings/cached', () => ({
   fetchCachedSiteSettings: jest.fn()
 }))
@@ -29,6 +34,7 @@ const mockReleases = jest.mocked(fetchCachedReleasesFirstPage)
 const mockDefaultProject = jest.mocked(fetchCachedDefaultProject)
 const mockProjects = jest.mocked(fetchCachedProjectsFirstPage)
 const mockSettings = jest.mocked(fetchCachedSiteSettings)
+const mockSvgDataUrl = jest.mocked(fetchCachedSvgDataUrl)
 
 type ContentState = 'published' | 'drafts' | 'empty' | 'error'
 
@@ -94,6 +100,7 @@ async function navProps() {
         }>
       | false
     isTrayFooterSubscribeOnly: boolean
+    logoMaskUrl?: string
   }
 }
 
@@ -361,6 +368,51 @@ describe('Nav', () => {
       ])
       expect(mockProjects).toHaveBeenCalledWith(false, true)
       expect(mockProjects).toHaveBeenCalledWith(true, true)
+    })
+  })
+
+  describe('logo mask', () => {
+    const svgLogo = {
+      ...imageFixture,
+      url: 'https://bucket.example/images/logo.svg',
+      format: 'svg' as const
+    }
+
+    function mockLogo(logoImage: typeof imageFixture) {
+      mockSettings.mockResolvedValue({
+        title: 'My Site',
+        logoImage
+      } as Awaited<ReturnType<typeof fetchCachedSiteSettings>>)
+    }
+
+    it('inlines an SVG logo for its mask', async () => {
+      mockContent({})
+      mockLogo(svgLogo)
+      mockSvgDataUrl.mockResolvedValue(
+        'data:image/svg+xml;base64,AA=='
+      )
+
+      expect((await navProps()).logoMaskUrl).toBe(
+        'data:image/svg+xml;base64,AA=='
+      )
+      expect(mockSvgDataUrl).toHaveBeenCalledWith(svgLogo.url)
+    })
+
+    it('leaves the mask on the storage URL when inlining fails', async () => {
+      mockContent({})
+      mockLogo(svgLogo)
+      mockSvgDataUrl.mockRejectedValue(new Error('404'))
+      jest.spyOn(console, 'error').mockImplementation(() => {})
+
+      expect((await navProps()).logoMaskUrl).toBeUndefined()
+    })
+
+    it('fetches nothing for a raster logo', async () => {
+      mockContent({})
+      mockLogo(imageFixture)
+
+      expect((await navProps()).logoMaskUrl).toBeUndefined()
+      expect(mockSvgDataUrl).not.toHaveBeenCalled()
     })
   })
 })

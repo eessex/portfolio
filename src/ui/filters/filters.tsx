@@ -28,13 +28,13 @@ export function FiltersWrapper({
   children
 }: FiltersWrapperProps) {
   const { isSmBreakpoint } = useDevice()
-  const mounted = useSyncExternalStore(
+  const isMounted = useSyncExternalStore(
     () => () => {},
     () => true,
     () => false
   )
 
-  if (!mounted) return null
+  if (!isMounted) return null
 
   const FiltersComponent = isSmBreakpoint
     ? FiltersContainerMobile

@@ -54,6 +54,27 @@ const eslintConfig = [
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error'
     }
+  },
+
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    languageOptions: {
+      parserOptions: { projectService: true }
+    },
+    rules: {
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          // object literal keys are mostly set by outside APIs
+          selector: ['variable', 'parameter', 'typeProperty'],
+          types: ['boolean'],
+          // FormResponse's ok, _ discards, snake_case DB rows
+          filter: { regex: '^ok$|_', match: false },
+          format: ['camelCase', 'PascalCase'],
+          prefix: ['is']
+        }
+      ]
+    }
   }
 ]
 

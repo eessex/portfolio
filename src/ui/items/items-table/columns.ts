@@ -8,14 +8,14 @@ import { isEmbeddedItemType } from '@/lib/schemas'
  */
 const embeddedItemColumns: Record<
   EmbeddedItemType,
-  { hasImage: boolean }
+  { isImageShown: boolean }
 > = {
-  embedCodes: { hasImage: true },
-  images: { hasImage: true },
-  links: { hasImage: false },
-  publishedEditions: { hasImage: true },
-  publishers: { hasImage: false },
-  venues: { hasImage: false }
+  embedCodes: { isImageShown: true },
+  images: { isImageShown: true },
+  links: { isImageShown: false },
+  publishedEditions: { isImageShown: true },
+  publishers: { isImageShown: false },
+  venues: { isImageShown: false }
 }
 
 export function isImageColumnVisible(
@@ -23,7 +23,7 @@ export function isImageColumnVisible(
 ) {
   return (
     !isEmbeddedItemType(itemType) ||
-    embeddedItemColumns[itemType].hasImage
+    embeddedItemColumns[itemType].isImageShown
   )
 }
 

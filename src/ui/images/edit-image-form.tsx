@@ -62,22 +62,22 @@ export const EditImage = ({
   ) {
     setAspectRatio(aspectRatio || savedAspect)
   }
-  const hasImage = !!aspectRatio
+  const isImageSet = !!aspectRatio
   const disclosure = useDisclosureDetails({
-    isRevealed: hasImage,
+    isRevealed: isImageSet,
     isKeptWithContent: true
   })
   const { id: detailsFieldsetId, isExpanded } = disclosure
 
   useEffect(() => {
-    onReadyChange?.(hasImage)
-  }, [hasImage, onReadyChange])
+    onReadyChange?.(isImageSet)
+  }, [isImageSet, onReadyChange])
 
   return (
     <>
       <FileInputImage
         ariaControls={detailsFieldsetId}
-        ariaExpanded={isExpanded}
+        isExpanded={isExpanded}
         attributes={{
           name: `${namePrefix}file`,
           // Required when isRequired, or once the form is touched.

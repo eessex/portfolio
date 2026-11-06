@@ -18,10 +18,9 @@ export const sortReleasesByCategory = (
     releases: [] // For project pages, pages where there's only a couple releases
   }
 
-  const hasMultipleTypes =
-    new Set(releases.map((r) => r.type)).size > 1
+  const isMultiType = new Set(releases.map((r) => r.type)).size > 1
 
-  if (isProject && !hasMultipleTypes) {
+  if (isProject && !isMultiType) {
     result.releases = [...releases]
     return result
   }

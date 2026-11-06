@@ -27,10 +27,10 @@ function warnNonOkResponse(
 
 function toJpegBuffer(
   buffer: Buffer,
-  resizeToThumbnail?: boolean
+  isThumbnail?: boolean
 ): Promise<Buffer> {
   const image = sharp(buffer)
-  if (resizeToThumbnail) {
+  if (isThumbnail) {
     image.resize({
       width: COVER_IMAGE_THUMBNAIL_SIZE,
       height: COVER_IMAGE_THUMBNAIL_SIZE,
@@ -38,9 +38,7 @@ function toJpegBuffer(
       withoutEnlargement: true
     })
   }
-  return image
-    .jpeg({ quality: resizeToThumbnail ? 80 : 90 })
-    .toBuffer()
+  return image.jpeg({ quality: isThumbnail ? 80 : 90 }).toBuffer()
 }
 
 export interface EmbedCodeMetadata {

@@ -45,6 +45,13 @@ describe('sanitizeSvg', () => {
     expect(clean).not.toMatch(/evil/)
   })
 
+  it('strips an escape ended by CRLF, CR or form feed', async () => {
+    const clean = await sanitize(
+      `${open}<rect style="fill:u\\72&#13;&#10;l(https://evil.example/a)"/><rect style="fill:u\\72&#13;l(https://evil.example/b)"/><rect style="fill:u\\72&#12;l(https://evil.example/c)"/></svg>`
+    )
+    expect(clean).not.toMatch(/evil/)
+  })
+
   it('serializes as XML, without HTML-only entities', async () => {
     expect(
       await sanitize(

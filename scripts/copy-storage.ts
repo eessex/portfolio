@@ -49,7 +49,11 @@ import {
   COVER_IMAGE_PATH_PREFIX,
   COVER_IMAGE_THUMBNAIL_SIZE
 } from '@/lib/embed-codes/cover-image-url'
-import { uploadFormats, VARIANT_WIDTHS } from '@/lib/images/util'
+import {
+  rasterUploadFormat,
+  uploadFormats,
+  VARIANT_WIDTHS
+} from '@/lib/images/util'
 import { storageAdapter } from '@/lib/storage'
 import {
   ICON_PATH_PREFIX,
@@ -162,7 +166,7 @@ async function main() {
       const bytes = await download(url)
       const metadata = await sharp(bytes).metadata()
       const format = metadata.format
-      if (!format || !uploadFormats[format]) {
+      if (!format || !rasterUploadFormat(format)) {
         throw new Error(`unsupported format ${format}`)
       }
       const key = imageKey(id, format)

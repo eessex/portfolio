@@ -294,17 +294,7 @@ describe('NavClient', () => {
       )
     })
 
-    it('draws an SVG logo as a mask in the text color', () => {
-      render(<NavClient title='My Site' logo={svgLogo} items={[]} />)
-
-      const mask = homeLink().querySelector('[aria-hidden]')
-      expect(mask).toHaveStyle({
-        maskImage: `url("${svgLogo.url}")`
-      })
-      expect(homeLink().querySelector('img')).toBeNull()
-    })
-
-    it('masks with the inlined SVG when given one', () => {
+    it('draws an inlined SVG logo as a mask in the text color', () => {
       const dataUrl = 'data:image/svg+xml;base64,AA=='
       render(
         <NavClient
@@ -318,6 +308,18 @@ describe('NavClient', () => {
       expect(homeLink().querySelector('[aria-hidden]')).toHaveStyle({
         maskImage: `url("${dataUrl}")`
       })
+      expect(homeLink().querySelector('img')).toBeNull()
+    })
+
+    // a cross-origin mask would vanish without the host's CORS
+    it('shows an SVG logo that was not inlined as an image', () => {
+      render(<NavClient title='My Site' logo={svgLogo} items={[]} />)
+
+      expect(homeLink().querySelector('img')).toHaveAttribute(
+        'src',
+        svgLogo.url
+      )
+      expect(homeLink().querySelector('[aria-hidden]')).toBeNull()
     })
 
     it('hides the title text, but keeps the link name, when logo-only', () => {

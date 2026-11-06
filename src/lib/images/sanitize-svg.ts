@@ -12,9 +12,11 @@ function isLocalRef(value: string) {
   return value.trim().startsWith('#')
 }
 
-// so u\72l( and ur\l( read as url(
+// so u\72l( and ur\l( read as url(. Newlines normalized first, as
+// CSS does, so an escape's one trailing whitespace takes a whole CRLF
 function decodeCssEscapes(css: string) {
   return css
+    .replace(/\r\n?|\f/g, '\n')
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .replace(/\\([0-9a-f]{1,6})\s?/gi, (_, hex: string) =>
       String.fromCodePoint(Number.parseInt(hex, 16) || 0xfffd)

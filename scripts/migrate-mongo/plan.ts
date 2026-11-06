@@ -13,7 +13,7 @@ import type { z } from 'zod'
 import { createEmbedCodeSchema } from '@/lib/embed-codes/schemas/db'
 import { createEventSchema } from '@/lib/events/schemas'
 import { createImageSchema } from '@/lib/images/schemas/db'
-import { MIN_SHORT_EDGE, uploadFormats } from '@/lib/images/util'
+import { MIN_SHORT_EDGE, rasterUploadFormat } from '@/lib/images/util'
 import {
   createLinkSchema,
   createSocialLinkSchema,
@@ -492,7 +492,7 @@ export class Planner {
       const bytes = await downloadOldImage(ref.url)
       const metadata = await sharp(bytes).metadata()
       const format = metadata.format
-      const upload = format ? uploadFormats[format] : undefined
+      const upload = rasterUploadFormat(format)
       if (!format || !upload) {
         this.report.add(
           'Images: small or unsupported',

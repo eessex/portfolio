@@ -1,4 +1,12 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor
+} from '@testing-library/react'
+import Cookies from 'js-cookie'
+import { usePathname } from 'next/navigation'
 
 import { NavClient } from '@/ui/nav/nav-client'
 import {
@@ -8,6 +16,11 @@ import {
   type NavPath
 } from '@/ui/nav/nav-items'
 import { resetIsAdminCache, syncIsAdmin } from '@/ui/use-is-admin'
+
+jest.mock('next/navigation', () => ({
+  usePathname: jest.fn()
+}))
+const mockUsePathname = jest.mocked(usePathname)
 
 function mockSession(isAuthed: boolean) {
   global.fetch = jest.fn().mockResolvedValue({
@@ -30,6 +43,7 @@ function linkNames() {
 
 describe('NavClient', () => {
   beforeEach(() => {
+    mockUsePathname.mockReturnValue('/')
     global.fetch = jest.fn()
     jest.clearAllMocks()
     resetIsAdminCache()
@@ -254,5 +268,208 @@ describe('NavClient', () => {
     expect(
       screen.getByRole('button', { name: 'Admin menu' })
     ).toBeInTheDocument()
+  })
+
+  describe('mobile Menu button', () => {
+    function menuButton() {
+      return screen.getByRole('button', { name: 'Menu' })
+    }
+
+    function sheet() {
+      const id = menuButton().getAttribute('aria-controls')
+      return document.getElementById(id ?? '')
+    }
+
+    it('opens the sheet and moves focus into it', () => {
+      render(
+        <NavClient
+          items={itemsWith({
+            events: 'published',
+            releases: 'published'
+          })}
+        />
+      )
+
+      expect(menuButton()).toHaveAttribute('aria-expanded', 'false')
+      expect(sheet()).not.toHaveClass('open')
+
+      fireEvent.click(menuButton())
+
+      expect(menuButton()).toHaveAttribute('aria-expanded', 'true')
+      expect(sheet()).toHaveClass('open')
+      expect(
+        screen.getByRole('link', { name: 'Events' })
+      ).toHaveFocus()
+    })
+
+    it('holds the admin menu after the links', () => {
+      render(
+        <NavClient
+          items={itemsWith({ events: 'published' })}
+          adminMenu={<a href='/dashboard'>Site settings</a>}
+        />
+      )
+
+      const links = [...(sheet()?.querySelectorAll('a') ?? [])]
+      expect(links.map((link) => link.textContent)).toEqual([
+        'Events',
+        'Site settings'
+      ])
+    })
+
+    it('closes on following a link', () => {
+      render(
+        <NavClient
+          items={itemsWith({ events: 'published' })}
+          adminMenu={<a href='/dashboard'>Site settings</a>}
+        />
+      )
+
+      fireEvent.click(menuButton())
+      fireEvent.click(
+        screen.getByRole('link', { name: 'Site settings' })
+      )
+
+      expect(menuButton()).toHaveAttribute('aria-expanded', 'false')
+      expect(sheet()).not.toHaveClass('open')
+    })
+
+    it('is left out with nothing to show', () => {
+      render(<NavClient items={[]} />)
+
+      expect(
+        screen.queryByRole('button', { name: 'Menu' })
+      ).toBeNull()
+    })
+
+    it('closes when the button goes away while open', () => {
+      render(<NavClient items={[]} />)
+      act(() => syncIsAdmin(true))
+      fireEvent.click(menuButton())
+      const openSheet = sheet()
+      expect(openSheet).toHaveClass('open')
+
+      act(() => syncIsAdmin(false))
+
+      expect(
+        screen.queryByRole('button', { name: 'Menu' })
+      ).toBeNull()
+      expect(openSheet).not.toHaveClass('open')
+    })
+
+    it('shows for an admin with no links, for the admin menu', () => {
+      render(<NavClient items={[]} />)
+      act(() => syncIsAdmin(true))
+
+      expect(menuButton()).toBeInTheDocument()
+    })
+  })
+
+  describe('tray footer', () => {
+    const trayFooter = <a href='https://social.example'>Social</a>
+
+    it('shows visitors the footer content in the tray', () => {
+      render(
+        <NavClient
+          items={itemsWith({ events: 'published' })}
+          trayFooter={trayFooter}
+        />
+      )
+
+      expect(
+        screen.getByRole('link', { name: 'Social' })
+      ).toBeInTheDocument()
+    })
+
+    it('offers the Menu button for it alone', () => {
+      render(<NavClient items={[]} trayFooter={trayFooter} />)
+
+      expect(
+        screen.getByRole('button', { name: 'Menu' })
+      ).toBeInTheDocument()
+    })
+
+    describe('with just the subscribe form', () => {
+      afterEach(() => {
+        Cookies.remove('is_subscribed')
+      })
+
+      it('drops it and the Menu button once subscribed', () => {
+        Cookies.set('is_subscribed', '1')
+        render(
+          <NavClient
+            items={[]}
+            trayFooter={trayFooter}
+            isTrayFooterSubscribeOnly
+          />
+        )
+
+        expect(
+          screen.queryByRole('button', { name: 'Menu' })
+        ).toBeNull()
+        expect(
+          screen.queryByRole('link', { name: 'Social' })
+        ).toBeNull()
+      })
+
+      it('keeps it before subscribing', () => {
+        render(
+          <NavClient
+            items={[]}
+            trayFooter={trayFooter}
+            isTrayFooterSubscribeOnly
+          />
+        )
+
+        expect(
+          screen.getByRole('button', { name: 'Menu' })
+        ).toBeInTheDocument()
+      })
+    })
+
+    it('leaves it out for admins', () => {
+      render(
+        <NavClient
+          items={itemsWith({ events: 'published' })}
+          trayFooter={trayFooter}
+        />
+      )
+      act(() => syncIsAdmin(true))
+
+      expect(
+        screen.queryByRole('link', { name: 'Social' })
+      ).toBeNull()
+    })
+  })
+
+  describe('current section', () => {
+    const items = itemsWith({
+      events: 'published',
+      about: 'published'
+    })
+
+    it.each(['/events', '/events/spring-tour'])(
+      'marks Events current on %s',
+      (pathname) => {
+        mockUsePathname.mockReturnValue(pathname)
+        render(<NavClient items={items} />)
+
+        expect(
+          screen.getByRole('link', { name: 'Events' })
+        ).toHaveAttribute('aria-current', 'page')
+        expect(
+          screen.getByRole('link', { name: 'About' })
+        ).not.toHaveAttribute('aria-current')
+      }
+    )
+
+    it('needs a whole path segment to match', () => {
+      mockUsePathname.mockReturnValue('/eventsy')
+      render(<NavClient items={items} />)
+
+      expect(
+        screen.getByRole('link', { name: 'Events' })
+      ).not.toHaveAttribute('aria-current')
+    })
   })
 })

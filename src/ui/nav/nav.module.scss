@@ -1,3 +1,4 @@
+@use '@/ui/styles/breakpoints';
 @use '@/ui/styles/grids';
 @use '@/ui/styles/type';
 
@@ -30,38 +31,159 @@
     justify-content: space-between;
     gap: grids.space-em(4);
 
-    // narrow screens scroll the links, never push the gear off
-    .end {
+    // wide screens: one row; narrow ones scroll the links, never
+    // pushing the gear off
+    .end,
+    .sheet {
       display: flex;
       align-items: center;
       gap: grids.space-em(4);
       min-width: 0;
     }
 
-    nav {
+    // reads as a nav link, not a button
+    .end .menu-button {
+      @include type.heading('base');
+
+      display: none;
+      padding: 0;
+      background: none;
+    }
+
+    // visitors' copy of the footer: only in the open mobile tray
+    .sheet .tray-footer {
+      display: none;
+    }
+
+    .main-nav {
       min-width: 0;
       overflow-x: auto;
       scrollbar-width: none;
     }
 
-    nav a {
-      @include type.heading('base');
+    @include breakpoints.mobile {
+      // just the button here, so the title gives way instead
+      .end {
+        flex-shrink: 0;
+      }
+
+      .end .menu-button {
+        display: inline-flex;
+      }
+
+      .sheet {
+        display: none;
+      }
+
+      // under the menubar, its containing block; the admin menu
+      // follows the links
+      .sheet.open {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        // the rest of the screen; long trays scroll inside it
+        height: calc(100dvh - var(--menubar-height));
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        background-color: var(--page-background-color);
+
+        .main-nav {
+          overflow: visible;
+        }
+
+        .main-nav ul {
+          flex-direction: column;
+          gap: 0;
+        }
+
+        .main-nav li {
+          display: flex;
+          align-items: center;
+        }
+
+        // full-width rows with the admin menu's button states
+        .main-nav a {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          gap: 0.4em;
+          padding: var(--items-list-padding);
+          transition: background 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+
+          @media (hover: hover) {
+            &:hover {
+              background: var(--accent-secondary);
+            }
+          }
+
+          &:active {
+            background: var(--accent-primary);
+          }
+        }
+
+        // a draft item's badge, as in Hidden pages
+        .main-nav li > mark {
+          margin-inline-end: grids.space-em(3);
+        }
+
+        // the footer's own type, with its links spanning the tray
+        .tray-footer {
+          display: flex;
+          padding-inline: 0;
+          border-top: 1px solid var(--transparency-extra-light);
+
+          > *,
+          ul {
+            align-self: stretch;
+            align-items: stretch;
+          }
+
+          // the links, then the subscribe form; padding matches the gap
+          > * + * {
+            padding-top: grids.space-rem(4);
+            border-top: 1px solid var(--transparency-extra-light);
+          }
+
+          // in line with the Mailing list label's padding
+          form {
+            padding-inline: grids.space-rem(3);
+          }
+
+          a {
+            display: block;
+          }
+        }
+      }
     }
 
-    nav ul {
+    .main-nav a {
+      @include type.heading('base');
+
+      &[aria-current='page'] {
+        text-decoration: underline;
+      }
+    }
+
+    .main-nav ul {
       display: flex;
       gap: grids.space-em(4);
       margin: 0;
       padding: 0;
     }
 
-    nav li {
+    .main-nav li {
       margin: 0;
       white-space: nowrap;
     }
 
     // a plain nav link plus its icon, not a button
-    .create svg {
+    .create svg,
+    .menu-button svg {
       width: 1em;
       height: 1em;
       vertical-align: -0.125em;

@@ -42,7 +42,8 @@ export function Form<T>({
   isSubmittedUnchanged = false,
   onSuccess,
   submitButtonText,
-  submitButtonClassName = 'button-lg button-primary'
+  submitButtonClassName = 'button-lg button-primary',
+  'aria-describedby': ariaDescribedBy
 }: {
   action: (formData: FormData) => Promise<FormResponse<T>>
   children: React.ReactNode
@@ -61,6 +62,7 @@ export function Form<T>({
   submitButtonText?: string
   /** Defaults to the large primary button; pass `''` for none. */
   submitButtonClassName?: string
+  'aria-describedby'?: string
 }) {
   const [initialState, setInitialState] = useState<FormData | null>(
     null
@@ -216,6 +218,7 @@ export function Form<T>({
     <>
       <form
         className={className || styles.form}
+        aria-describedby={ariaDescribedBy}
         onSubmit={handleSubmit}
         ref={formRef}
       >

@@ -19,7 +19,7 @@ export function DashboardHeader({
       <h1>{title}</h1>
       {itemType && (
         <CreateItemButton
-          className='button-primary'
+          className='button-outline'
           itemType={itemType}
           href={newUrl(dashboardUrl(itemType))}
         />

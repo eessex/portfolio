@@ -3,6 +3,13 @@
   max-width: var(--max-body-width);
   margin: 0 auto;
   padding: var(--items-list-padding);
+  padding-block: 0;
   display: flex;
   justify-content: flex-end;
+}
+
+.edit-item-header {
+  position: absolute;
+  top: 0;
+  right: 0;
 }

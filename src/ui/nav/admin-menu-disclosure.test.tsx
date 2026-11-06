@@ -36,8 +36,12 @@ function openMenu() {
   expect(toggle()).toHaveAttribute('aria-expanded', 'true')
 }
 
+// CSS hides a closed panel, but never on phones, so no hidden attr
 function isPanelShown() {
-  return !!screen.queryByRole('link', { name: 'Site settings' })
+  const id = toggle().getAttribute('aria-controls')
+  return !!document
+    .getElementById(id ?? '')
+    ?.classList.contains('open')
 }
 
 describe('AdminMenuDisclosure', () => {
@@ -47,6 +51,15 @@ describe('AdminMenuDisclosure', () => {
       isAtContentTop: true,
       isScrollingDown: false
     })
+  })
+
+  it('never marks the panel hidden, since phones show it inline', () => {
+    renderMenu()
+
+    expect(isPanelShown()).toBe(false)
+    expect(
+      screen.getByRole('link', { name: 'Site settings' })
+    ).toBeVisible()
   })
 
   it('starts closed and toggles on click', () => {
@@ -60,6 +73,17 @@ describe('AdminMenuDisclosure', () => {
 
     fireEvent.click(toggle())
     expect(isPanelShown()).toBe(false)
+  })
+
+  it('fills the gear while open', () => {
+    renderMenu()
+    // heroicons: outline icons have no fill, solid ones do
+    const gearFill = () =>
+      toggle().querySelector('svg')?.getAttribute('fill')
+
+    expect(gearFill()).toBe('none')
+    openMenu()
+    expect(gearFill()).toBe('currentColor')
   })
 
   it('closes on Escape and returns focus to the button', () => {

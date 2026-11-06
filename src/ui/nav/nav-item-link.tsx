@@ -12,11 +12,14 @@ import {
 export function NavItemLink({
   item: { navPath, href, label, status },
   className,
-  createClassName
+  createClassName,
+  isCurrent = false
 }: {
   item: NavItem
   className?: string
   createClassName?: string
+  /** The page or section being viewed */
+  isCurrent?: boolean
 }) {
   if (status === 'empty') {
     return (
@@ -30,7 +33,11 @@ export function NavItemLink({
   }
   return (
     <>
-      <NextLink href={href} className={className}>
+      <NextLink
+        href={href}
+        className={className}
+        aria-current={isCurrent ? 'page' : undefined}
+      >
         {label}
       </NextLink>
       {status === 'drafts' && <DraftBadge label='Draft' />}

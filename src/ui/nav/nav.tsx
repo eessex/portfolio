@@ -23,7 +23,7 @@ export async function Nav() {
     }
   )
   const logo = siteSettings?.logoImage
-  // falls back to the storage URL, which needs the host's CORS
+  // without it, SiteLogo shows the SVG as an <img>
   const logoMaskUrl =
     logo && isSvg(logo)
       ? await fetchCachedSvgDataUrl(logo.url).catch((error) => {

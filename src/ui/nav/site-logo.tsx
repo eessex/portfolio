@@ -5,21 +5,21 @@ import style from '@/ui/nav/nav.module.scss'
 
 /**
  * Decorative: the title beside it (visible or not) names the link.
- * An SVG is drawn as a mask in the link's text color, so it follows
- * the color scheme; a raster logo keeps its own colors.
+ * An inlined SVG is a mask in the text color, following the scheme;
+ * anything else is an <img>, since a cross-origin mask needs CORS.
  */
 export function SiteLogo({
   image,
-  maskUrl = image.url,
+  maskUrl,
   isLogoOnly
 }: {
   image: Image
-  /** The SVG inlined, so the mask needs no cross-origin request */
+  /** An SVG logo inlined as a `data:` URL, for its mask */
   maskUrl?: string
   isLogoOnly: boolean
 }) {
   const aspect = imageAspect(image)
-  if (isSvg(image)) {
+  if (isSvg(image) && maskUrl) {
     const mask = `url("${maskUrl}")`
     return (
       <span

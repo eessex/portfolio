@@ -10,6 +10,13 @@ export const uploadFormats: Record<
   svg: { ext: 'svg', contentType: 'image/svg+xml' }
 }
 
+/** For paths that store bytes as-is: SVG must go through sanitizeSvg. */
+export function rasterUploadFormat(format: string | undefined) {
+  return format && format !== 'svg'
+    ? uploadFormats[format]
+    : undefined
+}
+
 export const ACCEPTED_IMAGE_TYPES = Object.values(uploadFormats).map(
   ({ contentType }) => contentType
 )

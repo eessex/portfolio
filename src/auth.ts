@@ -49,11 +49,11 @@ const config = {
 
         const user = await fetchUserByEmail(email)
 
-        const passwordsMatch = await bcrypt.compare(
+        const isPasswordMatch = await bcrypt.compare(
           password,
           user?.password ?? DUMMY_PASSWORD_HASH
         )
-        if (!user || !passwordsMatch) return null
+        if (!user || !isPasswordMatch) return null
 
         const { id, name, session_version: sessionVersion } = user
         // The account changed since it was read: treat as a failure

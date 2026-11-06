@@ -143,4 +143,4 @@ Jest + `next/jest` + jsdom, config in `jest.config.ts`, which pins `TZ=UTC` (mat
 - Formatting is enforced by Prettier (`.prettierrc`): single quotes, no semicolons, no trailing commas, printWidth 70.
 - ESLint enforces import sorting (`simple-import-sort`) and type-only imports (`consistent-type-imports`); unused vars/args/catch bindings prefixed with `_` are allowed.
 - Path alias `@/*` maps to `src/*`.
-- Boolean variables/fields/props use an `isX` prefix (e.g. `isSaved`, `isTouched`) rather than a bare adjective/participle (`saved`, `touched`).
+- Boolean variables/fields/props use an `isX` prefix (e.g. `isSaved`, `isTouched`) rather than a bare adjective/participle (`saved`, `touched`). ESLint enforces it (`@typescript-eslint/naming-convention`, type-aware) on variables, parameters and declared type properties; object-literal keys, `ok` and snake_case DB fields are exempt.

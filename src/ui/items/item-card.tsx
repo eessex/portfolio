@@ -117,12 +117,11 @@ export function ItemCard({
           <FormattedItemDate item={item} />
         </p>
 
-        {isMediaIconsVisible &&
-          (media.hasAudio || media.hasVideo) && (
-            <p className={styles['card-media-icons']}>
-              <ItemMediaIcons {...media} />
-            </p>
-          )}
+        {isMediaIconsVisible && (media.isAudio || media.isVideo) && (
+          <p className={styles['card-media-icons']}>
+            <ItemMediaIcons {...media} />
+          </p>
+        )}
 
         {children}
 

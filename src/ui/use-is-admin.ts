@@ -4,7 +4,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 
 /** Shared across callers: one session request per page load */
 let isAdminPromise: Promise<boolean> | null = null
-let syncedIsAdmin = false
+let isAdminSynced = false
 const listeners = new Set<(isAdmin: boolean) => void>()
 
 function fetchIsAdmin() {
@@ -26,7 +26,7 @@ function fetchIsAdmin() {
  * callers would otherwise keep the answer from before.
  */
 export function syncIsAdmin(isAdmin: boolean) {
-  syncedIsAdmin = isAdmin
+  isAdminSynced = isAdmin
   isAdminPromise = Promise.resolve(isAdmin)
   listeners.forEach((listener) => listener(isAdmin))
 }
@@ -47,10 +47,10 @@ export function useIsAdmin(isEnabled = true) {
     let isCancelled = false
     const promise = fetchIsAdmin()
 
-    promise.then((value) => {
+    promise.then((isAdminAnswer) => {
       // a later sync supersedes this answer
       if (!isCancelled && promise === isAdminPromise)
-        setIsAdmin(value)
+        setIsAdmin(isAdminAnswer)
     })
     listeners.add(setIsAdmin)
 
@@ -78,7 +78,7 @@ function subscribe(onChange: () => void) {
 export function useSyncedIsAdmin() {
   return useSyncExternalStore(
     subscribe,
-    () => syncedIsAdmin,
+    () => isAdminSynced,
     () => false
   )
 }
@@ -86,5 +86,5 @@ export function useSyncedIsAdmin() {
 /** Test-only: clear the shared session result between tests */
 export function resetIsAdminCache() {
   isAdminPromise = null
-  syncedIsAdmin = false
+  isAdminSynced = false
 }

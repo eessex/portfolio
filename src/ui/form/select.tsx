@@ -33,7 +33,7 @@ export function Select({
 }) {
   const id = useId()
   const errorId = useId()
-  const hasErrors = !!errors?.length
+  const isInvalid = !!errors?.length
 
   if (!options || options.length === 0) return null
 
@@ -53,8 +53,8 @@ export function Select({
       <div className={styles['select']}>
         <select
           aria-controls={ariaControls}
-          aria-describedby={hasErrors ? errorId : undefined}
-          aria-invalid={hasErrors || undefined}
+          aria-describedby={isInvalid ? errorId : undefined}
+          aria-invalid={isInvalid || undefined}
           defaultValue={value}
           id={id}
           onChange={(e) => onChange?.(e.target.value)}

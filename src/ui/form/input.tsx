@@ -74,8 +74,8 @@ export function Input<T extends InputElement = HTMLInputElement>({
   }
 
   const onChangeHandler = (event: React.ChangeEvent<T>) => {
-    const changed = event.target.value !== defaultValue
-    onChange?.(event, changed)
+    const isChanged = event.target.value !== defaultValue
+    onChange?.(event, isChanged)
   }
 
   const autoId = useId()

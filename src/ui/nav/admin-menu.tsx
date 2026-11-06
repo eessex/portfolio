@@ -4,7 +4,6 @@ import { connection } from 'next/server'
 import { currentSession } from '@/lib/auth/guard'
 import { dashboardItemTypes } from '@/lib/schemas'
 import { camelToSentence, snakeToCamel } from '@/lib/strings'
-import { EditButton } from '@/ui/buttons/edit-button'
 import { LogoutButton } from '@/ui/buttons/logout-button'
 import { IsAdminSync } from '@/ui/is-admin-sync'
 import styles from '@/ui/nav/admin-menu.module.scss'
@@ -71,12 +70,6 @@ export async function AdminMenu({
     <>
       <IsAdminSync isAdmin />
       <AdminMenuDisclosure>
-        <ul>
-          <li>
-            <EditButton />
-          </li>
-        </ul>
-
         {hidden.length > 0 && (
           <AdminMenuGroup id='hidden' label='Hidden pages'>
             {hidden.map((item) => (

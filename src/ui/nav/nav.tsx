@@ -1,7 +1,10 @@
 import { Suspense } from 'react'
 
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
+import { FooterContent } from '@/ui/footer/footer'
 import { AdminMenu } from '@/ui/nav/admin-menu'
+import adminMenuStyles from '@/ui/nav/admin-menu.module.scss'
+import style from '@/ui/nav/nav.module.scss'
 import { NavClient } from '@/ui/nav/nav-client'
 import {
   type NavItem,
@@ -31,10 +34,27 @@ export async function Nav() {
     (navPath) => !shownItems.some((item) => item.navPath === navPath)
   )
 
+  const socialLinks = siteSettings?.socialLinks ?? []
+  const isEmailSubscribeEnabled =
+    !!siteSettings?.isEmailSubscribeEnabled
+
   return (
     <NavClient
       title={siteSettings?.title}
       items={items}
+      trayFooter={
+        (socialLinks.length > 0 || isEmailSubscribeEnabled) && (
+          <FooterContent
+            as='div'
+            className={style['tray-footer']}
+            socialLinks={socialLinks}
+            isEmailSubscribeEnabled={isEmailSubscribeEnabled}
+            // the mobile admin menu's group labels
+            subscribeLabelClassName={adminMenuStyles['label']}
+          />
+        )
+      }
+      isTrayFooterSubscribeOnly={socialLinks.length === 0}
       adminMenu={
         <Suspense fallback={null}>
           <AdminMenu hiddenNavPaths={hiddenNavPaths} />

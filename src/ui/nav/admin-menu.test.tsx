@@ -19,9 +19,6 @@ jest.mock('@/ui/nav/admin-menu-disclosure', () => ({
 jest.mock('@/ui/nav/nav-status', () => ({
   fetchNavItemStatus: jest.fn()
 }))
-jest.mock('@/ui/buttons/edit-button', () => ({
-  EditButton: () => null
-}))
 jest.mock('@/ui/buttons/logout-button', () => ({
   LogoutButton: () => null
 }))

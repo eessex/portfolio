@@ -3,7 +3,6 @@ import {
   dashboardItemEditUrl,
   dashboardUrl,
   editUrl,
-  isEditOrNewUrl,
   itemEditUrl,
   itemUrl,
   newUrl,
@@ -56,20 +55,4 @@ describe('page and dashboard urls', () => {
       '/dashboard/embed_codes/id-1/edit'
     )
   })
-})
-
-describe('isEditOrNewUrl', () => {
-  it.each(['/events/show/edit', '/about/edit', '/releases/new'])(
-    'matches %s',
-    (pathname) => {
-      expect(isEditOrNewUrl(pathname)).toBe(true)
-    }
-  )
-
-  it.each(['/events/show', '/about', '/events/new-years-eve', '/'])(
-    'does not match %s',
-    (pathname) => {
-      expect(isEditOrNewUrl(pathname)).toBe(false)
-    }
-  )
 })

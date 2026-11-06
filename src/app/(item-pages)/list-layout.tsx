@@ -1,7 +1,7 @@
 import { connection } from 'next/server'
 import { Suspense } from 'react'
 
-import styles from '@/app/(item-pages)/list-layout.module.scss'
+import { AdminHeader } from '@/app/(item-pages)/admin-header'
 import { isAuthed } from '@/lib/auth/guard'
 import { isCreatable } from '@/lib/creatable'
 import type { PagePath } from '@/lib/schemas'
@@ -47,12 +47,12 @@ export async function CreateItemHeader({
   if (!(await isCreatable(itemType))) return null
 
   return (
-    <div className={styles['header']}>
+    <AdminHeader>
       <CreateItemButton
-        className='button-primary'
+        className='button-outline'
         itemType={itemType}
         href={newUrl(`/${itemType}`)}
       />
-    </div>
+    </AdminHeader>
   )
 }

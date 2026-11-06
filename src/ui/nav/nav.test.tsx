@@ -22,6 +22,7 @@ jest.mock('@/lib/site-settings/cached', () => ({
   fetchCachedSiteSettings: jest.fn()
 }))
 jest.mock('@/ui/nav/admin-menu', () => ({ AdminMenu: () => null }))
+jest.mock('@/ui/footer/footer', () => ({ FooterContent: () => null }))
 
 const mockEvents = jest.mocked(fetchCachedEventsFirstPage)
 const mockReleases = jest.mocked(fetchCachedReleasesFirstPage)
@@ -86,6 +87,13 @@ async function navProps() {
     adminMenu: React.ReactElement<{
       children: React.ReactElement<{ hiddenNavPaths: NavPath[] }>
     }>
+    trayFooter:
+      | React.ReactElement<{
+          socialLinks: unknown[]
+          isEmailSubscribeEnabled: boolean
+        }>
+      | false
+    isTrayFooterSubscribeOnly: boolean
   }
 }
 
@@ -251,6 +259,40 @@ describe('Nav', () => {
       })
     )
     expect(console.error).toHaveBeenCalled()
+  })
+
+  describe('tray footer', () => {
+    it("copies the footer's links and subscribe form", async () => {
+      mockSettings.mockResolvedValue({
+        title: 'My Site',
+        socialLinks: [{ id: 'link-1' }],
+        isEmailSubscribeEnabled: true
+      } as Awaited<ReturnType<typeof fetchCachedSiteSettings>>)
+      mockContent({})
+
+      const { trayFooter } = await navProps()
+      expect(trayFooter && trayFooter.props).toMatchObject({
+        socialLinks: [{ id: 'link-1' }],
+        isEmailSubscribeEnabled: true
+      })
+    })
+
+    it('flags a footer with no social links as subscribe-only', async () => {
+      mockSettings.mockResolvedValue({
+        title: 'My Site',
+        isEmailSubscribeEnabled: true
+      } as Awaited<ReturnType<typeof fetchCachedSiteSettings>>)
+      mockContent({})
+
+      expect((await navProps()).isTrayFooterSubscribeOnly).toBe(true)
+    })
+
+    it('is left out while the footer would render nothing', async () => {
+      mockNavItems([{ path: 'events' }])
+      mockContent({})
+
+      expect((await navProps()).trayFooter).toBe(false)
+    })
   })
 
   describe('saved menu', () => {

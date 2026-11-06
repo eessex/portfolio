@@ -1,20 +1,30 @@
+import clsx from 'clsx'
+
+import type { Link } from '@/lib/links/schemas/db'
 import { linkName } from '@/lib/links/util'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { EmailSubscribe } from '@/ui/email-subscribe/email-subscribe'
 import styles from '@/ui/footer/footer.module.scss'
 
-export async function Footer() {
-  const settings = await fetchCachedSiteSettings()
-  const socialLinks = settings?.socialLinks ?? []
-  const isEmailSubscribeEnabled = !!settings?.isEmailSubscribeEnabled
-
-  if (socialLinks.length === 0 && !isEmailSubscribeEnabled)
-    return null
-
+/** Social links + subscribe; also the visitors' mobile Menu tray */
+export function FooterContent({
+  socialLinks,
+  isEmailSubscribeEnabled,
+  as: Container = 'footer',
+  className,
+  subscribeLabelClassName = 'visually-hidden'
+}: {
+  socialLinks: Link[]
+  isEmailSubscribeEnabled: boolean
+  as?: 'footer' | 'div'
+  className?: string
+  /** The subscribe form's label; visually hidden by default */
+  subscribeLabelClassName?: string
+}) {
   return (
-    <footer className={styles.footer}>
+    <Container className={clsx(styles.footer, className)}>
       {socialLinks.length > 0 && (
-        <nav>
+        <nav aria-label='Social links'>
           <ul>
             {socialLinks.map((link) => (
               <li key={link.id}>
@@ -26,7 +36,28 @@ export async function Footer() {
           </ul>
         </nav>
       )}
-      {isEmailSubscribeEnabled && <EmailSubscribe />}
-    </footer>
+      {isEmailSubscribeEnabled && (
+        <EmailSubscribe
+          label='Mailing list'
+          labelClassName={subscribeLabelClassName}
+        />
+      )}
+    </Container>
+  )
+}
+
+export async function Footer() {
+  const settings = await fetchCachedSiteSettings()
+  const socialLinks = settings?.socialLinks ?? []
+  const isEmailSubscribeEnabled = !!settings?.isEmailSubscribeEnabled
+
+  if (socialLinks.length === 0 && !isEmailSubscribeEnabled)
+    return null
+
+  return (
+    <FooterContent
+      socialLinks={socialLinks}
+      isEmailSubscribeEnabled={isEmailSubscribeEnabled}
+    />
   )
 }

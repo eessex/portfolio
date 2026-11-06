@@ -1,42 +1,56 @@
 'use client'
 
-import Cookies from 'js-cookie'
-import { useState } from 'react'
+import { useId } from 'react'
 
 import { createEmailSubscription } from '@/lib/email-subscriptions/actions'
 import styles from '@/ui/email-subscribe/email-subscribe.module.scss'
+import {
+  markSubscribed,
+  useIsSubscribed
+} from '@/ui/email-subscribe/use-is-subscribed'
 import { Form } from '@/ui/form/form'
 import { useToast } from '@/ui/toast/toast-context'
 
-export function EmailSubscribe() {
-  const [isSubscribed, setIsSubscribed] = useState(() => {
-    if (typeof document === 'undefined') return false
-    return !!Cookies.get('is_subscribed')
-  })
+export function EmailSubscribe({
+  label,
+  labelClassName
+}: {
+  /** Names a group around the form; hide it with labelClassName */
+  label: string
+  labelClassName?: string
+}) {
+  const isSubscribed = useIsSubscribed()
   const { addSuccessMessage } = useToast()
+  // unique, since the mobile Menu tray repeats the footer's form
+  const id = useId()
+  const descriptionId = `${id}-description`
+  const emailId = `${id}-email`
+  const labelId = `${id}-label`
 
   function onSuccess() {
     addSuccessMessage('Thank you for subscribing!')
-    Cookies.set('is_subscribed', '1', { expires: 1 })
-    setIsSubscribed(true)
+    markSubscribed()
   }
 
   if (!isSubscribed) {
     return (
-      <>
+      <div role='group' aria-labelledby={labelId}>
+        <span id={labelId} className={labelClassName}>
+          {label}
+        </span>
         <Form
           className={styles['email-subscribe']}
-          aria-describedby='email-subscribe'
+          aria-describedby={descriptionId}
           action={createEmailSubscription}
           isUnsavedChangesConfirmed={false}
           onSuccess={onSuccess}
           submitButtonText='Subscribe'
           submitButtonClassName=''
         >
-          <p id='email-subscribe' className='visually-hidden'>
+          <p id={descriptionId} className='visually-hidden'>
             Subscribe to irregular updates
           </p>
-          <label htmlFor='email' className='visually-hidden'>
+          <label htmlFor={emailId} className='visually-hidden'>
             Email address
           </label>
           {/* bot field with nonsense name - browser autofill ignores */}
@@ -49,7 +63,7 @@ export function EmailSubscribe() {
             aria-hidden='true'
           />
           <input
-            id='email'
+            id={emailId}
             type='email'
             name='email'
             placeholder='Email address'
@@ -58,7 +72,7 @@ export function EmailSubscribe() {
             aria-disabled={isSubscribed}
           />
         </Form>
-      </>
+      </div>
     )
   } else {
     return null

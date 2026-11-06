@@ -9,7 +9,17 @@ jest.mock('@/lib/site-settings/cached', () => ({
   fetchCachedSiteSettings: jest.fn()
 }))
 jest.mock('@/ui/email-subscribe/email-subscribe', () => ({
-  EmailSubscribe: () => <form aria-label='Subscribe' />
+  EmailSubscribe: ({
+    label,
+    labelClassName
+  }: {
+    label: string
+    labelClassName?: string
+  }) => (
+    <form aria-label='Subscribe'>
+      <span className={labelClassName}>{label}</span>
+    </form>
+  )
 }))
 const mockFetchSettings = jest.mocked(fetchCachedSiteSettings)
 
@@ -99,6 +109,15 @@ describe('Footer', () => {
     expect(
       screen.getByRole('form', { name: 'Subscribe' })
     ).toBeInTheDocument()
+  })
+
+  it('labels the subscribe form, hidden in the footer', async () => {
+    mockFetchSettings.mockResolvedValue(settingsWith([], true))
+    render(await Footer())
+
+    expect(screen.getByText('Mailing list')).toHaveClass(
+      'visually-hidden'
+    )
   })
 
   it('hides the subscribe form when disabled', async () => {

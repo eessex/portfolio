@@ -1,5 +1,7 @@
 import { Suspense } from 'react'
 
+import { fetchCachedSvgDataUrl } from '@/lib/images/cached'
+import { isSvg } from '@/lib/images/util'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { FooterContent } from '@/ui/footer/footer'
 import { AdminMenu } from '@/ui/nav/admin-menu'
@@ -20,6 +22,15 @@ export async function Nav() {
       return undefined
     }
   )
+  const logo = siteSettings?.logoImage
+  // falls back to the storage URL, which needs the host's CORS
+  const logoMaskUrl =
+    logo && isSvg(logo)
+      ? await fetchCachedSvgDataUrl(logo.url).catch((error) => {
+          console.error('Failed to inline the SVG logo:', error)
+          return undefined
+        })
+      : undefined
   const shownItems = navItemsFromSettings(siteSettings?.navItems)
   const statuses = await Promise.all(
     shownItems.map(({ navPath }) => fetchNavItemStatus(navPath))
@@ -41,7 +52,8 @@ export async function Nav() {
   return (
     <NavClient
       title={siteSettings?.title}
-      logo={siteSettings?.logoImage}
+      logo={logo}
+      logoMaskUrl={logoMaskUrl}
       isLogoOnly={siteSettings?.isLogoOnly}
       items={items}
       trayFooter={

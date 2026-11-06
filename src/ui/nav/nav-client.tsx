@@ -112,6 +112,7 @@ function SiteMenu({
 export function NavClient({
   title,
   logo,
+  logoMaskUrl,
   isLogoOnly = false,
   items,
   adminMenu,
@@ -120,6 +121,8 @@ export function NavClient({
 }: {
   title?: string
   logo?: Image
+  /** An SVG logo inlined as a `data:` URL, for its mask */
+  logoMaskUrl?: string
   /** Hides the title text beside the logo; ignored without one */
   isLogoOnly?: boolean
   items: NavItem[]
@@ -162,7 +165,13 @@ export function NavClient({
             logo && isLogoOnly && style['logo-only']
           )}
         >
-          {logo && <SiteLogo image={logo} isLogoOnly={isLogoOnly} />}
+          {logo && (
+            <SiteLogo
+              image={logo}
+              maskUrl={logoMaskUrl}
+              isLogoOnly={isLogoOnly}
+            />
+          )}
           <span
             className={clsx(logo && isLogoOnly && 'visually-hidden')}
           >

@@ -10,14 +10,17 @@ import style from '@/ui/nav/nav.module.scss'
  */
 export function SiteLogo({
   image,
+  maskUrl = image.url,
   isLogoOnly
 }: {
   image: Image
+  /** The SVG inlined, so the mask needs no cross-origin request */
+  maskUrl?: string
   isLogoOnly: boolean
 }) {
   const aspect = imageAspect(image)
   if (isSvg(image)) {
-    const mask = `url("${image.url}")`
+    const mask = `url("${maskUrl}")`
     return (
       <span
         aria-hidden

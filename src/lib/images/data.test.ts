@@ -116,6 +116,26 @@ describe('fetchImagesRaw', () => {
     expect(mockSql.mock.calls[0]).toContain(null)
     expect(mockSql.mock.calls[1]).toContain(null)
   })
+
+  it.each([false, true])(
+    'binds isSvgExcluded %p on both queries',
+    async (isSvgExcluded) => {
+      mockSql
+        .mockResolvedValueOnce([{ count: 1 }])
+        .mockResolvedValueOnce([dashboardImageRow])
+
+      await fetchImagesRaw(undefined, undefined, undefined, {
+        isSvgExcluded
+      })
+
+      for (const [strings, ...params] of mockSql.mock.calls) {
+        expect(strings.join('?')).toContain(
+          "format IS DISTINCT FROM 'svg'"
+        )
+        expect(params).toContain(isSvgExcluded)
+      }
+    }
+  )
 })
 
 describe('#fetchImageById', () => {

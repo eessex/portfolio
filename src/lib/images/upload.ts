@@ -5,8 +5,10 @@ import { createHash } from 'node:crypto'
 import sharp, { type Metadata } from 'sharp'
 
 import { assertAuthed } from '@/lib/auth/guard'
+import { sanitizeSvg } from '@/lib/images/sanitize-svg'
 import type { ImageFormat } from '@/lib/images/schemas/db'
 import {
+  acceptedFormatsText,
   animationTooLargeMessage,
   badAspectMessage,
   MAX_ANIMATION_PIXELS,
@@ -34,14 +36,22 @@ import {
 
 /**
  * Real format and size from the bytes, not the name or MIME type.
- * Throws a user-facing message for anything the spec refuses.
+ * Throws a user-facing message for anything the spec refuses. An SVG
+ * is sanitized first; the returned bytes are what gets stored.
  */
-async function readImage(bytes: Buffer, name: string) {
-  let metadata: Metadata
-  try {
-    metadata = await sharp(bytes).metadata()
-  } catch {
-    throw new Error('File is not a readable image')
+async function readImage(
+  bytes: Buffer,
+  name: string,
+  isSvgAllowed: boolean
+) {
+  let metadata = await readMetadata(bytes)
+  if (metadata.format === 'svg') {
+    if (!isSvgAllowed) {
+      throw new Error(unsupportedFormatMessage('svg', isSvgAllowed))
+    }
+    bytes = await sanitizeSvg(bytes)
+    metadata = await readMetadata(bytes)
+    return { ...readSvg(metadata, name), bytes }
   }
 
   const { format, pageHeight, pages = 1 } = metadata
@@ -49,9 +59,7 @@ async function readImage(bytes: Buffer, name: string) {
   const { width, height } = metadata.autoOrient
   const upload = format ? uploadFormats[format] : undefined
   if (!upload) {
-    throw new Error(
-      `Unsupported image format${format ? ` (${format})` : ''}; use JPEG, PNG, WebP or GIF`
-    )
+    throw new Error(unsupportedFormatMessage(format, isSvgAllowed))
   }
   // one frame's height; sharp gives the whole strip only when opened `animated`
   const frameHeight = pageHeight ?? height
@@ -72,7 +80,42 @@ async function readImage(bytes: Buffer, name: string) {
     ...upload,
     format: format as ImageFormat,
     width,
-    height: frameHeight
+    height: frameHeight,
+    bytes
+  }
+}
+
+function unsupportedFormatMessage(
+  format: string | undefined,
+  isSvgAllowed: boolean
+) {
+  return `Unsupported image format${format ? ` (${format})` : ''}; use ${acceptedFormatsText(isSvgAllowed)}`
+}
+
+async function readMetadata(bytes: Buffer) {
+  try {
+    return await sharp(bytes).metadata()
+  } catch {
+    throw new Error('File is not a readable image')
+  }
+}
+
+// vectors scale, so only the shape is checked, not pixel counts
+function readSvg({ width, height }: Metadata, name: string) {
+  if (!width || !height) {
+    throw new Error(
+      `"${name}" has no size; give its <svg> a viewBox or width and height`
+    )
+  }
+  const aspect = width / height
+  if (aspect < MIN_ASPECT || aspect > MAX_ASPECT) {
+    throw new Error(badAspectMessage(name))
+  }
+  return {
+    ...uploadFormats.svg!,
+    format: 'svg' as const,
+    width,
+    height
   }
 }
 
@@ -88,19 +131,30 @@ export interface UploadedImage {
   variantVersion?: number
 }
 
+export interface UploadOptions {
+  /** Only the site icon and logo pickers take an SVG */
+  isSvgAllowed?: boolean
+}
+
 /**
  * Issues the image's id and writes the original to
  * `images/{id}.{ext}`, so every file derives from the id. The row is
  * inserted with this id afterwards (see `createImage`).
  */
-export async function uploadFile(file: File): Promise<UploadedImage> {
+export async function uploadFile(
+  file: File,
+  { isSvgAllowed = false }: UploadOptions = {}
+): Promise<UploadedImage> {
   await assertAuthed()
 
   const startedAt = performance.now()
-  const bytes = Buffer.from(await file.arrayBuffer())
   let image: Awaited<ReturnType<typeof readImage>>
   try {
-    image = await readImage(bytes, file.name)
+    image = await readImage(
+      Buffer.from(await file.arrayBuffer()),
+      file.name,
+      isSvgAllowed
+    )
   } catch (err) {
     console.warn('Refused image upload:', {
       size: file.size,
@@ -108,6 +162,7 @@ export async function uploadFile(file: File): Promise<UploadedImage> {
     })
     throw err
   }
+  const { bytes } = image
   const id = crypto.randomUUID()
   const key = imageKey(id, image.format)
   const readAt = performance.now()
@@ -119,10 +174,12 @@ export async function uploadFile(file: File): Promise<UploadedImage> {
   // without variants the image is served through the optimizer until
   // the backfill writes them, so a failure here doesn't fail the save
   let variants: ImageVariants | undefined
-  try {
-    variants = await generateImageVariants(id, bytes)
-  } catch (err) {
-    console.error('Error writing image variants:', key, err)
+  if (image.format !== 'svg') {
+    try {
+      variants = await generateImageVariants(id, bytes)
+    } catch (err) {
+      console.error('Error writing image variants:', key, err)
+    }
   }
 
   console.info('Uploaded image:', {

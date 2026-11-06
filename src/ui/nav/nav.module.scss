@@ -13,13 +13,42 @@
   z-index: 2000;
   flex-shrink: 0;
 
-  > div > a:first-child {
+  .home {
     @include type.heading('lg');
 
+    display: flex;
+    align-items: center;
+    gap: grids.space-em(1);
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+
+    > span:last-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .logo {
+    flex-shrink: 0;
+    height: 1.25em;
+    width: auto;
+    max-width: 2.5em;
+    object-fit: contain;
+  }
+
+  // an SVG logo in the link's text color, so it follows the scheme
+  .logo-mask {
+    background-color: currentColor;
+    mask-position: center;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+  }
+
+  // room for a wordmark
+  .logo-only .logo {
+    height: 1.75em;
+    max-width: min(12em, 60vw);
   }
 
   > div {

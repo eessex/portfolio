@@ -28,6 +28,7 @@ export function ImagesPicker({
     <ItemPicker<Image>
       isMulti
       itemType='images'
+      searchParams={{ isSvgExcluded: true }}
       existingItems={existingItems}
       renderExistingResult={formatImageResult}
       renderNewItemSummary={formatNewImageSummary}

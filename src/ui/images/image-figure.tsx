@@ -34,7 +34,7 @@ export const ImageFigure = ({
       width={width}
       height={Math.round(width / imageAspect(image))}
       loading={isLazy ? 'lazy' : undefined}
-      priority={isPriority}
+      preload={isPriority}
       fetchPriority={isPriority ? 'high' : 'auto'}
       sizes={sizes}
     />

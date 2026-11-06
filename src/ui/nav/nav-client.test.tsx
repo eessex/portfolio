@@ -8,6 +8,7 @@ import {
 import Cookies from 'js-cookie'
 import { usePathname } from 'next/navigation'
 
+import { imageFixture } from '@/lib/images/fixtures'
 import { NavClient } from '@/ui/nav/nav-client'
 import {
   type NavItem,
@@ -268,6 +269,64 @@ describe('NavClient', () => {
     expect(
       screen.getByRole('button', { name: 'Admin menu' })
     ).toBeInTheDocument()
+  })
+
+  describe('logo', () => {
+    const svgLogo = {
+      ...imageFixture,
+      url: 'https://bucket.example/images/logo.svg',
+      format: 'svg' as const
+    }
+
+    function homeLink() {
+      return screen.getByRole('link', { name: 'My Site' })
+    }
+
+    it('shows a raster logo beside the title in the home link', () => {
+      render(
+        <NavClient title='My Site' logo={imageFixture} items={[]} />
+      )
+
+      const logo = homeLink().querySelector('img')
+      expect(logo).toHaveAttribute('alt', '')
+      expect(screen.getByText('My Site')).not.toHaveClass(
+        'visually-hidden'
+      )
+    })
+
+    it('draws an SVG logo as a mask in the text color', () => {
+      render(<NavClient title='My Site' logo={svgLogo} items={[]} />)
+
+      const mask = homeLink().querySelector('[aria-hidden]')
+      expect(mask).toHaveStyle({
+        maskImage: `url("${svgLogo.url}")`
+      })
+      expect(homeLink().querySelector('img')).toBeNull()
+    })
+
+    it('hides the title text, but keeps the link name, when logo-only', () => {
+      render(
+        <NavClient
+          title='My Site'
+          logo={svgLogo}
+          isLogoOnly
+          items={[]}
+        />
+      )
+
+      expect(screen.getByText('My Site')).toHaveClass(
+        'visually-hidden'
+      )
+      expect(homeLink()).toHaveAttribute('href', '/')
+    })
+
+    it('shows the title when logo-only has no logo', () => {
+      render(<NavClient title='My Site' isLogoOnly items={[]} />)
+
+      expect(screen.getByText('My Site')).not.toHaveClass(
+        'visually-hidden'
+      )
+    })
   })
 
   describe('mobile Menu button', () => {

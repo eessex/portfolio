@@ -282,7 +282,14 @@ function serializeFormData(formData: FormData): string {
       name,
       typeof value === 'string'
         ? value
-        : [value.name, value.size, value.lastModified]
+        : // an empty file input's File is stamped with the current time
+          isEmptyFile(value)
+          ? ''
+          : [value.name, value.size, value.lastModified]
     ])
   )
+}
+
+function isEmptyFile(file: File) {
+  return !file.name && !file.size
 }

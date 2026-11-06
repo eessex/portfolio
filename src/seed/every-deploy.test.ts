@@ -55,9 +55,9 @@ describe('everyDeploySteps', () => {
       .update(JSON.stringify(query.mock.calls))
       .digest('hex')
     expect({ revision: EVERY_DEPLOY_REVISION, checksum }).toEqual({
-      revision: 5,
+      revision: 6,
       checksum:
-        '8de191c0e681d86c8d864452c48214683a68209c00cf3d97f5f802bd6c898486'
+        'af86dce32e3e3b10fdc3a025ae5f42a0bfcdf75a43fb1534af9c1ab8d30f6372'
     })
   })
 

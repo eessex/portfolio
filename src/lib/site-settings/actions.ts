@@ -71,9 +71,16 @@ export async function editSiteSettings(
       // sequential: links are pre-validated, so the cover image
       // (storage upload) is the likelier failure and runs first
       const coverImageId = await resolveCoverImageId(data)
+      // the only pickers that take an SVG
       const iconImageId = await resolveCoverImageId(
         data,
-        'iconImageId'
+        'iconImageId',
+        { isSvgAllowed: true }
+      )
+      const logoImageId = await resolveCoverImageId(
+        data,
+        'logoImageId',
+        { isSvgAllowed: true }
       )
       const socialLinkIds = await resolveSocialLinkIds(
         data,
@@ -83,6 +90,7 @@ export async function editSiteSettings(
         ...data,
         coverImageId,
         iconImageId,
+        logoImageId,
         socialLinkIds,
         navItems
       }
@@ -203,6 +211,8 @@ async function createSiteSettings({
   iconImageId,
   iconVersion,
   isEmailSubscribeEnabled,
+  isLogoOnly,
+  logoImageId,
   navItems,
   socialLinkIds,
   title
@@ -216,7 +226,9 @@ async function createSiteSettings({
       is_email_subscribe_enabled,
       icon_image_id,
       icon_version,
-      nav_items
+      nav_items,
+      logo_image_id,
+      is_logo_only
     )
     VALUES (
       ${title || ''},
@@ -226,7 +238,9 @@ async function createSiteSettings({
       ${isEmailSubscribeEnabled},
       ${iconImageId || null},
       ${iconVersion ?? null},
-      ${toNavItemsColumn(navItems)}::jsonb
+      ${toNavItemsColumn(navItems)}::jsonb,
+      ${logoImageId || null},
+      ${isLogoOnly}
     )
   `
 }
@@ -238,6 +252,8 @@ async function updateSiteSettings(
     iconImageId,
     iconVersion,
     isEmailSubscribeEnabled,
+    isLogoOnly,
+    logoImageId,
     navItems,
     socialLinkIds,
     title
@@ -261,6 +277,8 @@ async function updateSiteSettings(
           ${toNavItemsColumn(navItems)}::jsonb,
           nav_items
         ),
+        logo_image_id = ${logoImageId || null},
+        is_logo_only = ${isLogoOnly},
         updated_at = current_timestamp
     WHERE id = ${id}
   `

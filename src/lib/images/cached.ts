@@ -1,6 +1,9 @@
 import { cacheTag } from 'next/cache'
 
-import { fetchImagesRaw } from '@/lib/images/data'
+import {
+  type FetchImagesOptions,
+  fetchImagesRaw
+} from '@/lib/images/data'
 
 /**
  * The first page of all images, or of press images, is cached;
@@ -9,27 +12,38 @@ import { fetchImagesRaw } from '@/lib/images/data'
 export async function fetchImages(
   cursor?: string,
   query?: string,
-  type?: string
+  type?: string,
+  { isSvgExcluded = false }: FetchImagesOptions = {}
 ) {
   if (!cursor && !query) {
-    if (type === 'press') return fetchCachedPressImagesFirstPage()
-    if (!type) return fetchCachedImagesFirstPage()
+    if (type === 'press') {
+      return fetchCachedPressImagesFirstPage(isSvgExcluded)
+    }
+    if (!type) return fetchCachedImagesFirstPage(isSvgExcluded)
   }
 
-  return fetchImagesRaw(cursor, query, type)
+  return fetchImagesRaw(cursor, query, type, { isSvgExcluded })
 }
 
-export async function fetchCachedImagesFirstPage() {
+export async function fetchCachedImagesFirstPage(
+  isSvgExcluded = false
+) {
   'use cache'
   cacheTag('images')
 
-  return await fetchImagesRaw()
+  return await fetchImagesRaw(undefined, undefined, undefined, {
+    isSvgExcluded
+  })
 }
 
 /** Only the press photos */
-export async function fetchCachedPressImagesFirstPage() {
+export async function fetchCachedPressImagesFirstPage(
+  isSvgExcluded = false
+) {
   'use cache'
   cacheTag('images')
 
-  return await fetchImagesRaw(undefined, undefined, 'press')
+  return await fetchImagesRaw(undefined, undefined, 'press', {
+    isSvgExcluded
+  })
 }

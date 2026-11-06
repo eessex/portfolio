@@ -1,10 +1,11 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
+import { uploadFile } from '@/lib/images/upload'
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import { generateSiteIcons } from '@/lib/site-settings/icons'
 import { ICON_VERSION } from '@/lib/site-settings/util'
-import { formDataFromObject } from '@/test/helpers'
+import { formDataFromObject, mockFile } from '@/test/helpers'
 
 jest.mock('next/cache')
 
@@ -490,6 +491,95 @@ describe('editSiteSettings', () => {
       })
       expect(write()).toBeUndefined()
       expect(updateTag).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('logo', () => {
+    const logoImageId = 'e1b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a'
+
+    /** the site_settings write's params */
+    function writeParams() {
+      const call = mockSql.mock.calls.find(([strings]) =>
+        /(UPDATE|INSERT INTO) site_settings/.test(
+          (strings as TemplateStringsArray).join('?')
+        )
+      )
+      const [, ...params] = call!
+      return params
+    }
+
+    it('writes the logo and logo-only flag as the last columns', async () => {
+      mockSql.mockResolvedValue([])
+
+      const res = await editSiteSettings(
+        formDataFromObject({
+          ...validFields,
+          logoImageId,
+          isLogoOnly: 'on'
+        }),
+        validFields.id
+      )
+
+      expect(res).toEqual({ ok: true })
+      expect(writeParams().slice(-3)).toEqual([
+        logoImageId,
+        true,
+        validFields.id
+      ])
+    })
+
+    it('writes them last when creating the settings row', async () => {
+      mockSql.mockResolvedValue([])
+
+      await editSiteSettings(
+        formDataFromObject({ ...validFields, logoImageId })
+      )
+
+      // an unchecked checkbox isn't submitted
+      expect(writeParams().slice(-2)).toEqual([logoImageId, false])
+    })
+
+    it('clears the logo when the field is cleared', async () => {
+      mockSql.mockResolvedValue([])
+
+      await editSiteSettings(
+        formDataFromObject(validFields),
+        validFields.id
+      )
+
+      expect(writeParams().slice(-3)).toEqual([
+        null,
+        false,
+        validFields.id
+      ])
+    })
+  })
+
+  // the cover is the OG fallback, which link previews can't show as SVG
+  describe.each([
+    ['logoImage', { isSvgAllowed: true }],
+    ['iconImage', { isSvgAllowed: true }],
+    ['coverImage', undefined]
+  ])('an inline %s upload', (prefix, options) => {
+    it(`passes ${JSON.stringify(options)} to uploadFile`, async () => {
+      mockSql.mockResolvedValue([])
+      // stops the save right after the call under test
+      jest.mocked(uploadFile).mockRejectedValueOnce(new Error('stop'))
+      const file = mockFile('logo.svg', 1024, 'image/svg+xml')
+
+      const res = await editSiteSettings(
+        formDataFromObject({
+          ...validFields,
+          [`${prefix}.file`]: file
+        }),
+        validFields.id
+      )
+
+      expect(res?.ok).toBe(false)
+      expect(uploadFile).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'logo.svg' }),
+        options
+      )
     })
   })
 })

@@ -41,6 +41,8 @@ export async function Nav() {
   return (
     <NavClient
       title={siteSettings?.title}
+      logo={siteSettings?.logoImage}
+      isLogoOnly={siteSettings?.isLogoOnly}
       items={items}
       trayFooter={
         (socialLinks.length > 0 || isEmailSubscribeEnabled) && (

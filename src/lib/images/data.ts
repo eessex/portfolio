@@ -77,6 +77,11 @@ export const fetchImagesByIds = async (ids: string[]) => {
   }
 }
 
+export interface FetchImagesOptions {
+  /** Leave out SVGs, which only the site icon and logo pickers take */
+  isSvgExcluded?: boolean
+}
+
 /**
  * dashboard: fetch all the images, or only images of a given `type`
  * (e.g. the about page press-photo cover-image picker).
@@ -84,7 +89,8 @@ export const fetchImagesByIds = async (ids: string[]) => {
 export async function fetchImagesRaw(
   cursor?: string,
   query?: string,
-  type?: string
+  type?: string,
+  { isSvgExcluded = false }: FetchImagesOptions = {}
 ): Promise<ResponseWithCursor<DashboardImage>> {
   const typeFilter = type ?? null
 
@@ -106,6 +112,7 @@ export async function fetchImagesRaw(
         OR type ILIKE ${like}
       )
       AND (${typeFilter}::text IS NULL OR type = ${typeFilter})
+      AND (NOT ${isSvgExcluded} OR format IS DISTINCT FROM 'svg')
     `,
     list: ({ like, cursorName, cursorId }) => sql`
       SELECT
@@ -131,6 +138,10 @@ export async function fetchImagesRaw(
         OR images.type ILIKE ${like}
       )
       AND (${typeFilter}::text IS NULL OR images.type = ${typeFilter})
+      AND (
+        NOT ${isSvgExcluded}
+        OR images.format IS DISTINCT FROM 'svg'
+      )
       AND (
         ${cursorName}::text IS NULL
         OR (images.updated_at, images.id) < (

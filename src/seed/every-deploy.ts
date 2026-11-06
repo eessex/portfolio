@@ -467,7 +467,7 @@ async function ensureSetupCode(
  * SQL to it). The runner records it and refuses a checkout with a
  * lower one, so an older build can't re-apply stale definitions.
  */
-export const EVERY_DEPLOY_REVISION = 5
+export const EVERY_DEPLOY_REVISION = 6
 
 // In order: triggers call save_old_slug()
 export const everyDeploySteps: {

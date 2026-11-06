@@ -223,6 +223,52 @@ describe('uploadFile', () => {
     )
   })
 
+  it('stores a sanitized SVG as-is, with no size minimum or variants', async () => {
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40" onload="alert(1)"><script>alert(1)</script><path d="M0 0h100v40z"/></svg>'
+    const res = await uploadFile(
+      new File([svg], 'logo.svg', { type: 'image/svg+xml' }),
+      { isSvgAllowed: true }
+    )
+
+    expect(mockPut).toHaveBeenCalledTimes(1)
+    const [key, bytes, contentType] = mockPut.mock.calls[0]!
+    expect(key).toBe(`images/${res.id}.svg`)
+    expect(contentType).toBe('image/svg+xml')
+    expect(bytes.toString()).toBe(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40"><path d="M0 0h100v40z"/></svg>'
+    )
+    expect(res).toEqual({
+      id: res.id,
+      format: 'svg',
+      width: 100,
+      height: 40,
+      originalFilename: 'logo.svg',
+      contentHash: expect.stringMatching(/^[0-9a-f]{64}$/),
+      url: `https://bucket.example/images/${res.id}.svg`
+    })
+  })
+
+  it('refuses an SVG with an aspect over 10:1', async () => {
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 100"><path d="M0 0h10v10z"/></svg>'
+    await expect(
+      uploadFile(new File([svg], 'wide.svg'), { isSvgAllowed: true })
+    ).rejects.toThrow(/too long and thin/)
+    expect(mockPut).not.toHaveBeenCalled()
+  })
+
+  it('refuses an SVG unless allowed, without uploading', async () => {
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40"><path d="M0 0h10v10z"/></svg>'
+    await expect(
+      uploadFile(new File([svg], 'logo.svg'))
+    ).rejects.toThrow(
+      'Unsupported image format (svg); use JPEG, PNG, WebP or GIF'
+    )
+    expect(mockPut).not.toHaveBeenCalled()
+  })
+
   it('refuses an unsupported format without uploading', async () => {
     await expect(
       uploadFile(await imageFile('tiff', 'scan.jpg'))

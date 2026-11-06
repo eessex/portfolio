@@ -30,6 +30,12 @@ jest.mock('next/headers', () => ({
   cookies: jest.fn(async () => ({ toString: () => '' }))
 }))
 
+// outside a request, connection() has no scope to defer to
+jest.mock('next/server', () => ({
+  ...jest.requireActual('next/server'),
+  connection: jest.fn(async () => {})
+}))
+
 // ESM-only packages Jest can't parse
 jest.mock('@vercel/analytics/next', () => ({ Analytics: () => null }))
 jest.mock('@vercel/speed-insights/next', () => ({

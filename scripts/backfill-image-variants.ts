@@ -64,6 +64,7 @@ async function main() {
   const rows = (await sql`
     SELECT id, format FROM images
     WHERE format IS NOT NULL
+      AND format <> 'svg'
       AND COALESCE(variant_version, 0) < ${VARIANT_VERSION}
     ORDER BY created_at
   `) as { id: string; format: string }[]

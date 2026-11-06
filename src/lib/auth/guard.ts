@@ -1,5 +1,6 @@
 import type { GetServerSidePropsContext } from 'next'
 import { cookies, headers } from 'next/headers'
+import { connection } from 'next/server'
 import type { Session } from 'next-auth'
 
 import { auth } from '@/auth'
@@ -20,6 +21,7 @@ import type { FormState } from '@/lib/types'
  * is.
  */
 export async function currentSession(): Promise<Session | null> {
+  await connection()
   const requestHeaders = new Headers(await headers())
   requestHeaders.set('cookie', (await cookies()).toString())
   // Refreshed cookies are dropped, as with auth() in a render

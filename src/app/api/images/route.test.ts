@@ -9,6 +9,7 @@ import { apiRequest } from '@/test/helpers'
 
 const mockFetch = jest.mocked(fetchImages)
 const page = { images: [], nextCursor: undefined, totalCount: 0 }
+const noSvgFilter = { isSvgExcluded: false }
 
 describe('GET /api/images', () => {
   beforeEach(() => {
@@ -17,9 +18,15 @@ describe('GET /api/images', () => {
   })
 
   it.each([
-    [{ cursor: 'c1', query: 'q' }, ['c1', 'q', undefined]],
-    [{}, [undefined, undefined, undefined]],
-    [{ cursor: '', query: '' }, [undefined, undefined, undefined]]
+    [
+      { cursor: 'c1', query: 'q' },
+      ['c1', 'q', undefined, noSvgFilter]
+    ],
+    [{}, [undefined, undefined, undefined, noSvgFilter]],
+    [
+      { cursor: '', query: '' },
+      [undefined, undefined, undefined, noSvgFilter]
+    ]
   ])('passes params %p as %p', async (params, args) => {
     await GET(apiRequest('/api/images', params))
 
@@ -59,7 +66,8 @@ describe('GET /api/images', () => {
     expect(mockFetch).toHaveBeenCalledWith(
       undefined,
       undefined,
-      'press'
+      'press',
+      noSvgFilter
     )
   })
 
@@ -69,7 +77,19 @@ describe('GET /api/images', () => {
     expect(mockFetch).toHaveBeenCalledWith(
       undefined,
       undefined,
-      undefined
+      undefined,
+      noSvgFilter
+    )
+  })
+
+  it('passes isSvgExcluded=true through', async () => {
+    await GET(apiRequest('/api/images', { isSvgExcluded: 'true' }))
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      undefined,
+      undefined,
+      undefined,
+      { isSvgExcluded: true }
     )
   })
 })

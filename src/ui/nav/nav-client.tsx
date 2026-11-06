@@ -6,12 +6,14 @@ import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Suspense, useEffect, useRef } from 'react'
 
+import type { Image } from '@/lib/images/schemas/db'
 import { useIsSubscribed } from '@/ui/email-subscribe/use-is-subscribed'
 import style from '@/ui/nav/nav.module.scss'
 import { NavItemLink } from '@/ui/nav/nav-item-link'
 import type { NavItem } from '@/ui/nav/nav-items'
 import { OnPathnameChange } from '@/ui/nav/pathname-change'
 import { useWindowScrollPosition } from '@/ui/nav/scroll-position'
+import { SiteLogo } from '@/ui/nav/site-logo'
 import { useMenubarDisclosure } from '@/ui/nav/use-menubar-disclosure'
 import { useIsAdmin, useSyncedIsAdmin } from '@/ui/use-is-admin'
 
@@ -109,12 +111,17 @@ function SiteMenu({
 
 export function NavClient({
   title,
+  logo,
+  isLogoOnly = false,
   items,
   adminMenu,
   trayFooter,
   isTrayFooterSubscribeOnly = false
 }: {
   title?: string
+  logo?: Image
+  /** Hides the title text beside the logo; ignored without one */
+  isLogoOnly?: boolean
   items: NavItem[]
   /** Server-rendered; renders nothing visible for visitors */
   adminMenu?: React.ReactNode
@@ -148,8 +155,19 @@ export function NavClient({
       role='banner'
     >
       <div>
-        <NextLink href='/'>
-          <span>{title || 'Site Title'}</span>
+        <NextLink
+          href='/'
+          className={clsx(
+            style['home'],
+            logo && isLogoOnly && style['logo-only']
+          )}
+        >
+          {logo && <SiteLogo image={logo} isLogoOnly={isLogoOnly} />}
+          <span
+            className={clsx(logo && isLogoOnly && 'visually-hidden')}
+          >
+            {title || 'Site Title'}
+          </span>
         </NextLink>
 
         <SiteMenu

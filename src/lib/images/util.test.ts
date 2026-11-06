@@ -143,4 +143,15 @@ describe('ogImage', () => {
       ogImage({ url: original, width: 2400, height: 1200 })
     ).toEqual({ url: original, width: 1200, height: 600 })
   })
+
+  it('has none for an SVG', () => {
+    expect(
+      ogImage({
+        url: original,
+        format: 'svg',
+        width: 100,
+        height: 40
+      })
+    ).toBeUndefined()
+  })
 })

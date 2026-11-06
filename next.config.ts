@@ -48,7 +48,7 @@ const nextConfig: NextConfig = {
     // image uploads go through the form's server action
     serverActions: { bodySizeLimit: SERVER_ACTION_BODY_SIZE_LIMIT }
   },
-  serverExternalPackages: ['sharp'],
+  serverExternalPackages: ['sharp', 'jsdom'],
   images: {
     minimumCacheTTL: 2678400, // 31 days
     formats: IMAGE_FORMATS,

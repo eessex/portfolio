@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 import {
   type Image,
@@ -35,6 +36,7 @@ function SettingsFormFields({
   navStatuses?: NavItemStatuses
 }) {
   const errors = useFormErrors()
+  const [isLogoSet, setIsLogoSet] = useState(!!settings?.logoImage)
 
   return (
     <>
@@ -50,6 +52,42 @@ function SettingsFormFields({
           minLength: 3
         }}
       />
+
+      <ItemPicker<Image>
+        name='logoImageId'
+        onItemPresenceChange={setIsLogoSet}
+        itemType='images'
+        label='Logo'
+        description="Shown beside the site title in the menubar. SVG logos render in the theme's text color."
+        existingItem={settings?.logoImage}
+        renderExistingResult={formatImageResult}
+        renderNewItemSummary={formatNewImageSummary}
+        schema={imageClientFieldsSchema}
+        renderEditItemForm={({
+          errors,
+          isRequired,
+          existingItem,
+          onReadyChange
+        }) => (
+          <EditImage
+            image={existingItem}
+            errors={errors}
+            isRequired={isRequired}
+            isSvgAllowed
+            onReadyChange={onReadyChange}
+          />
+        )}
+      />
+
+      {/* hidden, not unmounted, so a logo swap keeps the choice */}
+      <div hidden={!isLogoSet}>
+        <Checkbox
+          attributes={{ name: 'isLogoOnly' }}
+          isDefaultChecked={settings?.isLogoOnly}
+          // the title text stays for screen readers
+          label='Show logo only, hiding the menubar site title text when a logo is set'
+        />
+      </div>
 
       <Input
         as='textarea'
@@ -67,6 +105,8 @@ function SettingsFormFields({
       <ItemPicker<Image>
         name='coverImageId'
         itemType='images'
+        // link previews don't render SVG
+        searchParams={{ isSvgExcluded: true }}
         label='Cover image'
         description='Shown on homepage and as default meta image for search engines and link unfurling.'
         existingItem={settings?.coverImage}
@@ -92,8 +132,8 @@ function SettingsFormFields({
       <ItemPicker<Image>
         name='iconImageId'
         itemType='images'
-        label='Site icon'
-        description='A square image, at least 600 × 600. PNG with a transparent background works best.'
+        label='Site favicon'
+        description='A square image: an SVG, or at least 600 × 600. A transparent background works best.'
         existingItem={settings?.iconImage}
         renderExistingResult={formatSiteIconResult}
         renderNewItemSummary={formatNewSiteIconSummary}
@@ -108,6 +148,7 @@ function SettingsFormFields({
             image={existingItem}
             errors={errors}
             isRequired={isRequired}
+            isSvgAllowed
             onReadyChange={onReadyChange}
           />
         )}

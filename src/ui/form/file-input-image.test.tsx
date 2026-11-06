@@ -149,7 +149,57 @@ describe('FileInputImage', () => {
     )
   })
 
-  it('limits the picker to supported image types', () => {
+  it('accepts a small SVG, since vectors have no minimum size', async () => {
+    global.Image = SmallImage as unknown as typeof Image
+    const onChange = jest.fn()
+
+    render(
+      <FileInputImage
+        label='Upload new image'
+        onChange={onChange}
+        isSvgAllowed
+      />
+    )
+
+    fireEvent.change(screen.getByLabelText(/upload new image/i), {
+      target: { files: [mockFile('logo.svg', 1024, 'image/svg+xml')] }
+    })
+
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith(
+        'logo.svg',
+        1200 / 599,
+        true
+      )
+    })
+    expect(screen.queryByText(/too small/i)).not.toBeInTheDocument()
+  })
+
+  it('previews an SVG with no intrinsic size as square', async () => {
+    global.Image = class extends LoadingImage {
+      naturalWidth = 0
+      naturalHeight = 0
+    } as unknown as typeof Image
+    const onChange = jest.fn()
+
+    render(
+      <FileInputImage
+        label='Upload new image'
+        onChange={onChange}
+        isSvgAllowed
+      />
+    )
+
+    fireEvent.change(screen.getByLabelText(/upload new image/i), {
+      target: { files: [mockFile('logo.svg', 1024, 'image/svg+xml')] }
+    })
+
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith('logo.svg', 1, true)
+    })
+  })
+
+  it('limits the picker to supported raster types by default', () => {
     render(<FileInputImage label='Upload new image' />)
 
     expect(
@@ -158,6 +208,36 @@ describe('FileInputImage', () => {
       'accept',
       'image/jpeg,image/png,image/webp,image/gif'
     )
+  })
+
+  it('adds SVG to the picker when allowed', () => {
+    render(<FileInputImage label='Upload new image' isSvgAllowed />)
+
+    expect(
+      screen.getByLabelText(/upload new image/i)
+    ).toHaveAttribute(
+      'accept',
+      'image/jpeg,image/png,image/webp,image/gif,image/svg+xml'
+    )
+  })
+
+  it('rejects an SVG unless allowed', () => {
+    const onChange = jest.fn()
+
+    render(
+      <FileInputImage label='Upload new image' onChange={onChange} />
+    )
+
+    fireEvent.change(screen.getByLabelText(/upload new image/i), {
+      target: { files: [mockFile('logo.svg', 1024, 'image/svg+xml')] }
+    })
+
+    expect(
+      screen.getByText(
+        '"logo.svg" isn\'t a supported image. Choose a JPEG, PNG, WebP or GIF.'
+      )
+    ).toBeInTheDocument()
+    expect(onChange).toHaveBeenCalledWith('', undefined, true)
   })
 
   it('rejects an unsupported file type before previewing it', () => {

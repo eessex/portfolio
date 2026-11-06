@@ -46,6 +46,10 @@ const siteSettingsFields = {
   iconImageId: uuid.optional(),
   /** whether the footer shows the email subscribe form */
   isEmailSubscribeEnabled: bool.optional().default(false),
+  /** hides the menubar title text while a logo is set */
+  isLogoOnly: bool.optional().default(false),
+  /** shown beside (or instead of) the menubar title */
+  logoImageId: uuid.optional(),
   /** the menubar's items; absent shows DEFAULT_NAV_ITEMS */
   navItems: navItemSettingsSchema.optional(),
   /** the footer's links, in footer order */
@@ -76,5 +80,6 @@ export type CreateSiteSettings = z.infer<
 export const siteSettingsClientSchema = siteSettingsSchema.extend({
   coverImage: z.lazy(() => imageSchema).optional(),
   iconImage: z.lazy(() => imageSchema).optional(),
+  logoImage: z.lazy(() => imageSchema).optional(),
   socialLinks: z.array(linkSchema).optional()
 })

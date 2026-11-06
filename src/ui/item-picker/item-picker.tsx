@@ -184,6 +184,12 @@ export type ItemPickerProps<
         existingItem?: TEmbeddedItem | TPage
         /** Called when the selected item changes (not on mount). */
         onSelectionChange?: (item?: TEmbeddedItem | TPage) => void
+        /**
+         * Called when the picker gains or loses an item (not on mount):
+         * a selection, or a new draft whose main field is filled, e.g.
+         * an image's file. For disclosing fields that depend on it.
+         */
+        onItemPresenceChange?: (isItemPresent: boolean) => void
       }
     | {
         isMulti: true
@@ -447,6 +453,20 @@ export function ItemPicker<
       if (!props.isMulti) props.onSelectionChange?.(item)
     }
   )
+  const isItemPresent =
+    !isMulti &&
+    !!entries[0] &&
+    (entries[0].kind !== 'new' || isMainFieldReady)
+  const onItemPresenceChange = useEffectEvent((next: boolean) => {
+    if (!props.isMulti) props.onItemPresenceChange?.(next)
+  })
+  const prevIsItemPresent = useRef(isItemPresent)
+  useEffect(() => {
+    if (isItemPresent === prevIsItemPresent.current) return
+    prevIsItemPresent.current = isItemPresent
+    onItemPresenceChange(isItemPresent)
+  }, [isItemPresent])
+
   const prevSelectedId = useRef(selectedItem?.id)
   useEffect(() => {
     if (selectedItem?.id === prevSelectedId.current) return

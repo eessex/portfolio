@@ -90,7 +90,7 @@ export function ItemCoverImage({
       sizes={sizes}
       unoptimized={isCoverImageThumbnailUrl(image.url)}
       loading={isLazy || index > lazyAfter ? 'lazy' : undefined}
-      priority={isPriority}
+      preload={isPriority}
       fetchPriority={isPriority ? 'high' : 'auto'}
       aria-hidden='true'
     />

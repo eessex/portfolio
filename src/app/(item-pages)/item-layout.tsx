@@ -226,9 +226,10 @@ export async function generateItemMetadata(
 
   const description = generateItemDescription(item)
   const { coverImage, path } = item
-  const images = coverImage && [
+  const coverOgImage = coverImage && ogImage(coverImage)
+  const images = coverOgImage && [
     {
-      ...ogImage(coverImage),
+      ...coverOgImage,
       alt: coverImage.alt || ''
     }
   ]

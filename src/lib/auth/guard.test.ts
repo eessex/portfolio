@@ -1,4 +1,5 @@
 import { cookies, headers } from 'next/headers'
+import { connection } from 'next/server'
 
 import { auth } from '@/auth'
 import {
@@ -13,6 +14,21 @@ const mockAuth = auth as unknown as jest.Mock
 
 describe('auth/guard', () => {
   describe('#currentSession', () => {
+    it('defers to request time before auth() reads the clock', async () => {
+      const order: string[] = []
+      jest.mocked(connection).mockImplementationOnce(async () => {
+        order.push('connection')
+      })
+      mockAuth.mockImplementationOnce(async () => {
+        order.push('auth')
+        return null
+      })
+
+      await currentSession()
+
+      expect(order).toEqual(['connection', 'auth'])
+    })
+
     // An action's re-render: cookies() has the cookie it just set,
     // headers() still has the request's
     it('reads the session cookie from cookies(), not headers()', async () => {

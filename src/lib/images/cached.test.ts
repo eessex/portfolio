@@ -7,6 +7,8 @@ jest.mock('@/lib/images/data', () => ({
 import { fetchImages } from '@/lib/images/cached'
 import { fetchImagesRaw } from '@/lib/images/data'
 
+const noSvgFilter = { isSvgExcluded: false }
+
 describe('fetchImages', () => {
   beforeEach(() => jest.clearAllMocks())
 
@@ -14,7 +16,27 @@ describe('fetchImages', () => {
     await fetchImages()
 
     expect(cacheTag).toHaveBeenCalledWith('images')
-    expect(fetchImagesRaw).toHaveBeenCalledWith()
+    expect(fetchImagesRaw).toHaveBeenCalledWith(
+      undefined,
+      undefined,
+      undefined,
+      noSvgFilter
+    )
+  })
+
+  // cache keys include the argument, so each variant caches apart
+  it('passes isSvgExcluded to the cached first page', async () => {
+    await fetchImages(undefined, undefined, undefined, {
+      isSvgExcluded: true
+    })
+
+    expect(cacheTag).toHaveBeenCalledWith('images')
+    expect(fetchImagesRaw).toHaveBeenCalledWith(
+      undefined,
+      undefined,
+      undefined,
+      { isSvgExcluded: true }
+    )
   })
 
   it('serves the press first page from the cache', async () => {
@@ -24,7 +46,8 @@ describe('fetchImages', () => {
     expect(fetchImagesRaw).toHaveBeenCalledWith(
       undefined,
       undefined,
-      'press'
+      'press',
+      noSvgFilter
     )
   })
 
@@ -35,7 +58,8 @@ describe('fetchImages', () => {
     expect(fetchImagesRaw).toHaveBeenCalledWith(
       undefined,
       undefined,
-      'documentation'
+      'documentation',
+      noSvgFilter
     )
   })
 
@@ -47,12 +71,14 @@ describe('fetchImages', () => {
     expect(fetchImagesRaw).toHaveBeenCalledWith(
       'cursor',
       undefined,
-      undefined
+      undefined,
+      noSvgFilter
     )
     expect(fetchImagesRaw).toHaveBeenCalledWith(
       undefined,
       'query',
-      'press'
+      'press',
+      noSvgFilter
     )
   })
 })

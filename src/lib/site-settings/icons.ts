@@ -22,6 +22,10 @@ const PNG_SIZES: Partial<Record<SiteIconRole, number>> = {
   icon512: 512
 }
 const APPLE_TOUCH_ICON_SIZE = 180
+// the largest icon, so a vector is never upscaled from a raster
+const MAX_ICON_SIZE = 512
+// sharp's default SVG density, ie 1 viewBox unit = 1px
+const SVG_BASE_DENSITY = 72
 
 export const tooSmallIconMessage = `The site icon is too small. Choose an image at least ${MIN_SHORT_EDGE}px on its short edge`
 
@@ -59,14 +63,21 @@ export async function generateSiteIcons(imageId: string) {
     }
     // an animation's height spans every frame
     const { width, height } = metadata.autoOrient
-    if (
-      Math.min(width, metadata.pageHeight ?? height) < MIN_SHORT_EDGE
-    ) {
+    const shortEdge = Math.min(width, metadata.pageHeight ?? height)
+    const isVector = metadata.format === 'svg'
+    if (!isVector && shortEdge < MIN_SHORT_EDGE) {
       throw new Error(tooSmallIconMessage)
     }
+    // a vector rasterizes at its viewBox size unless given a density
+    const density = isVector
+      ? Math.min(
+          100_000,
+          (SVG_BASE_DENSITY * MAX_ICON_SIZE) / shortEdge
+        )
+      : undefined
 
     const square = (size: number) =>
-      sharp(bytes)
+      sharp(bytes, { density })
         .autoOrient()
         .resize(size, size, { fit: 'cover', position: 'centre' })
 

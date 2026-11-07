@@ -1,3 +1,5 @@
+import { ArrowUpRightIcon } from '@heroicons/react/16/solid'
+
 import type { Link } from '@/lib/links/schemas/db'
 import { formattedDateOrTimestamp } from '@/ui/format/dates'
 
@@ -48,7 +50,7 @@ export function LinkItem({
                   link.createdAt!,
                   'xs'
                 )}{' '}
-                <span aria-hidden='true'>↗</span>
+                <ArrowUpRightIcon aria-hidden='true' />
               </span>
             </>
           )}

@@ -29,9 +29,9 @@ describe('LinkItem', () => {
       expect([...cells].map((cell) => cell.textContent)).toEqual([
         'Test Attribution',
         'Test Press Link',
-        `${date} ↗`
+        `${date} `
       ])
-      expect(container).not.toHaveTextContent('—')
+      expect(cells[2]?.querySelector('svg')).toBeInTheDocument()
     })
 
     it('falls back to the url without a title', () => {

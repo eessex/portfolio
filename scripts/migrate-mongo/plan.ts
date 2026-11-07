@@ -899,7 +899,7 @@ export async function planReleases(
       report.count('releases', 'fail')
       report.add(
         'Failed',
-        `${label}: no built-in Self-released publisher; run pnpm run setup`
+        `${label}: no built-in Self-released publisher; run pnpm migrate`
       )
       continue
     }

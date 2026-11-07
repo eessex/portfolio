@@ -783,7 +783,7 @@ async function main() {
       'No DATABASE_URL: planning against an empty database'
     )
   } else if (!(await hasLegacyIdsTable(sql)) && !args.isDryRun) {
-    throw new Error('No legacy_ids table: run pnpm run setup first')
+    throw new Error('No legacy_ids table: run pnpm migrate first')
   }
 
   if (args.isSeed) {

@@ -78,10 +78,39 @@
     margin: 0;
   }
 
+  // laid out like the Sign Out button beside them
+  li > a {
+    display: flex;
+    gap: 0.4em;
+    align-items: center;
+    padding: grids.space-em(2, 3);
+    transition: background 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+
+    svg {
+      width: grids.space-em(5);
+      height: grids.space-em(5);
+      flex-shrink: 0;
+      margin-top: var(--icon-optical-offset);
+    }
+  }
+
   // the nav links' weight; group labels keep theirs
   li > a,
   li button {
     @include type.font-weight('bold');
+
+    &:not(:disabled) {
+      @media (hover: hover) {
+        &:hover {
+          background: var(--hover-background-color);
+          color: inherit;
+        }
+      }
+
+      &:active {
+        background: var(--active-background-color);
+      }
+    }
   }
 
   // a link plus its draft badge

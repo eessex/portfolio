@@ -90,6 +90,9 @@ description. Go to `/about/edit` on your site (for example
 represents you, tick **Published**, and save. Until you do, `/about` shows
 a "not found" page.
 
+For how projects, releases, events and the rest fit together, see
+[Using your site](USING.md).
+
 **See your visitors (optional):** Vercel → your project → **Analytics** →
 **Enable**. Free up to 50,000 page views a month; it just stops counting
 past that, it won't charge you.

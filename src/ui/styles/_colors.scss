@@ -1,44 +1,148 @@
+@use 'sass:color';
 @use '@/ui/styles/breakpoints';
 
-$almost-black-rgb: 8, 8, 8;
-$almost-white-rgb: 250, 250, 250;
+$default-foreground: #080808;
+$default-background: #fafafa;
+$default-accent: #61d1af;
 $red: #e65225;
 $green: #32e3ae;
-$green-dark: #1f9673;
+$fills: (
+  'green': $green,
+  'blue': cornflowerblue,
+  'purple': violet,
+  'orange': #ff7f50,
+  'rose': #f288af,
+  'indigo': #9b77ee,
+  'red': $red,
+  'yellow': yellow
+);
+
+// darkens the default accent enough for light text (5:1)
+$accent-contrast-mix: 45%;
+// how much further a primary button's hover moves from the focus ring
+$accent-inverse-step: 40%;
+// darkens every fill enough for light text (4.5:1; yellow is the limit)
+$fill-contrast-mix: 55%;
+// how much further a pressed fill moves away from its text color
+$accent-pressed-mix: 20%;
+
+// a custom-property color at partial opacity
+@function fade($color, $amount) {
+  @return color-mix(in srgb, #{$color} #{$amount}, transparent);
+}
+
+// --accent-fill sits under page-foreground text; --focus-ring-color is
+// the accent that stands out against the page itself. Palette fills
+// (badges, error banner) take --fill-foreground-color text, from the
+// default scheme so a custom one can't break their contrast
+@mixin light-tokens {
+  color-scheme: light;
+  --foreground: var(--scheme-fg);
+  --background: var(--scheme-bg);
+  --accent-fill: var(--accent);
+  --focus-ring-color: color-mix(
+    in srgb,
+    var(--accent),
+    var(--foreground) #{$accent-contrast-mix}
+  );
+  --fill-foreground-color: #{$default-foreground};
+
+  @each $name, $fill in $fills {
+    --#{$name}: #{$fill};
+  }
+}
+
+@mixin dark-tokens {
+  color-scheme: dark;
+  --foreground: var(--scheme-bg);
+  --background: var(--scheme-fg);
+  --accent-fill: color-mix(
+    in srgb,
+    var(--accent),
+    var(--background) #{$accent-contrast-mix}
+  );
+  --focus-ring-color: var(--accent);
+  --fill-foreground-color: #{$default-background};
+
+  @each $name, $fill in $fills {
+    --#{$name}: #{color.mix(
+        $default-foreground,
+        $fill,
+        $fill-contrast-mix
+      )};
+  }
+}
 
 :root {
-  --background: #{$almost-white-rgb};
-  --foreground: #{$almost-black-rgb};
-  --accent-primary: #{$green-dark};
-  --accent-secondary: #{$green};
+  // authored as the light scheme; dark swaps foreground and background
+  --scheme-fg: var(--scheme-foreground, #{$default-foreground});
+  --scheme-bg: var(--scheme-background, #{$default-background});
+  --accent: var(--scheme-accent, #{$default-accent});
+
+  @include light-tokens;
+
+  // text never changes color on hover: --accent-hover sits under
+  // page-foreground text, --accent-hover-inverse under page-background
+  // text (primary buttons)
+  --accent-hover: var(--accent-fill);
+  // past the focus ring, toward the button's fill, so the ring still shows
+  --accent-hover-inverse: color-mix(
+    in srgb,
+    var(--focus-ring-color),
+    var(--foreground) #{$accent-inverse-step}
+  );
+
+  // pressed fills move away from their text, so they only gain contrast
+  --accent-active: color-mix(
+    in srgb,
+    var(--accent-hover),
+    var(--background) #{$accent-pressed-mix}
+  );
+  --accent-active-inverse: color-mix(
+    in srgb,
+    var(--accent-hover-inverse),
+    var(--foreground) #{$accent-pressed-mix}
+  );
+
   --error-color: #{$red};
+  --error-text-color: color-mix(
+    in srgb,
+    var(--error-color),
+    var(--foreground) 30%
+  );
 
-  --blue: cornflowerblue;
-  --purple: violet;
-  --orange: #ff7f50;
-  --rose: #f288af;
-  --indigo: #9b77ee;
-  --green: #{$green};
-  --green-dark: #{$green-dark};
+  --page-background-color: var(--background);
+  --page-foreground-color: var(--foreground);
+  --transparency-primary: #{fade(var(--foreground), 15%)};
+  --transparency-secondary: #{fade(var(--foreground), 35%)};
+  --transparency-extra-light: #{fade(var(--foreground), 10%)};
+  --transparency-light: #{fade(var(--foreground), 25%)};
+  --transparency-dark: #{fade(var(--foreground), 65%)};
+  --transparency-dark-inverted: #{fade(var(--background), 65%)};
+  --dialog-background-color: #{fade(
+      var(--page-background-color),
+      96%
+    )};
 
-  --page-background-color: rgba(var(--background), 1);
-  --page-foreground-color: rgba(var(--foreground), 1);
-  --transparency-primary: rgba(var(--foreground), 0.15);
-  --transparency-secondary: rgba(var(--foreground), 0.35);
-  --transparency-extra-light: rgba(var(--foreground), 0.1);
-  --transparency-light: rgba(var(--foreground), 0.25);
-  --transparency-dark: rgba(var(--foreground), 0.65);
-  --transparency-dark-inverted: rgba(var(--background), 0.65);
+  // neutral fills for hovered and pressed rows (tables, menus)
+  --hover-background-color: #{fade(var(--foreground), 7.5%)};
+  --active-background-color: #{fade(var(--foreground), 15%)};
 
-  --input-background-color: rgba(var(--foreground), 0.075);
+  --input-background-color: #{fade(var(--foreground), 7.5%)};
   --disabled-color: var(--transparency-dark);
   --placeholder-color: var(--transparency-dark);
   --secondary-text-color: var(--transparency-dark);
 
   @media (prefers-color-scheme: dark) {
-    --background: #{$almost-black-rgb};
-    --foreground: #{$almost-white-rgb};
-    --accent-primary: #{$green};
-    --accent-secondary: #{$green-dark};
+    @include dark-tokens;
   }
+}
+
+// the settings preview's light/dark toggle; beats the media query
+:root[data-color-scheme='light'] {
+  @include light-tokens;
+}
+
+:root[data-color-scheme='dark'] {
+  @include dark-tokens;
 }

@@ -12,7 +12,7 @@
   padding: 0;
   grid-template-rows: auto minmax(0, 1fr) auto;
   color: var(--page-foreground-color);
-  background: rgba(var(--background), 0.96);
+  background: var(--dialog-background-color);
 
   &[open] {
     display: grid;

@@ -457,8 +457,8 @@ export function ItemPicker<
     !isMulti &&
     !!entries[0] &&
     (entries[0].kind !== 'new' || isMainFieldReady)
-  const onItemPresenceChange = useEffectEvent((next: boolean) => {
-    if (!props.isMulti) props.onItemPresenceChange?.(next)
+  const onItemPresenceChange = useEffectEvent((isNext: boolean) => {
+    if (!props.isMulti) props.onItemPresenceChange?.(isNext)
   })
   const prevIsItemPresent = useRef(isItemPresent)
   useEffect(() => {

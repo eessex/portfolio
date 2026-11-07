@@ -38,8 +38,8 @@ their actual results, and say explicitly if one failed or was skipped.
   `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 --max-time 3`
   If not running, start `pnpm dev` in the background and wait for
   the ready line.
-- The server needs `.env` with a working `DATABASE_URL` and
-  `AUTH_SECRET` (present locally; `pnpm setup` bootstraps a fresh
+- The server needs `.env` with a working `DATABASE_URL` (present
+  locally; see CONTRIBUTING.md → Getting started for a fresh
   machine).
 - **The dev server talks to the real Neon database.** Reads are
   fine. Do not exercise create/update/delete server actions against

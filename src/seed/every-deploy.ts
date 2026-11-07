@@ -37,9 +37,9 @@ export type EveryDeployClient = {
 export type EveryDeployOptions = {
   /**
    * Replace a live setup code instead of keeping it. Only
-   * `pnpm run setup` sets this: only the code's hash is stored, so a
-   * lost one can't be shown again, and whoever runs setup already
-   * holds DATABASE_URL, so a new code grants them nothing more.
+   * `pnpm migrate --new-setup-code` sets this: only the code's hash is
+   * stored, so a lost one can't be shown again, and whoever runs it
+   * already holds DATABASE_URL, so a new code grants them nothing more.
    */
   isSetupCodeRotated?: boolean
 }

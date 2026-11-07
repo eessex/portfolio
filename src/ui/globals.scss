@@ -182,6 +182,7 @@ footer {
   vertical-align: text-top;
   white-space: nowrap;
   flex-shrink: 0;
+  color: var(--fill-foreground-color);
 
   &.badge-green {
     background-color: var(--green);
@@ -208,7 +209,11 @@ footer {
   }
 
   &.badge-red {
-    background-color: var(--error-color);
+    background-color: var(--red);
+  }
+
+  &.draft-badge {
+    background-color: var(--yellow);
   }
 }
 

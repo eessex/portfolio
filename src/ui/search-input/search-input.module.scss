@@ -55,16 +55,10 @@
       left: grids.space-em(2);
       width: grids.space-em(5);
       height: grids.space-em(5);
-      background-image: url('/magnifying-glass.svg');
-      background-repeat: no-repeat;
-      background-size: grids.space-em(5) grids.space-em(5);
-      background-size: contain;
+      background-color: currentColor;
+      mask: url('/magnifying-glass.svg') no-repeat center / contain;
       opacity: 0.65;
       transform: translateY(-48%);
-
-      @media (prefers-color-scheme: dark) {
-        filter: invert(1);
-      }
     }
   }
 }

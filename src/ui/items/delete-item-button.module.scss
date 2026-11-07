@@ -1,7 +1,7 @@
 @use '@/ui/styles/grids';
 
 .delete-button {
-  color: var(--error-color);
+  color: var(--error-text-color);
 
   @media (hover: hover) {
     &:hover {

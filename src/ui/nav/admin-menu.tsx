@@ -77,11 +77,7 @@ export async function AdminMenu({
                 key={item.navPath}
                 className={styles['hidden-item']}
               >
-                <NavItemLink
-                  item={item}
-                  className='button'
-                  createClassName='button'
-                />
+                <NavItemLink item={item} />
               </li>
             ))}
           </AdminMenuGroup>
@@ -89,24 +85,17 @@ export async function AdminMenu({
 
         <AdminMenuGroup id='manage' label='Manage'>
           <li>
-            <NextLink href='/dashboard' className='button'>
-              Site settings
-            </NextLink>
+            <NextLink href='/dashboard'>Site settings</NextLink>
           </li>
           <li>
-            <NextLink href='/dashboard/users' className='button'>
-              Users
-            </NextLink>
+            <NextLink href='/dashboard/users'>Users</NextLink>
           </li>
         </AdminMenuGroup>
 
         <AdminMenuGroup id='library' label='Library'>
           {dashboardItemTypes.map((itemType) => (
             <li key={itemType}>
-              <NextLink
-                href={dashboardUrl(itemType)}
-                className='button'
-              >
+              <NextLink href={dashboardUrl(itemType)}>
                 {camelToSentence(snakeToCamel(itemType))}
               </NextLink>
             </li>

@@ -52,6 +52,15 @@ describe('sanitizeSvg', () => {
     expect(clean).not.toMatch(/evil/)
   })
 
+  it('strips a url() between comment marks in strings', async () => {
+    const css =
+      'font-family:"/*";fill:url(https://evil.example/a);font-family:\'*/\''
+    const clean = await sanitize(
+      `${open}<rect style="${css.replaceAll('"', '&quot;')}"/><style>.a{${css}}</style></svg>`
+    )
+    expect(clean).not.toMatch(/evil/)
+  })
+
   it('serializes as XML, without HTML-only entities', async () => {
     expect(
       await sanitize(

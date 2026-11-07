@@ -12,12 +12,38 @@ function isLocalRef(value: string) {
   return value.trim().startsWith('#')
 }
 
+// a /* inside a string isn't a comment; strings are kept, so a url()
+// in one is still checked
+function stripCssComments(css: string) {
+  let out = ''
+  let quote: string | undefined
+  for (let i = 0; i < css.length; i++) {
+    const char = css[i]!
+    if (char === '\\') {
+      out += css.slice(i, i + 2)
+      i++
+    } else if (quote) {
+      // an unescaped newline ends a string too
+      if (char === quote || char === '\n') quote = undefined
+      out += char
+    } else if (char === '"' || char === "'") {
+      quote = char
+      out += char
+    } else if (css.startsWith('/*', i)) {
+      const end = css.indexOf('*/', i + 2)
+      if (end < 0) break
+      i = end + 1
+    } else {
+      out += char
+    }
+  }
+  return out
+}
+
 // so u\72l( and ur\l( read as url(. Newlines normalized first, as
 // CSS does, so an escape's one trailing whitespace takes a whole CRLF
 function decodeCssEscapes(css: string) {
-  return css
-    .replace(/\r\n?|\f/g, '\n')
-    .replace(/\/\*[\s\S]*?\*\//g, '')
+  return stripCssComments(css.replace(/\r\n?|\f/g, '\n'))
     .replace(/\\([0-9a-f]{1,6})\s?/gi, (_, hex: string) =>
       String.fromCodePoint(Number.parseInt(hex, 16) || 0xfffd)
     )

@@ -40,6 +40,7 @@ describe('AdminMenu', () => {
 
     expect(hrefOf('Site settings')).toBe('/dashboard')
     expect(hrefOf('Users')).toBe('/dashboard/users')
+    expect(hrefOf('Account')).toBe('/account')
     expect(hrefOf('Images')).toBe('/dashboard/images')
     expect(hrefOf('Embed Codes')).toBe('/dashboard/embed_codes')
     expect(

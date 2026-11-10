@@ -11,6 +11,7 @@ describe('beforeSend', () => {
   it.each([
     '/dashboard',
     '/dashboard/images',
+    '/account',
     '/releases/new',
     '/events/some-event/edit',
     '/about/edit',

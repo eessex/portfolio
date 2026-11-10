@@ -96,7 +96,7 @@ export function RecoveryCodesList({
   )
 }
 
-/** The dashboard's count of codes left and "Generate new codes". */
+/** The account page's count of codes left and "Generate new codes". */
 export function RecoveryCodesForm({
   unusedCount
 }: {

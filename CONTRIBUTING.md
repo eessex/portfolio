@@ -30,7 +30,7 @@ variable is in [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
 ## Prerequisites
 
 - Node 22.x
-- pnpm 11 (`packageManager` is pinned in `package.json`)
+- pnpm 9 or later (CI uses pnpm 11)
 - A Postgres database (this project targets Neon)
 - A Vercel Blob store, for image uploads
 

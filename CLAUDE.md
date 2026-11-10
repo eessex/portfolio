@@ -27,7 +27,7 @@ Jest treats a path argument as a regex, so escape parentheses in route-group pat
 
 When running commands agentically, keep output minimal: prefer the single-file jest invocation (with `--silent`) while iterating and `pnpm test:quiet` for full-suite checks; drop the flags only when a failure needs its console output or stack trace. Don't run `pnpm build` unless the task specifically requires verifying the production build — `pnpm typecheck` + `pnpm lint` cover correctness checks.
 
-Package manager is pnpm (`packageManager: pnpm@11.0.0`); Node 22.x. CI is split: GitHub Actions (`.github/workflows/checks.yml`, source repo only) runs typecheck → lint → test:quiet on PRs and pushes to `main`, and Vercel's build command (`vercel.json`) is `pnpm migrate && pnpm build`, so a failing migration or build fails the deploy. `pnpm check` still runs typecheck → lint → test:quiet → build locally. Migration-writing rules are in `CONTRIBUTING.md`.
+Package manager is pnpm, unpinned (no `packageManager` field; the lockfile is v9, so pnpm 9+ installs it, and CI sets pnpm 11 in `checks.yml`); Node 22.x. CI is split: GitHub Actions (`.github/workflows/checks.yml`, source repo only) runs typecheck → lint → test:quiet on PRs and pushes to `main`, and Vercel's build command (`vercel.json`) is `pnpm migrate && pnpm build`, so a failing migration or build fails the deploy. `pnpm check` still runs typecheck → lint → test:quiet → build locally. Migration-writing rules are in `CONTRIBUTING.md`.
 
 ## Architecture
 

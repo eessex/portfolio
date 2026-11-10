@@ -9,6 +9,7 @@ Vercel. No coding, and nothing to type into a terminal.
 
 At [github.com](https://github.com), if you don't have one already. Use an
 email you'll keep for years — it's how you'll get updates to your site.
+Save your password in a password manager.
 
 ## 2. Fork the project
 
@@ -20,7 +21,7 @@ copy of the code, separate from the original.
 ## 3. Make a Vercel account
 
 At [vercel.com](https://vercel.com), choosing "Continue with GitHub" so it's
-linked to the account from step 1.
+linked to the same account from step 1.
 
 ## 4. Import your fork
 
@@ -144,7 +145,7 @@ and a copy of your fork on your computer.
    ```
    git clone https://github.com/YOUR-NAME/portfolio-cms.git
    cd portfolio-cms
-   corepack enable
+   npm install -g pnpm
    pnpm install
    ```
 

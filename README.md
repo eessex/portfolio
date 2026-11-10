@@ -1,6 +1,6 @@
 # Portfolio CMS
 
-This project is a public portfolio website and CMS designed to archive and showcase creative projects by musicians, event organizers, and record labels. It is designed to be configurable with no code, and to operate for free or at very low cost.
+This project is a public portfolio website and CMS built to archive and showcase creative projects by musicians, event organizers, and record labels. It is designed to be configurable with no code, and to operate for free or at very low cost.
 
 My own creative projects were the testing ground for the site, which takes some inspiration from the old-school CMS [Indexhibit](https://github.com/Indexhibit/indexhibit) that first got me into making websites. The framework is intended to be flexible enough to work for a wide variety of artists, presenters and publishers. In the future I hope to extend it to work for visual artists, writers and filmmakers too.
 

@@ -499,7 +499,7 @@ describe('completeSetup', () => {
     expect(res).toEqual({
       ok: false,
       message:
-        'Account created! Automatic sign-in failed — please log in at /login, then generate recovery codes on your dashboard.'
+        'Account created! Automatic sign-in failed — please log in at /login, then generate recovery codes on your Account page.'
     })
   })
 })
@@ -550,7 +550,7 @@ describe('recoverAccount', () => {
     expect(mockSignIn).toHaveBeenCalledWith('credentials', {
       email: submission.email,
       password: submission.newPassword,
-      redirectTo: '/dashboard'
+      redirectTo: '/account'
     })
     expect(res).toEqual({ ok: true })
   })
@@ -1514,7 +1514,7 @@ describe('token link actions', () => {
       expect(mockSignIn).toHaveBeenCalledWith('credentials', {
         email: 'ada@example.com',
         password: newPassword,
-        redirectTo: '/dashboard'
+        redirectTo: '/account'
       })
     })
 

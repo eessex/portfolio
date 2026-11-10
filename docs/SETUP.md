@@ -62,7 +62,7 @@ Next you'll see 8 **recovery codes**. Save them, along with your password,
 somewhere safe — a password manager, ideally. If you ever forget your
 password, the login page's "Forgot password?" link trades one code for a new
 password. Each code works once, and they're only shown this one time; you can
-generate a fresh set any time from the Account section of your dashboard.
+generate a fresh set any time from your Account page (`/account`).
 
 **Don't see a code?** If you redeployed before claiming your site, the
 latest build log shows this line instead:

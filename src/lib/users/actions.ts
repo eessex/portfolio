@@ -271,7 +271,7 @@ export async function completeSetup(
     return {
       ok: false,
       message:
-        'Account created! Automatic sign-in failed — please log in at /login, then generate recovery codes on your dashboard.'
+        'Account created! Automatic sign-in failed — please log in at /login, then generate recovery codes on your Account page.'
     }
   }
 }
@@ -352,7 +352,7 @@ export async function recoverAccount(
     await signIn('credentials', {
       email,
       password: newPassword,
-      redirectTo: '/dashboard'
+      redirectTo: '/account'
     })
     return { ok: true }
   } catch (error) {
@@ -902,7 +902,7 @@ export async function acceptInvite(
     return {
       ok: false,
       message:
-        'Account created! Automatic sign-in failed — please log in at /login, then generate recovery codes on your dashboard.'
+        'Account created! Automatic sign-in failed — please log in at /login, then generate recovery codes on your Account page.'
     }
   }
 }
@@ -952,7 +952,7 @@ export async function resetPasswordWithLink(
     await signIn('credentials', {
       email,
       password: newPassword,
-      redirectTo: '/dashboard'
+      redirectTo: '/account'
     })
     return { ok: true }
   } catch (error) {

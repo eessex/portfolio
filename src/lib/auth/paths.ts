@@ -9,7 +9,8 @@ export const authedPathPatterns = [
     (type) => new RegExp(`^/${type}/new$`) // /events/new
   ),
   new RegExp(`^/${ABOUT_PATH}/edit$`),
-  /^\/dashboard(?:\/.*)?$/
+  /^\/dashboard(?:\/.*)?$/,
+  /^\/account$/
 ]
 
 export const unauthedPathPatterns = [

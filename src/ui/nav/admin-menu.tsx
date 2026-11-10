@@ -104,6 +104,9 @@ export async function AdminMenu({
 
         <ul>
           <li>
+            <NextLink href='/account'>Account</NextLink>
+          </li>
+          <li>
             <LogoutButton />
           </li>
         </ul>

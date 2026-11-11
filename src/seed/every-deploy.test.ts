@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto'
 
+import { exportScopes } from '@/lib/email-subscriptions/schemas'
+import { spamReasons } from '@/lib/email-subscriptions/spam-reasons'
 import {
   embedCodeContentTypes,
   embedCodeHosts,
@@ -55,9 +57,9 @@ describe('everyDeploySteps', () => {
       .update(JSON.stringify(query.mock.calls))
       .digest('hex')
     expect({ revision: EVERY_DEPLOY_REVISION, checksum }).toEqual({
-      revision: 6,
+      revision: 8,
       checksum:
-        'af86dce32e3e3b10fdc3a025ae5f42a0bfcdf75a43fb1534af9c1ab8d30f6372'
+        '0d14d8d051ddbdc1c403fdc8d924461b3a0032d8db2c5750c1cad17e3b555031'
     })
   })
 
@@ -72,7 +74,9 @@ describe('everyDeploySteps', () => {
     ['publishers', 'type', publisherTypes],
     ['releases', 'type', releaseTypes],
     ['published_editions', 'format', publishedEditionTypes],
-    ['user_tokens', 'purpose', userTokenPurposes]
+    ['user_tokens', 'purpose', userTokenPurposes],
+    ['email_subscriptions', 'spam_reason', spamReasons],
+    ['email_subscription_exports', 'scope', exportScopes]
   ])(
     'rebuilds the %s.%s CHECK from its constant',
     (table, column, values) => {

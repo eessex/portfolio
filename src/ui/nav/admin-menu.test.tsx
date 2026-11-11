@@ -38,7 +38,7 @@ describe('AdminMenu', () => {
   it('renders for an admin and syncs isAdmin true', async () => {
     render(await AdminMenu({ hiddenNavPaths: [] }))
 
-    expect(hrefOf('Site settings')).toBe('/dashboard')
+    expect(hrefOf('Site settings')).toBe('/settings')
     expect(hrefOf('Users')).toBe('/dashboard/users')
     expect(hrefOf('Account')).toBe('/account')
     expect(hrefOf('Images')).toBe('/dashboard/images')

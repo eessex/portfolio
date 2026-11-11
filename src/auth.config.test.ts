@@ -48,6 +48,7 @@ describe('authConfig.callbacks.authorized', () => {
 
     expect(await authorized(args('/dashboard', false))).toBe(false)
     expect(await authorized(args('/account', false))).toBe(false)
+    expect(await authorized(args('/settings', false))).toBe(false)
     expect(hasSiteSettings).not.toHaveBeenCalled()
   })
 

@@ -85,7 +85,7 @@ export async function AdminMenu({
 
         <AdminMenuGroup id='manage' label='Manage'>
           <li>
-            <NextLink href='/dashboard'>Site settings</NextLink>
+            <NextLink href='/settings'>Site settings</NextLink>
           </li>
           <li>
             <NextLink href='/dashboard/users'>Users</NextLink>

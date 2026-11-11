@@ -12,6 +12,7 @@ describe('beforeSend', () => {
     '/dashboard',
     '/dashboard/images',
     '/account',
+    '/settings',
     '/releases/new',
     '/events/some-event/edit',
     '/about/edit',

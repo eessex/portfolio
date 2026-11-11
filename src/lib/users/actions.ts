@@ -6,6 +6,7 @@ import { unstable_rethrow } from 'next/navigation'
 import { signIn } from '@/auth'
 import { isPasswordBreached } from '@/lib/auth/breached-password'
 import { currentUserId, requireAuth } from '@/lib/auth/guard'
+import { ACCOUNT_URL } from '@/lib/auth/paths'
 import {
   checkWindowLimit,
   clearFailedLogins,
@@ -352,7 +353,7 @@ export async function recoverAccount(
     await signIn('credentials', {
       email,
       password: newPassword,
-      redirectTo: '/account'
+      redirectTo: ACCOUNT_URL
     })
     return { ok: true }
   } catch (error) {
@@ -952,7 +953,7 @@ export async function resetPasswordWithLink(
     await signIn('credentials', {
       email,
       password: newPassword,
-      redirectTo: '/account'
+      redirectTo: ACCOUNT_URL
     })
     return { ok: true }
   } catch (error) {

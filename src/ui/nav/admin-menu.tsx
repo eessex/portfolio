@@ -2,6 +2,7 @@ import NextLink from 'next/link'
 import { connection } from 'next/server'
 
 import { currentSession } from '@/lib/auth/guard'
+import { ACCOUNT_URL, SETTINGS_URL } from '@/lib/auth/paths'
 import { dashboardItemTypes } from '@/lib/schemas'
 import { camelToSentence, snakeToCamel } from '@/lib/strings'
 import { LogoutButton } from '@/ui/buttons/logout-button'
@@ -85,7 +86,7 @@ export async function AdminMenu({
 
         <AdminMenuGroup id='manage' label='Manage'>
           <li>
-            <NextLink href='/settings'>Site settings</NextLink>
+            <NextLink href={SETTINGS_URL}>Site settings</NextLink>
           </li>
           <li>
             <NextLink href='/dashboard/users'>Users</NextLink>
@@ -104,7 +105,7 @@ export async function AdminMenu({
 
         <ul>
           <li>
-            <NextLink href='/account'>Account</NextLink>
+            <NextLink href={ACCOUNT_URL}>Account</NextLink>
           </li>
           <li>
             <LogoutButton />

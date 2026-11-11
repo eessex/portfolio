@@ -21,7 +21,7 @@ export function SetupForm({
   const router = useRouter()
 
   useEffect(() => {
-    if (isCreatedOnLoad) router.replace('/dashboard')
+    if (isCreatedOnLoad) router.replace('/settings')
   }, [isCreatedOnLoad, router])
 
   // The account exists and is signed in by now
@@ -29,7 +29,7 @@ export function SetupForm({
     return (
       <RecoveryCodesList
         codes={recoveryCodes}
-        onDone={() => router.push('/dashboard')}
+        onDone={() => router.push('/settings')}
       />
     )
   }
@@ -38,7 +38,7 @@ export function SetupForm({
     return (
       <p>
         Your account is set up.{' '}
-        <Link href='/dashboard'>Go to the dashboard</Link>
+        <Link href='/settings'>Go to site settings</Link>
       </p>
     )
   }

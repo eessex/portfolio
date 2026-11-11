@@ -10,7 +10,8 @@ export const authedPathPatterns = [
   ),
   new RegExp(`^/${ABOUT_PATH}/edit$`),
   /^\/dashboard(?:\/.*)?$/,
-  /^\/account$/
+  /^\/account$/,
+  /^\/settings$/
 ]
 
 export const unauthedPathPatterns = [

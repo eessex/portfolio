@@ -24,7 +24,7 @@ export function AcceptInviteForm() {
     return (
       <RecoveryCodesList
         codes={recoveryCodes}
-        onDone={() => router.push('/dashboard')}
+        onDone={() => router.push('/settings')}
       />
     )
   }

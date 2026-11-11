@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { SETTINGS_URL } from '@/lib/auth/paths'
 import { completeSetup } from '@/lib/users/actions'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
@@ -21,7 +22,7 @@ export function SetupForm({
   const router = useRouter()
 
   useEffect(() => {
-    if (isCreatedOnLoad) router.replace('/settings')
+    if (isCreatedOnLoad) router.replace(SETTINGS_URL)
   }, [isCreatedOnLoad, router])
 
   // The account exists and is signed in by now
@@ -29,7 +30,7 @@ export function SetupForm({
     return (
       <RecoveryCodesList
         codes={recoveryCodes}
-        onDone={() => router.push('/settings')}
+        onDone={() => router.push(SETTINGS_URL)}
       />
     )
   }
@@ -38,7 +39,7 @@ export function SetupForm({
     return (
       <p>
         Your account is set up.{' '}
-        <Link href='/settings'>Go to site settings</Link>
+        <Link href={SETTINGS_URL}>Go to site settings</Link>
       </p>
     )
   }

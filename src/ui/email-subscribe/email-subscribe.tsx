@@ -1,8 +1,14 @@
 'use client'
 
-import { useId } from 'react'
+import { useEffect, useId, useRef } from 'react'
 
-import { createEmailSubscription } from '@/lib/email-subscriptions/actions'
+import {
+  ELAPSED_FIELD,
+  HONEYPOT_FIELD,
+  MIN_ELAPSED_MS
+} from '@/lib/email-subscriptions/form-fields'
+import { SUBSCRIBE_API_PATH } from '@/lib/email-subscriptions/paths'
+import type { FormResponse } from '@/lib/types'
 import styles from '@/ui/email-subscribe/email-subscribe.module.scss'
 import {
   markSubscribed,
@@ -26,6 +32,32 @@ export function EmailSubscribe({
   const descriptionId = `${id}-description`
   const emailId = `${id}-email`
   const labelId = `${id}-label`
+  const renderedAt = useRef<number | null>(null)
+  useEffect(() => {
+    renderedAt.current = Date.now()
+  }, [])
+
+  // a route, not a server action, so BotID can guard it
+  async function subscribe(
+    formData: FormData
+  ): Promise<FormResponse<never>> {
+    // a fast human (e.g. autofill) would otherwise be dropped as a bot
+    const startedAt = renderedAt.current ?? Date.now()
+    const wait = MIN_ELAPSED_MS - (Date.now() - startedAt)
+    if (wait > 0) {
+      await new Promise((resolve) => setTimeout(resolve, wait))
+    }
+    formData.set(ELAPSED_FIELD, String(Date.now() - startedAt))
+    try {
+      const res = await fetch(SUBSCRIBE_API_PATH, {
+        method: 'POST',
+        body: formData
+      })
+      return (await res.json()) as FormResponse<never>
+    } catch {
+      return { ok: false, message: 'Failed to subscribe, try again.' }
+    }
+  }
 
   function onSuccess() {
     addSuccessMessage('Thank you for subscribing!')
@@ -41,7 +73,7 @@ export function EmailSubscribe({
         <Form
           className={styles['email-subscribe']}
           aria-describedby={descriptionId}
-          action={createEmailSubscription}
+          action={subscribe}
           isUnsavedChangesConfirmed={false}
           onSuccess={onSuccess}
           submitButtonText='Subscribe'
@@ -56,7 +88,7 @@ export function EmailSubscribe({
           {/* bot field with nonsense name - browser autofill ignores */}
           <input
             type='text'
-            name='contact_preference'
+            name={HONEYPOT_FIELD}
             className='visually-hidden'
             tabIndex={-1}
             autoComplete='off'

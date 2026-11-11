@@ -15,6 +15,7 @@ import {
 import type { PendingInvite } from '@/lib/users/tokens'
 import type { UserSummary } from '@/lib/users/types'
 import dashboardStyles from '@/ui/dashboard/dashboard.module.scss'
+import tableStyles from '@/ui/data-table/data-table.module.scss'
 import { Dialog } from '@/ui/dialog/dialog'
 import { Form } from '@/ui/form/form'
 import { formattedDateTime } from '@/ui/format/dates'
@@ -71,7 +72,7 @@ function UsersTable({
   currentUserId: string
 }) {
   return (
-    <table className={styles['users-table']}>
+    <table className={tableStyles['data-table']}>
       <thead>
         <tr>
           <th scope='col'>Name</th>
@@ -92,11 +93,13 @@ function UsersTable({
             </th>
             <td>{user.email}</td>
             <td>
-              <span className={styles['cell-label']}>Added </span>
+              <span className={tableStyles['cell-label']}>
+                Added{' '}
+              </span>
               {formattedTimestamp(user.createdAt, 'md')}
             </td>
             <td>
-              <span className={styles['cell-label']}>
+              <span className={tableStyles['cell-label']}>
                 Last login{' '}
               </span>
               {user.lastLoginAt

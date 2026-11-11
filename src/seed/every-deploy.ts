@@ -8,6 +8,8 @@ import {
   hashSetupCode,
   SETUP_CODE_TTL_HOURS
 } from '@/lib/auth/setup-code'
+import { exportScopes } from '@/lib/email-subscriptions/schemas'
+import { spamReasons } from '@/lib/email-subscriptions/spam-reasons'
 import {
   embedCodeContentTypes,
   embedCodeHosts,
@@ -60,7 +62,9 @@ export const checkedColumns: [
   ['publishers', 'type', publisherTypes],
   ['releases', 'type', releaseTypes],
   ['published_editions', 'format', publishedEditionTypes],
-  ['user_tokens', 'purpose', userTokenPurposes]
+  ['user_tokens', 'purpose', userTokenPurposes],
+  ['email_subscriptions', 'spam_reason', spamReasons],
+  ['email_subscription_exports', 'scope', exportScopes]
 ]
 
 /**
@@ -467,7 +471,7 @@ async function ensureSetupCode(
  * SQL to it). The runner records it and refuses a checkout with a
  * lower one, so an older build can't re-apply stale definitions.
  */
-export const EVERY_DEPLOY_REVISION = 6
+export const EVERY_DEPLOY_REVISION = 8
 
 // In order: triggers call save_old_slug()
 export const everyDeploySteps: {

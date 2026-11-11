@@ -1,0 +1,65 @@
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: grids.space-rem(4);
+  margin-bottom: grids.space-rem(4);
+}
+
+.spam-count {
+  font-weight: normal;
+  opacity: 0.7;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: grids.space-rem(2);
+}
+
+.export {
+  display: grid;
+  justify-items: end;
+  row-gap: grids.space-rem(2);
+}
+
+.export-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: grids.space-rem(2);
+}
+
+.export-error {
+  display: flex;
+  align-items: center;
+  gap: grids.space-rem(2);
+  color: var(--error-text-color);
+}
+
+.subscribers-table {
+  tbody th {
+    font-weight: normal;
+  }
+
+  td:last-child {
+    text-align: right;
+
+    @include breakpoints.mobile {
+      text-align: left;
+    }
+  }
+}
+
+.email {
+  overflow-wrap: anywhere;
+  margin-right: grids.space-rem(2);
+}
+
+.recent-exports {
+  margin-top: grids.space-rem(6);
+}

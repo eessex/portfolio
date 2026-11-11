@@ -1,0 +1,47 @@
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
+
+// Dashboard tables whose rows stack into cards on mobile
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: grids.space-rem(2);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--transparency-light);
+  }
+
+  @include breakpoints.mobile {
+    // cells wrap under the first instead of overflowing
+    tr {
+      display: grid;
+      border-bottom: 1px solid var(--transparency-light);
+      padding-block: grids.space-rem(2);
+    }
+
+    // replaced by each cell's own label, since grid rows lose their
+    // header association
+    thead {
+      display: none;
+    }
+
+    th,
+    td {
+      border: none;
+      padding-block: grids.space-rem(1);
+    }
+  }
+}
+
+/** A cell's column name, shown only once rows stack on mobile */
+.cell-label {
+  display: none;
+
+  @include breakpoints.mobile {
+    display: inline;
+    font-weight: bold;
+  }
+}

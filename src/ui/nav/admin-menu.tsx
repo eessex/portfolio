@@ -3,6 +3,7 @@ import { connection } from 'next/server'
 
 import { currentSession } from '@/lib/auth/guard'
 import { ACCOUNT_URL, SETTINGS_URL } from '@/lib/auth/paths'
+import { SUBSCRIBERS_PATH } from '@/lib/email-subscriptions/paths'
 import { dashboardItemTypes } from '@/lib/schemas'
 import { camelToSentence, snakeToCamel } from '@/lib/strings'
 import { LogoutButton } from '@/ui/buttons/logout-button'
@@ -90,6 +91,9 @@ export async function AdminMenu({
           </li>
           <li>
             <NextLink href='/dashboard/users'>Users</NextLink>
+          </li>
+          <li>
+            <NextLink href={SUBSCRIBERS_PATH}>Subscribers</NextLink>
           </li>
         </AdminMenuGroup>
 

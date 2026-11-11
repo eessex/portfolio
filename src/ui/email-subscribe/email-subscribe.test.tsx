@@ -1,17 +1,19 @@
 import {
+  act,
   fireEvent,
   render,
   screen,
   waitFor
 } from '@testing-library/react'
+import fetchMock from 'jest-fetch-mock'
 import Cookies from 'js-cookie'
 
-import { createEmailSubscription } from '@/lib/email-subscriptions/actions'
+import {
+  ELAPSED_FIELD,
+  MIN_ELAPSED_MS
+} from '@/lib/email-subscriptions/form-fields'
 import { EmailSubscribe } from '@/ui/email-subscribe/email-subscribe'
 
-jest.mock('@/lib/email-subscriptions/actions', () => ({
-  createEmailSubscription: jest.fn()
-}))
 jest.mock('@/ui/toast/toast-context', () => ({
   useToast: () => ({
     addErrorMessage: jest.fn(),
@@ -23,8 +25,11 @@ jest.mock('next/navigation', () => ({
 }))
 
 describe('EmailSubscribe', () => {
+  beforeEach(() => fetchMock.resetMocks())
+
   afterEach(() => {
     Cookies.remove('is_subscribed')
+    jest.useRealTimers()
   })
 
   it('names a group around the form with a visible label', () => {
@@ -74,10 +79,13 @@ describe('EmailSubscribe', () => {
   })
 
   it('hides every copy once one subscribes', async () => {
-    jest.mocked(createEmailSubscription).mockResolvedValue({
-      ok: true,
-      message: 'Successfully subscribed!'
-    })
+    jest.useFakeTimers()
+    fetchMock.mockResponseOnce(
+      JSON.stringify({
+        ok: true,
+        message: 'Successfully subscribed!'
+      })
+    )
     render(
       <>
         <EmailSubscribe label='Mailing list' />
@@ -88,11 +96,35 @@ describe('EmailSubscribe', () => {
     const [input] = screen.getAllByLabelText('Email address')
     fireEvent.change(input!, { target: { value: 'a@example.com' } })
     fireEvent.submit(input!.closest('form')!)
+    await act(() => jest.advanceTimersByTimeAsync(MIN_ELAPSED_MS))
 
     await waitFor(() =>
       expect(
         screen.queryAllByLabelText('Email address')
       ).toHaveLength(0)
+    )
+  })
+
+  it('waits out the bot timing check, then posts how long the form was open', async () => {
+    jest.useFakeTimers()
+    fetchMock.mockResponseOnce(JSON.stringify({ ok: true }))
+    render(<EmailSubscribe label='Mailing list' />)
+
+    const input = screen.getByLabelText('Email address')
+    fireEvent.change(input, { target: { value: 'a@example.com' } })
+    fireEvent.submit(input.closest('form')!)
+
+    await act(() => jest.advanceTimersByTimeAsync(MIN_ELAPSED_MS - 1))
+    expect(fetchMock).not.toHaveBeenCalled()
+    await act(() => jest.advanceTimersByTimeAsync(1))
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled())
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe('/api/subscribe')
+    const body = init?.body as FormData
+    expect(body.get('email')).toBe('a@example.com')
+    expect(Number(body.get(ELAPSED_FIELD))).toBeGreaterThanOrEqual(
+      MIN_ELAPSED_MS
     )
   })
 })

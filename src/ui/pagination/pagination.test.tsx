@@ -31,4 +31,23 @@ describe('Pagination', () => {
       'true'
     )
   })
+
+  it('keeps the other page and adds the fragment', () => {
+    render(
+      <Pagination
+        page={2}
+        pageCount={3}
+        basePath='/x'
+        param='spamPage'
+        otherPages={{ page: 4 }}
+        fragment='spam'
+      />
+    )
+    expect(
+      screen.getByRole('link', { name: 'Previous' })
+    ).toHaveAttribute('href', '/x?page=4#spam')
+    expect(
+      screen.getByRole('link', { name: 'Next' })
+    ).toHaveAttribute('href', '/x?page=4&spamPage=3#spam')
+  })
 })

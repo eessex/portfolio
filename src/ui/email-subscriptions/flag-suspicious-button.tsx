@@ -1,5 +1,6 @@
 'use client'
 
+import { FlagIcon } from '@heroicons/react/24/outline'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 
@@ -14,13 +15,22 @@ export function FlagSuspiciousButton() {
 
   function flag() {
     startTransition(async () => {
-      const res = await flagSuspiciousSubscriptions()
+      let res
+      try {
+        res = await flagSuspiciousSubscriptions()
+      } catch {
+        addErrorMessage('Failed to flag subscribers.')
+        // earlier batches may have been flagged before it failed
+        router.refresh()
+        return
+      }
       if (res?.ok) {
         addSuccessMessage(res.message ?? 'Done.')
-        router.refresh()
       } else {
         addErrorMessage(res?.message ?? 'Failed to flag subscribers.')
       }
+      // a failed batch can follow ones that already saved
+      router.refresh()
     })
   }
 
@@ -31,7 +41,7 @@ export function FlagSuspiciousButton() {
       onClick={flag}
       disabled={isPending}
     >
-      Flag suspicious
+      <FlagIcon /> Flag suspicious
     </button>
   )
 }

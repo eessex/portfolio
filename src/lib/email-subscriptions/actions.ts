@@ -7,7 +7,6 @@ import { sql } from '@/lib/db'
 import {
   exportFilename,
   selectAndStampExport,
-  selectExportBatch,
   subscribersToCsv
 } from '@/lib/email-subscriptions/export'
 import { exportScopeSchema } from '@/lib/email-subscriptions/schemas'
@@ -29,7 +28,7 @@ export interface SubscribersExport {
 /**
  * Builds a CSV of non-spam subscribers, marking them exported and
  * recording the export in the same statement. A lost response or
- * download is recovered from the recent exports list.
+ * download is recovered with Export all.
  */
 export async function exportEmailSubscriptions(
   scope: ExportScope
@@ -42,13 +41,13 @@ export async function exportEmailSubscriptions(
     return formatValidationResponse(parsed.error, 'Invalid export.')
   }
 
-  const batchId = crypto.randomUUID()
+  const exportId = crypto.randomUUID()
   try {
-    const rows = await selectAndStampExport(scope, batchId)
+    const rows = await selectAndStampExport(scope, exportId)
     // no emails in logs
     console.info('exportEmailSubscriptions', {
       scope,
-      batchId,
+      exportId,
       count: rows.length,
       userId: await currentUserId()
     })
@@ -63,40 +62,6 @@ export async function exportEmailSubscriptions(
   } catch (err) {
     console.error('exportEmailSubscriptions failed', err)
     return formatErrorResponse('Failed to export subscribers', err)
-  }
-}
-
-/** A past 'new' export's CSV again, stamping nothing */
-export async function downloadSubscribersExport(
-  batchId: string
-): Promise<FormResponse<SubscribersExport>> {
-  const denied = await requireAuth()
-  if (denied) return denied
-
-  const parsed = uuid.safeParse(batchId)
-  if (!parsed.success) {
-    return formatValidationResponse(parsed.error, 'Invalid export.')
-  }
-
-  try {
-    const batch = await selectExportBatch(batchId)
-    if (!batch) return { ok: false, message: 'Export not found.' }
-    console.info('downloadSubscribersExport', {
-      batchId,
-      count: batch.rows.length,
-      userId: await currentUserId()
-    })
-    return {
-      ok: true,
-      res: {
-        csv: subscribersToCsv(batch.rows),
-        filename: exportFilename('new', batch.createdAt),
-        count: batch.rows.length
-      }
-    }
-  } catch (err) {
-    console.error('downloadSubscribersExport failed', err)
-    return formatErrorResponse('Failed to download the export', err)
   }
 }
 

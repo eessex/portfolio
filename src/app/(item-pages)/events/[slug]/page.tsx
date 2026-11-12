@@ -44,8 +44,7 @@ async function EventDetail({
   event: EventClient
   isAuthed: boolean
 }) {
-  const upcomingEvents =
-    await fetchCachedUpcomingEvents(isAuthed)
+  const upcomingEvents = await fetchCachedUpcomingEvents(isAuthed)
 
   return (
     <ItemLayout item={event}>

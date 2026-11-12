@@ -1,7 +1,6 @@
 import { auth } from '@/auth'
 import { sql } from '@/lib/db'
 import {
-  downloadSubscribersExport,
   exportEmailSubscriptions,
   flagSuspiciousSubscriptions,
   setEmailSubscriptionSpam
@@ -58,50 +57,6 @@ describe('exportEmailSubscriptions', () => {
     expect(res).toEqual({
       ok: false,
       message: 'Failed to export subscribers: down.'
-    })
-  })
-})
-
-describe('downloadSubscribersExport', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-    jest.spyOn(console, 'info').mockImplementation(() => {})
-  })
-
-  it('refuses without a session', async () => {
-    mockAuth.mockResolvedValueOnce(null)
-    const res = await downloadSubscribersExport(ID)
-    expect(res?.ok).toBe(false)
-    expect(mockSql).not.toHaveBeenCalled()
-  })
-
-  it('refuses an id that isn’t a uuid', async () => {
-    const res = await downloadSubscribersExport('batch')
-    expect(res?.ok).toBe(false)
-    expect(mockSql).not.toHaveBeenCalled()
-  })
-
-  it('reports an unknown export', async () => {
-    mockSql.mockResolvedValueOnce([])
-    const res = await downloadSubscribersExport(ID)
-    expect(res).toEqual({ ok: false, message: 'Export not found.' })
-    expect(mockSql).toHaveBeenCalledTimes(1)
-  })
-
-  it('returns the batch’s CSV, named for its date', async () => {
-    mockSql
-      .mockResolvedValueOnce([{ created_at: '2026-11-01T12:00:00Z' }])
-      .mockResolvedValueOnce([
-        { email: 'a@example.com', created_at: '2026-01-01T00:00:00Z' }
-      ])
-    const res = await downloadSubscribersExport(ID)
-    expect(res).toMatchObject({
-      ok: true,
-      res: {
-        count: 1,
-        filename: 'subscribers-new-2026-11-01.csv',
-        csv: expect.stringContaining('a@example.com')
-      }
     })
   })
 })

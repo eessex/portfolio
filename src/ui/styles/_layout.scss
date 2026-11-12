@@ -8,10 +8,13 @@
   --body-width: 680px;
   --header-height: var(--menubar-height);
   --icon-optical-offset: -0.125em;
-  --items-list-padding: #{grids.space-rem(3, 4)};
+  // the page's inline gutter, which headings and full-bleed rows align to
+  --items-list-padding-inline: #{grids.space-rem(4)};
+  --items-list-padding: #{grids.space-rem(3)}
+    var(--items-list-padding-inline);
   --input-height: #{grids.space-em(11)};
 
   @include breakpoints.mobile {
-    --items-list-padding: #{grids.space-rem(3)};
+    --items-list-padding-inline: #{grids.space-rem(3)};
   }
 }

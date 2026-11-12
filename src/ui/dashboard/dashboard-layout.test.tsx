@@ -31,4 +31,21 @@ describe('DashboardLayout', () => {
 
     expect(screen.queryByRole('link')).not.toBeInTheDocument()
   })
+
+  it('renders actions in the header', () => {
+    render(
+      <DashboardLayout
+        title='Dashboard'
+        actions={<button type='button'>Export</button>}
+      >
+        <p>List</p>
+      </DashboardLayout>
+    )
+
+    expect(
+      screen
+        .getByRole('banner')
+        .contains(screen.getByRole('button', { name: 'Export' }))
+    ).toBe(true)
+  })
 })

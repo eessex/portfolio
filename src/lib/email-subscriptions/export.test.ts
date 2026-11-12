@@ -3,7 +3,6 @@ import {
   csvCell,
   exportFilename,
   selectAndStampExport,
-  selectExportBatch,
   subscribersToCsv
 } from '@/lib/email-subscriptions/export'
 
@@ -65,7 +64,7 @@ describe('exportFilename', () => {
 })
 
 describe('selectAndStampExport', () => {
-  const batchId = '00000000-0000-4000-8000-000000000001'
+  const exportId = '00000000-0000-4000-8000-000000000001'
 
   beforeEach(() => jest.clearAllMocks())
 
@@ -73,65 +72,29 @@ describe('selectAndStampExport', () => {
     'scope %p stamps, records and returns in one statement',
     async (scope) => {
       mockSql.mockResolvedValueOnce([])
-      await selectAndStampExport(scope, batchId)
+      await selectAndStampExport(scope, exportId)
       expect(mockSql).toHaveBeenCalledTimes(1)
       const text = queryText()
       expect(text).toContain('SET exported_at = current_timestamp')
       expect(text).toContain('NOT is_spam')
       expect(text).toContain('INSERT INTO email_subscription_exports')
       expect(text).toContain('HAVING count(*) > 0')
-      expect(mockSql.mock.calls[0]).toContain(batchId)
+      expect(mockSql.mock.calls[0]).toContain(exportId)
       expect(mockSql.mock.calls[0]).toContain(scope)
     }
   )
 
-  it('restamps every non-spam row for all, leaving batch tags', async () => {
+  it('limits new to unexported rows, all to every one', async () => {
     mockSql.mockResolvedValueOnce([])
-    await selectAndStampExport('all', batchId)
-    const text = queryText()
-    expect(text).not.toContain('export_batch_id')
-    expect(text).not.toContain('exported_at IS NULL')
-  })
-
-  it('tags only unexported rows with the batch for new', async () => {
-    mockSql.mockResolvedValueOnce([])
-    await selectAndStampExport('new', batchId)
-    const text = queryText()
-    expect(text).toContain('export_batch_id = ?')
-    expect(text).toContain(
-      'WHERE exported_at IS NULL AND NOT is_spam'
+    await selectAndStampExport('new', exportId)
+    expect(queryText()).toContain(
+      "AND (? = 'all' OR exported_at IS NULL)"
     )
   })
-})
 
-describe('selectExportBatch', () => {
-  const batchId = '00000000-0000-4000-8000-000000000001'
-
-  beforeEach(() => jest.clearAllMocks())
-
-  it('returns null for an unknown or all export', async () => {
+  it('no longer tags rows with a batch', async () => {
     mockSql.mockResolvedValueOnce([])
-    expect(await selectExportBatch(batchId)).toBeNull()
-    expect(queryText()).toContain("scope = 'new'")
-    expect(mockSql).toHaveBeenCalledTimes(1)
-  })
-
-  it('reads the batch’s non-spam rows without stamping', async () => {
-    const row = {
-      email: 'a@example.com',
-      created_at: '2026-01-01T00:00:00Z'
-    }
-    mockSql
-      .mockResolvedValueOnce([{ created_at: '2026-11-01T12:00:00Z' }])
-      .mockResolvedValueOnce([row])
-    expect(await selectExportBatch(batchId)).toEqual({
-      createdAt: new Date('2026-11-01T12:00:00Z'),
-      rows: [row]
-    })
-    const text = queryText(1)
-    expect(text).toContain(
-      'WHERE export_batch_id = ? AND NOT is_spam'
-    )
-    expect(text).not.toContain('UPDATE')
+    await selectAndStampExport('new', exportId)
+    expect(queryText()).not.toContain('export_batch_id')
   })
 })

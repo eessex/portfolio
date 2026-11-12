@@ -8,11 +8,14 @@ interface DashboardLayoutProps {
   title: string
   /** Offers "New {type}" in the header */
   itemType?: EmbeddedItemType
+  /** The page's own header buttons */
+  actions?: React.ReactNode
 }
 
 export function DashboardHeader({
   title,
-  itemType
+  itemType,
+  actions
 }: Omit<DashboardLayoutProps, 'children'>) {
   return (
     <header className={styles['dashboard-header']}>
@@ -24,6 +27,9 @@ export function DashboardHeader({
           href={newUrl(dashboardUrl(itemType))}
         />
       )}
+      {actions && (
+        <div className={styles['dashboard-actions']}>{actions}</div>
+      )}
     </header>
   )
 }
@@ -31,11 +37,16 @@ export function DashboardHeader({
 export function DashboardLayout({
   children,
   title,
-  itemType
+  itemType,
+  actions
 }: DashboardLayoutProps) {
   return (
     <div className={styles['dashboard-layout']}>
-      <DashboardHeader title={title} itemType={itemType} />
+      <DashboardHeader
+        title={title}
+        itemType={itemType}
+        actions={actions}
+      />
       {children}
     </div>
   )

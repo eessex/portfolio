@@ -42,67 +42,27 @@ export function exportFilename(scope: ExportScope, now = new Date()) {
 /**
  * Stamps, records and returns an export in one statement, so a
  * subscriber arriving mid-export is either in this file or the next,
- * and the export is listed whenever its rows were stamped, even if
- * the response is lost. Spam rows are never returned. A 'new'
- * export also tags its rows with `batchId`, so it can be downloaded
- * again; 'all' leaves those tags alone.
+ * and the export is recorded whenever its rows were stamped, even if
+ * the response is lost. Spam rows are never returned.
  */
 export async function selectAndStampExport(
   scope: ExportScope,
-  batchId: string
+  exportId: string
 ): Promise<ExportRow[]> {
-  if (scope === 'all') {
-    return (await sql`
-      WITH stamped AS (
-        UPDATE email_subscriptions
-        SET exported_at = current_timestamp,
-          updated_at = current_timestamp
-        WHERE NOT is_spam
-        RETURNING email, created_at
-      ), recorded AS (
-        INSERT INTO email_subscription_exports
-          (id, scope, subscriber_count)
-        SELECT ${batchId}, ${scope}, count(*) FROM stamped
-        HAVING count(*) > 0
-      )
-      SELECT email, created_at FROM stamped
-    `) as ExportRow[]
-  }
-
   return (await sql`
     WITH stamped AS (
       UPDATE email_subscriptions
       SET exported_at = current_timestamp,
-        export_batch_id = ${batchId},
         updated_at = current_timestamp
-      WHERE exported_at IS NULL AND NOT is_spam
+      WHERE NOT is_spam
+        AND (${scope} = 'all' OR exported_at IS NULL)
       RETURNING email, created_at
     ), recorded AS (
       INSERT INTO email_subscription_exports
         (id, scope, subscriber_count)
-      SELECT ${batchId}, ${scope}, count(*) FROM stamped
+      SELECT ${exportId}, ${scope}, count(*) FROM stamped
       HAVING count(*) > 0
     )
     SELECT email, created_at FROM stamped
   `) as ExportRow[]
-}
-
-/**
- * A past 'new' export's rows, without stamping anything; `null` when
- * there's no such export. Rows marked spam since are left out.
- */
-export async function selectExportBatch(
-  batchId: string
-): Promise<{ createdAt: Date; rows: ExportRow[] } | null> {
-  const records = await sql`
-    SELECT created_at FROM email_subscription_exports
-    WHERE id = ${batchId} AND scope = 'new'
-  `
-  const record = records[0]
-  if (!record) return null
-  const rows = (await sql`
-    SELECT email, created_at FROM email_subscriptions
-    WHERE export_batch_id = ${batchId} AND NOT is_spam
-  `) as ExportRow[]
-  return { createdAt: new Date(record.created_at), rows }
 }

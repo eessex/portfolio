@@ -114,7 +114,6 @@ export async function editSiteSettings(
       await (id
         ? updateSiteSettings(row, id)
         : createSiteSettings(row))
-      await syncDefaultProjectTitle(settings.title)
     }
   })
 }
@@ -144,21 +143,6 @@ async function ensureSiteIcons(
   if (isCurrent) return stored.icon_version
   await generateSiteIcons(iconImageId)
   return ICON_VERSION
-}
-
-/**
- * The default project (`/about`) is titled with the site title, which
- * its form doesn't offer; `invalidate` already covers its tags.
- */
-async function syncDefaultProjectTitle(title?: string) {
-  if (!title) return
-  await sql`
-    UPDATE projects
-    SET title = ${title},
-        updated_at = current_timestamp
-    WHERE is_default_project
-      AND title IS DISTINCT FROM ${title}
-  `
 }
 
 type SiteSettingsRow = CreateSiteSettings & { iconVersion?: number }

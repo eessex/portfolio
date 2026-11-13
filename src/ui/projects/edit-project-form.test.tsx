@@ -394,8 +394,10 @@ describe('EditProjectForm', () => {
       isDefaultProject: true
     }
 
-    // no title: it's always the site title, set on save
     function fillAndSubmit() {
+      fireEvent.change(screen.getByLabelText(titleText), {
+        target: { value: 'About me' }
+      })
       fireEvent.change(screen.getByLabelText(descriptionRegex), {
         target: { value: 'A test description.' }
       })
@@ -447,13 +449,34 @@ describe('EditProjectForm', () => {
       )
     })
 
-    it('has no title field', () => {
+    it('has its own title field', () => {
       renderComponent({
         project: defaultProject,
         isDefaultProject: true
       })
 
-      expect(screen.queryByLabelText(titleText)).toBeNull()
+      expect(screen.getByLabelText(titleText)).toHaveValue(
+        defaultProject.title
+      )
+    })
+
+    it('goes on to nextHref after saving, during setup', async () => {
+      mockEditDefaultProject.mockResolvedValue({
+        ok: true,
+        res: defaultProject
+      })
+      renderComponent({
+        project: defaultProject,
+        isDefaultProject: true,
+        nextHref: '/settings'
+      })
+
+      fillAndSubmit()
+
+      await waitFor(() =>
+        expect(pushMock).toHaveBeenCalledWith('/settings')
+      )
+      expect(pushMock).not.toHaveBeenCalledWith('/about')
     })
 
     it('hides the Delete button', () => {

@@ -54,16 +54,22 @@ async function hiddenItems(navPaths: NavPath[]): Promise<NavItem[]> {
 }
 
 export async function AdminMenu({
-  hiddenNavPaths
+  hiddenNavPaths,
+  isOnboarding = false
 }: {
   hiddenNavPaths: NavPath[]
+  /**
+   * Site settings aren't saved yet: only settings, users and the
+   * account stay, so the menu doesn't lead out of first-run setup.
+   */
+  isOnboarding?: boolean
 }) {
   // opt out of prerender
   await connection()
   // statuses are cached and session-free, so not a waterfall
   const [session, hidden] = await Promise.all([
     currentSession(),
-    hiddenItems(hiddenNavPaths)
+    isOnboarding ? [] : hiddenItems(hiddenNavPaths)
   ])
   // re-rendered on login/logout, so it keeps useIsAdmin current
   if (!session?.user) return <IsAdminSync isAdmin={false} />
@@ -92,20 +98,24 @@ export async function AdminMenu({
           <li>
             <NextLink href='/dashboard/users'>Users</NextLink>
           </li>
-          <li>
-            <NextLink href={SUBSCRIBERS_PATH}>Subscribers</NextLink>
-          </li>
+          {!isOnboarding && (
+            <li>
+              <NextLink href={SUBSCRIBERS_PATH}>Subscribers</NextLink>
+            </li>
+          )}
         </AdminMenuGroup>
 
-        <AdminMenuGroup id='library' label='Library'>
-          {dashboardItemTypes.map((itemType) => (
-            <li key={itemType}>
-              <NextLink href={dashboardUrl(itemType)}>
-                {camelToSentence(snakeToCamel(itemType))}
-              </NextLink>
-            </li>
-          ))}
-        </AdminMenuGroup>
+        {!isOnboarding && (
+          <AdminMenuGroup id='library' label='Library'>
+            {dashboardItemTypes.map((itemType) => (
+              <li key={itemType}>
+                <NextLink href={dashboardUrl(itemType)}>
+                  {camelToSentence(snakeToCamel(itemType))}
+                </NextLink>
+              </li>
+            ))}
+          </AdminMenuGroup>
+        )}
 
         <ul>
           <li>

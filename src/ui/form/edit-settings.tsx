@@ -12,9 +12,11 @@ import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
 import { Checkbox } from '@/ui/form/checkbox'
+import styles from '@/ui/form/edit-settings.module.scss'
 import { FieldErrorList } from '@/ui/form/field-error-list'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
+import { InputLabel } from '@/ui/form/input-label'
 import { EditImage } from '@/ui/images/edit-image-form'
 import {
   formatImageResult,
@@ -32,10 +34,12 @@ import { editUrl } from '@/ui/routes'
 
 function SettingsFormFields({
   settings,
-  navStatuses
+  navStatuses,
+  defaultTitle
 }: {
   settings?: SiteSettingsClient
   navStatuses?: NavItemStatuses
+  defaultTitle?: string
 }) {
   const errors = useFormErrors()
   const [isLogoSet, setIsLogoSet] = useState(!!settings?.logoImage)
@@ -45,7 +49,7 @@ function SettingsFormFields({
       <Input
         label='Site title'
         description='Shown in menubar and as meta title for search engines.'
-        defaultValue={settings?.title}
+        defaultValue={settings?.title ?? defaultTitle}
         errors={errors?.title}
         attributes={{
           name: 'title',
@@ -161,12 +165,19 @@ function SettingsFormFields({
         <FieldErrorList errors={errors?.socialLinks} />
       </div>
 
-      <Checkbox
-        attributes={{ name: 'isEmailSubscribeEnabled' }}
-        // on by default, matching the column default
-        isDefaultChecked={settings?.isEmailSubscribeEnabled ?? true}
-        label='Show email subscribe form'
-      />
+      <fieldset className={styles['email-subscriptions']}>
+        <InputLabel
+          as='legend'
+          label='Email subscriptions'
+          isOptionalLabelHidden
+        />
+        <Checkbox
+          attributes={{ name: 'isEmailSubscribeEnabled' }}
+          // on by default, matching the column default
+          isDefaultChecked={settings?.isEmailSubscribeEnabled ?? true}
+          label='Show email subscribe form in the page footer'
+        />
+      </fieldset>
 
       <NavItemsFields
         navItems={settings?.navItems}
@@ -180,13 +191,16 @@ function SettingsFormFields({
 export function EditSettings({
   settings,
   navStatuses,
-  isAboutCreated
+  isAboutCreated,
+  defaultTitle
 }: {
   settings?: SiteSettingsClient
   /** the hint beside each menu item; none on first-run setup */
   navStatuses?: NavItemStatuses
   /** where a save goes: the homepage, else the About form */
   isAboutCreated?: boolean
+  /** the site title before settings exist: the About page's */
+  defaultTitle?: string
 }) {
   const router = useRouter()
 
@@ -205,6 +219,7 @@ export function EditSettings({
       <SettingsFormFields
         settings={settings}
         navStatuses={navStatuses}
+        defaultTitle={defaultTitle}
       />
     </Form>
   )

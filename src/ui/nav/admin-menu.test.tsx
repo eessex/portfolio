@@ -51,6 +51,31 @@ describe('AdminMenu', () => {
     })
   })
 
+  it('keeps only settings, users and account while onboarding', async () => {
+    mockStatus.mockResolvedValue('empty')
+
+    render(
+      await AdminMenu({
+        hiddenNavPaths: ['projects'],
+        isOnboarding: true
+      })
+    )
+
+    expect(hrefOf('Site settings')).toBe('/settings')
+    expect(hrefOf('Users')).toBe('/dashboard/users')
+    expect(hrefOf('Account')).toBe('/account')
+    expect(
+      screen.queryByRole('link', { name: 'Subscribers' })
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('group', { name: 'Library' })
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('group', { name: 'Hidden pages' })
+    ).not.toBeInTheDocument()
+    expect(mockStatus).not.toHaveBeenCalled()
+  })
+
   it('renders nothing visible for a visitor and syncs isAdmin false', async () => {
     mockAuth.mockResolvedValueOnce(null)
 

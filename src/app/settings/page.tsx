@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
 import styles from '@/app/settings/settings.module.scss'
+import { fetchCachedDefaultProject } from '@/lib/projects/cached'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { navPaths } from '@/lib/site-settings/nav-paths'
 import { EditSettings } from '@/ui/form/edit-settings'
@@ -22,6 +23,11 @@ export default async function SettingsPage() {
   const isAboutCreated =
     navStatuses.about === 'published' ||
     navStatuses.about === 'drafts'
+  // first run: the site title starts from the About page's, which
+  // setup has just created
+  const defaultTitle = settings
+    ? undefined
+    : (await fetchCachedDefaultProject(true))?.title
 
   return (
     <FormPageLayout title={title}>
@@ -38,9 +44,14 @@ export default async function SettingsPage() {
           ) : (
             <>
               <h2 className={styles.welcome}>
-                Welcome! Let&apos;s set up your site:
+                {isAboutCreated
+                  ? 'Next, set up your site:'
+                  : 'Welcome! Let’s set up your site:'}
               </h2>
-              <EditSettings isAboutCreated={isAboutCreated} />
+              <EditSettings
+                isAboutCreated={isAboutCreated}
+                defaultTitle={defaultTitle}
+              />
             </>
           )}
         </Suspense>

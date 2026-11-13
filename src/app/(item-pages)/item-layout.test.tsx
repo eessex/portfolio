@@ -16,6 +16,7 @@ import {
 } from '@/lib/events/fixtures'
 import { imageFixture } from '@/lib/images/fixtures'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
+import { siteIdentity } from '@/lib/projects/site-identity'
 import { releaseFixtureAlbum } from '@/lib/releases/fixtures'
 import { PagePaths } from '@/lib/schemas'
 import { resolveSlug } from '@/lib/slug/data'
@@ -24,6 +25,9 @@ jest.mock('@/lib/slug/data', () => ({
   resolveSlug: jest.fn()
 }))
 jest.mock('@/lib/auth/guard', () => ({ isAuthed: jest.fn() }))
+jest.mock('@/lib/projects/site-identity', () => ({
+  siteIdentity: jest.fn().mockResolvedValue({ kind: 'music' })
+}))
 // async server component; covered in admin-header.test.tsx
 jest.mock('@/app/(item-pages)/admin-header', () => ({
   EditItemHeader: () => null
@@ -36,6 +40,7 @@ jest.mock('next/navigation', () => ({
 
 const mockResolveSlug = jest.mocked(resolveSlug)
 const mockIsAuthed = jest.mocked(isAuthed)
+const mockSiteIdentity = jest.mocked(siteIdentity)
 
 describe('generateItemMetadata', () => {
   beforeEach(() => {
@@ -254,6 +259,39 @@ describe('ItemLayout header', () => {
       screen.getByRole('link', { name: /band/i })
     ).toHaveAttribute('href', '/projects')
     expect(screen.getByText(/2025/)).toBeInTheDocument()
+  })
+
+  describe('on a label site', () => {
+    beforeEach(() => {
+      mockSiteIdentity.mockResolvedValueOnce({ kind: 'label' })
+    })
+
+    it("links a roster project's category to /artists", async () => {
+      await renderLayout(projectFixtureBand)
+
+      expect(
+        screen.getByRole('link', { name: /band/i })
+      ).toHaveAttribute('href', '/artists')
+    })
+
+    it("links any other project's category to /about", async () => {
+      await renderLayout({
+        ...projectFixtureBand,
+        type: 'eventSeries'
+      })
+
+      expect(
+        screen.getByRole('link', { name: /event series/i })
+      ).toHaveAttribute('href', '/about')
+    })
+
+    it("leaves a release's category link alone", async () => {
+      await renderLayout(releaseFixtureAlbum)
+
+      expect(
+        screen.getByRole('link', { name: /album/i })
+      ).toHaveAttribute('href', '/releases')
+    })
   })
 
   it('renders a given header in place of the category, title and date', async () => {

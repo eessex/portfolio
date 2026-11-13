@@ -763,6 +763,54 @@ describe('Project Actions', () => {
             'Failed to save project: That publisher already belongs to another project.'
         })
       })
+
+      it('refuses another project’s publisher before any inline edit saves', async () => {
+        mockSql.mockResolvedValueOnce([{ '?column?': 1 }]) // ownership
+
+        const res = await editProject(
+          formDataFromObject({
+            ...labelFields,
+            publisherId: publisherFixtureAlpha.id,
+            'publisher.name': 'Renamed'
+          })
+        )
+
+        expect(res).toEqual({
+          ok: false,
+          message:
+            'Failed to save project: That publisher already belongs to another project.'
+        })
+        expect(mockResolvePublisherId).not.toHaveBeenCalled()
+        expect(mockSql).toHaveBeenCalledTimes(1)
+      })
+
+      it('checks ownership against other projects only', async () => {
+        mockSql
+          .mockResolvedValueOnce([]) // ownership, in prepare
+          .mockResolvedValueOnce([
+            { ...projectFixtureAlpha, type: 'recordLabel' }
+          ]) // fetchProjectById
+          .mockResolvedValueOnce([projectFixtureAlpha]) // UPDATE
+        mockResolvePublisherId.mockResolvedValueOnce(
+          publisherFixtureAlpha.id
+        )
+
+        const res = await editProject(
+          formDataFromObject({
+            ...labelFields,
+            publisherId: publisherFixtureAlpha.id
+          }),
+          projectFixtureAlpha.id
+        )
+
+        expect(res?.ok).toBe(true)
+        expect(mockSql.mock.calls[0]).toEqual(
+          expect.arrayContaining([
+            publisherFixtureAlpha.id,
+            projectFixtureAlpha.id
+          ])
+        )
+      })
     })
 
     describe('start date', () => {

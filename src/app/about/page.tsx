@@ -8,6 +8,8 @@ import {
   fetchCachedDefaultProject,
   fetchCachedProjectsFirstPage
 } from '@/lib/projects/cached'
+import { siteIdentity } from '@/lib/projects/site-identity'
+import { aboutExcludedProjectTypes } from '@/lib/projects/site-profile'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { DraftBadge } from '@/ui/badges/draft-badge'
 import { ProjectsCarousel } from '@/ui/projects/projects-carousel'
@@ -89,11 +91,25 @@ function AboutHeader({ isPublished }: { isPublished: boolean }) {
   )
 }
 
-/** The other projects, as a carousel. */
+/**
+ * The other projects, as a carousel; on a label site, only those
+ * that aren't roster artists (they're at `/artists`).
+ */
 async function AboutProjects() {
+  const excludedTypes = aboutExcludedProjectTypes(
+    (await siteIdentity()).kind
+  )
   const {
     res: { allProjects }
-  } = await fetchCachedProjectsFirstPage(false, true)
+  } = await fetchCachedProjectsFirstPage(false, {
+    isDefaultExcluded: true,
+    ...(excludedTypes && { excludedTypes })
+  })
 
-  return <ProjectsCarousel initialProjects={allProjects} />
+  return (
+    <ProjectsCarousel
+      initialProjects={allProjects}
+      excludedTypes={excludedTypes}
+    />
+  )
 }

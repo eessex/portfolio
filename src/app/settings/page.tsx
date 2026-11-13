@@ -3,8 +3,10 @@ import { Suspense } from 'react'
 
 import styles from '@/app/settings/settings.module.scss'
 import { fetchCachedDefaultProject } from '@/lib/projects/cached'
+import { siteIdentity } from '@/lib/projects/site-identity'
+import type { SiteKind } from '@/lib/projects/site-profile'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
-import { navPaths } from '@/lib/site-settings/nav-paths'
+import { siteNavPaths } from '@/lib/site-settings/nav-paths'
 import { EditSettings } from '@/ui/form/edit-settings'
 import { FormPageLayout } from '@/ui/form/form-page-layout'
 import { Loading } from '@/ui/loading'
@@ -15,9 +17,10 @@ const title = 'Site settings'
 export const metadata: Metadata = { title }
 
 export default async function SettingsPage() {
+  const { kind } = await siteIdentity()
   const [settings, navStatuses] = await Promise.all([
     fetchCachedSiteSettings(),
-    fetchNavStatuses()
+    fetchNavStatuses(kind)
   ])
   // a draft counts: it exists, so there's no About form to go to
   const isAboutCreated =
@@ -39,6 +42,7 @@ export default async function SettingsPage() {
             <EditSettings
               settings={settings}
               navStatuses={navStatuses}
+              siteKind={kind}
               isAboutCreated={isAboutCreated}
             />
           ) : (
@@ -49,6 +53,7 @@ export default async function SettingsPage() {
                   : 'Welcome! Let’s set up your site:'}
               </h2>
               <EditSettings
+                siteKind={kind}
                 isAboutCreated={isAboutCreated}
                 defaultTitle={defaultTitle}
               />
@@ -60,9 +65,12 @@ export default async function SettingsPage() {
   )
 }
 
-async function fetchNavStatuses(): Promise<NavItemStatuses> {
-  const statuses = await Promise.all(navPaths.map(fetchNavItemStatus))
+async function fetchNavStatuses(
+  kind: SiteKind
+): Promise<NavItemStatuses> {
+  const paths = siteNavPaths(kind)
+  const statuses = await Promise.all(paths.map(fetchNavItemStatus))
   return Object.fromEntries(
-    navPaths.map((path, i) => [path, statuses[i]])
+    paths.map((path, i) => [path, statuses[i]])
   ) as NavItemStatuses
 }

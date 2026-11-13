@@ -22,6 +22,12 @@ export type PagePath = (typeof pagePaths)[number]
 export const ABOUT_PATH = 'about'
 
 /**
+ * Path of a label site's roster index: its artist projects, which keep
+ * their pages at `/projects/{slug}`. Not a `PagePath` either.
+ */
+export const ARTISTS_PATH = 'artists'
+
+/**
  * Singular form of each `PagePath`, e.g. for deriving a form field name
  * like `releaseId` from the `releases` path.
  */
@@ -113,6 +119,9 @@ export function singularizePath(path: ItemType | ItemTypeSingular) {
   ) {
     return path
   }
+
+  // same singular and plural, e.g. the `eventSeries` project type
+  if (/series$/i.test(path)) return path
 
   return path.endsWith('s') ? path.slice(0, -1) : path
 }

@@ -8,6 +8,9 @@ jest.mock('next/navigation', () => ({ notFound: jest.fn() }))
 jest.mock('@/lib/site-settings/cached', () => ({
   fetchCachedSiteSettings: jest.fn()
 }))
+jest.mock('@/lib/projects/site-identity', () => ({
+  siteIdentity: jest.fn().mockResolvedValue({ kind: 'music' })
+}))
 
 import { render, screen } from '@testing-library/react'
 import { notFound } from 'next/navigation'
@@ -22,6 +25,7 @@ import {
   fetchCachedProjectsFirstPage
 } from '@/lib/projects/cached'
 import { projectFixtureBand } from '@/lib/projects/fixtures'
+import { siteIdentity } from '@/lib/projects/site-identity'
 import type { ProjectClient } from '@/lib/projects/types'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { ProjectsCarousel } from '@/ui/projects/projects-carousel'
@@ -67,6 +71,7 @@ function componentName(el: ReactElement) {
 describe('AboutPage', () => {
   beforeEach(() => {
     jest.resetAllMocks()
+    jest.mocked(siteIdentity).mockResolvedValue({ kind: 'music' })
     jest.mocked(notFound).mockImplementation(() => {
       throw new Error('notFound')
     })
@@ -114,17 +119,16 @@ describe('AboutPage', () => {
     expect(screen.getByText('Unpublished')).toBeInTheDocument()
   })
 
-  it('lists the other projects in a carousel', async () => {
+  async function renderCarousel() {
     mockDefaults({ published: defaultProject })
     const allProjects = [projectFixtureBand]
-    const firstPage = {
+    mockProjectsFirstPage.mockResolvedValue({
       res: { allProjects },
       nextCursor: null,
       totalCount: 0
     } as unknown as Awaited<
       ReturnType<typeof fetchCachedProjectsFirstPage>
-    >
-    mockProjectsFirstPage.mockResolvedValue(firstPage)
+    >)
 
     const el = (await AboutPage()) as ReactElement<{
       children: ReactElement<{ children: ReactElement }>
@@ -133,11 +137,34 @@ describe('AboutPage', () => {
     const carousel = (await (
       projects.type as () => Promise<ReactElement>
     )()) as ReactElement<Record<string, unknown>>
+    return { projects, carousel, allProjects }
+  }
+
+  it('lists the other projects in a carousel', async () => {
+    const { projects, carousel, allProjects } = await renderCarousel()
 
     expect(componentName(projects)).toBe('AboutProjects')
-    expect(mockProjectsFirstPage).toHaveBeenCalledWith(false, true)
+    expect(mockProjectsFirstPage).toHaveBeenCalledWith(false, {
+      isDefaultExcluded: true
+    })
     expect(carousel.type).toBe(ProjectsCarousel)
-    expect(carousel.props).toEqual({ initialProjects: allProjects })
+    expect(carousel.props).toEqual({
+      initialProjects: allProjects,
+      excludedTypes: undefined
+    })
+  })
+
+  it("leaves roster artists out of a label site's carousel", async () => {
+    jest.mocked(siteIdentity).mockResolvedValueOnce({ kind: 'label' })
+    const excludedTypes = ['band', 'solo', 'collaborative']
+
+    const { carousel } = await renderCarousel()
+
+    expect(mockProjectsFirstPage).toHaveBeenCalledWith(false, {
+      isDefaultExcluded: true,
+      excludedTypes
+    })
+    expect(carousel.props).toMatchObject({ excludedTypes })
   })
 
   it('404s, without reading the session, when no default exists', async () => {

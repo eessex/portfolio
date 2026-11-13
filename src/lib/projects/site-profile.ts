@@ -1,4 +1,6 @@
+import { PROJECT_LABEL } from '@/lib/projects/labels'
 import {
+  artistProjectTypes,
   isArtistProjectType,
   type ProjectType,
   ProjectTypes
@@ -35,7 +37,7 @@ export interface SiteProfile {
 }
 
 const musicProfile: SiteProfile = {
-  projectPickerLabel: 'Project',
+  projectPickerLabel: PROJECT_LABEL,
   artistFieldLabel: 'Artist name',
   isHousePublisherUsed: false
 }
@@ -65,4 +67,14 @@ export function isProjectDateShown(
   kind: SiteKind
 ) {
   return !(kind === 'label' && isArtistProjectType(type))
+}
+
+/**
+ * The project types the `/about` carousel leaves out: a label's
+ * roster is at `/artists`, so its carousel keeps to the rest
+ * (imprints, event series, shows, and untyped projects). Undefined:
+ * none left out.
+ */
+export function aboutExcludedProjectTypes(kind: SiteKind) {
+  return kind === 'label' ? artistProjectTypes : undefined
 }

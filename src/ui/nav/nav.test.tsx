@@ -5,6 +5,7 @@ import {
   fetchCachedDefaultProject,
   fetchCachedProjectsFirstPage
 } from '@/lib/projects/cached'
+import { siteIdentity } from '@/lib/projects/site-identity'
 import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { Nav } from '@/ui/nav/nav'
@@ -27,6 +28,9 @@ jest.mock('@/lib/site-settings/cached', () => ({
   fetchCachedSiteSettings: jest.fn()
 }))
 jest.mock('@/ui/nav/admin-menu', () => ({ AdminMenu: () => null }))
+jest.mock('@/lib/projects/site-identity', () => ({
+  siteIdentity: jest.fn().mockResolvedValue({ kind: 'music' })
+}))
 jest.mock('@/ui/footer/footer', () => ({ FooterContent: () => null }))
 
 const mockEvents = jest.mocked(fetchCachedEventsFirstPage)
@@ -35,6 +39,7 @@ const mockDefaultProject = jest.mocked(fetchCachedDefaultProject)
 const mockProjects = jest.mocked(fetchCachedProjectsFirstPage)
 const mockSettings = jest.mocked(fetchCachedSiteSettings)
 const mockSvgDataUrl = jest.mocked(fetchCachedSvgDataUrl)
+const mockSiteIdentity = jest.mocked(siteIdentity)
 
 type ContentState = 'published' | 'drafts' | 'empty' | 'error'
 
@@ -119,6 +124,7 @@ describe('Nav', () => {
       title: 'My Site'
     } as Awaited<ReturnType<typeof fetchCachedSiteSettings>>)
     mockProjectCount(1)
+    mockSiteIdentity.mockResolvedValue({ kind: 'music' })
   })
 
   it('includes published sections in nav order', async () => {
@@ -397,8 +403,65 @@ describe('Nav', () => {
           status: 'drafts'
         })
       ])
-      expect(mockProjects).toHaveBeenCalledWith(false, true)
-      expect(mockProjects).toHaveBeenCalledWith(true, true)
+      expect(mockProjects).toHaveBeenCalledWith(false, {
+        isDefaultExcluded: true
+      })
+      expect(mockProjects).toHaveBeenCalledWith(true, {
+        isDefaultExcluded: true
+      })
+    })
+  })
+
+  describe('on a label site', () => {
+    beforeEach(() => {
+      mockSiteIdentity.mockResolvedValue({ kind: 'label' })
+    })
+
+    it('shows a saved Projects item as Artists, from the roster', async () => {
+      mockContent({ events: 'published' })
+      mockNavItems([{ path: 'events' }, { path: 'projects' }])
+
+      const { items } = await navProps()
+
+      expect(items).toEqual([
+        expect.objectContaining({ navPath: 'events' }),
+        expect.objectContaining({
+          navPath: 'artists',
+          href: '/artists',
+          label: 'Artists',
+          status: 'published'
+        })
+      ])
+      expect(mockProjects).toHaveBeenCalledWith(false, {
+        isDefaultExcluded: true,
+        types: ['band', 'solo', 'collaborative']
+      })
+    })
+
+    it('gives an empty roster the empty status', async () => {
+      mockContent({})
+      mockNavItems([{ path: 'artists' }])
+      mockProjectCount(0)
+
+      const { items } = await navProps()
+
+      expect(items).toEqual([
+        expect.objectContaining({
+          navPath: 'artists',
+          status: 'empty'
+        })
+      ])
+    })
+
+    it('offers Artists, not Projects, among the hidden items', async () => {
+      mockContent({})
+      mockNavItems([{ path: 'events' }])
+
+      expect(await hiddenNavPaths()).toEqual([
+        'releases',
+        'artists',
+        'about'
+      ])
     })
   })
 

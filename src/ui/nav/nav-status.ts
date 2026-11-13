@@ -4,6 +4,7 @@ import {
   fetchCachedDefaultProject,
   fetchCachedProjectsFirstPage
 } from '@/lib/projects/cached'
+import { artistProjectTypes } from '@/lib/projects/schemas'
 import { fetchCachedReleasesFirstPage } from '@/lib/releases/cached'
 import type { NavItemStatus, NavPath } from '@/ui/nav/nav-items'
 
@@ -18,8 +19,19 @@ const hasContent: Record<
     (await fetchCachedReleasesFirstPage(isAuthed)).totalCount > 0,
   // the default project is About's, not a project to list
   projects: async (isAuthed) =>
-    (await fetchCachedProjectsFirstPage(isAuthed, true)).totalCount >
-    0,
+    (
+      await fetchCachedProjectsFirstPage(isAuthed, {
+        isDefaultExcluded: true
+      })
+    ).totalCount > 0,
+  // a label's roster; the default project is the label itself
+  artists: async (isAuthed) =>
+    (
+      await fetchCachedProjectsFirstPage(isAuthed, {
+        isDefaultExcluded: true,
+        types: artistProjectTypes
+      })
+    ).totalCount > 0,
   about: async (isAuthed) =>
     !!(await fetchCachedDefaultProject(isAuthed))
 }

@@ -42,6 +42,10 @@ export const artistProjectTypes = [
   ProjectTypes.collaborative
 ] as const satisfies readonly ProjectType[]
 
+/** How a project list is ordered: by date (the default), or by name */
+export const projectsOrderBys = ['date', 'name'] as const
+export type ProjectsOrderBy = (typeof projectsOrderBys)[number]
+
 export function isArtistProjectType(type?: ProjectType) {
   return (
     !!type &&

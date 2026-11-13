@@ -2,7 +2,9 @@ import { Suspense } from 'react'
 
 import { fetchCachedSvgDataUrl } from '@/lib/images/cached'
 import { isSvg } from '@/lib/images/util'
+import { siteIdentity } from '@/lib/projects/site-identity'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
+import { siteNavPaths } from '@/lib/site-settings/nav-paths'
 import { FooterContent } from '@/ui/footer/footer'
 import { AdminMenu } from '@/ui/nav/admin-menu'
 import adminMenuStyles from '@/ui/nav/admin-menu.module.scss'
@@ -10,20 +12,25 @@ import style from '@/ui/nav/nav.module.scss'
 import { NavClient } from '@/ui/nav/nav-client'
 import {
   type NavItem,
-  navItemsFromSettings,
-  navPaths
+  navItemsFromSettings
 } from '@/ui/nav/nav-items'
 import { fetchNavItemStatus } from '@/ui/nav/nav-status'
 
 export async function Nav() {
-  const { siteSettings, isFetchFailed } =
-    await fetchCachedSiteSettings().then(
-      (siteSettings) => ({ siteSettings, isFetchFailed: false }),
-      (error) => {
-        console.error('Failed to fetch site settings for nav:', error)
-        return { siteSettings: undefined, isFetchFailed: true }
-      }
-    )
+  const [{ siteSettings, isFetchFailed }, { kind }] =
+    await Promise.all([
+      fetchCachedSiteSettings().then(
+        (siteSettings) => ({ siteSettings, isFetchFailed: false }),
+        (error) => {
+          console.error(
+            'Failed to fetch site settings for nav:',
+            error
+          )
+          return { siteSettings: undefined, isFetchFailed: true }
+        }
+      ),
+      siteIdentity()
+    ])
   // Until the first settings save, admins are mid-setup: leave out
   // the admin-only (draft/empty) items and admin menu sections so the
   // menu doesn't lead them out of the onboarding flow. A failed fetch
@@ -38,7 +45,10 @@ export async function Nav() {
           return undefined
         })
       : undefined
-  const shownItems = navItemsFromSettings(siteSettings?.navItems)
+  const shownItems = navItemsFromSettings(
+    kind,
+    siteSettings?.navItems
+  )
   const statuses = await Promise.all(
     shownItems.map(({ navPath }) => fetchNavItemStatus(navPath))
   )
@@ -50,7 +60,7 @@ export async function Nav() {
     return [{ ...item, status }]
   })
 
-  const hiddenNavPaths = navPaths.filter(
+  const hiddenNavPaths = siteNavPaths(kind).filter(
     (navPath) => !shownItems.some((item) => item.navPath === navPath)
   )
 

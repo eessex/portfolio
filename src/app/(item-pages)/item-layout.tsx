@@ -8,9 +8,17 @@ import styles from '@/app/(item-pages)/item-layout.module.scss'
 import { resolvePageItem } from '@/app/(item-pages)/resolve-page-item'
 import type { EventClient } from '@/lib/events/types'
 import { ogImage } from '@/lib/images/util'
+import { PROJECT_LABEL } from '@/lib/projects/labels'
+import { isArtistProjectType } from '@/lib/projects/schemas'
+import { siteIdentity } from '@/lib/projects/site-identity'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { ReleaseClient } from '@/lib/releases/types'
-import { type PagePath, PagePaths } from '@/lib/schemas'
+import {
+  ABOUT_PATH,
+  ARTISTS_PATH,
+  type PagePath,
+  PagePaths
+} from '@/lib/schemas'
 import type {
   PageDataResponse,
   PageItemClient,
@@ -87,7 +95,14 @@ export default async function ItemLayout({
         )}
       >
         <article>
-          <header>{header ?? <ItemHeader item={item} />}</header>
+          <header>
+            {header ?? (
+              <ItemHeader
+                item={item}
+                categoryHref={await itemCategoryHref(item)}
+              />
+            )}
+          </header>
 
           {item.coverImage && (
             <GalleryImageFigure image={item.coverImage} isPriority />
@@ -121,7 +136,7 @@ export default async function ItemLayout({
                 href={itemUrl(project)}
                 className='button-outline button-sm'
               >
-                <b>Project:</b> {project.title}
+                <b>{PROJECT_LABEL}:</b> {project.title}
               </NextLink>
             </p>
           )}
@@ -148,8 +163,27 @@ export default async function ItemLayout({
   )
 }
 
+/**
+ * Where a page item's category links: its index, except on a label
+ * site, whose projects list at `/artists` (the roster) or on the
+ * `/about` carousel (the rest), since `/projects` redirects there.
+ */
+async function itemCategoryHref(item: PageItemClient) {
+  if (item.path !== PagePaths.projects) return `/${item.path}`
+  if ((await siteIdentity()).kind !== 'label') return `/${item.path}`
+  return isArtistProjectType((item as ProjectClient).type)
+    ? `/${ARTISTS_PATH}`
+    : `/${ABOUT_PATH}`
+}
+
 /** A page item's own header: category, title, date, venue, tickets. */
-function ItemHeader({ item }: { item: PageItemClient }) {
+function ItemHeader({
+  item,
+  categoryHref
+}: {
+  item: PageItemClient
+  categoryHref: string
+}) {
   const { publishedEditions } = item as ReleaseClient
   const { ticketLink, venue, isUpcoming } = item as EventClient
 
@@ -169,7 +203,7 @@ function ItemHeader({ item }: { item: PageItemClient }) {
   return (
     <>
       <p className='category'>
-        <NextLink href={`/${item.path}`}>{category()}</NextLink>
+        <NextLink href={categoryHref}>{category()}</NextLink>
         {!item.isPublished && <DraftBadge />}
       </p>
 

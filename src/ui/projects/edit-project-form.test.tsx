@@ -124,7 +124,9 @@ describe('EditProjectForm', () => {
     it('shows the publisher picker only for a record label', async () => {
       renderComponent({ project: projectFixtureBand })
       expect(
-        screen.queryByText('The publisher this label releases as.')
+        screen.queryByText(
+          'The details of publisher this label releases as.'
+        )
       ).not.toBeInTheDocument()
 
       await userEvent.selectOptions(
@@ -132,7 +134,9 @@ describe('EditProjectForm', () => {
         'recordLabel'
       )
       expect(
-        screen.getByText('The publisher this label releases as.')
+        screen.getByText(
+          'The details of publisher this label releases as.'
+        )
       ).toBeInTheDocument()
 
       await userEvent.selectOptions(
@@ -140,7 +144,9 @@ describe('EditProjectForm', () => {
         'band'
       )
       expect(
-        screen.queryByText('The publisher this label releases as.')
+        screen.queryByText(
+          'The details of publisher this label releases as.'
+        )
       ).not.toBeInTheDocument()
     })
 
@@ -192,6 +198,30 @@ describe('EditProjectForm', () => {
         await userEvent.type(titleInput, ' Library')
 
         expect(publisherNameInput()).toBeNull()
+        expect(
+          screen.getByRole('combobox', { name: /publisher/i })
+        ).toHaveValue('')
+      })
+
+      it('isn’t recreated after removing its saved publisher', async () => {
+        renderComponent({
+          isDefaultProject: true,
+          project: {
+            ...projectFixtureBand,
+            type: 'recordLabel',
+            publisherId: publisherFixtureAlpha.id,
+            publisher: publisherFixtureAlpha
+          }
+        })
+
+        await userEvent.click(
+          screen.getByRole('button', { name: /remove publisher/i })
+        )
+
+        expect(publisherNameInput()).toBeNull()
+        expect(
+          document.querySelector('input[name="publisherId"]')
+        ).toHaveValue('')
         expect(
           screen.getByRole('combobox', { name: /publisher/i })
         ).toHaveValue('')

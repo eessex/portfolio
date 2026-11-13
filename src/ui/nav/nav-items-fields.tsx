@@ -2,11 +2,12 @@
 
 import { useId, useState } from 'react'
 
+import type { SiteKind } from '@/lib/projects/site-profile'
 import {
-  DEFAULT_NAV_ITEMS,
   type NavItemSetting,
   type NavPath,
-  navPaths
+  siteNavItems,
+  siteNavPaths
 } from '@/lib/site-settings/nav-paths'
 import { DraftBadge } from '@/ui/badges/draft-badge'
 import { SortableList } from '@/ui/drag-and-drop/sortable-list'
@@ -19,10 +20,7 @@ import {
 } from '@/ui/nav/nav-items'
 import styles from '@/ui/nav/nav-items-fields.module.scss'
 
-export type NavItemStatuses = Record<
-  NavPath,
-  NavItemStatus | undefined
->
+export type NavItemStatuses = Partial<Record<NavPath, NavItemStatus>>
 
 interface Row {
   id: NavPath
@@ -30,9 +28,16 @@ interface Row {
   isVisible: boolean
 }
 
-/** Shown items in their saved order, then the hidden ones */
-function initialRows(saved = DEFAULT_NAV_ITEMS): Row[] {
-  const hidden = navPaths.filter(
+/**
+ * Shown items in their saved order, then the hidden ones, from the
+ * items this kind of site offers
+ */
+function initialRows(
+  kind: SiteKind,
+  navItems?: NavItemSetting[]
+): Row[] {
+  const saved = siteNavItems(kind, navItems)
+  const hidden = siteNavPaths(kind).filter(
     (path) => !saved.some((item) => item.path === path)
   )
   return [
@@ -47,14 +52,19 @@ function initialRows(saved = DEFAULT_NAV_ITEMS): Row[] {
 
 export function NavItemsFields({
   navItems,
+  siteKind = 'music',
   statuses,
   errors
 }: {
   navItems?: NavItemSetting[]
+  /** which items are offered: Artists or Projects */
+  siteKind?: SiteKind
   statuses?: NavItemStatuses
   errors?: string[]
 }) {
-  const [rows, setRows] = useState(() => initialRows(navItems))
+  const [rows, setRows] = useState(() =>
+    initialRows(siteKind, navItems)
+  )
   const descriptionId = useId()
 
   function setVisible(id: NavPath, isVisible: boolean) {

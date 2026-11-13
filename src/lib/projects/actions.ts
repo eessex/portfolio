@@ -51,8 +51,6 @@ function saveProjectForm(
     prepare: async (data) => {
       // first: it can throw, and the resolvers below save items
       const contactInfo = resolveContactInfo(data)
-      // the form has no title for it: it's always the site's
-      if (isDefaultProject) data.title = await defaultProjectTitle()
       const [
         { coverImageId, imageIds },
         { linkIds },
@@ -99,20 +97,6 @@ function saveProjectForm(
       }
     }
   })
-}
-
-/**
- * The default project's title: the site title, else its stored title
- * (no settings yet), else "About" (neither yet).
- */
-async function defaultProjectTitle(): Promise<string> {
-  const [row] = await sql`
-    SELECT COALESCE(
-      (SELECT NULLIF(title, '') FROM site_settings LIMIT 1),
-      (SELECT title FROM projects WHERE is_default_project)
-    ) AS title
-  `
-  return (row?.title as string | null) || 'About'
 }
 
 /** Creating a second default project trips the partial unique index. */

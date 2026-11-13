@@ -91,7 +91,10 @@ async function navProps() {
     title?: string
     items: NavItem[]
     adminMenu: React.ReactElement<{
-      children: React.ReactElement<{ hiddenNavPaths: NavPath[] }>
+      children: React.ReactElement<{
+        hiddenNavPaths: NavPath[]
+        isOnboarding: boolean
+      }>
     }>
     trayFooter:
       | React.ReactElement<{
@@ -222,6 +225,34 @@ describe('Nav', () => {
       'empty',
       'empty'
     ])
+  })
+
+  it('leaves out admin-only items until site settings are saved', async () => {
+    mockSettings.mockResolvedValue(undefined)
+    mockContent({ events: 'published', about: 'drafts' })
+
+    const { items } = await navProps()
+
+    expect(
+      items.map(({ navPath, status }) => [navPath, status])
+    ).toEqual([['events', 'published']])
+    const { adminMenu } = await navProps()
+    expect(adminMenu.props.children.props).toMatchObject({
+      isOnboarding: true
+    })
+  })
+
+  it('keeps admin-only items when site settings throw', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+    mockSettings.mockRejectedValue(new Error('DB down'))
+    mockContent({ about: 'drafts' })
+
+    const { items, adminMenu } = await navProps()
+
+    expect(items.map((item) => item.navPath)).toContain('about')
+    expect(adminMenu.props.children.props).toMatchObject({
+      isOnboarding: false
+    })
   })
 
   it('omits empty releases while no project exists', async () => {

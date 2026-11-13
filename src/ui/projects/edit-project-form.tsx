@@ -39,10 +39,7 @@ function ProjectFormFields({
   isDefaultProject
 }: {
   project?: ProjectClient
-  /**
-   * Hides the title (the default project's is always the site title,
-   * set on save) and notes that its dates aren't shown on `/about`.
-   */
+  /** Notes that the default project's dates aren't shown on `/about`. */
   isDefaultProject?: boolean
 }) {
   const errors = useFormErrors()
@@ -53,18 +50,16 @@ function ProjectFormFields({
 
   return (
     <>
-      {!isDefaultProject && (
-        <Input
-          attributes={{
-            maxLength: MAX_STRING_LENGTH_SHORT,
-            name: 'title',
-            required: true
-          }}
-          defaultValue={project?.title}
-          errors={errors?.title}
-          label='Title'
-        />
-      )}
+      <Input
+        attributes={{
+          maxLength: MAX_STRING_LENGTH_SHORT,
+          name: 'title',
+          required: true
+        }}
+        defaultValue={project?.title}
+        errors={errors?.title}
+        label='Title'
+      />
       <Select
         options={[...projectTypes]}
         errors={errors?.type}
@@ -133,7 +128,8 @@ function ProjectFormFields({
 
 export function EditProjectForm({
   project,
-  isDefaultProject = false
+  isDefaultProject = false,
+  nextHref
 }: {
   project?: ProjectClient
   /**
@@ -142,6 +138,11 @@ export function EditProjectForm({
    * returns to `/about`, and can't be deleted.
    */
   isDefaultProject?: boolean
+  /**
+   * Where a save goes instead of the saved item's page (first-run
+   * setup's next step).
+   */
+  nextHref?: string
 }) {
   const save = isDefaultProject ? editDefaultProject : editProject
   const isDeletable =
@@ -151,9 +152,7 @@ export function EditProjectForm({
     <ItemEditForm
       path={PagePaths.projects}
       action={(formData) => save(formData, project?.id)}
-      savedHref={
-        isDefaultProject ? () => `/${ABOUT_PATH}` : undefined
-      }
+      savedHref={savedHref(isDefaultProject, nextHref)}
       deleteItem={
         isDeletable ? () => deleteProject(project) : undefined
       }
@@ -164,4 +163,9 @@ export function EditProjectForm({
       />
     </ItemEditForm>
   )
+}
+
+function savedHref(isDefaultProject: boolean, nextHref?: string) {
+  if (nextHref) return () => nextHref
+  if (isDefaultProject) return () => `/${ABOUT_PATH}`
 }

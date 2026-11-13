@@ -76,6 +76,25 @@ describe('EditSettings', () => {
     expect(mockEditSiteSettings).not.toHaveBeenCalled()
   })
 
+  it('starts the site title from the About title on first run', () => {
+    renderComponent({ defaultTitle: 'Jane Doe' })
+
+    expect(screen.getByLabelText(/^site title/i)).toHaveValue(
+      'Jane Doe'
+    )
+  })
+
+  it('keeps a saved site title over the About title', () => {
+    renderComponent({
+      settings: { title: 'Saved title', description: 'A site.' },
+      defaultTitle: 'Jane Doe'
+    })
+
+    expect(screen.getByLabelText(/^site title/i)).toHaveValue(
+      'Saved title'
+    )
+  })
+
   it('renders an optional site icon picker', () => {
     renderComponent()
 

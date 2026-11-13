@@ -16,12 +16,19 @@ import {
 import { fetchNavItemStatus } from '@/ui/nav/nav-status'
 
 export async function Nav() {
-  const siteSettings = await fetchCachedSiteSettings().catch(
-    (error) => {
-      console.error('Failed to fetch site settings for nav:', error)
-      return undefined
-    }
-  )
+  const { siteSettings, isFetchFailed } =
+    await fetchCachedSiteSettings().then(
+      (siteSettings) => ({ siteSettings, isFetchFailed: false }),
+      (error) => {
+        console.error('Failed to fetch site settings for nav:', error)
+        return { siteSettings: undefined, isFetchFailed: true }
+      }
+    )
+  // Until the first settings save, admins are mid-setup: leave out
+  // the admin-only (draft/empty) items and admin menu sections so the
+  // menu doesn't lead them out of the onboarding flow. A failed fetch
+  // keeps them, failing open for a configured site.
+  const isOnboarding = !siteSettings && !isFetchFailed
   const logo = siteSettings?.logoImage
   // without it, SiteLogo shows the SVG as an <img>
   const logoMaskUrl =
@@ -38,7 +45,9 @@ export async function Nav() {
 
   const items: NavItem[] = shownItems.flatMap((item, i) => {
     const status = statuses[i]
-    return status ? [{ ...item, status }] : []
+    if (!status) return []
+    if (isOnboarding && status !== 'published') return []
+    return [{ ...item, status }]
   })
 
   const hiddenNavPaths = navPaths.filter(
@@ -71,7 +80,10 @@ export async function Nav() {
       isTrayFooterSubscribeOnly={socialLinks.length === 0}
       adminMenu={
         <Suspense fallback={null}>
-          <AdminMenu hiddenNavPaths={hiddenNavPaths} />
+          <AdminMenu
+            hiddenNavPaths={hiddenNavPaths}
+            isOnboarding={isOnboarding}
+          />
         </Suspense>
       }
     />

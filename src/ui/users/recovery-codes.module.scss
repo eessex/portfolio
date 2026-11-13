@@ -32,4 +32,8 @@
 .continue {
   display: flex;
   margin-top: grids.space-rem(4);
+
+  > button {
+    width: 100%;
+  }
 }

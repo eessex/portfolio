@@ -7,6 +7,7 @@ import {
   type Image,
   imageClientFieldsSchema
 } from '@/lib/images/schemas/db'
+import { ABOUT_PATH } from '@/lib/schemas'
 import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import type { SiteSettingsClient } from '@/lib/site-settings/types'
@@ -27,6 +28,7 @@ import {
   NavItemsFields,
   type NavItemStatuses
 } from '@/ui/nav/nav-items-fields'
+import { editUrl } from '@/ui/routes'
 
 function SettingsFormFields({
   settings,
@@ -177,17 +179,22 @@ function SettingsFormFields({
 
 export function EditSettings({
   settings,
-  navStatuses
+  navStatuses,
+  isAboutCreated
 }: {
   settings?: SiteSettingsClient
   /** the hint beside each menu item; none on first-run setup */
   navStatuses?: NavItemStatuses
+  /** where a save goes: the homepage, else the About form */
+  isAboutCreated?: boolean
 }) {
   const router = useRouter()
 
   async function handleSubmit(formData: FormData) {
     const res = await editSiteSettings(formData, settings?.id)
-    if (res?.ok) router.refresh()
+    if (res?.ok) {
+      router.push(isAboutCreated ? '/' : editUrl(`/${ABOUT_PATH}`))
+    }
     return res
   }
 

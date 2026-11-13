@@ -34,12 +34,16 @@ describe('NavItemsFields', () => {
     expect(
       screen.getByRole('checkbox', { name: 'Projects' })
     ).not.toBeChecked()
-    expect(
-      screen.getByRole('textbox', { name: 'Projects menu name' })
-    ).toBeDisabled()
   })
 
-  it('starts from the saved order and names', () => {
+  it('offers no menu names', () => {
+    const { container } = render(<NavItemsFields />)
+
+    expect(screen.queryByRole('textbox')).toBeNull()
+    expect(container.querySelector('[name$=".label"]')).toBeNull()
+  })
+
+  it('starts from the saved order', () => {
     const { container } = render(
       <NavItemsFields
         navItems={[
@@ -56,11 +60,8 @@ describe('NavItemsFields', () => {
       'about'
     ])
     expect(
-      screen.getByRole('textbox', { name: 'Releases menu name' })
-    ).toHaveValue('Music')
-    expect(
-      screen.getByRole('textbox', { name: 'Releases menu name' })
-    ).toHaveAttribute('placeholder', 'Releases')
+      screen.getByRole('checkbox', { name: 'Releases' })
+    ).toBeChecked()
     expect(
       screen.getByRole('checkbox', { name: 'About' })
     ).not.toBeChecked()
@@ -82,20 +83,7 @@ describe('NavItemsFields', () => {
     ])
   })
 
-  it('enables the name once an item is shown', async () => {
-    const user = userEvent.setup()
-    render(<NavItemsFields />)
-
-    await user.click(
-      screen.getByRole('checkbox', { name: 'Projects' })
-    )
-
-    expect(
-      screen.getByRole('textbox', { name: 'Projects menu name' })
-    ).toBeEnabled()
-  })
-
-  it('explains shown items that not everyone sees', () => {
+  it('badges shown items visitors do not see', () => {
     render(
       <NavItemsFields
         navItems={[
@@ -107,13 +95,15 @@ describe('NavItemsFields', () => {
       />
     )
 
-    expect(
-      screen.getByText('Hidden until a project exists.')
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText('Drafts only: admins see it.')
-    ).toBeInTheDocument()
-    // published, and hidden (Projects), get no hint
-    expect(screen.queryByText(/admins see a link/)).toBeNull()
+    // releases (not creatable) and about (drafts); events is
+    // published and projects is hidden
+    expect(screen.getAllByText('Unpublished')).toHaveLength(2)
+    expect(screen.queryByText(/admins see/)).toBeNull()
+  })
+
+  it('shows no badges without statuses', () => {
+    render(<NavItemsFields />)
+
+    expect(screen.queryByText('Unpublished')).toBeNull()
   })
 })

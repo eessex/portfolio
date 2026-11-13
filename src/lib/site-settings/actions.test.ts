@@ -84,6 +84,26 @@ describe('editSiteSettings', () => {
     })
   })
 
+  it('titles the default project (About) with the site title', async () => {
+    mockSql.mockResolvedValue([])
+
+    await editSiteSettings(
+      formDataFromObject(validFields),
+      validFields.id
+    )
+
+    const call = mockSql.mock.calls.find(([strings]) =>
+      (strings as TemplateStringsArray)
+        .join('?')
+        .includes('UPDATE projects')
+    )
+    const [strings, ...params] = call!
+    expect((strings as TemplateStringsArray).join('?')).toContain(
+      'WHERE is_default_project'
+    )
+    expect(params).toEqual(['Site Title', 'Site Title'])
+  })
+
   describe('social links', () => {
     const linkIds = [
       'a1b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a',

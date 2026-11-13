@@ -507,8 +507,12 @@ describe('Project Actions', () => {
       })
 
       describe('editDefaultProject', () => {
+        const siteTitle = [{ title: 'Site title' }]
+
         it('writes true on create', async () => {
-          mockSql.mockResolvedValueOnce([defaultProject])
+          mockSql
+            .mockResolvedValueOnce(siteTitle)
+            .mockResolvedValueOnce([defaultProject])
 
           const res = await editDefaultProject(
             formDataFromObject({
@@ -518,22 +522,59 @@ describe('Project Actions', () => {
           )
 
           expect(res?.ok).toBe(true)
-          const [, ...params] = mockSql.mock.calls[0]!
+          const [, ...params] = mockSql.mock.calls[1]!
           expect(params[5]).toBe(true)
+        })
+
+        it('is titled with the site title, not the form', async () => {
+          mockSql
+            .mockResolvedValueOnce(siteTitle)
+            .mockResolvedValueOnce([defaultProject])
+
+          await editDefaultProject(
+            formDataFromObject({
+              ...newProjectFixtureAlpha,
+              title: 'Typed title',
+              isPublished: 'on'
+            })
+          )
+
+          const [strings] = mockSql.mock.calls[0]!
+          expect(strings.join('?')).toContain('FROM site_settings')
+          const [, ...params] = mockSql.mock.calls[1]!
+          expect(params).toContain('Site title')
+          expect(params).not.toContain('Typed title')
+        })
+
+        it('falls back to "About" with no site or stored title', async () => {
+          mockSql
+            .mockResolvedValueOnce([{ title: null }])
+            .mockResolvedValueOnce([defaultProject])
+
+          await editDefaultProject(
+            formDataFromObject({
+              ...newProjectFixtureAlpha,
+              isPublished: 'on'
+            })
+          )
+
+          const [, ...params] = mockSql.mock.calls[1]!
+          expect(params).toContain('About')
         })
 
         it('never writes the column on update', async () => {
           mockSql
+            .mockResolvedValueOnce(siteTitle)
             .mockResolvedValueOnce([defaultProject]) // fetchProjectById
             .mockResolvedValueOnce([defaultProject]) // UPDATE
 
           const res = await editDefaultProject(
-            formDataFromObject({ ...requiredFields, title: 'About' }),
+            formDataFromObject({ ...requiredFields }),
             defaultProject.id
           )
 
           expect(res?.ok).toBe(true)
-          const [strings] = mockSql.mock.calls[1]!
+          const [strings] = mockSql.mock.calls[2]!
           expect(strings.join('?')).toContain('UPDATE projects')
           expect(strings.join('?')).not.toContain(
             'is_default_project'
@@ -541,14 +582,16 @@ describe('Project Actions', () => {
         })
 
         it('returns a form error when a default project already exists', async () => {
-          mockSql.mockRejectedValueOnce(
-            Object.assign(
-              new Error(
-                'duplicate key value violates unique constraint'
-              ),
-              { constraint: 'idx_projects_single_default' }
+          mockSql
+            .mockResolvedValueOnce(siteTitle)
+            .mockRejectedValueOnce(
+              Object.assign(
+                new Error(
+                  'duplicate key value violates unique constraint'
+                ),
+                { constraint: 'idx_projects_single_default' }
+              )
             )
-          )
 
           const res = await editDefaultProject(
             formDataFromObject({
@@ -565,9 +608,9 @@ describe('Project Actions', () => {
         })
 
         it('passes other save errors through unchanged', async () => {
-          mockSql.mockRejectedValueOnce(
-            new Error('connection refused')
-          )
+          mockSql
+            .mockResolvedValueOnce(siteTitle)
+            .mockRejectedValueOnce(new Error('connection refused'))
 
           const res = await editDefaultProject(
             formDataFromObject({

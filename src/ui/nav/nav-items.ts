@@ -28,11 +28,14 @@ function navItem(navPath: NavPath, label?: string) {
 /** Every possible item, with its default label */
 export const navItems = navPaths.map((navPath) => navItem(navPath))
 
-/** The saved menu, or the default one, as items in order */
+/**
+ * The saved menu, or the default one, as items in order. Every item
+ * shows its default label until custom labels can change the route.
+ */
 export function navItemsFromSettings(
   settings: NavItemSetting[] = DEFAULT_NAV_ITEMS
 ) {
-  return settings.map(({ path, label }) => navItem(path, label))
+  return settings.map(({ path }) => navItem(path))
 }
 
 /** drafts and empty are shown to admins only */

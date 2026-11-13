@@ -12,10 +12,10 @@ import { mockFile } from '@/test/helpers'
 import { EditSettings } from '@/ui/form/edit-settings'
 import { ToastProvider } from '@/ui/toast/toast-context'
 
-const refreshMock = jest.fn()
+const pushMock = jest.fn()
 
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({ refresh: refreshMock })
+  useRouter: () => ({ push: pushMock })
 }))
 
 jest.mock('@/lib/site-settings/actions', () => ({
@@ -205,8 +205,7 @@ describe('EditSettings', () => {
     ).not.toBeChecked()
   })
 
-  it('refreshes after a save and remounts on the saved settings', async () => {
-    mockEditSiteSettings.mockResolvedValue({ ok: true })
+  describe('after a save', () => {
     const settings = {
       id: 'settings-1',
       createdAt: new Date('2026-01-01'),
@@ -214,27 +213,69 @@ describe('EditSettings', () => {
       isLogoOnly: false,
       updatedAt: new Date('2026-01-01T12:00:00.100Z')
     }
-    const { rerender } = renderComponent({ settings })
 
-    fireEvent.change(screen.getByLabelText(/^site title/i), {
-      target: { value: 'New title' }
+    function saveTitle() {
+      fireEvent.change(screen.getByLabelText(/^site title/i), {
+        target: { value: 'New title' }
+      })
+      fireEvent.submit(document.querySelector('form')!)
+    }
+
+    beforeEach(() => {
+      mockEditSiteSettings.mockResolvedValue({ ok: true })
     })
-    fireEvent.submit(document.querySelector('form')!)
-    await waitFor(() => expect(refreshMock).toHaveBeenCalled())
 
-    const form = document.querySelector('form')
-    rerender(
-      <ToastProvider>
-        <EditSettings
-          settings={{
-            ...settings,
-            // same second: the key needs milliseconds
-            updatedAt: new Date('2026-01-01T12:00:00.200Z')
-          }}
-        />
-      </ToastProvider>
-    )
-    expect(document.querySelector('form')).not.toBe(form)
+    it('goes to the About form while About is not created', async () => {
+      renderComponent({ settings, isAboutCreated: false })
+
+      saveTitle()
+
+      await waitFor(() =>
+        expect(pushMock).toHaveBeenCalledWith('/about/edit')
+      )
+    })
+
+    it('goes to the homepage once About is created', async () => {
+      renderComponent({ settings, isAboutCreated: true })
+
+      saveTitle()
+
+      await waitFor(() => expect(pushMock).toHaveBeenCalledWith('/'))
+    })
+
+    it('stays put when the save fails', async () => {
+      mockEditSiteSettings.mockResolvedValue({
+        ok: false,
+        message: 'Nope'
+      })
+      renderComponent({ settings, isAboutCreated: true })
+
+      saveTitle()
+
+      expect(await screen.findByText('Nope')).toBeInTheDocument()
+      expect(pushMock).not.toHaveBeenCalled()
+    })
+
+    it('remounts on the saved settings', async () => {
+      const { rerender } = renderComponent({ settings })
+
+      saveTitle()
+      await waitFor(() => expect(pushMock).toHaveBeenCalled())
+
+      const form = document.querySelector('form')
+      rerender(
+        <ToastProvider>
+          <EditSettings
+            settings={{
+              ...settings,
+              // same second: the key needs milliseconds
+              updatedAt: new Date('2026-01-01T12:00:00.200Z')
+            }}
+          />
+        </ToastProvider>
+      )
+      expect(document.querySelector('form')).not.toBe(form)
+    })
   })
 
   it('shows a list error from the action under the picker', async () => {

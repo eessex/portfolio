@@ -249,6 +249,23 @@ describe('Publisher Actions', () => {
       expect(mockSql).toHaveBeenCalledTimes(2)
     })
 
+    it('keeps the stored website when an inline edit submits only a name', async () => {
+      mockSql
+        .mockResolvedValueOnce([existingPublisherRow])
+        .mockResolvedValueOnce([publisherFixtureAlpha])
+
+      // the project form's picker hides the website field
+      await savePublisherFromFields(
+        { name: 'Soap Library' },
+        publisherFixtureAlpha.id
+      )
+
+      const [, name, , url] = mockSql.mock
+        .calls[1] as unknown as string[]
+      expect(name).toBe('Soap Library')
+      expect(url).toBe(publisherFixtureAlpha.url)
+    })
+
     it('throws for invalid field data', async () => {
       await expect(
         savePublisherFromFields({ type: 'recordLabel' })

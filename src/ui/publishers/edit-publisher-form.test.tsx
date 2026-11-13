@@ -131,4 +131,15 @@ describe('EditPublisher', () => {
       expect(screen.queryByLabelText(/type/i)).not.toBeInTheDocument()
     })
   })
+
+  describe('isUrlHidden', () => {
+    it('renders the name but no website', () => {
+      render(<EditPublisher isTypeHidden isUrlHidden />)
+
+      expect(screen.getByLabelText(/name/i)).toBeInTheDocument()
+      expect(
+        screen.queryByLabelText(/publisher website/i)
+      ).not.toBeInTheDocument()
+    })
+  })
 })

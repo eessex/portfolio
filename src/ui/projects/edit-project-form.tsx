@@ -53,6 +53,8 @@ function ProjectFormFields({
   const [type, setType] = useState<ProjectType | undefined>(
     project?.type
   )
+  // the default label's publisher starts on its title
+  const [title, setTitle] = useState(project?.title ?? '')
   const datesDescriptionId = useId()
   const datesDescription = isDefaultProject
     ? `${DATES_DESCRIPTION} These dates are not displayed to visitors.`
@@ -69,6 +71,7 @@ function ProjectFormFields({
         defaultValue={project?.title}
         errors={errors?.title}
         label='Title'
+        onChange={(e) => setTitle(e.target.value)}
       />
       <Select
         options={[...projectTypes]}
@@ -86,7 +89,10 @@ function ProjectFormFields({
         <div>
           <PublisherPicker
             label='Publisher'
-            description='The publisher this label releases as.'
+            description='The details of publisher this label releases as.'
+            // the site's own label releases under its own name
+            autoCreateName={isDefaultProject ? title : undefined}
+            isUrlHidden
             publisher={project?.publisher}
           />
           <FieldErrorList errors={errors?.publisherId} />

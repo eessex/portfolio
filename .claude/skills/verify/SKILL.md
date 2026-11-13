@@ -41,7 +41,7 @@ their actual results, and say explicitly if one failed or was skipped.
 - The server needs `.env` with a working `DATABASE_URL` (present
   locally; see CONTRIBUTING.md → Getting started for a fresh
   machine).
-- **The dev server talks to the real Neon database.** Reads are
+- **The dev server sometimes talks to the real Neon database.** Reads are
   fine. Do not exercise create/update/delete server actions against
   it unless the user explicitly asks.
 - Smoke-check the routes the change affects: `/`, `/releases`,

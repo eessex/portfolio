@@ -1,0 +1,18 @@
+@use '@/ui/styles/grids';
+
+.nav-item-picker {
+  --row-gap: 0;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: grids.space-em(2);
+}
+
+// handle · show checkbox · unpublished badge
+.row {
+  display: flex;
+  align-items: center;
+  gap: grids.space-em(2);
+}

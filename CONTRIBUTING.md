@@ -1,14 +1,86 @@
 # Contributing
 
-## Checks
+Thanks for your interest! Bug reports and ideas are as welcome as code:
+[open an issue](https://github.com/eessex/portfolio-cms/issues). For a
+larger change, open an issue first so we can talk it through.
 
-GitHub Actions runs `pnpm typecheck`, `pnpm lint` and `pnpm test:quiet` on every pull request and every push to `main` (`.github/workflows/checks.yml`). Vercel's build runs only `pnpm migrate && pnpm build`. Run `pnpm check` locally to do all of it, build included.
+## Licensing your contribution
 
-## First-run setup
+This project is licensed under the [Functional Source License](LICENSE)
+(FSL-1.1-ALv2), and I also offer managed hosting for it. So that I can
+keep doing both, and adjust the license in future if needed, I ask
+contributors to give me broad rights to their contributions.
 
-`pnpm run setup` (not bare `pnpm setup`, which runs pnpm's own built-in command) is the contributor path: it writes `.env` and runs migrations — see the README's "Getting started". It doesn't create an admin account itself; migrating prints a setup code when no user exists yet, the same code a deployed build prints to its log, and you claim your local instance through `/setup` in the browser just like a deployed instance's owner does (see `docs/SETUP.md` and `CLAUDE.md` → Auth). Both paths create the first admin through the same `createFirstUser()` (`src/lib/users/create.ts`), which atomically consumes the `setup_code` row the migration run wrote — there's only one admin-creation path to keep in sync, not two.
+By opening a pull request, you agree that:
 
-Every step checks current state before acting, so it's safe to re-run, for example after pulling schema changes.
+- the contribution is your own work, or you have the right to submit it;
+- it's licensed to everyone under this project's license; and
+- you're giving me permission to use, change and build on your
+  contribution, including in my managed hosting, and to release it under
+  a different license if the project's license changes in future. This
+  permission is permanent, so I won't need to track you down later.
+
+You keep the copyright to your work. If you have questions about this,
+ask in an issue before you start.
+
+How the code fits together is in
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and every environment
+variable is in [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
+
+## Prerequisites
+
+- Node 22.x
+- pnpm 9 or later (CI uses pnpm 11)
+- A Postgres database (this project targets Neon)
+- A Vercel Blob store, for image uploads
+
+## Getting started
+
+```bash
+pnpm install
+cp .env.example .env   # then fill in DATABASE_URL and BLOB_READ_WRITE_TOKEN
+pnpm migrate           # creates the schema and prints a setup code
+pnpm dev
+```
+
+Use a database of your own for development, not production's: a [Neon branch](https://neon.com/docs/introduction/branching) of it, or a separate Neon project. The dev server and `pnpm migrate` write to whatever `DATABASE_URL` points at. The same goes for Blob: create a separate store for local uploads and copy its `BLOB_READ_WRITE_TOKEN` from the store's settings. Every variable is described in [docs/CONFIGURATION.md](docs/CONFIGURATION.md). `AUTH_SECRET` is optional, since `pnpm migrate` stores one in the database.
+
+If your Vercel project's **Development** environment holds those values, `vercel link` and then `vercel env pull .env` fills in `.env` instead of copying it. Check what the Development values point at before you run `pnpm migrate`. `env pull` overwrites `.env`.
+
+Open [http://localhost:3000](http://localhost:3000) and go to `/setup` to claim your local instance with the setup code `pnpm migrate` printed, the same way a deployed instance's owner uses the one in its build log (see [`docs/SETUP.md`](docs/SETUP.md#6-claim-your-site)). A later `pnpm migrate` keeps that code until it expires. If you lose it, `pnpm migrate --new-setup-code` replaces it with a new one. Until an admin exists, every page redirects to `/setup`. After that, until site settings are saved, every page redirects logged-out visitors to `/login`. Further admins join through invite links from Dashboard → Users (`/dashboard/users`).
+
+Run `pnpm migrate` again after pulling changes that add migrations.
+
+## Scripts
+
+```bash
+pnpm dev           # start dev server (Turbopack)
+pnpm build         # production build
+pnpm start         # run a production build
+pnpm lint          # eslint .
+pnpm typecheck     # tsc --noEmit
+pnpm prettier      # prettier --write .
+pnpm test          # run the jest suite
+pnpm test:watch    # jest --watch
+pnpm test:quiet    # jest --silent --noStackTrace (summary only)
+pnpm check         # typecheck, lint, tests, then build
+pnpm migrate       # apply pending migrations to the database .env points at
+pnpm migrate --new-setup-code  # same, replacing a lost setup code
+pnpm run copy-storage --to blob [--dry-run]  # copy stored files from S3 (deprecated) to Blob
+pnpm run copy-storage --rename-only [--dry-run]  # move older images (e.g. an old bucket's) to images/{id}.{ext} on the current provider
+pnpm run backfill-image-variants [--dry-run]     # write missing or outdated WebP variants, then redeploy
+pnpm run backfill-image-variants --prune [--dry-run]  # delete old variant versions (only once the redeploy is live)
+pnpm run migrate-mongo --input <dir> [--dry-run]  # one-off import of the old site's Mongo exports
+pnpm run reset-password <email> [--url <site>]  # print a one-time password reset link (last-resort recovery)
+```
+
+To run a single test file: `NODE_OPTIONS=--no-deprecation npx jest src/lib/util.test.ts` (add `-t "name"` to filter by test name).
+
+Checks run in GitHub Actions: typecheck, lint and tests on every pull request and push to `main`. Vercel builds every push with `pnpm migrate && pnpm build` (set in `vercel.json`, which overrides the dashboard's build command), so a deploy fails if a migration or the build fails. Production builds migrate the production database; preview builds skip migrations unless they have their own Neon branch and `MIGRATE_PREVIEWS`/`PRODUCTION_DATABASE_HOST` are set (see [Migrating preview deployments](#migrating-preview-deployments)). Run `pnpm check` locally to reproduce a failure.
+
+## Code style
+
+Prettier (single quotes, no semicolons, no trailing commas, width 70) and ESLint (sorted imports, `import type` for type-only imports) enforce most conventions. Boolean names use an `isX` prefix (`isSaved`, not `saved`). The path alias `@/*` maps to `src/*`.
 
 ## Writing migrations
 

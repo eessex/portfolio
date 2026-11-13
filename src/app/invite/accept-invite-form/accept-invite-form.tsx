@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import { SETTINGS_URL } from '@/lib/auth/paths'
 import { acceptInvite } from '@/lib/users/actions'
 import { Form, useFormErrors } from '@/ui/form/form'
 import { Input } from '@/ui/form/input'
@@ -24,7 +25,7 @@ export function AcceptInviteForm() {
     return (
       <RecoveryCodesList
         codes={recoveryCodes}
-        onDone={() => router.push('/dashboard')}
+        onDone={() => router.push(SETTINGS_URL)}
       />
     )
   }

@@ -39,12 +39,12 @@ export default async function EventPage({ params }: PageItemProps) {
 
 async function EventDetail({
   event,
-  isAuthed: authed
+  isAuthed
 }: {
   event: EventClient
   isAuthed: boolean
 }) {
-  const upcomingEvents = await fetchCachedUpcomingEvents(authed)
+  const upcomingEvents = await fetchCachedUpcomingEvents(isAuthed)
 
   return (
     <ItemLayout item={event}>

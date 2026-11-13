@@ -1,0 +1,83 @@
+@use '@/ui/styles/breakpoints';
+@use '@/ui/styles/grids';
+@use '@/ui/styles/sticky-heading';
+
+// the items table's rowgroup heading: stuck under the site header
+// while its table scrolls, full bleed like the table
+.section-heading {
+  @include sticky-heading.sticky-heading;
+  @include sticky-heading.sticky-heading-title;
+
+  display: flex;
+  align-items: center;
+  // block margins 0, over the dashboard's heading margin
+  margin: 0 calc(var(--items-list-padding-inline) * -1);
+  padding-inline: var(--items-list-padding-inline);
+}
+
+// spaced like a table row, ending with the global table's margin so
+// the next section sits as far below as after a table
+.empty {
+  margin: 0 0 grids.space-em(16);
+  padding-block: grids.space-rem(2);
+
+  // a stacked row's padding plus its cell's
+  @include breakpoints.mobile {
+    padding-block: grids.space-rem(3);
+  }
+}
+
+.subscribers-table {
+  // fixed, so the new, exported and spam tables share columns
+  // rather than each sizing to its own content
+  table-layout: fixed;
+
+  .date-col,
+  .detail-col {
+    width: 20%;
+  }
+
+  // fits the row's button
+  .actions-col {
+    width: 11rem;
+  }
+
+  tbody th {
+    font-weight: normal;
+  }
+
+  .row-button {
+    // button-outline's ring, only once rows stack into cards
+    @include breakpoints.mobile {
+      box-shadow: inset 0 0 0 1px var(--page-foreground-color);
+    }
+
+    // outranks button-sm's smaller icon
+    svg {
+      width: grids.space-em(5);
+      height: grids.space-em(5);
+    }
+  }
+
+  td:last-child {
+    text-align: right;
+
+    @include breakpoints.mobile {
+      text-align: left;
+    }
+  }
+}
+
+.email {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.table-section {
+  // a #fragment jump lands below the sticky site header
+  scroll-margin-top: var(--header-height);
+
+  & + & {
+    margin-top: grids.space-rem(6);
+  }
+}

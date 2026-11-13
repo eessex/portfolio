@@ -4,7 +4,8 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import type { Image } from '@/lib/images/schemas/db'
 import {
-  ACCEPTED_IMAGE_TYPES,
+  acceptedFormatsText,
+  acceptedImageTypes,
   formatMegabytes,
   imageAspect,
   MAX_INPUT_PIXELS,
@@ -19,7 +20,7 @@ import { Input } from '@/ui/form/input'
 
 export function FileInputImage({
   ariaControls,
-  ariaExpanded,
+  isExpanded,
   label,
   className,
   description,
@@ -31,22 +32,26 @@ export function FileInputImage({
   onChange,
   ref,
   image,
-  isReplaceable = true
+  isReplaceable = true,
+  isSvgAllowed = false
 }: Omit<InputProps<HTMLInputElement>, 'children' | 'onChange'> & {
   ariaControls?: string
-  ariaExpanded?: boolean
+  isExpanded?: boolean
   image?: Partial<Image>
   /**
    * False for a saved image: its file never changes, so only the
    * preview shows. To change the picture, add a new image.
    */
   isReplaceable?: boolean
+  /** Only the site icon and logo pickers take an SVG */
+  isSvgAllowed?: boolean
   onChange?: (
     fileName: string,
     aspectRatio: number | undefined,
     isDirty: boolean
   ) => void
 }) {
+  const acceptedTypes = acceptedImageTypes(isSvgAllowed)
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const savedAspect = image?.url ? imageAspect(image) : undefined
@@ -89,15 +94,19 @@ export function FileInputImage({
     img.onload = () => {
       const width = img.naturalWidth
       const height = img.naturalHeight
-      if (Math.min(width, height) < MIN_SHORT_EDGE) {
+      // vectors scale, so their pixel size doesn't matter
+      const isVector = file.type === 'image/svg+xml'
+      if (!isVector && Math.min(width, height) < MIN_SHORT_EDGE) {
         rejectFile(`${tooSmallMessage(file.name)}.`)
         return
       }
-      if (width * height > MAX_INPUT_PIXELS) {
+      if (!isVector && width * height > MAX_INPUT_PIXELS) {
         rejectFile(`${tooManyPixelsMessage(file.name)}.`)
         return
       }
-      const ratio = width / height
+      // a viewBox-only SVG can load with no intrinsic size; square for
+      // the preview, the server reads its real shape
+      const ratio = width && height ? width / height : 1
       setAspectRatio(ratio)
       onChange?.(file.name, ratio, true)
     }
@@ -131,10 +140,8 @@ export function FileInputImage({
       return
     }
     // `accept` only filters the picker; drag-and-drop and "All files" bypass it
-    const fileError = !ACCEPTED_IMAGE_TYPES.includes(
-      selectedFile.type
-    )
-      ? `"${selectedFile.name}" isn't a supported image. Choose a JPEG, PNG, WebP or GIF.`
+    const fileError = !acceptedTypes.includes(selectedFile.type)
+      ? `"${selectedFile.name}" isn't a supported image. Choose a ${acceptedFormatsText(isSvgAllowed)}.`
       : selectedFile.size > MAX_UPLOAD_FILE_SIZE
         ? `"${selectedFile.name}" is too large. Choose a file under ${formatMegabytes(MAX_UPLOAD_FILE_SIZE)}.`
         : null
@@ -219,7 +226,7 @@ export function FileInputImage({
               title='Remove image'
               aria-label='Remove image'
               aria-controls={ariaControls}
-              aria-expanded={ariaExpanded}
+              aria-expanded={isExpanded}
               type='button'
               onClick={
                 previewUrl ? onRemovePreviewImage : onRemoveSavedImage
@@ -237,7 +244,7 @@ export function FileInputImage({
           ...attributes,
           name: attributes?.name || 'file',
           type: 'file',
-          accept: ACCEPTED_IMAGE_TYPES.join(','),
+          accept: acceptedTypes.join(','),
           hidden: !!(previewUrl || imageUrl),
           // Required only until an image is chosen unless the caller overrides
           required:

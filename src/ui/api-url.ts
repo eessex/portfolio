@@ -10,6 +10,8 @@ export type SearchParams = {
   isPress?: boolean
   /** Leave out the default project (the `/projects` index) */
   isDefaultExcluded?: boolean
+  /** Leave out SVG images, outside the site icon and logo pickers */
+  isSvgExcluded?: boolean
 }
 
 type UrlParams = {

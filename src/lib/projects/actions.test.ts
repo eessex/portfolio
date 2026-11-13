@@ -547,6 +547,22 @@ describe('Project Actions', () => {
           expect(params[5]).toBe(true)
         })
 
+        it('is titled from the form, not the site title', async () => {
+          mockSql.mockResolvedValueOnce([defaultProject])
+
+          await editDefaultProject(
+            formDataFromObject({
+              ...newProjectFixtureAlpha,
+              title: 'Typed title',
+              isPublished: 'on'
+            })
+          )
+
+          const [strings, ...params] = mockSql.mock.calls[0]!
+          expect(strings.join('?')).not.toContain('site_settings')
+          expect(params).toContain('Typed title')
+        })
+
         it('never writes the column on update', async () => {
           mockSql
             .mockResolvedValueOnce([defaultProject]) // fetchProjectById

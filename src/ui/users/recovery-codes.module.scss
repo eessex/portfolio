@@ -26,4 +26,14 @@
   display: flex;
   flex-wrap: wrap;
   gap: grids.space-rem(2);
+  margin-bottom: grids.space-rem(4);
+}
+
+.continue {
+  display: flex;
+  margin-top: grids.space-rem(4);
+
+  > button {
+    width: 100%;
+  }
 }

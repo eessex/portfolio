@@ -2,7 +2,11 @@
 
 import NextImage, { type ImageProps } from 'next/image'
 
-import { hasVariants, imageVariantUrl } from '@/lib/images/util'
+import {
+  hasVariants,
+  imageVariantUrl,
+  isSvg
+} from '@/lib/images/util'
 
 export interface StoredImageSource {
   url: string
@@ -16,6 +20,7 @@ export interface StoredImageSource {
  * loader serves its WebP widths straight from storage (not a
  * global loader, so files in public/ are untouched); without them,
  * the optimizer resizes the original until the backfill runs.
+ * SVGs are served as uploaded (sanitized), skipping the optimizer.
  */
 export function StoredImage({
   image,
@@ -26,6 +31,9 @@ export function StoredImage({
 > & {
   image: StoredImageSource
 }) {
+  if (isSvg(image)) {
+    return <NextImage src={image.url} unoptimized {...props} />
+  }
   if (!hasVariants(image)) {
     return <NextImage src={image.url} {...props} />
   }

@@ -90,7 +90,7 @@ export function ItemCoverImage({
       sizes={sizes}
       unoptimized={isCoverImageThumbnailUrl(image.url)}
       loading={isLazy || index > lazyAfter ? 'lazy' : undefined}
-      priority={isPriority}
+      preload={isPriority}
       fetchPriority={isPriority ? 'high' : 'auto'}
       aria-hidden='true'
     />
@@ -103,23 +103,23 @@ export function ItemCoverImage({
  */
 export function itemMedia(item: PageItemClient) {
   return {
-    hasAudio: item.path !== PagePaths.releases && !!item.hasAudio,
-    hasVideo: !!item.hasVideo
+    isAudio: item.path !== PagePaths.releases && !!item.hasAudio,
+    isVideo: !!item.hasVideo
   }
 }
 
 /** The audio/video icons for an item's embeds. */
 export function ItemMediaIcons({
-  hasAudio,
-  hasVideo
+  isAudio,
+  isVideo
 }: {
-  hasAudio: boolean
-  hasVideo: boolean
+  isAudio: boolean
+  isVideo: boolean
 }) {
   return (
     <>
-      {hasAudio && <SpeakerWaveIcon aria-label='Contains audio' />}
-      {hasVideo && <VideoCameraIcon aria-label='Contains video' />}
+      {isAudio && <SpeakerWaveIcon aria-label='Contains audio' />}
+      {isVideo && <VideoCameraIcon aria-label='Contains video' />}
     </>
   )
 }

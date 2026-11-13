@@ -29,7 +29,7 @@ export async function createUser(input: {
  * users)`, which checks an empty table that has no row to lock and so
  * doesn't stop two different emails from both passing the check.
  * `NOT EXISTS (SELECT 1 FROM users)` is kept as a belt-and-suspenders
- * guard against a `pnpm run setup` admin created out of band on the
+ * guard against an admin created out of band (e.g. by direct SQL) on the
  * same database. The account's recovery codes are inserted in the
  * same statement, so it never exists without them. Returns whether
  * this call won.

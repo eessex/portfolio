@@ -8,6 +8,8 @@ import {
   hashSetupCode,
   SETUP_CODE_TTL_HOURS
 } from '@/lib/auth/setup-code'
+import { exportScopes } from '@/lib/email-subscriptions/schemas'
+import { spamReasons } from '@/lib/email-subscriptions/spam-reasons'
 import {
   embedCodeContentTypes,
   embedCodeHosts,
@@ -37,9 +39,9 @@ export type EveryDeployClient = {
 export type EveryDeployOptions = {
   /**
    * Replace a live setup code instead of keeping it. Only
-   * `pnpm run setup` sets this: only the code's hash is stored, so a
-   * lost one can't be shown again, and whoever runs setup already
-   * holds DATABASE_URL, so a new code grants them nothing more.
+   * `pnpm migrate --new-setup-code` sets this: only the code's hash is
+   * stored, so a lost one can't be shown again, and whoever runs it
+   * already holds DATABASE_URL, so a new code grants them nothing more.
    */
   isSetupCodeRotated?: boolean
 }
@@ -60,7 +62,9 @@ export const checkedColumns: [
   ['publishers', 'type', publisherTypes],
   ['releases', 'type', releaseTypes],
   ['published_editions', 'format', publishedEditionTypes],
-  ['user_tokens', 'purpose', userTokenPurposes]
+  ['user_tokens', 'purpose', userTokenPurposes],
+  ['email_subscriptions', 'spam_reason', spamReasons],
+  ['email_subscription_exports', 'scope', exportScopes]
 ]
 
 /**
@@ -467,7 +471,7 @@ async function ensureSetupCode(
  * SQL to it). The runner records it and refuses a checkout with a
  * lower one, so an older build can't re-apply stale definitions.
  */
-export const EVERY_DEPLOY_REVISION = 5
+export const EVERY_DEPLOY_REVISION = 8
 
 // In order: triggers call save_old_slug()
 export const everyDeploySteps: {

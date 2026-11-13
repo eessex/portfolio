@@ -1,6 +1,13 @@
 import { ABOUT_PATH, pagePaths } from '@/lib/schemas'
 
 // dependency-free so client code (analytics) can share it
+
+// Admin pages linked and redirected to from several places
+export const SETTINGS_URL = '/settings'
+export const ACCOUNT_URL = '/account'
+// first-run setup's first step after the account, before /settings
+export const ABOUT_EDIT_URL = `/${ABOUT_PATH}/edit`
+
 export const authedPathPatterns = [
   ...pagePaths.map(
     (type) => new RegExp(`^/${type}/[^/]+/edit$`) // /events/:slug/edit
@@ -8,8 +15,10 @@ export const authedPathPatterns = [
   ...pagePaths.map(
     (type) => new RegExp(`^/${type}/new$`) // /events/new
   ),
-  new RegExp(`^/${ABOUT_PATH}/edit$`),
-  /^\/dashboard(?:\/.*)?$/
+  new RegExp(`^${ABOUT_EDIT_URL}$`),
+  /^\/dashboard(?:\/.*)?$/,
+  new RegExp(`^${ACCOUNT_URL}$`),
+  new RegExp(`^${SETTINGS_URL}$`)
 ]
 
 export const unauthedPathPatterns = [

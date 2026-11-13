@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto'
 
+import { exportScopes } from '@/lib/email-subscriptions/schemas'
+import { spamReasons } from '@/lib/email-subscriptions/spam-reasons'
 import {
   embedCodeContentTypes,
   embedCodeHosts,
@@ -55,9 +57,9 @@ describe('everyDeploySteps', () => {
       .update(JSON.stringify(query.mock.calls))
       .digest('hex')
     expect({ revision: EVERY_DEPLOY_REVISION, checksum }).toEqual({
-      revision: 5,
+      revision: 8,
       checksum:
-        '8de191c0e681d86c8d864452c48214683a68209c00cf3d97f5f802bd6c898486'
+        '0d14d8d051ddbdc1c403fdc8d924461b3a0032d8db2c5750c1cad17e3b555031'
     })
   })
 
@@ -72,7 +74,9 @@ describe('everyDeploySteps', () => {
     ['publishers', 'type', publisherTypes],
     ['releases', 'type', releaseTypes],
     ['published_editions', 'format', publishedEditionTypes],
-    ['user_tokens', 'purpose', userTokenPurposes]
+    ['user_tokens', 'purpose', userTokenPurposes],
+    ['email_subscriptions', 'spam_reason', spamReasons],
+    ['email_subscription_exports', 'scope', exportScopes]
   ])(
     'rebuilds the %s.%s CHECK from its constant',
     (table, column, values) => {
@@ -219,14 +223,14 @@ describe('everyDeploySteps', () => {
 
   describe('setup code', () => {
     function setupCodeQuery(
-      hasAnyUser: boolean,
+      isAnyUserCreated: boolean,
       liveRows: { expires_at: string }[] = []
     ) {
       const setupQuery = jest
         .fn()
         .mockResolvedValue({ rows: [] })
         .mockImplementationOnce(() =>
-          Promise.resolve({ rows: [{ exists: hasAnyUser }] })
+          Promise.resolve({ rows: [{ exists: isAnyUserCreated }] })
         )
         .mockImplementationOnce(() =>
           Promise.resolve({ rows: liveRows })

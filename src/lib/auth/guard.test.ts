@@ -1,6 +1,10 @@
+import { cookies, headers } from 'next/headers'
+import { connection } from 'next/server'
+
 import { auth } from '@/auth'
 import {
   assertAuthed,
+  currentSession,
   currentUserId,
   isAuthed,
   requireAuth
@@ -9,6 +13,42 @@ import {
 const mockAuth = auth as unknown as jest.Mock
 
 describe('auth/guard', () => {
+  describe('#currentSession', () => {
+    it('defers to request time before auth() reads the clock', async () => {
+      const order: string[] = []
+      jest.mocked(connection).mockImplementationOnce(async () => {
+        order.push('connection')
+      })
+      mockAuth.mockImplementationOnce(async () => {
+        order.push('auth')
+        return null
+      })
+
+      await currentSession()
+
+      expect(order).toEqual(['connection', 'auth'])
+    })
+
+    // An action's re-render: cookies() has the cookie it just set,
+    // headers() still has the request's
+    it('reads the session cookie from cookies(), not headers()', async () => {
+      jest
+        .mocked(headers)
+        .mockResolvedValueOnce(
+          new Headers({ cookie: 'session=old', host: 'example.com' })
+        )
+      jest.mocked(cookies).mockResolvedValueOnce({
+        toString: () => 'session=new'
+      } as Awaited<ReturnType<typeof cookies>>)
+
+      await currentSession()
+
+      const { req } = mockAuth.mock.calls.at(-1)?.[0]
+      expect(req.headers.get('cookie')).toBe('session=new')
+      expect(req.headers.get('host')).toBe('example.com')
+    })
+  })
+
   describe('#requireAuth', () => {
     it('returns null when a session exists', async () => {
       expect(await requireAuth()).toBeNull()

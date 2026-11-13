@@ -47,6 +47,8 @@ describe('authConfig.callbacks.authorized', () => {
     const { authorized, hasSiteSettings } = await load()
 
     expect(await authorized(args('/dashboard', false))).toBe(false)
+    expect(await authorized(args('/account', false))).toBe(false)
+    expect(await authorized(args('/settings', false))).toBe(false)
     expect(hasSiteSettings).not.toHaveBeenCalled()
   })
 

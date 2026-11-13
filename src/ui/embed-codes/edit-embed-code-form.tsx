@@ -200,7 +200,7 @@ export const EditEmbedCode = ({
         {embedCodeIframe ? (
           <EmbedCodeItem
             ariaControls={detailsFieldsetId}
-            ariaExpanded={isExpanded}
+            isExpanded={isExpanded}
             embedCode={embedCodeIframe}
             onRemove={onRemove}
           />

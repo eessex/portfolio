@@ -14,7 +14,8 @@
   bottom: grids.space-rem(8);
   left: 15%;
   right: 15%;
-  z-index: 200;
+  // above the menubar's mobile tray
+  z-index: 2001;
 
   @include breakpoints.mobile {
     left: 10%;

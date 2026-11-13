@@ -18,7 +18,7 @@ export const metadata: Metadata = { title, description }
 
 export default async function ProjectsPage() {
   return (
-    <ListLayout title={title}>
+    <ListLayout title={title} itemType={path}>
       <ProjectsList />
     </ListLayout>
   )

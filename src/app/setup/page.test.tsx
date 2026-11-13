@@ -1,6 +1,8 @@
 jest.mock('next/server', () => ({ connection: jest.fn() }))
 jest.mock('next/navigation', () => ({ notFound: jest.fn() }))
-jest.mock('@/lib/auth/guard', () => ({ isAuthed: jest.fn() }))
+jest.mock('@/lib/auth/guard', () => ({
+  isAuthed: jest.fn()
+}))
 jest.mock('@/lib/users/data', () => ({ hasUsers: jest.fn() }))
 jest.mock('@/app/setup/setup-form/setup-form', () => ({
   SetupForm: jest.fn(() => null)

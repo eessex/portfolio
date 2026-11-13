@@ -6,7 +6,8 @@ import {
   MAX_UPLOAD_FILE_SIZE,
   MAX_UPLOAD_REQUEST_SIZE,
   newFilesSize,
-  ogImage
+  ogImage,
+  rasterUploadFormat
 } from '@/lib/images/util'
 import { mockFile } from '@/test/helpers'
 
@@ -142,5 +143,28 @@ describe('ogImage', () => {
     expect(
       ogImage({ url: original, width: 2400, height: 1200 })
     ).toEqual({ url: original, width: 1200, height: 600 })
+  })
+
+  it('has none for an SVG', () => {
+    expect(
+      ogImage({
+        url: original,
+        format: 'svg',
+        width: 100,
+        height: 40
+      })
+    ).toBeUndefined()
+  })
+})
+
+describe('rasterUploadFormat', () => {
+  it('maps raster formats but not SVG, which needs sanitizing', () => {
+    expect(rasterUploadFormat('png')).toEqual({
+      ext: 'png',
+      contentType: 'image/png'
+    })
+    expect(rasterUploadFormat('svg')).toBeUndefined()
+    expect(rasterUploadFormat('tiff')).toBeUndefined()
+    expect(rasterUploadFormat(undefined)).toBeUndefined()
   })
 })

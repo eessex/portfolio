@@ -3,7 +3,8 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import {
   resetIsAdminCache,
   syncIsAdmin,
-  useIsAdmin
+  useIsAdmin,
+  useSyncedIsAdmin
 } from '@/ui/use-is-admin'
 
 function mockSession(isAuthed: boolean) {
@@ -122,5 +123,38 @@ describe('useIsAdmin', () => {
     act(() => syncIsAdmin(true))
 
     expect(result.current).toBe(false)
+  })
+})
+
+describe('useSyncedIsAdmin', () => {
+  beforeEach(() => {
+    global.fetch = jest.fn()
+    resetIsAdminCache()
+  })
+
+  it('is false without fetching the session', () => {
+    const { result } = renderHook(() => useSyncedIsAdmin())
+
+    expect(result.current).toBe(false)
+    expect(global.fetch).not.toHaveBeenCalled()
+  })
+
+  it('follows a sync after login and logout', () => {
+    const { result } = renderHook(() => useSyncedIsAdmin())
+
+    act(() => syncIsAdmin(true))
+    expect(result.current).toBe(true)
+
+    act(() => syncIsAdmin(false))
+    expect(result.current).toBe(false)
+  })
+
+  it('serves an earlier sync to a later caller', () => {
+    syncIsAdmin(true)
+
+    const { result } = renderHook(() => useSyncedIsAdmin())
+
+    expect(result.current).toBe(true)
+    expect(global.fetch).not.toHaveBeenCalled()
   })
 })

@@ -227,6 +227,19 @@ describe('Form', () => {
     })
 
     it('saves when only a namespaced file input changed', async () => {
+      // jsdom's FormData skips files set by userEvent.upload; read
+      // them as a browser does
+      const RealFormData = global.FormData
+      global.FormData = class extends RealFormData {
+        constructor(form?: HTMLFormElement) {
+          super(form)
+          form
+            ?.querySelectorAll<HTMLInputElement>('input[type="file"]')
+            .forEach(({ name, files }) => {
+              if (files?.[0]) this.set(name, files[0])
+            })
+        }
+      }
       const action = jest.fn().mockResolvedValue({ ok: true })
       render(
         <ToastProvider>
@@ -245,6 +258,7 @@ describe('Form', () => {
 
       await screen.findByText('Changes saved.')
       expect(action).toHaveBeenCalledTimes(1)
+      global.FormData = RealFormData
     })
 
     it('saves when a repeated field changes anywhere but its last value', async () => {
@@ -354,6 +368,24 @@ describe('Form', () => {
       renderForm(jest.fn())
 
       expect(dispatchBeforeUnload().defaultPrevented).toBe(false)
+    })
+
+    it('does not count an empty file input as a change', () => {
+      // an empty input's File takes lastModified from the clock
+      let now = 1_000
+      const dateNow = jest
+        .spyOn(Date, 'now')
+        .mockImplementation(() => (now += 1_000))
+      render(
+        <ToastProvider>
+          <Form action={jest.fn()}>
+            <input type='file' name='logoImage.file' />
+          </Form>
+        </ToastProvider>
+      )
+
+      expect(dispatchBeforeUnload().defaultPrevented).toBe(false)
+      dateNow.mockRestore()
     })
 
     it('does not guard when isUnsavedChangesConfirmed is false', () => {

@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
+import styles from '@/app/settings/settings.module.scss'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { navPaths } from '@/lib/site-settings/nav-paths'
-import styles from '@/ui/dashboard/dashboard.module.scss'
-import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
 import { EditSettings } from '@/ui/form/edit-settings'
+import { FormPageLayout } from '@/ui/form/form-page-layout'
 import { Loading } from '@/ui/loading'
 import type { NavItemStatuses } from '@/ui/nav/nav-items-fields'
 import { fetchNavItemStatus } from '@/ui/nav/nav-status'
@@ -18,25 +18,34 @@ export default async function SettingsPage() {
     fetchCachedSiteSettings(),
     fetchNavStatuses()
   ])
+  // a draft counts: it exists, so there's no About form to go to
+  const isAboutCreated =
+    navStatuses.about === 'published' ||
+    navStatuses.about === 'drafts'
 
   return (
-    <DashboardLayout title={title}>
-      <Suspense fallback={<Loading />}>
-        <section className={styles['dashboard-inner']}>
+    <FormPageLayout title={title}>
+      {/* One block, so the welcome heading tops the form column,
+          level with the title */}
+      <div>
+        <Suspense fallback={<Loading />}>
           {settings ? (
             <EditSettings
               settings={settings}
               navStatuses={navStatuses}
+              isAboutCreated={isAboutCreated}
             />
           ) : (
             <>
-              <h2>Welcome! Let&apos;s set up your site:</h2>
-              <EditSettings />
+              <h2 className={styles.welcome}>
+                Welcome! Let&apos;s set up your site:
+              </h2>
+              <EditSettings isAboutCreated={isAboutCreated} />
             </>
           )}
-        </section>
-      </Suspense>
-    </DashboardLayout>
+        </Suspense>
+      </div>
+    </FormPageLayout>
   )
 }
 

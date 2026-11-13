@@ -1,5 +1,7 @@
 'use client'
 
+import { useId } from 'react'
+
 import {
   deleteProject,
   editDefaultProject,
@@ -17,6 +19,7 @@ import { Checkbox } from '@/ui/form/checkbox'
 import { useFormErrors } from '@/ui/form/form'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
+import { InputLabel } from '@/ui/form/input-label'
 import { ItemEditForm } from '@/ui/form/item-edit-form'
 import { Select } from '@/ui/form/select'
 import { toDateInputValue } from '@/ui/format/dates'
@@ -26,48 +29,80 @@ import {
   PressLinksPicker
 } from '@/ui/links/links-picker'
 import { ContactInfoFields } from '@/ui/projects/contact-info-fields'
+import formStyles from '@/ui/projects/edit-project-form.module.scss'
 
-function ProjectFormFields({ project }: { project?: ProjectClient }) {
+const DATES_DESCRIPTION =
+  'Project dates are used for sorting and to distinguish active and inactive projects.'
+
+function ProjectFormFields({
+  project,
+  isDefaultProject
+}: {
+  project?: ProjectClient
+  /**
+   * Hides the title (the default project's is always the site title,
+   * set on save) and notes that its dates aren't shown on `/about`.
+   */
+  isDefaultProject?: boolean
+}) {
   const errors = useFormErrors()
+  const datesDescriptionId = useId()
+  const datesDescription = isDefaultProject
+    ? `${DATES_DESCRIPTION} These dates are not displayed to visitors.`
+    : DATES_DESCRIPTION
 
   return (
     <>
-      <Input
-        attributes={{
-          maxLength: MAX_STRING_LENGTH_SHORT,
-          name: 'title',
-          required: true
-        }}
-        defaultValue={project?.title}
-        errors={errors?.title}
-        label='Title'
-      />
+      {!isDefaultProject && (
+        <Input
+          attributes={{
+            maxLength: MAX_STRING_LENGTH_SHORT,
+            name: 'title',
+            required: true
+          }}
+          defaultValue={project?.title}
+          errors={errors?.title}
+          label='Title'
+        />
+      )}
       <Select
         options={[...projectTypes]}
         errors={errors?.type}
-        label='Type'
+        label='Project type'
         placeholder='Select a type'
         value={project?.type}
         attributes={{ name: 'type', required: true }}
       />
-      <div className={styles['input-group']}>
-        <Input
-          attributes={{
-            name: 'startDate',
-            type: 'date',
-            required: true
-          }}
-          defaultValue={toDateInputValue(project?.startDate)}
-          errors={errors?.startDate}
-          label='Start date'
+      <fieldset
+        aria-describedby={datesDescriptionId}
+        className={formStyles['dates']}
+      >
+        <InputLabel
+          as='legend'
+          label='Active dates'
+          isRequired
+          description={datesDescription}
+          descriptionId={datesDescriptionId}
         />
-        <Input
-          attributes={{ name: 'endDate', type: 'date' }}
-          defaultValue={toDateInputValue(project?.endDate)}
-          errors={errors?.endDate}
-          label='End date'
-        />
-      </div>
+        <div className={styles['input-group']}>
+          <Input
+            attributes={{
+              name: 'startDate',
+              type: 'date',
+              required: true
+            }}
+            defaultValue={toDateInputValue(project?.startDate)}
+            errors={errors?.startDate}
+            label='Start date'
+          />
+          <Input
+            attributes={{ name: 'endDate', type: 'date' }}
+            defaultValue={toDateInputValue(project?.endDate)}
+            errors={errors?.endDate}
+            label='End date'
+          />
+        </div>
+      </fieldset>
       <Input
         as='textarea'
         attributes={{
@@ -123,7 +158,10 @@ export function EditProjectForm({
         isDeletable ? () => deleteProject(project) : undefined
       }
     >
-      <ProjectFormFields project={project} />
+      <ProjectFormFields
+        project={project}
+        isDefaultProject={isDefaultProject}
+      />
     </ItemEditForm>
   )
 }

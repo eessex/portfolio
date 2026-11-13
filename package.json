@@ -4,7 +4,7 @@
   "license": "FSL-1.1-ALv2",
   "private": true,
   "engines": {
-    "node": "22.x"
+    "node": ">=22.9"
   },
   "scripts": {
     "dev": "next dev --turbopack",

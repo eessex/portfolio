@@ -9,7 +9,7 @@ jest.mock('@/ui/projects/edit-project-form', () => ({
   EditProjectForm: jest.fn(() => null)
 }))
 
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import type { ReactElement } from 'react'
 
 import EditAboutPage from '@/app/about/edit/page'
@@ -53,5 +53,31 @@ describe('EditAboutPage', () => {
       project,
       isDefaultProject: true
     })
+  })
+
+  it('introduces the About page before it exists', async () => {
+    mockFetch.mockResolvedValue(undefined)
+
+    await renderEditDefaultProject()
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Next, set up your About page'
+      })
+    ).toBeInTheDocument()
+    expect(jest.mocked(EditProjectForm).mock.calls[0][0]).toEqual({
+      isDefaultProject: true
+    })
+  })
+
+  it('has no introduction once it exists', async () => {
+    mockFetch.mockResolvedValue({
+      ...projectFixtureBand,
+      isDefaultProject: true
+    } as Awaited<ReturnType<typeof fetchDefaultProject>>)
+
+    await renderEditDefaultProject()
+
+    expect(screen.queryByRole('heading')).toBeNull()
   })
 })

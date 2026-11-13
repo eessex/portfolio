@@ -2,18 +2,16 @@
 
 import { useId, useState } from 'react'
 
-import { ABOUT_PATH } from '@/lib/schemas'
 import {
   DEFAULT_NAV_ITEMS,
-  MAX_NAV_LABEL_LENGTH,
   type NavItemSetting,
   type NavPath,
   navPaths
 } from '@/lib/site-settings/nav-paths'
+import { DraftBadge } from '@/ui/badges/draft-badge'
 import { SortableList } from '@/ui/drag-and-drop/sortable-list'
 import { Checkbox } from '@/ui/form/checkbox'
 import { FieldErrorList } from '@/ui/form/field-error-list'
-import { Input } from '@/ui/form/input'
 import { InputLabel } from '@/ui/form/input-label'
 import {
   defaultNavLabel,
@@ -47,18 +45,6 @@ function initialRows(saved = DEFAULT_NAV_ITEMS): Row[] {
   ]
 }
 
-/** Why a shown item may not be in the bar for everyone */
-function statusHint(path: NavPath, status?: NavItemStatus) {
-  if (status === 'published') return
-  if (status === 'drafts') return 'Drafts only: admins see it.'
-  if (status === 'empty') {
-    return path === ABOUT_PATH
-      ? 'Not created yet: admins see a link to create it.'
-      : 'Nothing yet: admins see a link to create the first one.'
-  }
-  return 'Hidden until a project exists.'
-}
-
 export function NavItemsFields({
   navItems,
   statuses,
@@ -80,12 +66,15 @@ export function NavItemsFields({
   }
 
   return (
-    <fieldset aria-describedby={descriptionId}>
+    <fieldset
+      aria-describedby={descriptionId}
+      className={styles['nav-item-picker']}
+    >
       <InputLabel
         as='legend'
-        label='Menu'
+        label='Menu items'
         isRequired
-        description='Choose, order and name the items in the menubar. A blank name uses the default.'
+        description='Choose and order the items in the menubar. Menu items with no published content are hidden from visitors.'
         descriptionId={descriptionId}
       />
       <SortableList
@@ -95,10 +84,12 @@ export function NavItemsFields({
         renderItem={(row, index, dragHandle) => {
           const prefix = `navItems[${index}].`
           const defaultLabel = defaultNavLabel(row.id)
-          const hint =
-            row.isVisible && statuses
-              ? statusHint(row.id, statuses[row.id])
-              : undefined
+          // a shown item visitors don't see: drafts only, nothing
+          // yet, or not creatable yet
+          const isUnpublished =
+            row.isVisible &&
+            !!statuses &&
+            statuses[row.id] !== 'published'
           return (
             <div className={styles['row']}>
               {dragHandle}
@@ -115,20 +106,7 @@ export function NavItemsFields({
                   setVisible(row.id, event.target.checked)
                 }
               />
-              <Input
-                label={`${defaultLabel} menu name`}
-                isLabelHidden
-                isOptionalLabelHidden
-                defaultValue={row.label}
-                attributes={{
-                  name: `${prefix}label`,
-                  placeholder: defaultLabel,
-                  maxLength: MAX_NAV_LABEL_LENGTH,
-                  // a hidden item's name isn't kept
-                  disabled: !row.isVisible
-                }}
-              />
-              {hint && <p className={styles['hint']}>{hint}</p>}
+              {isUnpublished && <DraftBadge />}
             </div>
           )
         }}

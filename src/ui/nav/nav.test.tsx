@@ -310,7 +310,7 @@ describe('Nav', () => {
       expect(await hiddenNavPaths()).toEqual(['releases', 'projects'])
     })
 
-    it('follows its order and names', async () => {
+    it('follows its order, ignoring stored names', async () => {
       mockContent({ about: 'published', events: 'published' })
       mockNavItems([
         { path: 'about', label: 'Bio' },
@@ -323,7 +323,7 @@ describe('Nav', () => {
         {
           navPath: 'about',
           href: '/about',
-          label: 'Bio',
+          label: 'About',
           status: 'published'
         },
         {

@@ -5,6 +5,7 @@ import { connection } from 'next/server'
 import { SetupForm } from '@/app/setup/setup-form/setup-form'
 import { isAuthed } from '@/lib/auth/guard'
 import { hasUsers } from '@/lib/users/data'
+import { FormPageLayout } from '@/ui/form/form-page-layout'
 
 const title = 'Set up your site'
 export const metadata: Metadata = { title }
@@ -19,14 +20,10 @@ export default async function SetupPage() {
   if (isAccountCreated && !(await isAuthed())) notFound()
 
   return (
-    <article>
-      <header>
-        <h1>{title}</h1>
-      </header>
-
+    <FormPageLayout title={title}>
       {/* Same tree once signed in: completeSetup's cookie re-renders
           this page, and SetupForm must keep the codes it holds */}
       <SetupForm isAccountCreated={isAccountCreated} />
-    </article>
+    </FormPageLayout>
   )
 }

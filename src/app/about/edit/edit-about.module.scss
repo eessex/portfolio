@@ -1,0 +1,9 @@
+@use '@/ui/styles/grids';
+
+.intro {
+  margin-block-end: grids.space-rem(6);
+
+  h2 {
+    margin-block-start: 0;
+  }
+}

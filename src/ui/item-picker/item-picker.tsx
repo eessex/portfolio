@@ -92,6 +92,8 @@ type FocusTarget =
   | { kind: 'edit'; id: string }
   | { kind: 'create'; tempId: string }
   | { kind: 'combobox' }
+  /** a change made for the user (an auto-created chip): focus stays put */
+  | { kind: 'none' }
 
 type ItemPickerSharedProps<
   TEmbeddedItem extends EmbeddedItem,
@@ -151,6 +153,14 @@ type ItemPickerSharedProps<
    * `query`.
    */
   isCreatedFromQuery?: boolean
+  /**
+   * Single picker with `isCreatedFromQuery`: while empty, creates the
+   * item from this text as "Create “{text}”" would, straight to its chip
+   * (e.g. a label's publisher named after the label). The chip follows
+   * later changes until it's reopened or removed; a removed one isn't
+   * recreated. Never moves focus, since the text comes from another field.
+   */
+  autoCreateQuery?: string
   /** Whether a selected item offers Edit (default: all do). */
   isItemEditable?: (item: TEmbeddedItem | TPage) => boolean
   /**
@@ -279,6 +289,7 @@ export function ItemPicker<
     renderNewItemSummary,
     isSearchFirst: isSearchFirstProp,
     isCreatedFromQuery,
+    autoCreateQuery,
     isItemEditable
   } = props
 
@@ -382,6 +393,13 @@ export function ItemPicker<
   const rootRef = useRef<HTMLDivElement>(null)
   // A create-from-query draft to save once its fieldset has mounted.
   const autoSaveId = useRef<string | null>(null)
+  // The chip `autoCreateQuery` made (and the text it was made from),
+  // while it may still follow; `isAutoCreateDismissed` once it's gone.
+  const autoCreated = useRef<{
+    tempId: string
+    query: string
+  } | null>(null)
+  const isAutoCreateDismissed = useRef(false)
   // Entry count as of the last commit, so the focus effect can detect a
   // single-item picker emptying (1 → 0).
   const prevEntryCount = useRef(entries.length)
@@ -412,6 +430,7 @@ export function ItemPicker<
     const target = pendingFocus.current
     pendingFocus.current = null
 
+    if (target?.kind === 'none') return
     if (target?.kind === 'edit') {
       editButtons.current.get(target.id)?.focus()
     } else if (target?.kind === 'create') {
@@ -514,8 +533,14 @@ export function ItemPicker<
     )
     if (!entry) return
     autoSaveId.current = null
+    const isAuto = autoCreated.current?.tempId === tempId
     if (saveDraft(entry, entryIndex(entry))) {
-      pendingFocus.current = { kind: 'edit', id: entryId(entry) }
+      pendingFocus.current = isAuto
+        ? { kind: 'none' }
+        : { kind: 'edit', id: entryId(entry) }
+    } else if (isAuto) {
+      // leave the editor open, without taking focus
+      autoCreated.current = null
     } else {
       // invalid: leave the editor open on its first field
       getFieldset(tempId)
@@ -525,6 +550,55 @@ export function ItemPicker<
         ?.focus()
     }
   }, [entries, entryIndex, getFieldset, saveDraft])
+
+  // `autoCreateQuery`: create the chip while empty, then follow the text
+  const isAutoCreateUsed =
+    !isMulti && !!isCreatedFromQuery && isSearchFirst
+  const syncAutoCreate = useEffectEvent((text: string) => {
+    if (!isAutoCreateUsed || isAutoCreateDismissed.current) return
+
+    function create(query: string) {
+      const tempId = addNew(query)
+      autoSaveId.current = tempId
+      autoCreated.current = { tempId, query }
+      pendingFocus.current = { kind: 'none' }
+    }
+
+    const auto = autoCreated.current
+    if (!auto) {
+      if (!entries.length && text) create(text)
+      return
+    }
+    const entry = entries.find(
+      (s) => s.kind === 'new' && s.tempId === auto.tempId
+    )
+    if (!entry || entry.kind !== 'new') {
+      // removed, or replaced by a pick: never recreate
+      autoCreated.current = null
+      isAutoCreateDismissed.current = true
+      return
+    }
+    // not saved yet: its auto-save is still landing
+    if (!entry.summaryData) return
+    if (!entry.isSaved || entry.isTouched) {
+      // reopened or edited: the user's now
+      autoCreated.current = null
+      isAutoCreateDismissed.current = true
+      return
+    }
+    if (text === auto.query) return
+    if (text) {
+      // a single picker's new entry replaces the old one
+      create(text)
+    } else {
+      autoCreated.current = null
+      pendingFocus.current = { kind: 'none' }
+      removeEntry(entry)
+    }
+  })
+  useEffect(() => {
+    syncAutoCreate((autoCreateQuery ?? '').trim())
+  }, [autoCreateQuery, entries])
 
   // save the open editor before parent submit so it's sorted;
   // block if invalid, skip if busy

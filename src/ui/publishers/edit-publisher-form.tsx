@@ -19,12 +19,18 @@ interface EditPublisherProps {
   publisher?: Partial<Publisher>
   /** Inline on a published edition: name and website only. */
   isTypeHidden?: boolean
+  /**
+   * Leaves out the website (a label's own publisher, set up from
+   * the project form). A saved website is kept, not cleared.
+   */
+  isUrlHidden?: boolean
 }
 
 export const EditPublisher = ({
   errors,
   publisher,
-  isTypeHidden
+  isTypeHidden,
+  isUrlHidden
 }: EditPublisherProps) => {
   const namePrefix = useNamePrefix()
 
@@ -56,18 +62,20 @@ export const EditPublisher = ({
         />
       )}
 
-      <Input
-        attributes={{
-          maxLength: MAX_STRING_LENGTH_SHORT,
-          name: `${namePrefix}url`,
-          placeholder: 'https://example.com',
-          type: 'url'
-        }}
-        defaultValue={publisher?.url}
-        description='The homepage or profile of the publisher.'
-        errors={errors?.url}
-        label='Publisher website'
-      />
+      {!isUrlHidden && (
+        <Input
+          attributes={{
+            maxLength: MAX_STRING_LENGTH_SHORT,
+            name: `${namePrefix}url`,
+            placeholder: 'https://example.com',
+            type: 'url'
+          }}
+          defaultValue={publisher?.url}
+          description='The homepage or profile of the publisher.'
+          errors={errors?.url}
+          label='Publisher website'
+        />
+      )}
     </>
   )
 }

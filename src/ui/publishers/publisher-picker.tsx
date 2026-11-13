@@ -8,18 +8,28 @@ import { formatPublisherResult } from '@/ui/publishers/format-publisher-result'
 
 /**
  * Picks one publisher: search, or create one from the query alone
- * (edited inline as name + website). The built-in publisher is
- * read-only, so its chip offers no Edit.
+ * (edited inline as name + website, or name alone with
+ * `isUrlHidden`). The built-in publisher is read-only, so its chip
+ * offers no Edit.
  */
 export function PublisherPicker({
+  autoCreateName,
   description,
   isRequired,
+  isUrlHidden,
   label,
   onSelectionChange,
   publisher
 }: {
+  /**
+   * While empty, starts on a new publisher with this name, as a chip
+   * (see `ItemPicker` `autoCreateQuery`), e.g. a label's own title.
+   */
+  autoCreateName?: string
   description?: string
   isRequired?: boolean
+  /** Edits name only; see `EditPublisher`. */
+  isUrlHidden?: boolean
   label?: string
   onSelectionChange?: (publisher?: Publisher) => void
   publisher?: Publisher
@@ -29,6 +39,7 @@ export function PublisherPicker({
       itemType='publishers'
       isSearchFirst
       isCreatedFromQuery
+      autoCreateQuery={autoCreateName}
       isRequired={isRequired}
       label={label}
       description={description}
@@ -50,6 +61,7 @@ export function PublisherPicker({
         <EditPublisher
           errors={errors}
           isTypeHidden
+          isUrlHidden={isUrlHidden}
           publisher={existingItem ?? { name: query }}
         />
       )}

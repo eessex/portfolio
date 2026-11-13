@@ -144,6 +144,71 @@ describe('EditProjectForm', () => {
       ).not.toBeInTheDocument()
     })
 
+    describe('default label’s publisher', () => {
+      async function setUpLabel(title: string) {
+        renderComponent({ isDefaultProject: true })
+        const titleInput = screen.getByLabelText(titleText)
+        await userEvent.type(titleInput, title)
+        await userEvent.selectOptions(
+          screen.getByLabelText(typeText),
+          'recordLabel'
+        )
+        return titleInput
+      }
+
+      function publisherNameInput() {
+        return document.querySelector<HTMLInputElement>(
+          'input[name="publisher.name"]'
+        )
+      }
+
+      it('starts on a new publisher named after the label, as a chip', async () => {
+        await setUpLabel('Soap')
+
+        expect(publisherNameInput()).toHaveValue('Soap')
+        expect(
+          screen.getByRole('button', { name: /remove publisher/i })
+        ).toBeInTheDocument()
+        expect(
+          screen.queryByRole('combobox', { name: /publisher/i })
+        ).not.toBeInTheDocument()
+      })
+
+      it('follows the title without taking focus', async () => {
+        const titleInput = await setUpLabel('Soap')
+
+        await userEvent.type(titleInput, ' Library')
+
+        expect(publisherNameInput()).toHaveValue('Soap Library')
+        expect(titleInput).toHaveFocus()
+      })
+
+      it('doesn’t come back once removed', async () => {
+        const titleInput = await setUpLabel('Soap')
+
+        await userEvent.click(
+          screen.getByRole('button', { name: /remove publisher/i })
+        )
+        await userEvent.type(titleInput, ' Library')
+
+        expect(publisherNameInput()).toBeNull()
+        expect(
+          screen.getByRole('combobox', { name: /publisher/i })
+        ).toHaveValue('')
+      })
+
+      it('isn’t created for another label project', async () => {
+        renderComponent()
+        await userEvent.type(screen.getByLabelText(titleText), 'Soap')
+        await userEvent.selectOptions(
+          screen.getByLabelText(typeText),
+          'recordLabel'
+        )
+
+        expect(publisherNameInput()).toBeNull()
+      })
+    })
+
     it('starts the publisher picker on the project’s publisher', () => {
       renderComponent({
         project: {

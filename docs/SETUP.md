@@ -14,7 +14,7 @@ Save your password in a password manager.
 ## 2. Fork the project
 
 Open the project's GitHub page,
-[eessex/portfolio-cms](https://github.com/eessex/portfolio-cms), and click
+[eessex/portfolio](https://github.com/eessex/portfolio), and click
 **Fork**. You can rename your copy (e.g. `jane-doe-site`) — this is your own
 copy of the code, separate from the original.
 
@@ -116,7 +116,7 @@ GitHub page — Vercel deploys it automatically.
 
 - **A build failed.** Open the failed deployment in Vercel and copy its
   Build Logs link into a new
-  [GitHub issue](https://github.com/eessex/portfolio-cms/issues) — that log
+  [GitHub issue](https://github.com/eessex/portfolio/issues) — that log
   has what's needed to figure out what happened.
 - **You forgot your password.** On the login page, click "Forgot
   password?" and enter your email, one of your recovery codes and a new
@@ -124,7 +124,7 @@ GitHub page — Vercel deploys it automatically.
   Dashboard → Users and send you a reset link. With no other admin,
   you can make that link yourself from a computer (see "Resetting a
   password from your computer" below), or open a
-  [GitHub issue](https://github.com/eessex/portfolio-cms/issues) and
+  [GitHub issue](https://github.com/eessex/portfolio/issues) and
   we'll help you get back in. Adding a second admin (Dashboard → Users
   → Create invite link) is the simplest safety net.
 - **Images aren't uploading.** Double check Storage → your Blob store is
@@ -143,8 +143,8 @@ and a copy of your fork on your computer.
    `YOUR-NAME` with your GitHub username):
 
    ```
-   git clone https://github.com/YOUR-NAME/portfolio-cms.git
-   cd portfolio-cms
+   git clone https://github.com/YOUR-NAME/portfolio.git
+   cd portfolio
    npm install -g pnpm
    pnpm install
    ```

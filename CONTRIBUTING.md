@@ -1,7 +1,7 @@
 # Contributing
 
 Thanks for your interest! Bug reports and ideas are as welcome as code:
-[open an issue](https://github.com/eessex/portfolio-cms/issues). For a
+[open an issue](https://github.com/eessex/portfolio/issues). For a
 larger change, open an issue first so we can talk it through.
 
 ## Licensing your contribution

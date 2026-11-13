@@ -21,7 +21,7 @@ jobs:
   expire:
     # Only on the source repo, so forks' synced pushes cost them nothing
     if: >-
-      github.repository == 'eessex/portfolio-cms' &&
+      github.repository == 'eessex/portfolio' &&
       github.event_name == 'push' && !github.event.deleted
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -58,7 +58,7 @@ jobs:
     # Fork PRs get no secrets, and their head branch name could match
     # one of this repo's own branches
     if: >-
-      github.repository == 'eessex/portfolio-cms' &&
+      github.repository == 'eessex/portfolio' &&
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest

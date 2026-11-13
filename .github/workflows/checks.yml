@@ -13,7 +13,7 @@ concurrency:
 jobs:
   checks:
     # Only on the source repo, so forks' synced pushes cost them nothing
-    if: github.repository == 'eessex/portfolio-cms'
+    if: github.repository == 'eessex/portfolio'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

@@ -3,7 +3,7 @@ name: verify
 description: Verify a change in this repo end-to-end — tests (create if missing), lint, typecheck, and driving the app in the dev server. Run after any nontrivial change to product code.
 ---
 
-# Verifying changes in portfolio-cms
+# Verifying changes in portfolio
 
 Run through ALL of these after any nontrivial change. Do not skip a
 step because the change "looks safe" — report which steps ran and

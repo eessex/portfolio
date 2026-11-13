@@ -10,7 +10,7 @@ My own creative projects were the testing ground for the site, which takes some 
 
 - [eveessex.com](https://eveessex.com)
 
-Want to share your own site? [Open an issue](https://github.com/eessex/portfolio-cms/issues) and I'll add it here.
+Want to share your own site? [Open an issue](https://github.com/eessex/portfolio/issues) and I'll add it here.
 
 ## What you can do with it
 
@@ -44,7 +44,7 @@ A typical portfolio fits inside the free plans of everything it uses:
 
 ## Getting help
 
-Stuck, found a bug, or have an idea? [Open an issue on GitHub](https://github.com/eessex/portfolio-cms/issues). You don't need to be technical. Describe what you were trying to do and what happened. If a deploy failed, include a public link to its build log, a screenshot, or the text of the error output.
+Stuck, found a bug, or have an idea? [Open an issue on GitHub](https://github.com/eessex/portfolio/issues). You don't need to be technical. Describe what you were trying to do and what happened. If a deploy failed, include a public link to its build log, a screenshot, or the text of the error output.
 
 ## For developers
 
@@ -65,4 +65,4 @@ This project uses the [Functional Source License](LICENSE) (FSL-1.1-ALv2). In pl
 - **You can't** offer it to others as a commercial product or service that competes, such as paid managed hosting. My own hosting service helps sustain this project.
 - **Two years after each release**, that version also becomes available under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0), a standard open-source license, so anyone can use it for anything, including hosting.
 
-Not sure whether what you have in mind is allowed? [Open an issue](https://github.com/eessex/portfolio-cms/issues) and ask.
+Not sure whether what you have in mind is allowed? [Open an issue](https://github.com/eessex/portfolio/issues) and ask.

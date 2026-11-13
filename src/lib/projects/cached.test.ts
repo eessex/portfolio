@@ -49,7 +49,7 @@ describe('fetchProjects', () => {
       false,
       'cursor',
       undefined,
-      { isDefaultExcluded: false }
+      {}
     )
     expect(fetchProjectsRaw).toHaveBeenCalledWith(
       false,

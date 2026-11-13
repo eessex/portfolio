@@ -1,5 +1,8 @@
 import { releaseFixtureAlbum } from '@/lib/releases/fixtures'
-import { formattedItemTitle } from '@/ui/format/items'
+import {
+  formattedItemTitle,
+  formattedItemType
+} from '@/ui/format/items'
 
 describe('formattedItemTitle', () => {
   it("prefers a release's display artist (its override or project name)", () => {
@@ -25,5 +28,21 @@ describe('formattedItemTitle', () => {
         artist: undefined
       })
     ).toBe(releaseFixtureAlbum.title)
+  })
+})
+
+describe('formattedItemType', () => {
+  it('keeps the s on a series, singular or plural', () => {
+    expect(formattedItemType('eventSeries').trim()).toBe(
+      'Event Series'
+    )
+    expect(formattedItemType('eventSeries', false, true).trim()).toBe(
+      'Event Series'
+    )
+  })
+
+  it('still singularizes other types', () => {
+    expect(formattedItemType('radioShow').trim()).toBe('Radio Show')
+    expect(formattedItemType('projects').trim()).toBe('Project')
   })
 })

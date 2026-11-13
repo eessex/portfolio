@@ -1,3 +1,5 @@
+import type { ProjectsOrderBy } from '@/lib/projects/schemas'
+
 /**
  * Params a caller may forward to a client API.
  */
@@ -12,6 +14,12 @@ export type SearchParams = {
   isDefaultExcluded?: boolean
   /** Leave out SVG images, outside the site icon and logo pickers */
   isSvgExcluded?: boolean
+  /** Restrict projects to these types, comma-separated (`/artists`) */
+  types?: string
+  /** Leave out these project types, comma-separated (label `/about`) */
+  excludedTypes?: string
+  /** A project list's order, e.g. `name` for `/artists` */
+  orderBy?: ProjectsOrderBy
 }
 
 type UrlParams = {

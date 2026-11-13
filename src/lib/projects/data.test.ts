@@ -23,6 +23,26 @@ function defaultExcludedParams() {
   })
 }
 
+/** The value bound right after the SQL text ending in `before` */
+function boundAfter(call: number, before: string) {
+  const [strings, ...values] = mockSql.mock.calls[call]!
+  const index = (strings as unknown as string[]).findIndex((part) =>
+    part.trimEnd().endsWith(before)
+  )
+  return index === -1 ? 'not found' : values[index]
+}
+
+function listText() {
+  return (mockSql.mock.calls[1]?.[0] as unknown as string[]).join('?')
+}
+
+function pageOf(count: number) {
+  return Array.from({ length: count }, (_, i) => ({
+    ...projectFixtureBand,
+    id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`
+  }))
+}
+
 describe('fetchProjectsRaw', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -88,6 +108,146 @@ describe('fetchProjectsRaw', () => {
     expect(listText).toMatch(/ORDER BY\s+p\.is_default_project DESC/)
     expect(listText).toMatch(
       /IS NULL\s+OR \(\s+NOT p\.is_default_project\s+AND/
+    )
+  })
+
+  it('filters count and list by types, unfiltered by default', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([projectFixtureBand])
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([projectFixtureBand])
+
+    await Projects.fetchProjectsRaw(false, undefined, undefined, {
+      types: ['band', 'solo']
+    })
+    expect(boundAfter(0, 'AND (')).toEqual(['band', 'solo'])
+    expect(boundAfter(1, 'AND (')).toEqual(['band', 'solo'])
+
+    await Projects.fetchProjectsRaw(false)
+    expect(boundAfter(2, 'AND (')).toBeNull()
+    expect(boundAfter(3, 'AND (')).toBeNull()
+  })
+
+  it('leaves out excludedTypes, keeping untyped projects', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([projectFixtureBand])
+
+    await Projects.fetchProjectsRaw(false, undefined, undefined, {
+      excludedTypes: ['band', 'solo']
+    })
+    for (const call of [0, 1]) {
+      expect(
+        boundAfter(call, 'p.type IS NULL OR NOT (p.type = ANY(')
+      ).toEqual(['band', 'solo'])
+    }
+  })
+
+  it('orders by name, with a title cursor', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 30 }])
+      .mockResolvedValueOnce(
+        pageOf(24).map((p, i) => ({ ...p, title: `Artist ${i}` }))
+      )
+
+    const { nextCursor } = await Projects.fetchProjectsRaw(
+      false,
+      undefined,
+      undefined,
+      { orderBy: 'name' }
+    )
+
+    expect(listText()).toMatch(
+      /ORDER BY\s+p\.is_default_project DESC,\s+LOWER\(p\.title\) ASC,\s+p\.id ASC/
+    )
+    expect(
+      JSON.parse(Buffer.from(nextCursor!, 'base64').toString())
+    ).toEqual({
+      name: 'Artist 23',
+      id: '00000000-0000-4000-8000-000000000023'
+    })
+  })
+
+  it('continues a name cursor after its title', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 30 }])
+      .mockResolvedValueOnce([projectFixtureBand])
+    const cursor = Buffer.from(
+      JSON.stringify({ name: 'Mid', id: 'abc' })
+    ).toString('base64')
+
+    await Projects.fetchProjectsRaw(false, cursor, undefined, {
+      orderBy: 'name'
+    })
+
+    expect(boundAfter(1, 'LOWER(p.title) > LOWER(')).toBe('Mid')
+  })
+
+  it('sorts undated projects last, and records it in the date cursor', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 30 }])
+      .mockResolvedValueOnce(
+        pageOf(24).map((p) => ({
+          ...p,
+          startDate: undefined,
+          endDate: undefined
+        }))
+      )
+
+    const { nextCursor } = await Projects.fetchProjectsRaw(false)
+
+    expect(listText()).toMatch(
+      /\(p\.end_date IS NOT NULL\),\s+\(p\.start_date IS NULL\),\s+p\.start_date DESC/
+    )
+    expect(
+      JSON.parse(Buffer.from(nextCursor!, 'base64').toString())
+    ).toMatchObject({ hasEndDate: 'false', hasStartDate: 'false' })
+  })
+
+  it('continues a date cursor into later groups, not earlier ones', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 30 }])
+      .mockResolvedValueOnce([projectFixtureBand])
+    const cursor = Buffer.from(
+      JSON.stringify({
+        name: '2020-01-01T00:00:00.000Z',
+        id: 'abc',
+        hasEndDate: 'false',
+        hasStartDate: 'true'
+      })
+    ).toString('base64')
+
+    await Projects.fetchProjectsRaw(false, cursor)
+
+    // ongoing ('false') sorts first, so ended rows follow it
+    expect(listText()).toContain(
+      '(p.end_date IS NOT NULL)::text > ?::text'
+    )
+    expect(boundAfter(1, '(p.end_date IS NOT NULL)::text >')).toBe(
+      'false'
+    )
+    expect(boundAfter(1, '(p.start_date IS NULL)::text > (NOT')).toBe(
+      'true'
+    )
+  })
+
+  it('treats an older cursor without hasStartDate as dated', async () => {
+    mockSql
+      .mockResolvedValueOnce([{ count: 30 }])
+      .mockResolvedValueOnce([projectFixtureBand])
+    const cursor = Buffer.from(
+      JSON.stringify({
+        name: '2020-01-01T00:00:00.000Z',
+        id: 'abc',
+        hasEndDate: 'true'
+      })
+    ).toString('base64')
+
+    await Projects.fetchProjectsRaw(false, cursor)
+
+    expect(boundAfter(1, '(p.start_date IS NULL)::text > (NOT')).toBe(
+      'true'
     )
   })
 

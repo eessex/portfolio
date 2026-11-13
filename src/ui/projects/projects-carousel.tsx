@@ -1,6 +1,8 @@
 'use client'
 
 import { imageAspect } from '@/lib/images/util'
+import { PROJECTS_LABEL } from '@/lib/projects/labels'
+import type { ProjectType } from '@/lib/projects/schemas'
 import type { ProjectClient } from '@/lib/projects/types'
 import type { CarouselMediaHeights } from '@/ui/carousel/carousel'
 import {
@@ -23,18 +25,21 @@ const MEDIA_HEIGHTS: CarouselMediaHeights = {
  * to its page. Hidden when there are none.
  */
 export function ProjectsCarousel({
-  initialProjects
+  initialProjects,
+  excludedTypes
 }: {
   initialProjects: ProjectClient[]
+  /** the types `initialProjects` left out, for the refetch */
+  excludedTypes?: readonly ProjectType[]
 }) {
-  const projects = useOtherProjects(initialProjects)
+  const projects = useOtherProjects(initialProjects, excludedTypes)
 
   if (projects.length === 0) return null
 
   return (
     <Carousel
       id='projects'
-      title='Projects'
+      title={PROJECTS_LABEL}
       count={projects.length}
       mediaHeights={MEDIA_HEIGHTS}
     >

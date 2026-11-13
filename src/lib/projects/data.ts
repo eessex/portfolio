@@ -4,6 +4,7 @@ import { EmbedCodeTypes } from '@/lib/embed-codes/schemas/db'
 import { runListFetch } from '@/lib/list-fetch'
 import {
   projectClientSchema,
+  type ProjectsOrderBy,
   type ProjectType,
   projectTypeSchema
 } from '@/lib/projects/schemas'
@@ -27,31 +28,61 @@ export type FetchProjectsOptions = {
    * e.g. for the `/projects` index. Pickers and static params keep it.
    */
   isDefaultExcluded?: boolean
+  /** Only these project types, e.g. a label's roster (`/artists`) */
+  types?: readonly ProjectType[]
+  /**
+   * Leave out these project types; untyped projects stay, e.g. a
+   * label's `/about` carousel (everything but the roster)
+   */
+  excludedTypes?: readonly ProjectType[]
+  /**
+   * `date` (the default): ongoing first, then by start date, newest
+   * first, with undated projects last in each group. `name`: by
+   * title, case-insensitively.
+   */
+  orderBy?: ProjectsOrderBy
 }
 
 export async function fetchProjectsRaw(
   isAuthed: boolean = false,
   cursor?: string,
   query?: string,
-  { isDefaultExcluded = false }: FetchProjectsOptions = {}
+  {
+    isDefaultExcluded = false,
+    types,
+    excludedTypes,
+    orderBy = 'date'
+  }: FetchProjectsOptions = {}
 ): Promise<
   PageItemResponseWithCursor<ProjectClient, FetchProjectsResult>
 > {
+  // null when unfiltered
+  const typeList = types?.length ? [...types] : null
+  const excludedTypeList = excludedTypes?.length
+    ? [...excludedTypes]
+    : null
+  const isByName = orderBy === 'name'
+
   return runListFetch({
     cursor,
     query,
     itemType: path,
     schema: projectClientSchema,
-    cursorKey: 'startDate',
-    cursorExtra: (project) => ({
-      hasEndDate: String(project.endDate != null)
-    }),
+    cursorKey: isByName ? 'title' : 'startDate',
+    cursorExtra: isByName
+      ? undefined
+      : (project) => ({
+          hasEndDate: String(project.endDate != null),
+          hasStartDate: String(project.startDate != null)
+        }),
     transform: (projects) => ({ allProjects: projects }),
     count: (like) => sql`
       SELECT COUNT(*)::int AS count
       FROM projects AS p
       WHERE (${isAuthed} OR p.is_published = true)
       AND (NOT ${isDefaultExcluded} OR NOT p.is_default_project)
+      AND (${typeList}::text[] IS NULL OR p.type = ANY(${typeList}::text[]))
+      AND (${excludedTypeList}::text[] IS NULL OR p.type IS NULL OR NOT (p.type = ANY(${excludedTypeList}::text[])))
       AND (
         ${like}::text IS NULL
         OR p.title ILIKE ${like}
@@ -60,13 +91,56 @@ export async function fetchProjectsRaw(
         OR p.type ILIKE ${like}
       );
     `,
-    list: ({
-      like,
-      cursorName: cursorStartDate,
-      cursorId,
-      cursor: decodedCursor
-    }) => {
+    list: ({ like, cursorName, cursorId, cursor: decodedCursor }) => {
+      if (isByName) {
+        return sql`
+          SELECT
+            p.*,
+            build_cover_image_json(p.cover_image_id, p.image_ids) AS cover_image,
+            has_embed_code_type(p.embed_code_ids, ${EmbedCodeTypes.video}) AS has_video,
+            has_embed_code_type(p.embed_code_ids, ${EmbedCodeTypes.audio}) AS has_audio
+          FROM projects AS p
+          WHERE
+            (${isAuthed} OR p.is_published = true)
+            AND (NOT ${isDefaultExcluded} OR NOT p.is_default_project)
+            AND (${typeList}::text[] IS NULL OR p.type = ANY(${typeList}::text[]))
+            AND (${excludedTypeList}::text[] IS NULL OR p.type IS NULL OR NOT (p.type = ANY(${excludedTypeList}::text[])))
+            AND (
+              ${like}::text IS NULL
+              OR p.title ILIKE ${like}
+              OR p.short_description ILIKE ${like}
+              OR p.description ILIKE ${like}
+              OR p.type ILIKE ${like}
+            )
+            -- the default project leads the first page, so later pages
+            -- (after a cursor) skip it and continue by name
+            AND (${cursorId}::uuid IS NULL
+            OR (
+              NOT p.is_default_project
+              AND (
+                LOWER(p.title) > LOWER(${cursorName})
+                OR (
+                  LOWER(p.title) = LOWER(${cursorName})
+                  AND p.id > ${cursorId}::uuid
+                )
+              )
+            )
+          )
+          ORDER BY
+            p.is_default_project DESC,
+            LOWER(p.title) ASC,
+            p.id ASC
+          LIMIT ${DEFAULT_PAGE_SIZE}
+        ;`
+      }
+
+      const cursorStartDate = cursorName
       const cursorHasEndDate = decodedCursor?.hasEndDate ?? null
+      // cursors from before undated projects were grouped were all
+      // dated
+      const cursorHasStartDate = decodedCursor
+        ? (decodedCursor.hasStartDate ?? 'true')
+        : null
 
       return sql`
         SELECT
@@ -78,6 +152,8 @@ export async function fetchProjectsRaw(
         WHERE
           (${isAuthed} OR p.is_published = true)
           AND (NOT ${isDefaultExcluded} OR NOT p.is_default_project)
+          AND (${typeList}::text[] IS NULL OR p.type = ANY(${typeList}::text[]))
+          AND (${excludedTypeList}::text[] IS NULL OR p.type IS NULL OR NOT (p.type = ANY(${excludedTypeList}::text[])))
           AND (
             ${like}::text IS NULL
             OR p.title ILIKE ${like}
@@ -86,20 +162,29 @@ export async function fetchProjectsRaw(
             OR p.type ILIKE ${like}
           )
           -- the default project leads the first page, so later pages
-          -- (after a cursor) skip it
+          -- (after a cursor) skip it. Rows sort by (ended, undated,
+          -- start date DESC, id), compared group by group: 'false'
+          -- sorts before 'true' as text, like the booleans themselves
           AND (${cursorHasEndDate}::text IS NULL
           OR (
             NOT p.is_default_project
             AND (
-              (p.end_date IS NOT NULL)::text < ${cursorHasEndDate}::text
+              (p.end_date IS NOT NULL)::text > ${cursorHasEndDate}::text
               OR (
                 (p.end_date IS NOT NULL)::text = ${cursorHasEndDate}::text
-                AND p.start_date < ${cursorStartDate}::timestamptz
+                AND (p.start_date IS NULL)::text > (NOT ${cursorHasStartDate}::boolean)::text
               )
               OR (
                 (p.end_date IS NOT NULL)::text = ${cursorHasEndDate}::text
-                AND p.start_date = ${cursorStartDate}::timestamptz
-                AND p.id > ${cursorId}::uuid
+                AND (p.start_date IS NULL)::text = (NOT ${cursorHasStartDate}::boolean)::text
+                AND (
+                  p.start_date < ${cursorStartDate}::timestamptz
+                  OR (
+                    (p.start_date = ${cursorStartDate}::timestamptz
+                      OR p.start_date IS NULL)
+                    AND p.id > ${cursorId}::uuid
+                  )
+                )
               )
             )
           )
@@ -107,6 +192,7 @@ export async function fetchProjectsRaw(
         ORDER BY
           p.is_default_project DESC,
           (p.end_date IS NOT NULL),
+          (p.start_date IS NULL),
           p.start_date DESC,
           p.id ASC
         LIMIT ${DEFAULT_PAGE_SIZE}

@@ -68,6 +68,44 @@ describe('GET /api/projects', () => {
     }
   )
 
+  it('passes a types list and orderBy through', async () => {
+    await GET(
+      apiRequest('/api/projects', {
+        types: 'band,solo',
+        orderBy: 'name'
+      })
+    )
+
+    expect(mockFetch.mock.calls[0]?.[3]).toEqual({
+      isDefaultExcluded: false,
+      types: ['band', 'solo'],
+      orderBy: 'name'
+    })
+  })
+
+  it('passes excludedTypes through', async () => {
+    await GET(
+      apiRequest('/api/projects', { excludedTypes: 'band,solo' })
+    )
+
+    expect(mockFetch.mock.calls[0]?.[3]).toEqual({
+      isDefaultExcluded: false,
+      excludedTypes: ['band', 'solo']
+    })
+  })
+
+  it.each([
+    [{ types: 'band,unknown' }, 'Unknown project type.'],
+    [{ excludedTypes: 'unknown' }, 'Unknown project type.'],
+    [{ orderBy: 'random' }, 'Unknown orderBy value.']
+  ])('returns 400 for %p', async (params, message) => {
+    const res = await GET(apiRequest('/api/projects', params))
+
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ message })
+    expect(mockFetch).not.toHaveBeenCalled()
+  })
+
   it('passes isAuthed: false without a session', async () => {
     mockSession(false)
     await GET(apiRequest('/api/projects'))

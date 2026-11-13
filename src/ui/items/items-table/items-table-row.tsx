@@ -145,6 +145,7 @@ export function ItemsTableRow({
   index,
   isAdmin = false,
   isCategoryVisible = false,
+  isDateHidden = false,
   isExpanded = false,
   isFeatured = false,
   isPathTypeVisible = false,
@@ -158,6 +159,8 @@ export function ItemsTableRow({
    */
   isAdmin?: boolean
   isCategoryVisible?: boolean
+  /** leave the date cell empty, e.g. a label's roster (`/artists`) */
+  isDateHidden?: boolean
   isExpanded?: boolean
   isFeatured?: boolean
   isPathTypeVisible?: boolean
@@ -300,7 +303,7 @@ export function ItemsTableRow({
 
       <td>
         {hasOwnPage(item) ? (
-          <FormattedItemDate item={item} />
+          !isDateHidden && <FormattedItemDate item={item} />
         ) : (
           <UsedOnPagesLabel item={item} />
         )}

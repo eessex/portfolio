@@ -566,7 +566,12 @@ export function ItemPicker<
 
     const auto = autoCreated.current
     if (!auto) {
-      if (!entries.length && text) create(text)
+      if (entries.length) {
+        // a saved or picked entry: removing it must stay removed
+        isAutoCreateDismissed.current = true
+      } else if (text) {
+        create(text)
+      }
       return
     }
     const entry = entries.find(

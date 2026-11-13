@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 
+import { PROJECT_LABEL } from '@/lib/projects/labels'
 import type {
   FetchProjectsResult,
   ProjectClient
@@ -82,7 +83,7 @@ function ReleaseFormFields({
       <div>
         <ItemPicker<never, ProjectClient, FetchProjectsResult>
           itemType={PagePaths.projects}
-          label='Project'
+          label={PROJECT_LABEL}
           existingItem={initialProject}
           renderExistingResult={formatProjectResult}
           onSelectionChange={handleProjectChange}

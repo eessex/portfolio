@@ -158,4 +158,21 @@ describe('ProjectsCarousel', () => {
       screen.getByRole('link', { name: /Band 1/ })
     ).not.toHaveTextContent('Unpublished')
   })
+
+  it('refetches without the same types for an admin', async () => {
+    mockFetch([], true)
+
+    render(
+      <ProjectsCarousel
+        initialProjects={[projectFixtureBand]}
+        excludedTypes={['band', 'solo']}
+      />
+    )
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/projects?isDefaultExcluded=true&excludedTypes=band%2Csolo'
+      )
+    })
+  })
 })

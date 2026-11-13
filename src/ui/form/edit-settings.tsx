@@ -7,6 +7,7 @@ import {
   type Image,
   imageClientFieldsSchema
 } from '@/lib/images/schemas/db'
+import type { SiteKind } from '@/lib/projects/site-profile'
 import { ABOUT_PATH } from '@/lib/schemas'
 import { MAX_STRING_LENGTH_SHORT } from '@/lib/schemas/primitives'
 import { editSiteSettings } from '@/lib/site-settings/actions'
@@ -35,10 +36,12 @@ import { editUrl } from '@/ui/routes'
 function SettingsFormFields({
   settings,
   navStatuses,
+  siteKind,
   defaultTitle
 }: {
   settings?: SiteSettingsClient
   navStatuses?: NavItemStatuses
+  siteKind?: SiteKind
   defaultTitle?: string
 }) {
   const errors = useFormErrors()
@@ -181,6 +184,7 @@ function SettingsFormFields({
 
       <NavItemsFields
         navItems={settings?.navItems}
+        siteKind={siteKind}
         statuses={navStatuses}
         errors={errors?.navItems}
       />
@@ -191,12 +195,15 @@ function SettingsFormFields({
 export function EditSettings({
   settings,
   navStatuses,
+  siteKind,
   isAboutCreated,
   defaultTitle
 }: {
   settings?: SiteSettingsClient
   /** the hint beside each menu item; none on first-run setup */
   navStatuses?: NavItemStatuses
+  /** which menu items the site offers, e.g. Artists on a label's */
+  siteKind?: SiteKind
   /** where a save goes: the homepage, else the About form */
   isAboutCreated?: boolean
   /** the site title before settings exist: the About page's */
@@ -219,6 +226,7 @@ export function EditSettings({
       <SettingsFormFields
         settings={settings}
         navStatuses={navStatuses}
+        siteKind={siteKind}
         defaultTitle={defaultTitle}
       />
     </Form>

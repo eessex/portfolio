@@ -3,6 +3,7 @@
 import { DEFAULT_TIME_ZONE } from '@/lib/dates'
 import { deleteEvent, editEvent } from '@/lib/events/actions'
 import type { EventClient } from '@/lib/events/types'
+import { PROJECT_LABEL } from '@/lib/projects/labels'
 import type {
   FetchProjectsResult,
   ProjectClient
@@ -57,7 +58,7 @@ function EventFormFields({ event }: EditEventFormProps) {
       />
       <ItemPicker<never, ProjectClient, FetchProjectsResult>
         itemType={PagePaths.projects}
-        label='Project'
+        label={PROJECT_LABEL}
         existingItem={event?.project as ProjectClient | undefined}
         renderExistingResult={formatProjectResult}
       />

@@ -60,7 +60,8 @@ export function ItemsTable<
   featuredKey,
   projectId,
   searchParams,
-  hiddenPublisherId
+  hiddenPublisherId,
+  isDateHidden
 }: {
   initialItems: ResultsResponse<TEmbeddedItem, T, S>
   itemType: PagePath | EmbeddedItemType
@@ -82,6 +83,8 @@ export function ItemsTable<
   searchParams?: SearchParams
   /** release rows leave out this publisher's name (the house publisher) */
   hiddenPublisherId?: string
+  /** rows show no date, e.g. a label's roster (`/artists`) */
+  isDateHidden?: boolean
 }) {
   const {
     count,
@@ -265,6 +268,7 @@ export function ItemsTable<
                       itemType={itemType}
                       isAdmin={isAdmin}
                       hiddenPublisherId={hiddenPublisherId}
+                      isDateHidden={isDateHidden}
                     />
                   ))}
                 </tbody>
@@ -296,7 +300,8 @@ function ItemsTableItem({
   isPathTypeVisible,
   itemType,
   isAdmin,
-  hiddenPublisherId
+  hiddenPublisherId,
+  isDateHidden
 }: {
   item: PageItemClient | EmbeddedItem
   index: number
@@ -306,6 +311,7 @@ function ItemsTableItem({
   itemType: PagePath | EmbeddedItemType
   isAdmin: boolean
   hiddenPublisherId?: string
+  isDateHidden?: boolean
 }) {
   return (
     <ItemsTableRow
@@ -316,6 +322,7 @@ function ItemsTableItem({
       isPathTypeVisible={isPathTypeVisible}
       itemType={itemType}
       isAdmin={isAdmin}
+      isDateHidden={isDateHidden}
     >
       {itemType === PagePaths.events &&
         formatVenueInline({

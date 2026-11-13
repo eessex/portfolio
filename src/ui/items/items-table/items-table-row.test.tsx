@@ -22,6 +22,25 @@ function renderRow(item: ProjectClient, isExpanded: boolean) {
 }
 
 describe('ItemsTableRow', () => {
+  it('shows no date with isDateHidden', () => {
+    const { container } = render(
+      <table>
+        <tbody>
+          <ItemsTableRow
+            item={projectFixtureBand}
+            itemType={PagePaths.projects}
+            isDateHidden
+          />
+        </tbody>
+      </table>
+    )
+
+    expect(container.querySelector('time')).toBeNull()
+    expect(
+      renderRow(projectFixtureBand, false).querySelector('time')
+    ).not.toBeNull()
+  })
+
   it('sizes an expanded card by its cover aspect', () => {
     const row = renderRow(
       {

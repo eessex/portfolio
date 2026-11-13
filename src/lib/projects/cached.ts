@@ -12,26 +12,32 @@ export async function fetchProjects(
   isAuthed: boolean = false,
   cursor?: string,
   query?: string,
-  { isDefaultExcluded = false }: FetchProjectsOptions = {}
+  options: FetchProjectsOptions = {}
 ) {
   if (!cursor && !query) {
-    return fetchCachedProjectsFirstPage(isAuthed, isDefaultExcluded)
+    return fetchCachedProjectsFirstPage(isAuthed, options)
   }
 
-  return fetchProjectsRaw(isAuthed, cursor, query, {
-    isDefaultExcluded
-  })
+  return fetchProjectsRaw(isAuthed, cursor, query, options)
 }
 
 export async function fetchCachedProjectsFirstPage(
   isAuthed: boolean,
-  isDefaultExcluded: boolean = false
+  {
+    isDefaultExcluded = false,
+    types,
+    excludedTypes,
+    orderBy
+  }: FetchProjectsOptions = {}
 ) {
   'use cache'
   cacheTag('projects')
 
   return await fetchProjectsRaw(isAuthed, undefined, undefined, {
-    isDefaultExcluded
+    isDefaultExcluded,
+    types,
+    excludedTypes,
+    orderBy
   })
 }
 

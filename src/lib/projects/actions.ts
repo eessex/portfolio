@@ -6,6 +6,7 @@ import { sql } from '@/lib/db'
 import { resolveOrderedEmbedCodeIds } from '@/lib/embed-codes/actions'
 import { runDeleteAction, runFormAction } from '@/lib/form-action'
 import { resolveOrderedImageIds } from '@/lib/images/actions'
+import { itemIdFieldName } from '@/lib/item-fields'
 import { resolveOrderedLinkIds } from '@/lib/links/actions'
 import { fetchProjectById } from '@/lib/projects/data'
 import {
@@ -68,7 +69,11 @@ async function saveProjectForm(
     prepare: async (data) => {
       // first: these can throw, and the resolvers below save items
       const contactInfo = resolveContactInfo(data)
-      const publisherId = await resolveProjectPublisherId(data, type)
+      const publisherId = await resolveProjectPublisherId(
+        data,
+        type,
+        id
+      )
       const [
         { coverImageId, imageIds },
         { linkIds },
@@ -113,15 +118,16 @@ async function saveProjectForm(
           throw new Error('A default project already exists')
         }
         if (isConstraintError(err, 'idx_projects_publisher_id')) {
-          throw new Error(
-            'That publisher already belongs to another project'
-          )
+          throw new Error(PUBLISHER_TAKEN_MESSAGE)
         }
         throw err
       }
     }
   })
 }
+
+const PUBLISHER_TAKEN_MESSAGE =
+  'That publisher already belongs to another project'
 
 /**
  * A save tripped a unique index: a second default project, or a
@@ -157,13 +163,26 @@ async function isStartDateRequired(
  * project (other types save no publisher, see `toDbRow`), so a
  * publisher can be created inline from a name. The built-in
  * Self-released publisher is refused: it's already the fallback house
- * publisher.
+ * publisher. A publisher another project links is refused before the
+ * picker runs, since an inline edit would otherwise rename it before
+ * the unique index rejects the link.
  */
 async function resolveProjectPublisherId(
   data: Record<string, unknown>,
-  type: ProjectType | undefined
+  type: ProjectType | undefined,
+  projectId: string | undefined
 ) {
   if (type !== ProjectTypes.recordLabel) return undefined
+  const submittedId = data[itemIdFieldName('publishers')]
+  if (typeof submittedId === 'string' && submittedId) {
+    const rows = await sql`
+      SELECT 1 FROM projects
+      WHERE publisher_id = ${submittedId}
+        AND (${projectId ?? null}::uuid IS NULL OR id <> ${projectId ?? null}::uuid)
+      LIMIT 1
+    `
+    if (rows.length) throw new Error(PUBLISHER_TAKEN_MESSAGE)
+  }
   const publisherId = await resolvePublisherId(data)
   if (!publisherId) return undefined
   const publisher = await fetchPublisherById(publisherId)

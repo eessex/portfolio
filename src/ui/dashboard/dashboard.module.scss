@@ -4,22 +4,31 @@
   padding-block: grids.space-rem(4, 8);
 
   > header {
-    padding: grids.space-rem(2, 4, 6, 4);
+    padding: grids.space-rem(2) var(--items-list-padding-inline)
+      grids.space-rem(6);
   }
+}
+
+.dashboard-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: grids.space-rem(4);
+}
+
+.dashboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: grids.space-rem(2);
 }
 
 .dashboard-inner {
-  padding: grids.space-rem(2, 4, 6, 4);
-
-  h2 {
-    margin-bottom: grids.space-rem(4);
-  }
+  padding: grids.space-rem(2) var(--items-list-padding-inline)
+    grids.space-rem(6);
 }
 
-.dashboard-section {
-  margin-top: grids.space-rem(8);
-
-  > h2 {
-    padding: var(--items-list-padding);
-  }
+// no specificity, so a section's own heading class overrides it
+:where(.dashboard-inner h2) {
+  margin-bottom: grids.space-rem(4);
 }

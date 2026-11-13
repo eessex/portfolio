@@ -47,14 +47,14 @@ export default async function ProjectPage({ params }: PageItemProps) {
 
 async function ProjectDetail({
   project,
-  isAuthed: authed
+  isAuthed
 }: {
   project: ProjectClient
   isAuthed: boolean
 }) {
   const [releases, events, hiddenPublisherId] = await Promise.all([
-    fetchCachedReleasesFirstPage(authed, project.id),
-    fetchCachedEventsFirstPage(authed, project.id),
+    fetchCachedReleasesFirstPage(isAuthed, project.id),
+    fetchCachedEventsFirstPage(isAuthed, project.id),
     activeHousePublisherId()
   ])
 

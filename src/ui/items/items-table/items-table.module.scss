@@ -201,7 +201,21 @@
 
   &:hover,
   &:focus-within {
-    background: var(--input-background-color);
+    background: var(--hover-background-color);
+  }
+
+  // not while pressing a control of its own; the title link is the row's.
+  // :where keeps it at :active's weight, under the expanded-card override
+  &:active:where(
+      :not(
+        :has(
+          :is(a[href], button, input, select, textarea, label):not(
+              .table-row-title a
+            ):active
+        )
+      )
+    ) {
+    background: var(--active-background-color);
   }
 
   > * {
@@ -283,7 +297,8 @@
     @include item-card.hover('.table-row-img', '.title-text');
 
     &:hover,
-    &:focus-within {
+    &:focus-within,
+    &:active {
       background: none;
     }
 
@@ -433,5 +448,5 @@
 }
 
 .unused {
-  color: var(--error-color);
+  color: var(--error-text-color);
 }

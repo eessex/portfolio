@@ -87,9 +87,9 @@ describe('#createFirstUser', () => {
     mockHash.mockResolvedValue('hashed-password')
     mockSql.mockResolvedValue([{ id: '1' }])
 
-    const result = await createFirstUser(firstUserInput)
+    const isCreated = await createFirstUser(firstUserInput)
 
-    expect(result).toBe(true)
+    expect(isCreated).toBe(true)
     expect(mockSql).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.stringContaining('DELETE FROM setup_code'),

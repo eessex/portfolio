@@ -75,7 +75,7 @@ function deferPreviewMetadataFailure() {
 }
 
 const titleText = 'Title'
-const typeText = 'Type'
+const typeText = 'Project type'
 const startDateRegex = /start date/i
 const endDateRegex = /end date/i
 const descriptionRegex = /^description\b/i
@@ -160,6 +160,33 @@ describe('EditProjectForm', () => {
       expect(
         document.querySelector('input[name="publisherId"]')
       ).toHaveValue(publisherFixtureAlpha.id)
+    })
+
+    it('groups the dates under "Active dates" with a description', () => {
+      renderComponent()
+
+      const group = screen.getByRole('group', {
+        name: 'Active dates'
+      })
+      expect(group).toHaveAccessibleDescription(
+        'Project dates are used for sorting and to distinguish active and inactive projects.'
+      )
+      expect(group).toContainElement(
+        screen.getByLabelText(startDateRegex)
+      )
+      expect(group).toContainElement(
+        screen.getByLabelText(endDateRegex)
+      )
+    })
+
+    it('notes the default project dates are not displayed', () => {
+      renderComponent({ isDefaultProject: true })
+
+      expect(
+        screen.getByRole('group', { name: 'Active dates' })
+      ).toHaveAccessibleDescription(
+        'Project dates are used for sorting and to distinguish active and inactive projects. These dates are not displayed to visitors.'
+      )
     })
 
     it('puts the description before the images', () => {
@@ -411,7 +438,7 @@ describe('EditProjectForm', () => {
 
     function fillAndSubmit() {
       fireEvent.change(screen.getByLabelText(titleText), {
-        target: { value: 'Changed title' }
+        target: { value: 'About me' }
       })
       fireEvent.change(screen.getByLabelText(descriptionRegex), {
         target: { value: 'A test description.' }
@@ -462,6 +489,36 @@ describe('EditProjectForm', () => {
           undefined
         )
       )
+    })
+
+    it('has its own title field', () => {
+      renderComponent({
+        project: defaultProject,
+        isDefaultProject: true
+      })
+
+      expect(screen.getByLabelText(titleText)).toHaveValue(
+        defaultProject.title
+      )
+    })
+
+    it('goes on to nextHref after saving, during setup', async () => {
+      mockEditDefaultProject.mockResolvedValue({
+        ok: true,
+        res: defaultProject
+      })
+      renderComponent({
+        project: defaultProject,
+        isDefaultProject: true,
+        nextHref: '/settings'
+      })
+
+      fillAndSubmit()
+
+      await waitFor(() =>
+        expect(pushMock).toHaveBeenCalledWith('/settings')
+      )
+      expect(pushMock).not.toHaveBeenCalledWith('/about')
     })
 
     it('hides the Delete button', () => {

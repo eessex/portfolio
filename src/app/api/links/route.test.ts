@@ -56,10 +56,10 @@ describe('GET /api/links', () => {
   it.each([
     ['true', true],
     ['false', false]
-  ])('passes isPress=%s as %p', async (isPress, expected) => {
+  ])('passes isPress=%s as %p', async (isPress, isExpected) => {
     await GET(apiRequest('/api/links', { isPress }))
 
-    expect(mockFetch.mock.calls[0]?.[2]).toBe(expected)
+    expect(mockFetch.mock.calls[0]?.[2]).toBe(isExpected)
   })
 
   // Documents current behavior: anything but 'true' filters to non-press

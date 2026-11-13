@@ -115,7 +115,7 @@ describe('SetupForm', () => {
     )
   })
 
-  it('shows the recovery codes before continuing to the dashboard', async () => {
+  it('shows the recovery codes before continuing to the About form', async () => {
     mockCompleteSetup.mockResolvedValue({
       ok: true,
       res: { recoveryCodes: ['AAAAA-AAAAA', 'BBBBB-BBBBB'] }
@@ -130,7 +130,7 @@ describe('SetupForm', () => {
     await user.click(screen.getByLabelText(/saved these codes/i))
     await user.click(screen.getByRole('button', { name: 'Continue' }))
 
-    expect(mockPush).toHaveBeenCalledWith('/dashboard')
+    expect(mockPush).toHaveBeenCalledWith('/about/edit')
   })
 
   it('keeps showing the codes when the sign-in re-renders the page', async () => {
@@ -148,10 +148,10 @@ describe('SetupForm', () => {
     expect(mockReplace).not.toHaveBeenCalled()
   })
 
-  it('sends a visit after setup to the dashboard', () => {
+  it('sends a visit after setup to the About form', () => {
     render(<SetupForm isAccountCreated />)
 
-    expect(mockReplace).toHaveBeenCalledWith('/dashboard')
+    expect(mockReplace).toHaveBeenCalledWith('/about/edit')
     expect(
       screen.queryByRole('button', { name: /create account/i })
     ).not.toBeInTheDocument()

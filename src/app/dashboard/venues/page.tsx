@@ -16,7 +16,7 @@ export default async function VenuesPage() {
   const res = await fetchVenues()
 
   return (
-    <DashboardLayout title={title}>
+    <DashboardLayout title={title} itemType={itemType}>
       <Suspense fallback={<Loading />}>
         <ItemsTable itemType={itemType} initialItems={res} />
       </Suspense>

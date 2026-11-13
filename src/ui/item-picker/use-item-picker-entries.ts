@@ -62,10 +62,10 @@ export function useItemPickerEntries<
 }: UseItemPickerEntriesOptions<TEmbeddedItem | TPage>) {
   type Entry = ItemPickerEntry<TEmbeddedItem, TPage>
 
-  const startWithBlankEntry =
+  const isBlankEntryFirst =
     isCreateFirst && (isMulti || existingItems.length === 0)
 
-  const nextSeq = useRef(startWithBlankEntry ? 1 : 0)
+  const nextSeq = useRef(isBlankEntryFirst ? 1 : 0)
   const [entries, setEntries] = useState<Entry[]>(() => {
     const items = existingItems.map((item) => ({
       kind: 'existing' as const,
@@ -74,7 +74,7 @@ export function useItemPickerEntries<
     const existing = isOrderFixed
       ? sortByDefaultOrder(items)
       : keepGroups(items)
-    if (!startWithBlankEntry) return existing
+    if (!isBlankEntryFirst) return existing
     const blank = { kind: 'new' as const, tempId: 'new-0', seq: 0 }
     return [blank, ...existing]
   })
@@ -115,7 +115,7 @@ export function useItemPickerEntries<
     (entry): entry is Draft<TEmbeddedItem, TPage> =>
       isDraft(entry) && !entry.isSaved
   )
-  const hasOpenDraft = !!openDraft
+  const isDraftOpen = !!openDraft
   const isCustomOrder = !isInDefaultOrder(
     splitEntries(entries).positioned
   )
@@ -477,7 +477,7 @@ export function useItemPickerEntries<
     stableDrafts,
     sortableEntries,
     entryIndex,
-    hasOpenDraft,
+    isDraftOpen,
     addExisting,
     addNew,
     editExisting,

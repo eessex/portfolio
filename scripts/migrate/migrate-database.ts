@@ -31,7 +31,7 @@ function appVersion(): string | undefined {
 
 /**
  * Migrates the database `env` points at, unless `decideRun` says this
- * environment shouldn't. Shared by `pnpm migrate` and `pnpm run setup`.
+ * environment shouldn't.
  */
 export async function migrateDatabase(
   env: Record<string, string | undefined>,

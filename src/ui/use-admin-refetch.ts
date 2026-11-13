@@ -24,20 +24,20 @@ export function useAdminRefetch<T>(
   useEffect(() => {
     if (!isAdmin) return
 
-    let cancelled = false
+    let isCancelled = false
 
     fetch(url)
       .then((res) => res.json())
       .then((json: unknown) => {
         const picked = pick(json)
-        if (!cancelled && picked !== undefined) setAdminData(picked)
+        if (!isCancelled && picked !== undefined) setAdminData(picked)
       })
       .catch(() => {
         // published data stands
       })
 
     return () => {
-      cancelled = true
+      isCancelled = true
       setAdminData(undefined)
     }
   }, [isAdmin, url, pick])

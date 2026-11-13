@@ -7,7 +7,6 @@ import { DeviceProvider } from '@/lib/device-context'
 import { ogImage } from '@/lib/images/util'
 import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { siteIconUrls } from '@/lib/site-settings/util'
-import { AdminSidebar } from '@/ui/admin-sidebar/admin-sidebar'
 import { Analytics, SpeedInsights } from '@/ui/analytics/analytics'
 import { geistMono, geistSans } from '@/ui/fonts'
 import { Footer } from '@/ui/footer/footer'
@@ -17,23 +16,26 @@ import { ToastProvider } from '@/ui/toast/toast-context'
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteSettings = await fetchCachedSiteSettings()
-  const images = siteSettings?.coverImage
+  const coverOgImage =
+    siteSettings?.coverImage && ogImage(siteSettings.coverImage)
+  const images = coverOgImage
     ? [
         {
-          ...ogImage(siteSettings.coverImage),
+          ...coverOgImage,
           alt:
-            siteSettings?.coverImage.alt ||
-            siteSettings?.coverImage.caption
+            siteSettings?.coverImage?.alt ||
+            siteSettings?.coverImage?.caption
         }
       ]
     : []
   const icons = siteIconUrls(siteSettings)
+  const siteTitle = siteSettings?.title
   return {
-    title: {
-      template: `%s | ${siteSettings?.title ?? 'Site Title'}`,
-      default: siteSettings?.title ?? 'Site Title'
-    },
-    description: siteSettings?.description ?? 'Site Description',
+    // untitled: pages keep their own title, unsuffixed
+    title: siteTitle
+      ? { template: `%s | ${siteTitle}`, default: siteTitle }
+      : undefined,
+    description: siteSettings?.description,
     openGraph: { images },
     // no manifest: src/app/manifest.ts links itself
     icons: {
@@ -65,10 +67,6 @@ export default async function RootLayout({
           <Nav />
           <DeviceProvider>
             <div className='body-container'>
-              <Suspense fallback={null}>
-                <AdminSidebar />
-              </Suspense>
-
               <div>
                 <main>
                   <div id='content' />

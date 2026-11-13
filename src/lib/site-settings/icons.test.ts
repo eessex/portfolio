@@ -116,6 +116,26 @@ describe('generateSiteIcons', () => {
     expect(mockPut).not.toHaveBeenCalled()
   })
 
+  it('rasterizes a small-viewBox SVG at full size, not upscaled', async () => {
+    // left half filled, so a blurred upscale would soften the edge
+    mockOriginal(
+      Buffer.from(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="12" height="24"/></svg>'
+      )
+    )
+
+    await generateSiteIcons(imageId)
+
+    const { data, info } = await sharp(written('icon-512.png'))
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true })
+    expect(info.width).toBe(512)
+    const alphaAt = (x: number) => data[x * info.channels + 3]
+    expect(alphaAt(253)).toBe(255)
+    expect(alphaAt(258)).toBe(0)
+  })
+
   it('flattens the Apple touch icon onto white', async () => {
     mockOriginal(
       await solid(600, 600, { r: 0, g: 0, b: 0, alpha: 0 }, 4)

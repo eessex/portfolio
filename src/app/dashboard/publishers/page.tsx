@@ -16,7 +16,7 @@ export default async function PublishersPage() {
   const res = await fetchPublishers()
 
   return (
-    <DashboardLayout title={title}>
+    <DashboardLayout title={title} itemType={itemType}>
       <Suspense fallback={<Loading />}>
         <ItemsTable itemType={itemType} initialItems={res} />
       </Suspense>

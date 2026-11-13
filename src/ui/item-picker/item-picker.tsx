@@ -184,6 +184,12 @@ export type ItemPickerProps<
         existingItem?: TEmbeddedItem | TPage
         /** Called when the selected item changes (not on mount). */
         onSelectionChange?: (item?: TEmbeddedItem | TPage) => void
+        /**
+         * Called when the picker gains or loses an item (not on mount):
+         * a selection, or a new draft whose main field is filled, e.g.
+         * an image's file. For disclosing fields that depend on it.
+         */
+        onItemPresenceChange?: (isItemPresent: boolean) => void
       }
     | {
         isMulti: true
@@ -325,7 +331,7 @@ export function ItemPicker<
     stableDrafts,
     sortableEntries,
     entryIndex,
-    hasOpenDraft,
+    isDraftOpen,
     addExisting,
     addNew,
     editExisting,
@@ -401,7 +407,7 @@ export function ItemPicker<
   // on the transition so an initially-empty picker doesn't grab focus
   // on mount.
   useEffect(() => {
-    const wasNonEmpty = prevEntryCount.current > 0
+    const isPrevNonEmpty = prevEntryCount.current > 0
     prevEntryCount.current = entries.length
     const target = pendingFocus.current
     pendingFocus.current = null
@@ -416,7 +422,7 @@ export function ItemPicker<
         ?.focus()
     } else if (
       target?.kind === 'combobox' ||
-      (!isMulti && wasNonEmpty && entries.length === 0)
+      (!isMulti && isPrevNonEmpty && entries.length === 0)
     ) {
       rootRef.current
         ?.querySelector<HTMLElement>('[role="combobox"]')
@@ -447,6 +453,20 @@ export function ItemPicker<
       if (!props.isMulti) props.onSelectionChange?.(item)
     }
   )
+  const isItemPresent =
+    !isMulti &&
+    !!entries[0] &&
+    (entries[0].kind !== 'new' || isMainFieldReady)
+  const onItemPresenceChange = useEffectEvent((isNext: boolean) => {
+    if (!props.isMulti) props.onItemPresenceChange?.(isNext)
+  })
+  const prevIsItemPresent = useRef(isItemPresent)
+  useEffect(() => {
+    if (isItemPresent === prevIsItemPresent.current) return
+    prevIsItemPresent.current = isItemPresent
+    onItemPresenceChange(isItemPresent)
+  }, [isItemPresent])
+
   const prevSelectedId = useRef(selectedItem?.id)
   useEffect(() => {
     if (selectedItem?.id === prevSelectedId.current) return
@@ -479,10 +499,10 @@ export function ItemPicker<
   // so the gap between closing and reopening never shows
   const openBlankForm = useEffectEvent(() => addNew())
   useLayoutEffect(() => {
-    if (isCreateFormAlwaysOpen && !hasOpenDraft && isBelowMax) {
+    if (isCreateFormAlwaysOpen && !isDraftOpen && isBelowMax) {
       openBlankForm()
     }
-  }, [isCreateFormAlwaysOpen, hasOpenDraft, isBelowMax])
+  }, [isCreateFormAlwaysOpen, isDraftOpen, isBelowMax])
 
   // saveDraft reads the fieldset, so it waits for the draft's commit
   useEffect(() => {
@@ -744,7 +764,7 @@ export function ItemPicker<
       </>
     ) : (
       <div className={itemPickerStyles['draft-wrapper']}>
-        {!hasOpenDraft && (
+        {!isDraftOpen && (
           <div>
             <InputLabel
               isRequired={isRequired}
@@ -775,7 +795,8 @@ export function ItemPicker<
 
   // Multi always shows the combobox, single shows it only to search
   // (empty list) or while a draft is open (the toggle carries label + Search).
-  const showCombobox = isMulti || entries.length === 0 || hasOpenDraft
+  const isComboboxShown =
+    isMulti || entries.length === 0 || isDraftOpen
 
   return (
     <div
@@ -814,7 +835,7 @@ export function ItemPicker<
             // with a cap, the description shares a row with its hint
             description={isMaxHintShown ? undefined : description}
           />
-          {!isCreateFormAlwaysOpen && !hasOpenDraft && isBelowMax && (
+          {!isCreateFormAlwaysOpen && !isDraftOpen && isBelowMax && (
             <CreateItemButton
               className='button-sm'
               itemType={itemType}
@@ -845,7 +866,7 @@ export function ItemPicker<
           )}
         </div>
       ) : (
-        showCombobox && (
+        isComboboxShown && (
           <Combobox<TEmbeddedItem, TPage, S>
             label={label || itemTypeToLabel(itemType, !isMulti)}
             description={description}
@@ -856,7 +877,7 @@ export function ItemPicker<
             initialResults={initialResults}
             searchParams={searchParams}
             itemType={itemType}
-            isCreating={hasOpenDraft}
+            isCreating={isDraftOpen}
             // Hidden if single-picker & open entry's main field is valid,
             // so the toggle can't discard entered content.
             onBackToSearch={

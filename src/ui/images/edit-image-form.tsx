@@ -26,6 +26,8 @@ interface EditImageProps {
   >['fieldErrors']
   image?: Partial<Image>
   isRequired?: boolean
+  /** Only the site icon and logo pickers take an SVG */
+  isSvgAllowed?: boolean
   /**
    * Reports when a file goes from unparsed/absent to
    * successfully parsed or back.
@@ -37,6 +39,7 @@ export const EditImage = ({
   errors,
   image,
   isRequired = true,
+  isSvgAllowed,
   onReadyChange
 }: EditImageProps) => {
   const [type, setType] = useState<string | undefined>(
@@ -59,24 +62,23 @@ export const EditImage = ({
   ) {
     setAspectRatio(aspectRatio || savedAspect)
   }
-  const hasImage = !!aspectRatio
+  const isImageSet = !!aspectRatio
   const disclosure = useDisclosureDetails({
-    isRevealed: hasImage,
+    isRevealed: isImageSet,
     isKeptWithContent: true
   })
   const { id: detailsFieldsetId, isExpanded } = disclosure
 
   useEffect(() => {
-    onReadyChange?.(hasImage)
-  }, [hasImage, onReadyChange])
+    onReadyChange?.(isImageSet)
+  }, [isImageSet, onReadyChange])
 
   return (
     <>
       <FileInputImage
         ariaControls={detailsFieldsetId}
-        ariaExpanded={isExpanded}
+        isExpanded={isExpanded}
         attributes={{
-          accept: 'image/*',
           name: `${namePrefix}file`,
           // Required when isRequired, or once the form is touched.
           // Meta fields can't be saved without a file.
@@ -87,6 +89,7 @@ export const EditImage = ({
         validationText='4MB size limit' // FIXME: use const
         image={formImage}
         isReplaceable={!id}
+        isSvgAllowed={isSvgAllowed}
         label='Upload new image'
         onChange={onFileChange}
         isLabelHidden={!isExpanded}

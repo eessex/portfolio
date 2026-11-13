@@ -9,6 +9,7 @@ Vercel. No coding, and nothing to type into a terminal.
 
 At [github.com](https://github.com), if you don't have one already. Use an
 email you'll keep for years — it's how you'll get updates to your site.
+Save your password in a password manager.
 
 ## 2. Fork the project
 
@@ -20,7 +21,7 @@ copy of the code, separate from the original.
 ## 3. Make a Vercel account
 
 At [vercel.com](https://vercel.com), choosing "Continue with GitHub" so it's
-linked to the account from step 1.
+linked to the same account from step 1.
 
 ## 4. Import your fork
 
@@ -61,7 +62,7 @@ Next you'll see 8 **recovery codes**. Save them, along with your password,
 somewhere safe — a password manager, ideally. If you ever forget your
 password, the login page's "Forgot password?" link trades one code for a new
 password. Each code works once, and they're only shown this one time; you can
-generate a fresh set any time from the Account section of your dashboard.
+generate a fresh set any time from your Account page (`/account`).
 
 **Don't see a code?** If you redeployed before claiming your site, the
 latest build log shows this line instead:
@@ -89,6 +90,9 @@ description. Go to `/about/edit` on your site (for example
 `https://your-site.vercel.app/about/edit`), fill in the project that
 represents you, tick **Published**, and save. Until you do, `/about` shows
 a "not found" page.
+
+For how projects, releases, events and the rest fit together, see
+[Using your site](USING.md).
 
 **See your visitors (optional):** Vercel → your project → **Analytics** →
 **Enable**. Free up to 50,000 page views a month; it just stops counting
@@ -141,7 +145,7 @@ and a copy of your fork on your computer.
    ```
    git clone https://github.com/YOUR-NAME/portfolio-cms.git
    cd portfolio-cms
-   corepack enable
+   npm install -g pnpm
    pnpm install
    ```
 

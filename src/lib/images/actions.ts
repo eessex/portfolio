@@ -19,7 +19,11 @@ import {
   imageSchema,
   storedFileFieldNames
 } from '@/lib/images/schemas/db'
-import { deleteImageFile, uploadFile } from '@/lib/images/upload'
+import {
+  deleteImageFile,
+  uploadFile,
+  type UploadOptions
+} from '@/lib/images/upload'
 import { imageAspect } from '@/lib/images/util'
 import { formatDbResponseForClient } from '@/lib/util'
 
@@ -60,7 +64,8 @@ const REPLACE_FILE_MESSAGE =
  */
 async function uploadNewFile(
   data: Record<string, unknown>,
-  id?: string
+  id?: string,
+  options?: UploadOptions
 ) {
   delete data.id
   for (const field of storedFileFieldNames) delete data[field]
@@ -73,7 +78,7 @@ async function uploadNewFile(
 
   let uploaded: Awaited<ReturnType<typeof uploadFile>>
   try {
-    uploaded = await uploadFile(clientFile)
+    uploaded = await uploadFile(clientFile, options)
   } catch (cause) {
     throw new Error('Failed to upload file.', { cause })
   }
@@ -88,14 +93,15 @@ async function uploadNewFile(
  */
 export async function saveImageFromFields(
   fields: Record<string, unknown>,
-  id?: string
+  id?: string,
+  options?: UploadOptions
 ): Promise<Image> {
   return saveItemFromFields({
     id,
     fields,
     schema: createImageSchema,
     itemType: 'images',
-    prepare: (data) => uploadNewFile(data, id),
+    prepare: (data) => uploadNewFile(data, id, options),
     create: createImage,
     update: updateImage
   })
@@ -129,9 +135,12 @@ export async function resolveOrderedImageIds(
  */
 export async function resolveCoverImageId(
   data: Record<string, unknown>,
-  idField = 'coverImageId'
+  idField = 'coverImageId',
+  options?: UploadOptions
 ): Promise<string | undefined> {
-  return resolveItemId(data, idField, saveImageFromFields)
+  return resolveItemId(data, idField, (fields, id) =>
+    saveImageFromFields(fields, id, options)
+  )
 }
 
 export async function deleteImage(image: Image) {

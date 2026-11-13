@@ -30,7 +30,7 @@
 
   @media (hover: hover) {
     &:hover {
-      background: var(--accent-secondary);
+      background: var(--accent-hover);
 
       &:disabled {
         text-decoration: none;
@@ -39,7 +39,7 @@
   }
 
   &:active {
-    background: var(--accent-primary);
+    background: var(--accent-active);
   }
 
   &:disabled {
@@ -80,12 +80,17 @@ a[href] {
 
     @media (hover: hover) {
       &:hover {
-        background: var(--accent-primary);
+        background: var(--accent-hover-inverse);
       }
     }
 
     &:active {
-      background: var(--accent-secondary);
+      background: var(--accent-active-inverse);
+    }
+
+    // outside the fill, so the ring contrasts with the page, not the button
+    &:focus-visible {
+      outline-offset: 2px;
     }
   }
 
@@ -127,7 +132,7 @@ button.button-primary:disabled {
 }
 
 :where(:focus-visible) {
-  outline: 2px solid var(--accent-secondary);
+  outline: 2px solid var(--focus-ring-color);
   outline-offset: -2px;
 }
 
@@ -171,10 +176,6 @@ button.button-primary:disabled {
 
     &::-webkit-calendar-picker-indicator {
       opacity: 0.65;
-
-      @media (prefers-color-scheme: dark) {
-        filter: invert(1);
-      }
     }
   }
 

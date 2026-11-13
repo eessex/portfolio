@@ -62,6 +62,12 @@
   > span:last-child {
     font-variant-numeric: tabular-nums;
     text-align: right;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      vertical-align: -0.125em;
+    }
   }
 
   // title drops below publication and date

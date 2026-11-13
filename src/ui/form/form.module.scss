@@ -134,15 +134,9 @@
     right: grids.space-rem(4);
     width: var(--select-icon-size);
     height: var(--select-icon-size);
-    background-image: url('/chevron-down.svg');
-    background-repeat: no-repeat;
-    background-size: var(--select-icon-size);
-    background-size: contain;
+    background-color: currentColor;
+    mask: url('/chevron-down.svg') no-repeat center / contain;
     transform: translateY(-50%);
-
-    @media (prefers-color-scheme: dark) {
-      filter: invert(1);
-    }
   }
 
   &.is-selected {
@@ -153,7 +147,7 @@
 }
 
 p.error-message {
-  color: var(--error-color);
+  color: var(--error-text-color);
   margin-block: grids.space-em(2) 0;
 }
 

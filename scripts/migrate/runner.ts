@@ -231,7 +231,7 @@ function quotedEnd(
 export function splitStatements(sql: string): string[] {
   const statements: string[] = []
   let start = 0
-  let hasCode = false
+  let isCodeFound = false
   let i = 0
 
   while (i < sql.length) {
@@ -249,7 +249,7 @@ export function splitStatements(sql: string): string[] {
         /[eE]/.test(sql[i - 1] ?? '') &&
         !IDENTIFIER_CHAR_PATTERN.test(sql[i - 2] ?? '')
       i = quotedEnd(sql, i, isEscape)
-      hasCode = true
+      isCodeFound = true
     } else if (char === '$') {
       // a $ continuing an identifier never opens a dollar quote
       const tag = IDENTIFIER_CHAR_PATTERN.test(sql[i - 1] ?? '')
@@ -261,17 +261,17 @@ export function splitStatements(sql: string): string[] {
       } else {
         i++
       }
-      hasCode = true
+      isCodeFound = true
     } else if (char === ';') {
-      if (hasCode) statements.push(sql.slice(start, i).trim())
+      if (isCodeFound) statements.push(sql.slice(start, i).trim())
       start = ++i
-      hasCode = false
+      isCodeFound = false
     } else {
-      if (!/\s/.test(char ?? '')) hasCode = true
+      if (!/\s/.test(char ?? '')) isCodeFound = true
       i++
     }
   }
-  if (hasCode) statements.push(sql.slice(start).trim())
+  if (isCodeFound) statements.push(sql.slice(start).trim())
   return statements
 }
 

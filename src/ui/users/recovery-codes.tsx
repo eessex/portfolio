@@ -1,17 +1,26 @@
 'use client'
 
+import {
+  ArrowDownTrayIcon,
+  DocumentDuplicateIcon
+} from '@heroicons/react/24/outline'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 
 import { regenerateRecoveryCodes } from '@/lib/users/actions'
 import { RECOVERY_CODE_COUNT } from '@/lib/users/schemas'
 import { Checkbox } from '@/ui/form/checkbox'
+import { FieldErrorList } from '@/ui/form/field-error-list'
 import { Form } from '@/ui/form/form'
 import { useToast } from '@/ui/toast/toast-context'
 import { CurrentPasswordInput } from '@/ui/users/current-password-input'
 import styles from '@/ui/users/recovery-codes.module.scss'
 
-/** Shown once, so Continue waits for the "saved" tick */
+/**
+ * Shown once, so Continue asks for the "saved" tick first (an inline
+ * error, like the other forms' client validation, not a disabled
+ * button)
+ */
 export function RecoveryCodesList({
   codes,
   onDone
@@ -20,6 +29,8 @@ export function RecoveryCodesList({
   onDone: () => void
 }) {
   const [isSaved, setIsSaved] = useState(false)
+  const [isSavedErrorShown, setIsSavedErrorShown] = useState(false)
+  const savedErrorId = useId()
   const headingRef = useRef<HTMLHeadingElement>(null)
   // Replaces the focused submit button, so move focus here
   useEffect(() => headingRef.current?.focus(), [])
@@ -71,23 +82,52 @@ export function RecoveryCodesList({
         ))}
       </ol>
       <div className={styles.actions}>
-        <button type='button' onClick={copyCodes}>
-          Copy
+        <button
+          type='button'
+          className='button-outline'
+          onClick={copyCodes}
+        >
+          <DocumentDuplicateIcon /> Copy
         </button>
-        <button type='button' onClick={downloadCodes}>
-          Download
+        <button
+          type='button'
+          className='button-outline'
+          onClick={downloadCodes}
+        >
+          <ArrowDownTrayIcon /> Download
         </button>
       </div>
-      <Checkbox
-        label='I’ve saved these codes'
-        onChange={(event) => setIsSaved(event.target.checked)}
-      />
       <div>
+        <Checkbox
+          label='I’ve saved these codes'
+          attributes={{
+            'aria-invalid': isSavedErrorShown || undefined,
+            'aria-describedby': isSavedErrorShown
+              ? savedErrorId
+              : undefined
+          }}
+          onChange={(event) => {
+            setIsSaved(event.target.checked)
+            if (event.target.checked) setIsSavedErrorShown(false)
+          }}
+        />
+        <FieldErrorList
+          id={savedErrorId}
+          errors={
+            isSavedErrorShown
+              ? ['Save your codes, then tick this box to continue']
+              : undefined
+          }
+        />
+      </div>
+      <div className={styles.continue}>
         <button
           type='button'
           className='button-lg button-primary'
-          disabled={!isSaved}
-          onClick={onDone}
+          onClick={() => {
+            if (isSaved) onDone()
+            else setIsSavedErrorShown(true)
+          }}
         >
           Continue
         </button>
@@ -96,7 +136,7 @@ export function RecoveryCodesList({
   )
 }
 
-/** The dashboard's count of codes left and "Generate new codes". */
+/** The account page's count of codes left and "Generate new codes". */
 export function RecoveryCodesForm({
   unusedCount
 }: {

@@ -1,10 +1,11 @@
 import { updateTag } from 'next/cache'
 
 import { sql } from '@/lib/db'
+import { uploadFile } from '@/lib/images/upload'
 import { editSiteSettings } from '@/lib/site-settings/actions'
 import { generateSiteIcons } from '@/lib/site-settings/icons'
 import { ICON_VERSION } from '@/lib/site-settings/util'
-import { formDataFromObject } from '@/test/helpers'
+import { formDataFromObject, mockFile } from '@/test/helpers'
 
 jest.mock('next/cache')
 
@@ -81,6 +82,22 @@ describe('editSiteSettings', () => {
       ok: false,
       message: 'Failed to save site settings: connection refused.'
     })
+  })
+
+  it('leaves the default project (About) title alone', async () => {
+    mockSql.mockResolvedValue([])
+
+    await editSiteSettings(
+      formDataFromObject(validFields),
+      validFields.id
+    )
+
+    const isProjectUpdated = mockSql.mock.calls.some(([strings]) =>
+      (strings as TemplateStringsArray)
+        .join('?')
+        .includes('UPDATE projects')
+    )
+    expect(isProjectUpdated).toBe(false)
   })
 
   describe('social links', () => {
@@ -229,6 +246,107 @@ describe('editSiteSettings', () => {
       ]) {
         expect(updateTag).toHaveBeenCalledWith(tag)
       }
+    })
+  })
+
+  describe('menu', () => {
+    /** the stored nav_items param, parsed back from its JSON text */
+    function savedNavItems() {
+      const call = mockSql.mock.calls.find(([strings]) =>
+        /(UPDATE|INSERT INTO) site_settings/.test(
+          (strings as TemplateStringsArray).join('?')
+        )
+      )
+      const [strings, ...params] = call!
+      expect((strings as TemplateStringsArray).join('?')).toContain(
+        'nav_items'
+      )
+      const value = params[7]
+      return typeof value === 'string' ? JSON.parse(value) : value
+    }
+
+    it('saves the shown items in order, with names', async () => {
+      mockSql.mockResolvedValue([])
+
+      const res = await editSiteSettings(
+        formDataFromObject({
+          ...validFields,
+          'navItems[0].path': 'releases',
+          'navItems[0].label': '  Music ',
+          'navItems[0].isVisible': 'on',
+          'navItems[1].path': 'events',
+          'navItems[1].label': '',
+          'navItems[1].isVisible': 'on',
+          'navItems[2].path': 'about',
+          'navItems[2].label': 'Bio'
+        }),
+        validFields.id
+      )
+
+      expect(res).toEqual({ ok: true })
+      expect(savedNavItems()).toEqual([
+        { path: 'releases', label: 'Music' },
+        { path: 'events' }
+      ])
+    })
+
+    it('saves an empty menu when every item is hidden', async () => {
+      mockSql.mockResolvedValue([])
+
+      await editSiteSettings(
+        formDataFromObject({
+          ...validFields,
+          'navItems[0].path': 'events'
+        })
+      )
+
+      expect(savedNavItems()).toEqual([])
+    })
+
+    it('keeps the stored menu when the fieldset was not submitted', async () => {
+      mockSql.mockResolvedValue([])
+
+      await editSiteSettings(
+        formDataFromObject(validFields),
+        validFields.id
+      )
+
+      expect(savedNavItems()).toBeNull()
+    })
+
+    it.each([
+      [
+        'an unknown path',
+        { 'navItems[0].path': 'blog', 'navItems[0].isVisible': 'on' }
+      ],
+      [
+        'a repeated path',
+        {
+          'navItems[0].path': 'events',
+          'navItems[0].isVisible': 'on',
+          'navItems[1].path': 'events',
+          'navItems[1].isVisible': 'on'
+        }
+      ],
+      [
+        'a name over 30 characters',
+        {
+          'navItems[0].path': 'events',
+          'navItems[0].label': 'x'.repeat(31),
+          'navItems[0].isVisible': 'on'
+        }
+      ]
+    ])('rejects %s before writing anything', async (_, fields) => {
+      const res = await editSiteSettings(
+        formDataFromObject({ ...validFields, ...fields }),
+        validFields.id
+      )
+
+      expect(res).toMatchObject({
+        ok: false,
+        errors: { navItems: [expect.any(String)] }
+      })
+      expect(mockSql).not.toHaveBeenCalled()
     })
   })
 
@@ -389,6 +507,95 @@ describe('editSiteSettings', () => {
       })
       expect(write()).toBeUndefined()
       expect(updateTag).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('logo', () => {
+    const logoImageId = 'e1b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a'
+
+    /** the site_settings write's params */
+    function writeParams() {
+      const call = mockSql.mock.calls.find(([strings]) =>
+        /(UPDATE|INSERT INTO) site_settings/.test(
+          (strings as TemplateStringsArray).join('?')
+        )
+      )
+      const [, ...params] = call!
+      return params
+    }
+
+    it('writes the logo and logo-only flag as the last columns', async () => {
+      mockSql.mockResolvedValue([])
+
+      const res = await editSiteSettings(
+        formDataFromObject({
+          ...validFields,
+          logoImageId,
+          isLogoOnly: 'on'
+        }),
+        validFields.id
+      )
+
+      expect(res).toEqual({ ok: true })
+      expect(writeParams().slice(-3)).toEqual([
+        logoImageId,
+        true,
+        validFields.id
+      ])
+    })
+
+    it('writes them last when creating the settings row', async () => {
+      mockSql.mockResolvedValue([])
+
+      await editSiteSettings(
+        formDataFromObject({ ...validFields, logoImageId })
+      )
+
+      // an unchecked checkbox isn't submitted
+      expect(writeParams().slice(-2)).toEqual([logoImageId, false])
+    })
+
+    it('clears the logo when the field is cleared', async () => {
+      mockSql.mockResolvedValue([])
+
+      await editSiteSettings(
+        formDataFromObject(validFields),
+        validFields.id
+      )
+
+      expect(writeParams().slice(-3)).toEqual([
+        null,
+        false,
+        validFields.id
+      ])
+    })
+  })
+
+  // the cover is the OG fallback, which link previews can't show as SVG
+  describe.each([
+    ['logoImage', { isSvgAllowed: true }],
+    ['iconImage', { isSvgAllowed: true }],
+    ['coverImage', undefined]
+  ])('an inline %s upload', (prefix, options) => {
+    it(`passes ${JSON.stringify(options)} to uploadFile`, async () => {
+      mockSql.mockResolvedValue([])
+      // stops the save right after the call under test
+      jest.mocked(uploadFile).mockRejectedValueOnce(new Error('stop'))
+      const file = mockFile('logo.svg', 1024, 'image/svg+xml')
+
+      const res = await editSiteSettings(
+        formDataFromObject({
+          ...validFields,
+          [`${prefix}.file`]: file
+        }),
+        validFields.id
+      )
+
+      expect(res?.ok).toBe(false)
+      expect(uploadFile).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'logo.svg' }),
+        options
+      )
     })
   })
 })

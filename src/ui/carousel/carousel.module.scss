@@ -1,18 +1,12 @@
-@use '@/ui/styles/breakpoints';
 @use '@/ui/styles/grids';
 @use '@/ui/styles/sticky-heading';
 
 .carousel {
-  // the inline part of `--items-list-padding`
-  --gutter: #{grids.space-rem(4)};
+  --gutter: var(--items-list-padding-inline);
 
   container: carousel / inline-size;
   padding-top: grids.space-rem(4);
   padding-bottom: grids.space-rem(16);
-
-  @include breakpoints.mobile {
-    --gutter: #{grids.space-rem(3)};
-  }
 }
 
 .header {

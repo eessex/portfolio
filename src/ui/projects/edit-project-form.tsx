@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 
 import {
   deleteProject,
@@ -25,6 +25,7 @@ import { FieldErrorList } from '@/ui/form/field-error-list'
 import { useFormErrors } from '@/ui/form/form'
 import styles from '@/ui/form/form.module.scss'
 import { Input } from '@/ui/form/input'
+import { InputLabel } from '@/ui/form/input-label'
 import { ItemEditForm } from '@/ui/form/item-edit-form'
 import { Select } from '@/ui/form/select'
 import { toDateInputValue } from '@/ui/format/dates'
@@ -34,13 +35,28 @@ import {
   PressLinksPicker
 } from '@/ui/links/links-picker'
 import { ContactInfoFields } from '@/ui/projects/contact-info-fields'
+import formStyles from '@/ui/projects/edit-project-form.module.scss'
 import { PublisherPicker } from '@/ui/publishers/publisher-picker'
 
-function ProjectFormFields({ project }: { project?: ProjectClient }) {
+const DATES_DESCRIPTION =
+  'Project dates are used for sorting and to distinguish active and inactive projects.'
+
+function ProjectFormFields({
+  project,
+  isDefaultProject
+}: {
+  project?: ProjectClient
+  /** Notes that the default project's dates aren't shown on `/about`. */
+  isDefaultProject?: boolean
+}) {
   const errors = useFormErrors()
   const [type, setType] = useState<ProjectType | undefined>(
     project?.type
   )
+  const datesDescriptionId = useId()
+  const datesDescription = isDefaultProject
+    ? `${DATES_DESCRIPTION} These dates are not displayed to visitors.`
+    : DATES_DESCRIPTION
 
   return (
     <>
@@ -57,7 +73,7 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
       <Select
         options={[...projectTypes]}
         errors={errors?.type}
-        label='Type'
+        label='Project type'
         placeholder='Select a type'
         value={project?.type}
         onChange={(value) => {
@@ -76,24 +92,36 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
           <FieldErrorList errors={errors?.publisherId} />
         </div>
       )}
-      <div className={styles['input-group']}>
-        <Input
-          attributes={{
-            name: 'startDate',
-            type: 'date',
-            required: true
-          }}
-          defaultValue={toDateInputValue(project?.startDate)}
-          errors={errors?.startDate}
-          label='Start date'
+      <fieldset
+        aria-describedby={datesDescriptionId}
+        className={formStyles['dates']}
+      >
+        <InputLabel
+          as='legend'
+          label='Active dates'
+          isRequired
+          description={datesDescription}
+          descriptionId={datesDescriptionId}
         />
-        <Input
-          attributes={{ name: 'endDate', type: 'date' }}
-          defaultValue={toDateInputValue(project?.endDate)}
-          errors={errors?.endDate}
-          label='End date'
-        />
-      </div>
+        <div className={styles['input-group']}>
+          <Input
+            attributes={{
+              name: 'startDate',
+              type: 'date',
+              required: true
+            }}
+            defaultValue={toDateInputValue(project?.startDate)}
+            errors={errors?.startDate}
+            label='Start date'
+          />
+          <Input
+            attributes={{ name: 'endDate', type: 'date' }}
+            defaultValue={toDateInputValue(project?.endDate)}
+            errors={errors?.endDate}
+            label='End date'
+          />
+        </div>
+      </fieldset>
       <Input
         as='textarea'
         attributes={{
@@ -124,7 +152,8 @@ function ProjectFormFields({ project }: { project?: ProjectClient }) {
 
 export function EditProjectForm({
   project,
-  isDefaultProject = false
+  isDefaultProject = false,
+  nextHref
 }: {
   project?: ProjectClient
   /**
@@ -133,6 +162,11 @@ export function EditProjectForm({
    * returns to `/about`, and can't be deleted.
    */
   isDefaultProject?: boolean
+  /**
+   * Where a save goes instead of the saved item's page (first-run
+   * setup's next step).
+   */
+  nextHref?: string
 }) {
   const save = isDefaultProject ? editDefaultProject : editProject
   const isDeletable =
@@ -142,14 +176,20 @@ export function EditProjectForm({
     <ItemEditForm
       path={PagePaths.projects}
       action={(formData) => save(formData, project?.id)}
-      savedHref={
-        isDefaultProject ? () => `/${ABOUT_PATH}` : undefined
-      }
+      savedHref={savedHref(isDefaultProject, nextHref)}
       deleteItem={
         isDeletable ? () => deleteProject(project) : undefined
       }
     >
-      <ProjectFormFields project={project} />
+      <ProjectFormFields
+        project={project}
+        isDefaultProject={isDefaultProject}
+      />
     </ItemEditForm>
   )
+}
+
+function savedHref(isDefaultProject: boolean, nextHref?: string) {
+  if (nextHref) return () => nextHref
+  if (isDefaultProject) return () => `/${ABOUT_PATH}`
 }

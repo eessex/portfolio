@@ -2,13 +2,10 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
 import { currentUserId } from '@/lib/auth/guard'
-import { fetchCachedSiteSettings } from '@/lib/site-settings/cached'
 import { fetchUserById } from '@/lib/users/data'
 import { countUnusedRecoveryCodes } from '@/lib/users/recovery-codes'
 import { AccordionDropdown } from '@/ui/accordion-dropdown/accordion-dropdown'
-import styles from '@/ui/dashboard/dashboard.module.scss'
 import { DashboardLayout } from '@/ui/dashboard/dashboard-layout'
-import { EditSettings } from '@/ui/form/edit-settings'
 import { Loading } from '@/ui/loading'
 import {
   EmailForm,
@@ -17,36 +14,15 @@ import {
 } from '@/ui/users/account-forms'
 import { RecoveryCodesForm } from '@/ui/users/recovery-codes'
 
-const title = 'Dashboard'
+const title = 'Account'
 export const metadata: Metadata = { title }
 
-export default async function DashboardPage() {
-  const settings = await fetchCachedSiteSettings()
-
+export default function AccountPage() {
   return (
     <DashboardLayout title={title}>
       <Suspense fallback={<Loading />}>
-        {settings ? (
-          <AccordionDropdown title='Edit site settings'>
-            <EditSettings settings={settings} />
-          </AccordionDropdown>
-        ) : (
-          <section className={styles['dashboard-inner']}>
-            <h2>Welcome! Let&apos;s set up your site:</h2>
-            <EditSettings />
-          </section>
-        )}
+        <AccountSettings />
       </Suspense>
-
-      <section
-        aria-labelledby='account-heading'
-        className={styles['dashboard-section']}
-      >
-        <h2 id='account-heading'>Account</h2>
-        <Suspense fallback={<Loading />}>
-          <AccountSettings />
-        </Suspense>
-      </section>
     </DashboardLayout>
   )
 }
@@ -67,16 +43,16 @@ async function AccountSettings() {
 
   return (
     <>
-      <AccordionDropdown title='Edit user name' headingLevel={3}>
+      <AccordionDropdown title='Edit user name'>
         <NameForm name={user.name} />
       </AccordionDropdown>
-      <AccordionDropdown title='Change email' headingLevel={3}>
+      <AccordionDropdown title='Change email'>
         <EmailForm email={user.email} />
       </AccordionDropdown>
-      <AccordionDropdown title='Change password' headingLevel={3}>
+      <AccordionDropdown title='Change password'>
         <PasswordForm />
       </AccordionDropdown>
-      <AccordionDropdown title='Recovery codes' headingLevel={3}>
+      <AccordionDropdown title='Recovery codes'>
         {unusedRecoveryCodes === null ? (
           <p>
             Couldn&apos;t load recovery codes — reload to try again.

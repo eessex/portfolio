@@ -8,6 +8,7 @@ import { fetchLinksByIds } from '@/lib/links/data'
 import type { Link } from '@/lib/links/schemas/db'
 import { EmbeddedItemTypes } from '@/lib/schemas'
 import type { PageEmbeddedItemProps } from '@/lib/types'
+import { DashboardHeader } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
 
 const title = 'Edit Link'
@@ -23,9 +24,10 @@ export default async function EditLinkPage({
 
   return (
     <article>
-      <header>
-        <h1>{title}</h1>
-      </header>
+      <DashboardHeader
+        title={title}
+        itemType={EmbeddedItemTypes.links}
+      />
 
       <Suspense fallback={<Loading />}>
         <EditEmbeddedItemForm<Link>

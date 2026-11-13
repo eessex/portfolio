@@ -33,7 +33,7 @@ export default async function Home() {
               width={Math.round(800 * coverAspect)}
               height={800}
               sizes='(max-width: 768px) 100vw, 800px'
-              priority
+              preload
             />
           </figure>
         )}

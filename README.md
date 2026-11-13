@@ -1,164 +1,68 @@
 # Portfolio CMS
 
-A Next.js CMS for managing and serving a personal portfolio site: releases, events, projects, venues, publishers, press links, embeds, images, and site-wide "about"/settings content. The same app serves both the public site and the admin editing UI.
+This project is a public portfolio website and CMS built to archive and showcase creative projects by musicians, event organizers, and record labels. It is designed to be configurable with no code, and to operate for free or at very low cost.
 
-Built on Next.js 16 (App Router, `cacheComponents`), Postgres ([Neon](https://neon.tech) serverless, no ORM), next-auth v5 for admin login, and Vercel Blob for image storage.
+My own creative projects were the testing ground for the site, which takes some inspiration from the old-school CMS [Indexhibit](https://github.com/Indexhibit/indexhibit) that first got me into making websites. The framework is intended to be flexible enough to work for a wide variety of artists, presenters and publishers. In the future I hope to extend it to work for visual artists, writers and filmmakers too.
 
-**Want to run your own copy?** No coding required — see
-[`docs/SETUP.md`](docs/SETUP.md) for a step-by-step guide to deploying on
-Vercel from the browser. The rest of this README is for people working on
-the code itself.
+**Looking to set up your own instance?** See [docs/SETUP.md](docs/SETUP.md) for a step-by-step guide.
 
-## Prerequisites
+## Examples
 
-- Node 22.x
-- pnpm 11 (`packageManager` is pinned in `package.json`)
-- A Postgres database (this project targets Neon)
-- A Vercel Blob store, for image uploads
+- [eveessex.com](https://eveessex.com)
 
-## Getting started
+Want to share your own site? [Open an issue](https://github.com/eessex/portfolio-cms/issues) and I'll add it here.
 
-```bash
-pnpm install
-pnpm run setup   # interactive: .env and DB schema
-pnpm dev
-```
+## What you can do with it
 
-Open [http://localhost:3000](http://localhost:3000) and go to `/setup` to claim your local instance — migrating prints a setup code to the terminal, the same way a deployed instance prints one to its build log (each `pnpm run setup` run replaces any earlier code with a new one, so re-run it if you lose the code); see [`docs/SETUP.md`](docs/SETUP.md#6-claim-your-site). Until an admin exists, every page redirects to `/setup`; after that, until site settings are saved, every page redirects logged-out visitors to `/login`.
+- **Show your projects, releases and events**. Each has its own page, and searchable indexes to list them all.
+- **Add images, press links and an About page** that introduces you.
+- **Embed your music and video** from Bandcamp, SoundCloud, YouTube etc. from pasted embed codes.
+- **Keep a record over time**: past events, publications and editions, the venues you've played and the labels you've worked with.
+- **Collect email sign-ups** from a form in the footer (optional).
+- **Invite collaborators** as fellow editors with a link.
+- **Use your own domain name**, or a free `your-site.vercel.app` address.
 
-### `pnpm run setup`
+## Make your own site
 
-`scripts/setup.ts` takes you from a fresh clone to a migrated database:
+You don't need to write code or use a terminal. Everything happens in your web browser, and it takes about 30 minutes:
 
-1. Copies `.env.example` → `.env` (if `.env` doesn't exist yet)
-2. Generates `AUTH_SECRET` and writes it to `.env` (if unset)
-3. Prompts for your Postgres `DATABASE_URL`, testing the connection and re-prompting until it succeeds
-4. Applies database migrations (`pnpm migrate`)
+1. Make free accounts on GitHub (where the code lives) and Vercel (which hosts your site).
+2. Copy this project to your GitHub account with one click.
+3. Connect it to Vercel and add a free database and image storage.
+4. Open your new site, create your account and start adding your work.
 
-Each step checks the current state before it acts: existing env values are reused and re-validated instead of overwritten, and migrations already applied are skipped. That makes it **safe to re-run**, for example after pulling schema changes.
+[docs/SETUP.md](docs/SETUP.md) walks through each step. Once you're set up, [docs/USING.md](docs/USING.md) explains how to fill in and organize your site.
 
-> `run` is required. Bare `pnpm setup` invokes pnpm's own built-in command instead of this script.
+## What it costs
 
-It doesn't create an admin account — that's always done at `/setup`, by the same `createFirstUser()` a deployed instance's owner goes through (see `CONTRIBUTING.md` → "First-run setup"). There is no admin UI for creating further users; additional ones are created server-side via `createUser()` in `src/lib/users/create.ts`.
+A typical portfolio fits inside the free plans of everything it uses:
 
-## Environment variables
+- **Hosting** on [Vercel](https://vercel.com)'s free Hobby plan. Vercel limits Hobby to personal, non-commercial sites. If your site is for a business (a label selling records, say), check [Vercel's plans](https://vercel.com/docs/plans/hobby) to see whether you need a paid one or reach out to me about managed hosting.
+- **Database** on [Neon](https://neon.tech)'s free plan.
+- **Image storage** on Vercel Blob's free allowance. If your file storage exceeds the 1GB limit you will need to switch to a Vercel paid plan (~ $20 monthly) or reach out to me about managed hosting.
+- **A custom domain** is optional, and is the one thing you'd likely pay for: usually around $10–20 a year from a domain registrar.
 
-All variables are listed and commented in `.env.example`.
+## Getting help
 
-| Variable                   | Required    | Notes                                                                                                                                             |
-| -------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`             | yes         | Neon Postgres pooled connection string. Set automatically by the Vercel + Neon integration.                                                       |
-| `DATABASE_URL_UNPOOLED`    | no          | Direct connection used by `pnpm migrate`. Derived from `DATABASE_URL` (dropping `-pooler`) when unset.                                            |
-| `AUTH_SECRET`              | no          | Session encryption secret, **unique per instance**. When unset, the secret `pnpm migrate` generates and stores in the database is used.           |
-| `AUTH_URL`                 | no          | Auto-detected on Vercel. Set it only if you hit login callback-URL issues.                                                                        |
-| `BLOB_READ_WRITE_TOKEN`    | for uploads | Vercel Blob store token. Set automatically when a Blob store is connected to the Vercel project; copy it from the store's settings for local dev. |
-| `BLOB_STORE_ID`            | no          | Blob store id for the public host. Otherwise read from `BLOB_READ_WRITE_TOKEN`.                                                                   |
-| `STORAGE_PROVIDER`         | no          | `blob` or `s3`. Defaults to `blob` when `BLOB_READ_WRITE_TOKEN` is set, else `s3`.                                                                |
-| `MIGRATE_PREVIEWS`         | no          | Preview builds only. Set with `PRODUCTION_DATABASE_HOST` to migrate each preview's own Neon branch.                                               |
-| `PRODUCTION_DATABASE_HOST` | no          | Preview builds only. Production's bare database host, so a preview never migrates production.                                                     |
+Stuck, found a bug, or have an idea? [Open an issue on GitHub](https://github.com/eessex/portfolio-cms/issues). You don't need to be technical. Describe what you were trying to do and what happened. If a deploy failed, include a public link to its build log, a screenshot, or the text of the error output.
 
-### Deprecated: S3 storage
+## For developers
 
-Vercel Blob is the supported image store. The S3 variables are needed only to move an existing instance's images off an S3 bucket onto Blob (`pnpm run copy-storage --to blob`, then set `STORAGE_PROVIDER=blob` or unset it, and redeploy). Once that's done, remove them. Don't set them up for a new instance.
+The site is built with Next.js (App Router), Postgres on Neon (hand-written SQL, no ORM), next-auth and Vercel Blob. The same app serves the public site and the editing interface.
 
-| Variable                | Notes                                                                                            |
-| ----------------------- | ------------------------------------------------------------------------------------------------ |
-| `AWS_ACCESS_KEY_ID`     | IAM key that can read the bucket.                                                                |
-| `AWS_SECRET_ACCESS_KEY` |                                                                                                  |
-| `AWS_S3_BUCKET_NAME`    |                                                                                                  |
-| `AWS_S3_REGION`         |                                                                                                  |
-| `REMOTE_IMAGE_HOSTNAME` | Overrides the bucket's host, which is otherwise derived as `<bucket>.s3.<region>.amazonaws.com`. |
+- [CONTRIBUTING.md](CONTRIBUTING.md): running it locally, scripts, checks, code style and writing migrations
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): how the code is organized and how the pieces fit together
+- [docs/CONFIGURATION.md](docs/CONFIGURATION.md): every environment variable
 
-## Scripts
+Contributions are welcome. If you're planning something big, open an issue first so we can talk it through.
 
-```bash
-pnpm dev           # start dev server (Turbopack)
-pnpm build         # production build
-pnpm start         # run a production build
-pnpm lint          # eslint .
-pnpm typecheck     # tsc --noEmit
-pnpm prettier      # prettier --write .
-pnpm test          # run the jest suite
-pnpm test:watch    # jest --watch
-pnpm test:quiet    # jest --silent --noStackTrace (summary only)
-pnpm check         # typecheck, lint, tests, then build
-pnpm migrate       # apply pending migrations to the database .env points at
-pnpm run setup     # interactive first-run setup; safe to re-run
-pnpm run copy-storage --to blob [--dry-run]  # copy stored files from S3 (deprecated) to Blob
-pnpm run copy-storage --rename-only [--dry-run]  # move older images (e.g. an old bucket's) to images/{id}.{ext} on the current provider
-pnpm run backfill-image-variants [--dry-run]     # write missing or outdated WebP variants, then redeploy
-pnpm run backfill-image-variants --prune [--dry-run]  # delete old variant versions (only once the redeploy is live)
-pnpm run migrate-mongo --input <dir> [--dry-run]  # one-off import of the old site's Mongo exports
-pnpm run reset-password <email> [--url <site>]  # print a one-time password reset link (last-resort recovery)
-```
+## License
 
-To run a single test file: `NODE_OPTIONS=--no-deprecation npx jest src/lib/util.test.ts` (add `-t "name"` to filter by test name).
+This project uses the [Functional Source License](LICENSE) (FSL-1.1-ALv2). In plain terms:
 
-Checks run in GitHub Actions: typecheck, lint and tests on every pull request and push to `main`. Vercel builds every push with `pnpm migrate && pnpm build` (set in `vercel.json`, which overrides the dashboard's build command), so a deploy fails if a migration or the build fails. Production builds migrate the production database; preview builds skip migrations unless they have their own Neon branch and `MIGRATE_PREVIEWS`/`PRODUCTION_DATABASE_HOST` are set (see "Migrating preview deployments" in `CONTRIBUTING.md`). Run `pnpm check` locally to reproduce a failure.
+- **You can** run your own site with it, change the code, and use it to learn or teach. All free.
+- **Freelancers can** charge clients to set up, design or customize a site that the client runs on their own account.
+- **You can't** offer it to others as a commercial product or service that competes, such as paid managed hosting. My own hosting service helps sustain this project.
+- **Two years after each release**, that version also becomes available under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0), a standard open-source license, so anyone can use it for anything, including hosting.
 
-## Using the admin
-
-The site has two kinds of content:
-
-- **Page content** (events, projects, releases). Each type has a public index at `/{type}` and a detail page at `/{type}/{slug}`. When you're signed in, you edit it in place at `/{type}/new` and `/{type}/{slug}/edit`. Unpublished items are only visible to signed-in users.
-- **Embedded items** (embed codes, images, links, publishers, venues). These are reusable pieces with no page of their own that get attached to page content. You can manage them under `/dashboard/*`, or create and edit them inline from any form that uses them (see the item pickers below).
-
-`/about` is the **default project**, the site's own project, edited at `/about/edit`. It renders like any project, with a carousel of the other projects below it. It can't be deleted, and project indexes leave it out.
-
-Every release belongs to a project, and an event may too. Deleting a project hands its releases and events to the default project. A release's **published editions** (format, publisher, date) are edited only inline in the release form. The release date is the earliest edition's date. Images, links and embed codes have no owner. A project lists the ones it uses.
-
-Site settings (`/dashboard`) hold the site title, description, cover image, site icon (the favicon and home-screen icon, generated from one square image of at least 600 × 600), footer social links, and whether the footer shows the email subscribe form.
-
-## Project layout
-
-```
-scripts/setup.ts        first-run setup
-scripts/migrate.ts      migration runner (logic in scripts/migrate/)
-scripts/copy-storage.ts, backfill-image-variants.ts, migrate-mongo.ts  one-off data scripts
-scripts/reset-password.ts  last-resort reset link for a locked-out admin
-src/app/                routes: public pages, (item-pages), /dashboard, /api, /login
-src/auth.ts             next-auth credentials provider
-src/auth.config.ts      which routes require a session
-src/proxy.ts            middleware wiring for auth.config
-src/lib/<domain>/       per-content-type data, cache, actions, schemas
-src/lib/form-action.ts  shared server-action pipeline
-src/lib/list-fetch.ts   shared cursor-paginated list query
-migrations/             versioned schema migrations (`pnpm migrate`)
-src/seed/every-deploy.ts  CHECKs, triggers and SQL functions re-run on every migrate
-src/ui/                 shared React components (item-picker, combobox, form, ...)
-src/test/               jest setup, mocks, helpers
-```
-
-## Architecture
-
-**Data layer.** There is no ORM. Every query is hand-written tagged-template SQL through the `sql` client in `src/lib/db.ts`. Each content type lives under `src/lib/<domain>/` with the same file split:
-
-- `data.ts`: raw read queries (single items, and the uncached `fetch*Raw` list query)
-- `cached.ts`: `'use cache'` wrappers tagged with `cacheTag` for targeted invalidation, plus each list's `fetch*` entry point (cached first page; later pages and searches go uncached)
-- `actions.ts`: `'use server'` mutations that call `updateTag` after writes
-- `schemas.ts` / `types.ts`: Zod validation and inferred types
-- `fixtures.ts`: test fixture builders
-
-DB rows are `snake_case`. Everything that reaches the client is converted to `camelCase` and validated against its Zod schema by `formatDbResponseForClient` (`src/lib/util.ts`). List endpoints use cursor pagination through `runListFetch()` (`src/lib/list-fetch.ts`).
-
-**Schema.** Tables, columns and indexes come from the versioned files in `migrations/`, applied in order by `pnpm migrate` (`scripts/migrate.ts`), each once per database and never edited after it ships. `0001_baseline.ts` is the schema from before migrations existed. Enum-like CHECKs, slug triggers, SQL functions and the built-in publisher are re-applied on every run from `src/seed/every-deploy.ts`, since their SQL follows the code. To change the schema, add a new `migrations/NNNN_short_name.sql` and run `pnpm migrate`.
-
-**Mutations.** Server actions take `FormData` and return a `FormResponse` (`{ ok: true, res }` or `{ ok: false, message, errors? }`) instead of throwing, so forms can show field errors inline. The shared pipeline in `src/lib/form-action.ts` (`runFormAction` / `runDeleteAction`) runs the steps in this order: auth check, normalize, Zod validate, save, invalidate cache tags, format errors. Each domain supplies only its schema, SQL callbacks, and tags.
-
-**Item pickers.** `ItemPicker` (`src/ui/item-picker/`) is the shared control for attaching embedded items to a form. You can search for and select an existing item, create a new one, or edit a selected one inline, without leaving the parent form. Picker fields are namespaced with helpers from `src/lib/item-fields.ts` (for example `venue.city`, or `images[0].url`), and `extractPrefixedGroup` / `extractIndexedGroups` in `src/lib/util.ts` parse them back on the server.
-
-**Auth.** next-auth v5 with a credentials provider (email plus a bcrypt-hashed password; see `src/auth.ts`). Page protection is centralized in `src/auth.config.ts`. Middleware only guards page navigation, so every server action also checks the session itself: the shared action pipeline does this, and custom actions call `requireAuth()` / `assertAuthed()` from `src/lib/auth/guard.ts`. Reads are intentionally public. The only public mutations are login and email subscription. Both are rate-limited in Postgres (`src/lib/auth/rate-limit.ts`): failed logins back off exponentially per email, and subscriptions are limited per IP.
-
-**Images.** The save action reads each upload with `sharp` (JPEG, PNG, WebP or GIF, at least 600px on the short edge), issues the image's id and stores the original at `images/{id}.{ext}` (`src/lib/images/upload.ts`). New files are capped at 4 MB per save, since they go through a server action. Each upload also gets WebP variants at the served widths and a blur placeholder (`src/lib/images/variants.ts`), which `StoredImage` serves straight from storage. Images without variants fall back to the Next.js optimizer until `pnpm run backfill-image-variants` writes them. Storage sits behind one interface (`src/lib/storage/`) with a Blob adapter and a deprecated S3 adapter, kept only for migrating older instances; `publicUrl` is the only code that knows a storage host, so image URLs are derived from the id and format rather than stored. An image's file never changes after upload. Moving an S3 instance to Blob is `pnpm run copy-storage --to blob`, then setting `STORAGE_PROVIDER=blob` (or unsetting it) and redeploying.
-
-**Embed codes.** When you paste an embed (SoundCloud, Mixcloud, YouTube, and so on), the server resolves its oEmbed metadata (`src/lib/embed-codes/oembed.ts`). It then generates a cover image with `sharp` and stores it. The embed's title is always derived by the system and can't be edited.
-
-**Testing.** Jest with `next/jest` and jsdom. Tests sit next to their source as `*.test.ts(x)`. `src/test/` has the shared mocks (fetch, `AbortController`, `IntersectionObserver`, `'use cache'`/`cacheTag`) and helpers. Tests get an authenticated session by default.
-
-## Known gaps
-
-- `tags` exist in the DB and Zod schemas, but nothing reads or writes them yet.
-
-## Code style
-
-Prettier (single quotes, no semicolons, no trailing commas, width 70) and ESLint (sorted imports, `import type` for type-only imports) enforce most conventions. Boolean names use an `isX` prefix (`isSaved`, not `saved`). The path alias `@/*` maps to `src/*`.
+Not sure whether what you have in mind is allowed? [Open an issue](https://github.com/eessex/portfolio-cms/issues) and ask.

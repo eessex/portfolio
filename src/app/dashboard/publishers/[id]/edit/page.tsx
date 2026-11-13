@@ -11,6 +11,7 @@ import { fetchPublisherById } from '@/lib/publishers/data'
 import type { Publisher } from '@/lib/publishers/schemas/db'
 import { EmbeddedItemTypes } from '@/lib/schemas'
 import type { PageEmbeddedItemProps } from '@/lib/types'
+import { DashboardHeader } from '@/ui/dashboard/dashboard-layout'
 import { Loading } from '@/ui/loading'
 
 const title = 'Edit Publisher'
@@ -26,9 +27,10 @@ export default async function EditPublisherPage({
 
   return (
     <article>
-      <header>
-        <h1>{title}</h1>
-      </header>
+      <DashboardHeader
+        title={title}
+        itemType={EmbeddedItemTypes.publishers}
+      />
 
       {publisher.isBuiltIn ? (
         <p>

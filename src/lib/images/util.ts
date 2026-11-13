@@ -6,12 +6,35 @@ export const uploadFormats: Record<
   jpeg: { ext: 'jpg', contentType: 'image/jpeg' },
   png: { ext: 'png', contentType: 'image/png' },
   webp: { ext: 'webp', contentType: 'image/webp' },
-  gif: { ext: 'gif', contentType: 'image/gif' }
+  gif: { ext: 'gif', contentType: 'image/gif' },
+  svg: { ext: 'svg', contentType: 'image/svg+xml' }
+}
+
+/** For paths that store bytes as-is: SVG must go through sanitizeSvg. */
+export function rasterUploadFormat(format: string | undefined) {
+  return format && format !== 'svg'
+    ? uploadFormats[format]
+    : undefined
 }
 
 export const ACCEPTED_IMAGE_TYPES = Object.values(uploadFormats).map(
   ({ contentType }) => contentType
 )
+
+/** SVG only where a picker allows it: the site icon and logo. */
+export function acceptedImageTypes(isSvgAllowed = false) {
+  return isSvgAllowed
+    ? ACCEPTED_IMAGE_TYPES
+    : ACCEPTED_IMAGE_TYPES.filter(
+        (type) => type !== uploadFormats.svg!.contentType
+      )
+}
+
+export function acceptedFormatsText(isSvgAllowed = false) {
+  return isSvgAllowed
+    ? 'JPEG, PNG, WebP, GIF or SVG'
+    : 'JPEG, PNG, WebP or GIF'
+}
 
 // Files still pass through a server action: Vercel caps its body at ~4.5 MB.
 // New files may total 4 MB per save, leaving ~500 KB for the other fields
@@ -78,6 +101,11 @@ interface VariantImage {
   variantVersion?: number
 }
 
+/** Sanitized on upload and served as-is: no variants, no optimizer. */
+export function isSvg(image: { format?: string }) {
+  return image.format === 'svg'
+}
+
 /** Whether the image's WebP widths exist, ie it skips the optimizer. */
 export function hasVariants(image: VariantImage) {
   return !!image.format && (image.variantVersion ?? 0) > 0
@@ -117,8 +145,12 @@ export function imageVariantUrl(
   )
 }
 
-/** Open Graph image: the 1200 variant at its true size, if it exists. */
+/**
+ * Open Graph image: the 1200 variant at its true size, if it exists.
+ * None for SVG, which link previews don't render.
+ */
 export function ogImage(image: SizedImage & VariantImage) {
+  if (isSvg(image)) return undefined
   const aspect = imageAspect(image)
   if (!hasVariants(image)) {
     return {

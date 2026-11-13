@@ -18,11 +18,11 @@
 }
 
 .error {
-  background: var(--error-color);
-  color: var(--page-foreground-color); // FIXME: almost black?
+  background: var(--red);
+  color: var(--fill-foreground-color);
 }
 
 .success {
-  background: var(--accent-secondary);
-  color: var(--page-foreground-color); // FIXME: almost black?
+  background: var(--accent-fill);
+  color: var(--page-foreground-color);
 }

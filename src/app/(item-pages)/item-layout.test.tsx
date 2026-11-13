@@ -24,6 +24,10 @@ jest.mock('@/lib/slug/data', () => ({
   resolveSlug: jest.fn()
 }))
 jest.mock('@/lib/auth/guard', () => ({ isAuthed: jest.fn() }))
+// async server component; covered in admin-header.test.tsx
+jest.mock('@/app/(item-pages)/admin-header', () => ({
+  EditItemHeader: () => null
+}))
 jest.mock('next/navigation', () => ({
   redirect: jest.fn((url: string) => {
     throw new Error(`redirect:${url}`)

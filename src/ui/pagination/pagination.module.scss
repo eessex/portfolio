@@ -1,0 +1,14 @@
+@use '@/ui/styles/grids';
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: grids.space-rem(4);
+  padding-block: grids.space-rem(4);
+
+  [aria-disabled='true'] {
+    opacity: 0.4;
+  }
+}

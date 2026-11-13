@@ -1,7 +1,9 @@
 import clsx from 'clsx'
 import NextLink from 'next/link'
 import type { Metadata } from 'next/types'
+import { Suspense } from 'react'
 
+import { EditItemHeader } from '@/app/(item-pages)/admin-header'
 import styles from '@/app/(item-pages)/item-layout.module.scss'
 import { resolvePageItem } from '@/app/(item-pages)/resolve-page-item'
 import type { EventClient } from '@/lib/events/types'
@@ -38,7 +40,7 @@ import {
 } from '@/ui/items/item-date'
 import { LinksList } from '@/ui/links/link-list'
 import { PublishedEditionsCombined } from '@/ui/published-editions/published-editions'
-import { itemUrl } from '@/ui/routes'
+import { itemEditUrl, itemUrl } from '@/ui/routes'
 import { formatVenueInline } from '@/ui/venues/format-venue-inline'
 
 const IMAGES_CAROUSEL_MIN = 3
@@ -74,6 +76,10 @@ export default async function ItemLayout({
 
   return (
     <ImageGallery images={galleryImages}>
+      <Suspense fallback={null}>
+        <EditItemHeader href={itemEditUrl(item)} />
+      </Suspense>
+
       <div
         className={clsx(
           styles['item-layout'],
@@ -220,9 +226,10 @@ export async function generateItemMetadata(
 
   const description = generateItemDescription(item)
   const { coverImage, path } = item
-  const images = coverImage && [
+  const coverOgImage = coverImage && ogImage(coverImage)
+  const images = coverOgImage && [
     {
-      ...ogImage(coverImage),
+      ...coverOgImage,
       alt: coverImage.alt || ''
     }
   ]

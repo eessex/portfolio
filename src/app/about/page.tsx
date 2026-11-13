@@ -42,10 +42,11 @@ function ogImages(
   image: Parameters<typeof ogImage>[0] | undefined,
   alt: string | undefined
 ) {
-  return image
+  const og = image && ogImage(image)
+  return og
     ? [
         {
-          ...ogImage(image),
+          ...og,
           alt: alt ?? ''
         }
       ]

@@ -72,10 +72,6 @@ export function newUrl(url: string) {
   return `${url}/new`
 }
 
-export function isEditOrNewUrl(pathname: string) {
-  return /\/(edit|new)$/.test(pathname)
-}
-
 export function usedOnPages(item: Partial<DashboardItem>) {
   const events =
     'eventSlugs' in item && Array.isArray(item.eventSlugs)

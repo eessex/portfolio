@@ -26,7 +26,13 @@ export type ImageType = z.infer<typeof imageTypeSchema>
  * An original's format, as sharp names it; sets its key's extension.
  * The keys of `uploadFormats`.
  */
-export const imageFormats = ['jpeg', 'png', 'webp', 'gif'] as const
+export const imageFormats = [
+  'jpeg',
+  'png',
+  'webp',
+  'gif',
+  'svg'
+] as const
 export const imageFormatSchema = z.enum(imageFormats)
 export type ImageFormat = z.infer<typeof imageFormatSchema>
 

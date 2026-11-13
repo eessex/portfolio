@@ -6,6 +6,7 @@ import { unstable_rethrow } from 'next/navigation'
 import { signIn } from '@/auth'
 import { isPasswordBreached } from '@/lib/auth/breached-password'
 import { currentUserId, requireAuth } from '@/lib/auth/guard'
+import { ACCOUNT_URL } from '@/lib/auth/paths'
 import {
   checkWindowLimit,
   clearFailedLogins,
@@ -271,7 +272,7 @@ export async function completeSetup(
     return {
       ok: false,
       message:
-        'Account created! Automatic sign-in failed — please log in at /login, then generate recovery codes on your dashboard.'
+        'Account created! Automatic sign-in failed — please log in at /login, then generate recovery codes on your Account page.'
     }
   }
 }
@@ -352,7 +353,7 @@ export async function recoverAccount(
     await signIn('credentials', {
       email,
       password: newPassword,
-      redirectTo: '/dashboard'
+      redirectTo: ACCOUNT_URL
     })
     return { ok: true }
   } catch (error) {
@@ -902,7 +903,7 @@ export async function acceptInvite(
     return {
       ok: false,
       message:
-        'Account created! Automatic sign-in failed — please log in at /login, then generate recovery codes on your dashboard.'
+        'Account created! Automatic sign-in failed — please log in at /login, then generate recovery codes on your Account page.'
     }
   }
 }
@@ -952,7 +953,7 @@ export async function resetPasswordWithLink(
     await signIn('credentials', {
       email,
       password: newPassword,
-      redirectTo: '/dashboard'
+      redirectTo: ACCOUNT_URL
     })
     return { ok: true }
   } catch (error) {

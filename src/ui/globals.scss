@@ -122,18 +122,6 @@ main {
     flex-direction: column;
   }
 
-  &:has(.admin-sidebar) {
-    flex-direction: row-reverse;
-
-    > div:has(main) {
-      max-width: calc(100% - var(--admin-sidebar-width));
-    }
-
-    .admin-sidebar {
-      width: var(--admin-sidebar-width);
-    }
-  }
-
   #content {
     width: 100%;
     height: 1px;
@@ -142,11 +130,6 @@ main {
 
 body:has(.menubar.hide) {
   --header-height: -1px;
-
-  .admin-sidebar {
-    top: 0;
-    height: 100vh;
-  }
 }
 
 .visually-hidden:not(:focus, :focus-visible, :active),
@@ -199,6 +182,7 @@ footer {
   vertical-align: text-top;
   white-space: nowrap;
   flex-shrink: 0;
+  color: var(--fill-foreground-color);
 
   &.badge-green {
     background-color: var(--green);
@@ -225,7 +209,11 @@ footer {
   }
 
   &.badge-red {
-    background-color: var(--error-color);
+    background-color: var(--red);
+  }
+
+  &.draft-badge {
+    background-color: var(--yellow);
   }
 }
 

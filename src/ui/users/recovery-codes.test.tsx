@@ -45,9 +45,17 @@ describe('RecoveryCodesList', () => {
     const continueButton = screen.getByRole('button', {
       name: 'Continue'
     })
-    expect(continueButton).toBeDisabled()
+    await user.click(continueButton)
+    expect(onDone).not.toHaveBeenCalled()
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      /tick this box/i
+    )
+    expect(
+      screen.getByLabelText(/saved these codes/i)
+    ).toHaveAttribute('aria-invalid', 'true')
 
     await user.click(screen.getByLabelText(/saved these codes/i))
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     await user.click(continueButton)
 
     expect(onDone).toHaveBeenCalled()

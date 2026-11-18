@@ -15,7 +15,7 @@ Want to share your own site? [Open an issue](https://github.com/eessex/portfolio
 ## What you can do with it
 
 - **Show your projects, releases and events**. Each has its own page, and searchable indexes to list them all.
-- **Add images, press links and an About page** that introduces you.
+- **Add images and press links to an About page** that introduces you.
 - **Embed your music and video** from Bandcamp, SoundCloud, YouTube etc. from pasted embed codes.
 - **Keep a record over time**: past events, publications and editions, the venues you've played and the labels you've worked with.
 - **Collect email sign-ups** from a form in the footer (optional).

@@ -1,0 +1,141 @@
+name: Release
+
+# Every merge to main is a release: the PR labels pick the version, a
+# `chore(release):` commit carries the bump, and only that commit
+# deploys to production (see scripts/vercel-ignore-build.sh).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Preview the version and notes; commit, tag and release nothing
+        type: boolean
+        default: true
+
+# One run at a time, so racing merges can't collide on a version. A
+# cancelled waiting run's PRs go out with the next run (it reads every
+# PR since the last tag).
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    # Only on the source repo, and never on its own release commits
+    if: >-
+      github.repository == 'eessex/portfolio' &&
+      !startsWith(github.event.head_commit.message, 'chore(release):')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      # `pnpm release` looks up the PRs behind each commit
+      pull-requests: read
+    env:
+      # A push event is always a real run; only a dispatch can dry-run
+      IS_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+    steps:
+      # Short-lived token from the GitHub App on the main ruleset's
+      # bypass list; its pushes still trigger workflows
+      - uses: actions/create-github-app-token@v2
+        id: app
+        if: env.IS_DRY_RUN != 'true'
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+      - uses: actions/checkout@v5
+        with:
+          # Current main, not the (possibly stale) triggering SHA of a
+          # queued run, which could repeat an already published version
+          ref: main
+          fetch-depth: 0
+          fetch-tags: true
+          token: ${{ steps.app.outputs.token || github.token }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # A run that died after pushing the release commit (or the tag)
+      # left it unpublished; finish it first, so the next version is
+      # worked out from a complete history and its notes aren't lost
+      - name: Finish an interrupted release
+        if: env.IS_DRY_RUN != 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          last=$(git log -1 --format='%H %s' --grep='^chore(release): v[0-9]' HEAD)
+          [ -n "$last" ] || exit 0
+          commit=${last%% *}
+          version=$(printf '%s' "$last" | sed -n 's/.*chore(release): v\([0-9][0-9.]*\).*/\1/p')
+          [ -n "$version" ] || exit 0
+          sh scripts/release/publish.sh "$version" "$commit"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Work out the next version
+        id: version
+        if: env.IS_DRY_RUN == 'true'
+        run: pnpm release
+        env:
+          # The App token may not read PRs; every lookup uses this one
+          GH_TOKEN: ${{ github.token }}
+          ACTION_NEEDED_FILE: ${{ runner.temp }}/action-needed.md
+
+      - name: Preview the notes
+        if: steps.version.outputs.version && env.IS_DRY_RUN == 'true'
+        run: |
+          {
+            gh api repos/${{ github.repository }}/releases/generate-notes \
+              -f tag_name="v${{ steps.version.outputs.version }}" \
+              -f target_commitish="$(git rev-parse HEAD)" \
+              -f previous_tag_name="${{ steps.version.outputs.previous_tag }}" \
+              --jq .body
+            cat "$RUNNER_TEMP/action-needed.md"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Check, commit, tag and release
+        if: env.IS_DRY_RUN != 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          # If main moves before the push, start over from it and
+          # recompute: its new PRs can change the bump (e.g. a
+          # `release-major` one) or leave nothing to release. The
+          # checks rerun on whatever revision is about to be released,
+          # since Vercel's build runs neither lint nor tests.
+          for attempt in 1 2 3; do
+            if [ "$attempt" -gt 1 ]; then
+              git fetch origin main
+              git reset --hard origin/main
+              pnpm install --frozen-lockfile
+            fi
+            out="$RUNNER_TEMP/version-$attempt"
+            : > "$out"
+            GITHUB_OUTPUT="$out" pnpm release
+            version=$(sed -n 's/^version=//p' "$out")
+            if [ -z "$version" ]; then
+              echo "Nothing to release"
+              exit 0
+            fi
+            pnpm typecheck
+            pnpm lint
+            pnpm test:quiet
+            npm pkg set version="$version"
+            git commit -am "chore(release): v$version"
+            git push origin HEAD:main && pushed=1 && break
+          done
+          [ -n "$pushed" ]
+          sh scripts/release/publish.sh "$version" "$(git rev-parse HEAD)"
+        env:
+          # PR lookups and the Release use the job token (which has
+          # pull-requests: read); pushes use the App token that checkout
+          # stored, so they trigger workflows
+          GH_TOKEN: ${{ github.token }}
+          ACTION_NEEDED_FILE: ${{ runner.temp }}/action-needed.md

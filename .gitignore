@@ -48,3 +48,6 @@ placeholder-data.ts
 .claude/settings.json
 .claude/launch.json
 
+
+# old-site Mongo exports (site content; never commit)
+/mongo-export*/

@@ -1,0 +1,9 @@
+# Groups the notes `gh release create --generate-notes` writes
+changelog:
+  categories:
+    - title: Major changes
+      labels: [release-major]
+    - title: New features
+      labels: [release-minor]
+    - title: Fixes and other changes
+      labels: ['*']

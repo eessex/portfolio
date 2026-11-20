@@ -76,7 +76,7 @@ pnpm run reset-password <email> [--url <site>]  # print a one-time password rese
 
 To run a single test file: `NODE_OPTIONS=--no-deprecation npx jest src/lib/util.test.ts` (add `-t "name"` to filter by test name).
 
-Checks run in GitHub Actions: typecheck, lint and tests on every pull request and push to `main`. Vercel builds every push with `pnpm migrate && pnpm build` (set in `vercel.json`, which overrides the dashboard's build command), so a deploy fails if a migration or the build fails. Production builds migrate the production database; preview builds skip migrations unless they have their own Neon branch and `MIGRATE_PREVIEWS`/`PRODUCTION_DATABASE_HOST` are set (see [Migrating preview deployments](#migrating-preview-deployments)). Run `pnpm check` locally to reproduce a failure.
+Checks run in GitHub Actions: typecheck, lint and tests on every pull request and push to `main` that changes more than Markdown (a docs-only change reports `checks` as skipped, which still satisfies it as a required check). Vercel builds every push with `pnpm migrate && pnpm build` (set in `vercel.json`, which overrides the dashboard's build command), so a deploy fails if a migration or the build fails, except a push whose changes since the branch's last successful deployment are all Markdown, which `scripts/vercel-ignore-build.sh` (the `ignoreCommand`) skips. A branch's first deployment and a redeploy always build. Production builds migrate the production database; preview builds skip migrations unless they have their own Neon branch and `MIGRATE_PREVIEWS`/`PRODUCTION_DATABASE_HOST` are set (see [Migrating preview deployments](#migrating-preview-deployments)). Run `pnpm check` locally to reproduce a failure.
 
 ## Code style
 

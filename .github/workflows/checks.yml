@@ -11,9 +11,37 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  checks:
-    # Only on the source repo, so forks' synced pushes cost them nothing
+  # Job-level filter: a skipped `checks` still satisfies a required check,
+  # which workflow-level paths-ignore wouldn't
+  changes:
     if: github.repository == 'eessex/portfolio'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      # PRs read changed files from the API; pushes need the git history
+      - if: github.event_name == 'push'
+        uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            code:
+              - '!**/*.md'
+
+  checks:
+    needs: changes
+    # Only on the source repo, so forks' synced pushes cost them nothing.
+    # A failed filter runs the checks rather than skipping them.
+    if: >-
+      !cancelled() &&
+      github.repository == 'eessex/portfolio' &&
+      (needs.changes.result != 'success' ||
+        needs.changes.outputs.code == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

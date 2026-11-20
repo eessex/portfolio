@@ -151,3 +151,14 @@ Jest + `next/jest` + jsdom, config in `jest.config.ts`, which pins `TZ=UTC` (mat
 - ESLint enforces import sorting (`simple-import-sort`) and type-only imports (`consistent-type-imports`); unused vars/args/catch bindings prefixed with `_` are allowed.
 - Path alias `@/*` maps to `src/*`.
 - Boolean variables/fields/props use an `isX` prefix (e.g. `isSaved`, `isTouched`) rather than a bare adjective/participle (`saved`, `touched`). ESLint enforces it (`@typescript-eslint/naming-convention`, type-aware) on variables, parameters and declared type properties; object-literal keys, `ok` and snake_case DB fields are exempt.
+
+## Git workflow rules
+
+- Never execute git commit.
+- Never execute git push.
+- Never create commits automatically.
+- Never add Co-authored-by trailers.
+- Never amend, rebase, or rewrite Git history without explicit permission.
+- Make code changes only.
+- Leave all modified files ready for human review.
+- The human developer handles all Git operations.

@@ -47,7 +47,8 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   experimental: {
     // image uploads go through the form's server action
-    serverActions: { bodySizeLimit: SERVER_ACTION_BODY_SIZE_LIMIT }
+    serverActions: { bodySizeLimit: SERVER_ACTION_BODY_SIZE_LIMIT },
+    agentUpgrade: 'security'
   },
   serverExternalPackages: ['sharp', 'jsdom'],
   images: {

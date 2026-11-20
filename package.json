@@ -41,7 +41,7 @@
     "dompurify": "^3.4.17",
     "js-cookie": "^3.0.8",
     "jsdom": "^26.1.0",
-    "next": "16.4.1",
+    "next": "16.4.6",
     "next-auth": "^5.0.0-beta.32",
     "react": "19.2.7",
     "react-dom": "19.2.7",

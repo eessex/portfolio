@@ -14,6 +14,7 @@ to a site owner, see [USING.md](USING.md).
 ```
 scripts/migrate.ts      migration runner (logic in scripts/migrate/)
 scripts/copy-storage.ts, backfill-image-variants.ts, migrate-mongo.ts  one-off data scripts
+scripts/export-old-site.ts, import-old-site.ts  move an old Mongo site into a fork (wrap migrate-mongo)
 scripts/reset-password.ts  last-resort reset link for a locked-out admin
 src/app/                routes: public pages, (item-pages), /dashboard, /api, /login
 src/auth.ts             next-auth credentials provider

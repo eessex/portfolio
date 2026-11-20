@@ -80,6 +80,10 @@ before that "valid until" time.
 If the code has expired (after 72 hours), click **Redeploy** on your latest
 deployment to get a new one.
 
+Moving from the old MongoDB version of this site? Import your content
+now, before adding anything by hand: see
+[IMPORT_OLD_SITE.md](IMPORT_OLD_SITE.md).
+
 ## 7. Fill in your site
 
 You'll land on your dashboard, which asks for your site title and

@@ -17,7 +17,6 @@ pnpm migrate         # apply pending migrations + every-deploy steps to the DB .
 pnpm migrate --new-setup-code  # same, replacing a still-live setup code (a lost one can't be reprinted)
 pnpm run copy-storage --to <provider> [--dry-run]       # copy stored files between providers (writes to storage + DB)
 pnpm run backfill-image-variants [--prune] [--dry-run]  # write missing/outdated image variants (writes to storage + DB)
-pnpm run migrate-mongo --input <dir> [--dry-run]        # one-off import of the old site's Mongo exports (writes to the real DB)
 pnpm run reset-password <email> [--url <site>]           # print a one-time reset link for a locked-out admin (writes to the real DB)
 pnpm run update-disposable-domains                       # refresh the vendored throwaway-email domain list used by the spam rules
 ```
@@ -136,10 +135,6 @@ Each upload also gets WebP variants (`generateImageVariants` in `src/lib/images/
 ### Embed codes
 
 Beyond storing the pasted iframe/src, `src/lib/embed-codes/` resolves each embed's oEmbed metadata (title, thumbnail) server-side via `oembed.ts` (host-specific handling — e.g. unwrapping SoundCloud/Mixcloud's widget-wrapped `src` to the canonical content URL — since not every host sends CORS headers a browser fetch could rely on) and generates a cover image from it via `cover-image.ts` (using `sharp`, written through the active storage adapter); an embed code's `title` is always system-derived from `host`/`src` rather than user-editable. `preview-metadata.ts` exposes a client-callable `previewEmbedCodeMetadata()` for a live title/thumbnail preview while a form is still being filled in, deliberately skipping the storage upload so an abandoned form doesn't leave orphaned images.
-
-### Mongo import
-
-`scripts/migrate-mongo.ts` (helpers in `scripts/migrate-mongo/`: `transforms.ts`, `plan.ts`) is a one-off import of the old site's `mongoexport --jsonArray` files into Postgres. It never connects to Mongo. It records each created row in `legacy_ids` (`source`, `mongo_id` → `table_name`, `row_id`), so a re-run is a no-op. Like `copy-storage`, it uses direct SQL rather than server actions, never deletes or overwrites anything, and can't invalidate cache tags, so redeploy afterwards. A dry run writes a report to `<dir>/reports`.
 
 ### Testing
 

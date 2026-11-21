@@ -70,7 +70,6 @@ pnpm run copy-storage --to blob [--dry-run]  # copy stored files from S3 (deprec
 pnpm run copy-storage --rename-only [--dry-run]  # move older images (e.g. an old bucket's) to images/{id}.{ext} on the current provider
 pnpm run backfill-image-variants [--dry-run]     # write missing or outdated WebP variants, then redeploy
 pnpm run backfill-image-variants --prune [--dry-run]  # delete old variant versions (only once the redeploy is live)
-pnpm run migrate-mongo --input <dir> [--dry-run]  # one-off import of the old site's Mongo exports
 pnpm run reset-password <email> [--url <site>]  # print a one-time password reset link (last-resort recovery)
 ```
 

@@ -13,7 +13,6 @@
     "migrate": "node --env-file-if-exists=.env --import tsx scripts/migrate.ts",
     "backfill-image-variants": "node --env-file=.env --import tsx scripts/backfill-image-variants.ts",
     "copy-storage": "node --env-file=.env --import tsx scripts/copy-storage.ts",
-    "migrate-mongo": "node --env-file=.env --import tsx scripts/migrate-mongo.ts",
     "reset-password": "node --env-file-if-exists=.env --import tsx scripts/reset-password.ts",
     "update-disposable-domains": "node --import tsx scripts/update-disposable-domains.ts",
     "lint": "eslint .",

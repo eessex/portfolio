@@ -362,7 +362,7 @@ describe('deleteImageFile', () => {
   it('leaves a file on another host alone', async () => {
     await deleteImageFile({
       id,
-      url: 'https://old-bucket.s3.amazonaws.com/images/photo.jpg'
+      url: 'https://other-host.example/images/photo.jpg'
     })
     expect(mockDelete).not.toHaveBeenCalled()
   })

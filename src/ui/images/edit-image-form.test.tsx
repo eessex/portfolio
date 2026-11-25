@@ -19,7 +19,7 @@ describe('EditImage', () => {
   describe('progressive disclosure', () => {
     const existingImage = {
       id: 'img-1',
-      url: 'https://bucket.s3.amazonaws.com/images/photo.jpg',
+      url: 'https://bucket.example/images/photo.jpg',
       aspect: 1.5
     }
 
@@ -96,7 +96,7 @@ describe('EditImage', () => {
   describe('onReadyChange', () => {
     const existingImage = {
       id: 'img-1',
-      url: 'https://bucket.s3.amazonaws.com/images/photo.jpg',
+      url: 'https://bucket.example/images/photo.jpg',
       aspect: 1.5
     }
 

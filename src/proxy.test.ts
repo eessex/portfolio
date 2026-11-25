@@ -28,7 +28,7 @@ describe('proxy matcher', () => {
     '/manifest.webmanifest',
     '/icon-192.png',
     '/apple-icon.png',
-    '/globe.svg',
+    '/chevron-down.svg',
     '/api/session',
     '/_next/static/chunk.js'
   ])('skips static or api path %s', (path) => {

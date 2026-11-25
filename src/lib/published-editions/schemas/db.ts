@@ -4,14 +4,17 @@ import { systemFields, taxonomyFields } from '@/lib/schemas/fields'
 import { date, shortText, uuid } from '@/lib/schemas/primitives'
 
 export const publishedEditionTypes = [
-  '2xCD',
   '2xCassette',
+  '2xCD',
   '2xLP',
-  'CD',
+  'Book',
   'Cassette',
+  'CD',
   'Digital',
+  'Flexidisc',
+  'iOSApp',
   'LP',
-  'iOSApp'
+  'Zine'
 ] as const
 export const publishedEditionTypeSchema = z.enum(
   publishedEditionTypes

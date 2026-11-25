@@ -9,8 +9,7 @@ import {
 } from './src/lib/images/util'
 import {
   blobHostname,
-  IMAGE_PATH_PREFIX,
-  s3Hostname
+  IMAGE_PATH_PREFIX
 } from './src/lib/storage/keys'
 
 // kept literal so this file needn't import the embed-code module
@@ -22,8 +21,8 @@ type RemotePattern = NonNullable<
 
 const remotePatterns: RemotePattern[] = []
 
-for (const hostname of [s3Hostname(), blobHostname()]) {
-  if (!hostname) continue
+const hostname = blobHostname()
+if (hostname) {
   for (const prefix of [IMAGE_PATH_PREFIX, COVER_IMAGE_PATH_PREFIX]) {
     remotePatterns.push({
       protocol: 'https',

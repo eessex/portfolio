@@ -22,11 +22,11 @@ describe('manifest', () => {
     expect(res.name).toBe('Band')
     expect(res.icons?.map(({ src, sizes }) => [src, sizes])).toEqual([
       [
-        'https://test-bucket.s3.us-east-1.amazonaws.com/icons/c1b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a/v1/icon-192.png',
+        'https://teststore.public.blob.vercel-storage.com/icons/c1b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a/v1/icon-192.png',
         '192x192'
       ],
       [
-        'https://test-bucket.s3.us-east-1.amazonaws.com/icons/c1b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a/v1/icon-512.png',
+        'https://teststore.public.blob.vercel-storage.com/icons/c1b8c8e2-4f8a-4c2a-9e2a-2f8b8c8e2f8a/v1/icon-512.png',
         '512x512'
       ]
     ])

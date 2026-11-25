@@ -28,10 +28,10 @@ import {
 } from '@/lib/images/variants'
 import { storageAdapter } from '@/lib/storage'
 import {
+  blobHostname,
   imageKey,
   imageVariantKey,
-  keyFromUrl,
-  storageHostname
+  keyFromUrl
 } from '@/lib/storage/keys'
 
 /**
@@ -224,7 +224,7 @@ export async function deleteImageFile(image: {
     if (image.format) {
       key = imageKey(image.id, image.format)
     } else {
-      if (new URL(image.url).hostname !== storageHostname()) {
+      if (new URL(image.url).hostname !== blobHostname()) {
         console.warn(
           'Image file is not on active storage:',
           image.url

@@ -172,7 +172,7 @@ type ItemPickerSharedProps<
    * (see `saveDraft`). `data` is the entry's fieldset values, already
    * collected + `normalizeFormData`-normalized the same way `schema`
    * validation reads them. Use this for item types whose `renderExistingResult`
-   * can't render an unsaved item (e.g. `images`, which needs an s3 `url`).
+   * can't render an unsaved item (e.g. `images`, which needs a stored `url`).
    * `editButton` is the picker's own (so it can move focus to it after
    * Save); render it as-is. `removeLabel` matches `renderExistingResult`'s.
    */

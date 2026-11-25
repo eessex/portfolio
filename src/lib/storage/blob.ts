@@ -5,7 +5,7 @@ import type { StorageAdapter } from '@/lib/storage/types'
 
 /**
  * Vercel Blob, read-write through BLOB_READ_WRITE_TOKEN. Server-only,
- * deliberately not a `'use server'` module, like the S3 adapter.
+ * deliberately not a `'use server'` module.
  */
 export function createBlobAdapter(): StorageAdapter {
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
@@ -25,7 +25,7 @@ export function createBlobAdapter(): StorageAdapter {
         allowOverwrite: options?.isOverwriteAllowed ?? false,
         cacheControlMaxAge: STORAGE_CACHE_MAX_AGE
       })
-      const expected = publicUrl(key, 'blob')
+      const expected = publicUrl(key)
       if (blob.url !== expected) {
         console.warn('Blob URL differs from the derived one:', {
           stored: blob.url,
@@ -47,6 +47,6 @@ export function createBlobAdapter(): StorageAdapter {
       } while (cursor)
     },
 
-    publicUrl: (key) => publicUrl(key, 'blob')
+    publicUrl: (key) => publicUrl(key)
   }
 }

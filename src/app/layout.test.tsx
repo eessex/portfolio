@@ -54,14 +54,14 @@ describe('generateMetadata', () => {
       expect(icons).toEqual({
         icon: [
           {
-            url: `https://test-bucket.s3.us-east-1.amazonaws.com/icons/${iconImageId}/v2/icon-32.png`,
+            url: `https://teststore.public.blob.vercel-storage.com/icons/${iconImageId}/v2/icon-32.png`,
             type: 'image/png',
             sizes: '32x32'
           }
         ],
         apple: [
           {
-            url: `https://test-bucket.s3.us-east-1.amazonaws.com/icons/${iconImageId}/v2/apple-touch-icon.png`,
+            url: `https://teststore.public.blob.vercel-storage.com/icons/${iconImageId}/v2/apple-touch-icon.png`,
             sizes: '180x180'
           }
         ]

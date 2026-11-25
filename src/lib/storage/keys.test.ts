@@ -4,8 +4,7 @@ import {
   blobHostname,
   imageKey,
   keyFromUrl,
-  publicUrl,
-  storageProvider
+  publicUrl
 } from '@/lib/storage/keys'
 
 const originalEnv = process.env
@@ -14,10 +13,6 @@ const id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
 beforeEach(() => {
   process.env = {
     ...originalEnv,
-    STORAGE_PROVIDER: '',
-    AWS_S3_BUCKET_NAME: 'bucket',
-    AWS_S3_REGION: 'us-east-1',
-    REMOTE_IMAGE_HOSTNAME: '',
     BLOB_READ_WRITE_TOKEN: '',
     BLOB_STORE_ID: ''
   }
@@ -27,37 +22,7 @@ afterEach(() => {
   process.env = originalEnv
 })
 
-describe('storageProvider', () => {
-  it('defaults to S3 without a Blob token', () => {
-    expect(storageProvider()).toBe('s3')
-  })
-
-  it('defaults to Blob when a Blob token exists', () => {
-    process.env.BLOB_READ_WRITE_TOKEN = 'vercel_blob_rw_AbC123_secret'
-    expect(storageProvider()).toBe('blob')
-  })
-
-  it('prefers STORAGE_PROVIDER over the credentials', () => {
-    process.env.BLOB_READ_WRITE_TOKEN = 'vercel_blob_rw_AbC123_secret'
-    process.env.STORAGE_PROVIDER = 's3'
-    expect(storageProvider()).toBe('s3')
-  })
-
-  it('refuses an unknown provider', () => {
-    process.env.STORAGE_PROVIDER = 'r2'
-    expect(() => storageProvider()).toThrow(
-      'Unknown STORAGE_PROVIDER "r2"'
-    )
-  })
-})
-
 describe('publicUrl', () => {
-  it('builds an S3 URL from the bucket and region', () => {
-    expect(publicUrl('images/a.jpg')).toBe(
-      'https://bucket.s3.us-east-1.amazonaws.com/images/a.jpg'
-    )
-  })
-
   it('builds a Blob URL from the store id in the token', () => {
     process.env.BLOB_READ_WRITE_TOKEN = 'vercel_blob_rw_AbC123_secret'
     expect(blobHostname()).toBe(
@@ -68,10 +33,17 @@ describe('publicUrl', () => {
     )
   })
 
-  it('throws when the provider has no hostname', () => {
-    process.env.STORAGE_PROVIDER = 'blob'
+  it('prefers BLOB_STORE_ID over the token', () => {
+    process.env.BLOB_READ_WRITE_TOKEN = 'vercel_blob_rw_AbC123_secret'
+    process.env.BLOB_STORE_ID = 'store_Other9'
+    expect(publicUrl('images/a.jpg')).toBe(
+      'https://other9.public.blob.vercel-storage.com/images/a.jpg'
+    )
+  })
+
+  it('throws when there is no store', () => {
     expect(() => publicUrl('images/a.jpg')).toThrow(
-      'No public hostname for blob storage'
+      'No Blob store host'
     )
   })
 })
@@ -105,7 +77,7 @@ describe('imageSchema url', () => {
     url: 'https://old.example/images/IMG_0001.jpg'
   }
 
-  it('derives the url from the id and format on the active provider', () => {
+  it('derives the url from the id and format from the Blob store', () => {
     process.env.BLOB_READ_WRITE_TOKEN = 'vercel_blob_rw_AbC123_secret'
     expect(imageSchema.parse({ ...row, format: 'jpeg' }).url).toBe(
       `https://abc123.public.blob.vercel-storage.com/images/${id}.jpg`

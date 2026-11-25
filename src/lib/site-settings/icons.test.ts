@@ -14,7 +14,7 @@ const mockSql = jest.mocked(sql)
 const mockPut = jest.fn()
 jest.mock('@/lib/storage', () => ({
   storageAdapter: () => ({
-    provider: 's3',
+    provider: 'blob',
     put: mockPut,
     publicUrl: (key: string) => `https://bucket.example/${key}`
   })

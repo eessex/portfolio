@@ -12,12 +12,8 @@ process.env.TZ = 'UTC'
 // Fixed storage env, so image URLs don't depend on a local .env (CI
 // has none). Set before next/jest loads .env, which won't override
 // a set variable, so blank rather than delete the rest.
-process.env.STORAGE_PROVIDER = 's3'
-process.env.AWS_S3_BUCKET_NAME = 'test-bucket'
-process.env.AWS_S3_REGION = 'us-east-1'
-process.env.REMOTE_IMAGE_HOSTNAME = ''
 process.env.BLOB_STORE_ID = ''
-process.env.BLOB_READ_WRITE_TOKEN = ''
+process.env.BLOB_READ_WRITE_TOKEN = 'vercel_blob_rw_teststore_secret'
 
 const createJestConfig = nextJest({ dir: './' })
 

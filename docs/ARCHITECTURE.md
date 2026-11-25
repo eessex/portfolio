@@ -13,7 +13,7 @@ to a site owner, see [USING.md](USING.md).
 
 ```
 scripts/migrate.ts      migration runner (logic in scripts/migrate/)
-scripts/copy-storage.ts, backfill-image-variants.ts, migrate-mongo.ts  one-off data scripts
+scripts/backfill-image-variants.ts  one-off data script
 scripts/reset-password.ts  last-resort reset link for a locked-out admin
 src/app/                routes: public pages, (item-pages), /dashboard, /api, /login
 src/auth.ts             next-auth credentials provider
@@ -56,7 +56,7 @@ DB rows are `snake_case`. Everything that reaches the client is converted to `ca
 
 These four account actions live in `src/lib/users/actions.ts`.
 
-**Images.** The save action reads each upload with `sharp` (JPEG, PNG, WebP or GIF, at least 600px on the short edge), issues the image's id and stores the original at `images/{id}.{ext}` (`src/lib/images/upload.ts`). New files are capped at 4 MB per save, since they go through a server action. Each upload also gets WebP variants at the served widths and a blur placeholder (`src/lib/images/variants.ts`), which `StoredImage` serves straight from storage. Images without variants fall back to the Next.js optimizer until `pnpm run backfill-image-variants` writes them. Storage sits behind one interface (`src/lib/storage/`) with a Blob adapter and a deprecated S3 adapter, kept only for migrating older instances; `publicUrl` is the only code that knows a storage host, so image URLs are derived from the id and format rather than stored. An image's file never changes after upload. Moving an S3 instance to Blob is `pnpm run copy-storage --to blob`, then setting `STORAGE_PROVIDER=blob` (or unsetting it) and redeploying.
+**Images.** The save action reads each upload with `sharp` (JPEG, PNG, WebP or GIF, at least 600px on the short edge), issues the image's id and stores the original at `images/{id}.{ext}` (`src/lib/images/upload.ts`). New files are capped at 4 MB per save, since they go through a server action. Each upload also gets WebP variants at the served widths and a blur placeholder (`src/lib/images/variants.ts`), which `StoredImage` serves straight from storage. Images without variants fall back to the Next.js optimizer until `pnpm run backfill-image-variants` writes them. Storage sits behind one interface (`src/lib/storage/`) with a Blob adapter; `publicUrl` is the only code that knows a storage host, so image URLs are derived from the id and format rather than stored. An image's file never changes after upload.
 
 **Embed codes.** When you paste an embed (SoundCloud, Mixcloud, YouTube, and so on), the server resolves its oEmbed metadata (`src/lib/embed-codes/oembed.ts`). It then generates a cover image with `sharp` and stores it. The embed's title is always derived by the system and can't be edited.
 

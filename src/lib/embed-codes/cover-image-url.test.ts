@@ -10,10 +10,8 @@ const originalEnv = process.env
 beforeEach(() => {
   process.env = {
     ...originalEnv,
-    STORAGE_PROVIDER: 's3',
-    AWS_S3_BUCKET_NAME: 'bucket',
-    AWS_S3_REGION: 'us-east-1',
-    REMOTE_IMAGE_HOSTNAME: ''
+    BLOB_READ_WRITE_TOKEN: 'vercel_blob_rw_bucket_secret',
+    BLOB_STORE_ID: ''
   }
 })
 
@@ -24,13 +22,13 @@ afterEach(() => {
 describe('coverImageUrlFromId', () => {
   it('builds the full-size url by default', () => {
     expect(coverImageUrlFromId('abc-123')).toEqual(
-      'https://bucket.s3.us-east-1.amazonaws.com/embedCodeCoverImages/abc-123.jpg'
+      'https://bucket.public.blob.vercel-storage.com/embedCodeCoverImages/abc-123.jpg'
     )
   })
 
   it('builds a resized url with a numeric size suffix', () => {
     expect(coverImageUrlFromId('abc-123', 32)).toEqual(
-      'https://bucket.s3.us-east-1.amazonaws.com/embedCodeCoverImages/abc-123_32.jpg'
+      'https://bucket.public.blob.vercel-storage.com/embedCodeCoverImages/abc-123_32.jpg'
     )
   })
 })
@@ -47,7 +45,7 @@ describe('isCoverImageThumbnailUrl', () => {
     ).toBe(false)
     expect(
       isCoverImageThumbnailUrl(
-        'https://bucket.s3.us-east-1.amazonaws.com/images/photo_96.jpg'
+        'https://bucket.public.blob.vercel-storage.com/images/photo_96.jpg'
       )
     ).toBe(false)
   })
@@ -58,9 +56,9 @@ describe('withCoverImageUrls', () => {
     expect(withCoverImageUrls({ coverImageId: 'abc-123' })).toEqual({
       coverImageId: 'abc-123',
       coverImageUrl:
-        'https://bucket.s3.us-east-1.amazonaws.com/embedCodeCoverImages/abc-123.jpg',
+        'https://bucket.public.blob.vercel-storage.com/embedCodeCoverImages/abc-123.jpg',
       coverImageThumbnailUrl:
-        'https://bucket.s3.us-east-1.amazonaws.com/embedCodeCoverImages/abc-123_96.jpg'
+        'https://bucket.public.blob.vercel-storage.com/embedCodeCoverImages/abc-123_96.jpg'
     })
   })
 

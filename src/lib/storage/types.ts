@@ -1,12 +1,9 @@
-import type { StorageProvider } from '@/lib/storage/keys'
-
 /**
- * One storage provider. Every adapter writes the same keys, so
- * `images/{id}.jpg` is the same name on S3 and on Blob, and switching
- * provider is a file copy plus an env change.
+ * The file store (Vercel Blob). Files are named by key, e.g.
+ * `images/{id}.jpg`.
  */
 export interface StorageAdapter {
-  provider: StorageProvider
+  provider: 'blob'
   /**
    * Writes a new file. Never replaces one, since keys are unique per
    * file, unless `isOverwriteAllowed`: a variant can be regenerated.
@@ -18,7 +15,7 @@ export interface StorageAdapter {
     options?: { isOverwriteAllowed?: boolean }
   ): Promise<void>
   delete(key: string): Promise<void>
-  /** Every key under a prefix, for copying between providers. */
+  /** Every key under a prefix. */
   list(prefix: string): AsyncIterable<string>
   publicUrl(key: string): string
 }

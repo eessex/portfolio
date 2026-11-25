@@ -78,7 +78,7 @@ async function main() {
   )
   if (skipped[0]?.n) {
     console.warn(
-      `${skipped[0].n} images have no format; run copy-storage --rename-only first`
+      `${skipped[0].n} images have no format and are skipped`
     )
   }
 

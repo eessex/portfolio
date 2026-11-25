@@ -14,7 +14,7 @@ const mockPut = jest.fn()
 const mockDelete = jest.fn()
 jest.mock('@/lib/storage', () => ({
   storageAdapter: () => ({
-    provider: 's3',
+    provider: 'blob',
     put: mockPut,
     delete: mockDelete,
     publicUrl: (key: string) => `https://bucket.example/${key}`
@@ -25,10 +25,8 @@ const originalEnv = process.env
 beforeEach(() => {
   process.env = {
     ...originalEnv,
-    STORAGE_PROVIDER: 's3',
-    AWS_S3_BUCKET_NAME: 'bucket',
-    AWS_S3_REGION: 'us-east-1',
-    REMOTE_IMAGE_HOSTNAME: ''
+    BLOB_READ_WRITE_TOKEN: 'vercel_blob_rw_bucket_secret',
+    BLOB_STORE_ID: ''
   }
 })
 afterEach(() => {
@@ -356,7 +354,7 @@ describe('deleteImageFile', () => {
   it('deletes an older row by its stored url on the active provider', async () => {
     await deleteImageFile({
       id,
-      url: 'https://bucket.s3.us-east-1.amazonaws.com/images/IMG%200001.jpg'
+      url: 'https://bucket.public.blob.vercel-storage.com/images/IMG%200001.jpg'
     })
     expect(mockDelete).toHaveBeenCalledWith('images/IMG 0001.jpg')
   })

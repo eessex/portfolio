@@ -12,6 +12,7 @@ import { FormPageLayout } from '@/ui/form/form-page-layout'
 import { Loading } from '@/ui/loading'
 import type { NavItemStatuses } from '@/ui/nav/nav-items-fields'
 import { fetchNavItemStatus } from '@/ui/nav/nav-status'
+import { VersionNotice } from '@/ui/settings/version-notice'
 
 const title = 'Site settings'
 export const metadata: Metadata = { title }
@@ -60,6 +61,11 @@ export default async function SettingsPage() {
             </>
           )}
         </Suspense>
+        {settings && (
+          <Suspense>
+            <VersionNotice />
+          </Suspense>
+        )}
       </div>
     </FormPageLayout>
   )

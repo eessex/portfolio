@@ -1,0 +1,5 @@
+@use '@/ui/styles/grids';
+
+.version-notice {
+  margin-block: grids.space-rem(6) 0;
+}
